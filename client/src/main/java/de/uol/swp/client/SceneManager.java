@@ -297,6 +297,7 @@ public class SceneManager {
      */
     public void showLoginScreen() {
         showScene(loginScene,"Login");
+
     }
 
     /**
