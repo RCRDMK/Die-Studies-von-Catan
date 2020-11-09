@@ -9,6 +9,7 @@ import de.uol.swp.client.di.ClientModule;
 import de.uol.swp.client.user.ClientUserService;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.exception.RegistrationExceptionMessage;
+import de.uol.swp.common.user.request.LogoutRequest;
 import de.uol.swp.common.user.response.LoginSuccessfulResponse;
 import de.uol.swp.common.user.response.RegistrationSuccessfulResponse;
 import io.netty.channel.Channel;
@@ -147,6 +148,12 @@ public class ClientApp extends Application implements ConnectionListener {
 		LOG.debug("user logged in successfully " + message.getUser().getUsername());
 		this.user = message.getUser();
 		sceneManager.showMainScreen(user);
+	}
+
+	@Subscribe
+	public void userLoggedOut(LogoutRequest message){
+		LOG.debug("user logged out ");
+		sceneManager.showLoginScreen();
 	}
 
 	/**

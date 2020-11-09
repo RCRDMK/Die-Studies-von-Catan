@@ -179,5 +179,10 @@ public class MainMenuPresenter extends AbstractPresenter {
         lobbyService.joinLobby("test", new UserDTO("ich", "", ""));
     }
 
+    @FXML
+    void onLogout(ActionEvent event){
+        userService.logout(this.loggedInUser);
+
+    }
 
 }
