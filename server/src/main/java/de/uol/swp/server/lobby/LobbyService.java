@@ -77,16 +77,11 @@ public class LobbyService extends AbstractService {
         Optional<Lobby> lobby = lobbyManagement.getLobby(lobbyJoinUserRequest.getName());
 
         if (lobby.isPresent()) {
-            if (lobbyJoinUserRequest.getName().equals(lobbyJoinUserRequest.getUser().toString())) {
                 lobby.get().joinUser(lobbyJoinUserRequest.getUser());
                 sendToAllInLobby(lobbyJoinUserRequest.getName(), new UserJoinedLobbyMessage(lobbyJoinUserRequest.getName(), lobbyJoinUserRequest.getUser()));
-            } else {
-                throw new LobbyManagementException("Username unknown!");
-            }
         } else {
             throw new LobbyManagementException("Lobby unknown!");
         }
-
     }
 
     /**
