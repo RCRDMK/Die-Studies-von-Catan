@@ -7,6 +7,7 @@ import com.google.inject.Injector;
 import com.google.inject.assistedinject.Assisted;
 import de.uol.swp.client.auth.LoginPresenter;
 import de.uol.swp.client.auth.events.ShowLoginViewEvent;
+import de.uol.swp.client.lobby.LobbyPresenter;
 import de.uol.swp.client.main.MainMenuPresenter;
 import de.uol.swp.client.register.RegistrationPresenter;
 import de.uol.swp.client.register.event.RegistrationCanceledEvent;
@@ -65,6 +66,7 @@ public class SceneManager {
         initLoginView();
         initMainView();
         initRegistrationView();
+        initLobbyView();
     }
 
     /**
@@ -143,6 +145,14 @@ public class SceneManager {
             Parent rootPane = initPresenter(RegistrationPresenter.fxml);
             registrationScene = new Scene(rootPane, 400, 200);
             registrationScene.getStylesheets().add(styleSheet);
+        }
+    }
+
+    private void initLobbyView() {
+        if (lobbyScene == null) {
+            Parent rootPane = initPresenter(LobbyPresenter.fxml);
+            lobbyScene = new Scene(rootPane, 800, 600);
+            lobbyScene.getStylesheets().add(styleSheet);
         }
     }
 
@@ -315,7 +325,7 @@ public class SceneManager {
     }
 
 
-    public void showLobbyScreen() {
+    public void showLobbyScreen(User currentUser) {
         showScene(lobbyScene, "Lobby");
     }
 

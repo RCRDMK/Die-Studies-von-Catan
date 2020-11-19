@@ -3,10 +3,12 @@ package de.uol.swp.client.lobby;
 import com.google.common.eventbus.Subscribe;
 import de.uol.swp.client.AbstractPresenter;
 import de.uol.swp.client.main.MainMenuPresenter;
+import de.uol.swp.common.lobby.message.LobbyCreatedMessage;
 import de.uol.swp.common.lobby.message.UserJoinedLobbyMessage;
 import de.uol.swp.common.lobby.message.UserLeftLobbyMessage;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
+import de.uol.swp.common.user.message.UserLoggedInMessage;
 import de.uol.swp.common.user.response.AllOnlineUsersResponse;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -42,11 +44,27 @@ public class LobbyPresenter extends AbstractPresenter {
     @FXML
     private ListView<String> lobbyUsersView;
 
+    @Subscribe
+    public void newUser(UserLoggedInMessage message) {
 
+        LOG.debug("New user " + message.getUsername() + " joined lobby");
+        Platform.runLater(() -> {
+            if (lobbyUsers != null && joinedLobbyUser != null && !joinedLobbyUser.getUsername().equals(message.getUsername()))
+                lobbyUsers.add(message.getUsername());
+        });
+    }
+
+
+    @Subscribe
+    public void userList(LobbyCreatedMessage lobbyCreatedMessage) {
+        LOG.debug("Update of user list " + lobbyCreatedMessage.getUsers());
+        updateUsersList(lobbyCreatedMessage.getUsers());
+    } //TODO:
 
     @Subscribe
     public void userList(UserJoinedLobbyMessage userJoinedLobbyMessage) {
         LOG.debug("Update of user list " + userJoinedLobbyMessage.getUsers());
+
         updateUsersList(userJoinedLobbyMessage.getUsers());
     } //TODO:
 

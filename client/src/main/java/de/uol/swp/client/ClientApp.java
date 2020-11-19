@@ -8,7 +8,9 @@ import com.google.inject.Injector;
 import de.uol.swp.client.di.ClientModule;
 import de.uol.swp.client.user.ClientUserService;
 import de.uol.swp.common.lobby.message.CreateLobbyRequest;
+import de.uol.swp.common.lobby.message.LobbyCreatedMessage;
 import de.uol.swp.common.lobby.message.LobbyJoinUserRequest;
+import de.uol.swp.common.lobby.message.UserJoinedLobbyMessage;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.exception.RegistrationExceptionMessage;
 import de.uol.swp.common.user.request.LogoutRequest;
@@ -159,16 +161,18 @@ public class ClientApp extends Application implements ConnectionListener {
 	}
 
 	@Subscribe
-	public void userCreatedLobby(CreateLobbyRequest message){
+	public void userCreatedLobby(LobbyCreatedMessage message){
 		LOG.debug("user created lobby ");
-		sceneManager.showLobbyScreen();
+		this.user = message.getUser();
+		sceneManager.showLobbyScreen(user);
 	}
 
 	@Subscribe
-	public void userJoinedLobby(LobbyJoinUserRequest message){
+	public void userJoinedLobby(UserJoinedLobbyMessage message){
 		//TODO:
 		LOG.debug("user joined lobby ");
-		sceneManager.showLobbyScreen();
+		this.user = message.getUser();
+		sceneManager.showLobbyScreen(user);
 	}
 
 	/**

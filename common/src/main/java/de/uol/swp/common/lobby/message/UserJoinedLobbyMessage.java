@@ -40,4 +40,5 @@ public class UserJoinedLobbyMessage extends AbstractLobbyMessage {
     public List<UserDTO> getUsers() {
         return users;
     }
+    //TODO: Genauso wie bei UserLoginMessage implementieren
 }
