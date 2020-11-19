@@ -11,6 +11,7 @@ import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.server.AbstractService;
 import de.uol.swp.server.usermanagement.AuthenticationService;
+
 import java.util.Optional;
 
 /**
@@ -103,8 +104,9 @@ public class LobbyService extends AbstractService {
         if (lobby.isPresent()) {
             lobby.get().leaveUser(lobbyLeaveUserRequest.getUser());
             sendToAllInLobby(lobbyLeaveUserRequest.getName(), new UserLeftLobbyMessage(lobbyLeaveUserRequest.getName(), lobbyLeaveUserRequest.getUser()));
+        }else{
+            throw new LobbyManagementException("Lobby unknown!");
         }
-        // TODO: error handling not existing lobby
     }
 
     /**
