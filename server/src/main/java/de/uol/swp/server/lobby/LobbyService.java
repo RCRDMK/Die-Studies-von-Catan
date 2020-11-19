@@ -11,7 +11,6 @@ import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.server.AbstractService;
 import de.uol.swp.server.usermanagement.AuthenticationService;
-
 import java.util.Optional;
 
 /**
@@ -78,10 +77,16 @@ public class LobbyService extends AbstractService {
         Optional<Lobby> lobby = lobbyManagement.getLobby(lobbyJoinUserRequest.getName());
 
         if (lobby.isPresent()) {
-            lobby.get().joinUser(lobbyJoinUserRequest.getUser());
-            sendToAllInLobby(lobbyJoinUserRequest.getName(), new UserJoinedLobbyMessage(lobbyJoinUserRequest.getName(), lobbyJoinUserRequest.getUser()));
+            if (lobbyJoinUserRequest.getName().equals(lobbyJoinUserRequest.getUser().toString())) {
+                lobby.get().joinUser(lobbyJoinUserRequest.getUser());
+                sendToAllInLobby(lobbyJoinUserRequest.getName(), new UserJoinedLobbyMessage(lobbyJoinUserRequest.getName(), lobbyJoinUserRequest.getUser()));
+            } else {
+                throw new LobbyManagementException("Username unknown!");
+            }
+        } else {
+            throw new LobbyManagementException("Lobby unknown!");
         }
-        // TODO: error handling not existing lobby
+
     }
 
     /**
@@ -122,9 +127,9 @@ public class LobbyService extends AbstractService {
         if (lobby.isPresent()) {
             message.setReceiver(authenticationService.getSessions(lobby.get().getUsers()));
             post(message);
+        }else {
+            throw new LobbyManagementException("Lobby unknown!");
         }
-
-        // TODO: error handling not existing lobby
     }
 
 }
