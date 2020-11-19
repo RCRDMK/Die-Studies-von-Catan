@@ -7,6 +7,8 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import de.uol.swp.client.di.ClientModule;
 import de.uol.swp.client.user.ClientUserService;
+import de.uol.swp.common.lobby.message.CreateLobbyRequest;
+import de.uol.swp.common.lobby.message.LobbyJoinUserRequest;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.exception.RegistrationExceptionMessage;
 import de.uol.swp.common.user.request.LogoutRequest;
@@ -154,6 +156,19 @@ public class ClientApp extends Application implements ConnectionListener {
 	public void userLoggedOut(LogoutRequest message){
 		LOG.debug("user logged out ");
 		sceneManager.showLoginScreen();
+	}
+
+	@Subscribe
+	public void userCreatedLobby(CreateLobbyRequest message){
+		LOG.debug("user created lobby ");
+		sceneManager.showLobbyScreen();
+	}
+
+	@Subscribe
+	public void userJoinedLobby(LobbyJoinUserRequest message){
+		//TODO:
+		LOG.debug("user joined lobby ");
+		sceneManager.showLobbyScreen();
 	}
 
 	/**
