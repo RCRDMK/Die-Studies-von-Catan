@@ -16,6 +16,8 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.ListView;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -37,7 +39,15 @@ public class MainMenuPresenter extends AbstractPresenter {
 
     private ObservableList<String> users;
 
+    private ObservableList<String> messages;
+
     private User loggedInUser;
+
+    @FXML
+    private TextArea textArea;
+
+    @FXML
+    private TextField textField;
 
     @Inject
     private LobbyService lobbyService;
@@ -121,6 +131,12 @@ public class MainMenuPresenter extends AbstractPresenter {
         updateUsersList(allUsersResponse.getUsers());
     }
 
+    @Subscribe
+    public void chatArea(ChatMessagesResponse chatMessagesResponse){
+        LOG.debug("Update chat area with new message "+ chatMessagesResponse.getMessages());
+        updateChat(chatMessagesResponse.getMessages());
+    }
+
     /**
      * Updates the main menus user list according to the list given
      *
@@ -147,6 +163,17 @@ public class MainMenuPresenter extends AbstractPresenter {
         });
     }
 
+    private void updateChat(List<String> messageList){
+        // Attention: This must be done on the FX Thread!
+        Platform.runLater(()->{
+            if(messages == null){
+                messages = FXCollections.observableArrayList();
+                textArea.insertText(0, String.valueOf(messages));
+            }
+            textArea.clear();
+            messageList.forEach(m -> messages.add(m));
+        });
+    }
     /**
      * Method called when the create lobby button is pressed
      *
@@ -159,9 +186,7 @@ public class MainMenuPresenter extends AbstractPresenter {
      * @since 2019-11-20
      */
     @FXML
-    void onCreateLobby(ActionEvent event) {
-        lobbyService.createNewLobby("test", new UserDTO("ich", "", ""));
-    }
+    void onCreateLobby(ActionEvent event){lobbyService.createNewLobby("test", new UserDTO("ich", "", "")); }
 
     /**
      * Method called when the join lobby button is pressed
@@ -182,7 +207,5 @@ public class MainMenuPresenter extends AbstractPresenter {
     @FXML
     void onLogout(ActionEvent event){
         userService.logout(this.loggedInUser);
-
     }
-
 }
