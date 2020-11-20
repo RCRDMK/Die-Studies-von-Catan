@@ -131,11 +131,11 @@ public class MainMenuPresenter extends AbstractPresenter {
         updateUsersList(allUsersResponse.getUsers());
     }
 
-    @Subscribe
+    /*@Subscribe
     public void chatArea(ChatMessagesResponse chatMessagesResponse){
         LOG.debug("Update chat area with new message "+ chatMessagesResponse.getMessages());
         updateChat(chatMessagesResponse.getMessages());
-    }
+    }*/
 
     /**
      * Updates the main menus user list according to the list given
@@ -208,4 +208,10 @@ public class MainMenuPresenter extends AbstractPresenter {
     void onLogout(ActionEvent event){
         userService.logout(this.loggedInUser);
     }
+
+    //To Do implement
+    /*@FXML
+    void onSendMessage(ActionEvent event) {
+        mainChatService.senMessage(textField.getCharacters());
+    }*/
 }
