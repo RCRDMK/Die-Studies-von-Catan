@@ -3,7 +3,10 @@ package de.uol.swp.client.main;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
+import de.uol.swp.client.chat.ChatService;
 import de.uol.swp.client.lobby.LobbyService;
+import de.uol.swp.common.chat.RequestChatMessage;
+import de.uol.swp.common.chat.ResponseChatMessage;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.user.message.UserLoggedInMessage;
@@ -21,6 +24,8 @@ import javafx.scene.control.TextField;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -47,10 +52,13 @@ public class MainMenuPresenter extends AbstractPresenter {
     private TextArea textArea;
 
     @FXML
-    private TextField textField;
+    private TextField inputField;
 
     @Inject
     private LobbyService lobbyService;
+
+    @Inject
+    private ChatService chatService;
 
     @FXML
     private ListView<String> usersView;
@@ -131,11 +139,15 @@ public class MainMenuPresenter extends AbstractPresenter {
         updateUsersList(allUsersResponse.getUsers());
     }
 
-    /*@Subscribe
-    public void chatArea(ChatMessagesResponse chatMessagesResponse){
-        LOG.debug("Update chat area with new message "+ chatMessagesResponse.getMessages());
-        updateChat(chatMessagesResponse.getMessages());
-    }*/
+    /**
+     * Updates the chat when a ResponseChatMessage was posted to the EventBus.
+     * @param message
+     */
+    @Subscribe
+    public void onResponseChatMessage(ResponseChatMessage message){
+        LOG.debug("Updated chat area with new message..");
+        updateChat(message);
+    }
 
     /**
      * Updates the main menus user list according to the list given
@@ -163,15 +175,21 @@ public class MainMenuPresenter extends AbstractPresenter {
         });
     }
 
-    private void updateChat(List<String> messageList){
+    /**
+     * Adds the ResponseChatMessage to the textArea
+     * @param msg
+     */
+    private void updateChat(ResponseChatMessage msg){
         // Attention: This must be done on the FX Thread!
         Platform.runLater(()->{
             if(messages == null){
                 messages = FXCollections.observableArrayList();
-                textArea.insertText(0, String.valueOf(messages));
             }
-            textArea.clear();
-            messageList.forEach(m -> messages.add(m));
+
+            var time =  new SimpleDateFormat("HH:mm");
+            Date resultdate = new Date((long) msg.getTime());
+            var readableTime = time.format(resultdate);
+            textArea.insertText(textArea.getLength(), readableTime +" " +msg.getUser() +": " + msg.getMessage() +"\n");
         });
     }
     /**
@@ -209,9 +227,29 @@ public class MainMenuPresenter extends AbstractPresenter {
         userService.logout(this.loggedInUser);
     }
 
-    //To Do implement
-    /*@FXML
+
+    /**
+     * Method called when the send Message button is pressed
+     *
+     * If the send Message button is pressed, this methods tries to request the chatService to send a specified message.
+     * The message is of type RequestChatMessage
+     * If this will result in an exception, go log the exception
+     *
+     * @param event The ActionEvent created by pressing the send Message button
+     * @see de.uol.swp.client.chat.ChatService
+     * @since 2020-11-22
+     */
+    @FXML
     void onSendMessage(ActionEvent event) {
-        mainChatService.senMessage(textField.getCharacters());
-    }*/
+        try{
+            var chatMessage = inputField.getCharacters().toString();
+            // ChatID = 0 means main chat
+            var chatId = 0;
+            RequestChatMessage message = new RequestChatMessage(chatMessage, chatId, loggedInUser.getUsername(), System.currentTimeMillis());
+            chatService.sendMessage(message);
+        }
+        catch(Exception e){
+            LOG.debug(e);
+        }
+    }
 }

@@ -1,8 +1,8 @@
 package de.uol.swp.common.chat;
 
-import de.uol.swp.common.message.AbstractMessage;
+import de.uol.swp.common.message.AbstractServerMessage;
 
-public class ResponseChatMessage extends AbstractMessage {
+public class ResponseChatMessage extends AbstractServerMessage {
     private final String message;
     private final int chat;
     private final String user;

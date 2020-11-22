@@ -1,8 +1,8 @@
 package de.uol.swp.common.chat;
 
-import de.uol.swp.common.message.AbstractMessage;
+import de.uol.swp.common.message.AbstractRequestMessage;
 
-public class RequestChatMessage extends AbstractMessage {
+public class RequestChatMessage extends AbstractRequestMessage {
     private final String message;
     private final int chat;
     private final String user;
@@ -13,6 +13,10 @@ public class RequestChatMessage extends AbstractMessage {
         this.message = message;
         this.time = time;
         this.chat = chat;
+    }
+
+    public String getMessage() {
+        return message;
     }
 
     public int getChat() {
