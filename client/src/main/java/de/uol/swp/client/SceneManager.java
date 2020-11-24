@@ -148,6 +148,16 @@ public class SceneManager {
         }
     }
 
+    /**
+     * Initializes the lobby view
+     * <p>
+     *  If the lobbyScene is null it gets set to a new scene containing the
+     *  a pane showing the lobby view as specified by the LobbyView
+     *  FXML file
+     *
+     * @see de.uol.swp.client.lobby.LobbyPresenter
+     * @since 2020-11-19
+     */
     private void initLobbyView() {
         if (lobbyScene == null) {
             Parent rootPane = initPresenter(LobbyPresenter.fxml);
@@ -324,9 +334,16 @@ public class SceneManager {
         showScene(registrationScene, "Registration");
     }
 
-
-    public void showLobbyScreen(User currentUser) {
-        showScene(lobbyScene, "Lobby");
+    /**
+     * Shows the lobby screen
+     * <p>
+     * Switches the current Scene to the lobbyScene and sets the title of
+     * the window to "Lobby"
+     *
+     * @since 2020-11-19
+     */
+    public void showLobbyScreen(User currentUser, String lobbyname) {
+        showScene(lobbyScene, "Lobby " + lobbyname );
     }
 
 

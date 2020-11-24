@@ -9,8 +9,11 @@ import de.uol.swp.common.lobby.message.*;
 import de.uol.swp.common.message.ServerMessage;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
+import de.uol.swp.common.user.response.LobbyCreatedSuccessfulResponse;
+import de.uol.swp.common.user.response.LoginSuccessfulResponse;
 import de.uol.swp.server.AbstractService;
 import de.uol.swp.server.usermanagement.AuthenticationService;
+import de.uol.swp.server.communication.ServerHandler;
 
 import java.util.Optional;
 
@@ -57,8 +60,11 @@ public class LobbyService extends AbstractService {
      */
     @Subscribe
     public void onCreateLobbyRequest(CreateLobbyRequest createLobbyRequest) {
-        lobbyManagement.createLobby(createLobbyRequest.getName(), createLobbyRequest.getOwner());
-        sendToAll(new LobbyCreatedMessage(createLobbyRequest.getName(), (UserDTO) createLobbyRequest.getOwner()));
+        lobbyManagement.createLobby(createLobbyRequest.getName(), createLobbyRequest.getUser());
+        sendToAll(new LobbyCreatedMessage(createLobbyRequest.getName(), createLobbyRequest.getUser()));
+        //die LobbyCreatedSuccessfulResonse funktioniert nicht und kommt nicht beim Client an.
+        //vermutlich muss das über Netty, bzw. über den ServerHandler geschehen, dass die Response beim richtigen Client ankommt
+        new LobbyCreatedSuccessfulResponse(createLobbyRequest.getName(), createLobbyRequest.getUser());
     }
 
     /**
