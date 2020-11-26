@@ -187,7 +187,7 @@ public class MainMenuPresenter extends AbstractPresenter {
             }
 
             var time =  new SimpleDateFormat("HH:mm");
-            Date resultdate = new Date((long) msg.getTime());
+            Date resultdate = new Date((long) msg.getTime().doubleValue());
             var readableTime = time.format(resultdate);
             textArea.insertText(textArea.getLength(), readableTime +" " +msg.getUser() +": " + msg.getMessage() +"\n");
         });
