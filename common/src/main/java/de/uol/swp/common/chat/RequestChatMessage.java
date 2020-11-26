@@ -27,7 +27,7 @@ public class RequestChatMessage extends AbstractRequestMessage {
         return user;
     }
 
-    public double getTime() {
+    public Double getTime() {
         return time;
     }
 }
