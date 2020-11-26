@@ -27,7 +27,7 @@ public class ResponseChatMessage extends AbstractServerMessage {
         return user;
     }
 
-    public double getTime() {
+    public Double getTime() {
         return time;
     }
 }
