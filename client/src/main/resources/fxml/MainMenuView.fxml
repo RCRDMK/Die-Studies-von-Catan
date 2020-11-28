@@ -9,6 +9,6 @@
         <Button layoutX="412.0" layoutY="49.0" mnemonicParsing="false" onAction="#onJoinLobby" text="JoinLobby" GridPane.columnIndex="1" GridPane.rowIndex="2" />
         <Button layoutX="546.0" layoutY="374.0" mnemonicParsing="false" onAction="#onLogout" text="Logout" GridPane.columnIndex="1" GridPane.rowIndex="3" />
         <TextArea fx:id="textArea" editable="false" layoutY="164.0" prefHeight="191.0" prefWidth="284.0" text="" GridPane.rowIndex="2">Test</TextArea>
-        <TextField fx:id="inputField" layoutY="355.0" prefHeight="25.0" prefWidth="207.0" text="" GridPane.rowIndex="3">Schicke eine Nachricht!</TextField>
+        <TextField fx:id="inputField" layoutY="355.0" prefHeight="25.0" prefWidth="207.0" onAction="#onSendMessage" text="" GridPane.rowIndex="3">Schicke eine Nachricht!</TextField>
         <Button layoutX="207.0" layoutY="355.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="77.0" onAction="#onSendMessage" text="Senden" />
 </AnchorPane>
