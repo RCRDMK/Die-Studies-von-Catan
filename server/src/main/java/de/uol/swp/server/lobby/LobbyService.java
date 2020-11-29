@@ -103,7 +103,7 @@ public class LobbyService extends AbstractService {
         if (lobby.isPresent()) {
             lobby.get().leaveUser(lobbyLeaveUserRequest.getUser());
             sendToAllInLobby(lobbyLeaveUserRequest.getName(), new UserLeftLobbyMessage(lobbyLeaveUserRequest.getName(), lobbyLeaveUserRequest.getUser()));
-            if (lobby.get().getUsers() != null) {
+            if (lobby.get().getUsers().isEmpty()) {
                 lobbyManagement.dropLobby(lobbyLeaveUserRequest.getName());
             }
         }
