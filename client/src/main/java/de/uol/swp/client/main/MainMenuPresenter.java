@@ -5,6 +5,7 @@ import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
 import de.uol.swp.client.chat.ChatService;
 import de.uol.swp.client.lobby.LobbyService;
+import de.uol.swp.common.lobby.message.LobbyCreatedMessage;
 import de.uol.swp.common.chat.RequestChatMessage;
 import de.uol.swp.common.chat.ResponseChatMessage;
 import de.uol.swp.common.user.User;
@@ -80,6 +81,10 @@ public class MainMenuPresenter extends AbstractPresenter {
         userService.retrieveAllUsers();
     }
 
+    @Subscribe
+    public void lobbyCreatedSuccessful(LobbyCreatedMessage message) {
+        LOG.debug("New lobby created by " + message.getUser().getUsername());
+    }
     /**
      * Handles new logged in users
      *
@@ -201,14 +206,16 @@ public class MainMenuPresenter extends AbstractPresenter {
      *
      * If the create lobby button is pressed, this method requests the lobby service
      * to create a new lobby. Therefore it currently uses the lobby name "test"
-     * and an user called "ich"
+     * and an user called whoever is the current logged in User that called that action
      *
      * @param event The ActionEvent created by pressing the create lobby button
      * @see de.uol.swp.client.lobby.LobbyService
      * @since 2019-11-20
      */
     @FXML
-    void onCreateLobby(ActionEvent event){lobbyService.createNewLobby("test", new UserDTO("ich", "", "")); }
+    void onCreateLobby(ActionEvent event) {
+        lobbyService.createNewLobby("test", (UserDTO) this.loggedInUser);
+    }
 
     /**
      * Method called when the join lobby button is pressed
@@ -259,4 +266,5 @@ public class MainMenuPresenter extends AbstractPresenter {
             LOG.debug(e);
         }
     }
+
 }

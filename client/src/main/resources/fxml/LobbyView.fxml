@@ -3,12 +3,11 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1"> <!--fx:controller="de.uol.swp.client.lobby.LobbyPresenter"-->
+<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.uol.swp.client.lobby.LobbyPresenter">
    <children>
-      <ListView fx:id="lobbyUsersView" prefHeight="181.0" prefWidth="276.0" />
-<!--      <Button layoutX="524.0" layoutY="366.0" mnemonicParsing="false" onAction="#onStartGame" text="Start Game" />
-      <Button layoutX="349.0" layoutY="366.0" mnemonicParsing="false" onAction="#onLeaveLobby" text="Leave Lobby" />-->
-      <TextArea layoutY="181.0" prefHeight="181.0" prefWidth="276.0" />
-      <TextField layoutY="362.0" prefHeight="25.0" prefWidth="184.0" />
+      <ListView fx:id="lobbyUsersView" prefHeight="200.0" prefWidth="200.0"/>
+      <Button layoutX="524.0" layoutY="366.0" mnemonicParsing="false" onAction="#onStartGame" text="Start Game" />
+      <Button layoutX="200.0" layoutY="366.0" mnemonicParsing="false" onAction="#onLeaveLobby" text="Leave Lobby" />
    </children>
+
 </AnchorPane>
