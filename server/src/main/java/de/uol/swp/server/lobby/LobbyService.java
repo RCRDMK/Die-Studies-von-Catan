@@ -6,9 +6,11 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.message.*;
+import de.uol.swp.common.message.MessageContext;
+import de.uol.swp.common.message.ResponseMessage;
 import de.uol.swp.common.message.ServerMessage;
 import de.uol.swp.common.user.User;
-import de.uol.swp.common.user.UserDTO;
+import de.uol.swp.common.user.response.LobbyCreatedSuccessfulResponse;
 import de.uol.swp.server.AbstractService;
 import de.uol.swp.server.usermanagement.AuthenticationService;
 
@@ -50,15 +52,25 @@ public class LobbyService extends AbstractService {
      * It creates a new Lobby via the LobbyManagement using the parameters from the
      * request and sends a LobbyCreatedMessage to every connected user
      *
+     * It also creates a LobbyCreatedSuccessfulResponse and sends it to the owner of the Lobby, by looking at the context
+     * of the createLobbyRequest
+     *
+     * Method was enhanced by Marc Hermes, 2020-11-25
+     *
      * @param createLobbyRequest The CreateLobbyRequest found on the EventBus
      * @see de.uol.swp.server.lobby.LobbyManagement#createLobby(String, User)
      * @see de.uol.swp.common.lobby.message.LobbyCreatedMessage
+     * @see de.uol.swp.common.user.response.LobbyCreatedSuccessfulResponse
      * @since 2019-10-08
      */
     @Subscribe
     public void onCreateLobbyRequest(CreateLobbyRequest createLobbyRequest) {
-        lobbyManagement.createLobby(createLobbyRequest.getName(), createLobbyRequest.getOwner());
-        sendToAll(new LobbyCreatedMessage(createLobbyRequest.getName(), (UserDTO) createLobbyRequest.getOwner()));
+        lobbyManagement.createLobby(createLobbyRequest.getName(), createLobbyRequest.getUser());
+        sendToAll(new LobbyCreatedMessage(createLobbyRequest.getName(), createLobbyRequest.getUser()));
+        if (createLobbyRequest.getMessageContext().isPresent()) {
+            Optional <MessageContext> ctx = createLobbyRequest.getMessageContext();
+            sendToOwner(ctx.get(), new LobbyCreatedSuccessfulResponse(createLobbyRequest.getName(), createLobbyRequest.getUser()));
+        }
     }
 
     /**
@@ -127,4 +139,18 @@ public class LobbyService extends AbstractService {
         // TODO: error handling not existing lobby
     }
 
+    /**
+     * Prepares a given ResponseMessage to be send to the owner of lobby and
+     * posts it on the EventBus
+     *
+     * @author Marc Hermes
+     * @param message the message to be send to the users
+     * @param ctx the context of the message, here the session of the owner of the lobby
+     * @see de.uol.swp.common.message.ResponseMessage
+     * @see de.uol.swp.common.message.MessageContext
+     * @since 2020-11-25
+     */
+    public void sendToOwner(MessageContext ctx, ResponseMessage message) {
+        ctx.writeAndFlush(message);
+    }
 }
