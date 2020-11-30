@@ -90,10 +90,11 @@ public class LobbyService extends AbstractService {
         Optional<Lobby> lobby = lobbyManagement.getLobby(lobbyJoinUserRequest.getName());
 
         if (lobby.isPresent()) {
-            lobby.get().joinUser(lobbyJoinUserRequest.getUser());
-            sendToAllInLobby(lobbyJoinUserRequest.getName(), new UserJoinedLobbyMessage(lobbyJoinUserRequest.getName(), lobbyJoinUserRequest.getUser()));
+                lobby.get().joinUser(lobbyJoinUserRequest.getUser());
+                sendToAllInLobby(lobbyJoinUserRequest.getName(), new UserJoinedLobbyMessage(lobbyJoinUserRequest.getName(), lobbyJoinUserRequest.getUser()));
+        } else {
+            throw new LobbyManagementException("Lobby unknown!");
         }
-        // TODO: error handling not existing lobby
     }
 
     /**
@@ -115,8 +116,9 @@ public class LobbyService extends AbstractService {
         if (lobby.isPresent()) {
             lobby.get().leaveUser(lobbyLeaveUserRequest.getUser());
             sendToAllInLobby(lobbyLeaveUserRequest.getName(), new UserLeftLobbyMessage(lobbyLeaveUserRequest.getName(), lobbyLeaveUserRequest.getUser()));
+        }else{
+            throw new LobbyManagementException("Lobby unknown!");
         }
-        // TODO: error handling not existing lobby
     }
 
     /**
@@ -134,9 +136,9 @@ public class LobbyService extends AbstractService {
         if (lobby.isPresent()) {
             message.setReceiver(authenticationService.getSessions(lobby.get().getUsers()));
             post(message);
+        }else {
+            throw new LobbyManagementException("Lobby unknown!");
         }
-
-        // TODO: error handling not existing lobby
     }
 
     /**
