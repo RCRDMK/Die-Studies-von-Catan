@@ -145,8 +145,12 @@ public class MainMenuPresenter extends AbstractPresenter {
      */
     @Subscribe
     public void onResponseChatMessage(ResponseChatMessage message){
-        LOG.debug("Updated chat area with new message..");
-        updateChat(message);
+        // Only update Messages from main chat
+        if(message.getChat() == 0){
+            LOG.debug("Updated chat area with new message..");
+            updateChat(message);
+        }
+
     }
 
     /**
