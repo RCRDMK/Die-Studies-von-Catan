@@ -6,6 +6,8 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.ListView;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -27,6 +29,8 @@ public class LobbyPresenter extends AbstractPresenter {
     public static final String fxml = "/fxml/LobbyView.fxml";
 
     private static final Logger LOG = LogManager.getLogger(LobbyPresenter.class);
+    public TextField lobbyChatInput;
+    public TextArea lobbyChatArea;
 
     private ObservableList<String> lobbyUsers;
 
@@ -42,6 +46,11 @@ public class LobbyPresenter extends AbstractPresenter {
 
     @FXML
     public void onLeaveLobby(ActionEvent event) {
+        //TODO:
+    }
+
+    @FXML
+    public void onSendMessage(ActionEvent event) {
         //TODO:
     }
 }
