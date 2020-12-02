@@ -3,7 +3,11 @@ package de.uol.swp.client.main;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
+import de.uol.swp.client.chat.ChatService;
 import de.uol.swp.client.lobby.LobbyService;
+import de.uol.swp.common.lobby.message.LobbyCreatedMessage;
+import de.uol.swp.common.chat.RequestChatMessage;
+import de.uol.swp.common.chat.ResponseChatMessage;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.user.message.UserLoggedInMessage;
@@ -16,9 +20,13 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.ListView;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -37,10 +45,21 @@ public class MainMenuPresenter extends AbstractPresenter {
 
     private ObservableList<String> users;
 
+    private ObservableList<String> messages;
+
     private User loggedInUser;
+
+    @FXML
+    private TextArea textArea;
+
+    @FXML
+    private TextField inputField;
 
     @Inject
     private LobbyService lobbyService;
+
+    @Inject
+    private ChatService chatService;
 
     @FXML
     private ListView<String> usersView;
@@ -62,6 +81,10 @@ public class MainMenuPresenter extends AbstractPresenter {
         userService.retrieveAllUsers();
     }
 
+    @Subscribe
+    public void lobbyCreatedSuccessful(LobbyCreatedMessage message) {
+        LOG.debug("New lobby created by " + message.getUser().getUsername());
+    }
     /**
      * Handles new logged in users
      *
@@ -122,6 +145,20 @@ public class MainMenuPresenter extends AbstractPresenter {
     }
 
     /**
+     * Updates the chat when a ResponseChatMessage was posted to the EventBus.
+     * @param message
+     */
+    @Subscribe
+    public void onResponseChatMessage(ResponseChatMessage message){
+        // Only update Messages from main chat
+        if(message.getChat() == 0){
+            LOG.debug("Updated chat area with new message..");
+            updateChat(message);
+        }
+
+    }
+
+    /**
      * Updates the main menus user list according to the list given
      *
      * This method clears the entire user list and then adds the name of each user
@@ -148,11 +185,28 @@ public class MainMenuPresenter extends AbstractPresenter {
     }
 
     /**
+     * Adds the ResponseChatMessage to the textArea
+     * @param msg
+     */
+    private void updateChat(ResponseChatMessage msg){
+        // Attention: This must be done on the FX Thread!
+        Platform.runLater(()->{
+            if(messages == null){
+                messages = FXCollections.observableArrayList();
+            }
+
+            var time =  new SimpleDateFormat("HH:mm");
+            Date resultdate = new Date((long) msg.getTime().doubleValue());
+            var readableTime = time.format(resultdate);
+            textArea.insertText(textArea.getLength(), readableTime +" " +msg.getUser() +": " + msg.getMessage() +"\n");
+        });
+    }
+    /**
      * Method called when the create lobby button is pressed
      *
      * If the create lobby button is pressed, this method requests the lobby service
      * to create a new lobby. Therefore it currently uses the lobby name "test"
-     * and an user called "ich"
+     * and an user called whoever is the current logged in User that called that action
      *
      * @param event The ActionEvent created by pressing the create lobby button
      * @see de.uol.swp.client.lobby.LobbyService
@@ -160,7 +214,7 @@ public class MainMenuPresenter extends AbstractPresenter {
      */
     @FXML
     void onCreateLobby(ActionEvent event) {
-        lobbyService.createNewLobby("test", new UserDTO("ich", "", ""));
+        lobbyService.createNewLobby("test", (UserDTO) this.loggedInUser);
     }
 
     /**
@@ -179,5 +233,38 @@ public class MainMenuPresenter extends AbstractPresenter {
         lobbyService.joinLobby("test", new UserDTO("ich", "", ""));
     }
 
+    @FXML
+    void onLogout(ActionEvent event){
+        userService.logout(this.loggedInUser);
+    }
+
+
+    /**
+     * Method called when the send Message button is pressed
+     *
+     * If the send Message button is pressed, this methods tries to request the chatService to send a specified message.
+     * The message is of type RequestChatMessage
+     * If this will result in an exception, go log the exception
+     *
+     * @param event The ActionEvent created by pressing the send Message button
+     * @see de.uol.swp.client.chat.ChatService
+     * @since 2020-11-22
+     */
+    @FXML
+    void onSendMessage(ActionEvent event) {
+        try{
+            var chatMessage = inputField.getCharacters().toString();
+            // ChatID = 0 means main chat
+            var chatId = 0;
+            if(!chatMessage.isEmpty()){
+                RequestChatMessage message = new RequestChatMessage(chatMessage, chatId, loggedInUser.getUsername(), System.currentTimeMillis());
+                chatService.sendMessage(message);
+            }
+            this.inputField.setText("");
+        }
+        catch(Exception e){
+            LOG.debug(e);
+        }
+    }
 
 }
