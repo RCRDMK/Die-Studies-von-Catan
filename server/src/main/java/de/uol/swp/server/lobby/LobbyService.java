@@ -9,11 +9,14 @@ import de.uol.swp.common.lobby.message.*;
 import de.uol.swp.common.message.MessageContext;
 import de.uol.swp.common.message.ResponseMessage;
 import de.uol.swp.common.message.ServerMessage;
+import de.uol.swp.common.user.Session;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.response.LobbyCreatedSuccessfulResponse;
+import de.uol.swp.common.user.response.AllThisLobbyUsersResponse;
 import de.uol.swp.server.AbstractService;
 import de.uol.swp.server.usermanagement.AuthenticationService;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -125,6 +128,30 @@ public class LobbyService extends AbstractService {
     }
 
     /**
+     * Handles RetrieveAllThisLobbyUsersRequests found on the EventBus
+     *
+     * If a RetrieveAllThisLobbyUsersRequests is detected on the EventBus, this method is called.
+     * It prepares the sending of a AllThisLobbyUsersResponse for a Lobby stored in the LobbyManagement
+     *
+     * @param retrieveAllThisLobbyUsersRequest The RetrieveAllThisLobbyUsersRequest found on the EventBus
+     * @see de.uol.swp.common.lobby.Lobby
+     * @since 2020-12-02
+     */
+    @Subscribe
+    public void onRetrieveAllThisLobbyUsersRequest(RetrieveAllThisLobbyUsersRequest retrieveAllThisLobbyUsersRequest) {
+        System.out.println("ist bei lobbyservice(server) angekommen, empfing Request");
+        Optional<Lobby> lobby = lobbyManagement.getLobby(retrieveAllThisLobbyUsersRequest.getName());
+
+        if (lobby.isPresent()) {
+            List<Session> lobbyUsers = authenticationService.getSessions(lobby.get().getUsers());
+            sendToAllInLobby(retrieveAllThisLobbyUsersRequest.getName(), new AllThisLobbyUsersResponse(lobbyUsers));
+            System.out.println("ist weiter gekommen");
+
+        }
+        System.out.println("ist weiter gekommen2");
+    }
+
+    /**
      * Prepares a given ServerMessage to be send to all players in the lobby and
      * posts it on the EventBus
      *
@@ -134,11 +161,13 @@ public class LobbyService extends AbstractService {
      * @since 2019-10-08
      */
     public void sendToAllInLobby(String lobbyName, ServerMessage message) {
+        System.out.println("ist bei sendToAllInLobby angekommen");
         Optional<Lobby> lobby = lobbyManagement.getLobby(lobbyName);
 
         if (lobby.isPresent()) {
             message.setReceiver(authenticationService.getSessions(lobby.get().getUsers()));
             post(message);
+            System.out.println("Hat die Message gepostet");
         }else {
             throw new LobbyManagementException("Lobby unknown!");
         }
@@ -158,4 +187,5 @@ public class LobbyService extends AbstractService {
     public void sendToOwner(MessageContext ctx, ResponseMessage message) {
         ctx.writeAndFlush(message);
     }
+
 }

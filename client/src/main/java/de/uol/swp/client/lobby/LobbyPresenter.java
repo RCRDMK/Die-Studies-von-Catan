@@ -1,7 +1,14 @@
 package de.uol.swp.client.lobby;
 
+import com.google.common.eventbus.Subscribe;
+import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
+import de.uol.swp.common.user.response.AllThisLobbyUsersResponse;
 import de.uol.swp.common.user.User;
+import de.uol.swp.common.user.UserDTO;
+import de.uol.swp.common.user.response.LobbyCreatedSuccessfulResponse;
+import javafx.application.Platform;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -9,6 +16,7 @@ import javafx.scene.control.ListView;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.List;
 
 
 /**
@@ -32,6 +40,9 @@ public class LobbyPresenter extends AbstractPresenter {
 
     private User joinedLobbyUser;
 
+    @Inject
+    private LobbyService lobbyService;
+
     @FXML
     private ListView<String> lobbyUsersView;
 
@@ -43,5 +54,69 @@ public class LobbyPresenter extends AbstractPresenter {
     @FXML
     public void onLeaveLobby(ActionEvent event) {
         //TODO:
+    }
+
+    /**
+     * Handles successful login
+     *
+     * If a LoginSuccessfulResponse is posted to the EventBus the loggedInUser
+     * of this client is set to the one in the message received and the full
+     * list of users currently logged in is requested.
+     *
+     * @param message the LoginSuccessfulResponse object seen on the EventBus
+     * @see de.uol.swp.common.user.response.LoginSuccessfulResponse
+     * @since 2019-09-05
+     */
+    @Subscribe
+    public void createdSuccessful(LobbyCreatedSuccessfulResponse message) {
+        LOG.debug("führt createdSuccessful aus");
+        this.joinedLobbyUser = message.getUser();
+        lobbyService.retrieveAllThisLobbyUsers(message.getName());
+    }
+
+    /**
+     * Handles new list of users
+     *
+     * If a new AllThisLobbyUsersResponse object is posted to the EventBus the names
+     * of users currently in this lobby are put onto the user list in the lobby menu.
+     * Furthermore if the LOG-Level is set to DEBUG the message "Update of user
+     * list" with the names of all current users in the lobby is displayed in the
+     * log.
+     *
+     * @param allThisLobbyUsersResponse the AllThisLobbyUsersResponse object seen on the EventBus
+     * @see AllThisLobbyUsersResponse
+     * @since 2020-12-02
+     */
+    @Subscribe
+    public void lobbyUserList(AllThisLobbyUsersResponse allThisLobbyUsersResponse) {
+        System.out.println("Empfing die Response" + allThisLobbyUsersResponse.getUsers());
+        LOG.debug("Update of user list " + allThisLobbyUsersResponse.getUsers());
+        updateLobbyUsersList(allThisLobbyUsersResponse.getUsers());
+    }
+
+    /**
+     * Updates the main menus user list according to the list given
+     *
+     * This method clears the entire user list and then adds the name of each user
+     * in the list given to the main menus user list. If there ist no user list
+     * this it creates one.
+     *
+     * @implNote The code inside this Method has to run in the JavaFX-application
+     * thread. Therefore it is crucial not to remove the {@code Platform.runLater()}
+     * @param lobbyUserList A list of UserDTO objects including all currently logged in
+     *                 users
+     * @see de.uol.swp.common.user.UserDTO
+     * @since 2019-08-29
+     */
+    private void updateLobbyUsersList(List<UserDTO> lobbyUserList) {
+        // Attention: This must be done on the FX Thread!
+        Platform.runLater(() -> {
+            if (lobbyUsers == null) {
+                lobbyUsers = FXCollections.observableArrayList();
+                lobbyUsersView.setItems(lobbyUsers);
+            }
+            lobbyUsers.clear();
+            lobbyUserList.forEach(u -> lobbyUsers.add(u.getUsername()));
+        });
     }
 }
