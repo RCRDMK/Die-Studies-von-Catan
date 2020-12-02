@@ -4,6 +4,7 @@ import com.google.common.eventbus.EventBus;
 import com.google.inject.Inject;
 import de.uol.swp.common.lobby.message.CreateLobbyRequest;
 import de.uol.swp.common.lobby.message.LobbyJoinUserRequest;
+import de.uol.swp.common.lobby.message.LobbyLeaveUserRequest;
 import de.uol.swp.common.user.UserDTO;
 
 /**
@@ -55,5 +56,10 @@ public class LobbyService {
     public void joinLobby(String name, UserDTO user) {
         LobbyJoinUserRequest joinUserRequest = new LobbyJoinUserRequest(name, user);
         eventBus.post(joinUserRequest);
+    }
+
+    public void leaveLobby(String name, UserDTO user) {
+        LobbyLeaveUserRequest leaveUserRequest = new LobbyLeaveUserRequest(name, user);
+        eventBus.post(leaveUserRequest);
     }
 }

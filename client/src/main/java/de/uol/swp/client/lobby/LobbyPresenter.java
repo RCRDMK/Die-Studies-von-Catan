@@ -1,7 +1,10 @@
 package de.uol.swp.client.lobby;
 
 import de.uol.swp.client.AbstractPresenter;
+import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.user.User;
+import de.uol.swp.common.user.UserDTO;
+import de.uol.swp.client.lobby.LobbyService;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -9,6 +12,7 @@ import javafx.scene.control.ListView;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import javax.inject.Inject;
 
 
 /**
@@ -17,7 +21,6 @@ import org.apache.logging.log4j.Logger;
  * @author Ricardo Mook, Marc Hermes
  * @see de.uol.swp.client.AbstractPresenter
  * @since 2020-11-19
- *
  */
 
 //Class was build exactly like MainMenuPresenter. Only ActionEvents were added
@@ -30,7 +33,14 @@ public class LobbyPresenter extends AbstractPresenter {
 
     private ObservableList<String> lobbyUsers;
 
-    private User joinedLobbyUser;
+    @Inject
+    private UserDTO joinedLobbyUser;
+
+
+    private String currentLobby;
+
+
+    private LobbyService lobbyService;
 
     @FXML
     private ListView<String> lobbyUsersView;
@@ -42,6 +52,7 @@ public class LobbyPresenter extends AbstractPresenter {
 
     @FXML
     public void onLeaveLobby(ActionEvent event) {
-        //TODO:
+        lobbyService.leaveLobby(this.currentLobby, (UserDTO) this.joinedLobbyUser);
     }
+
 }
