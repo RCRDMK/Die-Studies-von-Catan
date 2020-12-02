@@ -231,9 +231,9 @@ public class MainMenuPresenter extends AbstractPresenter {
      * and an user called whoever is the current logged in User that called that action
      *
      *
-     * Enhanced the Method. The logged in User can create a lobby with a customized name and a query,
-     * that checks if the name is null, empty or blank. If the name of the lobby is either blank, null or empty,
-     * a label shows up, else a new lobby will be created.
+     * Enhanced the Method with a query that checks if the lobbyName is blank, null or empty. If the lobbyName is one of these,
+     * the lobbyNameInvalid shows up and asks for a new name.
+     * It also works with vowel mutation.
      *
      * Enhanced by Marius Birk and Carsten Dekker, 2020-02-12
      *
@@ -244,10 +244,8 @@ public class MainMenuPresenter extends AbstractPresenter {
     @FXML
     void onCreateLobby(ActionEvent event) {
         String lobbyName = lobbyNameTextField.getText();
-        if(lobbyName.equals(null) || lobbyName.trim().isEmpty() || lobbyName.trim().isBlank()){
+        if(lobbyService.createNewLobby(lobbyName, (UserDTO) this.loggedInUser) == false){
             lobbyNameInvalid.setVisible(true);
-        }else{
-            lobbyService.createNewLobby(lobbyName, (UserDTO) this.loggedInUser);
         }
     }
 

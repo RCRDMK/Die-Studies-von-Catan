@@ -11,7 +11,6 @@ import de.uol.swp.common.user.UserDTO;
  *
  * @author Marco Grawunder
  * @since 2019-11-20
- *
  */
 @SuppressWarnings("UnstableApiUsage")
 public class LobbyService {
@@ -32,16 +31,29 @@ public class LobbyService {
     }
 
     /**
-     * Posts a request to create a lobby on the EventBus
+     * Posts a request to create a lobby on the EventBus.
+     * Returns a boolean. If the Request is posted on the eventbus it returns true. Is the String name blank or empty it returns false.
+     * If the name is null, the exception is catched and posted on the bus. Therefore we return also false, cause no lobby was created.
      *
      * @param name Name chosen for the new lobby
      * @param user User who wants to create the new lobby
      * @see de.uol.swp.common.lobby.message.CreateLobbyRequest
      * @since 2019-11-20
      */
-    public void createNewLobby(String name, UserDTO user) {
-        CreateLobbyRequest createLobbyRequest = new CreateLobbyRequest(name, user);
-        eventBus.post(createLobbyRequest);
+    public boolean createNewLobby(String name, UserDTO user) {
+        try {
+            if (name.equals(null) || name.trim().isEmpty() || name.trim().isBlank()) {
+                return false;
+            } else {
+                CreateLobbyRequest createLobbyRequest = new CreateLobbyRequest(name, user);
+                eventBus.post(createLobbyRequest);
+                return true;
+            }
+        }catch(NullPointerException e){
+            eventBus.post(e);
+            return false;
+        }
+
     }
 
     /**
