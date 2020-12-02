@@ -5,6 +5,7 @@ import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
 import de.uol.swp.client.chat.ChatService;
 import de.uol.swp.client.lobby.LobbyService;
+import de.uol.swp.common.lobby.message.LobbyAlreadyExistsMessage;
 import de.uol.swp.common.lobby.message.LobbyCreatedMessage;
 import de.uol.swp.common.chat.RequestChatMessage;
 import de.uol.swp.common.chat.ResponseChatMessage;
@@ -19,6 +20,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
@@ -54,6 +56,9 @@ public class MainMenuPresenter extends AbstractPresenter {
 
     @FXML
     private TextField inputField;
+
+    @FXML
+    private Label lobbyAlreadyExistsLabel;
 
     @FXML
     private TextField lobbyNameTextField;
@@ -148,7 +153,7 @@ public class MainMenuPresenter extends AbstractPresenter {
     }
 
     /**
-     * Updates the chat when a ResponseChatMessage was posted to the EventBus.
+     * Updates the chat when a ResponseChatMessage was posted to the eventBus.
      * @param message
      */
     @Subscribe
@@ -158,7 +163,18 @@ public class MainMenuPresenter extends AbstractPresenter {
             LOG.debug("Updated chat area with new message..");
             updateChat(message);
         }
+    }
 
+    /**
+     * Method called when a LobbyAlreadyExistsMessage was posted on the eventBus.
+     * @param message
+     * @since 2020-12-02
+     */
+
+    @Subscribe
+    public void onLobbyAlreadyExistsMessage(LobbyAlreadyExistsMessage message){
+        LOG.debug("Lobby with "+ lobbyNameTextField.getText() + "already exists.");
+        lobbyAlreadyExistsLabel.setVisible(true);
     }
 
     /**
