@@ -55,6 +55,9 @@ public class MainMenuPresenter extends AbstractPresenter {
     @FXML
     private TextField inputField;
 
+    @FXML
+    private TextField lobbyNameTextField;
+
     @Inject
     private LobbyService lobbyService;
 
@@ -214,7 +217,9 @@ public class MainMenuPresenter extends AbstractPresenter {
      */
     @FXML
     void onCreateLobby(ActionEvent event) {
-        lobbyService.createNewLobby("test", (UserDTO) this.loggedInUser);
+        String lobbyName = lobbyNameTextField.getText();
+        //Gibt es schon genauso benannte Lobbys - Abfrage
+        lobbyService.createNewLobby(lobbyName, (UserDTO) this.loggedInUser);
     }
 
     /**

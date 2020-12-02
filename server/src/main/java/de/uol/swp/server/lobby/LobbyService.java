@@ -65,11 +65,13 @@ public class LobbyService extends AbstractService {
      */
     @Subscribe
     public void onCreateLobbyRequest(CreateLobbyRequest createLobbyRequest) {
-        lobbyManagement.createLobby(createLobbyRequest.getName(), createLobbyRequest.getUser());
-        sendToAll(new LobbyCreatedMessage(createLobbyRequest.getName(), createLobbyRequest.getUser()));
-        if (createLobbyRequest.getMessageContext().isPresent()) {
-            Optional <MessageContext> ctx = createLobbyRequest.getMessageContext();
-            sendToOwner(ctx.get(), new LobbyCreatedSuccessfulResponse(createLobbyRequest.getName(), createLobbyRequest.getUser()));
+        if(lobbyManagement.getLobby(createLobbyRequest.getName()).isEmpty()){
+            lobbyManagement.createLobby(createLobbyRequest.getName(), createLobbyRequest.getUser());
+            sendToAll(new LobbyCreatedMessage(createLobbyRequest.getName(), createLobbyRequest.getUser()));
+            if (createLobbyRequest.getMessageContext().isPresent()) {
+                Optional <MessageContext> ctx = createLobbyRequest.getMessageContext();
+                sendToOwner(ctx.get(), new LobbyCreatedSuccessfulResponse(createLobbyRequest.getName(), createLobbyRequest.getUser()));
+            }
         }
     }
 
