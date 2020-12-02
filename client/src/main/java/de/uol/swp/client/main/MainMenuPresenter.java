@@ -58,6 +58,9 @@ public class MainMenuPresenter extends AbstractPresenter {
     private TextField inputField;
 
     @FXML
+    private Label lobbyNameInvalid;
+
+    @FXML
     private Label lobbyAlreadyExistsLabel;
 
     @FXML
@@ -227,6 +230,13 @@ public class MainMenuPresenter extends AbstractPresenter {
      * to create a new lobby. Therefore it currently uses the lobby name "test"
      * and an user called whoever is the current logged in User that called that action
      *
+     *
+     * Enhanced the Method. The logged in User can create a lobby with a customized name and a query,
+     * that checks if the name is null, empty or blank. If the name of the lobby is either blank, null or empty,
+     * a label shows up, else a new lobby will be created.
+     *
+     * Enhanced by Marius Birk and Carsten Dekker, 2020-02-12
+     *
      * @param event The ActionEvent created by pressing the create lobby button
      * @see de.uol.swp.client.lobby.LobbyService
      * @since 2019-11-20
@@ -234,8 +244,11 @@ public class MainMenuPresenter extends AbstractPresenter {
     @FXML
     void onCreateLobby(ActionEvent event) {
         String lobbyName = lobbyNameTextField.getText();
-        //Gibt es schon genauso benannte Lobbys - Abfrage
-        lobbyService.createNewLobby(lobbyName, (UserDTO) this.loggedInUser);
+        if(lobbyName.equals(null) || lobbyName.trim().isEmpty() || lobbyName.trim().isBlank()){
+            lobbyNameInvalid.setVisible(true);
+        }else{
+            lobbyService.createNewLobby(lobbyName, (UserDTO) this.loggedInUser);
+        }
     }
 
     /**
