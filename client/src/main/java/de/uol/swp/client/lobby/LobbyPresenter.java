@@ -33,7 +33,7 @@ public class LobbyPresenter extends AbstractPresenter {
 
     private ObservableList<String> lobbyUsers;
 
-    private UserDTO joinedLobbyUser;
+    private User joinedLobbyUser;
 
     private String currentLobby;
 
