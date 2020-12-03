@@ -176,7 +176,7 @@ public class MainMenuPresenter extends AbstractPresenter {
 
     @Subscribe
     public void onLobbyAlreadyExistsMessage(LobbyAlreadyExistsMessage message){
-        LOG.debug("Lobby with "+ lobbyNameTextField.getText() + "already exists.");
+        LOG.debug("Lobby with Name "+ lobbyNameTextField.getText() + " already exists.");
         lobbyAlreadyExistsLabel.setVisible(true);
     }
 

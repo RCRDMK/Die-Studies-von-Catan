@@ -1,6 +1,7 @@
 package de.uol.swp.common.lobby.message;
 
 import de.uol.swp.common.message.ResponseMessage;
+import de.uol.swp.common.message.ServerMessage;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 
@@ -13,7 +14,7 @@ import de.uol.swp.common.user.UserDTO;
  * @author Marius Birk and Carsten Dekker
  * @since 2020-12-02
  */
-public class LobbyAlreadyExistsMessage extends AbstractLobbyRequest implements ResponseMessage {
+public class LobbyAlreadyExistsMessage extends AbstractLobbyMessage implements ResponseMessage, ServerMessage {
 
     /**
      * Default constructor
