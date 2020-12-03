@@ -5,6 +5,7 @@ import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
 import de.uol.swp.client.chat.ChatService;
 import de.uol.swp.client.lobby.LobbyService;
+import de.uol.swp.common.lobby.message.LobbyAlreadyExistsMessage;
 import de.uol.swp.common.lobby.message.LobbyCreatedMessage;
 import de.uol.swp.common.chat.RequestChatMessage;
 import de.uol.swp.common.chat.ResponseChatMessage;
@@ -19,6 +20,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
@@ -54,6 +56,15 @@ public class MainMenuPresenter extends AbstractPresenter {
 
     @FXML
     private TextField inputField;
+
+    @FXML
+    private Label lobbyNameInvalid;
+
+    @FXML
+    private Label lobbyAlreadyExistsLabel;
+
+    @FXML
+    private TextField lobbyNameTextField;
 
     @Inject
     private LobbyService lobbyService;
@@ -145,7 +156,7 @@ public class MainMenuPresenter extends AbstractPresenter {
     }
 
     /**
-     * Updates the chat when a ResponseChatMessage was posted to the EventBus.
+     * Updates the chat when a ResponseChatMessage was posted to the eventBus.
      * @param message
      */
     @Subscribe
@@ -155,7 +166,19 @@ public class MainMenuPresenter extends AbstractPresenter {
             LOG.debug("Updated chat area with new message..");
             updateChat(message);
         }
+    }
 
+    /**
+     * Method called when a LobbyAlreadyExistsMessage was posted on the eventBus.
+     * @param message
+     * @since 2020-12-02
+     */
+
+    @Subscribe
+    public void onLobbyAlreadyExistsMessage(LobbyAlreadyExistsMessage message){
+        LOG.debug("Lobby with Name "+ lobbyNameTextField.getText() + " already exists.");
+        lobbyNameInvalid.setVisible(false);
+        lobbyAlreadyExistsLabel.setVisible(true);
     }
 
     /**
@@ -208,13 +231,24 @@ public class MainMenuPresenter extends AbstractPresenter {
      * to create a new lobby. Therefore it currently uses the lobby name "test"
      * and an user called whoever is the current logged in User that called that action
      *
+     *
+     * Enhanced the Method with a query that checks if the lobbyName is blank, null or empty. If the lobbyName is one of these,
+     * the lobbyNameInvalid shows up and asks for a new name.
+     * It also works with vowel mutation.
+     *
+     * Enhanced by Marius Birk and Carsten Dekker, 2020-02-12
+     *
      * @param event The ActionEvent created by pressing the create lobby button
      * @see de.uol.swp.client.lobby.LobbyService
      * @since 2019-11-20
      */
     @FXML
     void onCreateLobby(ActionEvent event) {
-        lobbyService.createNewLobby("test", (UserDTO) this.loggedInUser);
+        String lobbyName = lobbyNameTextField.getText();
+        if(lobbyService.createNewLobby(lobbyName, (UserDTO) this.loggedInUser) == false){
+            lobbyAlreadyExistsLabel.setVisible(false);
+            lobbyNameInvalid.setVisible(true);
+        }
     }
 
     /**
