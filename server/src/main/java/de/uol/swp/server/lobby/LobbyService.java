@@ -139,16 +139,13 @@ public class LobbyService extends AbstractService {
      */
     @Subscribe
     public void onRetrieveAllThisLobbyUsersRequest(RetrieveAllThisLobbyUsersRequest retrieveAllThisLobbyUsersRequest) {
-        System.out.println("ist bei lobbyservice(server) angekommen, empfing Request");
         Optional<Lobby> lobby = lobbyManagement.getLobby(retrieveAllThisLobbyUsersRequest.getName());
 
         if (lobby.isPresent()) {
             List<Session> lobbyUsers = authenticationService.getSessions(lobby.get().getUsers());
             sendToAllInLobby(retrieveAllThisLobbyUsersRequest.getName(), new AllThisLobbyUsersResponse(lobbyUsers));
-            System.out.println("ist weiter gekommen");
 
         }
-        System.out.println("ist weiter gekommen2");
     }
 
     /**
@@ -161,13 +158,12 @@ public class LobbyService extends AbstractService {
      * @since 2019-10-08
      */
     public void sendToAllInLobby(String lobbyName, ServerMessage message) {
-        System.out.println("ist bei sendToAllInLobby angekommen");
         Optional<Lobby> lobby = lobbyManagement.getLobby(lobbyName);
 
         if (lobby.isPresent()) {
             message.setReceiver(authenticationService.getSessions(lobby.get().getUsers()));
             post(message);
-            System.out.println("Hat die Message gepostet");
+
         }else {
             throw new LobbyManagementException("Lobby unknown!");
         }

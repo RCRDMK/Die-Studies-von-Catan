@@ -222,7 +222,7 @@ public class MainMenuPresenter extends AbstractPresenter {
      *
      * If the join lobby button is pressed, this method requests the lobby service
      * to join a specified lobby. Therefore it currently uses the lobby name "test"
-     * and an user called "ich"
+     * and the user that pressed the JoinLobby Button
      *
      * @param event The ActionEvent created by pressing the join lobby button
      * @see de.uol.swp.client.lobby.LobbyService
@@ -230,7 +230,7 @@ public class MainMenuPresenter extends AbstractPresenter {
      */
     @FXML
     void onJoinLobby(ActionEvent event) {
-        lobbyService.joinLobby("test", new UserDTO("ich", "", ""));
+        lobbyService.joinLobby("test", (UserDTO) this.loggedInUser);
     }
 
     @FXML

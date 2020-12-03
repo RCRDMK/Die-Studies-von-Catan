@@ -62,6 +62,5 @@ public class LobbyService {
         System.out.println("ist bei retrieveAllThisLobbyUsers angekommen");
         RetrieveAllThisLobbyUsersRequest lobbyUsersRequest = new RetrieveAllThisLobbyUsersRequest(lobbyName);
         eventBus.post(lobbyUsersRequest);
-        System.out.println(lobbyUsersRequest.getName());
     }
 }
