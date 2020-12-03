@@ -42,7 +42,7 @@ public class LobbyService {
      */
     public boolean createNewLobby(String name, UserDTO user) {
         try {
-            if (name.equals(null) || name.trim().isEmpty() || name.trim().isBlank()) {
+            if (name.equals(null) || name.trim().isEmpty() || name.trim().isBlank() || name.startsWith(" ") || name.endsWith(" ")) {
                 return false;
             } else {
                 CreateLobbyRequest createLobbyRequest = new CreateLobbyRequest(name, user);
