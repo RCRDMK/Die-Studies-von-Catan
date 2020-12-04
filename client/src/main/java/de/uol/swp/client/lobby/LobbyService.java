@@ -68,4 +68,17 @@ public class LobbyService {
         LobbyJoinUserRequest joinUserRequest = new LobbyJoinUserRequest(name, user);
         eventBus.post(joinUserRequest);
     }
+
+    /**
+     * Posts a request to get a list of all existing lobbies on the EventBus
+     *
+     * @see de.uol.swp.common.lobby.request.RetrieveAllLobbiesRequest
+     * @since 2020-04-12
+     * @author Carsten Dekker and Marius Birk
+     */
+
+    public void retrieveAllLobbies() {
+        RetrieveAllLobbiesRequest cmd = new RetrieveAllLobbiesRequest();
+        eventBus.post(cmd);
+    }
 }

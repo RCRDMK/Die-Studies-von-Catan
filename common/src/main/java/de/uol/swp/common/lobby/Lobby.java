@@ -10,6 +10,10 @@ import java.util.Set;
  * This is an Interface to allow for multiple types of lobby objects since it is
  * possible that not every client has to have every information of the lobby.
  *
+ * Enhanced by Carsten Dekker and Marius Birk
+ * @since 2020-04-12
+ * Now the Lobby class extends Serializable
+ *
  * @author Marco Grawunder
  * @see de.uol.swp.common.lobby.dto.LobbyDTO
  * @since 2019-10-08
