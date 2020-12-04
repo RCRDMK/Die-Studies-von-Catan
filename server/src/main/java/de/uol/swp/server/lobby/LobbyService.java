@@ -50,6 +50,7 @@ public class LobbyService extends AbstractService {
         super(eventBus);
         this.lobbyManagement = lobbyManagement;
         this.authenticationService = authenticationService;
+
     }
 
 

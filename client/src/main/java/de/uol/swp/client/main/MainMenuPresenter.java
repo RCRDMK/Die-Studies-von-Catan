@@ -97,6 +97,7 @@ public class MainMenuPresenter extends AbstractPresenter {
     public void loginSuccessful(LoginSuccessfulResponse message) {
         this.loggedInUser = message.getUser();
         userService.retrieveAllUsers();
+        lobbyService.retrieveAllLobbies();
     }
 
     @Subscribe

@@ -69,4 +69,14 @@ public class LobbyManagement {
         }
         return Optional.empty();
     }
+
+    /**
+     * getter
+     * @return containing a HashMap with lobbies
+     * @since 2020-04-12
+     * @author Carsten Dekker and Marius Birk
+     */
+    public Map<String, Lobby> getAllLobbies(){
+        return lobbies;
+    }
 }
