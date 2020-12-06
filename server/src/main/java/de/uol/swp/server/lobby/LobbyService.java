@@ -45,6 +45,7 @@ public class LobbyService extends AbstractService {
         this.authenticationService = authenticationService;
     }
 
+
     /**
      * Handles CreateLobbyRequests found on the EventBus
      *
@@ -57,19 +58,32 @@ public class LobbyService extends AbstractService {
      *
      * Method was enhanced by Marc Hermes, 2020-11-25
      *
+     * Enhanced the Method with a query, so that if a lobby with the same name, as a lobby that already exists, can't be created.
+     * Also there is a LobbyAlreadyExistsResponse sent to the user, that wanted to create the lobby.
+     *
+     * Method enhanced by Marius Birk and Carsten Dekker, 2020-12-02
+     *
      * @param createLobbyRequest The CreateLobbyRequest found on the EventBus
      * @see de.uol.swp.server.lobby.LobbyManagement#createLobby(String, User)
      * @see de.uol.swp.common.lobby.message.LobbyCreatedMessage
      * @see de.uol.swp.common.user.response.LobbyCreatedSuccessfulResponse
+     * @see de.uol.swp.common.lobby.message.LobbyAlreadyExistsMessage
      * @since 2019-10-08
      */
     @Subscribe
     public void onCreateLobbyRequest(CreateLobbyRequest createLobbyRequest) {
-        lobbyManagement.createLobby(createLobbyRequest.getName(), createLobbyRequest.getUser());
-        sendToAll(new LobbyCreatedMessage(createLobbyRequest.getName(), createLobbyRequest.getUser()));
-        if (createLobbyRequest.getMessageContext().isPresent()) {
-            Optional <MessageContext> ctx = createLobbyRequest.getMessageContext();
-            sendToOwner(ctx.get(), new LobbyCreatedSuccessfulResponse(createLobbyRequest.getName(), createLobbyRequest.getUser()));
+        if(lobbyManagement.getLobby(createLobbyRequest.getName()).isEmpty()){
+            lobbyManagement.createLobby(createLobbyRequest.getName(), createLobbyRequest.getUser());
+            sendToAll(new LobbyCreatedMessage(createLobbyRequest.getName(), createLobbyRequest.getUser()));
+            if (createLobbyRequest.getMessageContext().isPresent()) {
+                Optional <MessageContext> ctx = createLobbyRequest.getMessageContext();
+                sendToOwner(ctx.get(), new LobbyCreatedSuccessfulResponse(createLobbyRequest.getName(), createLobbyRequest.getUser()));
+            }
+        }else{
+            Optional<MessageContext> ctx = createLobbyRequest.getMessageContext();
+            if(createLobbyRequest.getMessageContext().isPresent()){
+                sendToOwner(ctx.get(), new LobbyAlreadyExistsMessage());
+            }
         }
     }
 

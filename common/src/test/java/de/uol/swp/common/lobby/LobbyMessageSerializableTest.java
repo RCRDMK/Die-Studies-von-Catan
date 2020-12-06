@@ -23,6 +23,9 @@ public class LobbyMessageSerializableTest {
                 UserJoinedLobbyMessage.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new UserLeftLobbyMessage("test", defaultUser),
                 UserLeftLobbyMessage.class));
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new LobbyAlreadyExistsMessage("test", defaultUser),
+                LobbyAlreadyExistsMessage.class));
+
     }
 
 
