@@ -34,7 +34,7 @@ public class LobbyService {
     /**
      * Posts a request to create a lobby on the EventBus.
      * Returns a boolean. If the Request is posted on the eventbus it returns true. Is the String name blank or empty it returns false.
-     * If the name is null, the exception is catched and posted on the bus. Therefore we return also false, cause no lobby was created.
+     * If the name is null, the exception is caught and posted on the bus. Therefore we return also false, cause no lobby was created.
      *
      * @param name Name chosen for the new lobby
      * @param user User who wants to create the new lobby

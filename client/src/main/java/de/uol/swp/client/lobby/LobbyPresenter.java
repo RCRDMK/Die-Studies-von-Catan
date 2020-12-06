@@ -49,6 +49,19 @@ public class LobbyPresenter extends AbstractPresenter {
     @Inject
     private LobbyService lobbyService;
 
+    /**
+     * LobbyPresenter knows now name of the lobby and user.
+     * Problem: it doesn't know yet UserDTO
+     * ToDO: UserDTO should be visible
+     *
+     * @param message
+     */
+    @Subscribe
+    public void lobbyCreatedSuccessful(LobbyCreatedMessage message) {
+        this.joinedLobbyUser = message.getUser();
+        this.currentLobby = message.getName();
+    }
+
     @FXML
     public void onStartGame(ActionEvent event) {
         //TODO:
