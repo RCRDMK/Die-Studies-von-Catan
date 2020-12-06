@@ -15,3 +15,5 @@
         <TextField fx:id="inputField" layoutY="355.0" onAction="#onSendMessage" prefHeight="25.0" prefWidth="207.0" GridPane.rowIndex="3">Schicke eine Nachricht!</TextField>
         <Button layoutX="207.0" layoutY="355.0" mnemonicParsing="false" onAction="#onSendMessage" prefHeight="25.0" prefWidth="77.0" text="Senden" />
 </AnchorPane>
+
+
