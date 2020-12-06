@@ -190,10 +190,18 @@ public class ClientApp extends Application implements ConnectionListener {
         this.user = message.getUser();
         sceneManager.showLobbyScreen(user, "test lobby");
     }
-
+    /**
+     * Handles the successful leaving of a user
+     *
+     * If an UserLeftLobbyMessage object is detected on the EventBus this method is called.
+     * It tells the SceneManager to show the main menu.
+     *
+     * @param message
+     * @see de.uol.swp.client.SceneManager
+     */
     @Subscribe
     public void userLeftLobby(UserLeftLobbyMessage message){
-        LOG.debug("user left lobby ");
+        LOG.debug("User " + message.getUser().getUsername() + " left lobby ");
         this.user = message.getUser();
         sceneManager.showMainScreen(user);
     }
