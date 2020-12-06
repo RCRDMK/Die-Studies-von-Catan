@@ -30,7 +30,7 @@ public class ChatServiceTest {
 
     /**
      * Handles DeadEvents detected on the EventBus
-     *
+     * <p>
      * If a DeadEvent is detected the event variable of this class gets updated
      * to its event and its event is printed to the console output.
      *
@@ -46,7 +46,7 @@ public class ChatServiceTest {
 
     /**
      * Helper method run before each test case
-     *
+     * <p>
      * This method resets the variable event to null and registers the object of
      * this class to the EventBus.
      *
@@ -60,7 +60,7 @@ public class ChatServiceTest {
 
     /**
      * Helper method run after each test case
-     *
+     * <p>
      * This method only unregisters the object of this class from the EventBus.
      *
      * @since 2019-10-10
@@ -72,7 +72,7 @@ public class ChatServiceTest {
 
     /**
      * Test for the ChatService
-     *
+     * <p>
      * This test first creates a new RequestChatMessage object. It then
      * calls the chatService sendMessage function and passes the object as parameter
      * and waits for it to post an RequestChatMessage object on the EventBus.
@@ -84,7 +84,7 @@ public class ChatServiceTest {
      * @since 2020-11-26
      */
     @Test
-    void sendMessageTest() throws InterruptedException{
+    void sendMessageTest() throws InterruptedException {
         RequestChatMessage message = new RequestChatMessage("testMessage", 0, defaultUser.getUsername(), System.currentTimeMillis());
         chatService.sendMessage(message);
 
@@ -98,5 +98,38 @@ public class ChatServiceTest {
         assertFalse(request.getTime().isNaN());
         assertEquals(request.getChat(), 0);
         assertEquals(request.getMessage(), "testMessage");
+    }
+
+    @Test
+    void sendEmptyMessageTest() throws InterruptedException {
+        RequestChatMessage message = new RequestChatMessage("", 0, defaultUser.getUsername(), System.currentTimeMillis());
+        chatService.sendMessage(message);
+
+        lock.await(1000, TimeUnit.MILLISECONDS);
+
+        assertFalse(event instanceof RequestChatMessage);
+
+    }
+
+    @Test
+    void sendWhiteSpaceMessageTest() throws InterruptedException {
+        RequestChatMessage message = new RequestChatMessage("    ", 0, defaultUser.getUsername(), System.currentTimeMillis());
+        chatService.sendMessage(message);
+
+        lock.await(1000, TimeUnit.MILLISECONDS);
+
+        assertFalse(event instanceof RequestChatMessage);
+
+    }
+
+    @Test
+    void sendNullMessageTest() throws InterruptedException {
+        RequestChatMessage message = new RequestChatMessage(null, 0, defaultUser.getUsername(), System.currentTimeMillis());
+        chatService.sendMessage(message);
+
+        lock.await(1000, TimeUnit.MILLISECONDS);
+
+        assertFalse(event instanceof RequestChatMessage);
+
     }
 }

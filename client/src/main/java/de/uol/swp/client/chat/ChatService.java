@@ -5,6 +5,7 @@ import de.uol.swp.client.user.UserService;
 import de.uol.swp.common.chat.RequestChatMessage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
 import javax.inject.Inject;
 
 /**
@@ -12,10 +13,9 @@ import javax.inject.Inject;
  *
  * @author René, Anton, Sergej
  * @since 2020-11-22
- *
  */
 @SuppressWarnings("UnstableApiUsage")
-public class ChatService  {
+public class ChatService {
 
     private final EventBus eventBus;
     private static final Logger LOG = LogManager.getLogger(UserService.class);
@@ -38,8 +38,18 @@ public class ChatService  {
      *
      * @param message Message the user wants to send to the server
      */
-    public void sendMessage(RequestChatMessage message){
+    public void sendMessage(RequestChatMessage message) {
         eventBus.post(message);
-        LOG.debug("User: " + message.getUser() + " sent message: '" + message.getMessage()+ "' to server.");
-     }
+        LOG.debug("User: " + message.getUser() + " sent message: '" + message.getMessage() + "' to server.");
+
+    }
+
+    public static boolean checkForWhiteSpace(String temp) {
+        for (int i = 0; i < temp.length(); i++) {
+            if (temp.charAt(i) != ' ') {
+                return false;
+            }
+        }
+        return true;
+    }
 }
