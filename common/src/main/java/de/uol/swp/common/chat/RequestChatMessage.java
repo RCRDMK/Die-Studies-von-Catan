@@ -1,5 +1,6 @@
 package de.uol.swp.common.chat;
 
+import de.uol.swp.common.exception.SendMessageEmptyException;
 import de.uol.swp.common.message.AbstractRequestMessage;
 
 public class RequestChatMessage extends AbstractRequestMessage {
@@ -8,8 +9,8 @@ public class RequestChatMessage extends AbstractRequestMessage {
     private final String user;
     private final double time;
 
-    public RequestChatMessage(String message, int chat, String username, double time){
-        this.user= username;
+    public RequestChatMessage(String message, int chat, String username, double time) {
+        this.user = username;
         this.message = message;
         this.time = time;
         this.chat = chat;
@@ -30,4 +31,5 @@ public class RequestChatMessage extends AbstractRequestMessage {
     public Double getTime() {
         return time;
     }
+
 }
