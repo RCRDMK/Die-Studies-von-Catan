@@ -4,10 +4,12 @@ import com.google.common.eventbus.DeadEvent;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
+import de.uol.swp.client.main.MainMenuPresenter;
 import de.uol.swp.client.user.UserService;
 import de.uol.swp.common.lobby.message.CreateLobbyRequest;
 import de.uol.swp.common.lobby.message.LobbyAlreadyExistsMessage;
 import de.uol.swp.common.lobby.message.LobbyCreatedMessage;
+import de.uol.swp.common.lobby.request.RetrieveAllLobbiesRequest;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.user.request.*;
@@ -31,7 +33,7 @@ import static org.junit.jupiter.api.Assertions.*;
  *
  */
 @SuppressWarnings("UnstableApiUsage")
-class UserServiceTest {
+class LobbyServiceTest {
 
     final User defaultUser = new UserDTO("Peter", "lustig", "peter.lustig@uol.de");
 
@@ -245,5 +247,30 @@ class UserServiceTest {
         lock.await(1000, TimeUnit.MILLISECONDS);
 
         assertTrue(event instanceof CreateLobbyRequest);
+    }
+
+    /**
+     * Test for the retrieveAllLobbies routine
+     *
+     * This Test creates a new LobbyService object registered to the EventBus of
+     * this test class. It then calls the retrieveAllLobbies function of the object
+     * and waits for it to post a retrieveAllLobbiesRequest object on the EventBus.
+     * If this happens within one second, the test is successful.
+     *
+     * @author Carsten Dekker
+     * @throws InterruptedException thrown by lock.await()
+     * @since 2020-07-12
+     */
+
+    @Test
+    void retrieveAllLobbiesTest() throws InterruptedException {
+
+        LobbyService lobbyService = new LobbyService(bus);
+
+        lobbyService.retrieveAllLobbies();
+
+        lock.await(1000, TimeUnit.MILLISECONDS);
+
+        assertTrue(event instanceof RetrieveAllLobbiesRequest);
     }
 }

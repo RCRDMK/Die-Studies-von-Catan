@@ -197,5 +197,4 @@ public class LobbyService extends AbstractService {
         response.initWithMessage(msg);
         post(response);
     }
-
 }

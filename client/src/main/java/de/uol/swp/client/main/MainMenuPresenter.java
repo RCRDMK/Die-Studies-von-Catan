@@ -167,7 +167,7 @@ public class MainMenuPresenter extends AbstractPresenter {
      * Handles new list of lobbies
      *
      * If a new AllCreatedLobbiesResponse is posted on the eventBus, the Method updateLobbyList gets all
-     * the LobbyDTOs that are int the response.
+     * the LobbyDTOs that are in the response.
      * The LobbyList is shown in the main menu.
      * Furthermore if the LOG-Level is set to DEBUG the message "Update of lobby
      * list" with the names of all currently existing lobbies is displayed in the
@@ -215,7 +215,7 @@ public class MainMenuPresenter extends AbstractPresenter {
      * Updates the main menus user list according to the list given
      *
      * This method clears the entire user list and then adds the name of each user
-     * in the list given to the main menus user list. If there ist no user list
+     * in the list given to the main menus user list. If there is no user list
      * this it creates one.
      *
      * @implNote The code inside this Method has to run in the JavaFX-application
