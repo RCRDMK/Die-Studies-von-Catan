@@ -90,7 +90,6 @@ public class LobbyPresenter extends AbstractPresenter {
     @Subscribe
     public void leftSuccessful(UserLeftLobbyMessage message) {
         LOG.debug("Requesting update of User list in lobby because a User left the lobby.");
-        this.joinedLobbyUser = message.getUser();
         lobbyService.retrieveAllThisLobbyUsers(message.getName());
     }
 
