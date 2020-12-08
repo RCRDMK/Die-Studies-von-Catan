@@ -245,7 +245,7 @@ public class MainMenuPresenter extends AbstractPresenter {
     @FXML
     void onCreateLobby(ActionEvent event) {
         String lobbyName = lobbyNameTextField.getText();
-        if(!lobbyService.createNewLobby(lobbyName, (UserDTO) this.loggedInUser)){
+        if((lobbyService.createNewLobby(lobbyName, (UserDTO) this.loggedInUser) == false)){
             lobbyAlreadyExistsLabel.setVisible(false);
             lobbyNameInvalid.setVisible(true);
         }
