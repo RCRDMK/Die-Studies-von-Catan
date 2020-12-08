@@ -52,7 +52,7 @@ public class LobbyPresenter extends AbstractPresenter {
 
     /**
      * Übergeben der Variablen joinedLobbyUser und currentLobby
-     *
+     * <p>
      * LobbyCreatedMessage wird abgefangen und die Variablen joinedLobbyUser und currentLobby werden übergeben
      *
      * @param message
@@ -65,13 +65,13 @@ public class LobbyPresenter extends AbstractPresenter {
 
     /**
      * Übergeben der Variablen joinedLobbyUser und currentLobby
-     *
+     * <p>
      * UserJoinedLobbyMessage wird abgefangen und die Variablen joinedLobbyUser und currentLobby werden übergeben
      *
      * @param message
      */
     @Subscribe
-    public void userJoinedSuccessful(UserJoinedLobbyMessage message){
+    public void userJoinedSuccessful(UserJoinedLobbyMessage message) {
         this.joinedLobbyUser = message.getUser();
         this.currentLobby = message.getName();
     }
@@ -84,11 +84,11 @@ public class LobbyPresenter extends AbstractPresenter {
 
     @FXML
     public void onLeaveLobby(ActionEvent event) {
-        if(this.currentLobby != null && this.joinedLobbyUser != null) {
+        if (this.currentLobby != null && this.joinedLobbyUser != null) {
             lobbyService.leaveLobby(this.currentLobby, (UserDTO) this.joinedLobbyUser);
-        }else if(this.currentLobby == null && this.joinedLobbyUser != null){
+        } else if (this.currentLobby == null && this.joinedLobbyUser != null) {
             throw new LobbyPresenterException("Name der jetzigen Lobby ist nicht vorhanden!");
-        }else{
+        } else {
             throw new LobbyPresenterException("Der jetzige User ist nicht vorhanden");
         }
     }
