@@ -32,10 +32,10 @@ public class LobbyService extends AbstractService {
     /**
      * Constructor
      *
-     * @param lobbyManagement The management class for creating, storing and deleting
-     *                        lobbies
+     * @param lobbyManagement       The management class for creating, storing and deleting
+     *                              lobbies
      * @param authenticationService the user management
-     * @param eventBus the server-wide EventBus
+     * @param eventBus              the server-wide EventBus
      * @since 2019-10-08
      */
     @Inject
@@ -48,19 +48,19 @@ public class LobbyService extends AbstractService {
 
     /**
      * Handles CreateLobbyRequests found on the EventBus
-     *
+     * <p>
      * If a CreateLobbyRequest is detected on the EventBus, this method is called.
      * It creates a new Lobby via the LobbyManagement using the parameters from the
      * request and sends a LobbyCreatedMessage to every connected user
-     *
+     * <p>
      * It also creates a LobbyCreatedSuccessfulResponse and sends it to the owner of the Lobby, by looking at the context
      * of the createLobbyRequest
-     *
+     * <p>
      * Method was enhanced by Marc Hermes, 2020-11-25
-     *
+     * <p>
      * Enhanced the Method with a query, so that if a lobby with the same name, as a lobby that already exists, can't be created.
      * Also there is a LobbyAlreadyExistsResponse sent to the user, that wanted to create the lobby.
-     *
+     * <p>
      * Method enhanced by Marius Birk and Carsten Dekker, 2020-12-02
      *
      * @param createLobbyRequest The CreateLobbyRequest found on the EventBus
@@ -72,16 +72,16 @@ public class LobbyService extends AbstractService {
      */
     @Subscribe
     public void onCreateLobbyRequest(CreateLobbyRequest createLobbyRequest) {
-        if(lobbyManagement.getLobby(createLobbyRequest.getName()).isEmpty()){
+        if (lobbyManagement.getLobby(createLobbyRequest.getName()).isEmpty()) {
             lobbyManagement.createLobby(createLobbyRequest.getName(), createLobbyRequest.getUser());
             sendToAll(new LobbyCreatedMessage(createLobbyRequest.getName(), createLobbyRequest.getUser()));
             if (createLobbyRequest.getMessageContext().isPresent()) {
-                Optional <MessageContext> ctx = createLobbyRequest.getMessageContext();
+                Optional<MessageContext> ctx = createLobbyRequest.getMessageContext();
                 sendToOwner(ctx.get(), new LobbyCreatedSuccessfulResponse(createLobbyRequest.getName(), createLobbyRequest.getUser()));
             }
-        }else{
+        } else {
             Optional<MessageContext> ctx = createLobbyRequest.getMessageContext();
-            if(createLobbyRequest.getMessageContext().isPresent()){
+            if (createLobbyRequest.getMessageContext().isPresent()) {
                 sendToOwner(ctx.get(), new LobbyAlreadyExistsMessage());
             }
         }
@@ -89,7 +89,7 @@ public class LobbyService extends AbstractService {
 
     /**
      * Handles LobbyJoinUserRequests found on the EventBus
-     *
+     * <p>
      * If a LobbyJoinUserRequest is detected on the EventBus, this method is called.
      * It adds a user to a Lobby stored in the LobbyManagement and sends a UserJoinedLobbyMessage
      * to every user in the lobby.
@@ -104,8 +104,8 @@ public class LobbyService extends AbstractService {
         Optional<Lobby> lobby = lobbyManagement.getLobby(lobbyJoinUserRequest.getName());
 
         if (lobby.isPresent()) {
-                lobby.get().joinUser(lobbyJoinUserRequest.getUser());
-                sendToAllInLobby(lobbyJoinUserRequest.getName(), new UserJoinedLobbyMessage(lobbyJoinUserRequest.getName(), lobbyJoinUserRequest.getUser()));
+            lobby.get().joinUser(lobbyJoinUserRequest.getUser());
+            sendToAllInLobby(lobbyJoinUserRequest.getName(), new UserJoinedLobbyMessage(lobbyJoinUserRequest.getName(), lobbyJoinUserRequest.getUser()));
         } else {
             throw new LobbyManagementException("Lobby unknown!");
         }
@@ -113,7 +113,7 @@ public class LobbyService extends AbstractService {
 
     /**
      * Handles LobbyLeaveUserRequests found on the EventBus
-     *
+     * <p>
      * If a LobbyLeaveUserRequest is detected on the EventBus, this method is called.
      * It removes a user from a Lobby stored in the LobbyManagement and sends a
      * UserLeftLobbyMessage to every user in the lobby.
@@ -126,14 +126,17 @@ public class LobbyService extends AbstractService {
     @Subscribe
     public void onLobbyLeaveUserRequest(LobbyLeaveUserRequest lobbyLeaveUserRequest) {
         Optional<Lobby> lobby = lobbyManagement.getLobby(lobbyLeaveUserRequest.getName());
-
         if (lobby.isPresent()) {
-            lobby.get().leaveUser(lobbyLeaveUserRequest.getUser());
-            sendToAllInLobby(lobbyLeaveUserRequest.getName(), new UserLeftLobbyMessage(lobbyLeaveUserRequest.getName(), lobbyLeaveUserRequest.getUser()));
-            if (lobby.get().getUsers() == null) {
+            if (lobby.get().getUsers().size() == 1) {
+                sendToAllInLobby(lobbyLeaveUserRequest.getName(), new UserLeftLobbyMessage(lobbyLeaveUserRequest.getName(), lobbyLeaveUserRequest.getUser()));
                 lobbyManagement.dropLobby(lobbyLeaveUserRequest.getName());
+            } else if (lobby.get().getUsers() == null) {
+                lobbyManagement.dropLobby(lobbyLeaveUserRequest.getName());
+            } else {
+                lobby.get().leaveUser(lobbyLeaveUserRequest.getUser());
+                sendToAllInLobby(lobbyLeaveUserRequest.getName(), new UserLeftLobbyMessage(lobbyLeaveUserRequest.getName(), lobbyLeaveUserRequest.getUser()));
             }
-        }else{
+        } else {
             throw new LobbyManagementException("Lobby unknown!");
         }
     }
@@ -143,7 +146,7 @@ public class LobbyService extends AbstractService {
      * posts it on the EventBus
      *
      * @param lobbyName Name of the lobby the players are in
-     * @param message the message to be send to the users
+     * @param message   the message to be send to the users
      * @see de.uol.swp.common.message.ServerMessage
      * @since 2019-10-08
      */
@@ -153,7 +156,7 @@ public class LobbyService extends AbstractService {
         if (lobby.isPresent()) {
             message.setReceiver(authenticationService.getSessions(lobby.get().getUsers()));
             post(message);
-        }else {
+        } else {
             throw new LobbyManagementException("Lobby unknown!");
         }
     }
@@ -162,9 +165,9 @@ public class LobbyService extends AbstractService {
      * Prepares a given ResponseMessage to be send to the owner of lobby and
      * posts it on the EventBus
      *
-     * @author Marc Hermes
      * @param message the message to be send to the users
-     * @param ctx the context of the message, here the session of the owner of the lobby
+     * @param ctx     the context of the message, here the session of the owner of the lobby
+     * @author Marc Hermes
      * @see de.uol.swp.common.message.ResponseMessage
      * @see de.uol.swp.common.message.MessageContext
      * @since 2020-11-25

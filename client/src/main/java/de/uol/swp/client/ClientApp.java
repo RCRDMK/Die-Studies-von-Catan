@@ -7,10 +7,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import de.uol.swp.client.di.ClientModule;
 import de.uol.swp.client.user.ClientUserService;
-import de.uol.swp.common.lobby.message.CreateLobbyRequest;
-import de.uol.swp.common.lobby.message.LobbyCreatedMessage;
-import de.uol.swp.common.lobby.message.LobbyJoinUserRequest;
-import de.uol.swp.common.lobby.message.UserJoinedLobbyMessage;
+import de.uol.swp.common.lobby.message.*;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.exception.RegistrationExceptionMessage;
 import de.uol.swp.common.user.request.LogoutRequest;
@@ -192,6 +189,21 @@ public class ClientApp extends Application implements ConnectionListener {
         LOG.debug("user joined lobby ");
         this.user = message.getUser();
         sceneManager.showLobbyScreen(user, "test lobby");
+    }
+    /**
+     * Handles the successful leaving of a user
+     *
+     * If an UserLeftLobbyMessage object is detected on the EventBus this method is called.
+     * It tells the SceneManager to show the main menu.
+     *
+     * @param message
+     * @see de.uol.swp.client.SceneManager
+     */
+    @Subscribe
+    public void userLeftLobby(UserLeftLobbyMessage message){
+        LOG.debug("User " + message.getUser().getUsername() + " left lobby ");
+        this.user = message.getUser();
+        sceneManager.showMainScreen(user);
     }
 
     /**

@@ -8,6 +8,7 @@ import de.uol.swp.client.user.UserService;
 import de.uol.swp.common.lobby.message.CreateLobbyRequest;
 import de.uol.swp.common.lobby.message.LobbyAlreadyExistsMessage;
 import de.uol.swp.common.lobby.message.LobbyCreatedMessage;
+import de.uol.swp.common.lobby.message.LobbyLeaveUserRequest;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.user.request.*;
@@ -28,7 +29,6 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Marius Birk, Carsten Dekker
  * @see de.uol.swp.client.lobby.LobbyService
  * @since 2020-12-02
- *
  */
 @SuppressWarnings("UnstableApiUsage")
 class UserServiceTest {
@@ -43,7 +43,7 @@ class UserServiceTest {
 
     /**
      * Handles DeadEvents detected on the EventBus
-     *
+     * <p>
      * If a DeadEvent is detected the event variable of this class gets updated
      * to its event and its event is printed to the console output.
      *
@@ -59,7 +59,7 @@ class UserServiceTest {
 
     /**
      * Helper method run before each test case
-     *
+     * <p>
      * This method resets the variable event to null and registers the object of
      * this class to the EventBus.
      *
@@ -73,7 +73,7 @@ class UserServiceTest {
 
     /**
      * Helper method run after each test case
-     *
+     * <p>
      * This method only unregisters the object of this class from the EventBus.
      *
      * @since 2020-12-02
@@ -85,7 +85,7 @@ class UserServiceTest {
 
     /**
      * Subroutine used for tests that need a logged in user
-     *
+     * <p>
      * This subroutine creates a new UserService object registered to the EventBus
      * of this test class and class the objects login method for the default user.
      *
@@ -112,11 +112,11 @@ class UserServiceTest {
 
     /**
      * Test for the create Lobby event.
-     *
+     * <p>
      * This test first calls the loginUser subroutine. Afterwards it calls the initialize Method, where the lobbyname gets a string.
      * Then checks if a LoginRequest object got posted to the EventBus and if its content is the
      * default users information.
-     *
+     * <p>
      * Then a new LobbyService will be created and a new UserDTO with the data from the defaultUser. Then we create a new Lobby with the initialized name and UserDTO.
      * After that, we check if a CreateLobbyRequest object got posted to the EventBus.
      * The test fails if any of the checks fail.
@@ -142,11 +142,51 @@ class UserServiceTest {
     }
 
     /**
-     * Test for create lobby method, with empty lobbyname
+     * Test for the leave Lobby event.
+     * <p>
+     * This test first calls the loginUser subroutine. Afterwards it calls the initialize Method, where the lobbyname gets a string.
+     * Then checks if a LoginRequest object got posted to the EventBus and if its content is the
+     * default users information.
+     * <p>
+     * Then a new LobbyService will be created and a new UserDTO with the data from the defaultUser. Then we create a new Lobby with the initialized name and UserDTO.
+     * After that, we check if a CreateLobbyRequest object got posted to the EventBus.
      *
+     * Next we leave current Lobby with the initialized name and UserDTO.
+     * After that, we check if LobbyLeaveUserRequest object got posted to the EventBus.
+     * The test fails if any of the checks fail.
+     *
+     * @throws InterruptedException thrown by loginUser() and initializeTextFields()
+     * @since 2020-12-02
+     */
+    @Test
+    @DisplayName("Verlasse Lobby")
+    void leaveLobbyTest() throws InterruptedException {
+        loginUser();
+        initializeTextFields();
+
+        assertTrue(event instanceof LoginRequest);
+        LobbyService lobbyService = new LobbyService(bus);
+        UserDTO userDTO = new UserDTO(defaultUser.getUsername(), defaultUser.getPassword(), defaultUser.getEMail());
+
+        lobbyService.createNewLobby(lobbyname, userDTO);
+
+        lock.await(1000, TimeUnit.MILLISECONDS);
+
+        assertTrue(event instanceof CreateLobbyRequest);
+
+        lobbyService.leaveLobby(lobbyname, userDTO);
+
+        lock.await(1000, TimeUnit.MILLISECONDS);
+
+        assertTrue(event instanceof LobbyLeaveUserRequest);
+    }
+
+    /**
+     * Test for create lobby method, with empty lobbyname
+     * <p>
      * This test first calls the loginUser subroutine. We assume that the lobbyname is empty. Also
      * we create a new UserService and a new LobbyService, also we create a new UserDTO.
-     *
+     * <p>
      * Then we call the createNewLobby Method and assume that it returns false.
      * The test fails if lobbyname is not empty.
      *
@@ -157,7 +197,7 @@ class UserServiceTest {
     @DisplayName("Namensfeld leer")
     void createLobbyWithEmptyNameFieldTest() throws InterruptedException {
         loginUser();
-        lobbyname="";
+        lobbyname = "";
 
         UserService userService = new UserService(bus);
         LobbyService lobbyService = new LobbyService(bus);
@@ -168,10 +208,10 @@ class UserServiceTest {
 
     /**
      * Test for create lobby method, with blank lobbyname
-     *
+     * <p>
      * This test first calls the loginUser subroutine. We assume that the lobbyname is blank. Also
      * we create a new UserService and a new LobbyService, also we create a new UserDTO.
-     *
+     * <p>
      * Then we call the createNewLobby Method and assume that it returns false.
      * The test fails if lobbyname is not blank.
      *
@@ -182,7 +222,7 @@ class UserServiceTest {
     @DisplayName("Namensfeld blank")
     void createLobbyWithBlankNameFieldTest() throws InterruptedException {
         loginUser();
-        lobbyname="        ";
+        lobbyname = "        ";
 
         UserService userService = new UserService(bus);
         LobbyService lobbyService = new LobbyService(bus);
@@ -193,10 +233,10 @@ class UserServiceTest {
 
     /**
      * Test for create lobby method, with null lobbyname
-     *
+     * <p>
      * This test first calls the loginUser subroutine. We assume that the lobbyname is null. Also
      * we create a new UserService and a new LobbyService, also we create a new UserDTO.
-     *
+     * <p>
      * Then we call the createNewLobby Method and assume that it returns false.
      * The test fails if lobbyname is not null.
      *
@@ -207,7 +247,7 @@ class UserServiceTest {
     @DisplayName("Namensfeld null")
     void createLobbyWithNullNameFieldTest() throws InterruptedException, NullPointerException {
         loginUser();
-        lobbyname=null;
+        lobbyname = null;
 
         UserService userService = new UserService(bus);
         LobbyService lobbyService = new LobbyService(bus);
@@ -218,11 +258,11 @@ class UserServiceTest {
 
     /**
      * Test for the create Lobby event.
-     *
+     * <p>
      * This test first calls the loginUser subroutine. Afterwards it calls the initialize Method, where the lobbyname gets a string and contains vowel mutations.
      * Then checks if a LoginRequest object got posted to the EventBus and if its content is the
      * default users information.
-     *
+     * <p>
      * Then a new LobbyService will be created and a new UserDTO with the data from the defaultUser. Then we create a new Lobby with the initialized name and UserDTO.
      * After that, we check if a CreateLobbyRequest object got posted to the EventBus.
      * The test fails if any of the checks fail.
@@ -234,7 +274,7 @@ class UserServiceTest {
     @DisplayName("Erstelle Lobby Umlaute")
     void createLobbyWithVowelMutationTest() throws InterruptedException {
         loginUser();
-        lobbyname= "äüÖÄöÜ";
+        lobbyname = "äüÖÄöÜ";
 
         assertTrue(event instanceof LoginRequest);
         LobbyService lobbyService = new LobbyService(bus);
