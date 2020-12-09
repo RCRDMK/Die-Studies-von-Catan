@@ -30,8 +30,8 @@ import java.util.List;
  *
  */
 
-//Class was build exactly like MainMenuPresenter. Only ActionEvents were added
-// TODO: Update the list of users in the lobbyUsersView list
+//Class was build exactly like MainMenuPresenter.
+
 public class LobbyPresenter extends AbstractPresenter {
 
     public static final String fxml = "/fxml/LobbyView.fxml";
