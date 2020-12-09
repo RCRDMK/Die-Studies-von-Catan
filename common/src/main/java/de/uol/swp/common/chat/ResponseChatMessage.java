@@ -23,6 +23,7 @@ public class ResponseChatMessage extends AbstractServerMessage {
         return chat;
     }
 
+
     public String getUser() {
         return user;
     }
