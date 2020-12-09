@@ -58,8 +58,14 @@ public class LobbyService {
         eventBus.post(joinUserRequest);
     }
 
-    public void retrieveAllThisLobbyUsers(String lobbyName) {
-        System.out.println("ist bei retrieveAllThisLobbyUsers angekommen");
+    /**
+     * Creates a new RetrieveAllThisLobbyUsersRequest and puts it on the Eventbus
+     *
+     * @param lobbyName Name of the lobby of which the User list was requested
+     * @see de.uol.swp.common.lobby.message.RetrieveAllThisLobbyUsersRequest
+     * @since 2020-12-02
+     */
+    public void retrieveAllThisLobbyUsers(String lobbyName){
         RetrieveAllThisLobbyUsersRequest lobbyUsersRequest = new RetrieveAllThisLobbyUsersRequest(lobbyName);
         eventBus.post(lobbyUsersRequest);
     }

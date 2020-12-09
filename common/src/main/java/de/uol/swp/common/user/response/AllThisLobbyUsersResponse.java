@@ -49,13 +49,4 @@ public class AllThisLobbyUsersResponse extends AbstractServerMessage {
         return users;
     }
 
-   /* @Override
-    public List<Session> getReceiver() {
-        return receiver;
-    }
-
-    @Override
-    public void setReceiver(List<Session> receiver) {
-        this.receiver = receiver;
-    }*/
 }
