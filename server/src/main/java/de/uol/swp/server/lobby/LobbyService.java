@@ -9,11 +9,14 @@ import de.uol.swp.common.lobby.message.*;
 import de.uol.swp.common.message.MessageContext;
 import de.uol.swp.common.message.ResponseMessage;
 import de.uol.swp.common.message.ServerMessage;
+import de.uol.swp.common.user.Session;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.response.LobbyCreatedSuccessfulResponse;
+import de.uol.swp.common.user.response.AllThisLobbyUsersResponse;
 import de.uol.swp.server.AbstractService;
 import de.uol.swp.server.usermanagement.AuthenticationService;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -138,6 +141,27 @@ public class LobbyService extends AbstractService {
             }
         } else {
             throw new LobbyManagementException("Lobby unknown!");
+        }
+    }
+
+    /**
+     * Handles RetrieveAllThisLobbyUsersRequests found on the EventBus
+     *
+     * If a RetrieveAllThisLobbyUsersRequests is detected on the EventBus, this method is called.
+     * It prepares the sending of a AllThisLobbyUsersResponse for a Lobby stored in the LobbyManagement
+     *
+     * @param retrieveAllThisLobbyUsersRequest The RetrieveAllThisLobbyUsersRequest found on the EventBus
+     * @see de.uol.swp.common.lobby.Lobby
+     * @since 2020-12-02
+     */
+    @Subscribe
+    public void onRetrieveAllThisLobbyUsersRequest(RetrieveAllThisLobbyUsersRequest retrieveAllThisLobbyUsersRequest) {
+        Optional<Lobby> lobby = lobbyManagement.getLobby(retrieveAllThisLobbyUsersRequest.getName());
+
+        if (lobby.isPresent()) {
+            List<Session> lobbyUsers = authenticationService.getSessions(lobby.get().getUsers());
+            sendToAllInLobby(retrieveAllThisLobbyUsersRequest.getName(), new AllThisLobbyUsersResponse(lobbyUsers));
+
         }
     }
 

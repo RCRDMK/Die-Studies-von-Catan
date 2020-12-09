@@ -82,10 +82,10 @@ public class UserService implements ClientUserService {
 		bus.post(request);
 	}
 
-
 	@Override
 	public void retrieveAllUsers() {
 		RetrieveAllOnlineUsersRequest cmd = new RetrieveAllOnlineUsersRequest();
 		bus.post(cmd);
 	}
+
 }
