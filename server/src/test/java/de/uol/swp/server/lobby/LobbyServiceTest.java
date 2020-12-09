@@ -41,6 +41,7 @@ public class LobbyServiceTest {
     final EventBus bus = new EventBus();
     LobbyManagement lobbyManagement = new LobbyManagement();
     final UserStore userStore = new MainMemoryBasedUserStore();
+    final UserManagement userManagement = new UserManagement(userStore);
     final AuthenticationService authenticationService = new AuthenticationService(bus, userManagement);
 
     UserDTO userDTO = new UserDTO("Peter", "lustig", "peter.lustig@uol.de");
