@@ -3,15 +3,12 @@ package de.uol.swp.client.lobby;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
-import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.message.LobbyCreatedMessage;
 import de.uol.swp.common.lobby.message.UserJoinedLobbyMessage;
 import de.uol.swp.common.lobby.message.UserLeftLobbyMessage;
 import de.uol.swp.client.chat.ChatService;
 import de.uol.swp.common.chat.RequestChatMessage;
 import de.uol.swp.common.chat.ResponseChatMessage;
-import de.uol.swp.common.lobby.message.CreateLobbyRequest;
-import de.uol.swp.common.lobby.message.LobbyJoinUserRequest;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.client.lobby.LobbyService;
@@ -32,13 +29,12 @@ import java.util.Date;
 /**
  * Manages the lobby
  *
+ * Class was build exactly like MainMenuPresenter. Only ActionEvents were added
+ *
  * @author Ricardo Mook, Marc Hermes
  * @see de.uol.swp.client.AbstractPresenter
  * @since 2020-11-19
  */
-
-//Class was build exactly like MainMenuPresenter. Only ActionEvents were added
-// TODO: Update the list of users in the lobbyUsersView list
 public class LobbyPresenter extends AbstractPresenter {
 
     public static final String fxml = "/fxml/LobbyView.fxml";
@@ -51,37 +47,26 @@ public class LobbyPresenter extends AbstractPresenter {
 
     private User joinedLobbyUser;
 
+    private String currentLobby;
+
     @FXML
     public TextField lobbyChatInput;
 
     @FXML
     public TextArea lobbyChatArea;
 
+    @FXML
+    private ListView<String> lobbyUsersView;
+
+    @Inject
+    private LobbyService lobbyService;
 
     @Inject
     private ChatService chatService;
 
     /**
-     * Handles join user to lobby
-     *
-     * If a LobbyJoinUserRequest is posted to the EventBus the joinedLobbyUser
-     * of this lobby is set to the one in the message received
-     *
-     * Not finished yet! (the owner chats with himself)
-     *
-     * @param message the LobbyJoinUserRequest object seen on the EventBus
-     * @see de.uol.swp.common.lobby.message.LobbyJoinUserRequest;
-     * @author Anton
-     * @since 2020-12-06
-     */
-
-    @Subscribe
-    public void onLobbyJoinUserRequest(CreateLobbyRequest message) {
-        this.joinedLobbyUser = message.getOwner();
-    }
-
-    /**
      * Adds the ResponseChatMessage to the textArea
+     *
      * @param msg
      */
     private void updateChat(ResponseChatMessage msg){
@@ -100,6 +85,7 @@ public class LobbyPresenter extends AbstractPresenter {
 
     /**
      * Updates the lobby chat when a ResponseChatMessage was posted to the EventBus.
+     *
      * @param message
      */
     @Subscribe
@@ -111,17 +97,9 @@ public class LobbyPresenter extends AbstractPresenter {
         }
     }
 
-    private String currentLobby;
-
-    @FXML
-    private ListView<String> lobbyUsersView;
-
-    @Inject
-    private LobbyService lobbyService;
-
     /**
      * Übergeben der Variablen joinedLobbyUser und currentLobby
-     * <p>
+     *
      * LobbyCreatedMessage wird abgefangen und die Variablen joinedLobbyUser und currentLobby werden übergeben
      *
      * @param message
@@ -134,7 +112,7 @@ public class LobbyPresenter extends AbstractPresenter {
 
     /**
      * Übergeben der Variablen joinedLobbyUser und currentLobby
-     * <p>
+     *
      * UserJoinedLobbyMessage wird abgefangen und die Variablen joinedLobbyUser und currentLobby werden übergeben
      *
      * @param message
@@ -165,11 +143,13 @@ public class LobbyPresenter extends AbstractPresenter {
     /**
      * Method called when the send Message button is pressed
      *
-     * If the send Message button is pressed, this methods tries to request the chatService to send a specified message.
+     * If the send Message button is pressed,
+     * this methods tries to request the chatService to send a specified message.
      * The message is of type RequestChatMessage
      * If this will result in an exception, go log the exception
      *
      * @param event The ActionEvent created by pressing the send Message button
+     * @author Anton, René, Sergej
      * @see de.uol.swp.client.chat.ChatService
      * @since 2020-12-06
      */
