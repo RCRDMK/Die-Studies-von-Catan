@@ -1,6 +1,5 @@
 package de.uol.swp.common.chat;
 
-import de.uol.swp.common.exception.SendMessageEmptyException;
 import de.uol.swp.common.message.AbstractRequestMessage;
 
 public class RequestChatMessage extends AbstractRequestMessage {
