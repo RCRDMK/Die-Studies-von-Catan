@@ -94,7 +94,7 @@ public class LobbyPresenter extends AbstractPresenter {
     @Subscribe
     public void onResponseChatMessage(ResponseChatMessage message) {
         // Only update Messages from used lobby chat
-        if (message.getChat() == 1) {
+        if (message.getChat().equals(currentLobby)) {
             LOG.debug("Updated lobby chat area with new message..");
             updateChat(message);
         }
@@ -160,8 +160,8 @@ public class LobbyPresenter extends AbstractPresenter {
     void onSendMessage(ActionEvent event) {
         try{
             var chatMessage = lobbyChatInput.getCharacters().toString();
-            // ChatID = 1 means lobby chat
-            var chatId = 1;
+            // ChatID = gets lobby name
+            var chatId = currentLobby;
             if(!chatMessage.isEmpty()){
                 RequestChatMessage message = new RequestChatMessage(chatMessage, chatId, joinedLobbyUser.getUsername(), System.currentTimeMillis());
                 chatService.sendMessage(message);

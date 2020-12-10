@@ -162,7 +162,7 @@ public class MainMenuPresenter extends AbstractPresenter {
     @Subscribe
     public void onResponseChatMessage(ResponseChatMessage message){
         // Only update Messages from main chat
-        if(message.getChat() == 0){
+        if(message.getChat().equals("main")){
             LOG.debug("Updated chat area with new message..");
             updateChat(message);
         }
@@ -221,7 +221,7 @@ public class MainMenuPresenter extends AbstractPresenter {
             var time =  new SimpleDateFormat("HH:mm");
             Date resultdate = new Date((long) msg.getTime().doubleValue());
             var readableTime = time.format(resultdate);
-            textArea.insertText(textArea.getLength(), readableTime +" " +msg.getUser() +": " + msg.getMessage() +"\n");
+            textArea.insertText(textArea.getLength(), readableTime +" " +msg.getUsername() +": " + msg.getMessage() +"\n");
         });
     }
     /**
@@ -288,8 +288,8 @@ public class MainMenuPresenter extends AbstractPresenter {
     void onSendMessage(ActionEvent event) {
         try{
             var chatMessage = inputField.getCharacters().toString();
-            // ChatID = 0 means main chat
-            var chatId = 0;
+            // ChatID = "main" means main chat
+            var chatId = "main";
             if(!chatMessage.isEmpty()){
                 RequestChatMessage message = new RequestChatMessage(chatMessage, chatId, loggedInUser.getUsername(), System.currentTimeMillis());
                 chatService.sendMessage(message);
