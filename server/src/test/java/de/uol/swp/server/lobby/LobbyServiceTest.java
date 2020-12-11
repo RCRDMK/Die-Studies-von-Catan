@@ -154,6 +154,14 @@ public class LobbyServiceTest {
 
     }
 
+    /**
+     * tests if a user leaves lobby
+     *
+     * @see LobbyService
+     * @see LobbyLeaveUserRequest
+     * @see UserLeftLobbyMessage
+     * @since 2020-12-11
+     */
     @Test
     void leaveLobbyTest() {
         LobbyService lobbyService = new LobbyService(lobbyManagement, authenticationService, bus);
@@ -166,6 +174,15 @@ public class LobbyServiceTest {
         assertFalse(lobby.get().getUsers().contains(userDTO1));
     }
 
+
+    /**
+     * tests if the owner leaves lobby and a new owner is chosen
+     *
+     * @see LobbyService
+     * @see LobbyLeaveUserRequest
+     * @see UserLeftLobbyMessage
+     * @since 2020-12-11
+     */
     @Test
     void leaveLobbyOwnerTest() {
         LobbyService lobbyService = new LobbyService(lobbyManagement, authenticationService, bus);
@@ -179,23 +196,4 @@ public class LobbyServiceTest {
         assertTrue(lobby.get().getOwner() == userDTO1);
     }
 
-    @Test
-    void leaveLobbyAllTest() {
-        LobbyService lobbyService = new LobbyService(lobbyManagement, authenticationService, bus);
-        lobbyManagement.createLobby("testLobby", userDTO);
-        Optional<Lobby> lobby = lobbyManagement.getLobby("testLobby");
-        lobby.get().joinUser(userDTO1);
-        LobbyLeaveUserRequest lobbyLeaveUserRequest = new LobbyLeaveUserRequest("testLobby", userDTO);
-        LobbyLeaveUserRequest lobbyLeaveUserRequest2 = new LobbyLeaveUserRequest("testLobby", userDTO1);
-        lobbyService.onLobbyLeaveUserRequest(lobbyLeaveUserRequest);
-        lobbyService.onLobbyLeaveUserRequest(lobbyLeaveUserRequest2);
-
-
-    }
-
-
-    //wenn alle verlassen -> dropLobby
-    //wenn owner verlässt -> neuer Owner
-    //verlassen funktioniert
-    //wenn 1von1 User verlässt
 }
