@@ -5,14 +5,13 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import de.uol.swp.client.user.UserService;
-import de.uol.swp.common.lobby.message.CreateLobbyRequest;
-import de.uol.swp.common.lobby.message.LobbyAlreadyExistsMessage;
-import de.uol.swp.common.lobby.message.LobbyCreatedMessage;
-import de.uol.swp.common.lobby.message.LobbyLeaveUserRequest;
+import de.uol.swp.common.lobby.message.*;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
+import de.uol.swp.common.lobby.message.LobbyJoinUserRequest;
 import de.uol.swp.common.user.request.*;
 import de.uol.swp.common.user.response.LobbyCreatedSuccessfulResponse;
+import de.uol.swp.common.user.response.LobbyLeftSuccessfulResponse;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -34,7 +33,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class UserServiceTest {
 
     final User defaultUser = new UserDTO("Peter", "lustig", "peter.lustig@uol.de");
-
+    final User defaultUser2 = new UserDTO("Carsten", "stahl", "carsten.stahl@uol.de");
     final EventBus bus = new EventBus();
     final CountDownLatch lock = new CountDownLatch(1);
     Object event;
@@ -141,45 +140,7 @@ class UserServiceTest {
         assertTrue(event instanceof CreateLobbyRequest);
     }
 
-    /**
-     * Test for the leave Lobby event.
-     * <p>
-     * This test first calls the loginUser subroutine. Afterwards it calls the initialize Method, where the lobbyname gets a string.
-     * Then checks if a LoginRequest object got posted to the EventBus and if its content is the
-     * default users information.
-     * <p>
-     * Then a new LobbyService will be created and a new UserDTO with the data from the defaultUser. Then we create a new Lobby with the initialized name and UserDTO.
-     * After that, we check if a CreateLobbyRequest object got posted to the EventBus.
-     *
-     * Next we leave current Lobby with the initialized name and UserDTO.
-     * After that, we check if LobbyLeaveUserRequest object got posted to the EventBus.
-     * The test fails if any of the checks fail.
-     *
-     * @throws InterruptedException thrown by loginUser() and initializeTextFields()
-     * @since 2020-12-02
-     */
-    @Test
-    @DisplayName("Verlasse Lobby")
-    void leaveLobbyTest() throws InterruptedException {
-        loginUser();
-        initializeTextFields();
 
-        assertTrue(event instanceof LoginRequest);
-        LobbyService lobbyService = new LobbyService(bus);
-        UserDTO userDTO = new UserDTO(defaultUser.getUsername(), defaultUser.getPassword(), defaultUser.getEMail());
-
-        lobbyService.createNewLobby(lobbyname, userDTO);
-
-        lock.await(1000, TimeUnit.MILLISECONDS);
-
-        assertTrue(event instanceof CreateLobbyRequest);
-
-        lobbyService.leaveLobby(lobbyname, userDTO);
-
-        lock.await(1000, TimeUnit.MILLISECONDS);
-
-        assertTrue(event instanceof LobbyLeaveUserRequest);
-    }
 
     /**
      * Test for create lobby method, with empty lobbyname
@@ -286,4 +247,95 @@ class UserServiceTest {
 
         assertTrue(event instanceof CreateLobbyRequest);
     }
+
+    /**
+     * Test for leaveLobby()
+     *
+     * This test checks if a user who created a lobby, can leave it
+     *
+     * @throws InterruptedException
+     * @since 2020-12-10
+     */
+    @Test
+    @DisplayName("Creator can leave")
+    void lobbyCreatorCanLeaveTest() throws InterruptedException {
+        LobbyService lobbyService = new LobbyService(bus);
+        CreateLobbyRequest message = new CreateLobbyRequest("test", (UserDTO) defaultUser);
+        lobbyService.createNewLobby("test", (UserDTO) defaultUser);
+        LobbyCreatedSuccessfulResponse message2 = new LobbyCreatedSuccessfulResponse(defaultUser);
+        lobbyService.leaveLobby("test", (UserDTO) defaultUser);
+        lock.await(1000, TimeUnit.MILLISECONDS);
+        assertTrue(event instanceof LobbyLeaveUserRequest);
+
+    }
+
+    /**
+     * Test for leaveLobby()
+     *
+     * This test checks if a user who joined a lobby, can leave it
+     *
+     * @throws InterruptedException
+     * @since 2020-12-10
+     */
+    @Test
+    @DisplayName("joined User can leave")
+    void lobbyJoinedUserCanLeaveTest() throws InterruptedException{
+        LobbyService lobbyService = new LobbyService(bus);
+        CreateLobbyRequest message = new CreateLobbyRequest("test", (UserDTO) defaultUser);
+        lobbyService.createNewLobby("test", (UserDTO) defaultUser);
+        LobbyCreatedSuccessfulResponse message2 = new LobbyCreatedSuccessfulResponse(defaultUser);
+        lobbyService.joinLobby("test", (UserDTO) defaultUser2);
+        UserJoinedLobbyMessage message3 = new UserJoinedLobbyMessage("test", (UserDTO) defaultUser2);
+        lobbyService.leaveLobby("test", (UserDTO) defaultUser2);
+        lock.await(1000, TimeUnit.MILLISECONDS);
+        assertTrue(event instanceof LobbyLeaveUserRequest);
+    }
+
+    /**
+     * Test for leaveLobby()
+     *
+     * This test checks if a owner of a lobby can leave it, if another user is in it
+     *
+     * @throws InterruptedException
+     * @since 2020-12-10
+     */
+    @Test
+    @DisplayName("joined User can leave")
+    void lobbyOwnerLeavesJoinedUserStaysTest() throws InterruptedException{
+        LobbyService lobbyService = new LobbyService(bus);
+        CreateLobbyRequest message = new CreateLobbyRequest("test", (UserDTO) defaultUser);
+        lobbyService.createNewLobby("test", (UserDTO) defaultUser);
+        LobbyCreatedSuccessfulResponse message2 = new LobbyCreatedSuccessfulResponse(defaultUser);
+        lobbyService.joinLobby("test", (UserDTO) defaultUser2);
+        UserJoinedLobbyMessage message3 = new UserJoinedLobbyMessage("test", (UserDTO) defaultUser2);
+        lobbyService.leaveLobby("test", (UserDTO) defaultUser);
+        lock.await(1000, TimeUnit.MILLISECONDS);
+        assertTrue(event instanceof LobbyLeaveUserRequest);
+    }
+
+
+    /**
+     *
+     * @throws InterruptedException
+     */
+
+    @Test
+    @DisplayName("Beitrete Lobby")
+    void joinLobbyTest() throws InterruptedException {
+        loginUser();
+        initializeTextFields();
+        loginUser();
+        initializeTextFields();
+        assertTrue(event instanceof LoginRequest);
+        LobbyService lobbyService = new LobbyService(bus);
+        UserDTO userDTO = new UserDTO(defaultUser.getUsername(), defaultUser.getPassword(), defaultUser.getEMail());
+        UserDTO userDTO2 = new UserDTO(defaultUser2.getUsername(), defaultUser2.getPassword(), defaultUser2.getEMail());
+        lobbyService.createNewLobby(lobbyname, userDTO);
+        lock.await(1000, TimeUnit.MILLISECONDS);
+        assertTrue(event instanceof CreateLobbyRequest);
+        lobbyService.joinLobby(lobbyname, userDTO2);
+        lock.await(1000, TimeUnit.MILLISECONDS);
+        assertTrue(event instanceof LobbyJoinUserRequest);
+    }
+
 }
