@@ -300,7 +300,7 @@ class UserServiceTest {
      * @since 2020-12-10
      */
     @Test
-    @DisplayName("joined User can leave")
+    @DisplayName("Owner leaves, joined User stays in the lobby")
     void lobbyOwnerLeavesJoinedUserStaysTest() throws InterruptedException{
         LobbyService lobbyService = new LobbyService(bus);
         CreateLobbyRequest message = new CreateLobbyRequest("test", (UserDTO) defaultUser);
