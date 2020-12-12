@@ -6,12 +6,14 @@ import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import de.uol.swp.common.chat.RequestChatMessage;
 import de.uol.swp.common.chat.ResponseChatMessage;
+import de.uol.swp.common.lobby.message.RetrieveAllThisLobbyUsersRequest;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.message.CreateLobbyRequest;
 import de.uol.swp.common.lobby.message.LobbyAlreadyExistsMessage;
 import de.uol.swp.common.lobby.message.LobbyCreatedMessage;
 import de.uol.swp.common.lobby.message.LobbyJoinUserRequest;
 import de.uol.swp.common.user.User;
+import de.uol.swp.common.user.Session;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.server.usermanagement.AuthenticationService;
 import de.uol.swp.server.usermanagement.UserManagement;
@@ -25,6 +27,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Executable;
+import java.util.Optional;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import static org.mockito.Mockito.*;
@@ -39,6 +43,12 @@ public class LobbyServiceTest {
     final EventBus bus = new EventBus();
     LobbyManagement lobbyManagement = new LobbyManagement();
     LobbyService lobbyService = new LobbyService(lobbyManagement, new AuthenticationService(bus, new UserManagement(new MainMemoryBasedUserStore())), bus);
+    final UserStore userStore = new MainMemoryBasedUserStore();
+    final UserManagement userManagement = new UserManagement(userStore);
+    final AuthenticationService authenticationService = new AuthenticationService(bus, userManagement);
+
+    UserDTO userDTO = new UserDTO("Peter", "lustig", "peter.lustig@uol.de");
+    UserDTO userDTO1 = new UserDTO("Carsten", "stahl", "carsten.stahl@uol.de");
 
     final CountDownLatch lock = new CountDownLatch(1);
     Object event;
@@ -138,6 +148,38 @@ public class LobbyServiceTest {
         assertThrows(LobbyManagementException.class, ()-> lobbyService.onLobbyJoinUserRequest(ljur4));
 
         assertFalse(lobbyManagement.getLobby(lobbyName).get().getUsers().contains(userDTO4));
+
+    }
+
+    /**
+     * This test checks if lobbies can be created with a certain name and
+     *
+     * whether a lobby that is referenced by the RetrieveAllThisLobbyUsersRequest
+     *
+     * is also the same as the lobby itself.
+     *
+     * The lobby that was created by the User userDTO is also joined by userDTO1 and it is checked whether the
+     *
+     * lobby has references to the session of the users that joined the lobby.
+     *
+     * @author Marc Hermes
+     * @since 2020-12-08
+     */
+
+    @Test
+    void onRetrieveAllThisLobbyUsersRequest() {
+
+        LobbyService lobbyService = new LobbyService(lobbyManagement, authenticationService, bus);
+        lobbyManagement.createLobby("testLobby", userDTO);
+        RetrieveAllThisLobbyUsersRequest retrieveAllThisLobbyUsersRequest = new RetrieveAllThisLobbyUsersRequest("testLobby");
+        Optional<Lobby> lobby = lobbyManagement.getLobby("testLobby");
+        assertSame(lobbyManagement.getLobby("testLobby").get().getName(), retrieveAllThisLobbyUsersRequest.getName());
+        assertTrue(lobby.isPresent());
+        lobby.get().joinUser(userDTO1);
+        List<Session> lobbyUsers = authenticationService.getSessions(lobby.get().getUsers());
+        for(Session session :lobbyUsers) {
+            assertTrue(userDTO==(session.getUser()) || userDTO1==(session.getUser()));
+        }
 
     }
 }

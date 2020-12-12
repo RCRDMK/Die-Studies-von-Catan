@@ -6,14 +6,21 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.message.*;
+import de.uol.swp.common.lobby.request.RetrieveAllLobbiesRequest;
+import de.uol.swp.common.lobby.response.AllCreatedLobbiesResponse;
 import de.uol.swp.common.message.MessageContext;
 import de.uol.swp.common.message.ResponseMessage;
 import de.uol.swp.common.message.ServerMessage;
+import de.uol.swp.common.user.Session;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.response.LobbyCreatedSuccessfulResponse;
+import de.uol.swp.common.user.response.AllThisLobbyUsersResponse;
 import de.uol.swp.server.AbstractService;
 import de.uol.swp.server.usermanagement.AuthenticationService;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -28,6 +35,8 @@ public class LobbyService extends AbstractService {
 
     private final LobbyManagement lobbyManagement;
     private final AuthenticationService authenticationService;
+
+    final private Map<Session, User> userSessions = new HashMap<>();
 
     /**
      * Constructor
@@ -147,6 +156,27 @@ public class LobbyService extends AbstractService {
     }
 
     /**
+     * Handles RetrieveAllThisLobbyUsersRequests found on the EventBus
+     *
+     * If a RetrieveAllThisLobbyUsersRequests is detected on the EventBus, this method is called.
+     * It prepares the sending of a AllThisLobbyUsersResponse for a Lobby stored in the LobbyManagement
+     *
+     * @param retrieveAllThisLobbyUsersRequest The RetrieveAllThisLobbyUsersRequest found on the EventBus
+     * @see de.uol.swp.common.lobby.Lobby
+     * @since 2020-12-02
+     */
+    @Subscribe
+    public void onRetrieveAllThisLobbyUsersRequest(RetrieveAllThisLobbyUsersRequest retrieveAllThisLobbyUsersRequest) {
+        Optional<Lobby> lobby = lobbyManagement.getLobby(retrieveAllThisLobbyUsersRequest.getName());
+
+        if (lobby.isPresent()) {
+            List<Session> lobbyUsers = authenticationService.getSessions(lobby.get().getUsers());
+            sendToAllInLobby(retrieveAllThisLobbyUsersRequest.getName(), new AllThisLobbyUsersResponse(lobbyUsers));
+
+        }
+    }
+
+    /**
      * Prepares a given ServerMessage to be send to all players in the lobby and
      * posts it on the EventBus
      *
@@ -179,5 +209,22 @@ public class LobbyService extends AbstractService {
      */
     public void sendToOwner(MessageContext ctx, ResponseMessage message) {
         ctx.writeAndFlush(message);
+    }
+
+    /**
+     * This method retrieves the RetrieveAllLobbiesRequest and creates a AllCreatedLobbiesResponse with all
+     * lobbies in the lobbyManagement.
+     *
+     * @author Carsten Dekker and Marius Birk
+     * @param msg RetrieveAllLobbiesRequest
+     * @see de.uol.swp.common.lobby.request.RetrieveAllLobbiesRequest
+     * @see de.uol.swp.common.lobby.response.AllCreatedLobbiesResponse
+     * @since 2020-04-12
+     */
+    @Subscribe
+    public void onRetrieveAllLobbiesRequest(RetrieveAllLobbiesRequest msg) {
+        AllCreatedLobbiesResponse response = new AllCreatedLobbiesResponse(this.lobbyManagement.getAllLobbies().values());
+        response.initWithMessage(msg);
+        post(response);
     }
 }
