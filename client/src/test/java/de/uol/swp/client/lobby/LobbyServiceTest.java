@@ -4,8 +4,14 @@ import com.google.common.eventbus.DeadEvent;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
+import de.uol.swp.client.main.MainMenuPresenter;
 import de.uol.swp.client.user.UserService;
 import de.uol.swp.common.lobby.message.*;
+import de.uol.swp.common.lobby.message.CreateLobbyRequest;
+import de.uol.swp.common.lobby.message.LobbyAlreadyExistsMessage;
+import de.uol.swp.common.lobby.message.LobbyCreatedMessage;
+import de.uol.swp.common.lobby.request.RetrieveAllLobbiesRequest;
+import de.uol.swp.common.lobby.message.LobbyLeaveUserRequest;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.lobby.message.LobbyJoinUserRequest;
@@ -28,9 +34,10 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Marius Birk, Carsten Dekker
  * @see de.uol.swp.client.lobby.LobbyService
  * @since 2020-12-02
+ *
  */
 @SuppressWarnings("UnstableApiUsage")
-class UserServiceTest {
+class LobbyServiceTest {
 
     final User defaultUser = new UserDTO("Peter", "lustig", "peter.lustig@uol.de");
     final User defaultUser2 = new UserDTO("Carsten", "stahl", "carsten.stahl@uol.de");
@@ -140,7 +147,45 @@ class UserServiceTest {
         assertTrue(event instanceof CreateLobbyRequest);
     }
 
+    /**
+     * Test for the leave Lobby event.
+     * <p>
+     * This test first calls the loginUser subroutine. Afterwards it calls the initialize Method, where the lobbyname gets a string.
+     * Then checks if a LoginRequest object got posted to the EventBus and if its content is the
+     * default users information.
+     * <p>
+     * Then a new LobbyService will be created and a new UserDTO with the data from the defaultUser. Then we create a new Lobby with the initialized name and UserDTO.
+     * After that, we check if a CreateLobbyRequest object got posted to the EventBus.
+     *
+     * Next we leave current Lobby with the initialized name and UserDTO.
+     * After that, we check if LobbyLeaveUserRequest object got posted to the EventBus.
+     * The test fails if any of the checks fail.
+     *
+     * @throws InterruptedException thrown by loginUser() and initializeTextFields()
+     * @since 2020-12-02
+     */
+    @Test
+    @DisplayName("Verlasse Lobby")
+    void leaveLobbyTest() throws InterruptedException {
+        loginUser();
+        initializeTextFields();
 
+        assertTrue(event instanceof LoginRequest);
+        LobbyService lobbyService = new LobbyService(bus);
+        UserDTO userDTO = new UserDTO(defaultUser.getUsername(), defaultUser.getPassword(), defaultUser.getEMail());
+
+        lobbyService.createNewLobby(lobbyname, userDTO);
+
+        lock.await(1000, TimeUnit.MILLISECONDS);
+
+        assertTrue(event instanceof CreateLobbyRequest);
+
+        lobbyService.leaveLobby(lobbyname, userDTO);
+
+        lock.await(1000, TimeUnit.MILLISECONDS);
+
+        assertTrue(event instanceof LobbyLeaveUserRequest);
+    }
 
     /**
      * Test for create lobby method, with empty lobbyname
@@ -246,6 +291,31 @@ class UserServiceTest {
         lock.await(1000, TimeUnit.MILLISECONDS);
 
         assertTrue(event instanceof CreateLobbyRequest);
+    }
+
+    /**
+     * Test for the retrieveAllLobbies routine
+     *
+     * This Test creates a new LobbyService object registered to the EventBus of
+     * this test class. It then calls the retrieveAllLobbies function of the object
+     * and waits for it to post a retrieveAllLobbiesRequest object on the EventBus.
+     * If this happens within one second, the test is successful.
+     *
+     * @author Carsten Dekker
+     * @throws InterruptedException thrown by lock.await()
+     * @since 2020-07-12
+     */
+
+    @Test
+    void retrieveAllLobbiesTest() throws InterruptedException {
+
+        LobbyService lobbyService = new LobbyService(bus);
+
+        lobbyService.retrieveAllLobbies();
+
+        lock.await(1000, TimeUnit.MILLISECONDS);
+
+        assertTrue(event instanceof RetrieveAllLobbiesRequest);
     }
 
     /**

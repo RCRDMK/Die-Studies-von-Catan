@@ -5,10 +5,12 @@ import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
 import de.uol.swp.client.chat.ChatService;
 import de.uol.swp.client.lobby.LobbyService;
+import de.uol.swp.common.lobby.dto.LobbyDTO;
 import de.uol.swp.common.lobby.message.LobbyAlreadyExistsMessage;
 import de.uol.swp.common.lobby.message.LobbyCreatedMessage;
 import de.uol.swp.common.chat.RequestChatMessage;
 import de.uol.swp.common.chat.ResponseChatMessage;
+import de.uol.swp.common.lobby.response.AllCreatedLobbiesResponse;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.user.message.UserLoggedInMessage;
@@ -49,6 +51,8 @@ public class MainMenuPresenter extends AbstractPresenter {
 
     private ObservableList<String> messages;
 
+    private ObservableList<String> lobbies;
+
     private User loggedInUser;
 
     @FXML
@@ -75,6 +79,9 @@ public class MainMenuPresenter extends AbstractPresenter {
     @FXML
     private ListView<String> usersView;
 
+    @FXML
+    private ListView<String> lobbiesView;
+
     /**
      * Handles successful login
      *
@@ -90,6 +97,7 @@ public class MainMenuPresenter extends AbstractPresenter {
     public void loginSuccessful(LoginSuccessfulResponse message) {
         this.loggedInUser = message.getUser();
         userService.retrieveAllUsers();
+        lobbyService.retrieveAllLobbies();
     }
 
     @Subscribe
@@ -156,6 +164,28 @@ public class MainMenuPresenter extends AbstractPresenter {
     }
 
     /**
+     * Handles new list of lobbies
+     *
+     * If a new AllCreatedLobbiesResponse is posted on the eventBus, the Method updateLobbyList gets all
+     * the LobbyDTOs that are in the response.
+     * The LobbyList is shown in the main menu.
+     * Furthermore if the LOG-Level is set to DEBUG the message "Update of lobby
+     * list" with the names of all currently existing lobbies is displayed in the
+     * log.
+     *
+     * @param allCreatedLobbiesResponse the AllCreatedLobbiesResponse object seen on the Eventbus
+     * @see de.uol.swp.common.lobby.response.AllCreatedLobbiesResponse
+     * @since 2020-04-12
+     * @author Carsten Dekker and Marius Birk
+     */
+
+    @Subscribe
+    public void lobbyList(AllCreatedLobbiesResponse allCreatedLobbiesResponse) {
+        LOG.debug("Update of lobby list " + allCreatedLobbiesResponse.getLobbyDTOs());
+        updateLobbyList(allCreatedLobbiesResponse.getLobbyDTOs());
+    }
+
+    /**
      * Updates the chat when a ResponseChatMessage was posted to the eventBus.
      * @param message
      */
@@ -185,7 +215,7 @@ public class MainMenuPresenter extends AbstractPresenter {
      * Updates the main menus user list according to the list given
      *
      * This method clears the entire user list and then adds the name of each user
-     * in the list given to the main menus user list. If there ist no user list
+     * in the list given to the main menus user list. If there is no user list
      * this it creates one.
      *
      * @implNote The code inside this Method has to run in the JavaFX-application
@@ -222,6 +252,31 @@ public class MainMenuPresenter extends AbstractPresenter {
             Date resultdate = new Date((long) msg.getTime().doubleValue());
             var readableTime = time.format(resultdate);
             textArea.insertText(textArea.getLength(), readableTime +" " +msg.getUser() +": " + msg.getMessage() +"\n");
+        });
+    }
+
+    /**
+     * Updates the list of the lobbies in the main menu.
+     *
+     * This method clears the entire lobby list and then adds a new list of lobbies.
+     *
+     * @implNote The code inside this Method has to run in the JavaFX-application
+     * thread. Therefore it is crucial not to remove the {@code Platform.runLater()}
+     * @param lobbyList A list of UserDTO objects including all existing lobbies
+     * @see de.uol.swp.common.lobby.dto.LobbyDTO
+     * @since 2020-04-12
+     * @author Carsten Dekker and Marius Birk
+     */
+
+    private void updateLobbyList(List<LobbyDTO> lobbyList) {
+        // Attention: This must be done on the FX Thread!
+        Platform.runLater(() -> {
+            if (lobbies == null) {
+                lobbies = FXCollections.observableArrayList();
+                lobbiesView.setItems(lobbies);
+            }
+            lobbies.clear();
+            lobbyList.forEach(u -> lobbies.add(u.getName()));
         });
     }
     /**

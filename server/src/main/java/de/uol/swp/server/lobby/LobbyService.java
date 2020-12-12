@@ -6,6 +6,8 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.message.*;
+import de.uol.swp.common.lobby.request.RetrieveAllLobbiesRequest;
+import de.uol.swp.common.lobby.response.AllCreatedLobbiesResponse;
 import de.uol.swp.common.message.MessageContext;
 import de.uol.swp.common.message.ResponseMessage;
 import de.uol.swp.common.message.ServerMessage;
@@ -18,6 +20,8 @@ import de.uol.swp.common.user.response.LobbyLeftSuccessfulResponse;
 import de.uol.swp.server.AbstractService;
 import de.uol.swp.server.usermanagement.AuthenticationService;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,6 +37,8 @@ public class LobbyService extends AbstractService {
 
     private final LobbyManagement lobbyManagement;
     private final AuthenticationService authenticationService;
+
+    final private Map<Session, User> userSessions = new HashMap<>();
 
     /**
      * Constructor
@@ -213,5 +219,22 @@ public class LobbyService extends AbstractService {
      */
     public void sendToSpecificUser(MessageContext ctx, ResponseMessage message) {
         ctx.writeAndFlush(message);
+    }
+
+    /**
+     * This method retrieves the RetrieveAllLobbiesRequest and creates a AllCreatedLobbiesResponse with all
+     * lobbies in the lobbyManagement.
+     *
+     * @author Carsten Dekker and Marius Birk
+     * @param msg RetrieveAllLobbiesRequest
+     * @see de.uol.swp.common.lobby.request.RetrieveAllLobbiesRequest
+     * @see de.uol.swp.common.lobby.response.AllCreatedLobbiesResponse
+     * @since 2020-04-12
+     */
+    @Subscribe
+    public void onRetrieveAllLobbiesRequest(RetrieveAllLobbiesRequest msg) {
+        AllCreatedLobbiesResponse response = new AllCreatedLobbiesResponse(this.lobbyManagement.getAllLobbies().values());
+        response.initWithMessage(msg);
+        post(response);
     }
 }
