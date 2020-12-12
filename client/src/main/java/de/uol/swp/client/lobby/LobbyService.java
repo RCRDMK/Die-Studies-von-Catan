@@ -6,7 +6,9 @@ import de.uol.swp.common.lobby.message.CreateLobbyRequest;
 import de.uol.swp.common.lobby.message.LobbyJoinUserRequest;
 import de.uol.swp.common.lobby.message.LobbyLeaveUserRequest;
 import de.uol.swp.common.lobby.message.RetrieveAllThisLobbyUsersRequest;
+import de.uol.swp.common.lobby.request.RetrieveAllLobbiesRequest;
 import de.uol.swp.common.user.UserDTO;
+import de.uol.swp.common.user.request.RetrieveAllOnlineUsersRequest;
 
 /**
  * Classes that manages lobbies
@@ -86,5 +88,18 @@ public class LobbyService {
     public void retrieveAllThisLobbyUsers(String lobbyName){
         RetrieveAllThisLobbyUsersRequest lobbyUsersRequest = new RetrieveAllThisLobbyUsersRequest(lobbyName);
         eventBus.post(lobbyUsersRequest);
+    }
+
+    /**
+     * Posts a request to get a list of all existing lobbies on the EventBus
+     *
+     * @see de.uol.swp.common.lobby.request.RetrieveAllLobbiesRequest
+     * @since 2020-04-12
+     * @author Carsten Dekker and Marius Birk
+     */
+
+    public void retrieveAllLobbies() {
+        RetrieveAllLobbiesRequest cmd = new RetrieveAllLobbiesRequest();
+        eventBus.post(cmd);
     }
 }
