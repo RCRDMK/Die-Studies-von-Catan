@@ -15,6 +15,8 @@ import de.uol.swp.common.user.Session;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.response.LobbyCreatedSuccessfulResponse;
 import de.uol.swp.common.user.response.AllThisLobbyUsersResponse;
+import de.uol.swp.common.user.response.LobbyJoinedSuccessfulResponse;
+import de.uol.swp.common.user.response.LobbyLeftSuccessfulResponse;
 import de.uol.swp.server.AbstractService;
 import de.uol.swp.server.usermanagement.AuthenticationService;
 
@@ -86,12 +88,12 @@ public class LobbyService extends AbstractService {
             sendToAll(new LobbyCreatedMessage(createLobbyRequest.getName(), createLobbyRequest.getUser()));
             if (createLobbyRequest.getMessageContext().isPresent()) {
                 Optional<MessageContext> ctx = createLobbyRequest.getMessageContext();
-                sendToOwner(ctx.get(), new LobbyCreatedSuccessfulResponse(createLobbyRequest.getName(), createLobbyRequest.getUser()));
+                sendToSpecificUser(ctx.get(), new LobbyCreatedSuccessfulResponse(createLobbyRequest.getName(), createLobbyRequest.getUser()));
             }
         } else {
             Optional<MessageContext> ctx = createLobbyRequest.getMessageContext();
             if (createLobbyRequest.getMessageContext().isPresent()) {
-                sendToOwner(ctx.get(), new LobbyAlreadyExistsMessage());
+                sendToSpecificUser(ctx.get(), new LobbyAlreadyExistsMessage());
             }
         }
     }
@@ -106,15 +108,19 @@ public class LobbyService extends AbstractService {
      * @param lobbyJoinUserRequest The LobbyJoinUserRequest found on the EventBus
      * @see de.uol.swp.common.lobby.Lobby
      * @see de.uol.swp.common.lobby.message.UserJoinedLobbyMessage
+     * @see de.uol.swp.common.user.response.LobbyJoinedSuccessfulResponse
      * @since 2019-10-08
      */
     @Subscribe
     public void onLobbyJoinUserRequest(LobbyJoinUserRequest lobbyJoinUserRequest) {
         Optional<Lobby> lobby = lobbyManagement.getLobby(lobbyJoinUserRequest.getName());
-
         if (lobby.isPresent()) {
-            lobby.get().joinUser(lobbyJoinUserRequest.getUser());
-            sendToAllInLobby(lobbyJoinUserRequest.getName(), new UserJoinedLobbyMessage(lobbyJoinUserRequest.getName(), lobbyJoinUserRequest.getUser()));
+            if (lobbyJoinUserRequest.getMessageContext().isPresent()) {
+                lobby.get().joinUser(lobbyJoinUserRequest.getUser());
+                Optional<MessageContext> ctx = lobbyJoinUserRequest.getMessageContext();
+                sendToSpecificUser(ctx.get(), new LobbyJoinedSuccessfulResponse(lobbyJoinUserRequest.getName(), lobbyJoinUserRequest.getUser()));
+                sendToAllInLobby(lobbyJoinUserRequest.getName(), new UserJoinedLobbyMessage(lobbyJoinUserRequest.getName(), lobbyJoinUserRequest.getUser()));
+            }
         } else {
             throw new LobbyManagementException("Lobby unknown!");
         }
@@ -130,6 +136,7 @@ public class LobbyService extends AbstractService {
      * @param lobbyLeaveUserRequest The LobbyJoinUserRequest found on the EventBus
      * @see de.uol.swp.common.lobby.Lobby
      * @see de.uol.swp.common.lobby.message.UserLeftLobbyMessage
+     * @see de.uol.swp.common.user.response.LobbyLeftSuccessfulResponse
      * @since 2019-10-08
      */
     @Subscribe
@@ -137,12 +144,20 @@ public class LobbyService extends AbstractService {
         Optional<Lobby> lobby = lobbyManagement.getLobby(lobbyLeaveUserRequest.getName());
         if (lobby.isPresent()) {
             if (lobby.get().getUsers().size() == 1) {
-                sendToAllInLobby(lobbyLeaveUserRequest.getName(), new UserLeftLobbyMessage(lobbyLeaveUserRequest.getName(), lobbyLeaveUserRequest.getUser()));
-                lobbyManagement.dropLobby(lobbyLeaveUserRequest.getName());
+                if (lobbyLeaveUserRequest.getMessageContext().isPresent()) {
+                    Optional<MessageContext> ctx = lobbyLeaveUserRequest.getMessageContext();
+                    sendToSpecificUser(ctx.get(), new LobbyLeftSuccessfulResponse(lobbyLeaveUserRequest.getName(), lobbyLeaveUserRequest.getUser()));
+                    sendToAllInLobby(lobbyLeaveUserRequest.getName(), new UserLeftLobbyMessage(lobbyLeaveUserRequest.getName(), lobbyLeaveUserRequest.getUser()));
+                    lobbyManagement.dropLobby(lobbyLeaveUserRequest.getName());
+                }
             } else if (lobby.get().getUsers() == null) {
                 lobbyManagement.dropLobby(lobbyLeaveUserRequest.getName());
             } else {
-                lobby.get().leaveUser(lobbyLeaveUserRequest.getUser());
+                if (lobbyLeaveUserRequest.getMessageContext().isPresent()) {
+                    Optional<MessageContext> ctx = lobbyLeaveUserRequest.getMessageContext();
+                    sendToSpecificUser(ctx.get(), new LobbyLeftSuccessfulResponse(lobbyLeaveUserRequest.getName(), lobbyLeaveUserRequest.getUser()));
+                }
+                    lobby.get().leaveUser(lobbyLeaveUserRequest.getUser());
                 sendToAllInLobby(lobbyLeaveUserRequest.getName(), new UserLeftLobbyMessage(lobbyLeaveUserRequest.getName(), lobbyLeaveUserRequest.getUser()));
             }
         } else {
@@ -202,7 +217,7 @@ public class LobbyService extends AbstractService {
      * @see de.uol.swp.common.message.MessageContext
      * @since 2020-11-25
      */
-    public void sendToOwner(MessageContext ctx, ResponseMessage message) {
+    public void sendToSpecificUser(MessageContext ctx, ResponseMessage message) {
         ctx.writeAndFlush(message);
     }
 

@@ -6,14 +6,12 @@ import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import de.uol.swp.common.chat.RequestChatMessage;
 import de.uol.swp.common.chat.ResponseChatMessage;
-import de.uol.swp.common.lobby.message.RetrieveAllThisLobbyUsersRequest;
+import de.uol.swp.common.lobby.message.*;
 import de.uol.swp.common.lobby.Lobby;
-import de.uol.swp.common.lobby.message.CreateLobbyRequest;
-import de.uol.swp.common.lobby.message.LobbyAlreadyExistsMessage;
-import de.uol.swp.common.lobby.message.LobbyCreatedMessage;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.Session;
 import de.uol.swp.common.user.UserDTO;
+import de.uol.swp.common.user.response.LobbyLeftSuccessfulResponse;
 import de.uol.swp.server.usermanagement.AuthenticationService;
 import de.uol.swp.server.usermanagement.UserManagement;
 import de.uol.swp.server.usermanagement.UserService;
@@ -155,4 +153,47 @@ public class LobbyServiceTest {
         }
 
     }
+
+    /**
+     * tests if a user leaves lobby
+     *
+     * @see LobbyService
+     * @see LobbyLeaveUserRequest
+     * @see UserLeftLobbyMessage
+     * @since 2020-12-11
+     */
+    @Test
+    void leaveLobbyTest() {
+        LobbyService lobbyService = new LobbyService(lobbyManagement, authenticationService, bus);
+        lobbyManagement.createLobby("testLobby", userDTO);
+        Optional<Lobby> lobby = lobbyManagement.getLobby("testLobby");
+        lobby.get().joinUser(userDTO1);
+        LobbyLeaveUserRequest lobbyLeaveUserRequest = new LobbyLeaveUserRequest("testLobby", userDTO1);
+        lobbyService.onLobbyLeaveUserRequest(lobbyLeaveUserRequest);
+        assertTrue(event instanceof UserLeftLobbyMessage);
+        assertFalse(lobby.get().getUsers().contains(userDTO1));
+    }
+
+
+    /**
+     * tests if the owner leaves lobby and a new owner is chosen
+     *
+     * @see LobbyService
+     * @see LobbyLeaveUserRequest
+     * @see UserLeftLobbyMessage
+     * @since 2020-12-11
+     */
+    @Test
+    void leaveLobbyOwnerTest() {
+        LobbyService lobbyService = new LobbyService(lobbyManagement, authenticationService, bus);
+        lobbyManagement.createLobby("testLobby", userDTO);
+        Optional<Lobby> lobby = lobbyManagement.getLobby("testLobby");
+        lobby.get().joinUser(userDTO1);
+        LobbyLeaveUserRequest lobbyLeaveUserRequest = new LobbyLeaveUserRequest("testLobby", userDTO);
+        lobbyService.onLobbyLeaveUserRequest(lobbyLeaveUserRequest);
+        assertTrue(event instanceof UserLeftLobbyMessage);
+        assertFalse(lobby.get().getUsers().contains(userDTO));
+        assertTrue(lobby.get().getOwner() == userDTO1);
+    }
+
 }
