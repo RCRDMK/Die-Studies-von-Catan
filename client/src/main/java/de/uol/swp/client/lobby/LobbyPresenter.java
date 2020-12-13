@@ -68,66 +68,6 @@ public class LobbyPresenter extends AbstractPresenter {
     @Inject
     private ChatService chatService;
 
-    /**
-     * Adds the ResponseChatMessage to the textArea
-     *
-     * @param msg
-     */
-    private void updateChat(ResponseChatMessage msg){
-        // Attention: This must be done on the FX Thread!
-        Platform.runLater(()->{
-            if(messages == null){
-                messages = FXCollections.observableArrayList();
-            }
-
-            var time =  new SimpleDateFormat("HH:mm");
-            Date resultdate = new Date((long) msg.getTime().doubleValue());
-            var readableTime = time.format(resultdate);
-            lobbyChatArea.insertText(lobbyChatArea.getLength(), msg.getMessage() +"\n");
-        });
-    }
-
-    /**
-     * Updates the lobby chat when a ResponseChatMessage was posted to the EventBus.
-     *
-     * @param message
-     */
-    @Subscribe
-    public void onResponseChatMessage(ResponseChatMessage message) {
-        // Only update Messages from used lobby chat
-        if (message.getChat().equals(currentLobby)) {
-            LOG.debug("Updated lobby chat area with new message..");
-            updateChat(message);
-        }
-    }
-
-    /**
-     * Übergeben der Variablen joinedLobbyUser und currentLobby
-     *
-     * LobbyCreatedMessage wird abgefangen und die Variablen joinedLobbyUser und currentLobby werden übergeben
-     *
-     * @param message
-     */
-    @Subscribe
-    public void lobbyCreatedSuccessful(LobbyCreatedMessage message) {
-        this.joinedLobbyUser = message.getUser();
-        this.currentLobby = message.getName();
-    }
-
-    /**
-     * Übergeben der Variablen joinedLobbyUser und currentLobby
-     *
-     * UserJoinedLobbyMessage wird abgefangen und die Variablen joinedLobbyUser und currentLobby werden übergeben
-     *
-     * @param message
-     */
-    @Subscribe
-    public void userJoinedSuccessful(UserJoinedLobbyMessage message) {
-        this.joinedLobbyUser = message.getUser();
-        this.currentLobby = message.getName();
-    }
-    //TODO: für User die, die nicht die Lobby erstellen muss noch eine Methode erstellt werden, die den aktuellen User und die aktuelle Lobby festlegt
-
     @FXML
     public void onStartGame(ActionEvent event) {
         //TODO:
@@ -230,22 +170,6 @@ public class LobbyPresenter extends AbstractPresenter {
         this.currentLobby = message.getName();
         lobbyService.retrieveAllThisLobbyUsers(message.getName());
     }
-    /**
-     * Handles successful lobby leave of the user
-     *
-     * If a UserLeftLobbyMessage is posted to the EventBus the joinedLobbyUser
-     * of this client is set to the one in the message received and the full
-     * list of users currently remaining in the lobby is requested.
-     *
-     * @param message the UserLeftLobbyMessage object seen on the EventBus
-     * @see de.uol.swp.common.lobby.message.UserLeftLobbyMessage
-     * @since 2020-12-03
-     */
-    @Subscribe
-    public void leftSuccessful(UserLeftLobbyMessage message) {
-        LOG.debug("Requesting update of User list in lobby because a User left the lobby.");
-        lobbyService.retrieveAllThisLobbyUsers(message.getName());
-    }
 
     /**
      * Handles successful lobby join from the user
@@ -261,6 +185,23 @@ public class LobbyPresenter extends AbstractPresenter {
     @Subscribe
     public void joinedSuccessful(UserJoinedLobbyMessage message) {
         LOG.debug("Requesting update of User list in lobby because a User joined the lobby.");
+        lobbyService.retrieveAllThisLobbyUsers(message.getName());
+    }
+
+    /**
+     * Handles successful lobby leave of the user
+     *
+     * If a UserLeftLobbyMessage is posted to the EventBus the joinedLobbyUser
+     * of this client is set to the one in the message received and the full
+     * list of users currently remaining in the lobby is requested.
+     *
+     * @param message the UserLeftLobbyMessage object seen on the EventBus
+     * @see de.uol.swp.common.lobby.message.UserLeftLobbyMessage
+     * @since 2020-12-03
+     */
+    @Subscribe
+    public void leftSuccessful(UserLeftLobbyMessage message) {
+        LOG.debug("Requesting update of User list in lobby because a User left the lobby.");
         lobbyService.retrieveAllThisLobbyUsers(message.getName());
     }
 
@@ -306,6 +247,38 @@ public class LobbyPresenter extends AbstractPresenter {
             }
             lobbyUsers.clear();
             lobbyUserList.forEach(u -> lobbyUsers.add(u.getUsername()));
+        });
+    }
+
+    /**
+     * Updates the lobby chat when a ResponseChatMessage was posted to the EventBus.
+     *
+     * @param message
+     */
+    @Subscribe
+    public void onResponseChatMessage(ResponseChatMessage message) {
+        // Only update Messages from used lobby chat
+        if (message.getChat().equals(currentLobby)) {
+            LOG.debug("Updated lobby chat area with new message..");
+            updateChat(message);
+        }
+    }
+
+    /**
+     * Adds the ResponseChatMessage to the textArea
+     *
+     * @param msg
+     */
+    private void updateChat(ResponseChatMessage msg){
+        // Attention: This must be done on the FX Thread!
+        Platform.runLater(()->{
+            if(messages == null){
+                messages = FXCollections.observableArrayList();
+            }
+            var time =  new SimpleDateFormat("HH:mm");
+            Date resultdate = new Date((long) msg.getTime().doubleValue());
+            var readableTime = time.format(resultdate);
+            lobbyChatArea.insertText(lobbyChatArea.getLength(), msg.getMessage() +"\n");
         });
     }
 }
