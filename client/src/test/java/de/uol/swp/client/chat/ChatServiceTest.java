@@ -4,6 +4,7 @@ import com.google.common.eventbus.DeadEvent;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import de.uol.swp.common.chat.RequestChatMessage;
+import de.uol.swp.common.chat.ResponseEmptyChatMessage;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import org.junit.jupiter.api.AfterEach;
@@ -101,13 +102,21 @@ public class ChatServiceTest {
     }
 
     @Test
-    void sendEmptyMessageTest() throws InterruptedException {
+    void onSendMessageTest() throws InterruptedException {
         RequestChatMessage message = new RequestChatMessage("", 0, defaultUser.getUsername(), System.currentTimeMillis());
         chatService.sendMessage(message);
 
         lock.await(1000, TimeUnit.MILLISECONDS);
 
-        assertFalse(event instanceof RequestChatMessage);
+
+        assertTrue(event instanceof ResponseEmptyChatMessage);
+
+        ResponseEmptyChatMessage response = (ResponseEmptyChatMessage) event;
+
+        assertEquals(response.getUser(), defaultUser.getUsername());
+        assertFalse(response.getTime().isNaN());
+        assertEquals(response.getChat(), 0);
+        assertEquals(response.getMessage(), "");
 
     }
 
@@ -118,7 +127,14 @@ public class ChatServiceTest {
 
         lock.await(1000, TimeUnit.MILLISECONDS);
 
-        assertFalse(event instanceof RequestChatMessage);
+        assertTrue(event instanceof ResponseEmptyChatMessage);
+
+        ResponseEmptyChatMessage response = (ResponseEmptyChatMessage) event;
+
+        assertEquals(response.getUser(), defaultUser.getUsername());
+        assertFalse(response.getTime().isNaN());
+        assertEquals(response.getChat(), 0);
+        assertEquals(response.getMessage(), "    ");
 
     }
 
@@ -129,7 +145,14 @@ public class ChatServiceTest {
 
         lock.await(1000, TimeUnit.MILLISECONDS);
 
-        assertFalse(event instanceof RequestChatMessage);
+        assertTrue(event instanceof ResponseEmptyChatMessage);
+
+        ResponseEmptyChatMessage response = (ResponseEmptyChatMessage) event;
+
+        assertEquals(response.getUser(), defaultUser.getUsername());
+        assertFalse(response.getTime().isNaN());
+        assertEquals(response.getChat(), 0);
+        assertEquals(response.getMessage(), "null");
 
     }
 }

@@ -3,6 +3,7 @@ package de.uol.swp.client.chat;
 import com.google.common.eventbus.EventBus;
 import de.uol.swp.client.user.UserService;
 import de.uol.swp.common.chat.RequestChatMessage;
+import de.uol.swp.common.chat.ResponseEmptyChatMessage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -39,17 +40,20 @@ public class ChatService {
      * @param message Message the user wants to send to the server
      */
     public void sendMessage(RequestChatMessage message) {
-        eventBus.post(message);
-        LOG.debug("User: " + message.getUser() + " sent message: '" + message.getMessage() + "' to server.");
+        try{
+        if (!message.getMessage().isEmpty() && !message.getMessage().equals(null) && !message.getMessage().isBlank()) {
+            eventBus.post(message);
+            LOG.debug("User: " + message.getUser() + " sent message: '" + message.getMessage() + "' to server.");
 
-    }
-
-    public static boolean checkForWhiteSpace(String temp) {
-        for (int i = 0; i < temp.length(); i++) {
-            if (temp.charAt(i) != ' ') {
-                return false;
-            }
+        }else{
+            ResponseEmptyChatMessage msg = new ResponseEmptyChatMessage(message.getMessage(), message.getChat(), message.getUser(), message.getTime());
+            eventBus.post(msg);
+            LOG.debug("Posted ResponseEmptyChatMessage on eventBus");
         }
-        return true;
+        } catch(NullPointerException e){
+            ResponseEmptyChatMessage msg = new ResponseEmptyChatMessage("null", message.getChat(), message.getUser(), message.getTime());
+            eventBus.post(msg);
+            LOG.debug("Posted ResponseEmptyChatMessage on eventBus");
+        }
     }
 }
