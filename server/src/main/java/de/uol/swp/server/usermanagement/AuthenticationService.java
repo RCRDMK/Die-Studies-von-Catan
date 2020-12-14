@@ -166,7 +166,7 @@ public class AuthenticationService extends AbstractService {
      *
      * If a RetrieveAllOnlineUsersRequest is detected on the EventBus, this method
      * is called. It posts a AllOnlineUsersResponse containing user objects for
-     * every logged in user on the EvenBus.
+     * every logged in user on the EventBus.
      *
      * @param msg RetrieveAllOnlineUsersRequest found on the EventBus
      * @see de.uol.swp.common.user.request.RetrieveAllOnlineUsersRequest
@@ -179,6 +179,4 @@ public class AuthenticationService extends AbstractService {
         response.initWithMessage(msg);
         post(response);
     }
-
-
 }

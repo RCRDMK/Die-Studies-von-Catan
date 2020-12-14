@@ -7,16 +7,11 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import de.uol.swp.client.di.ClientModule;
 import de.uol.swp.client.user.ClientUserService;
-import de.uol.swp.common.lobby.message.CreateLobbyRequest;
-import de.uol.swp.common.lobby.message.LobbyCreatedMessage;
-import de.uol.swp.common.lobby.message.LobbyJoinUserRequest;
-import de.uol.swp.common.lobby.message.UserJoinedLobbyMessage;
+import de.uol.swp.common.lobby.message.*;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.exception.RegistrationExceptionMessage;
 import de.uol.swp.common.user.request.LogoutRequest;
-import de.uol.swp.common.user.response.LobbyCreatedSuccessfulResponse;
-import de.uol.swp.common.user.response.LoginSuccessfulResponse;
-import de.uol.swp.common.user.response.RegistrationSuccessfulResponse;
+import de.uol.swp.common.user.response.*;
 import io.netty.channel.Channel;
 import javafx.application.Application;
 import javafx.stage.Stage;
@@ -165,7 +160,7 @@ public class ClientApp extends Application implements ConnectionListener {
      * Handles successful lobby creation
      * <p>
      * If an LobbyCreatedSuccessful object is detected on the EventBus this
-     * method is called. It tells the SceneManager to show the main menu and sets
+     * method is called. It tells the SceneManager to show the lobby menu and sets
      * this clients user to the user found in the object. If the loglevel is set
      * to DEBUG or higher "user created lobby " and the username of the
      * logged in user are written to the log.
@@ -185,13 +180,41 @@ public class ClientApp extends Application implements ConnectionListener {
         }
     }
 
+    /**
+     * Handles successful lobby joining
+     * <p>
+     * If a UserJoinedLobbyMessage object is detected on the EventBus this
+     * method is called. It tells the SceneManager to show the lobby menu and sets
+     * this clients user to the user found in the object. If the loglevel is set
+     * to DEBUG or higher "user joined lobby " is written to the log.
+     *
+     * @param message The UserJoinedLobbyMessage object detected on the EventBus
+     * @see de.uol.swp.client.SceneManager
+     * @since 2020-12-03
+     */
     @Subscribe
-    public void userJoinedLobby(UserJoinedLobbyMessage message) {
+    public void userJoinedLobby(LobbyJoinedSuccessfulResponse message) {
         //TODO: Make it possible for the User to select a Lobby that he wants to join,
         // currently the user is only able to join the only lobby on pressing the button
         LOG.debug("user joined lobby ");
         this.user = message.getUser();
-        sceneManager.showLobbyScreen(user, "test lobby");
+            sceneManager.showLobbyScreen(user, message.getName());
+
+    }
+    /**
+     * Handles the successful leaving of a user
+     *
+     * If an UserLeftLobbyMessage object is detected on the EventBus this method is called.
+     * It tells the SceneManager to show the main menu.
+     *
+     * @param message
+     * @see de.uol.swp.client.SceneManager
+     */
+    @Subscribe
+    public void userLeftLobby(LobbyLeftSuccessfulResponse message) {
+        LOG.debug("User " + message.getUser().getUsername() + " left lobby ");
+            this.user = message.getUser();
+            sceneManager.showMainScreen(user);
     }
 
     /**

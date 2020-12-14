@@ -5,6 +5,7 @@ import de.uol.swp.common.lobby.dto.LobbyDTO;
 import de.uol.swp.common.user.User;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -67,5 +68,15 @@ public class LobbyManagement {
             return Optional.of(lobby);
         }
         return Optional.empty();
+    }
+
+    /**
+     * getter
+     * @return containing a HashMap with lobbies
+     * @since 2020-04-12
+     * @author Carsten Dekker and Marius Birk
+     */
+    public Map<String, Lobby> getAllLobbies(){
+        return lobbies;
     }
 }
