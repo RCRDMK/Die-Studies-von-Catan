@@ -294,10 +294,8 @@ public class MainMenuPresenter extends AbstractPresenter {
             var chatMessage = inputField.getCharacters().toString();
             // ChatID = 0 means main chat
             var chatId = 0;
-            if (!chatMessage.isEmpty() && !chatMessage.equals(null) && !chatMessage.isBlank()) {
-                RequestChatMessage message = new RequestChatMessage(chatMessage, chatId, loggedInUser.getUsername(), System.currentTimeMillis());
-                chatService.sendMessage(message);
-            }
+            RequestChatMessage message = new RequestChatMessage(chatMessage, chatId, loggedInUser.getUsername(), System.currentTimeMillis());
+            chatService.sendMessage(message);
             this.inputField.setText("");
         } catch (Exception e) {
             LOG.debug(e);
