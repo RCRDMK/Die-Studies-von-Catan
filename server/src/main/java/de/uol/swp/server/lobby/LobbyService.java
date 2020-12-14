@@ -19,6 +19,9 @@ import de.uol.swp.common.user.response.LobbyJoinedSuccessfulResponse;
 import de.uol.swp.common.user.response.LobbyLeftSuccessfulResponse;
 import de.uol.swp.server.AbstractService;
 import de.uol.swp.server.usermanagement.AuthenticationService;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.platform.commons.logging.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -37,7 +40,7 @@ public class LobbyService extends AbstractService {
 
     private final LobbyManagement lobbyManagement;
     private final AuthenticationService authenticationService;
-
+    private static final Logger LOG = LogManager.getLogger(LobbyService.class);
     final private Map<Session, User> userSessions = new HashMap<>();
 
     /**
@@ -84,8 +87,12 @@ public class LobbyService extends AbstractService {
     @Subscribe
     public void onCreateLobbyRequest(CreateLobbyRequest createLobbyRequest) {
         if (lobbyManagement.getLobby(createLobbyRequest.getName()).isEmpty()) {
-            lobbyManagement.createLobby(createLobbyRequest.getName(), createLobbyRequest.getUser());
-            sendToAll(new LobbyCreatedMessage(createLobbyRequest.getName(), createLobbyRequest.getUser()));
+            try{
+                lobbyManagement.createLobby(createLobbyRequest.getName(), createLobbyRequest.getUser());
+                sendToAll(new LobbyCreatedMessage(createLobbyRequest.getName(), createLobbyRequest.getUser()));
+            }catch(IllegalArgumentException e){
+                LOG.debug(e);
+            }
             if (createLobbyRequest.getMessageContext().isPresent()) {
                 Optional<MessageContext> ctx = createLobbyRequest.getMessageContext();
                 sendToSpecificUser(ctx.get(), new LobbyCreatedSuccessfulResponse(createLobbyRequest.getName(), createLobbyRequest.getUser()));

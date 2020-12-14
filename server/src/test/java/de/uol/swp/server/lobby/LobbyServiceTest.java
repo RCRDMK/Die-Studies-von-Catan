@@ -18,10 +18,7 @@ import de.uol.swp.server.usermanagement.UserService;
 import de.uol.swp.server.usermanagement.store.MainMemoryBasedUserStore;
 import de.uol.swp.server.usermanagement.store.UserStore;
 import org.checkerframework.checker.units.qual.A;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import java.util.Optional;
 import java.util.List;
@@ -105,21 +102,14 @@ public class LobbyServiceTest {
         UserDTO userDTO = new UserDTO("Peter", "lustig", "peter.lustig@uol.de");
         UserDTO userDTO1 = new UserDTO("Carsten", "stahl", "carsten.stahl@uol.de");
 
-        CreateLobbyRequest clr = new CreateLobbyRequest(lobbyName, userDTO);
-        CreateLobbyRequest clr2 = new CreateLobbyRequest(lobbyName, userDTO1);
-
-
-        bus.post(clr);
-        lock.await(1000, TimeUnit.MILLISECONDS);
+        lock.await(2000, TimeUnit.MILLISECONDS);
 
         lobbyManagement.createLobby(lobbyName, userDTO);
-
+        /** We except the first assertNotNull to be true.*/
         assertNotNull(lobbyManagement.getLobby(lobbyName).get());
 
-        bus.post(clr2);
-
-        assertNotEquals(lobbyManagement.getLobby(lobbyName).get(), userDTO1);
-
+        /** We expect the next line to success. We try to create a new lobby with the same name as the first one. But we dont want a new lobby, so it throws an exception. */
+        Assertions.assertThrows(IllegalArgumentException.class, ()->lobbyManagement.createLobby(lobbyName, userDTO1));
     }
 
     /**
