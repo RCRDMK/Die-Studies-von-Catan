@@ -7,6 +7,7 @@ import com.google.inject.Singleton;
 import de.uol.swp.common.message.ResponseMessage;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.exception.RegistrationExceptionMessage;
+import de.uol.swp.common.user.request.DropUserRequest;
 import de.uol.swp.common.user.request.RegisterUserRequest;
 import de.uol.swp.common.user.response.RegistrationSuccessfulResponse;
 import de.uol.swp.server.AbstractService;
@@ -75,4 +76,18 @@ public class UserService extends AbstractService {
         }
         post(returnMessage);
     }
+
+    @Subscribe
+    private void onDropUserRequest(DropUserRequest msg) {
+        if (LOG.isDebugEnabled()){
+            LOG.debug("Got new dropUser message with " + msg.getUser());
+        }
+        ResponseMessage returnMessage;
+        try {
+            userManagement.dropUser(msg.getUser());
+        } catch (Exception e) {
+            LOG.error(e);
+        }
+    }
+
 }

@@ -3,6 +3,7 @@ package de.uol.swp.client.main;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
+import de.uol.swp.client.auth.events.ShowLoginViewEvent;
 import de.uol.swp.client.chat.ChatService;
 import de.uol.swp.client.lobby.LobbyService;
 import de.uol.swp.common.lobby.dto.LobbyDTO;
@@ -29,6 +30,7 @@ import javafx.scene.control.TextField;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import javax.swing.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -354,6 +356,12 @@ public class MainMenuPresenter extends AbstractPresenter {
         catch(Exception e){
             LOG.debug(e);
         }
+    }
+
+    @FXML
+    void onDropUser(ActionEvent event) {
+        userService.dropUser(this.loggedInUser);
+        eventBus.post(new ShowLoginViewEvent());
     }
 
 }
