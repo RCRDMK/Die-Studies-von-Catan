@@ -11,9 +11,7 @@ import de.uol.swp.common.lobby.message.*;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.exception.RegistrationExceptionMessage;
 import de.uol.swp.common.user.request.LogoutRequest;
-import de.uol.swp.common.user.response.LobbyCreatedSuccessfulResponse;
-import de.uol.swp.common.user.response.LoginSuccessfulResponse;
-import de.uol.swp.common.user.response.RegistrationSuccessfulResponse;
+import de.uol.swp.common.user.response.*;
 import io.netty.channel.Channel;
 import javafx.application.Application;
 import javafx.stage.Stage;
@@ -195,12 +193,13 @@ public class ClientApp extends Application implements ConnectionListener {
      * @since 2020-12-03
      */
     @Subscribe
-    public void userJoinedLobby(UserJoinedLobbyMessage message) {
+    public void userJoinedLobby(LobbyJoinedSuccessfulResponse message) {
         //TODO: Make it possible for the User to select a Lobby that he wants to join,
         // currently the user is only able to join the only lobby on pressing the button
         LOG.debug("user joined lobby ");
         this.user = message.getUser();
-        sceneManager.showLobbyScreen(user, message.getName());
+            sceneManager.showLobbyScreen(user, message.getName());
+
     }
     /**
      * Handles the successful leaving of a user
@@ -212,10 +211,10 @@ public class ClientApp extends Application implements ConnectionListener {
      * @see de.uol.swp.client.SceneManager
      */
     @Subscribe
-    public void userLeftLobby(UserLeftLobbyMessage message){
+    public void userLeftLobby(LobbyLeftSuccessfulResponse message) {
         LOG.debug("User " + message.getUser().getUsername() + " left lobby ");
-        this.user = message.getUser();
-        sceneManager.showMainScreen(user);
+            this.user = message.getUser();
+            sceneManager.showMainScreen(user);
     }
 
     /**

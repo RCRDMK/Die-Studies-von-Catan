@@ -3,18 +3,14 @@ package de.uol.swp.client.lobby;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
-import de.uol.swp.common.lobby.Lobby;
-import de.uol.swp.common.lobby.message.LobbyCreatedMessage;
-import de.uol.swp.common.lobby.message.UserJoinedLobbyMessage;
-import de.uol.swp.common.lobby.message.UserLeftLobbyMessage;
 import de.uol.swp.common.lobby.message.UserJoinedLobbyMessage;
 import de.uol.swp.common.lobby.message.UserLeftLobbyMessage;
 import de.uol.swp.common.user.response.AllThisLobbyUsersResponse;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
-import de.uol.swp.client.lobby.LobbyService;
-import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.user.response.LobbyCreatedSuccessfulResponse;
+import de.uol.swp.common.user.response.LobbyJoinedSuccessfulResponse;
+import de.uol.swp.common.user.response.LobbyLeftSuccessfulResponse;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -58,32 +54,6 @@ public class LobbyPresenter extends AbstractPresenter {
     @Inject
     private LobbyService lobbyService;
 
-    /**
-     * Übergeben der Variablen joinedLobbyUser und currentLobby
-     * <p>
-     * LobbyCreatedMessage wird abgefangen und die Variablen joinedLobbyUser und currentLobby werden übergeben
-     *
-     * @param message
-     */
-    @Subscribe
-    public void lobbyCreatedSuccessful(LobbyCreatedMessage message) {
-        this.joinedLobbyUser = message.getUser();
-        this.currentLobby = message.getName();
-    }
-
-    /**
-     * Übergeben der Variablen joinedLobbyUser und currentLobby
-     * <p>
-     * UserJoinedLobbyMessage wird abgefangen und die Variablen joinedLobbyUser und currentLobby werden übergeben
-     *
-     * @param message
-     */
-    @Subscribe
-    public void userJoinedSuccessful(UserJoinedLobbyMessage message) {
-        this.joinedLobbyUser = message.getUser();
-        this.currentLobby = message.getName();
-    }
-    //TODO: für User die, die nicht die Lobby erstellen muss noch eine Methode erstellt werden, die den aktuellen User und die aktuelle Lobby festlegt
 
     @FXML
     public void onStartGame(ActionEvent event) {
@@ -121,13 +91,51 @@ public class LobbyPresenter extends AbstractPresenter {
     public void createdSuccessful(LobbyCreatedSuccessfulResponse message) {
         LOG.debug("Requesting update of User list in lobby because lobby was created.");
         this.joinedLobbyUser = message.getUser();
+        this.currentLobby = message.getName();
         lobbyService.retrieveAllThisLobbyUsers(message.getName());
     }
 
     /**
+     * Handles successful joining in the lobby
+     *
+     * If a LobbyJoinedSuccessfulResponse is posted to the EventBus the loggedInUser
+     * of this client is set to the one in the message received and the full
+     * list of users currently in the lobby is requested.
+     *
+     * @param message the LobbyJoinedSuccessfulResponse object seen on the EventBus
+     * @see de.uol.swp.common.user.response.LobbyJoinedSuccessfulResponse
+     * @since 2020-12-10
+     */
+    @Subscribe
+    public void userJoinedSuccessful(LobbyJoinedSuccessfulResponse message) {
+        LOG.debug("Requesting update of User list in lobby because new user joined the lobby.");
+        this.joinedLobbyUser = message.getUser();
+        this.currentLobby = message.getName();
+        lobbyService.retrieveAllThisLobbyUsers(message.getName());
+    }
+
+    /**
+     * Handles successful leaving of lobby
+     *
+     * If a LobbyLeftSuccessfulResponse is posted to the EventBus the loggedInUser
+     * of this client is set to the one in the message received and the full
+     * list of users currently in the lobby is requested.
+     *
+     * @param message the LobbyLeftSuccessfulResponse object seen on the EventBus
+     * @see de.uol.swp.common.user.response.LobbyLeftSuccessfulResponse
+     * @since 2020-12-10
+     */
+    @Subscribe
+    public void userLeftSuccessful(LobbyLeftSuccessfulResponse message) {
+        LOG.debug("Requesting update of User list in lobby because user left the lobby.");
+        this.joinedLobbyUser = message.getUser();
+        this.currentLobby = message.getName();
+        lobbyService.retrieveAllThisLobbyUsers(message.getName());
+    }
+    /**
      * Handles successful lobby leave of the user
      *
-     * If a UserleftLobbyMessage is posted to the EventBus the joinedLobbyUser
+     * If a UserLeftLobbyMessage is posted to the EventBus the joinedLobbyUser
      * of this client is set to the one in the message received and the full
      * list of users currently remaining in the lobby is requested.
      *
@@ -155,9 +163,9 @@ public class LobbyPresenter extends AbstractPresenter {
     @Subscribe
     public void joinedSuccessful(UserJoinedLobbyMessage message) {
         LOG.debug("Requesting update of User list in lobby because a User joined the lobby.");
-        this.joinedLobbyUser = message.getUser();
         lobbyService.retrieveAllThisLobbyUsers(message.getName());
     }
+
 
     /**
      * Handles new list of users
