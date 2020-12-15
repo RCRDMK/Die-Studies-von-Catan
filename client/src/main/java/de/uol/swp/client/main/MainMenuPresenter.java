@@ -358,6 +358,18 @@ public class MainMenuPresenter extends AbstractPresenter {
         }
     }
 
+    /**
+     * Method called when the DeleteUser button is pressed
+     *
+     * If the delete User button is pressed, this methods tries to request the UserService to send a specified request.
+     * The request is of type DropUserRequest
+     *
+     * @author Carsten Dekker
+     * @param event The ActionEvent created by pressing the DeleteUser button
+     * @see de.uol.swp.client.user.UserService
+     * @since 2020-12-15
+     */
+
     @FXML
     void onDropUser(ActionEvent event) {
         userService.dropUser(this.loggedInUser);

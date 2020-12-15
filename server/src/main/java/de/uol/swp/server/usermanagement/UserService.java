@@ -77,6 +77,17 @@ public class UserService extends AbstractService {
         post(returnMessage);
     }
 
+    /**
+     * Handles DropUserRequests found on the EventBus
+     *
+     * If a DropUserRequest is detected on the EventBus, this method is called.
+     * It tries to delete the user via the UserManagement.
+     *
+     * @author Carsten Dekker
+     * @param msg The DropUserRequest found on the EventBus
+     * @see de.uol.swp.common.user.request.DropUserRequest
+     * @since 2020-12-15
+     */
     @Subscribe
     private void onDropUserRequest(DropUserRequest msg) {
         if (LOG.isDebugEnabled()){

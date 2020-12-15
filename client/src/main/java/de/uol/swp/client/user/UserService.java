@@ -67,10 +67,13 @@ public class UserService implements ClientUserService {
 	/**
 	 * Method to delete an users account
 	 *
-	 * This method should send a request to delete an users account, but being not
-	 * implemented, it currently does nothing.
+	 * This method sends a request to delete an users account.
+	 * The request is of type DropUserRequest.
 	 *
+	 * @author Carsten Dekker
 	 * @param user The user to remove
+	 * @see de.uol.swp.common.user.request.DropUserRequest
+	 * @since 2017-12-15
 	 */
     public void dropUser(User user) {
         DropUserRequest request = new DropUserRequest(user);
