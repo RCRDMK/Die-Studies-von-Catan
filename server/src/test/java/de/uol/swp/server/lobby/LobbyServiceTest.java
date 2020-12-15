@@ -119,6 +119,12 @@ public class LobbyServiceTest {
         assertNotEquals(lobbyManagement.getLobby(lobbyName).get().getOwner(), userDTO1);
     }
 
+    /**
+     * This test shows that a maximum of 4 users can join a lobby.
+     *
+     * @author Pieter Vogt, Kirstin Beyer
+     * @since 2020-12-15
+     */
     @Test
     @DisplayName("Join Versuch Lobby voll")
     void LobbyJoinTest() throws LobbyManagementException {

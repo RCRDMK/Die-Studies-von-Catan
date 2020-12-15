@@ -114,13 +114,6 @@ public class LobbyService extends AbstractService {
     @Subscribe
     public void onLobbyJoinUserRequest(LobbyJoinUserRequest lobbyJoinUserRequest) {
         Optional<Lobby> lobby = lobbyManagement.getLobby(lobbyJoinUserRequest.getName());
-        if (lobby.isPresent()) {
-            if (lobbyJoinUserRequest.getMessageContext().isPresent()) {
-                lobby.get().joinUser(lobbyJoinUserRequest.getUser());
-                Optional<MessageContext> ctx = lobbyJoinUserRequest.getMessageContext();
-                sendToSpecificUser(ctx.get(), new LobbyJoinedSuccessfulResponse(lobbyJoinUserRequest.getName(), lobbyJoinUserRequest.getUser()));
-                sendToAllInLobby(lobbyJoinUserRequest.getName(), new UserJoinedLobbyMessage(lobbyJoinUserRequest.getName(), lobbyJoinUserRequest.getUser()));
-            }
 
         if (!lobby.isPresent()) {
             throw new LobbyManagementException("Lobby unknown!");
@@ -129,10 +122,15 @@ public class LobbyService extends AbstractService {
         if (lobby.get().getUsers().size() < 4) {
             lobby.get().joinUser(lobbyJoinUserRequest.getUser());
             sendToAllInLobby(lobbyJoinUserRequest.getName(), new UserJoinedLobbyMessage(lobbyJoinUserRequest.getName(), lobbyJoinUserRequest.getUser()));
+            if (lobbyJoinUserRequest.getMessageContext().isPresent()) {
+                lobby.get().joinUser(lobbyJoinUserRequest.getUser());
+                Optional<MessageContext> ctx = lobbyJoinUserRequest.getMessageContext();
+                sendToSpecificUser(ctx.get(), new LobbyJoinedSuccessfulResponse(lobbyJoinUserRequest.getName(), lobbyJoinUserRequest.getUser()));
+                sendToAllInLobby(lobbyJoinUserRequest.getName(), new UserJoinedLobbyMessage(lobbyJoinUserRequest.getName(), lobbyJoinUserRequest.getUser()));
+            }
         } else {
             throw new LobbyManagementException("Lobby is full!");
         }
-
     }
 
     /**
