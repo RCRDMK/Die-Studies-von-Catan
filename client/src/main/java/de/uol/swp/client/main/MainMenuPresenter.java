@@ -49,8 +49,6 @@ public class MainMenuPresenter extends AbstractPresenter {
 
     private ObservableList<String> users;
 
-    private ObservableList<String> messages;
-
     private ObservableList<String> lobbies;
 
     private User loggedInUser;
@@ -242,17 +240,10 @@ public class MainMenuPresenter extends AbstractPresenter {
      * @param msg
      */
     private void updateChat(ResponseChatMessage msg){
-        // Attention: This must be done on the FX Thread!
-        Platform.runLater(()->{
-            if(messages == null){
-                messages = FXCollections.observableArrayList();
-            }
-
-            var time =  new SimpleDateFormat("HH:mm");
-            Date resultdate = new Date((long) msg.getTime().doubleValue());
-            var readableTime = time.format(resultdate);
-            textArea.insertText(textArea.getLength(), readableTime +" " +msg.getUsername() +": " + msg.getMessage() +"\n");
-        });
+        var time =  new SimpleDateFormat("HH:mm");
+        Date resultdate = new Date((long) msg.getTime().doubleValue());
+        var readableTime = time.format(resultdate);
+        textArea.insertText(textArea.getLength(), readableTime +" " +msg.getUsername() +": " + msg.getMessage() +"\n");
     }
 
     /**

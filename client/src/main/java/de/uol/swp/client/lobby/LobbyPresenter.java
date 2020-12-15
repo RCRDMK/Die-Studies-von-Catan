@@ -11,7 +11,6 @@ import de.uol.swp.common.chat.ResponseChatMessage;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.client.chat.ChatService;
-import de.uol.swp.client.lobby.LobbyService;
 import de.uol.swp.common.user.response.LobbyCreatedSuccessfulResponse;
 import de.uol.swp.common.user.response.LobbyJoinedSuccessfulResponse;
 import de.uol.swp.common.user.response.LobbyLeftSuccessfulResponse;
@@ -46,8 +45,6 @@ public class LobbyPresenter extends AbstractPresenter {
     private static final Logger LOG = LogManager.getLogger(LobbyPresenter.class);
 
     private ObservableList<String> lobbyUsers;
-
-    private ObservableList<String> messages;
 
     private User joinedLobbyUser;
 
@@ -168,6 +165,8 @@ public class LobbyPresenter extends AbstractPresenter {
         LOG.debug("Requesting update of User list in lobby because user left the lobby.");
         this.joinedLobbyUser = message.getUser();
         this.currentLobby = message.getName();
+        this.lobbyChatInput.setText("");
+        lobbyChatArea.deleteText(0, lobbyChatArea.getLength());
         lobbyService.retrieveAllThisLobbyUsers(message.getName());
     }
 
@@ -270,15 +269,9 @@ public class LobbyPresenter extends AbstractPresenter {
      * @param msg
      */
     private void updateChat(ResponseChatMessage msg){
-        // Attention: This must be done on the FX Thread!
-        Platform.runLater(()->{
-            if(messages == null){
-                messages = FXCollections.observableArrayList();
-            }
-            var time =  new SimpleDateFormat("HH:mm");
-            Date resultdate = new Date((long) msg.getTime().doubleValue());
-            var readableTime = time.format(resultdate);
-            lobbyChatArea.insertText(lobbyChatArea.getLength(), msg.getMessage() +"\n");
-        });
+       var time =  new SimpleDateFormat("HH:mm");
+       Date resultdate = new Date((long) msg.getTime().doubleValue());
+       var readableTime = time.format(resultdate);
+       lobbyChatArea.insertText(lobbyChatArea.getLength(), readableTime +" " +msg.getUsername() +": " + msg.getMessage() +"\n");
     }
 }
