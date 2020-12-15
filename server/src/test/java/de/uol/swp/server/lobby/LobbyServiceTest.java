@@ -22,10 +22,7 @@ import de.uol.swp.server.usermanagement.UserService;
 import de.uol.swp.server.usermanagement.store.MainMemoryBasedUserStore;
 import de.uol.swp.server.usermanagement.store.UserStore;
 import org.checkerframework.checker.units.qual.A;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import java.util.Optional;
 import java.util.List;
@@ -99,8 +96,8 @@ public class LobbyServiceTest {
      * This test shows that two Lobbies with same name can't be created.
      * There are two different users, who wants to create a lobby, but with the same name.
      *
-     * @author Marius Birk, Carsten Dekker
      * @since 2020-12-02
+     * @author Marius Birk, Carsten Dekker
      */
     @Test
     @DisplayName("Zwei Lobbies, gleicher Name")
@@ -110,13 +107,14 @@ public class LobbyServiceTest {
         UserDTO userDTO = new UserDTO("Peter", "lustig", "peter.lustig@uol.de");
         UserDTO userDTO1 = new UserDTO("Carsten", "stahl", "carsten.stahl@uol.de");
 
-        lobbyManagement.createLobby(lobbyName, userDTO);
+        lock.await(2000, TimeUnit.MILLISECONDS);
 
+        lobbyManagement.createLobby(lobbyName, userDTO);
+        /** We except the first assertNotNull to be true.*/
         assertNotNull(lobbyManagement.getLobby(lobbyName).get());
 
-        lobbyManagement.createLobby(lobbyName, userDTO1);
-
-        assertNotEquals(lobbyManagement.getLobby(lobbyName).get().getOwner(), userDTO1);
+        /** We expect the next line to success. We try to create a new lobby with the same name as the first one. But we dont want a new lobby, so it throws an exception. */
+        Assertions.assertThrows(IllegalArgumentException.class, ()->lobbyManagement.createLobby(lobbyName, userDTO1));
     }
 
     /**
