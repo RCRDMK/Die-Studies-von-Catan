@@ -8,6 +8,10 @@ import de.uol.swp.common.chat.RequestChatMessage;
 import de.uol.swp.common.chat.ResponseChatMessage;
 import de.uol.swp.common.lobby.message.*;
 import de.uol.swp.common.lobby.Lobby;
+import de.uol.swp.common.lobby.message.CreateLobbyRequest;
+import de.uol.swp.common.lobby.message.LobbyAlreadyExistsMessage;
+import de.uol.swp.common.lobby.message.LobbyCreatedMessage;
+import de.uol.swp.common.lobby.message.LobbyJoinUserRequest;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.Session;
 import de.uol.swp.common.user.UserDTO;
@@ -24,17 +28,18 @@ import java.util.Optional;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-
+import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- *  @author Marius Birk, Carsten Dekker
- *  @since 2020-12-02
+ * @author Marius Birk, Carsten Dekker, Pieter Vogt, Kirstin Beyer
+ * @since 2020-12-02
  */
 
 public class LobbyServiceTest {
     final EventBus bus = new EventBus();
     LobbyManagement lobbyManagement = new LobbyManagement();
+    LobbyService lobbyService = new LobbyService(lobbyManagement, new AuthenticationService(bus, new UserManagement(new MainMemoryBasedUserStore())), bus);
     final UserStore userStore = new MainMemoryBasedUserStore();
     final UserManagement userManagement = new UserManagement(userStore);
     final AuthenticationService authenticationService = new AuthenticationService(bus, userManagement);
@@ -110,6 +115,44 @@ public class LobbyServiceTest {
 
         /** We expect the next line to success. We try to create a new lobby with the same name as the first one. But we dont want a new lobby, so it throws an exception. */
         Assertions.assertThrows(IllegalArgumentException.class, ()->lobbyManagement.createLobby(lobbyName, userDTO1));
+    }
+
+    /**
+     * This test shows that a maximum of 4 users can join a lobby.
+     *
+     * @author Pieter Vogt, Kirstin Beyer
+     * @since 2020-12-15
+     */
+    @Test
+    @DisplayName("Join Versuch Lobby voll")
+    void LobbyJoinTest() throws LobbyManagementException {
+        String lobbyName = "TestLobby";
+        UserDTO userDTO = new UserDTO("Peter", "lustig", "peter.lustig@uol.de");
+        UserDTO userDTO1 = new UserDTO("Carsten", "stahl", "carsten.stahl@uol.de");
+        UserDTO userDTO2 = new UserDTO("Test", "lustig1", "peterlustig@uol.de");
+        UserDTO userDTO3 = new UserDTO("Test2", "lustig2", "test.lustig@uol.de");
+        UserDTO userDTO4 = new UserDTO("Peter1", "lustig3", "peter1lustig@uol.de");
+
+        CreateLobbyRequest clr = new CreateLobbyRequest(lobbyName, userDTO);
+        LobbyJoinUserRequest ljur1 = new LobbyJoinUserRequest(lobbyName, userDTO1);
+        LobbyJoinUserRequest ljur2 = new LobbyJoinUserRequest(lobbyName, userDTO2);
+        LobbyJoinUserRequest ljur3 = new LobbyJoinUserRequest(lobbyName, userDTO3);
+        LobbyJoinUserRequest ljur4 = new LobbyJoinUserRequest(lobbyName, userDTO4);
+
+        lobbyService.onCreateLobbyRequest(clr);
+
+        assertNotNull(lobbyManagement.getLobby(lobbyName).get());
+
+        lobbyService.onLobbyJoinUserRequest(ljur1);
+        lobbyService.onLobbyJoinUserRequest(ljur2);
+        lobbyService.onLobbyJoinUserRequest(ljur3);
+
+        assertEquals(4, lobbyManagement.getLobby(lobbyName).get().getUsers().size());
+
+        assertThrows(LobbyManagementException.class, ()-> lobbyService.onLobbyJoinUserRequest(ljur4));
+
+        assertFalse(lobbyManagement.getLobby(lobbyName).get().getUsers().contains(userDTO4));
+
     }
 
     /**

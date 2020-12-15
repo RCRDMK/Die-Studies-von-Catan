@@ -121,7 +121,14 @@ public class LobbyService extends AbstractService {
     @Subscribe
     public void onLobbyJoinUserRequest(LobbyJoinUserRequest lobbyJoinUserRequest) {
         Optional<Lobby> lobby = lobbyManagement.getLobby(lobbyJoinUserRequest.getName());
-        if (lobby.isPresent()) {
+
+        if (!lobby.isPresent()) {
+            throw new LobbyManagementException("Lobby unknown!");
+        }
+
+        if (lobby.get().getUsers().size() < 4) {
+            lobby.get().joinUser(lobbyJoinUserRequest.getUser());
+            sendToAllInLobby(lobbyJoinUserRequest.getName(), new UserJoinedLobbyMessage(lobbyJoinUserRequest.getName(), lobbyJoinUserRequest.getUser()));
             if (lobbyJoinUserRequest.getMessageContext().isPresent()) {
                 lobby.get().joinUser(lobbyJoinUserRequest.getUser());
                 Optional<MessageContext> ctx = lobbyJoinUserRequest.getMessageContext();
@@ -129,7 +136,7 @@ public class LobbyService extends AbstractService {
                 sendToAllInLobby(lobbyJoinUserRequest.getName(), new UserJoinedLobbyMessage(lobbyJoinUserRequest.getName(), lobbyJoinUserRequest.getUser()));
             }
         } else {
-            throw new LobbyManagementException("Lobby unknown!");
+            throw new LobbyManagementException("Lobby is full!");
         }
     }
 
