@@ -6,6 +6,7 @@ import com.google.common.eventbus.Subscribe;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.user.request.*;
+import de.uol.swp.common.user.response.DropUserSuccessfulResponse;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -214,13 +215,20 @@ class UserServiceTest {
      * has been implemented
      *
      * @since 2019-10-10
+     *
+     * Enhanced the test method
+     *
+     * This test method creates an instance of userService and uses the dropUser method.
+     * We expect an event instanceof DropUserRequest.
+     *
+     * @author Marius Birk und Carsten Dekker
+     * @since 2020-12-15
      */
     @Test
     void dropUserTest() {
         UserService userService = new UserService(bus);
         userService.dropUser(defaultUser);
-
-        // TODO: Add when method is implemented
+        assertTrue(event instanceof DropUserRequest);
     }
 
     /**
