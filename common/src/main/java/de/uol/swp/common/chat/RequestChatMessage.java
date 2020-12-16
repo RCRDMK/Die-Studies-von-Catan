@@ -13,7 +13,6 @@ public class RequestChatMessage extends AbstractRequestMessage {
         this.time = time;
         this.chat = chat;
         this.username = username;
-        this.time = time;
     }
 
     public String getMessage() {
@@ -24,9 +23,7 @@ public class RequestChatMessage extends AbstractRequestMessage {
         return chat;
     }
 
-    public String getUsername() {
-        return username;
-    }
+    public String getUsername() { return username; }
 
     public Double getTime() {
         return time;

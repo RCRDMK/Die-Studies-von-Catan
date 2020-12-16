@@ -40,23 +40,20 @@ public class ChatService {
      *
      * @param message Message the user wants to send to the server
      */
-    public void sendMessage(RequestChatMessage message){
-        eventBus.post(message);
-        LOG.debug("User: " + message.getUsername() + " sent message: '" + message.getMessage()+ "' to server.");
-     }
+
     public void sendMessage(RequestChatMessage message) {
         try{
         if (!message.getMessage().isEmpty() && !message.getMessage().equals(null) && !message.getMessage().isBlank()) {
             eventBus.post(message);
-            LOG.debug("User: " + message.getUser() + " sent message: '" + message.getMessage() + "' to server.");
+            LOG.debug("User: " + message.getUsername() + " sent message: '" + message.getMessage() + "' to server.");
 
         }else{
-            ResponseEmptyChatMessage msg = new ResponseEmptyChatMessage(message.getMessage(), message.getChat(), message.getUser(), message.getTime());
+            ResponseEmptyChatMessage msg = new ResponseEmptyChatMessage(message.getMessage(), message.getChat(), message.getUsername(), message.getTime());
             eventBus.post(msg);
             LOG.debug("Posted ResponseEmptyChatMessage on eventBus");
         }
         } catch(NullPointerException e){
-            ResponseEmptyChatMessage msg = new ResponseEmptyChatMessage("null", message.getChat(), message.getUser(), message.getTime());
+            ResponseEmptyChatMessage msg = new ResponseEmptyChatMessage("null", message.getChat(), message.getUsername(), message.getTime());
             eventBus.post(msg);
             LOG.debug("Posted ResponseEmptyChatMessage on eventBus");
         }

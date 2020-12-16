@@ -86,7 +86,7 @@ public class ChatServiceTest {
      */
     @Test
     void sendMessageTest() throws InterruptedException{
-        RequestChatMessage message = new RequestChatMessage("testMessage", 0, defaultUser.getUsername(), System.currentTimeMillis());
+        RequestChatMessage message = new RequestChatMessage("testMessage", "testLobby", defaultUser.getUsername(), System.currentTimeMillis());
         chatService.sendMessage(message);
 
         lock.await(1000, TimeUnit.MILLISECONDS);
@@ -103,7 +103,7 @@ public class ChatServiceTest {
 
     @Test
     void onSendMessageTest() throws InterruptedException {
-        RequestChatMessage message = new RequestChatMessage("", 0, defaultUser.getUsername(), System.currentTimeMillis());
+        RequestChatMessage message = new RequestChatMessage("", "testLobby", defaultUser.getUsername(), System.currentTimeMillis());
         chatService.sendMessage(message);
 
         lock.await(1000, TimeUnit.MILLISECONDS);
@@ -113,16 +113,16 @@ public class ChatServiceTest {
 
         ResponseEmptyChatMessage response = (ResponseEmptyChatMessage) event;
 
-        assertEquals(response.getUser(), defaultUser.getUsername());
+        assertEquals(response.getUsername(), defaultUser.getUsername());
         assertFalse(response.getTime().isNaN());
-        assertEquals(response.getChat(), 0);
+        assertEquals(response.getChat(), "testLobby");
         assertEquals(response.getMessage(), "");
 
     }
 
     @Test
     void sendWhiteSpaceMessageTest() throws InterruptedException {
-        RequestChatMessage message = new RequestChatMessage("    ", 0, defaultUser.getUsername(), System.currentTimeMillis());
+        RequestChatMessage message = new RequestChatMessage("    ", "testLobby", defaultUser.getUsername(), System.currentTimeMillis());
         chatService.sendMessage(message);
 
         lock.await(1000, TimeUnit.MILLISECONDS);
@@ -131,16 +131,16 @@ public class ChatServiceTest {
 
         ResponseEmptyChatMessage response = (ResponseEmptyChatMessage) event;
 
-        assertEquals(response.getUser(), defaultUser.getUsername());
+        assertEquals(response.getUsername(), defaultUser.getUsername());
         assertFalse(response.getTime().isNaN());
-        assertEquals(response.getChat(), 0);
+        assertEquals(response.getChat(), "testLobby");
         assertEquals(response.getMessage(), "    ");
 
     }
 
     @Test
     void sendNullMessageTest() throws InterruptedException {
-        RequestChatMessage message = new RequestChatMessage(null, 0, defaultUser.getUsername(), System.currentTimeMillis());
+        RequestChatMessage message = new RequestChatMessage(null, "testLobby", defaultUser.getUsername(), System.currentTimeMillis());
         chatService.sendMessage(message);
 
         lock.await(1000, TimeUnit.MILLISECONDS);
@@ -149,9 +149,9 @@ public class ChatServiceTest {
 
         ResponseEmptyChatMessage response = (ResponseEmptyChatMessage) event;
 
-        assertEquals(response.getUser(), defaultUser.getUsername());
+        assertEquals(response.getUsername(), defaultUser.getUsername());
         assertFalse(response.getTime().isNaN());
-        assertEquals(response.getChat(), 0);
+        assertEquals(response.getChat(), "testLobby");
         assertEquals(response.getMessage(), "null");
 
     }
