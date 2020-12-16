@@ -171,7 +171,7 @@ public class LobbyService extends AbstractService {
                     Optional<MessageContext> ctx = lobbyLeaveUserRequest.getMessageContext();
                     sendToSpecificUser(ctx.get(), new LobbyLeftSuccessfulResponse(lobbyLeaveUserRequest.getName(), lobbyLeaveUserRequest.getUser()));
                 }
-                    lobby.get().leaveUser(lobbyLeaveUserRequest.getUser());
+                lobby.get().leaveUser(lobbyLeaveUserRequest.getUser());
                 sendToAllInLobby(lobbyLeaveUserRequest.getName(), new UserLeftLobbyMessage(lobbyLeaveUserRequest.getName(), lobbyLeaveUserRequest.getUser()));
             }
         } else {
@@ -181,9 +181,9 @@ public class LobbyService extends AbstractService {
 
     /**
      * Handles RetrieveAllThisLobbyUsersRequests found on the EventBus
-     *
+     * <p>
      * If a RetrieveAllThisLobbyUsersRequests is detected on the EventBus, this method is called.
-     * It prepares the sending of a AllThisLobbyUsersResponse for a Lobby stored in the LobbyManagement
+     * It prepares the sending of a AllThisLobbyUsersResponse for a specific user that sent the initial request.
      *
      * @param retrieveAllThisLobbyUsersRequest The RetrieveAllThisLobbyUsersRequest found on the EventBus
      * @see de.uol.swp.common.lobby.Lobby
@@ -192,11 +192,12 @@ public class LobbyService extends AbstractService {
     @Subscribe
     public void onRetrieveAllThisLobbyUsersRequest(RetrieveAllThisLobbyUsersRequest retrieveAllThisLobbyUsersRequest) {
         Optional<Lobby> lobby = lobbyManagement.getLobby(retrieveAllThisLobbyUsersRequest.getName());
-
         if (lobby.isPresent()) {
             List<Session> lobbyUsers = authenticationService.getSessions(lobby.get().getUsers());
-            sendToAllInLobby(retrieveAllThisLobbyUsersRequest.getName(), new AllThisLobbyUsersResponse(lobbyUsers));
-
+            if (retrieveAllThisLobbyUsersRequest.getMessageContext().isPresent()) {
+                Optional<MessageContext> ctx = retrieveAllThisLobbyUsersRequest.getMessageContext();
+                sendToSpecificUser(ctx.get(), new AllThisLobbyUsersResponse(lobbyUsers));
+            }
         }
     }
 
@@ -239,8 +240,8 @@ public class LobbyService extends AbstractService {
      * This method retrieves the RetrieveAllLobbiesRequest and creates a AllCreatedLobbiesResponse with all
      * lobbies in the lobbyManagement.
      *
-     * @author Carsten Dekker and Marius Birk
      * @param msg RetrieveAllLobbiesRequest
+     * @author Carsten Dekker and Marius Birk
      * @see de.uol.swp.common.lobby.request.RetrieveAllLobbiesRequest
      * @see de.uol.swp.common.lobby.response.AllCreatedLobbiesResponse
      * @since 2020-04-12
