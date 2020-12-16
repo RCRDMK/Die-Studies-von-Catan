@@ -3,6 +3,7 @@ package de.uol.swp.client.main;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
+import de.uol.swp.client.auth.events.ShowLoginViewEvent;
 import de.uol.swp.client.chat.ChatService;
 import de.uol.swp.client.lobby.LobbyService;
 import de.uol.swp.common.lobby.dto.LobbyDTO;
@@ -29,6 +30,7 @@ import javafx.scene.control.TextField;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import javax.swing.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -346,6 +348,24 @@ public class MainMenuPresenter extends AbstractPresenter {
         catch(Exception e){
             LOG.debug(e);
         }
+    }
+
+    /**
+     * Method called when the DeleteUser button is pressed
+     *
+     * If the delete User button is pressed, this methods tries to request the UserService to send a specified request.
+     * The request is of type DropUserRequest
+     *
+     * @author Carsten Dekker
+     * @param event The ActionEvent created by pressing the DeleteUser button
+     * @see de.uol.swp.client.user.UserService
+     * @since 2020-12-15
+     */
+
+    @FXML
+    void onDropUser(ActionEvent event) {
+        userService.dropUser(this.loggedInUser);
+        eventBus.post(new ShowLoginViewEvent());
     }
 
 }
