@@ -65,19 +65,21 @@ public class UserService implements ClientUserService {
 	}
 
 	/**
-	 * Method to delete an users account
+	 * Method to delete an users account and log the user out
 	 *
-	 * This method sends a request to delete an users account.
-	 * The request is of type DropUserRequest.
+	 * This method sends a request to logout a user and delete an users account.
+	 * The requests are of the type DropUserRequest and LogoutRequest.
 	 *
 	 * @author Carsten Dekker
 	 * @param user The user to remove
 	 * @see de.uol.swp.common.user.request.DropUserRequest
-	 * @since 2017-12-15
+	 * @since 2020-12-15
 	 */
     public void dropUser(User user) {
-        DropUserRequest request = new DropUserRequest(user);
-        bus.post(request);
+		DropUserRequest dropUserRequest = new DropUserRequest(user);
+		LogoutRequest logoutRequest = new LogoutRequest();
+        bus.post(logoutRequest);
+        bus.post(dropUserRequest);
     }
 
 	@Override

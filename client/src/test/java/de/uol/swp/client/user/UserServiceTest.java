@@ -219,15 +219,21 @@ class UserServiceTest {
      * Enhanced the test method
      *
      * This test method creates an instance of userService and uses the dropUser method.
-     * We expect an event instanceof DropUserRequest.
+     * We expect an event instanceof DropUserRequest. There is also an event instanceof
+     * LogoutRequest.
      *
      * @author Marius Birk und Carsten Dekker
      * @since 2020-12-15
      */
     @Test
-    void dropUserTest() {
+    void dropUserTest() throws InterruptedException {
+        loginUser();
+        event = null;
+
         UserService userService = new UserService(bus);
         userService.dropUser(defaultUser);
+        lock.await(1000, TimeUnit.MILLISECONDS);
+
         assertTrue(event instanceof DropUserRequest);
     }
 

@@ -12,6 +12,7 @@ import de.uol.swp.common.user.request.DropUserRequest;
 import de.uol.swp.common.user.request.RegisterUserRequest;
 import de.uol.swp.common.user.response.AllOnlineUsersResponse;
 import de.uol.swp.common.user.response.DropUserSuccessfulResponse;
+import de.uol.swp.common.user.response.LoginSuccessfulResponse;
 import de.uol.swp.common.user.response.RegistrationSuccessfulResponse;
 import de.uol.swp.server.AbstractService;
 import org.apache.logging.log4j.LogManager;
@@ -84,25 +85,27 @@ public class UserService extends AbstractService {
      * Handles DropUserRequests found on the EventBus
      *
      * If a DropUserRequest is detected on the EventBus, this method is called.
-     * It tries to delete the user via the UserManagement. If this
+     * It tries to delete the user via the UserManagement. If this succeeds a
+     * DropUserSuccessfulResponse is posted on the EventBus otherwise a DropUserExceptionMessage
+     * gets posted there.
      *
      * @author Carsten Dekker
-     * @param msg The DropUserRequest found on the EventBus
+     * @param dropUserRequest The DropUserRequest found on the EventBus
      * @see de.uol.swp.common.user.request.DropUserRequest
      * @since 2020-12-15
      */
     @Subscribe
-    private void onDropUserRequest(DropUserRequest msg) {
+    private void onDropUserRequest(DropUserRequest dropUserRequest) {
         if (LOG.isDebugEnabled()){
-            LOG.debug("Got new dropUser message with " + msg.getUser());
+            LOG.debug("Got new dropUser request with " + dropUserRequest.getUser());
         }
         ResponseMessage returnMessage;
         try {
-            userManagement.dropUser(msg.getUser());
+            userManagement.dropUser(dropUserRequest.getUser());
             returnMessage = new DropUserSuccessfulResponse();
         } catch (Exception e) {
             LOG.error(e);
-            returnMessage = new DropUserExceptionMessage("Cannot drop user "+msg.getUser()+" "+e.getMessage());
+            returnMessage = new DropUserExceptionMessage("Cannot drop user "+dropUserRequest.getUser()+" "+e.getMessage());
         }
         post(returnMessage);
     }
