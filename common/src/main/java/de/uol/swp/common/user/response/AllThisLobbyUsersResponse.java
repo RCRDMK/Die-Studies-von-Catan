@@ -1,13 +1,13 @@
 package de.uol.swp.common.user.response;
 
-import de.uol.swp.common.message.AbstractServerMessage;
+import de.uol.swp.common.message.AbstractResponseMessage;
 import de.uol.swp.common.user.Session;
 import de.uol.swp.common.user.UserDTO;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class AllThisLobbyUsersResponse extends AbstractServerMessage {
+public class AllThisLobbyUsersResponse extends AbstractResponseMessage {
 
     private static final long serialVersionUID = -7113321823425212173L;
     final private ArrayList<UserDTO> users = new ArrayList<>();

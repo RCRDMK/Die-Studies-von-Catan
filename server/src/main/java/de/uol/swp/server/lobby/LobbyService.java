@@ -169,7 +169,7 @@ public class LobbyService extends AbstractService {
      * Handles RetrieveAllThisLobbyUsersRequests found on the EventBus
      *
      * If a RetrieveAllThisLobbyUsersRequests is detected on the EventBus, this method is called.
-     * It prepares the sending of a AllThisLobbyUsersResponse for a Lobby stored in the LobbyManagement
+     * It prepares the sending of a AllThisLobbyUsersResponse for a specific user that sent the initial request.
      *
      * @param retrieveAllThisLobbyUsersRequest The RetrieveAllThisLobbyUsersRequest found on the EventBus
      * @see de.uol.swp.common.lobby.Lobby
@@ -181,8 +181,10 @@ public class LobbyService extends AbstractService {
 
         if (lobby.isPresent()) {
             List<Session> lobbyUsers = authenticationService.getSessions(lobby.get().getUsers());
-            sendToAllInLobby(retrieveAllThisLobbyUsersRequest.getName(), new AllThisLobbyUsersResponse(lobbyUsers));
-
+            if (retrieveAllThisLobbyUsersRequest.getMessageContext().isPresent()) {
+                Optional<MessageContext> ctx = retrieveAllThisLobbyUsersRequest.getMessageContext();
+                sendToSpecificUser(ctx.get(), new AllThisLobbyUsersResponse(lobbyUsers));
+            }
         }
     }
 
