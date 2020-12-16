@@ -14,6 +14,7 @@ import javax.inject.Inject;
  *
  * @author René, Anton, Sergej
  * @since 2020-11-22
+ *
  */
 @SuppressWarnings("UnstableApiUsage")
 public class ChatService {
@@ -39,6 +40,10 @@ public class ChatService {
      *
      * @param message Message the user wants to send to the server
      */
+    public void sendMessage(RequestChatMessage message){
+        eventBus.post(message);
+        LOG.debug("User: " + message.getUsername() + " sent message: '" + message.getMessage()+ "' to server.");
+     }
     public void sendMessage(RequestChatMessage message) {
         try{
         if (!message.getMessage().isEmpty() && !message.getMessage().equals(null) && !message.getMessage().isBlank()) {

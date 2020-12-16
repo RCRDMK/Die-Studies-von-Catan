@@ -46,8 +46,8 @@ public class ChatService extends AbstractService {
     private void onRequestChatMessage(RequestChatMessage message){
         // Store Message in chatList
         this.messageList.add(message);
-        LOG.debug("Got new chat message from user: " + message.getUser() + " with content: '" + message.getMessage() +"' and added it to the messageList");
-        ResponseChatMessage msg = new ResponseChatMessage(message.getMessage(), message.getChat(), message.getUser(), message.getTime());
+        LOG.debug("Got new chat message from user: " + message.getUsername() + " with content: '" + message.getMessage() +"' and added it to the messageList");
+        ResponseChatMessage msg = new ResponseChatMessage(message.getMessage(), message.getChat(), message.getUsername(), message.getTime());
         post(msg);
         LOG.debug("Posted ResponseChatMessage on eventBus");
     }

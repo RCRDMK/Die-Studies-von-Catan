@@ -31,7 +31,7 @@ public class ChatServiceTest {
 
     /**
      * Handles DeadEvents detected on the EventBus
-     * <p>
+     *
      * If a DeadEvent is detected the event variable of this class gets updated
      * to its event and its event is printed to the console output.
      *
@@ -47,7 +47,7 @@ public class ChatServiceTest {
 
     /**
      * Helper method run before each test case
-     * <p>
+     *
      * This method resets the variable event to null and registers the object of
      * this class to the EventBus.
      *
@@ -61,7 +61,7 @@ public class ChatServiceTest {
 
     /**
      * Helper method run after each test case
-     * <p>
+     *
      * This method only unregisters the object of this class from the EventBus.
      *
      * @since 2019-10-10
@@ -73,7 +73,7 @@ public class ChatServiceTest {
 
     /**
      * Test for the ChatService
-     * <p>
+     *
      * This test first creates a new RequestChatMessage object. It then
      * calls the chatService sendMessage function and passes the object as parameter
      * and waits for it to post an RequestChatMessage object on the EventBus.
@@ -82,10 +82,10 @@ public class ChatServiceTest {
      * It also fails if the request object getTime() function doesn't return a valid double.
      *
      * @throws InterruptedException
-     * @since 2020-11-26
+     * @since 2020-12-10
      */
     @Test
-    void sendMessageTest() throws InterruptedException {
+    void sendMessageTest() throws InterruptedException{
         RequestChatMessage message = new RequestChatMessage("testMessage", 0, defaultUser.getUsername(), System.currentTimeMillis());
         chatService.sendMessage(message);
 
@@ -95,9 +95,9 @@ public class ChatServiceTest {
 
         RequestChatMessage request = (RequestChatMessage) event;
 
-        assertEquals(request.getUser(), defaultUser.getUsername());
+        assertEquals(request.getUsername(), defaultUser.getUsername());
         assertFalse(request.getTime().isNaN());
-        assertEquals(request.getChat(), 0);
+        assertEquals(request.getChat(), "testLobby");
         assertEquals(request.getMessage(), "testMessage");
     }
 

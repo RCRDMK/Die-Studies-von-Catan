@@ -4,31 +4,31 @@ import de.uol.swp.common.message.AbstractRequestMessage;
 
 public class RequestChatMessage extends AbstractRequestMessage {
     private final String message;
-    private final int chat;
-    private final String user;
+    private final String chat;
+    private final String username;
     private final double time;
 
-    public RequestChatMessage(String message, int chat, String username, double time) {
-        this.user = username;
+    public RequestChatMessage(String message, String chat, String username, double time) {
         this.message = message;
         this.time = time;
         this.chat = chat;
+        this.username = username;
+        this.time = time;
     }
 
     public String getMessage() {
         return message;
     }
 
-    public int getChat() {
+    public String getChat() {
         return chat;
     }
 
-    public String getUser() {
-        return user;
+    public String getUsername() {
+        return username;
     }
 
     public Double getTime() {
         return time;
     }
-
 }

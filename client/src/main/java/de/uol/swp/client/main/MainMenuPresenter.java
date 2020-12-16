@@ -49,8 +49,6 @@ public class MainMenuPresenter extends AbstractPresenter {
 
     private ObservableList<String> users;
 
-    private ObservableList<String> messages;
-
     private ObservableList<String> lobbies;
 
     private User loggedInUser;
@@ -187,13 +185,12 @@ public class MainMenuPresenter extends AbstractPresenter {
 
     /**
      * Updates the chat when a ResponseChatMessage was posted to the eventBus.
-     *
      * @param message
      */
     @Subscribe
     public void onResponseChatMessage(ResponseChatMessage message) {
         // Only update Messages from main chat
-        if(message.getChat() == 0){
+        if(message.getChat().equals("main")){
             LOG.debug("Updated chat area with new message..");
             updateChat(message);
         }
@@ -240,20 +237,14 @@ public class MainMenuPresenter extends AbstractPresenter {
 
     /**
      * Adds the ResponseChatMessage to the textArea
+     *
      * @param msg
      */
-    private void updateChat(ResponseChatMessage msg) {
-        // Attention: This must be done on the FX Thread!
-        Platform.runLater(() -> {
-            if (messages == null) {
-                messages = FXCollections.observableArrayList();
-            }
-
-            var time = new SimpleDateFormat("HH:mm");
-            Date resultdate = new Date((long) msg.getTime().doubleValue());
-            var readableTime = time.format(resultdate);
-            textArea.insertText(textArea.getLength(), readableTime + " " + msg.getUser() + ": " + msg.getMessage() + "\n");
-        });
+    private void updateChat(ResponseChatMessage msg){
+        var time =  new SimpleDateFormat("HH:mm");
+        Date resultdate = new Date((long) msg.getTime().doubleValue());
+        var readableTime = time.format(resultdate);
+        textArea.insertText(textArea.getLength(), readableTime +" " +msg.getUsername() +": " + msg.getMessage() +"\n");
     }
 
     /**
@@ -282,16 +273,16 @@ public class MainMenuPresenter extends AbstractPresenter {
     }
     /**
      * Method called when the create lobby button is pressed
-     * <p>
+     *
      * If the create lobby button is pressed, this method requests the lobby service
      * to create a new lobby. Therefore it currently uses the lobby name "test"
      * and an user called whoever is the current logged in User that called that action
-     * <p>
-     * <p>
+     *
+     *
      * Enhanced the Method with a query that checks if the lobbyName is blank, null or empty. If the lobbyName is one of these,
      * the lobbyNameInvalid shows up and asks for a new name.
      * It also works with vowel mutation.
-     * <p>
+     *
      * Enhanced by Marius Birk and Carsten Dekker, 2020-02-12
      *
      * @param event The ActionEvent created by pressing the create lobby button
@@ -309,7 +300,7 @@ public class MainMenuPresenter extends AbstractPresenter {
 
     /**
      * Method called when the join lobby button is pressed
-     * <p>
+     *
      * If the join lobby button is pressed, this method requests the lobby service
      * to join a specified lobby. Therefore it currently uses the lobby name "test"
      * and the user that pressed the JoinLobby Button
@@ -324,7 +315,7 @@ public class MainMenuPresenter extends AbstractPresenter {
     }
 
     @FXML
-    void onLogout(ActionEvent event) {
+    void onLogout(ActionEvent event){
         userService.logout(this.loggedInUser);
     }
 
@@ -342,12 +333,14 @@ public class MainMenuPresenter extends AbstractPresenter {
      */
     @FXML
     void onSendMessage(ActionEvent event) {
-        try {
+        try{
             var chatMessage = inputField.getCharacters().toString();
-            // ChatID = 0 means main chat
-            var chatId = 0;
-            RequestChatMessage message = new RequestChatMessage(chatMessage, chatId, loggedInUser.getUsername(), System.currentTimeMillis());
-            chatService.sendMessage(message);
+            // ChatID = "main" means main chat
+            var chatId = "main";
+            if(!chatMessage.isEmpty()){
+                RequestChatMessage message = new RequestChatMessage(chatMessage, chatId, loggedInUser.getUsername(), System.currentTimeMillis());
+                chatService.sendMessage(message);
+            }
             this.inputField.setText("");
         } catch (Exception e) {
             LOG.debug(e);
