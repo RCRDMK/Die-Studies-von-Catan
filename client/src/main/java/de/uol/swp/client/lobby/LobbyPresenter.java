@@ -127,6 +127,8 @@ public class LobbyPresenter extends AbstractPresenter {
         LOG.debug("Requesting update of User list in lobby because lobby was created.");
         this.joinedLobbyUser = message.getUser();
         this.currentLobby = message.getName();
+        this.lobbyChatInput.setText("");
+        lobbyChatArea.deleteText(0, lobbyChatArea.getLength());
         lobbyService.retrieveAllThisLobbyUsers(message.getName());
     }
 
@@ -146,6 +148,8 @@ public class LobbyPresenter extends AbstractPresenter {
         LOG.debug("Requesting update of User list in lobby because new user joined the lobby.");
         this.joinedLobbyUser = message.getUser();
         this.currentLobby = message.getName();
+        this.lobbyChatInput.setText("");
+        lobbyChatArea.deleteText(0, lobbyChatArea.getLength());
         lobbyService.retrieveAllThisLobbyUsers(message.getName());
     }
 
@@ -165,8 +169,6 @@ public class LobbyPresenter extends AbstractPresenter {
         LOG.debug("Requesting update of User list in lobby because user left the lobby.");
         this.joinedLobbyUser = message.getUser();
         this.currentLobby = message.getName();
-        this.lobbyChatInput.setText("");
-        lobbyChatArea.deleteText(0, lobbyChatArea.getLength());
         lobbyService.retrieveAllThisLobbyUsers(message.getName());
     }
 
@@ -269,9 +271,9 @@ public class LobbyPresenter extends AbstractPresenter {
      * @param msg
      */
     private void updateChat(ResponseChatMessage msg){
-       var time =  new SimpleDateFormat("HH:mm");
-       Date resultdate = new Date((long) msg.getTime().doubleValue());
-       var readableTime = time.format(resultdate);
-       lobbyChatArea.insertText(lobbyChatArea.getLength(), readableTime +" " +msg.getUsername() +": " + msg.getMessage() +"\n");
+        var time =  new SimpleDateFormat("HH:mm");
+        Date resultdate = new Date((long) msg.getTime().doubleValue());
+        var readableTime = time.format(resultdate);
+        lobbyChatArea.insertText(lobbyChatArea.getLength(), readableTime +" " +msg.getUsername() +": " + msg.getMessage() +"\n");
     }
 }

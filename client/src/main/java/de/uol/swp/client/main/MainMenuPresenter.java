@@ -237,6 +237,7 @@ public class MainMenuPresenter extends AbstractPresenter {
 
     /**
      * Adds the ResponseChatMessage to the textArea
+     *
      * @param msg
      */
     private void updateChat(ResponseChatMessage msg){
