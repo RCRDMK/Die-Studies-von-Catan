@@ -40,8 +40,6 @@ public class ChatServiceTest {
     @Subscribe
     void handle(DeadEvent e) {
         this.event = e.getEvent();
-        System.out.print(e.getEvent());
-        lock.countDown();
     }
 
     /**
@@ -81,11 +79,11 @@ public class ChatServiceTest {
      * It also fails if the request object getTime() function doesn't return a valid double.
      *
      * @throws InterruptedException
-     * @since 2020-11-26
+     * @since 2020-12-10
      */
     @Test
     void sendMessageTest() throws InterruptedException{
-        RequestChatMessage message = new RequestChatMessage("testMessage", 0, defaultUser.getUsername(), System.currentTimeMillis());
+        RequestChatMessage message = new RequestChatMessage("testMessage", "testLobby", defaultUser.getUsername(), System.currentTimeMillis());
         chatService.sendMessage(message);
 
         lock.await(1000, TimeUnit.MILLISECONDS);
@@ -94,9 +92,9 @@ public class ChatServiceTest {
 
         RequestChatMessage request = (RequestChatMessage) event;
 
-        assertEquals(request.getUser(), defaultUser.getUsername());
+        assertEquals(request.getUsername(), defaultUser.getUsername());
         assertFalse(request.getTime().isNaN());
-        assertEquals(request.getChat(), 0);
+        assertEquals(request.getChat(), "testLobby");
         assertEquals(request.getMessage(), "testMessage");
     }
 }

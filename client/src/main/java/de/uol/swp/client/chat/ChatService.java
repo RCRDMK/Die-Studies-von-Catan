@@ -40,6 +40,6 @@ public class ChatService  {
      */
     public void sendMessage(RequestChatMessage message){
         eventBus.post(message);
-        LOG.debug("User: " + message.getUser() + " sent message: '" + message.getMessage()+ "' to server.");
+        LOG.debug("User: " + message.getUsername() + " sent message: '" + message.getMessage()+ "' to server.");
      }
 }

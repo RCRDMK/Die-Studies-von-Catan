@@ -41,8 +41,6 @@ public class ChatServiceTest {
     @Subscribe
     void handle(DeadEvent e) {
         this.event = e.getEvent();
-        System.out.print(e.getEvent());
-        lock.countDown();
     }
 
     /**
@@ -80,11 +78,11 @@ public class ChatServiceTest {
      * on the eventbus. Then it tests the ResponseChatMessage object.
      * So this test covers the full Client-Server Communication for a sent Chatmessage
      *
-     * @since 2020-11-26
+     * @since 2020-12-10
      */
     @Test
     void sendRequestChatMessageTest(){
-        RequestChatMessage message = new RequestChatMessage("testMessage", 0, defaultUser.getUsername(), System.currentTimeMillis());
+        RequestChatMessage message = new RequestChatMessage("testMessage", "testLobby", defaultUser.getUsername(), System.currentTimeMillis());
         bus.post(message);
     }
 
@@ -93,11 +91,11 @@ public class ChatServiceTest {
         lock.await(1000, TimeUnit.MILLISECONDS);
         assertNotNull(message);
 
-        ResponseChatMessage response = new ResponseChatMessage(message.getMessage(),message.getChat(),message.getUser(),message.getTime());
-        assertEquals(response.getUser(), defaultUser.getUsername());
-        assertFalse(response.getTime().isNaN());
-        assertEquals(response.getChat(), 0);
+        ResponseChatMessage response = new ResponseChatMessage(message.getMessage(),message.getChat(),message.getUsername(),message.getTime());
         assertEquals(response.getMessage(), "testMessage");
+        assertEquals(response.getChat(), "testLobby");
+        assertEquals(response.getUsername(), defaultUser.getUsername());
+        assertFalse(response.getTime().isNaN());
         bus.post(response);
     }
 
@@ -106,9 +104,9 @@ public class ChatServiceTest {
         lock.await(1000, TimeUnit.MILLISECONDS);
         assertNotNull(message);
 
-        assertEquals(message.getUser(), defaultUser.getUsername());
-        assertFalse(message.getTime().isNaN());
-        assertEquals(message.getChat(), 0);
         assertEquals(message.getMessage(), "testMessage");
+        assertEquals(message.getChat(), "testLobby");
+        assertEquals(message.getUsername(), defaultUser.getUsername());
+        assertFalse(message.getTime().isNaN());
     }
 }
