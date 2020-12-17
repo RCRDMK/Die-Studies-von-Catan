@@ -161,11 +161,13 @@ public class LobbyService extends AbstractService {
                 if (lobbyLeaveUserRequest.getMessageContext().isPresent()) {
                     Optional<MessageContext> ctx = lobbyLeaveUserRequest.getMessageContext();
                     sendToSpecificUser(ctx.get(), new LobbyLeftSuccessfulResponse(lobbyLeaveUserRequest.getName(), lobbyLeaveUserRequest.getUser()));
-                    sendToAllInLobby(lobbyLeaveUserRequest.getName(), new UserLeftLobbyMessage(lobbyLeaveUserRequest.getName(), lobbyLeaveUserRequest.getUser()));
                     lobbyManagement.dropLobby(lobbyLeaveUserRequest.getName());
+                    sendToAll(new LobbyDroppedMessage(lobbyLeaveUserRequest.getName()));
                 }
             } else if (lobby.get().getUsers() == null) {
                 lobbyManagement.dropLobby(lobbyLeaveUserRequest.getName());
+                sendToAll(new LobbyDroppedMessage(lobbyLeaveUserRequest.getName()));
+
             } else {
                 if (lobbyLeaveUserRequest.getMessageContext().isPresent()) {
                     Optional<MessageContext> ctx = lobbyLeaveUserRequest.getMessageContext();
