@@ -99,8 +99,7 @@ public class LobbyPresenter extends AbstractPresenter {
      * Handles successful joining in the lobby
      *
      * If a LobbyJoinedSuccessfulResponse is posted to the EventBus the loggedInUser
-     * of this client is set to the one in the message received and the full
-     * list of users currently in the lobby is requested.
+     * of this client is set to the one in the message received.
      *
      * @param message the LobbyJoinedSuccessfulResponse object seen on the EventBus
      * @see de.uol.swp.common.user.response.LobbyJoinedSuccessfulResponse
@@ -108,18 +107,16 @@ public class LobbyPresenter extends AbstractPresenter {
      */
     @Subscribe
     public void userJoinedSuccessful(LobbyJoinedSuccessfulResponse message) {
-        LOG.debug("Requesting update of User list in lobby because new user joined the lobby.");
+        LOG.debug("LobbyJoinedSuccessfulResponse successfully received");
         this.joinedLobbyUser = message.getUser();
         this.currentLobby = message.getName();
-        lobbyService.retrieveAllThisLobbyUsers(message.getName());
     }
 
     /**
      * Handles successful leaving of lobby
      *
      * If a LobbyLeftSuccessfulResponse is posted to the EventBus the loggedInUser
-     * of this client is set to the one in the message received and the full
-     * list of users currently in the lobby is requested.
+     * of this client is set to the one in the message received.
      *
      * @param message the LobbyLeftSuccessfulResponse object seen on the EventBus
      * @see de.uol.swp.common.user.response.LobbyLeftSuccessfulResponse
@@ -127,10 +124,9 @@ public class LobbyPresenter extends AbstractPresenter {
      */
     @Subscribe
     public void userLeftSuccessful(LobbyLeftSuccessfulResponse message) {
-        LOG.debug("Requesting update of User list in lobby because user left the lobby.");
+        LOG.debug("LobbyLeftSuccessfulResponse successfully received");
         this.joinedLobbyUser = message.getUser();
         this.currentLobby = message.getName();
-        lobbyService.retrieveAllThisLobbyUsers(message.getName());
     }
     /**
      * Handles successful lobby leave of the user
