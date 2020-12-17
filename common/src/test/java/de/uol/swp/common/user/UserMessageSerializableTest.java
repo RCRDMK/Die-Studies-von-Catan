@@ -8,7 +8,6 @@ import de.uol.swp.common.user.message.UserLoggedOutMessage;
 import de.uol.swp.common.user.message.UsersListMessage;
 import de.uol.swp.common.user.request.*;
 import de.uol.swp.common.user.response.*;
-import de.uol.swp.common.user.request.*;
 import de.uol.swp.common.user.response.DropUserSuccessfulResponse;
 import de.uol.swp.common.user.response.LoginSuccessfulResponse;
 import org.junit.jupiter.api.Test;
