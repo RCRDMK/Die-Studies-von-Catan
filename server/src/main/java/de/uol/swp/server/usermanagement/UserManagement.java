@@ -79,7 +79,6 @@ public class UserManagement extends AbstractUserManagement {
             throw new UserManagementException("Username unknown!");
         }
         userStore.removeUser(userToDrop.getUsername());
-
     }
 
     /**

@@ -1,11 +1,18 @@
 package de.uol.swp.server.usermanagement;
 
 import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
+import de.uol.swp.common.user.request.DropUserRequest;
+import de.uol.swp.common.user.request.LoginRequest;
 import de.uol.swp.common.user.request.RegisterUserRequest;
+import de.uol.swp.common.user.response.DropUserSuccessfulResponse;
 import de.uol.swp.server.usermanagement.store.MainMemoryBasedUserStore;
 import org.junit.jupiter.api.Test;
+
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -14,6 +21,9 @@ class UserServiceTest {
 
     static final User userToRegister = new UserDTO("Marco", "Marco", "Marco@Grawunder.com");
     static final User userWithSameName = new UserDTO("Marco", "Marco2", "Marco2@Grawunder.com");
+    static final User userToDrop = new UserDTO("Carsten", "Stahl", "Carsten@Stahl.com");
+
+    final CountDownLatch lock = new CountDownLatch(1);
 
     final EventBus bus = new EventBus();
     final UserManagement userManagement = new UserManagement(new MainMemoryBasedUserStore());
@@ -52,4 +62,28 @@ class UserServiceTest {
 
     }
 
+    /**
+    * Test for the dropUser routine on the server
+     *
+     * This test method posts two Requests on the bus. The First request is a RegisterRequest and the
+     * second one is a dropUserRequest.
+     * First we expect the user userToDrop to be registered and then to get dropped.
+     * We check if the registration was successful and if the user is dropped.
+     *
+     * @author Marius Birk und Carsten Dekker
+     * @since 2020-12-15
+    */
+    @Test
+    void dropUserTest() throws InterruptedException {
+
+        final RegisterUserRequest registerRequest = new RegisterUserRequest(userToDrop);
+        final DropUserRequest dropUserRequest = new DropUserRequest(userToDrop);
+
+        bus.post(registerRequest);
+        lock.await(1000, TimeUnit.MILLISECONDS);
+        assertTrue(userManagement.retrieveAllUsers().contains(registerRequest.getUser()));
+        lock.await(1000, TimeUnit.MILLISECONDS);
+        bus.post(dropUserRequest);
+        assertFalse(userManagement.retrieveAllUsers().contains(dropUserRequest.getUser()));
+    }
 }

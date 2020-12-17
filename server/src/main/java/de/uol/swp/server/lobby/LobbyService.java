@@ -19,6 +19,9 @@ import de.uol.swp.common.user.response.LobbyJoinedSuccessfulResponse;
 import de.uol.swp.common.user.response.LobbyLeftSuccessfulResponse;
 import de.uol.swp.server.AbstractService;
 import de.uol.swp.server.usermanagement.AuthenticationService;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.platform.commons.logging.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -37,7 +40,7 @@ public class LobbyService extends AbstractService {
 
     private final LobbyManagement lobbyManagement;
     private final AuthenticationService authenticationService;
-
+    private static final Logger LOG = LogManager.getLogger(LobbyService.class);
     final private Map<Session, User> userSessions = new HashMap<>();
 
     /**
@@ -84,8 +87,12 @@ public class LobbyService extends AbstractService {
     @Subscribe
     public void onCreateLobbyRequest(CreateLobbyRequest createLobbyRequest) {
         if (lobbyManagement.getLobby(createLobbyRequest.getName()).isEmpty()) {
-            lobbyManagement.createLobby(createLobbyRequest.getName(), createLobbyRequest.getUser());
-            sendToAll(new LobbyCreatedMessage(createLobbyRequest.getName(), createLobbyRequest.getUser()));
+            try{
+                lobbyManagement.createLobby(createLobbyRequest.getName(), createLobbyRequest.getUser());
+                sendToAll(new LobbyCreatedMessage(createLobbyRequest.getName(), createLobbyRequest.getUser()));
+            }catch(IllegalArgumentException e){
+                LOG.debug(e);
+            }
             if (createLobbyRequest.getMessageContext().isPresent()) {
                 Optional<MessageContext> ctx = createLobbyRequest.getMessageContext();
                 sendToSpecificUser(ctx.get(), new LobbyCreatedSuccessfulResponse(createLobbyRequest.getName(), createLobbyRequest.getUser()));
@@ -114,7 +121,14 @@ public class LobbyService extends AbstractService {
     @Subscribe
     public void onLobbyJoinUserRequest(LobbyJoinUserRequest lobbyJoinUserRequest) {
         Optional<Lobby> lobby = lobbyManagement.getLobby(lobbyJoinUserRequest.getName());
-        if (lobby.isPresent()) {
+
+        if (!lobby.isPresent()) {
+            throw new LobbyManagementException("Lobby unknown!");
+        }
+
+        if (lobby.get().getUsers().size() < 4) {
+            lobby.get().joinUser(lobbyJoinUserRequest.getUser());
+            sendToAllInLobby(lobbyJoinUserRequest.getName(), new UserJoinedLobbyMessage(lobbyJoinUserRequest.getName(), lobbyJoinUserRequest.getUser()));
             if (lobbyJoinUserRequest.getMessageContext().isPresent()) {
                 lobby.get().joinUser(lobbyJoinUserRequest.getUser());
                 Optional<MessageContext> ctx = lobbyJoinUserRequest.getMessageContext();
@@ -122,7 +136,7 @@ public class LobbyService extends AbstractService {
                 sendToAllInLobby(lobbyJoinUserRequest.getName(), new UserJoinedLobbyMessage(lobbyJoinUserRequest.getName(), lobbyJoinUserRequest.getUser()));
             }
         } else {
-            throw new LobbyManagementException("Lobby unknown!");
+            throw new LobbyManagementException("Lobby is full!");
         }
     }
 
@@ -157,7 +171,7 @@ public class LobbyService extends AbstractService {
                     Optional<MessageContext> ctx = lobbyLeaveUserRequest.getMessageContext();
                     sendToSpecificUser(ctx.get(), new LobbyLeftSuccessfulResponse(lobbyLeaveUserRequest.getName(), lobbyLeaveUserRequest.getUser()));
                 }
-                    lobby.get().leaveUser(lobbyLeaveUserRequest.getUser());
+                lobby.get().leaveUser(lobbyLeaveUserRequest.getUser());
                 sendToAllInLobby(lobbyLeaveUserRequest.getName(), new UserLeftLobbyMessage(lobbyLeaveUserRequest.getName(), lobbyLeaveUserRequest.getUser()));
             }
         } else {
@@ -167,9 +181,9 @@ public class LobbyService extends AbstractService {
 
     /**
      * Handles RetrieveAllThisLobbyUsersRequests found on the EventBus
-     *
+     * <p>
      * If a RetrieveAllThisLobbyUsersRequests is detected on the EventBus, this method is called.
-     * It prepares the sending of a AllThisLobbyUsersResponse for a Lobby stored in the LobbyManagement
+     * It prepares the sending of a AllThisLobbyUsersResponse for a specific user that sent the initial request.
      *
      * @param retrieveAllThisLobbyUsersRequest The RetrieveAllThisLobbyUsersRequest found on the EventBus
      * @see de.uol.swp.common.lobby.Lobby
@@ -178,11 +192,12 @@ public class LobbyService extends AbstractService {
     @Subscribe
     public void onRetrieveAllThisLobbyUsersRequest(RetrieveAllThisLobbyUsersRequest retrieveAllThisLobbyUsersRequest) {
         Optional<Lobby> lobby = lobbyManagement.getLobby(retrieveAllThisLobbyUsersRequest.getName());
-
         if (lobby.isPresent()) {
             List<Session> lobbyUsers = authenticationService.getSessions(lobby.get().getUsers());
-            sendToAllInLobby(retrieveAllThisLobbyUsersRequest.getName(), new AllThisLobbyUsersResponse(lobbyUsers));
-
+            if (retrieveAllThisLobbyUsersRequest.getMessageContext().isPresent()) {
+                Optional<MessageContext> ctx = retrieveAllThisLobbyUsersRequest.getMessageContext();
+                sendToSpecificUser(ctx.get(), new AllThisLobbyUsersResponse(lobbyUsers));
+            }
         }
     }
 
@@ -225,8 +240,8 @@ public class LobbyService extends AbstractService {
      * This method retrieves the RetrieveAllLobbiesRequest and creates a AllCreatedLobbiesResponse with all
      * lobbies in the lobbyManagement.
      *
-     * @author Carsten Dekker and Marius Birk
      * @param msg RetrieveAllLobbiesRequest
+     * @author Carsten Dekker and Marius Birk
      * @see de.uol.swp.common.lobby.request.RetrieveAllLobbiesRequest
      * @see de.uol.swp.common.lobby.response.AllCreatedLobbiesResponse
      * @since 2020-04-12
