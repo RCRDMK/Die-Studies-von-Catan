@@ -17,3 +17,5 @@
         <Button layoutX="207.0" layoutY="355.0" mnemonicParsing="false" onAction="#onSendMessage" prefHeight="25.0" prefWidth="77.0" text="Senden" />
         <Button layoutX="461.0" layoutY="374.0" mnemonicParsing="false" onAction="#onDropUser" text="DeleteUser" GridPane.columnIndex="3" />
 </AnchorPane>
+
+
