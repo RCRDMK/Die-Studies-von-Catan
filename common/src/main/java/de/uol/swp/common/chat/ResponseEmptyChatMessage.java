@@ -8,10 +8,10 @@ public class ResponseEmptyChatMessage extends AbstractServerMessage {
     private final String username;
     private final double time;
 
-    public ResponseEmptyChatMessage(String message, String chat, String user, double time) {
+    public ResponseEmptyChatMessage(String message, String chat, String username, double time) {
         this.message = message;
         this.chat = chat;
-        this.username = user;
+        this.username = username;
         this.time = time;
     }
 
