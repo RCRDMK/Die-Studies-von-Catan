@@ -133,8 +133,8 @@ public class LobbyService extends AbstractService {
                 lobby.get().joinUser(lobbyJoinUserRequest.getUser());
                 Optional<MessageContext> ctx = lobbyJoinUserRequest.getMessageContext();
                 sendToSpecificUser(ctx.get(), new LobbyJoinedSuccessfulResponse(lobbyJoinUserRequest.getName(), lobbyJoinUserRequest.getUser()));
-                sendToAllInLobby(lobbyJoinUserRequest.getName(), new UserJoinedLobbyMessage(lobbyJoinUserRequest.getName(), lobbyJoinUserRequest.getUser()));
                 sendToAll(new LobbySizeChangedMessage(lobbyJoinUserRequest.getName()));
+                sendToAllInLobby(lobbyJoinUserRequest.getName(), new UserJoinedLobbyMessage(lobbyJoinUserRequest.getName(), lobbyJoinUserRequest.getUser()));
             }
         } else {
             throw new LobbyManagementException("Lobby is full!");
@@ -175,8 +175,8 @@ public class LobbyService extends AbstractService {
                     sendToSpecificUser(ctx.get(), new LobbyLeftSuccessfulResponse(lobbyLeaveUserRequest.getName(), lobbyLeaveUserRequest.getUser()));
                 }
                 lobby.get().leaveUser(lobbyLeaveUserRequest.getUser());
-                sendToAllInLobby(lobbyLeaveUserRequest.getName(), new UserLeftLobbyMessage(lobbyLeaveUserRequest.getName(), lobbyLeaveUserRequest.getUser()));
                 sendToAll(new LobbySizeChangedMessage(lobbyLeaveUserRequest.getName()));
+                sendToAllInLobby(lobbyLeaveUserRequest.getName(), new UserLeftLobbyMessage(lobbyLeaveUserRequest.getName(), lobbyLeaveUserRequest.getUser()));
             }
         } else {
             throw new LobbyManagementException("Lobby unknown!");
