@@ -17,6 +17,7 @@ import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.user.message.UserLoggedInMessage;
 import de.uol.swp.common.user.message.UserLoggedOutMessage;
 import de.uol.swp.common.user.response.AllOnlineUsersResponse;
+import de.uol.swp.common.user.response.LobbyFullResponse;
 import de.uol.swp.common.user.response.LoginSuccessfulResponse;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -32,6 +33,7 @@ import org.apache.logging.log4j.Logger;
 
 import javax.swing.*;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -197,6 +199,25 @@ public class MainMenuPresenter extends AbstractPresenter {
             LOG.debug("Updated chat area with new message..");
             updateChat(message);
         }
+    }
+
+    /**
+     * Method called when a LobbyFullResponse was posted on the eventBus.
+     * <p>
+     * If a LobbyFullResponse was posted on the eventBus, this method will let the User know the lobby is full
+     * via posting a 'Can't join lobby' message to the local chat.
+     *
+     * @param response
+     * @author René
+     * @since 2020-12-17
+     */
+    @Subscribe
+    public void onLobbyFullResponse(LobbyFullResponse response){
+        LOG.debug("Can't join lobby " + response.getLobbyName() + " because the lobby is full.");
+        var time = new SimpleDateFormat("HH:mm");
+        Date resultDate = new Date();
+        var readableTime = time.format(resultDate);
+        textArea.insertText(textArea.getLength(), readableTime + " SYSTEM: Can't join full lobby " + response.getLobbyName() + " \n");
     }
 
     /**
