@@ -4,14 +4,14 @@ import de.uol.swp.common.message.AbstractServerMessage;
 
 public class ResponseChatMessage extends AbstractServerMessage {
     private final String message;
-    private final int chat;
-    private final String user;
+    private final String chat;
+    private final String username;
     private final double time;
 
-    public ResponseChatMessage(String message, int chat, String user, double time) {
+    public ResponseChatMessage(String message, String chat, String username, double time) {
         this.message = message;
         this.chat = chat;
-        this.user = user;
+        this.username = username;
         this.time = time;
     }
 
@@ -19,13 +19,12 @@ public class ResponseChatMessage extends AbstractServerMessage {
         return message;
     }
 
-    public int getChat() {
+    public String getChat() {
         return chat;
     }
 
-
-    public String getUser() {
-        return user;
+    public String getUsername() {
+        return username;
     }
 
     public Double getTime() {

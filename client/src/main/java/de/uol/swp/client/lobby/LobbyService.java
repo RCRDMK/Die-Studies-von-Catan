@@ -8,7 +8,6 @@ import de.uol.swp.common.lobby.message.LobbyLeaveUserRequest;
 import de.uol.swp.common.lobby.message.RetrieveAllThisLobbyUsersRequest;
 import de.uol.swp.common.lobby.request.RetrieveAllLobbiesRequest;
 import de.uol.swp.common.user.UserDTO;
-import de.uol.swp.common.user.request.RetrieveAllOnlineUsersRequest;
 
 /**
  * Classes that manages lobbies

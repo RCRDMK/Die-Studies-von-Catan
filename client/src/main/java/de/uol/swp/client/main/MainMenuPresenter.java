@@ -3,6 +3,7 @@ package de.uol.swp.client.main;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
+import de.uol.swp.client.auth.events.ShowLoginViewEvent;
 import de.uol.swp.client.chat.ChatService;
 import de.uol.swp.client.lobby.LobbyService;
 import de.uol.swp.common.lobby.dto.LobbyDTO;
@@ -29,6 +30,7 @@ import javafx.scene.control.TextField;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import javax.swing.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -39,7 +41,6 @@ import java.util.List;
  * @author Marco Grawunder
  * @see de.uol.swp.client.AbstractPresenter
  * @since 2019-08-29
- *
  */
 public class MainMenuPresenter extends AbstractPresenter {
 
@@ -48,8 +49,6 @@ public class MainMenuPresenter extends AbstractPresenter {
     private static final Logger LOG = LogManager.getLogger(MainMenuPresenter.class);
 
     private ObservableList<String> users;
-
-    private ObservableList<String> messages;
 
     private ObservableList<String> lobbies;
 
@@ -84,7 +83,7 @@ public class MainMenuPresenter extends AbstractPresenter {
 
     /**
      * Handles successful login
-     *
+     * <p>
      * If a LoginSuccessfulResponse is posted to the EventBus the loggedInUser
      * of this client is set to the one in the message received and the full
      * list of users currently logged in is requested.
@@ -104,9 +103,10 @@ public class MainMenuPresenter extends AbstractPresenter {
     public void lobbyCreatedSuccessful(LobbyCreatedMessage message) {
         LOG.debug("New lobby created by " + message.getUser().getUsername());
     }
+
     /**
      * Handles new logged in users
-     *
+     * <p>
      * If a new UserLoggedInMessage object is posted to the EventBus the name of the newly
      * logged in user is appended to the user list in the main menu.
      * Furthermore if the LOG-Level is set to DEBUG the message "New user {@literal
@@ -128,7 +128,7 @@ public class MainMenuPresenter extends AbstractPresenter {
 
     /**
      * Handles new logged out users
-     *
+     * <p>
      * If a new UserLoggedOutMessage object is posted to the EventBus the name of the newly
      * logged out user is removed from the user list in the main menu.
      * Furthermore if the LOG-Level is set to DEBUG the message "User {@literal
@@ -146,7 +146,7 @@ public class MainMenuPresenter extends AbstractPresenter {
 
     /**
      * Handles new list of users
-     *
+     * <p>
      * If a new AllOnlineUsersResponse object is posted to the EventBus the names
      * of currently logged in users are put onto the user list in the main menu.
      * Furthermore if the LOG-Level is set to DEBUG the message "Update of user
@@ -165,7 +165,7 @@ public class MainMenuPresenter extends AbstractPresenter {
 
     /**
      * Handles new list of lobbies
-     *
+     * <p>
      * If a new AllCreatedLobbiesResponse is posted on the eventBus, the Method updateLobbyList gets all
      * the LobbyDTOs that are in the response.
      * The LobbyList is shown in the main menu.
@@ -174,9 +174,9 @@ public class MainMenuPresenter extends AbstractPresenter {
      * log.
      *
      * @param allCreatedLobbiesResponse the AllCreatedLobbiesResponse object seen on the Eventbus
+     * @author Carsten Dekker and Marius Birk
      * @see de.uol.swp.common.lobby.response.AllCreatedLobbiesResponse
      * @since 2020-04-12
-     * @author Carsten Dekker and Marius Birk
      */
 
     @Subscribe
@@ -187,12 +187,13 @@ public class MainMenuPresenter extends AbstractPresenter {
 
     /**
      * Updates the chat when a ResponseChatMessage was posted to the eventBus.
+     *
      * @param message
      */
     @Subscribe
-    public void onResponseChatMessage(ResponseChatMessage message){
+    public void onResponseChatMessage(ResponseChatMessage message) {
         // Only update Messages from main chat
-        if(message.getChat() == 0){
+        if (message.getChat().equals("main")) {
             LOG.debug("Updated chat area with new message..");
             updateChat(message);
         }
@@ -200,28 +201,29 @@ public class MainMenuPresenter extends AbstractPresenter {
 
     /**
      * Method called when a LobbyAlreadyExistsMessage was posted on the eventBus.
+     *
      * @param message
      * @since 2020-12-02
      */
 
     @Subscribe
-    public void onLobbyAlreadyExistsMessage(LobbyAlreadyExistsMessage message){
-        LOG.debug("Lobby with Name "+ lobbyNameTextField.getText() + " already exists.");
+    public void onLobbyAlreadyExistsMessage(LobbyAlreadyExistsMessage message) {
+        LOG.debug("Lobby with Name " + lobbyNameTextField.getText() + " already exists.");
         lobbyNameInvalid.setVisible(false);
         lobbyAlreadyExistsLabel.setVisible(true);
     }
 
     /**
      * Updates the main menus user list according to the list given
-     *
+     * <p>
      * This method clears the entire user list and then adds the name of each user
      * in the list given to the main menus user list. If there is no user list
      * this it creates one.
      *
-     * @implNote The code inside this Method has to run in the JavaFX-application
-     * thread. Therefore it is crucial not to remove the {@code Platform.runLater()}
      * @param userList A list of UserDTO objects including all currently logged in
      *                 users
+     * @implNote The code inside this Method has to run in the JavaFX-application
+     * thread. Therefore it is crucial not to remove the {@code Platform.runLater()}
      * @see de.uol.swp.common.user.UserDTO
      * @since 2019-08-29
      */
@@ -239,33 +241,27 @@ public class MainMenuPresenter extends AbstractPresenter {
 
     /**
      * Adds the ResponseChatMessage to the textArea
+     *
      * @param msg
      */
-    private void updateChat(ResponseChatMessage msg){
-        // Attention: This must be done on the FX Thread!
-        Platform.runLater(()->{
-            if(messages == null){
-                messages = FXCollections.observableArrayList();
-            }
-
-            var time =  new SimpleDateFormat("HH:mm");
-            Date resultdate = new Date((long) msg.getTime().doubleValue());
-            var readableTime = time.format(resultdate);
-            textArea.insertText(textArea.getLength(), readableTime +" " +msg.getUser() +": " + msg.getMessage() +"\n");
-        });
+    private void updateChat(ResponseChatMessage msg) {
+        var time = new SimpleDateFormat("HH:mm");
+        Date resultdate = new Date((long) msg.getTime().doubleValue());
+        var readableTime = time.format(resultdate);
+        textArea.insertText(textArea.getLength(), readableTime + " " + msg.getUsername() + ": " + msg.getMessage() + "\n");
     }
 
     /**
      * Updates the list of the lobbies in the main menu.
-     *
+     * <p>
      * This method clears the entire lobby list and then adds a new list of lobbies.
      *
+     * @param lobbyList A list of UserDTO objects including all existing lobbies
      * @implNote The code inside this Method has to run in the JavaFX-application
      * thread. Therefore it is crucial not to remove the {@code Platform.runLater()}
-     * @param lobbyList A list of UserDTO objects including all existing lobbies
+     * @author Carsten Dekker and Marius Birk
      * @see de.uol.swp.common.lobby.dto.LobbyDTO
      * @since 2020-04-12
-     * @author Carsten Dekker and Marius Birk
      */
 
     private void updateLobbyList(List<LobbyDTO> lobbyList) {
@@ -279,18 +275,19 @@ public class MainMenuPresenter extends AbstractPresenter {
             lobbyList.forEach(u -> lobbies.add(u.getName()));
         });
     }
+
     /**
      * Method called when the create lobby button is pressed
-     *
+     * <p>
      * If the create lobby button is pressed, this method requests the lobby service
      * to create a new lobby. Therefore it currently uses the lobby name "test"
      * and an user called whoever is the current logged in User that called that action
-     *
-     *
+     * <p>
+     * <p>
      * Enhanced the Method with a query that checks if the lobbyName is blank, null or empty. If the lobbyName is one of these,
      * the lobbyNameInvalid shows up and asks for a new name.
      * It also works with vowel mutation.
-     *
+     * <p>
      * Enhanced by Marius Birk and Carsten Dekker, 2020-02-12
      *
      * @param event The ActionEvent created by pressing the create lobby button
@@ -300,7 +297,7 @@ public class MainMenuPresenter extends AbstractPresenter {
     @FXML
     void onCreateLobby(ActionEvent event) {
         String lobbyName = lobbyNameTextField.getText();
-        if((lobbyService.createNewLobby(lobbyName, (UserDTO) this.loggedInUser) == false)){
+        if ((lobbyService.createNewLobby(lobbyName, (UserDTO) this.loggedInUser) == false)) {
             lobbyAlreadyExistsLabel.setVisible(false);
             lobbyNameInvalid.setVisible(true);
         }
@@ -308,7 +305,7 @@ public class MainMenuPresenter extends AbstractPresenter {
 
     /**
      * Method called when the join lobby button is pressed
-     *
+     * <p>
      * If the join lobby button is pressed, this method requests the lobby service
      * to join a specified lobby. Therefore it currently uses the lobby name "test"
      * and the user that pressed the JoinLobby Button
@@ -323,14 +320,14 @@ public class MainMenuPresenter extends AbstractPresenter {
     }
 
     @FXML
-    void onLogout(ActionEvent event){
+    void onLogout(ActionEvent event) {
         userService.logout(this.loggedInUser);
     }
 
 
     /**
      * Method called when the send Message button is pressed
-     *
+     * <p>
      * If the send Message button is pressed, this methods tries to request the chatService to send a specified message.
      * The message is of type RequestChatMessage
      * If this will result in an exception, go log the exception
@@ -341,19 +338,34 @@ public class MainMenuPresenter extends AbstractPresenter {
      */
     @FXML
     void onSendMessage(ActionEvent event) {
-        try{
+        try {
             var chatMessage = inputField.getCharacters().toString();
-            // ChatID = 0 means main chat
-            var chatId = 0;
-            if(!chatMessage.isEmpty()){
-                RequestChatMessage message = new RequestChatMessage(chatMessage, chatId, loggedInUser.getUsername(), System.currentTimeMillis());
-                chatService.sendMessage(message);
-            }
+            // ChatID = "main" means main chat
+            var chatId = "main";
+            RequestChatMessage message = new RequestChatMessage(chatMessage, chatId, loggedInUser.getUsername(), System.currentTimeMillis());
+            chatService.sendMessage(message);
             this.inputField.setText("");
-        }
-        catch(Exception e){
+        } catch (Exception e) {
             LOG.debug(e);
         }
+    }
+
+    /**
+     * Method called when the DeleteUser button is pressed
+     *
+     * If the delete User button is pressed, this methods tries to request the UserService to send a specified request.
+     * The request is of type DropUserRequest
+     *
+     * @author Carsten Dekker
+     * @param event The ActionEvent created by pressing the DeleteUser button
+     * @see de.uol.swp.client.user.UserService
+     * @since 2020-12-15
+     */
+
+    @FXML
+    void onDropUser(ActionEvent event) {
+        userService.dropUser(this.loggedInUser);
+        eventBus.post(new ShowLoginViewEvent());
     }
 
 }

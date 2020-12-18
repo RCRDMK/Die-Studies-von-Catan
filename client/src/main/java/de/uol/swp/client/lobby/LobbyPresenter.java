@@ -6,8 +6,11 @@ import de.uol.swp.client.AbstractPresenter;
 import de.uol.swp.common.lobby.message.UserJoinedLobbyMessage;
 import de.uol.swp.common.lobby.message.UserLeftLobbyMessage;
 import de.uol.swp.common.user.response.AllThisLobbyUsersResponse;
+import de.uol.swp.common.chat.RequestChatMessage;
+import de.uol.swp.common.chat.ResponseChatMessage;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
+import de.uol.swp.client.chat.ChatService;
 import de.uol.swp.common.user.response.LobbyCreatedSuccessfulResponse;
 import de.uol.swp.common.user.response.LobbyJoinedSuccessfulResponse;
 import de.uol.swp.common.user.response.LobbyLeftSuccessfulResponse;
@@ -23,24 +26,23 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.List;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * Manages the lobby menu
+ *
+ * Class was build exactly like MainMenuPresenter. Only ActionEvents were added
  *
  * @author Ricardo Mook, Marc Hermes
  * @see de.uol.swp.client.AbstractPresenter
  * @since 2020-11-19
  */
-
-//Class was build exactly like MainMenuPresenter.
-
 public class LobbyPresenter extends AbstractPresenter {
 
     public static final String fxml = "/fxml/LobbyView.fxml";
 
     private static final Logger LOG = LogManager.getLogger(LobbyPresenter.class);
-    public TextField lobbyChatInput;
-    public TextArea lobbyChatArea;
 
     private ObservableList<String> lobbyUsers;
 
@@ -49,11 +51,19 @@ public class LobbyPresenter extends AbstractPresenter {
     private String currentLobby;
 
     @FXML
+    public TextField lobbyChatInput;
+
+    @FXML
+    public TextArea lobbyChatArea;
+
+    @FXML
     private ListView<String> lobbyUsersView;
 
     @Inject
     private LobbyService lobbyService;
 
+    @Inject
+    private ChatService chatService;
 
     @FXML
     public void onStartGame(ActionEvent event) {
@@ -71,9 +81,34 @@ public class LobbyPresenter extends AbstractPresenter {
         }
     }
 
+    /**
+     * Method called when the send Message button is pressed
+     *
+     * If the send Message button is pressed,
+     * this methods tries to request the chatService to send a specified message.
+     * The message is of type RequestChatMessage
+     * If this will result in an exception, go log the exception
+     *
+     * @param event The ActionEvent created by pressing the send Message button
+     * @author Anton, René, Sergej
+     * @see de.uol.swp.client.chat.ChatService
+     * @since 2020-12-06
+     */
     @FXML
-    public void onSendMessage(ActionEvent event) {
-        //TODO:
+    void onSendMessage(ActionEvent event) {
+        try{
+            var chatMessage = lobbyChatInput.getCharacters().toString();
+            // ChatID = gets lobby name
+            var chatId = currentLobby;
+            if(!chatMessage.isEmpty()){
+                RequestChatMessage message = new RequestChatMessage(chatMessage, chatId, joinedLobbyUser.getUsername(), System.currentTimeMillis());
+                chatService.sendMessage(message);
+            }
+            this.lobbyChatInput.setText("");
+        }
+        catch(Exception e){
+            LOG.debug(e);
+        }
     }
 
     /**
@@ -92,6 +127,8 @@ public class LobbyPresenter extends AbstractPresenter {
         LOG.debug("Requesting update of User list in lobby because lobby was created.");
         this.joinedLobbyUser = message.getUser();
         this.currentLobby = message.getName();
+        this.lobbyChatInput.setText("");
+        lobbyChatArea.deleteText(0, lobbyChatArea.getLength());
         lobbyService.retrieveAllThisLobbyUsers(message.getName());
     }
 
@@ -99,8 +136,7 @@ public class LobbyPresenter extends AbstractPresenter {
      * Handles successful joining in the lobby
      *
      * If a LobbyJoinedSuccessfulResponse is posted to the EventBus the loggedInUser
-     * of this client is set to the one in the message received and the full
-     * list of users currently in the lobby is requested.
+     * of this client is set to the one in the message received.
      *
      * @param message the LobbyJoinedSuccessfulResponse object seen on the EventBus
      * @see de.uol.swp.common.user.response.LobbyJoinedSuccessfulResponse
@@ -108,18 +144,18 @@ public class LobbyPresenter extends AbstractPresenter {
      */
     @Subscribe
     public void userJoinedSuccessful(LobbyJoinedSuccessfulResponse message) {
-        LOG.debug("Requesting update of User list in lobby because new user joined the lobby.");
+        LOG.debug("LobbyJoinedSuccessfulResponse successfully received");
         this.joinedLobbyUser = message.getUser();
         this.currentLobby = message.getName();
-        lobbyService.retrieveAllThisLobbyUsers(message.getName());
+        this.lobbyChatInput.setText("");
+        lobbyChatArea.deleteText(0, lobbyChatArea.getLength());
     }
 
     /**
      * Handles successful leaving of lobby
      *
      * If a LobbyLeftSuccessfulResponse is posted to the EventBus the loggedInUser
-     * of this client is set to the one in the message received and the full
-     * list of users currently in the lobby is requested.
+     * of this client is set to the one in the message received.
      *
      * @param message the LobbyLeftSuccessfulResponse object seen on the EventBus
      * @see de.uol.swp.common.user.response.LobbyLeftSuccessfulResponse
@@ -127,26 +163,9 @@ public class LobbyPresenter extends AbstractPresenter {
      */
     @Subscribe
     public void userLeftSuccessful(LobbyLeftSuccessfulResponse message) {
-        LOG.debug("Requesting update of User list in lobby because user left the lobby.");
+        LOG.debug("LobbyLeftSuccessfulResponse successfully received");
         this.joinedLobbyUser = message.getUser();
         this.currentLobby = message.getName();
-        lobbyService.retrieveAllThisLobbyUsers(message.getName());
-    }
-    /**
-     * Handles successful lobby leave of the user
-     *
-     * If a UserLeftLobbyMessage is posted to the EventBus the joinedLobbyUser
-     * of this client is set to the one in the message received and the full
-     * list of users currently remaining in the lobby is requested.
-     *
-     * @param message the UserLeftLobbyMessage object seen on the EventBus
-     * @see de.uol.swp.common.lobby.message.UserLeftLobbyMessage
-     * @since 2020-12-03
-     */
-    @Subscribe
-    public void leftSuccessful(UserLeftLobbyMessage message) {
-        LOG.debug("Requesting update of User list in lobby because a User left the lobby.");
-        lobbyService.retrieveAllThisLobbyUsers(message.getName());
     }
 
     /**
@@ -166,6 +185,22 @@ public class LobbyPresenter extends AbstractPresenter {
         lobbyService.retrieveAllThisLobbyUsers(message.getName());
     }
 
+    /**
+     * Handles successful lobby leave of the user
+     *
+     * If a UserLeftLobbyMessage is posted to the EventBus the joinedLobbyUser
+     * of this client is set to the one in the message received and the full
+     * list of users currently remaining in the lobby is requested.
+     *
+     * @param message the UserLeftLobbyMessage object seen on the EventBus
+     * @see de.uol.swp.common.lobby.message.UserLeftLobbyMessage
+     * @since 2020-12-03
+     */
+    @Subscribe
+    public void leftSuccessful(UserLeftLobbyMessage message) {
+        LOG.debug("Requesting update of User list in lobby because a User left the lobby.");
+        lobbyService.retrieveAllThisLobbyUsers(message.getName());
+    }
 
     /**
      * Handles new list of users
@@ -210,5 +245,31 @@ public class LobbyPresenter extends AbstractPresenter {
             lobbyUsers.clear();
             lobbyUserList.forEach(u -> lobbyUsers.add(u.getUsername()));
         });
+    }
+
+    /**
+     * Updates the lobby chat when a ResponseChatMessage was posted to the EventBus.
+     *
+     * @param message
+     */
+    @Subscribe
+    public void onResponseChatMessage(ResponseChatMessage message) {
+        // Only update Messages from used lobby chat
+        if (message.getChat().equals(currentLobby)) {
+            LOG.debug("Updated lobby chat area with new message..");
+            updateChat(message);
+        }
+    }
+
+    /**
+     * Adds the ResponseChatMessage to the textArea
+     *
+     * @param msg
+     */
+    private void updateChat(ResponseChatMessage msg){
+        var time =  new SimpleDateFormat("HH:mm");
+        Date resultdate = new Date((long) msg.getTime().doubleValue());
+        var readableTime = time.format(resultdate);
+        lobbyChatArea.insertText(lobbyChatArea.getLength(), readableTime +" " +msg.getUsername() +": " + msg.getMessage() +"\n");
     }
 }
