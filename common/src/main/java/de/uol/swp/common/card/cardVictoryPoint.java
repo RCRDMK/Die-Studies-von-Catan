@@ -1,4 +1,4 @@
-package de.uol.swp.game.card;
+package de.uol.swp.common.card;
 
 /**
  *  Interface für die Siegpunktkarte
@@ -9,6 +9,12 @@ package de.uol.swp.game.card;
  * @since 2020-12-16
  */
 public interface cardVictoryPoint extends cardDevelopment {
+    /**
+     * Gibt die Anzahl der Siegpunkte wieder
+     *
+     * @return int
+     * @author Alexander Losse, Iskander Yusupov
+     * @since 2020-12-18
+     */
     int getVictoryPoint();
-    boolean getHidden();
 }

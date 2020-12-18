@@ -1,4 +1,4 @@
-package de.uol.swp.game.card;
+package de.uol.swp.common.card;
 
 /**
  *  Interface für die Ritterkarte
@@ -10,12 +10,5 @@ package de.uol.swp.game.card;
  */
 
 public interface cardKnight extends cardDevelopment {
-    /**
-     * Gibt einen String wieder, in welchem die Kartenaktion gespeichert ist
-     *
-     * @author
-     * @since 2020-12-16
-     * @return String
-     */
-    String getCardAction();
+
 }

@@ -1,4 +1,4 @@
-package de.uol.swp.game.card;
+package de.uol.swp.common.card;
 
 /**
  * Die Entwicklungskarte
