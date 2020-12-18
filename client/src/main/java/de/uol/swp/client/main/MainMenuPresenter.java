@@ -209,7 +209,7 @@ public class MainMenuPresenter extends AbstractPresenter {
      *
      * @param response
      * @author René
-     * @since 17.12.2020
+     * @since 2020-12-17
      */
     @Subscribe
     public void onLobbyFullResponse(LobbyFullResponse response){

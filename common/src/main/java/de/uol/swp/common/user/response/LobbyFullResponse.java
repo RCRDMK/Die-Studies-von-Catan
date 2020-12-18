@@ -9,7 +9,7 @@ import java.util.Objects;
  * Contains the lobbyName, so the User can get a chat feedback which lobby is full
  *
  * @author René
- * @since 17.12.2020
+ * @since 2020-12-17
  */
 
 public class LobbyFullResponse extends AbstractResponseMessage {
