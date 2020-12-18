@@ -12,6 +12,7 @@ import de.uol.swp.common.lobby.message.LobbyCreatedMessage;
 import de.uol.swp.common.chat.RequestChatMessage;
 import de.uol.swp.common.chat.ResponseChatMessage;
 import de.uol.swp.common.lobby.message.LobbyDroppedMessage;
+import de.uol.swp.common.lobby.message.LobbySizeChangedMessage;
 import de.uol.swp.common.lobby.response.AllCreatedLobbiesResponse;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
@@ -133,6 +134,24 @@ public class MainMenuPresenter extends AbstractPresenter {
     @Subscribe
     public void lobbyDroppedSuccessful(LobbyDroppedMessage message) {
         LOG.debug("The lobby: " + message.getName() + " was dropped");
+        lobbyService.retrieveAllLobbies();
+    }
+
+    /**
+     * Handles successful change in size of lobbies
+     * <p>
+     * If a LobbyChangedSizeMessage is detected on the event bus the retrieveAllLobbies() Method is called,
+     * resulting in the update of the list of the current lobbies for the User.
+     * Further, if LOG is set as "debug" a debug message is posted in the console.
+     *
+     * @param message the LobbyDroppedMessage detected on the event bus
+     * @see de.uol.swp.common.lobby.message.LobbySizeChangedMessage
+     * @author Ricardo Mook, Marc Hermes
+     * @since 2020-12-18
+     */
+    @Subscribe
+    public void lobbySizeChanged(LobbySizeChangedMessage message) {
+        LOG.debug("The lobby: " + message.getName() + " changed it's size");
         lobbyService.retrieveAllLobbies();
     }
 
