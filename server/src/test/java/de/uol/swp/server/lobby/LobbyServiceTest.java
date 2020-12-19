@@ -16,6 +16,7 @@ import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.Session;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.user.response.LobbyFullResponse;
+import de.uol.swp.common.user.response.JoinDeletedLobbyResponse;
 import de.uol.swp.common.user.response.LobbyLeftSuccessfulResponse;
 import de.uol.swp.server.usermanagement.AuthenticationService;
 import de.uol.swp.server.usermanagement.UserManagement;
@@ -153,6 +154,14 @@ public class LobbyServiceTest {
         assertEquals(4, lobbyManagement.getLobby(lobbyName).get().getUsers().size());
 
         assertFalse(lobbyManagement.getLobby(lobbyName).get().getUsers().contains(userDTO4));
+
+    }
+
+
+
+    @Test
+    void joinDeletedLobbyTest() throws LobbyManagementException{
+        //TODO: 19.12.2020 : Join DeletedLobbyTest
 
     }
 

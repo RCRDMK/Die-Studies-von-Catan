@@ -6,6 +6,7 @@ import de.uol.swp.common.lobby.message.*;
 import de.uol.swp.common.lobby.request.RetrieveAllLobbiesRequest;
 import de.uol.swp.common.lobby.response.AllCreatedLobbiesResponse;
 import de.uol.swp.common.user.UserDTO;
+import de.uol.swp.common.user.response.JoinDeletedLobbyResponse;
 import de.uol.swp.common.user.response.LobbyFullResponse;
 import org.junit.jupiter.api.Test;
 
@@ -28,6 +29,7 @@ public class LobbyMessageSerializableTest {
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new UserJoinedLobbyMessage("test", defaultUser),
                 UserJoinedLobbyMessage.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new LobbyFullResponse("test"), LobbyFullResponse.class));
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new JoinDeletedLobbyResponse("test"),JoinDeletedLobbyResponse.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new UserLeftLobbyMessage("test", defaultUser),
                 UserLeftLobbyMessage.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new LobbyAlreadyExistsMessage("test", defaultUser),

@@ -122,7 +122,11 @@ public class LobbyService extends AbstractService {
         Optional<Lobby> lobby = lobbyManagement.getLobby(lobbyJoinUserRequest.getName());
 
         if (!lobby.isPresent()) {
-            throw new LobbyManagementException("Lobby unknown!");
+            if(lobbyJoinUserRequest.getMessageContext().isPresent()){
+                Optional<MessageContext> ctx = lobbyJoinUserRequest.getMessageContext();
+                sendToSpecificUser(ctx.get(), new JoinDeletedLobbyResponse(lobbyJoinUserRequest.getName()));
+            }
+
         }
 
         if (lobby.get().getUsers().size() < 4) {
@@ -148,6 +152,8 @@ public class LobbyService extends AbstractService {
      * If a LobbyLeaveUserRequest is detected on the EventBus, this method is called.
      * It removes a user from a Lobby stored in the LobbyManagement and sends a
      * UserLeftLobbyMessage to every user in the lobby.
+     *
+     * If a lobby was deleted, this methode will return a JoinDeletedLobbyResponse to the user who requested to join the lobby
      *
      * @param lobbyLeaveUserRequest The LobbyJoinUserRequest found on the EventBus
      * @see de.uol.swp.common.lobby.Lobby
@@ -219,7 +225,8 @@ public class LobbyService extends AbstractService {
             message.setReceiver(authenticationService.getSessions(lobby.get().getUsers()));
             post(message);
         } else {
-            throw new LobbyManagementException("Lobby unknown!");
+          throw new LobbyManagementException("Lobby unknown!");
+
         }
     }
 

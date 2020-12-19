@@ -18,6 +18,7 @@ import de.uol.swp.common.user.message.UserLoggedInMessage;
 import de.uol.swp.common.user.message.UserLoggedOutMessage;
 import de.uol.swp.common.user.response.AllOnlineUsersResponse;
 import de.uol.swp.common.user.response.LobbyFullResponse;
+import de.uol.swp.common.user.response.JoinDeletedLobbyResponse;
 import de.uol.swp.common.user.response.LoginSuccessfulResponse;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -31,9 +32,7 @@ import javafx.scene.control.TextField;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.swing.*;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -219,6 +218,26 @@ public class MainMenuPresenter extends AbstractPresenter {
         var readableTime = time.format(resultDate);
         textArea.insertText(textArea.getLength(), readableTime + " SYSTEM: Can't join full lobby " + response.getLobbyName() + " \n");
     }
+
+    /**
+     * Method called when a LobbyDeletedResponse was posted on the eventBus.
+     * <p>
+     * If a LobbyDeletedResponse was posted on the eventBus, this method will let the User know the lobby was deleted
+     * via posting a 'Lobby deleted' message to the local chat.
+     *
+     * @param response
+     * @author Sergej
+     * @since 2020-12-17
+     */
+    @Subscribe
+    public void onJoinDeletedLobbyResponse(JoinDeletedLobbyResponse response){
+        LOG.debug("Can't join lobby " + response.getLobbyName() + " because the lobby was deleted.");
+        var time = new SimpleDateFormat("HH:mm");
+        Date resultDate = new Date();
+        var readableTime = time.format(resultDate);
+        textArea.insertText(textArea.getLength(), readableTime + " SYSTEM: Can't join deleted lobby " + response.getLobbyName() + " \n");
+    }
+
 
     /**
      * Method called when a LobbyAlreadyExistsMessage was posted on the eventBus.
