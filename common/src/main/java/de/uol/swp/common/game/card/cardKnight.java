@@ -1,4 +1,4 @@
-package de.uol.swp.common.card;
+package de.uol.swp.common.game.card;
 
 /**
  *  Interface für die Ritterkarte
