@@ -6,6 +6,7 @@ import de.uol.swp.common.lobby.message.*;
 import de.uol.swp.common.lobby.request.RetrieveAllLobbiesRequest;
 import de.uol.swp.common.lobby.response.AllCreatedLobbiesResponse;
 import de.uol.swp.common.user.UserDTO;
+import de.uol.swp.common.user.response.LobbyFullResponse;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
