@@ -11,6 +11,8 @@ import de.uol.swp.common.lobby.message.LobbyAlreadyExistsMessage;
 import de.uol.swp.common.lobby.message.LobbyCreatedMessage;
 import de.uol.swp.common.chat.RequestChatMessage;
 import de.uol.swp.common.chat.ResponseChatMessage;
+import de.uol.swp.common.lobby.message.LobbyDroppedMessage;
+import de.uol.swp.common.lobby.message.LobbySizeChangedMessage;
 import de.uol.swp.common.lobby.response.AllCreatedLobbiesResponse;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
@@ -100,9 +102,58 @@ public class MainMenuPresenter extends AbstractPresenter {
         lobbyService.retrieveAllLobbies();
     }
 
+    /**
+     * Handles successful lobby creation
+     * <p>
+     * If a LobbyCreatedMessage is detected on the event bus the retrieveAllLobbies() Method is called,
+     * resulting in the update of the list of the current lobbies for the User.
+     * Further, if LOG is set as "debug" a debug message is posted in the console.
+     *
+     * @param message the LobbyCreatedMessage detected on the event bus
+     * @see de.uol.swp.common.lobby.message.LobbyCreatedMessage
+     * @author Ricardo Mook, Marc Hermes
+     * @since 2020-11-19
+     */
     @Subscribe
     public void lobbyCreatedSuccessful(LobbyCreatedMessage message) {
         LOG.debug("New lobby created by " + message.getUser().getUsername());
+        lobbyService.retrieveAllLobbies();
+    }
+
+    /**
+     * Handles successful lobby dropping
+     * <p>
+     * If a LobbyDroppedMessage is detected on the event bus the retrieveAllLobbies() Method is called,
+     * resulting in the update of the list of the current lobbies for the User.
+     * Further, if LOG is set as "debug" a debug message is posted in the console.
+     *
+     * @param message the LobbyDroppedMessage detected on the event bus
+     * @see de.uol.swp.common.lobby.message.LobbyDroppedMessage
+     * @author Ricardo Mook, Marc Hermes
+     * @since 2020-12-17
+     */
+    @Subscribe
+    public void lobbyDroppedSuccessful(LobbyDroppedMessage message) {
+        LOG.debug("The lobby: " + message.getName() + " was dropped");
+        lobbyService.retrieveAllLobbies();
+    }
+
+    /**
+     * Handles successful change in size of lobbies
+     * <p>
+     * If a LobbyChangedSizeMessage is detected on the event bus the retrieveAllLobbies() Method is called,
+     * resulting in the update of the list of the current lobbies for the User.
+     * Further, if LOG is set as "debug" a debug message is posted in the console.
+     *
+     * @param message the LobbyDroppedMessage detected on the event bus
+     * @see de.uol.swp.common.lobby.message.LobbySizeChangedMessage
+     * @author Ricardo Mook, Marc Hermes
+     * @since 2020-12-18
+     */
+    @Subscribe
+    public void lobbySizeChanged(LobbySizeChangedMessage message) {
+        LOG.debug("The lobby: " + message.getName() + " changed it's size");
+        lobbyService.retrieveAllLobbies();
     }
 
     /**
