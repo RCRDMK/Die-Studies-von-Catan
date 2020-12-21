@@ -7,6 +7,7 @@ import de.uol.swp.common.user.message.UserLoggedInMessage;
 import de.uol.swp.common.user.message.UserLoggedOutMessage;
 import de.uol.swp.common.user.message.UsersListMessage;
 import de.uol.swp.common.user.request.*;
+import de.uol.swp.common.user.response.*;
 import de.uol.swp.common.user.response.DropUserSuccessfulResponse;
 import de.uol.swp.common.user.response.LoginSuccessfulResponse;
 import org.junit.jupiter.api.Test;
@@ -48,6 +49,21 @@ class UserMessageSerializableTest {
                 RegisterUserRequest.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new RetrieveAllOnlineUsersRequest(),
                 RetrieveAllOnlineUsersRequest.class));
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new UpdateUserRequest(defaultUser),
+                UpdateUserRequest.class));
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new AllOnlineUsersResponse(),
+                AllOnlineUsersResponse.class));
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new AllThisLobbyUsersResponse(),
+                AllThisLobbyUsersResponse.class));
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new LobbyCreatedSuccessfulResponse(defaultUser),
+                LobbyCreatedSuccessfulResponse.class));
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new LobbyJoinedSuccessfulResponse(defaultUser),
+                LobbyJoinedSuccessfulResponse.class));
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new LobbyLeftSuccessfulResponse(defaultUser),
+                LobbyLeftSuccessfulResponse.class));
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new RegistrationSuccessfulResponse(),
+               RegistrationSuccessfulResponse.class));
+
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new DropUserExceptionMessage("Error"),
                 DropUserExceptionMessage.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new DropUserSuccessfulResponse(),
