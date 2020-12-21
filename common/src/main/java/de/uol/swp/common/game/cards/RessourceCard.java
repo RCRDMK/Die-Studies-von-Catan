@@ -3,15 +3,17 @@ package de.uol.swp.common.game.cards;
 /**
  * Class for the ressource cards in the game.
  *
- * @author Carsten Dekker
- * @since 2020-12-18
+ * @author Carsten Dekker und Anton Nikiforov
+ * @see de.uol.swp.common.game.cards.GameCards
+ * @since 2020-12-21
  */
 
 public class RessourceCard extends GameCards {
 
     String ressourceType;
 
-    public RessourceCard(String ressourceType) {
+    public RessourceCard(int id, String name, String owner, String ressourceType) {
+        super(id, name, owner);
         this.ressourceType = ressourceType;
     }
 
