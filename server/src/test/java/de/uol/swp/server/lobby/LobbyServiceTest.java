@@ -158,11 +158,32 @@ public class LobbyServiceTest {
     }
 
 
-
+    /**
+     * This test checks if a User want´s join a deleted lobby.
+     *
+     *
+     * @author Sergej
+     */
     @Test
-    void joinDeletedLobbyTest() throws LobbyManagementException{
-        //TODO: 19.12.2020 : Join DeletedLobbyTest
+    void joinDeletedLobbyTest() {
+        UserDTO userDTO = new UserDTO("Peter", "lustig", "peter.lustig@uol.de");
+        lobbyManagement.createLobby("testLobby", userDTO);
+        lobbyManagement.dropLobby("testLobby");
+        MessageContext ctx = new MessageContext() {
+            @Override
+            public void writeAndFlush(ResponseMessage message) {
+                bus.post(message);
+            }
 
+            @Override
+            public void writeAndFlush(ServerMessage message) {
+                bus.post(message);
+            }
+        };
+        LobbyJoinUserRequest ljur1 = new LobbyJoinUserRequest("testLobby", userDTO1);
+        ljur1.setMessageContext(ctx);
+        assertThrows(NoSuchElementException.class, () -> lobbyService.onLobbyJoinUserRequest(ljur1));
+        assertTrue(event instanceof JoinDeletedLobbyResponse);
     }
 
     /**

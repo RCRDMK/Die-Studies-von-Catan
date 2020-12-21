@@ -273,7 +273,7 @@ public class MainMenuPresenter extends AbstractPresenter {
     /**
      * Method called when a LobbyDeletedResponse was posted on the eventBus.
      * <p>
-     * If a LobbyDeletedResponse was posted on the eventBus, this method will let the User know the lobby was deleted
+     * If a JoinDeletedLobbyResponse was posted on the eventBus, this method will let the User know the lobby was deleted
      * via posting a 'Lobby deleted' message to the local chat.
      *
      * @param response
