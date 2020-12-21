@@ -26,6 +26,7 @@ public class LobbyMessageSerializableTest {
                 LobbyLeaveUserRequest.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new UserJoinedLobbyMessage("test", defaultUser),
                 UserJoinedLobbyMessage.class));
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new LobbyFullResponse("test"), LobbyFullResponse.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new UserLeftLobbyMessage("test", defaultUser),
                 UserLeftLobbyMessage.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new LobbyAlreadyExistsMessage("test", defaultUser),
@@ -42,5 +43,9 @@ public class LobbyMessageSerializableTest {
                 LobbyCreatedMessage.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new RetrieveAllThisLobbyUsersRequest(),
                 RetrieveAllThisLobbyUsersRequest.class));
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new LobbySizeChangedMessage("test"),
+                LobbySizeChangedMessage.class));
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new LobbyDroppedMessage("test"),
+                LobbyDroppedMessage.class));
     }
 }

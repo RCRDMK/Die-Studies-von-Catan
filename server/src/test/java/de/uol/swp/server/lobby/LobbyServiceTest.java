@@ -15,6 +15,7 @@ import de.uol.swp.common.lobby.message.LobbyJoinUserRequest;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.Session;
 import de.uol.swp.common.user.UserDTO;
+import de.uol.swp.common.user.response.LobbyFullResponse;
 import de.uol.swp.common.user.response.LobbyLeftSuccessfulResponse;
 import de.uol.swp.server.usermanagement.AuthenticationService;
 import de.uol.swp.server.usermanagement.UserManagement;
@@ -146,10 +147,10 @@ public class LobbyServiceTest {
         lobbyService.onLobbyJoinUserRequest(ljur1);
         lobbyService.onLobbyJoinUserRequest(ljur2);
         lobbyService.onLobbyJoinUserRequest(ljur3);
-
         assertEquals(4, lobbyManagement.getLobby(lobbyName).get().getUsers().size());
 
-        assertThrows(LobbyManagementException.class, ()-> lobbyService.onLobbyJoinUserRequest(ljur4));
+        lobbyService.onLobbyJoinUserRequest(ljur4);
+        assertEquals(4, lobbyManagement.getLobby(lobbyName).get().getUsers().size());
 
         assertFalse(lobbyManagement.getLobby(lobbyName).get().getUsers().contains(userDTO4));
 
