@@ -12,6 +12,9 @@ import de.uol.swp.common.lobby.message.CreateLobbyRequest;
 import de.uol.swp.common.lobby.message.LobbyAlreadyExistsMessage;
 import de.uol.swp.common.lobby.message.LobbyCreatedMessage;
 import de.uol.swp.common.lobby.message.LobbyJoinUserRequest;
+import de.uol.swp.common.message.MessageContext;
+import de.uol.swp.common.message.ResponseMessage;
+import de.uol.swp.common.message.ServerMessage;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.Session;
 import de.uol.swp.common.user.UserDTO;
@@ -120,12 +123,15 @@ public class LobbyServiceTest {
 
     /**
      * This test shows that a maximum of 4 users can join a lobby.
+     * <p>
+     * Additionally the test checks if the user receives a LobbyFullResponse Message on the Bus
+     * when he tries to join a full lobby (Added by René)
      *
-     * @author Pieter Vogt, Kirstin Beyer
-     * @since 2020-12-15
+     * @author Pieter Vogt, Kirstin Beyer, René Meyer
+     * @since 2020-12-21
      */
     @Test
-    @DisplayName("Join Versuch Lobby voll")
+    @DisplayName("Join Versuch Lobby voll - LobbyFullResponse")
     void LobbyJoinTest() throws LobbyManagementException {
         String lobbyName = "TestLobby";
         UserDTO userDTO = new UserDTO("Peter", "lustig", "peter.lustig@uol.de");
@@ -149,11 +155,24 @@ public class LobbyServiceTest {
         lobbyService.onLobbyJoinUserRequest(ljur3);
         assertEquals(4, lobbyManagement.getLobby(lobbyName).get().getUsers().size());
 
-        lobbyService.onLobbyJoinUserRequest(ljur4);
-        assertEquals(4, lobbyManagement.getLobby(lobbyName).get().getUsers().size());
+        MessageContext ctx = new MessageContext() {
+            @Override
+            public void writeAndFlush(ResponseMessage message) {
+                bus.post(message);
+            }
 
+            @Override
+            public void writeAndFlush(ServerMessage message) {
+                bus.post(message);
+            }
+        };
+        ljur4.setMessageContext(ctx);
+        lobbyService.onLobbyJoinUserRequest(ljur4);
+
+        assertEquals(4, lobbyManagement.getLobby(lobbyName).get().getUsers().size());
         assertFalse(lobbyManagement.getLobby(lobbyName).get().getUsers().contains(userDTO4));
 
+        assertTrue(event instanceof LobbyFullResponse);
     }
 
     /**
