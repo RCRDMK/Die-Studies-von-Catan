@@ -36,6 +36,14 @@ public class LobbyMessageSerializableTest {
                 RetrieveAllLobbiesRequest.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new AllCreatedLobbiesResponse(),
                 AllCreatedLobbiesResponse.class));
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new AbstractLobbyMessage(),
+                AbstractLobbyMessage.class));
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new AbstractLobbyRequest(),
+                AbstractLobbyRequest.class));
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new LobbyCreatedMessage(defaultUser.getUsername(), defaultUser),
+                LobbyCreatedMessage.class));
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new RetrieveAllThisLobbyUsersRequest(),
+                RetrieveAllThisLobbyUsersRequest.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new LobbySizeChangedMessage("test"),
                 LobbySizeChangedMessage.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new LobbyDroppedMessage("test"),
