@@ -5,8 +5,8 @@ import de.uol.swp.common.message.AbstractResponseMessage;
 import java.util.Objects;
 
 /**
- * Response that is to sent to the User who requested to join a full Lobby
- * Contains the lobbyName, so the User can get a chat feedback, which lobby is full.
+ * Response that is to sent to the User who requested to join a deletedLobby
+ * Contains the lobbyName, so the User can get a chat feedback, which lobby is deleted.
  *
  * @author Sergej
  * @since 2020-12-19

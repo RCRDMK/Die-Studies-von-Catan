@@ -110,11 +110,12 @@ public class LobbyService extends AbstractService {
      * to every user in the lobby.
      * If a lobby already has 4 users, this method will return a LobbyFullResponse to the user
      * who requested to join the lobby
-     *
+     * If a lobby is not present, this method will return a JoinDeletedLobbyResponse to the user.
      * @param lobbyJoinUserRequest The LobbyJoinUserRequest found on the EventBus
      * @see de.uol.swp.common.lobby.Lobby
      * @see de.uol.swp.common.lobby.message.UserJoinedLobbyMessage
      * @see de.uol.swp.common.user.response.LobbyJoinedSuccessfulResponse
+     * @see de.uol.swp.common.user.response.JoinDeletedLobbyResponse
      * @since 2019-10-08
      */
     @Subscribe
