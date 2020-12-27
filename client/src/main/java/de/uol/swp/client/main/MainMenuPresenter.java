@@ -5,12 +5,13 @@ import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
 import de.uol.swp.client.auth.events.ShowLoginViewEvent;
 import de.uol.swp.client.chat.ChatService;
+import de.uol.swp.client.lobby.LobbyCell;
 import de.uol.swp.client.lobby.LobbyService;
+import de.uol.swp.common.chat.RequestChatMessage;
+import de.uol.swp.common.chat.ResponseChatMessage;
 import de.uol.swp.common.lobby.dto.LobbyDTO;
 import de.uol.swp.common.lobby.message.LobbyAlreadyExistsMessage;
 import de.uol.swp.common.lobby.message.LobbyCreatedMessage;
-import de.uol.swp.common.chat.RequestChatMessage;
-import de.uol.swp.common.chat.ResponseChatMessage;
 import de.uol.swp.common.lobby.message.LobbyDroppedMessage;
 import de.uol.swp.common.lobby.message.LobbySizeChangedMessage;
 import de.uol.swp.common.lobby.response.AllCreatedLobbiesResponse;
@@ -33,9 +34,7 @@ import javafx.scene.control.TextField;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.swing.*;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -111,8 +110,8 @@ public class MainMenuPresenter extends AbstractPresenter {
      * Further, if LOG is set as "debug" a debug message is posted in the console.
      *
      * @param message the LobbyCreatedMessage detected on the event bus
-     * @see de.uol.swp.common.lobby.message.LobbyCreatedMessage
      * @author Ricardo Mook, Marc Hermes
+     * @see de.uol.swp.common.lobby.message.LobbyCreatedMessage
      * @since 2020-11-19
      */
     @Subscribe
@@ -129,8 +128,8 @@ public class MainMenuPresenter extends AbstractPresenter {
      * Further, if LOG is set as "debug" a debug message is posted in the console.
      *
      * @param message the LobbyDroppedMessage detected on the event bus
-     * @see de.uol.swp.common.lobby.message.LobbyDroppedMessage
      * @author Ricardo Mook, Marc Hermes
+     * @see de.uol.swp.common.lobby.message.LobbyDroppedMessage
      * @since 2020-12-17
      */
     @Subscribe
@@ -147,8 +146,8 @@ public class MainMenuPresenter extends AbstractPresenter {
      * Further, if LOG is set as "debug" a debug message is posted in the console.
      *
      * @param message the LobbyDroppedMessage detected on the event bus
-     * @see de.uol.swp.common.lobby.message.LobbySizeChangedMessage
      * @author Ricardo Mook, Marc Hermes
+     * @see de.uol.swp.common.lobby.message.LobbySizeChangedMessage
      * @since 2020-12-18
      */
     @Subscribe
@@ -263,7 +262,7 @@ public class MainMenuPresenter extends AbstractPresenter {
      * @since 2020-12-17
      */
     @Subscribe
-    public void onLobbyFullResponse(LobbyFullResponse response){
+    public void onLobbyFullResponse(LobbyFullResponse response) {
         LOG.debug("Can't join lobby " + response.getLobbyName() + " because the lobby is full.");
         var time = new SimpleDateFormat("HH:mm");
         Date resultDate = new Date();
@@ -345,6 +344,7 @@ public class MainMenuPresenter extends AbstractPresenter {
             }
             lobbies.clear();
             lobbyList.forEach(u -> lobbies.add(u.getName()));
+            lobbiesView.setCellFactory(x -> new LobbyCell(lobbyService, loggedInUser));
         });
     }
 
@@ -373,22 +373,6 @@ public class MainMenuPresenter extends AbstractPresenter {
             lobbyAlreadyExistsLabel.setVisible(false);
             lobbyNameInvalid.setVisible(true);
         }
-    }
-
-    /**
-     * Method called when the join lobby button is pressed
-     * <p>
-     * If the join lobby button is pressed, this method requests the lobby service
-     * to join a specified lobby. Therefore it currently uses the lobby name "test"
-     * and the user that pressed the JoinLobby Button
-     *
-     * @param event The ActionEvent created by pressing the join lobby button
-     * @see de.uol.swp.client.lobby.LobbyService
-     * @since 2019-11-20
-     */
-    @FXML
-    void onJoinLobby(ActionEvent event) {
-        lobbyService.joinLobby("test", (UserDTO) this.loggedInUser);
     }
 
     @FXML
@@ -424,12 +408,12 @@ public class MainMenuPresenter extends AbstractPresenter {
 
     /**
      * Method called when the DeleteUser button is pressed
-     *
+     * <p>
      * If the delete User button is pressed, this methods tries to request the UserService to send a specified request.
      * The request is of type DropUserRequest
      *
-     * @author Carsten Dekker
      * @param event The ActionEvent created by pressing the DeleteUser button
+     * @author Carsten Dekker
      * @see de.uol.swp.client.user.UserService
      * @since 2020-12-15
      */
