@@ -19,15 +19,19 @@ import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.Session;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.user.response.LobbyFullResponse;
+import de.uol.swp.common.user.response.JoinDeletedLobbyResponse;
 import de.uol.swp.common.user.response.LobbyLeftSuccessfulResponse;
 import de.uol.swp.server.usermanagement.AuthenticationService;
 import de.uol.swp.server.usermanagement.UserManagement;
 import de.uol.swp.server.usermanagement.UserService;
 import de.uol.swp.server.usermanagement.store.MainMemoryBasedUserStore;
 import de.uol.swp.server.usermanagement.store.UserStore;
+import io.netty.channel.ChannelHandler;
+import io.netty.channel.embedded.EmbeddedChannel;
 import org.checkerframework.checker.units.qual.A;
 import org.junit.jupiter.api.*;
 
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -170,9 +174,39 @@ public class LobbyServiceTest {
         lobbyService.onLobbyJoinUserRequest(ljur4);
 
         assertEquals(4, lobbyManagement.getLobby(lobbyName).get().getUsers().size());
+
         assertFalse(lobbyManagement.getLobby(lobbyName).get().getUsers().contains(userDTO4));
 
         assertTrue(event instanceof LobbyFullResponse);
+    }
+
+
+    /**
+     * This test checks if a User want´s join a deleted lobby.
+     *
+     *
+     * @author Sergej
+     */
+    @Test
+    void joinDeletedLobbyTest() {
+        UserDTO userDTO = new UserDTO("Peter", "lustig", "peter.lustig@uol.de");
+        lobbyManagement.createLobby("testLobby", userDTO);
+        lobbyManagement.dropLobby("testLobby");
+        MessageContext ctx = new MessageContext() {
+            @Override
+            public void writeAndFlush(ResponseMessage message) {
+                bus.post(message);
+            }
+
+            @Override
+            public void writeAndFlush(ServerMessage message) {
+                bus.post(message);
+            }
+        };
+        LobbyJoinUserRequest ljur1 = new LobbyJoinUserRequest("testLobby", userDTO1);
+        ljur1.setMessageContext(ctx);
+        assertThrows(NoSuchElementException.class, () -> lobbyService.onLobbyJoinUserRequest(ljur1));
+        assertTrue(event instanceof JoinDeletedLobbyResponse);
     }
 
     /**
