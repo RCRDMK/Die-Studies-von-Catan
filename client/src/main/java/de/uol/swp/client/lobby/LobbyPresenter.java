@@ -75,8 +75,7 @@ public class LobbyPresenter extends AbstractPresenter {
     // this is a test method for roll dice button test
     @FXML
     public void onRollDice (ActionEvent event) {
-        RollDiceRequest rollDiceRequest = new RollDiceRequest(this.currentLobby, this.joinedLobbyUser);
-        eventBus.post(rollDiceRequest);
+        lobbyService.rollDice(this.currentLobby, this.joinedLobbyUser);
     }
 
 
