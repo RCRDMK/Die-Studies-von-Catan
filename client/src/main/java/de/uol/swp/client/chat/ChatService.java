@@ -1,9 +1,12 @@
 package de.uol.swp.client.chat;
 
 import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
 import de.uol.swp.client.user.UserService;
 import de.uol.swp.common.chat.RequestChatMessage;
+import de.uol.swp.common.chat.ResponseChatMessage;
 import de.uol.swp.common.chat.ResponseEmptyChatMessage;
+import de.uol.swp.common.game.message.RollDiceResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -65,5 +68,13 @@ public class ChatService {
             LOG.debug("Posted ResponseEmptyChatMessage on eventBus");
             lastSendMessage = message.getTime();
         }
+    }
+
+    @Subscribe
+    private void postDiceResult(RollDiceResponse rollDiceResponse){
+        Integer eyestostring = rollDiceResponse.getEyes();
+        String eyes = eyestostring.toString();
+        ResponseChatMessage msg = new ResponseChatMessage(eyes, rollDiceResponse.getName(), rollDiceResponse.getUser().toString(), System.currentTimeMillis());
+        eventBus.post(msg);
     }
 }

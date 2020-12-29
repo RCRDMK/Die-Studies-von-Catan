@@ -3,6 +3,8 @@ package de.uol.swp.client.lobby;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
+import de.uol.swp.common.game.message.RollDiceRequest;
+import de.uol.swp.common.game.message.RollDiceResponse;
 import de.uol.swp.common.lobby.message.UserJoinedLobbyMessage;
 import de.uol.swp.common.lobby.message.UserLeftLobbyMessage;
 import de.uol.swp.common.user.response.AllThisLobbyUsersResponse;
@@ -69,6 +71,14 @@ public class LobbyPresenter extends AbstractPresenter {
     public void onStartGame(ActionEvent event) {
         //TODO:
     }
+
+    // this is a test method for roll dice button test
+    @FXML
+    public void onRollDice (ActionEvent event) {
+        RollDiceRequest rollDiceRequest = new RollDiceRequest(this.currentLobby, this.joinedLobbyUser);
+        eventBus.post(rollDiceRequest);
+    }
+
 
     @FXML
     public void onLeaveLobby(ActionEvent event) {
