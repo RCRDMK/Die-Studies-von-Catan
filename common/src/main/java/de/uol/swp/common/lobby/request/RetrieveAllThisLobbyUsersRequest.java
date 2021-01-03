@@ -1,10 +1,11 @@
-package de.uol.swp.common.lobby.message;
+package de.uol.swp.common.lobby.request;
 
+import de.uol.swp.common.lobby.message.AbstractLobbyRequest;
 import de.uol.swp.common.user.response.AllThisLobbyUsersResponse;
 
 /**
  * Request for initialising the user list in the lobby
- *
+ * <p>
  * This message is sent during the initialization of the user list. The server will
  * respond with a AllThisLobbyUsersResponse.
  *
@@ -18,8 +19,9 @@ public class RetrieveAllThisLobbyUsersRequest extends AbstractLobbyRequest {
 
     /**
      * Default constructor
-     *
+     * <p>
      * @implNote this constructor is needed for serialization
+     * @author Ricardo Mook
      * @since 2020-12-02
      */
     public RetrieveAllThisLobbyUsersRequest() {
@@ -27,8 +29,9 @@ public class RetrieveAllThisLobbyUsersRequest extends AbstractLobbyRequest {
 
     /**
      * Constructor
-     *
+     * <p>
      * @param lobbyName name of the lobby
+     * @author Ricardo Mook
      * @since 2020-12-02
      */
     public RetrieveAllThisLobbyUsersRequest(String lobbyName) {

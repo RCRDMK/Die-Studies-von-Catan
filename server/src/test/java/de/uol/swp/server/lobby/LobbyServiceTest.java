@@ -3,32 +3,22 @@ package de.uol.swp.server.lobby;
 import com.google.common.eventbus.DeadEvent;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
-import com.google.inject.Inject;
-import de.uol.swp.common.chat.RequestChatMessage;
-import de.uol.swp.common.chat.ResponseChatMessage;
 import de.uol.swp.common.lobby.message.*;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.message.CreateLobbyRequest;
-import de.uol.swp.common.lobby.message.LobbyAlreadyExistsMessage;
-import de.uol.swp.common.lobby.message.LobbyCreatedMessage;
 import de.uol.swp.common.lobby.message.LobbyJoinUserRequest;
+import de.uol.swp.common.lobby.request.RetrieveAllThisLobbyUsersRequest;
 import de.uol.swp.common.message.MessageContext;
 import de.uol.swp.common.message.ResponseMessage;
 import de.uol.swp.common.message.ServerMessage;
-import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.Session;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.user.response.LobbyFullResponse;
 import de.uol.swp.common.user.response.JoinDeletedLobbyResponse;
-import de.uol.swp.common.user.response.LobbyLeftSuccessfulResponse;
 import de.uol.swp.server.usermanagement.AuthenticationService;
 import de.uol.swp.server.usermanagement.UserManagement;
-import de.uol.swp.server.usermanagement.UserService;
 import de.uol.swp.server.usermanagement.store.MainMemoryBasedUserStore;
 import de.uol.swp.server.usermanagement.store.UserStore;
-import io.netty.channel.ChannelHandler;
-import io.netty.channel.embedded.EmbeddedChannel;
-import org.checkerframework.checker.units.qual.A;
 import org.junit.jupiter.api.*;
 
 import java.util.NoSuchElementException;
@@ -36,7 +26,7 @@ import java.util.Optional;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import static org.mockito.Mockito.*;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 /**

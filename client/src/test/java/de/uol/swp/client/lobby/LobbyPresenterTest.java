@@ -4,7 +4,7 @@ import com.google.common.eventbus.DeadEvent;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import de.uol.swp.common.lobby.message.CreateLobbyRequest;
-import de.uol.swp.common.lobby.message.RetrieveAllThisLobbyUsersRequest;
+import de.uol.swp.common.lobby.request.RetrieveAllThisLobbyUsersRequest;
 import de.uol.swp.common.lobby.message.UserJoinedLobbyMessage;
 import de.uol.swp.common.lobby.message.UserLeftLobbyMessage;
 import de.uol.swp.common.user.UserDTO;

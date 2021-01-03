@@ -4,7 +4,7 @@ import de.uol.swp.common.message.AbstractResponseMessage;
 
 /**
  * A response, that the user registration was successful
- *
+ * <p>
  * This response is only sent to clients that previously sent a RegisterUserRequest
  * that was executed successfully, otherwise an ExceptionMessage would be sent.
  *

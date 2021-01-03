@@ -27,7 +27,7 @@ import java.net.URL;
 
 /**
  * Class that manages which window/scene is currently shown
- *
+ *<p>
  * @author Marco Grawunder
  * @since 2019-09-03
  */
@@ -59,7 +59,7 @@ public class SceneManager {
      * Subroutine to initialize all views
      * <p>
      * This is a subroutine of the constructor to initialize all views
-     *
+     * @author Marco Grawunder
      * @since 2019-09-03
      */
     private void initViews() {
@@ -79,6 +79,7 @@ public class SceneManager {
      *
      * @param fxmlFile FXML file to load the view from
      * @return view loaded from FXML or null
+     * @author Marco Grawunder
      * @since 2019-09-03
      */
     private Parent initPresenter(String fxmlFile) {
@@ -103,6 +104,7 @@ public class SceneManager {
      * FXML file.
      *
      * @see de.uol.swp.client.main.MainMenuPresenter
+     * @author Marco Grawunder
      * @since 2019-09-03
      */
     private void initMainView() {
@@ -120,6 +122,7 @@ public class SceneManager {
      * a pane showing the login view as specified by the LoginView FXML file.
      *
      * @see de.uol.swp.client.auth.LoginPresenter
+     * @author Marco Grawunder
      * @since 2019-09-03
      */
     private void initLoginView() {
@@ -138,6 +141,7 @@ public class SceneManager {
      * FXML file.
      *
      * @see de.uol.swp.client.register.RegistrationPresenter
+     * @author Marco Grawunder
      * @since 2019-09-03
      */
     private void initRegistrationView() {
@@ -156,6 +160,7 @@ public class SceneManager {
      *  FXML file
      *
      * @see de.uol.swp.client.lobby.LobbyPresenter
+     * @author Marc Hermes, Ricardo Mook
      * @since 2020-11-19
      */
     private void initLobbyView() {
@@ -175,6 +180,7 @@ public class SceneManager {
      *
      * @param event The ShowRegistrationViewEvent detected on the EventBus
      * @see de.uol.swp.client.register.event.ShowRegistrationViewEvent
+     * @author Marco Grawunder
      * @since 2019-09-03
      */
     @Subscribe
@@ -190,6 +196,7 @@ public class SceneManager {
      *
      * @param event The ShowLoginViewEvent detected on the EventBus
      * @see de.uol.swp.client.auth.events.ShowLoginViewEvent
+     * @author Marco Grawunder
      * @since 2019-09-03
      */
     @Subscribe
@@ -206,6 +213,7 @@ public class SceneManager {
      *
      * @param event The RegistrationCanceledEvent detected on the EventBus
      * @see de.uol.swp.client.register.event.RegistrationCanceledEvent
+     * @author Marco Grawunder
      * @since 2019-09-03
      */
     @Subscribe
@@ -221,6 +229,7 @@ public class SceneManager {
      *
      * @param event The RegistrationErrorEvent detected on the EventBus
      * @see de.uol.swp.client.register.event.RegistrationErrorEvent
+     * @author Marco Grawunder
      * @since 2019-09-03
      */
     @Subscribe
@@ -230,9 +239,10 @@ public class SceneManager {
 
     /**
      * Shows an error message inside an error alert
-     *
+     * <p>
      * @param message The type of error to be shown
      * @param e       The error message
+     * @author Marco Grawunder
      * @since 2019-09-03
      */
     public void showError(String message, String e) {
@@ -244,8 +254,9 @@ public class SceneManager {
 
     /**
      * Shows a server error message inside an error alert
-     *
+     * <p>
      * @param e The error message
+     * @author Marco Grawunder
      * @since 2019-09-03
      */
     public void showServerError(String e) {
@@ -254,8 +265,9 @@ public class SceneManager {
 
     /**
      * Shows an error message inside an error alert
-     *
+     * <p>
      * @param e The error message
+     * @author Marco Grawunder
      * @since 2019-09-03
      */
     public void showError(String e) {
@@ -270,6 +282,7 @@ public class SceneManager {
      *
      * @param scene New scene to show
      * @param title New window title
+     * @author Marco Grawunder
      * @since 2019-09-03
      */
     private void showScene(final Scene scene, final String title) {
@@ -287,7 +300,7 @@ public class SceneManager {
      * Shows the login error alert
      * <p>
      * Opens an ErrorAlert popup saying "Error logging in to server"
-     *
+     * @author Marco Grawunder
      * @since 2019-09-03
      */
     public void showLoginErrorScreen() {
@@ -303,7 +316,7 @@ public class SceneManager {
      * <p>
      * Switches the current Scene to the mainScene and sets the title of
      * the window to "Welcome " and the username of the current user
-     *
+     * @author Marco Grawunder
      * @since 2019-09-03
      */
     public void showMainScreen(User currentUser) {
@@ -315,7 +328,7 @@ public class SceneManager {
      * <p>
      * Switches the current Scene to the loginScene and sets the title of
      * the window to "Login"
-     *
+     * @author Marco Grawunder
      * @since 2019-09-03
      */
     public void showLoginScreen() {
@@ -328,7 +341,7 @@ public class SceneManager {
      * <p>
      * Switches the current Scene to the registrationScene and sets the title of
      * the window to "Registration"
-     *
+     * @author Marco Grawunder
      * @since 2019-09-03
      */
     public void showRegistrationScreen() {
@@ -340,7 +353,7 @@ public class SceneManager {
      * <p>
      * Switches the current Scene to the lobbyScene and sets the title of
      * the window to "Lobby"
-     *
+     * @author Marc Hermes, Ricardo Mook
      * @since 2020-11-19
      */
     public void showLobbyScreen(User currentUser, String lobbyname) {

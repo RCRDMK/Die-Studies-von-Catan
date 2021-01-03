@@ -7,6 +7,7 @@ import java.util.Objects;
 
 /**
  * Response that is sent to the User who requested to create a lobby.
+ * <p>
  * Contains the user who sent the request initially (he is also the owner)
  * as well as the name of the lobby that was successfully created
  *
@@ -25,6 +26,8 @@ public class LobbyCreatedSuccessfulResponse extends AbstractResponseMessage {
 
     /**
      * Constructor
+     * <p>
+     * @author Marc Hermes
      * @since 2020-11-24
      */
 

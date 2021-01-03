@@ -17,7 +17,7 @@ import javafx.scene.layout.Priority;
  * @since 2019-08-29
  */
 
-public class LobbyCell extends ListCell<String> {
+public class LobbyCell extends ListCell<String> {//Java AWL?
     HBox hbox = new HBox();
     Label label= new Label("");
     Pane pane = new Pane();
@@ -41,7 +41,7 @@ public class LobbyCell extends ListCell<String> {
 
         hbox.getChildren().addAll(label, pane, button);
         HBox.setHgrow(pane, Priority.ALWAYS);
-        button.setOnAction(event -> lobbyservice.joinLobby(label.getText(), (UserDTO) user));
+        button.setOnAction(event -> lobbyservice.joinLobby(label.getText(), (UserDTO) user));//kein Interface?
     }
 
     @Override
