@@ -7,6 +7,7 @@ import com.google.inject.Singleton;
 import de.uol.swp.common.message.ServerMessage;
 import de.uol.swp.common.user.Session;
 import de.uol.swp.common.user.User;
+import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.user.message.UserLoggedOutMessage;
 import de.uol.swp.common.user.request.LoginRequest;
 import de.uol.swp.common.user.request.LogoutRequest;
@@ -96,12 +97,14 @@ public class AuthenticationService extends AbstractService {
      * his Session are stored in the userSessions Map and a ClientAuthorizedMessage
      * is posted on the EventBus otherwise a ServerExceptionMessage gets posted
      * there.
+     * If a user is already logged in, a ServerExceptionMessage is posted on the bus. (René, Sergej)
      *
      * @param msg the LoginRequest
      * @see de.uol.swp.common.user.request.LoginRequest
      * @see de.uol.swp.server.message.ClientAuthorizedMessage
      * @see de.uol.swp.server.message.ServerExceptionMessage
-     * @since 2019-08-30
+     * @author René, Sergej
+     * @since 2021-01-03
      */
     @Subscribe
     public void onLoginRequest(LoginRequest msg) {
@@ -110,11 +113,20 @@ public class AuthenticationService extends AbstractService {
         }
         ServerInternalMessage returnMessage;
         try {
-            User newUser = userManagement.login(msg.getUsername(), msg.getPassword());
-            returnMessage = new ClientAuthorizedMessage(newUser);
-            Session newSession = UUIDSession.create(newUser);
-            userSessions.put(newSession, newUser);
-            returnMessage.setSession(newSession);
+            // Beim UserDTO Objekt muss nur der Username übergeben werden, da die equals() Methode nur checkt ob der Username übereinstimmt
+            var loggedInUser = new UserDTO(msg.getUsername(), "", "");
+            if(!userManagement.isLoggedIn(loggedInUser))
+            {
+                User newUser = userManagement.login(msg.getUsername(), msg.getPassword());
+                returnMessage = new ClientAuthorizedMessage(newUser);
+                Session newSession = UUIDSession.create(newUser);
+                userSessions.put(newSession, newUser);
+                returnMessage.setSession(newSession);
+            }
+            else{
+                LOG.debug("User "+ msg.getUsername() + " already logged in!");
+                returnMessage = new ServerExceptionMessage(new LoginException("User "+ msg.getUsername() + " already logged in!" ));
+            }
         } catch (Exception e) {
             LOG.error(e);
             returnMessage = new ServerExceptionMessage(new LoginException("Cannot auth user " + msg.getUsername()));
