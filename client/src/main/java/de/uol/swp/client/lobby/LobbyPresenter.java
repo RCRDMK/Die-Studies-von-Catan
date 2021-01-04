@@ -31,7 +31,7 @@ import java.util.Date;
 
 /**
  * Manages the lobby menu
- *
+ *<p>
  * Class was build exactly like MainMenuPresenter. Only ActionEvents were added
  *
  * @author Ricardo Mook, Marc Hermes
@@ -113,13 +113,14 @@ public class LobbyPresenter extends AbstractPresenter {
 
     /**
      * Handles successful lobby creation
-     *
+     *<p>
      * If a LobbyCreatedSuccessfulResponse is posted to the EventBus the loggedInUser
      * of this client is set to the one in the message received and the full
      * list of users currently in the lobby is requested.
      *
      * @param message the LobbyCreatedSuccessfulResponse object seen on the EventBus
      * @see de.uol.swp.common.user.response.LobbyCreatedSuccessfulResponse
+     * @author Marc Hermes
      * @since 2020-12-02
      */
     @Subscribe
@@ -134,12 +135,13 @@ public class LobbyPresenter extends AbstractPresenter {
 
     /**
      * Handles successful joining in the lobby
-     *
+     *<p>
      * If a LobbyJoinedSuccessfulResponse is posted to the EventBus the loggedInUser
      * of this client is set to the one in the message received.
      *
      * @param message the LobbyJoinedSuccessfulResponse object seen on the EventBus
      * @see de.uol.swp.common.user.response.LobbyJoinedSuccessfulResponse
+     * @author Marc Hermes
      * @since 2020-12-10
      */
     @Subscribe
@@ -153,12 +155,13 @@ public class LobbyPresenter extends AbstractPresenter {
 
     /**
      * Handles successful leaving of lobby
-     *
+     *<p>
      * If a LobbyLeftSuccessfulResponse is posted to the EventBus the loggedInUser
      * of this client is set to the one in the message received.
      *
      * @param message the LobbyLeftSuccessfulResponse object seen on the EventBus
      * @see de.uol.swp.common.user.response.LobbyLeftSuccessfulResponse
+     * @author Marc Hermes
      * @since 2020-12-10
      */
     @Subscribe
@@ -170,13 +173,14 @@ public class LobbyPresenter extends AbstractPresenter {
 
     /**
      * Handles successful lobby join from the user
-     *
+     *<p>
      * If a UserJoinedLobbyMessage is posted to the EventBus the joinedLobbyUser
      * of this client is set to the one in the message received and the full
      * list of users currently in the lobby is requested.
      *
      * @param message the UserJoinedLobbyMessage object seen on the EventBus
      * @see de.uol.swp.common.lobby.message.UserJoinedLobbyMessage
+     * @author Marc Hermes
      * @since 2020-12-03
      */
     @Subscribe
@@ -187,13 +191,14 @@ public class LobbyPresenter extends AbstractPresenter {
 
     /**
      * Handles successful lobby leave of the user
-     *
+     *<p>
      * If a UserLeftLobbyMessage is posted to the EventBus the joinedLobbyUser
      * of this client is set to the one in the message received and the full
      * list of users currently remaining in the lobby is requested.
      *
      * @param message the UserLeftLobbyMessage object seen on the EventBus
      * @see de.uol.swp.common.lobby.message.UserLeftLobbyMessage
+     * @author Marc Hermes
      * @since 2020-12-03
      */
     @Subscribe
@@ -204,7 +209,7 @@ public class LobbyPresenter extends AbstractPresenter {
 
     /**
      * Handles new list of users
-     *
+     *<p>
      * If a new AllThisLobbyUsersResponse object is posted to the EventBus the names
      * of users currently in this lobby are put onto the user list in the lobby menu.
      * Furthermore if the LOG-Level is set to DEBUG the message "Update of user
@@ -213,6 +218,7 @@ public class LobbyPresenter extends AbstractPresenter {
      *
      * @param allThisLobbyUsersResponse the AllThisLobbyUsersResponse object seen on the EventBus
      * @see AllThisLobbyUsersResponse
+     * @author Marc Hermes, Ricardo Mook
      * @since 2020-12-02
      */
     @Subscribe
@@ -233,6 +239,7 @@ public class LobbyPresenter extends AbstractPresenter {
      * @param lobbyUserList A list of UserDTO objects including all currently logged in
      *                 users
      * @see de.uol.swp.common.user.UserDTO
+     * @author Marc Hermes, Ricardo Mook
      * @since 2020-12-02
      */
     private void updateLobbyUsersList(List<UserDTO> lobbyUserList) {

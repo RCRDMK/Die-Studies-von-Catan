@@ -7,6 +7,7 @@ import com.google.inject.Singleton;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.message.*;
 import de.uol.swp.common.lobby.request.RetrieveAllLobbiesRequest;
+import de.uol.swp.common.lobby.request.RetrieveAllThisLobbyUsersRequest;
 import de.uol.swp.common.lobby.response.AllCreatedLobbiesResponse;
 import de.uol.swp.common.message.MessageContext;
 import de.uol.swp.common.message.ResponseMessage;
@@ -18,7 +19,6 @@ import de.uol.swp.server.AbstractService;
 import de.uol.swp.server.usermanagement.AuthenticationService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.platform.commons.logging.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -27,7 +27,7 @@ import java.util.Optional;
 
 /**
  * Handles the lobby requests send by the users
- *
+ * <p>
  * @author Marco Grawunder
  * @since 2019-10-08
  */
@@ -42,7 +42,7 @@ public class LobbyService extends AbstractService {
 
     /**
      * Constructor
-     *
+     * <p>
      * @param lobbyManagement       The management class for creating, storing and deleting
      *                              lobbies
      * @param authenticationService the user management
@@ -79,6 +79,7 @@ public class LobbyService extends AbstractService {
      * @see de.uol.swp.common.lobby.message.LobbyCreatedMessage
      * @see de.uol.swp.common.user.response.LobbyCreatedSuccessfulResponse
      * @see de.uol.swp.common.lobby.message.LobbyAlreadyExistsMessage
+     * @author Marco Grawunder
      * @since 2019-10-08
      */
     @Subscribe
@@ -116,6 +117,7 @@ public class LobbyService extends AbstractService {
      * @see de.uol.swp.common.lobby.message.UserJoinedLobbyMessage
      * @see de.uol.swp.common.user.response.LobbyJoinedSuccessfulResponse
      * @see de.uol.swp.common.user.response.JoinDeletedLobbyResponse
+     * @author Marco Grawunder
      * @since 2019-10-08
      */
     @Subscribe
@@ -161,6 +163,7 @@ public class LobbyService extends AbstractService {
      * @see de.uol.swp.common.lobby.Lobby
      * @see de.uol.swp.common.lobby.message.UserLeftLobbyMessage
      * @see de.uol.swp.common.user.response.LobbyLeftSuccessfulResponse
+     * @author Marco Grawunder
      * @since 2019-10-08
      */
     @Subscribe
@@ -200,6 +203,7 @@ public class LobbyService extends AbstractService {
      *
      * @param retrieveAllThisLobbyUsersRequest The RetrieveAllThisLobbyUsersRequest found on the EventBus
      * @see de.uol.swp.common.lobby.Lobby
+     * @author Marc Hermes, Ricardo Mook
      * @since 2020-12-02
      */
     @Subscribe
@@ -217,10 +221,11 @@ public class LobbyService extends AbstractService {
     /**
      * Prepares a given ServerMessage to be send to all players in the lobby and
      * posts it on the EventBus
-     *
+     *<p>
      * @param lobbyName Name of the lobby the players are in
      * @param message   the message to be send to the users
      * @see de.uol.swp.common.message.ServerMessage
+     * @author Marco Grawunder
      * @since 2019-10-08
      */
     public void sendToAllInLobby(String lobbyName, ServerMessage message) {
@@ -238,7 +243,7 @@ public class LobbyService extends AbstractService {
     /**
      * Prepares a given ResponseMessage to be send to the owner of lobby and
      * posts it on the EventBus
-     *
+     *<p>
      * @param message the message to be send to the users
      * @param ctx     the context of the message, here the session of the owner of the lobby
      * @author Marc Hermes

@@ -5,7 +5,7 @@ import com.google.inject.Inject;
 import de.uol.swp.common.lobby.message.CreateLobbyRequest;
 import de.uol.swp.common.lobby.message.LobbyJoinUserRequest;
 import de.uol.swp.common.lobby.message.LobbyLeaveUserRequest;
-import de.uol.swp.common.lobby.message.RetrieveAllThisLobbyUsersRequest;
+import de.uol.swp.common.lobby.request.RetrieveAllThisLobbyUsersRequest;
 import de.uol.swp.common.lobby.request.RetrieveAllLobbiesRequest;
 import de.uol.swp.common.user.UserDTO;
 
@@ -25,6 +25,7 @@ public class LobbyService {
      *
      * @param eventBus The EventBus set in ClientModule
      * @see de.uol.swp.client.di.ClientModule
+     * @author Marco Grawunder
      * @since 2019-11-20
      */
     @Inject
@@ -41,6 +42,7 @@ public class LobbyService {
      * @param name Name chosen for the new lobby
      * @param user User who wants to create the new lobby
      * @see de.uol.swp.common.lobby.message.CreateLobbyRequest
+     * @author Marco Grawunder
      * @since 2019-11-20
      */
     public boolean createNewLobby(String name, UserDTO user) {
@@ -65,6 +67,7 @@ public class LobbyService {
      * @param name Name of the lobby the user wants to join
      * @param user User who wants to join the lobby
      * @see de.uol.swp.common.lobby.message.LobbyJoinUserRequest
+     * @author Marco Grawunder
      * @since 2019-11-20
      */
     public void joinLobby(String name, UserDTO user) {
@@ -79,9 +82,10 @@ public class LobbyService {
 
     /**
      * Creates a new RetrieveAllThisLobbyUsersRequest and puts it on the Eventbus
-     *
+     * <p>
      * @param lobbyName Name of the lobby of which the User list was requested
-     * @see de.uol.swp.common.lobby.message.RetrieveAllThisLobbyUsersRequest
+     * @see RetrieveAllThisLobbyUsersRequest
+     * @author Marc Hermes, Ricardo Mook
      * @since 2020-12-02
      */
     public void retrieveAllThisLobbyUsers(String lobbyName){
@@ -96,7 +100,6 @@ public class LobbyService {
      * @since 2020-04-12
      * @author Carsten Dekker and Marius Birk
      */
-
     public void retrieveAllLobbies() {
         RetrieveAllLobbiesRequest cmd = new RetrieveAllLobbiesRequest();
         eventBus.post(cmd);

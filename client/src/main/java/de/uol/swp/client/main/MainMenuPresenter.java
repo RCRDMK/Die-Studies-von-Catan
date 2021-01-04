@@ -41,7 +41,7 @@ import java.util.List;
 
 /**
  * Manages the main menu
- *
+ *<p>
  * @author Marco Grawunder
  * @see de.uol.swp.client.AbstractPresenter
  * @since 2019-08-29
@@ -94,6 +94,7 @@ public class MainMenuPresenter extends AbstractPresenter {
      *
      * @param message the LoginSuccessfulResponse object seen on the EventBus
      * @see de.uol.swp.common.user.response.LoginSuccessfulResponse
+     * @author Marco Grawunder
      * @since 2019-09-05
      */
     @Subscribe
@@ -167,6 +168,7 @@ public class MainMenuPresenter extends AbstractPresenter {
      *
      * @param message the UserLoggedInMessage object seen on the EventBus
      * @see de.uol.swp.common.user.message.UserLoggedInMessage
+     * @author Marco Grawunder
      * @since 2019-08-29
      */
     @Subscribe
@@ -189,6 +191,7 @@ public class MainMenuPresenter extends AbstractPresenter {
      *
      * @param message the UserLoggedOutMessage object seen on the EventBus
      * @see de.uol.swp.common.user.message.UserLoggedOutMessage
+     * @author Marco Grawunder
      * @since 2019-08-29
      */
     @Subscribe
@@ -208,6 +211,7 @@ public class MainMenuPresenter extends AbstractPresenter {
      *
      * @param allUsersResponse the AllOnlineUsersResponse object seen on the EventBus
      * @see de.uol.swp.common.user.response.AllOnlineUsersResponse
+     * @author Marco Grawunder
      * @since 2019-08-29
      */
     @Subscribe
@@ -317,6 +321,7 @@ public class MainMenuPresenter extends AbstractPresenter {
      * @implNote The code inside this Method has to run in the JavaFX-application
      * thread. Therefore it is crucial not to remove the {@code Platform.runLater()}
      * @see de.uol.swp.common.user.UserDTO
+     * @author Marco Grawunder
      * @since 2019-08-29
      */
     private void updateUsersList(List<UserDTO> userList) {
@@ -385,6 +390,7 @@ public class MainMenuPresenter extends AbstractPresenter {
      *
      * @param event The ActionEvent created by pressing the create lobby button
      * @see de.uol.swp.client.lobby.LobbyService
+     * @author Marco Grawunder
      * @since 2019-11-20
      */
     @FXML

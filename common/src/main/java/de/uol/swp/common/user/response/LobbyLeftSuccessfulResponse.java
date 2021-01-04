@@ -7,6 +7,7 @@ import java.util.Objects;
 
 /**
  * Response that is sent to the User who requested to leave the lobby.
+ * <p>
  * Contains the user who sent the request initially
  * as well as the name of the lobby that was successfully left
  *
