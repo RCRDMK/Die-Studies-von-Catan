@@ -75,7 +75,7 @@ public class LobbyPresenter extends AbstractPresenter {
         if (this.currentLobby != null && this.joinedLobbyUser != null) {
             lobbyService.leaveLobby(this.currentLobby, (UserDTO) this.joinedLobbyUser);
         } else if (this.currentLobby == null && this.joinedLobbyUser != null) {
-            throw new LobbyPresenterException("Name der jetzigen Lobby ist nicht vorhanden!");//Wann soll das auftreten?
+            throw new LobbyPresenterException("Name der jetzigen Lobby ist nicht vorhanden!");
         } else {
             throw new LobbyPresenterException("Der jetzige User ist nicht vorhanden");
         }

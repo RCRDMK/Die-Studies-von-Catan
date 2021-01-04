@@ -47,7 +47,7 @@ public class ChatService {
     public void sendMessage(RequestChatMessage message) {
         try{
             if (message.getTime() - lastSendMessage >= 1000){
-                if (!message.getMessage().isEmpty() && !message.getMessage().equals(null) && !message.getMessage().isBlank()) {//Warum drei Sachen?
+                if (!message.getMessage().isEmpty() && !message.getMessage().equals(null) && !message.getMessage().isBlank()) {
                     eventBus.post(message);
                     LOG.debug("User: " + message.getUsername() + " sent message: '" + message.getMessage() + "' to server.");
                     lastSendMessage = message.getTime();
