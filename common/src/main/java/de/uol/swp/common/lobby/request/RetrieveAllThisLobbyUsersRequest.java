@@ -1,6 +1,5 @@
 package de.uol.swp.common.lobby.request;
 
-import de.uol.swp.common.lobby.message.AbstractLobbyRequest;
 import de.uol.swp.common.user.response.AllThisLobbyUsersResponse;
 
 /**

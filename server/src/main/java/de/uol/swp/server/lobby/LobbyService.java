@@ -6,9 +6,9 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.message.*;
-import de.uol.swp.common.lobby.request.RetrieveAllLobbiesRequest;
-import de.uol.swp.common.lobby.request.RetrieveAllThisLobbyUsersRequest;
+import de.uol.swp.common.lobby.request.*;
 import de.uol.swp.common.lobby.response.AllCreatedLobbiesResponse;
+import de.uol.swp.common.lobby.response.LobbyAlreadyExistsResponse;
 import de.uol.swp.common.message.MessageContext;
 import de.uol.swp.common.message.ResponseMessage;
 import de.uol.swp.common.message.ServerMessage;
@@ -78,7 +78,7 @@ public class LobbyService extends AbstractService {
      * @see de.uol.swp.server.lobby.LobbyManagement#createLobby(String, User)
      * @see de.uol.swp.common.lobby.message.LobbyCreatedMessage
      * @see de.uol.swp.common.user.response.LobbyCreatedSuccessfulResponse
-     * @see de.uol.swp.common.lobby.message.LobbyAlreadyExistsMessage
+     * @see LobbyAlreadyExistsResponse
      * @author Marco Grawunder
      * @since 2019-10-08
      */
@@ -98,7 +98,7 @@ public class LobbyService extends AbstractService {
         } else {
             Optional<MessageContext> ctx = createLobbyRequest.getMessageContext();
             if (createLobbyRequest.getMessageContext().isPresent()) {
-                sendToSpecificUser(ctx.get(), new LobbyAlreadyExistsMessage());
+                sendToSpecificUser(ctx.get(), new LobbyAlreadyExistsResponse());
             }
         }
     }
