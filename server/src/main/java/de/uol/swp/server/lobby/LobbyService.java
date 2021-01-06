@@ -96,8 +96,8 @@ public class LobbyService extends AbstractService {
                 sendToSpecificUser(ctx.get(), new LobbyCreatedSuccessfulResponse(createLobbyRequest.getName(), createLobbyRequest.getUser()));
             }
         } else {
-            Optional<MessageContext> ctx = createLobbyRequest.getMessageContext();
             if (createLobbyRequest.getMessageContext().isPresent()) {
+                Optional<MessageContext> ctx = createLobbyRequest.getMessageContext();
                 sendToSpecificUser(ctx.get(), new LobbyAlreadyExistsResponse());
             }
         }
