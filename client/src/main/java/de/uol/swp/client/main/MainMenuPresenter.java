@@ -396,10 +396,12 @@ public class MainMenuPresenter extends AbstractPresenter {
     @FXML
     void onCreateLobby(ActionEvent event) {
         if (lobbyNameTextField.getText().isBlank() || lobbyNameTextField.getText().isEmpty()
-                || lobbyNameTextField.getText().startsWith(" ") || lobbyNameTextField.getText().endsWith(" ")) {
+                || lobbyNameTextField.getText().startsWith(" ") || lobbyNameTextField.getText().endsWith(" ") || lobbyNameTextField.getText() == null) {
             lobbyNameInvalid.setVisible(true);
+            lobbyAlreadyExistsLabel.setVisible(false);
         } else {
             lobbyNameInvalid.setVisible(false);
+            lobbyAlreadyExistsLabel.setVisible(false);
             lobbyService.createNewLobby(lobbyNameTextField.getText(), (UserDTO) this.loggedInUser);
         }
     }
