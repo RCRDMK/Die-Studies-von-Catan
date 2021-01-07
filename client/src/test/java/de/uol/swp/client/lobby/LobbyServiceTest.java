@@ -3,21 +3,16 @@ package de.uol.swp.client.lobby;
 import com.google.common.eventbus.DeadEvent;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
-import com.google.inject.Inject;
-import de.uol.swp.client.main.MainMenuPresenter;
 import de.uol.swp.client.user.UserService;
 import de.uol.swp.common.lobby.message.*;
-import de.uol.swp.common.lobby.message.CreateLobbyRequest;
-import de.uol.swp.common.lobby.message.LobbyAlreadyExistsMessage;
-import de.uol.swp.common.lobby.message.LobbyCreatedMessage;
+import de.uol.swp.common.lobby.request.CreateLobbyRequest;
 import de.uol.swp.common.lobby.request.RetrieveAllLobbiesRequest;
-import de.uol.swp.common.lobby.message.LobbyLeaveUserRequest;
+import de.uol.swp.common.lobby.request.LobbyLeaveUserRequest;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
-import de.uol.swp.common.lobby.message.LobbyJoinUserRequest;
+import de.uol.swp.common.lobby.request.LobbyJoinUserRequest;
 import de.uol.swp.common.user.request.*;
 import de.uol.swp.common.user.response.LobbyCreatedSuccessfulResponse;
-import de.uol.swp.common.user.response.LobbyLeftSuccessfulResponse;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -185,81 +180,6 @@ class LobbyServiceTest {
         lock.await(1000, TimeUnit.MILLISECONDS);
 
         assertTrue(event instanceof LobbyLeaveUserRequest);
-    }
-
-    /**
-     * Test for create lobby method, with empty lobbyname
-     * <p>
-     * This test first calls the loginUser subroutine. We assume that the lobbyname is empty. Also
-     * we create a new UserService and a new LobbyService, also we create a new UserDTO.
-     * <p>
-     * Then we call the createNewLobby Method and assume that it returns false.
-     * The test fails if lobbyname is not empty.
-     *
-     * @throws InterruptedException thrown by loginUser() and lock.await()
-     * @since 2020-12-02
-     */
-    @Test
-    @DisplayName("Namensfeld leer")
-    void createLobbyWithEmptyNameFieldTest() throws InterruptedException {
-        loginUser();
-        lobbyname = "";
-
-        UserService userService = new UserService(bus);
-        LobbyService lobbyService = new LobbyService(bus);
-        UserDTO userDTO = new UserDTO(defaultUser.getUsername(), defaultUser.getPassword(), defaultUser.getEMail());
-
-        assertFalse(lobbyService.createNewLobby(lobbyname, userDTO));
-    }
-
-    /**
-     * Test for create lobby method, with blank lobbyname
-     * <p>
-     * This test first calls the loginUser subroutine. We assume that the lobbyname is blank. Also
-     * we create a new UserService and a new LobbyService, also we create a new UserDTO.
-     * <p>
-     * Then we call the createNewLobby Method and assume that it returns false.
-     * The test fails if lobbyname is not blank.
-     *
-     * @throws InterruptedException thrown by loginUser() and lock.await()
-     * @since 2020-12-02
-     */
-    @Test
-    @DisplayName("Namensfeld blank")
-    void createLobbyWithBlankNameFieldTest() throws InterruptedException {
-        loginUser();
-        lobbyname = "        ";
-
-        UserService userService = new UserService(bus);
-        LobbyService lobbyService = new LobbyService(bus);
-        UserDTO userDTO = new UserDTO(defaultUser.getUsername(), defaultUser.getPassword(), defaultUser.getEMail());
-
-        assertFalse(lobbyService.createNewLobby(lobbyname, userDTO));
-    }
-
-    /**
-     * Test for create lobby method, with null lobbyname
-     * <p>
-     * This test first calls the loginUser subroutine. We assume that the lobbyname is null. Also
-     * we create a new UserService and a new LobbyService, also we create a new UserDTO.
-     * <p>
-     * Then we call the createNewLobby Method and assume that it returns false.
-     * The test fails if lobbyname is not null.
-     *
-     * @throws InterruptedException thrown by loginUser() and lock.await()
-     * @since 2020-12-02
-     */
-    @Test
-    @DisplayName("Namensfeld null")
-    void createLobbyWithNullNameFieldTest() throws InterruptedException, NullPointerException {
-        loginUser();
-        lobbyname = null;
-
-        UserService userService = new UserService(bus);
-        LobbyService lobbyService = new LobbyService(bus);
-        UserDTO userDTO = new UserDTO(defaultUser.getUsername(), defaultUser.getPassword(), defaultUser.getEMail());
-
-        assertFalse(lobbyService.createNewLobby(lobbyname, userDTO));
     }
 
     /**

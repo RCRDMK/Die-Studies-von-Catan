@@ -2,9 +2,9 @@ package de.uol.swp.common.lobby;
 
 import de.uol.swp.common.SerializationTestHelper;
 import de.uol.swp.common.lobby.message.*;
-import de.uol.swp.common.lobby.request.RetrieveAllLobbiesRequest;
-import de.uol.swp.common.lobby.request.RetrieveAllThisLobbyUsersRequest;
+import de.uol.swp.common.lobby.request.*;
 import de.uol.swp.common.lobby.response.AllCreatedLobbiesResponse;
+import de.uol.swp.common.lobby.response.LobbyAlreadyExistsResponse;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.user.response.JoinDeletedLobbyResponse;
 import de.uol.swp.common.user.response.LobbyFullResponse;
@@ -30,8 +30,8 @@ public class LobbyMessageSerializableTest {
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new JoinDeletedLobbyResponse("test"),JoinDeletedLobbyResponse.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new UserLeftLobbyMessage("test", defaultUser),
                 UserLeftLobbyMessage.class));
-        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new LobbyAlreadyExistsMessage("test", defaultUser),
-                LobbyAlreadyExistsMessage.class));
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new LobbyAlreadyExistsResponse(),
+                LobbyAlreadyExistsResponse.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new RetrieveAllLobbiesRequest(),
                 RetrieveAllLobbiesRequest.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new AllCreatedLobbiesResponse(),

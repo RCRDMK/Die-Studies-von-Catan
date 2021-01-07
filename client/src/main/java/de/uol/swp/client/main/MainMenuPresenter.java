@@ -10,7 +10,7 @@ import de.uol.swp.client.lobby.LobbyService;
 import de.uol.swp.common.chat.RequestChatMessage;
 import de.uol.swp.common.chat.ResponseChatMessage;
 import de.uol.swp.common.lobby.dto.LobbyDTO;
-import de.uol.swp.common.lobby.message.LobbyAlreadyExistsMessage;
+import de.uol.swp.common.lobby.response.LobbyAlreadyExistsResponse;
 import de.uol.swp.common.lobby.message.LobbyCreatedMessage;
 import de.uol.swp.common.lobby.message.LobbyDroppedMessage;
 import de.uol.swp.common.lobby.message.LobbySizeChangedMessage;
@@ -303,7 +303,7 @@ public class MainMenuPresenter extends AbstractPresenter {
      */
 
     @Subscribe
-    public void onLobbyAlreadyExistsMessage(LobbyAlreadyExistsMessage message) {
+    public void onLobbyAlreadyExistsMessage(LobbyAlreadyExistsResponse message) {
         LOG.debug("Lobby with Name " + lobbyNameTextField.getText() + " already exists.");
         lobbyNameInvalid.setVisible(false);
         lobbyAlreadyExistsLabel.setVisible(true);
@@ -395,10 +395,14 @@ public class MainMenuPresenter extends AbstractPresenter {
      */
     @FXML
     void onCreateLobby(ActionEvent event) {
-        String lobbyName = lobbyNameTextField.getText();
-        if ((lobbyService.createNewLobby(lobbyName, (UserDTO) this.loggedInUser) == false)) {
-            lobbyAlreadyExistsLabel.setVisible(false);
+        if (lobbyNameTextField.getText().isBlank() || lobbyNameTextField.getText().isEmpty()
+                || lobbyNameTextField.getText().startsWith(" ") || lobbyNameTextField.getText().endsWith(" ") || lobbyNameTextField.getText() == null) {
             lobbyNameInvalid.setVisible(true);
+            lobbyAlreadyExistsLabel.setVisible(false);
+        } else {
+            lobbyNameInvalid.setVisible(false);
+            lobbyAlreadyExistsLabel.setVisible(false);
+            lobbyService.createNewLobby(lobbyNameTextField.getText(), (UserDTO) this.loggedInUser);
         }
     }
 

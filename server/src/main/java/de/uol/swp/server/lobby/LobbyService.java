@@ -6,9 +6,9 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.message.*;
-import de.uol.swp.common.lobby.request.RetrieveAllLobbiesRequest;
-import de.uol.swp.common.lobby.request.RetrieveAllThisLobbyUsersRequest;
+import de.uol.swp.common.lobby.request.*;
 import de.uol.swp.common.lobby.response.AllCreatedLobbiesResponse;
+import de.uol.swp.common.lobby.response.LobbyAlreadyExistsResponse;
 import de.uol.swp.common.message.MessageContext;
 import de.uol.swp.common.message.ResponseMessage;
 import de.uol.swp.common.message.ServerMessage;
@@ -75,10 +75,10 @@ public class LobbyService extends AbstractService {
      * Method enhanced by Marius Birk and Carsten Dekker, 2020-12-02
      *
      * @param createLobbyRequest The CreateLobbyRequest found on the EventBus
-     * @see de.uol.swp.server.lobby.LobbyManagement#createLobby(String, User)
+     * @see de.uol.swp.server.lobby.LobbyManagement
      * @see de.uol.swp.common.lobby.message.LobbyCreatedMessage
      * @see de.uol.swp.common.user.response.LobbyCreatedSuccessfulResponse
-     * @see de.uol.swp.common.lobby.message.LobbyAlreadyExistsMessage
+     * @see de.uol.swp.common.lobby.response.LobbyAlreadyExistsResponse
      * @author Marco Grawunder
      * @since 2019-10-08
      */
@@ -92,13 +92,11 @@ public class LobbyService extends AbstractService {
                 LOG.debug(e);
             }
             if (createLobbyRequest.getMessageContext().isPresent()) {
-                Optional<MessageContext> ctx = createLobbyRequest.getMessageContext();
-                sendToSpecificUser(ctx.get(), new LobbyCreatedSuccessfulResponse(createLobbyRequest.getName(), createLobbyRequest.getUser()));
+                sendToSpecificUser(createLobbyRequest.getMessageContext().get(), new LobbyCreatedSuccessfulResponse(createLobbyRequest.getName(), createLobbyRequest.getUser()));
             }
         } else {
-            Optional<MessageContext> ctx = createLobbyRequest.getMessageContext();
             if (createLobbyRequest.getMessageContext().isPresent()) {
-                sendToSpecificUser(ctx.get(), new LobbyAlreadyExistsMessage());
+                sendToSpecificUser(createLobbyRequest.getMessageContext().get(), new LobbyAlreadyExistsResponse());
             }
         }
     }
@@ -123,29 +121,17 @@ public class LobbyService extends AbstractService {
     @Subscribe
     public void onLobbyJoinUserRequest(LobbyJoinUserRequest lobbyJoinUserRequest) {
         Optional<Lobby> lobby = lobbyManagement.getLobby(lobbyJoinUserRequest.getName());
-
         if (!lobby.isPresent()) {
-            if(lobbyJoinUserRequest.getMessageContext().isPresent()){
-                Optional<MessageContext> ctx = lobbyJoinUserRequest.getMessageContext();
-                sendToSpecificUser(ctx.get(), new JoinDeletedLobbyResponse(lobbyJoinUserRequest.getName()));
-            }
-
+            sendToSpecificUser(lobbyJoinUserRequest.getMessageContext().get(), new JoinDeletedLobbyResponse(lobbyJoinUserRequest.getName()));
         }
-
-        if (lobby.get().getUsers().size() < 4) {
-            lobby.get().joinUser(lobbyJoinUserRequest.getUser());
-            sendToAllInLobby(lobbyJoinUserRequest.getName(), new UserJoinedLobbyMessage(lobbyJoinUserRequest.getName(), lobbyJoinUserRequest.getUser()));
-            if (lobbyJoinUserRequest.getMessageContext().isPresent()) {
+        if (lobby.get().getUsers().size() < 4 && lobbyJoinUserRequest.getMessageContext().isPresent()) {
                 lobby.get().joinUser(lobbyJoinUserRequest.getUser());
-                Optional<MessageContext> ctx = lobbyJoinUserRequest.getMessageContext();
-                sendToSpecificUser(ctx.get(), new LobbyJoinedSuccessfulResponse(lobbyJoinUserRequest.getName(), lobbyJoinUserRequest.getUser()));
-                sendToAll(new LobbySizeChangedMessage(lobbyJoinUserRequest.getName()));
                 sendToAllInLobby(lobbyJoinUserRequest.getName(), new UserJoinedLobbyMessage(lobbyJoinUserRequest.getName(), lobbyJoinUserRequest.getUser()));
-            }
+                sendToSpecificUser(lobbyJoinUserRequest.getMessageContext().get(), new LobbyJoinedSuccessfulResponse(lobbyJoinUserRequest.getName(), lobbyJoinUserRequest.getUser()));
+                sendToAll(new LobbySizeChangedMessage(lobbyJoinUserRequest.getName()));
         } else {
             if (lobbyJoinUserRequest.getMessageContext().isPresent()) {
-                Optional<MessageContext> ctx = lobbyJoinUserRequest.getMessageContext();
-                sendToSpecificUser(ctx.get(), new LobbyFullResponse(lobbyJoinUserRequest.getName()));
+                sendToSpecificUser(lobbyJoinUserRequest.getMessageContext().get(), new LobbyFullResponse(lobbyJoinUserRequest.getName()));
             }
         }
     }

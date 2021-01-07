@@ -19,6 +19,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import javax.security.auth.login.LoginException;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -108,6 +109,29 @@ class AuthenticationServiceTest {
 
         assertTrue(userManagement.isLoggedIn(userToLogin));
         userManagement.dropUser(userToLogin);
+    }
+
+    /**
+     *  This test makes sure that a user can't login when he already is.
+     * <p>
+     *  The test calls the loginUser function twice for the same user. And then
+     *  checks if the event is an instance of ServerExceptionMessage.
+     *  It also checks if the Exception of the ServerExceptionMessage is an instance of LoginException
+     *  Finally it also checks if the Exception Message equals "User ... already logged in!"
+     *
+     * @author Sergej, René
+     * @since 2021-01-03
+     * @see javax.security.auth.login.LoginException
+     */
+    @Test
+    void loginLoggedInUser() {
+        loginUser(user);
+        loginUser(user);
+
+        assertTrue(event instanceof ServerExceptionMessage);
+        var exception = ((ServerExceptionMessage) event).getException();
+        assertTrue(exception instanceof LoginException);
+        assertEquals(exception.getMessage() , "User " +user.getUsername()+ " already logged in!");
     }
 
     @Test
