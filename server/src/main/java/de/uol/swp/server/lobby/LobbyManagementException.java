@@ -8,7 +8,7 @@ package de.uol.swp.server.lobby;
  * This exception is thrown if someone wants to leave a Lobby and the Lobby does not exists.
  *
  */
-class LobbyManagementException extends RuntimeException {
+public class LobbyManagementException extends RuntimeException {
 
     /**
      * Constructor
@@ -16,7 +16,7 @@ class LobbyManagementException extends RuntimeException {
      * @param s String containing the cause for the exception.
      * @since 2019-07-08
      */
-    LobbyManagementException(String s) {
+    public LobbyManagementException(String s) {
         super(s);
     }
 }
