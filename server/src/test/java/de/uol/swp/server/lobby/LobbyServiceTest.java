@@ -5,8 +5,9 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import de.uol.swp.common.lobby.message.*;
 import de.uol.swp.common.lobby.Lobby;
-import de.uol.swp.common.lobby.message.CreateLobbyRequest;
-import de.uol.swp.common.lobby.message.LobbyJoinUserRequest;
+import de.uol.swp.common.lobby.request.CreateLobbyRequest;
+import de.uol.swp.common.lobby.request.LobbyJoinUserRequest;
+import de.uol.swp.common.lobby.request.LobbyLeaveUserRequest;
 import de.uol.swp.common.lobby.request.RetrieveAllThisLobbyUsersRequest;
 import de.uol.swp.common.message.MessageContext;
 import de.uol.swp.common.message.ResponseMessage;
@@ -144,11 +145,6 @@ public class LobbyServiceTest {
 
         assertNotNull(lobbyManagement.getLobby(lobbyName).get());
 
-        lobbyService.onLobbyJoinUserRequest(ljur1);
-        lobbyService.onLobbyJoinUserRequest(ljur2);
-        lobbyService.onLobbyJoinUserRequest(ljur3);
-        assertEquals(4, lobbyManagement.getLobby(lobbyName).get().getUsers().size());
-
         MessageContext ctx = new MessageContext() {
             @Override
             public void writeAndFlush(ResponseMessage message) {
@@ -160,6 +156,17 @@ public class LobbyServiceTest {
                 bus.post(message);
             }
         };
+
+        ljur1.setMessageContext(ctx);
+        ljur2.setMessageContext(ctx);
+        ljur3.setMessageContext(ctx);
+
+        lobbyService.onLobbyJoinUserRequest(ljur1);
+        lobbyService.onLobbyJoinUserRequest(ljur2);
+        lobbyService.onLobbyJoinUserRequest(ljur3);
+        assertEquals(4, lobbyManagement.getLobby(lobbyName).get().getUsers().size());
+
+
         ljur4.setMessageContext(ctx);
         lobbyService.onLobbyJoinUserRequest(ljur4);
 
@@ -182,6 +189,7 @@ public class LobbyServiceTest {
         UserDTO userDTO = new UserDTO("Peter", "lustig", "peter.lustig@uol.de");
         lobbyManagement.createLobby("testLobby", userDTO);
         lobbyManagement.dropLobby("testLobby");
+
         MessageContext ctx = new MessageContext() {
             @Override
             public void writeAndFlush(ResponseMessage message) {
@@ -193,6 +201,7 @@ public class LobbyServiceTest {
                 bus.post(message);
             }
         };
+
         LobbyJoinUserRequest ljur1 = new LobbyJoinUserRequest("testLobby", userDTO1);
         ljur1.setMessageContext(ctx);
         assertThrows(NoSuchElementException.class, () -> lobbyService.onLobbyJoinUserRequest(ljur1));
