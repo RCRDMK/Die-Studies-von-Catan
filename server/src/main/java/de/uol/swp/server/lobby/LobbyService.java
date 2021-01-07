@@ -78,7 +78,7 @@ public class LobbyService extends AbstractService {
      * @see de.uol.swp.server.lobby.LobbyManagement
      * @see de.uol.swp.common.lobby.message.LobbyCreatedMessage
      * @see de.uol.swp.common.user.response.LobbyCreatedSuccessfulResponse
-     * @see LobbyAlreadyExistsResponse
+     * @see de.uol.swp.common.lobby.response.LobbyAlreadyExistsResponse
      * @author Marco Grawunder
      * @since 2019-10-08
      */
