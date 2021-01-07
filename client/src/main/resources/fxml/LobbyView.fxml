@@ -12,5 +12,5 @@
    <TextArea fx:id="lobbyChatArea" editable="false" layoutX="302.0" layoutY="14.0" prefHeight="200" prefWidth="284.0" GridPane.rowIndex="2"> </TextArea>
    <TextField fx:id="lobbyChatInput" layoutX="302.0" layoutY="229.0" onAction="#onSendMessage" prefHeight="25.0" prefWidth="196.0" GridPane.rowIndex="3"> </TextField>
    <Button layoutX="509.0" layoutY="229.0" mnemonicParsing="false" onAction="#onSendMessage" prefHeight="25.0" prefWidth="77.0" text="Senden" />
-   <Button layoutX="356.0" layoutY="360.0" mnemonicParsing="false" onAction="#onRollDice" text="RollDice TestButton" />
+   <Button layoutX="356.0" layoutY="360.0" mnemonicParsing="false" onAction="#onRollDice" text="Roll Dice" />
 </AnchorPane>

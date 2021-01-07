@@ -18,10 +18,10 @@ import org.apache.logging.log4j.Logger;
 import java.util.Optional;
 
 /**
- * Handles the lobby requests send by the users
+ * Handles the game requests send by the users
  *
- * @author Marco Grawunder
- * @since 2019-10-08
+ * @author Kirstin, Pieter
+ * @since 2021-01-07
  */
 @SuppressWarnings("UnstableApiUsage")
 @Singleton
@@ -58,21 +58,19 @@ public class GameService extends AbstractService {
     }
 
     /**
-     * Handles LobbyJoinUserRequests found on the EventBus
+     * Handles RollDiceRequests found on the EventBus
      * <p>
-     * If a LobbyJoinUserRequest is detected on the EventBus, this method is called.
-     * It adds a user to a Lobby stored in the LobbyManagement and sends a UserJoinedLobbyMessage
-     * to every user in the lobby.
-     * If a lobby already has 4 users, this method will return a LobbyFullResponse to the user
-     * who requested to join the lobby
-     * If a lobby is not present, this method will return a JoinDeletedLobbyResponse to the user.
-     * @param rollDiceRequest The LobbyJoinUserRequest found on the EventBus
-     * @since 2019-10-08
+     * If a RollDiceRequest is detected on the EventBus, this method is called.
+     * It rolls the dices and sends a ResponseChatMessage containing the user who roll the dice
+     * and the result to every user in the lobby.
+     * @param rollDiceRequest The RollDiceRequest found on the EventBus
+     * @author Kirstin, Pieter
+     * @since 2021-01-07
      */
     @Subscribe
     private void onRollDiceRequest (RollDiceRequest rollDiceRequest) {
         LOG.debug("Got new RollDiceRequest from user: " + rollDiceRequest.getUser());
-        //Integer eyestostring = 12;
+
         Dice dice = new Dice();
         dice.rollDice();
         Integer eyestostring = dice.getEyes();

@@ -82,6 +82,15 @@ public class LobbyService {
         eventBus.post(leaveUserRequest);
     }
 
+    /**
+     * Creates a new RollDiceRequest and puts it on the Eventbus
+     * <p>
+     * @param name Name of the lobby where the user wants to roll the dice
+     * @param user User who wants to roll the dice
+     * @see RollDiceRequest
+     * @author Kirstin, Pieter
+     * @since 2021-01-07
+     */
     public void rollDiceTest(String name, User user) {
         RollDiceRequest rollDiceRequest = new RollDiceRequest(name, user);
         eventBus.post(rollDiceRequest);

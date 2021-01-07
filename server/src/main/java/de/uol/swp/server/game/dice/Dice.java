@@ -2,6 +2,13 @@ package de.uol.swp.server.game.dice;
 
 import java.util.Random;
 
+/**
+ * Class for the dice in the game.
+ *
+ * @author Kirstin
+ * @since 2020-12-29
+ */
+
 public class Dice {
 
     int eyes = 0;

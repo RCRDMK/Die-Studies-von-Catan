@@ -2,13 +2,15 @@ package de.uol.swp.common.game.message;
 
 import de.uol.swp.common.message.AbstractRequestMessage;
 import de.uol.swp.common.user.User;
-import de.uol.swp.common.user.UserDTO;
+
 
 /**
- * Message sent by the client to request dice roll
- *
- * @author Kirstin Beyer, Pieter Vogt
- * @since 2020-12-29
+ * Request sent to the server when a user wants to roll the dice
+ * <p>
+ * @see AbstractRequestMessage
+ * @see de.uol.swp.common.user.User
+ * @author Kirstin, Pieter
+ * @since 2021-01-07
  */
 
 public class RollDiceRequest extends AbstractRequestMessage{
@@ -19,7 +21,7 @@ public class RollDiceRequest extends AbstractRequestMessage{
 
     /**
      * Constructor
-     * @since 2019-10-08
+     * @since 2021-01-07
      */
     public RollDiceRequest(String name, User user) {
         this.name = name;

@@ -51,5 +51,4 @@ public class ChatService extends AbstractService {
         post(msg);
         LOG.debug("Posted ResponseChatMessage on eventBus");
     }
-
-    }
+}
