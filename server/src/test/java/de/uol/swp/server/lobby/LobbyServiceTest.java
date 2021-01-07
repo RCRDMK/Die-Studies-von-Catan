@@ -145,11 +145,6 @@ public class LobbyServiceTest {
 
         assertNotNull(lobbyManagement.getLobby(lobbyName).get());
 
-        lobbyService.onLobbyJoinUserRequest(ljur1);
-        lobbyService.onLobbyJoinUserRequest(ljur2);
-        lobbyService.onLobbyJoinUserRequest(ljur3);
-        assertEquals(4, lobbyManagement.getLobby(lobbyName).get().getUsers().size());
-
         MessageContext ctx = new MessageContext() {
             @Override
             public void writeAndFlush(ResponseMessage message) {
@@ -161,6 +156,17 @@ public class LobbyServiceTest {
                 bus.post(message);
             }
         };
+
+        ljur1.setMessageContext(ctx);
+        ljur2.setMessageContext(ctx);
+        ljur3.setMessageContext(ctx);
+
+        lobbyService.onLobbyJoinUserRequest(ljur1);
+        lobbyService.onLobbyJoinUserRequest(ljur2);
+        lobbyService.onLobbyJoinUserRequest(ljur3);
+        assertEquals(4, lobbyManagement.getLobby(lobbyName).get().getUsers().size());
+
+
         ljur4.setMessageContext(ctx);
         lobbyService.onLobbyJoinUserRequest(ljur4);
 
