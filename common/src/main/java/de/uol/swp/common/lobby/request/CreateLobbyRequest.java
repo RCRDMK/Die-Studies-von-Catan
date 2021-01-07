@@ -7,7 +7,7 @@ import de.uol.swp.common.user.UserDTO;
 /**
  * Request sent to the server when a user wants to create a new lobby
  * <p>
- * @see AbstractLobbyRequest
+ * @see de.uol.swp.common.lobby.request.AbstractLobbyRequest
  * @see de.uol.swp.common.user.User
  * @author Marco Grawunder
  * @since 2019-10-08
