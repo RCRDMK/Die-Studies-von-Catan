@@ -82,7 +82,7 @@ public class LobbyService {
         eventBus.post(leaveUserRequest);
     }
 
-    public void rollDice(String name, User user) {
+    public void rollDiceTest(String name, User user) {
         RollDiceRequest rollDiceRequest = new RollDiceRequest(name, user);
         eventBus.post(rollDiceRequest);
     }

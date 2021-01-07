@@ -2,9 +2,10 @@ package de.uol.swp.server.game;
 
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
+import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import de.uol.swp.common.chat.ResponseChatMessage;
 import de.uol.swp.common.game.message.RollDiceRequest;
-import de.uol.swp.common.game.message.RollDiceResponse;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.message.ServerMessage;
 import de.uol.swp.server.AbstractService;
@@ -13,7 +14,7 @@ import de.uol.swp.server.lobby.*;
 import de.uol.swp.server.usermanagement.AuthenticationService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import javax.inject.Inject;
+
 import java.util.Optional;
 
 /**
@@ -31,8 +32,9 @@ public class GameService extends AbstractService {
     private AuthenticationService authenticationService;
 
     @Inject
-    public GameService(EventBus eventBus) {super(eventBus); }
-
+    public GameService(EventBus bus) {
+        super(bus);
+    }
 
     /**
      * Prepares a given ServerMessage to be send to all players in the lobby and
@@ -68,11 +70,22 @@ public class GameService extends AbstractService {
      * @since 2019-10-08
      */
     @Subscribe
-    public void onRollDiceRequest (RollDiceRequest rollDiceRequest) {
+    private void onRollDiceRequest (RollDiceRequest rollDiceRequest) {
+        LOG.debug("Got new RollDiceRequest from user: " + rollDiceRequest.getUser());
+        //Integer eyestostring = 12;
         Dice dice = new Dice();
         dice.rollDice();
-        int eyes = dice.getEyes();
-        sendToAllInLobby(rollDiceRequest.getName(), new RollDiceResponse(rollDiceRequest.getName(), rollDiceRequest.getUser(), eyes));
+        Integer eyestostring = dice.getEyes();
+        String eyes = eyestostring.toString();
+        if (eyestostring == 8 || eyestostring == 11){
+            ResponseChatMessage msg = new ResponseChatMessage("Player " + rollDiceRequest.getUser().getUsername() + " rolled an " + eyes, rollDiceRequest.getName(), "Dice", System.currentTimeMillis());
+            post(msg);
+        } else {
+            ResponseChatMessage msg = new ResponseChatMessage("Player " + rollDiceRequest.getUser().getUsername() + " rolled a " + eyes, rollDiceRequest.getName(), "Dice", System.currentTimeMillis());
+            post(msg);
+        }
+
+        LOG.debug("Posted ResponseChatMessage on eventBus");
     }
 
 }

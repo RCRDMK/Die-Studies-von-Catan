@@ -2,12 +2,14 @@ package de.uol.swp.server;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import de.uol.swp.common.game.cards.GameCards;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.server.chat.ChatService;
 import de.uol.swp.server.communication.ServerHandler;
 import de.uol.swp.server.communication.netty.NettyServerHandler;
 import de.uol.swp.server.communication.netty.Server;
 import de.uol.swp.server.di.ServerModule;
+import de.uol.swp.server.game.GameService;
 import de.uol.swp.server.lobby.LobbyService;
 import de.uol.swp.server.usermanagement.AuthenticationService;
 import de.uol.swp.server.usermanagement.UserManagement;
@@ -82,6 +84,7 @@ class ServerApp {
 		injector.getInstance(AuthenticationService.class);
         injector.getInstance(LobbyService.class);
         injector.getInstance(ChatService.class);
+        injector.getInstance(GameService.class);
 	}
 
 }
