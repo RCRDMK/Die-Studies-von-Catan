@@ -189,6 +189,7 @@ public class LobbyServiceTest {
         UserDTO userDTO = new UserDTO("Peter", "lustig", "peter.lustig@uol.de");
         lobbyManagement.createLobby("testLobby", userDTO);
         lobbyManagement.dropLobby("testLobby");
+
         MessageContext ctx = new MessageContext() {
             @Override
             public void writeAndFlush(ResponseMessage message) {
@@ -200,6 +201,7 @@ public class LobbyServiceTest {
                 bus.post(message);
             }
         };
+
         LobbyJoinUserRequest ljur1 = new LobbyJoinUserRequest("testLobby", userDTO1);
         ljur1.setMessageContext(ctx);
         assertThrows(NoSuchElementException.class, () -> lobbyService.onLobbyJoinUserRequest(ljur1));
