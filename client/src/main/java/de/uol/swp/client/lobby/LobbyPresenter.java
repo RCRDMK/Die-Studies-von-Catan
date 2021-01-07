@@ -72,7 +72,7 @@ public class LobbyPresenter extends AbstractPresenter {
 
     /**
      * Method called when the RollDice button is pressed
-     * <p>>
+     * <p>
      * If the RollDice button is pressed,
      * this methods tries to request the lobbyService to send a RollDiceRequest.
      * @param event The ActionEvent created by pressing the send Message button

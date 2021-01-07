@@ -63,6 +63,7 @@ public class GameService extends AbstractService {
      * If a RollDiceRequest is detected on the EventBus, this method is called.
      * It rolls the dices and sends a ResponseChatMessage containing the user who roll the dice
      * and the result to every user in the lobby.
+     * @see de.uol.swp.common.game.message.RollDiceRequest
      * @param rollDiceRequest The RollDiceRequest found on the EventBus
      * @author Kirstin, Pieter
      * @since 2021-01-07
