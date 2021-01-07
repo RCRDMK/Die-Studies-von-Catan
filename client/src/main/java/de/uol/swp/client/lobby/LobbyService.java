@@ -41,7 +41,7 @@ public class LobbyService {
      *
      * @param name Name chosen for the new lobby
      * @param user User who wants to create the new lobby
-     * @see CreateLobbyRequest
+     * @see de.uol.swp.common.lobby.request.CreateLobbyRequest
      * @author Marco Grawunder
      * @since 2019-11-20
      */
@@ -55,7 +55,7 @@ public class LobbyService {
      *
      * @param name Name of the lobby the user wants to join
      * @param user User who wants to join the lobby
-     * @see LobbyJoinUserRequest
+     * @see de.uol.swp.common.lobby.request.LobbyJoinUserRequest
      * @author Marco Grawunder
      * @since 2019-11-20
      */
@@ -73,7 +73,7 @@ public class LobbyService {
      * Creates a new RetrieveAllThisLobbyUsersRequest and puts it on the Eventbus
      * <p>
      * @param lobbyName Name of the lobby of which the User list was requested
-     * @see RetrieveAllThisLobbyUsersRequest
+     * @see de.uol.swp.common.lobby.request.RetrieveAllThisLobbyUsersRequest
      * @author Marc Hermes, Ricardo Mook
      * @since 2020-12-02
      */

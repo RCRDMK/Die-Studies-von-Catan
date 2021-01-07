@@ -75,7 +75,7 @@ public class LobbyService extends AbstractService {
      * Method enhanced by Marius Birk and Carsten Dekker, 2020-12-02
      *
      * @param createLobbyRequest The CreateLobbyRequest found on the EventBus
-     * @see de.uol.swp.server.lobby.LobbyManagement#createLobby(String, User)
+     * @see de.uol.swp.server.lobby.LobbyManagement
      * @see de.uol.swp.common.lobby.message.LobbyCreatedMessage
      * @see de.uol.swp.common.user.response.LobbyCreatedSuccessfulResponse
      * @see LobbyAlreadyExistsResponse
