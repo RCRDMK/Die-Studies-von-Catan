@@ -6,7 +6,7 @@ import java.util.Objects;
 
 /**
  * A message to indicate a user is  logged out
- *
+ * <p>
  * This message is used to automatically update the user lists of every connected
  * client as soon as a user successfully logs out
  *
@@ -20,9 +20,10 @@ public class UserLoggedOutMessage extends AbstractServerMessage {
 
 	/**
 	 * Default constructor
-	 *
+	 * <p>
 	 * @implNote Do not use for valid logout since no username gets set
 	 * @implNote this constructor is needed for serialization
+	 * @author Marco Grawunder
 	 * @since 2017-03-17
 	 */
 	public UserLoggedOutMessage(){
@@ -30,8 +31,9 @@ public class UserLoggedOutMessage extends AbstractServerMessage {
 
 	/**
 	 * Constructor
-	 *
+	 * <p>
 	 * @param username the username of the newly logged out user
+	 * @author Marco Grawunder
 	 * @since 2017-03-17
 	 */
 	public UserLoggedOutMessage(String username){
@@ -40,8 +42,9 @@ public class UserLoggedOutMessage extends AbstractServerMessage {
 
 	/**
 	 * Getter for the username
-	 *
+	 * <p>
 	 * @return String containing the username
+	 * @author Marco Grawunder
 	 * @since 2017-03-17
 	 */
 	public String getUsername() {

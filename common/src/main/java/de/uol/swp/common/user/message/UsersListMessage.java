@@ -8,7 +8,7 @@ import java.util.Objects;
 
 /**
  * A message containing all current logged in usernames
- * 
+ * <p>
  * @author Marco Grawunder
  * @since 2017-03-17
  */
@@ -19,8 +19,9 @@ public class UsersListMessage extends AbstractServerMessage {
 
 	/**
 	 * Constructor
-	 *
+	 * <p>
 	 * @param users List containing all users currently logged in
+	 * @author Marco Grawunder
 	 * @since 2017-03-17
 	 */
 	public UsersListMessage(List<String> users){
@@ -29,8 +30,9 @@ public class UsersListMessage extends AbstractServerMessage {
 
 	/**
 	 * Getter for the List containing all users currently logged in
-	 *
+	 * <p>
 	 * @return List containing all users currently logged in
+	 * @author Marco Grawunder
 	 * @since 2017-03-17
 	 */
 	public ArrayList<String> getUsers() {

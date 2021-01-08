@@ -7,6 +7,7 @@ import com.google.inject.Injector;
 import com.google.inject.assistedinject.Assisted;
 import de.uol.swp.client.auth.LoginPresenter;
 import de.uol.swp.client.auth.events.ShowLoginViewEvent;
+import de.uol.swp.client.lobby.LobbyPresenter;
 import de.uol.swp.client.main.MainMenuPresenter;
 import de.uol.swp.client.register.RegistrationPresenter;
 import de.uol.swp.client.register.event.RegistrationCanceledEvent;
@@ -26,7 +27,7 @@ import java.net.URL;
 
 /**
  * Class that manages which window/scene is currently shown
- *
+ *<p>
  * @author Marco Grawunder
  * @since 2019-09-03
  */
@@ -42,6 +43,7 @@ public class SceneManager {
     private Scene mainScene;
     private Scene lastScene = null;
     private Scene currentScene = null;
+    private Scene lobbyScene;
 
     private final Injector injector;
 
@@ -55,19 +57,21 @@ public class SceneManager {
 
     /**
      * Subroutine to initialize all views
-     *
+     * <p>
      * This is a subroutine of the constructor to initialize all views
+     * @author Marco Grawunder
      * @since 2019-09-03
      */
     private void initViews() {
         initLoginView();
         initMainView();
         initRegistrationView();
+        initLobbyView();
     }
 
     /**
      * Subroutine creating parent panes from FXML files
-     *
+     * <p>
      * This Method tries to create a parent pane from the FXML file specified by
      * the URL String given to it. If the LOG-Level is set to Debug or higher loading
      * is written to the LOG.
@@ -75,6 +79,7 @@ public class SceneManager {
      *
      * @param fxmlFile FXML file to load the view from
      * @return view loaded from FXML or null
+     * @author Marco Grawunder
      * @since 2019-09-03
      */
     private Parent initPresenter(String fxmlFile) {
@@ -93,12 +98,13 @@ public class SceneManager {
 
     /**
      * Initializes the main menu view
-     *
+     * <p>
      * If the mainScene is null it gets set to a new scene containing the
      * a pane showing the main menu view as specified by the MainMenuView
      * FXML file.
      *
      * @see de.uol.swp.client.main.MainMenuPresenter
+     * @author Marco Grawunder
      * @since 2019-09-03
      */
     private void initMainView() {
@@ -111,11 +117,12 @@ public class SceneManager {
 
     /**
      * Initializes the login view
-     *
+     * <p>
      * If the loginScene is null it gets set to a new scene containing the
      * a pane showing the login view as specified by the LoginView FXML file.
      *
      * @see de.uol.swp.client.auth.LoginPresenter
+     * @author Marco Grawunder
      * @since 2019-09-03
      */
     private void initLoginView() {
@@ -128,76 +135,101 @@ public class SceneManager {
 
     /**
      * Initializes the registration view
-     *
+     * <p>
      * If the registrationScene is null it gets set to a new scene containing the
      * a pane showing the registration view as specified by the RegistrationView
      * FXML file.
      *
      * @see de.uol.swp.client.register.RegistrationPresenter
+     * @author Marco Grawunder
      * @since 2019-09-03
      */
-    private void initRegistrationView(){
-        if (registrationScene == null){
+    private void initRegistrationView() {
+        if (registrationScene == null) {
             Parent rootPane = initPresenter(RegistrationPresenter.fxml);
-            registrationScene = new Scene(rootPane, 400,200);
+            registrationScene = new Scene(rootPane, 400, 200);
             registrationScene.getStylesheets().add(styleSheet);
         }
     }
 
     /**
-     * Handles ShowRegistrationViewEvent detected on the EventBus
+     * Initializes the lobby view
+     * <p>
+     *  If the lobbyScene is null it gets set to a new scene containing the
+     *  a pane showing the lobby view as specified by the LobbyView
+     *  FXML file
      *
+     * @see de.uol.swp.client.lobby.LobbyPresenter
+     * @author Marc Hermes, Ricardo Mook
+     * @since 2020-11-19
+     */
+    private void initLobbyView() {
+        if (lobbyScene == null) {
+            Parent rootPane = initPresenter(LobbyPresenter.fxml);
+            lobbyScene = new Scene(rootPane, 800, 600);
+            lobbyScene.getStylesheets().add(styleSheet);
+        }
+    }
+
+    /**
+     * Handles ShowRegistrationViewEvent detected on the EventBus
+     * <p>
      * If a ShowRegistrationViewEvent is detected on the EventBus, this method gets
      * called. It calls a method to switch the current screen to the registration
      * screen.
      *
      * @param event The ShowRegistrationViewEvent detected on the EventBus
      * @see de.uol.swp.client.register.event.ShowRegistrationViewEvent
+     * @author Marco Grawunder
      * @since 2019-09-03
      */
     @Subscribe
-    public void onShowRegistrationViewEvent(ShowRegistrationViewEvent event){
+    public void onShowRegistrationViewEvent(ShowRegistrationViewEvent event) {
         showRegistrationScreen();
     }
 
     /**
      * Handles ShowLoginViewEvent detected on the EventBus
-     *
+     * <p>
      * If a ShowLoginViewEvent is detected on the EventBus, this method gets
      * called. It calls a method to switch the current screen to the login screen.
      *
      * @param event The ShowLoginViewEvent detected on the EventBus
      * @see de.uol.swp.client.auth.events.ShowLoginViewEvent
+     * @author Marco Grawunder
      * @since 2019-09-03
      */
     @Subscribe
-    public void onShowLoginViewEvent(ShowLoginViewEvent event){
+    public void onShowLoginViewEvent(ShowLoginViewEvent event) {
         showLoginScreen();
     }
 
+
     /**
      * Handles RegistrationCanceledEvent detected on the EventBus
-     *
+     * <p>
      * If a RegistrationCanceledEvent is detected on the EventBus, this method gets
      * called. It calls a method to show the screen shown before registration.
      *
      * @param event The RegistrationCanceledEvent detected on the EventBus
      * @see de.uol.swp.client.register.event.RegistrationCanceledEvent
+     * @author Marco Grawunder
      * @since 2019-09-03
      */
     @Subscribe
-    public void onRegistrationCanceledEvent(RegistrationCanceledEvent event){
+    public void onRegistrationCanceledEvent(RegistrationCanceledEvent event) {
         showScene(lastScene, lastTitle);
     }
 
     /**
      * Handles RegistrationErrorEvent detected on the EventBus
-     *
+     * <p>
      * If a RegistrationErrorEvent is detected on the EventBus, this method gets
      * called. It shows the error message of the event in a error alert.
      *
      * @param event The RegistrationErrorEvent detected on the EventBus
      * @see de.uol.swp.client.register.event.RegistrationErrorEvent
+     * @author Marco Grawunder
      * @since 2019-09-03
      */
     @Subscribe
@@ -207,9 +239,10 @@ public class SceneManager {
 
     /**
      * Shows an error message inside an error alert
-     *
+     * <p>
      * @param message The type of error to be shown
      * @param e       The error message
+     * @author Marco Grawunder
      * @since 2019-09-03
      */
     public void showError(String message, String e) {
@@ -221,32 +254,35 @@ public class SceneManager {
 
     /**
      * Shows a server error message inside an error alert
-     *
+     * <p>
      * @param e The error message
+     * @author Marco Grawunder
      * @since 2019-09-03
      */
     public void showServerError(String e) {
-        showError("Server returned an error:\n" , e);
+        showError("Server returned an error:\n", e);
     }
 
     /**
      * Shows an error message inside an error alert
-     *
+     * <p>
      * @param e The error message
+     * @author Marco Grawunder
      * @since 2019-09-03
      */
     public void showError(String e) {
-        showError("Error:\n" , e);
+        showError("Error:\n", e);
     }
 
     /**
      * Switches the current scene and title to the given ones
-     *
+     * <p>
      * The current scene and title are saved in the lastScene and lastTitle variables,
      * before the new scene and title are set and shown.
      *
      * @param scene New scene to show
      * @param title New window title
+     * @author Marco Grawunder
      * @since 2019-09-03
      */
     private void showScene(final Scene scene, final String title) {
@@ -262,9 +298,9 @@ public class SceneManager {
 
     /**
      * Shows the login error alert
-     *
+     * <p>
      * Opens an ErrorAlert popup saying "Error logging in to server"
-     *
+     * @author Marco Grawunder
      * @since 2019-09-03
      */
     public void showLoginErrorScreen() {
@@ -277,10 +313,10 @@ public class SceneManager {
 
     /**
      * Shows the main menu
-     *
+     * <p>
      * Switches the current Scene to the mainScene and sets the title of
      * the window to "Welcome " and the username of the current user
-     *
+     * @author Marco Grawunder
      * @since 2019-09-03
      */
     public void showMainScreen(User currentUser) {
@@ -289,25 +325,41 @@ public class SceneManager {
 
     /**
      * Shows the login screen
-     *
+     * <p>
      * Switches the current Scene to the loginScene and sets the title of
      * the window to "Login"
-     *
+     * @author Marco Grawunder
      * @since 2019-09-03
      */
     public void showLoginScreen() {
-        showScene(loginScene,"Login");
+        showScene(loginScene, "Login");
+
     }
 
     /**
      * Shows the registration screen
-     *
+     * <p>
      * Switches the current Scene to the registrationScene and sets the title of
      * the window to "Registration"
-     *
+     * @author Marco Grawunder
      * @since 2019-09-03
      */
     public void showRegistrationScreen() {
-        showScene(registrationScene,"Registration");
+        showScene(registrationScene, "Registration");
     }
+
+    /**
+     * Shows the lobby screen
+     * <p>
+     * Switches the current Scene to the lobbyScene and sets the title of
+     * the window to "Lobby"
+     * @author Marc Hermes, Ricardo Mook
+     * @since 2020-11-19
+     */
+    public void showLobbyScreen(User currentUser, String lobbyname) {
+        showScene(lobbyScene, "Lobby " + lobbyname );
+    }
+
+
 }
+

@@ -3,8 +3,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>de.uol.swp</groupId>
-    <!-- rename to group -->
-    <artifactId>SWPBaseProject</artifactId>
+    <artifactId>SWPBaseProjectJ</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
@@ -56,6 +55,13 @@
         </plugins>
 
     </build>
+    <repositories>
+        <repository>
+            <id>mockito</id>
+            <name>mockito</name>
+            <url>https://mvnrepository.com/artifact/org.mockito/mockito-core</url>
+        </repository>
+    </repositories>
     <dependencies>
 
         <!-- netty.io -->
@@ -109,6 +115,12 @@
             <groupId>com.google.inject.extensions</groupId>
             <artifactId>guice-assistedinject</artifactId>
             <version>4.2.3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>3.6.28</version>
+            <scope>test</scope>
         </dependency>
 
     </dependencies>

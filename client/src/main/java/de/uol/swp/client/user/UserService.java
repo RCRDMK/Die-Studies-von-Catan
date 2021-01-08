@@ -65,15 +65,21 @@ public class UserService implements ClientUserService {
 	}
 
 	/**
-	 * Method to delete an users account
+	 * Method to delete an users account and log the user out
 	 *
-	 * This method should send a request to delete an users account, but being not
-	 * implemented, it currently does nothing.
+	 * This method sends a request to logout a user and delete an users account.
+	 * The requests are of the type DropUserRequest and LogoutRequest.
 	 *
+	 * @author Carsten Dekker
 	 * @param user The user to remove
+	 * @see de.uol.swp.common.user.request.DropUserRequest
+	 * @since 2020-12-15
 	 */
     public void dropUser(User user) {
-        //TODO: Implement me
+		DropUserRequest dropUserRequest = new DropUserRequest(user);
+		LogoutRequest logoutRequest = new LogoutRequest();
+        bus.post(logoutRequest);
+        bus.post(dropUserRequest);
     }
 
 	@Override
@@ -82,10 +88,10 @@ public class UserService implements ClientUserService {
 		bus.post(request);
 	}
 
-
 	@Override
 	public void retrieveAllUsers() {
 		RetrieveAllOnlineUsersRequest cmd = new RetrieveAllOnlineUsersRequest();
 		bus.post(cmd);
 	}
+
 }

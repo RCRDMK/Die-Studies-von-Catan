@@ -5,12 +5,13 @@ import de.uol.swp.common.lobby.dto.LobbyDTO;
 import de.uol.swp.common.user.User;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 /**
  * Manages creation, deletion and storing of lobbies
- *
+ * <p>
  * @see de.uol.swp.common.lobby.Lobby
  * @see de.uol.swp.common.lobby.dto.LobbyDTO
  * @author Marco Grawunder
@@ -22,13 +23,14 @@ public class LobbyManagement {
 
     /**
      * Creates a new lobby and adds it to the list
-     *
+     * <p>
      * @implNote the primary key of the lobbies is the name therefore the name has
      *           to be unique
      * @param name the name of the lobby to create
      * @param owner the user who wants to create a lobby
      * @see de.uol.swp.common.user.User
      * @throws IllegalArgumentException name already taken
+     * @author Marco Grawunder
      * @since 2019-10-08
      */
     public void createLobby(String name, User owner) {
@@ -40,10 +42,11 @@ public class LobbyManagement {
 
     /**
      * Deletes lobby with requested name
-     *
+     * <p>
      * @param name String containing the name of the lobby to delete
      * @throws IllegalArgumentException there exists no lobby with the  requested
      *                                  name
+     * @author Marco Grawunder
      * @since 2019-10-08
      */
     public void dropLobby(String name) {
@@ -55,10 +58,11 @@ public class LobbyManagement {
 
     /**
      * Searches for the lobby with the requested name
-     *
+     * <p>
      * @param name String containing the name of the lobby to search for
      * @return either empty Optional or Optional containing the lobby
      * @see Optional
+     * @author Marco Grawunder
      * @since 2019-10-08
      */
     public Optional<Lobby> getLobby(String name) {
@@ -69,5 +73,13 @@ public class LobbyManagement {
         return Optional.empty();
     }
 
-
+    /**
+     * getter
+     * @return containing a HashMap with lobbies
+     * @since 2020-04-12
+     * @author Carsten Dekker and Marius Birk
+     */
+    public Map<String, Lobby> getAllLobbies(){
+        return lobbies;
+    }
 }

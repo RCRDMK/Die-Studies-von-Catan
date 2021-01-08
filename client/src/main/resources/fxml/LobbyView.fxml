@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.uol.swp.client.lobby.LobbyPresenter">
+   <children>
+      <ListView fx:id="lobbyUsersView" prefHeight="200.0" prefWidth="200.0" />
+      <Button layoutX="524.0" layoutY="366.0" mnemonicParsing="false" onAction="#onStartGame" text="Start Game" />
+      <Button layoutX="200.0" layoutY="366.0" mnemonicParsing="false" onAction="#onLeaveLobby" text="Leave Lobby" />
+   </children>
+   <TextArea fx:id="lobbyChatArea" editable="false" layoutX="302.0" layoutY="14.0" prefHeight="200" prefWidth="284.0" GridPane.rowIndex="2"> </TextArea>
+   <TextField fx:id="lobbyChatInput" layoutX="302.0" layoutY="229.0" onAction="#onSendMessage" prefHeight="25.0" prefWidth="196.0" GridPane.rowIndex="3"> </TextField>
+   <Button layoutX="509.0" layoutY="229.0" mnemonicParsing="false" onAction="#onSendMessage" prefHeight="25.0" prefWidth="77.0" text="Senden" />
+   <Button layoutX="356.0" layoutY="360.0" mnemonicParsing="false" onAction="#onRollDice" text="Roll Dice" />
+</AnchorPane>

@@ -7,7 +7,7 @@ import java.util.Objects;
 
 /**
  * Request to update an user
- *
+ * <p>
  * @see de.uol.swp.common.user.User
  * @author Marco Grawunder
  * @since 2019-09-02
@@ -18,9 +18,10 @@ public class UpdateUserRequest extends AbstractRequestMessage {
 
     /**
      * Constructor
-     *
+     * <p>
      * @param user the user object the sender shall be updated to unchanged fields
      *             being empty
+     * @author Marco Grawunder
      * @since 2019-09-02
      */
     public UpdateUserRequest(User user){
@@ -29,8 +30,9 @@ public class UpdateUserRequest extends AbstractRequestMessage {
 
     /**
      * Getter for the updated user object
-     *
+     * <p>
      * @return the updated user object
+     * @author Marco Grawunder
      * @since 2019-09-02
      */
     public User getUser() {
