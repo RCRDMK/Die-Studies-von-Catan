@@ -68,20 +68,6 @@ public class LobbyService {
     }
 
     /**
-     * Creates a new RollDiceRequest and puts it on the Eventbus
-     * <p>
-     * @param name Name of the lobby where the user wants to roll the dice
-     * @param user User who wants to roll the dice
-     * @see de.uol.swp.common.game.message.RollDiceRequest
-     * @author Kirstin, Pieter
-     * @since 2021-01-07
-     */
-    public void rollDiceTest(String name, User user) {
-        RollDiceRequest rollDiceRequest = new RollDiceRequest(name, user);
-        eventBus.post(rollDiceRequest);
-    }
-
-    /**
      * Creates a new RetrieveAllThisLobbyUsersRequest and puts it on the Eventbus
      * <p>
      * @param lobbyName Name of the lobby of which the User list was requested
