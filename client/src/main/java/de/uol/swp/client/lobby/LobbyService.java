@@ -6,6 +6,7 @@ import de.uol.swp.common.game.message.RollDiceRequest;
 import de.uol.swp.common.lobby.request.*;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
+import javafx.collections.ObservableList;
 
 /**
  * Classes that manages lobbies
@@ -17,6 +18,7 @@ import de.uol.swp.common.user.UserDTO;
 public class LobbyService {
 
     private final EventBus eventBus;
+    private ObservableList<String> joinedLobbies;
 
     /**
      * Constructor
@@ -66,6 +68,16 @@ public class LobbyService {
         LobbyLeaveUserRequest leaveUserRequest = new LobbyLeaveUserRequest(name, user);
         eventBus.post(leaveUserRequest);
     }
+
+    public void addLobby(String name) {
+        this.joinedLobbies.add(name);
+    }
+
+    public void removeLobby(String name) {
+        this.joinedLobbies.remove(name);
+    }
+
+    public ObservableList<String> getJoinedLobbies() { return joinedLobbies;}
 
     /**
      * Creates a new RollDiceRequest and puts it on the Eventbus

@@ -3,6 +3,8 @@ package de.uol.swp.client.lobby;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
+import de.uol.swp.client.ClientApp;
+import de.uol.swp.client.main.MainMenuPresenter;
 import de.uol.swp.common.lobby.message.UserJoinedLobbyMessage;
 import de.uol.swp.common.lobby.message.UserLeftLobbyMessage;
 import de.uol.swp.common.user.response.AllThisLobbyUsersResponse;
@@ -19,9 +21,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -46,9 +46,16 @@ public class LobbyPresenter extends AbstractPresenter {
 
     private ObservableList<String> lobbyUsers;
 
+    private ObservableList<String> joinedLobbies;
+
     private User joinedLobbyUser;
 
     private String currentLobby;
+
+    @FXML
+    private TabPane tabs;
+
+    private final Tab mainMenuTab = new Tab("Main Menu");
 
     @FXML
     public TextField lobbyChatInput;
@@ -127,6 +134,7 @@ public class LobbyPresenter extends AbstractPresenter {
         }
     }
 
+
     /**
      * Handles successful lobby creation
      *<p>
@@ -147,6 +155,9 @@ public class LobbyPresenter extends AbstractPresenter {
         this.lobbyChatInput.setText("");
         lobbyChatArea.deleteText(0, lobbyChatArea.getLength());
         lobbyService.retrieveAllThisLobbyUsers(message.getName());
+        lobbyService.removeLobby(message.getName());
+        this.joinedLobbies = lobbyService.getJoinedLobbies();
+        updateTabs(joinedLobbies);
     }
 
     /**
@@ -167,6 +178,9 @@ public class LobbyPresenter extends AbstractPresenter {
         this.currentLobby = message.getName();
         this.lobbyChatInput.setText("");
         lobbyChatArea.deleteText(0, lobbyChatArea.getLength());
+        lobbyService.removeLobby(message.getName());
+        this.joinedLobbies = lobbyService.getJoinedLobbies();
+        updateTabs(joinedLobbies);
     }
 
     /**
@@ -185,6 +199,9 @@ public class LobbyPresenter extends AbstractPresenter {
         LOG.debug("LobbyLeftSuccessfulResponse successfully received");
         this.joinedLobbyUser = message.getUser();
         this.currentLobby = message.getName();
+        lobbyService.removeLobby(message.getName());
+        this.joinedLobbies = lobbyService.getJoinedLobbies();
+        updateTabs(joinedLobbies);
     }
 
     /**
@@ -267,6 +284,17 @@ public class LobbyPresenter extends AbstractPresenter {
             }
             lobbyUsers.clear();
             lobbyUserList.forEach(u -> lobbyUsers.add(u.getUsername()));
+        });
+    }
+
+    private void updateTabs(ObservableList<String> joinedLobbies) {
+        //Attention: This must be done on the FX Thread!
+        Platform.runLater(() -> {
+            tabs = new TabPane();
+            tabs.getTabs().add(mainMenuTab);
+            if (!joinedLobbies.isEmpty()) {
+                joinedLobbies.forEach(lobbyName -> tabs.getTabs().add(new Tab(lobbyName)));
+            }
         });
     }
 

@@ -19,9 +19,13 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Label;
+import javafx.scene.control.TabPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import de.uol.swp.client.TabsManager;
 
 import java.net.URL;
 
@@ -46,6 +50,7 @@ public class SceneManager {
     private Scene lobbyScene;
 
     private final Injector injector;
+    private TabPane tabPane;
 
     @Inject
     public SceneManager(EventBus eventBus, Injector injected, @Assisted Stage primaryStage) {
@@ -67,6 +72,12 @@ public class SceneManager {
         initMainView();
         initRegistrationView();
         initLobbyView();
+        TabPane tabPane = new TabPane();
+        this.tabPane = tabPane;
+        VBox vBox = new VBox(tabPane);
+        Scene tabScene = new Scene(vBox);
+        Parent rootPane = initTab(TabsPresenter.fxml);
+
     }
 
     /**
@@ -94,6 +105,19 @@ public class SceneManager {
             throw new RuntimeException("Could not load View!" + e.getMessage(), e);
         }
         return rootPane;
+    }
+    private Parent initTab(String fxmlFile) {
+        Parent root;
+        FXMLLoader loader = injector.getInstance(FXMLLoader.class);
+        try {
+            URL url = getClass().getResource(fxmlFile);
+            LOG.debug("Loading " + url);
+            loader.setLocation(url);
+            root = loader.load();
+        } catch (Exception e) {
+            throw new RuntimeException("Could not load View!" + e.getMessage(), e);
+        }
+        return root;
     }
 
     /**
@@ -321,6 +345,18 @@ public class SceneManager {
      */
     public void showMainScreen(User currentUser) {
         showScene(mainScene, "Welcome " + currentUser.getUsername());
+
+    }
+
+    public void showMainTab(Scene mainMenu) {
+        CustomTab mainMenuTab = new CustomTab("Planes", new Label("Show all planes available"));
+        mainMenuTab.setGraphic(mainMenu);
+        tabPane.getTabs().add(mainMenuTab);
+        VBox vBox = new VBox(tabPane);
+        Scene tabScene = new Scene(vBox);
+        Platform.runLater(() -> {
+            primaryStage.setScene(tabScene);
+            primaryStage.show();});
     }
 
     /**

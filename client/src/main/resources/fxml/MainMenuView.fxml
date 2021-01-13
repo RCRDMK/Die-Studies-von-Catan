@@ -4,6 +4,7 @@
 <?import javafx.scene.layout.*?>
 
 <AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.uol.swp.client.main.MainMenuPresenter">
+        <TabPane layoutY="-30" prefHeight="200.0" prefWidth="200.0" fx:id="tabs" />
         <ListView fx:id="usersView" prefHeight="164.0" prefWidth="284.0" GridPane.rowIndex="1" />
         <ListView fx:id="lobbiesView" layoutX="284.0" prefHeight="164.0" prefWidth="316.0" GridPane.rowIndex="3" />
         <TextField fx:id="lobbyNameTextField" layoutX="284" layoutY="164" onAction="#onCreateLobby" prefWidth="223.0" />
@@ -16,5 +17,3 @@
         <Button layoutX="207.0" layoutY="355.0" mnemonicParsing="false" onAction="#onSendMessage" prefHeight="25.0" prefWidth="77.0" text="Senden" />
         <Button layoutX="461.0" layoutY="374.0" mnemonicParsing="false" onAction="#onDropUser" text="DeleteUser" GridPane.columnIndex="3" />
 </AnchorPane>
-
-

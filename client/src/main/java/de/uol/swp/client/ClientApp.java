@@ -6,6 +6,7 @@ import com.google.common.eventbus.Subscribe;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import de.uol.swp.client.di.ClientModule;
+import de.uol.swp.client.di.FXMLLoaderProvider;
 import de.uol.swp.client.user.ClientUserService;
 import de.uol.swp.common.lobby.message.*;
 import de.uol.swp.common.user.User;
@@ -14,10 +15,19 @@ import de.uol.swp.common.user.request.LogoutRequest;
 import de.uol.swp.common.user.response.*;
 import io.netty.channel.Channel;
 import javafx.application.Application;
+import javafx.collections.ObservableList;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
+import javafx.scene.control.Label;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -48,6 +58,9 @@ public class ClientApp extends Application implements ConnectionListener {
     private EventBus eventBus;
 
     private SceneManager sceneManager;
+
+    public TabsManager tabsManager;
+
 
     // -----------------------------------------------------
     // Java FX Methods
@@ -94,6 +107,9 @@ public class ClientApp extends Application implements ConnectionListener {
         SceneManagerFactory sceneManagerFactory = injector.getInstance(SceneManagerFactory.class);
         this.sceneManager = sceneManagerFactory.create(primaryStage);
 
+        //TabsManagerFactory tabsManagerFactory = injector.getInstance(TabsManagerFactory.class);
+        //this.tabsManager = tabsManagerFactory.create(primaryStage);
+
         ClientConnectionFactory connectionFactory = injector.getInstance(ClientConnectionFactory.class);
         clientConnection = connectionFactory.create(host, port);
         clientConnection.addConnectionListener(this);
@@ -111,6 +127,7 @@ public class ClientApp extends Application implements ConnectionListener {
 
     @Override
     public void connectionEstablished(Channel ch) {
+
         sceneManager.showLoginScreen();
     }
 

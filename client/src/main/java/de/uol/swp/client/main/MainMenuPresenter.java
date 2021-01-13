@@ -19,19 +19,13 @@ import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.user.message.UserLoggedInMessage;
 import de.uol.swp.common.user.message.UserLoggedOutMessage;
-import de.uol.swp.common.user.response.AllOnlineUsersResponse;
-import de.uol.swp.common.user.response.LobbyFullResponse;
-import de.uol.swp.common.user.response.JoinDeletedLobbyResponse;
-import de.uol.swp.common.user.response.LoginSuccessfulResponse;
+import de.uol.swp.common.user.response.*;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -56,6 +50,8 @@ public class MainMenuPresenter extends AbstractPresenter {
 
     private ObservableList<String> lobbies;
 
+    private ObservableList<String> joinedLobbies;
+
     private User loggedInUser;
 
     @FXML
@@ -72,6 +68,11 @@ public class MainMenuPresenter extends AbstractPresenter {
 
     @FXML
     private TextField lobbyNameTextField;
+
+    @FXML
+    private TabPane tabs;
+
+    private final Tab mainMenuTab = new Tab("Main Menu");
 
     @Inject
     private LobbyService lobbyService;
@@ -120,6 +121,8 @@ public class MainMenuPresenter extends AbstractPresenter {
     public void lobbyCreatedSuccessful(LobbyCreatedMessage message) {
         LOG.debug("New lobby created by " + message.getUser().getUsername());
         lobbyService.retrieveAllLobbies();
+        this.joinedLobbies = lobbyService.getJoinedLobbies();
+        updateTabs(joinedLobbies);
     }
 
     /**
@@ -156,6 +159,8 @@ public class MainMenuPresenter extends AbstractPresenter {
     public void lobbySizeChanged(LobbySizeChangedMessage message) {
         LOG.debug("The lobby: " + message.getName() + " changed it's size");
         lobbyService.retrieveAllLobbies();
+        this.joinedLobbies = lobbyService.getJoinedLobbies();
+        updateTabs(joinedLobbies);
     }
 
     /**
@@ -371,6 +376,17 @@ public class MainMenuPresenter extends AbstractPresenter {
             lobbies.clear();
             lobbyList.forEach(u -> lobbies.add(u.getName()));
             lobbiesView.setCellFactory(x -> new LobbyCell(lobbyService, loggedInUser));
+        });
+    }
+
+    private void updateTabs(ObservableList<String> joinedLobbies) {
+        //Attention: This must be done on the FX Thread!
+        Platform.runLater(() -> {
+            tabs = new TabPane();
+            tabs.getTabs().add(mainMenuTab);
+            if (!joinedLobbies.isEmpty()) {
+                joinedLobbies.forEach(lobbyName -> tabs.getTabs().add(new Tab(lobbyName)));
+            }
         });
     }
 
