@@ -15,6 +15,16 @@ import javafx.scene.control.TextField;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/**
+ * Manages the GameView
+ *<p>
+ * Class was build exactly like LobbyPresenter.
+ *
+ * @author Carsten Dekker
+ * @see de.uol.swp.client.AbstractPresenter
+ * @since 2021-01-13
+ */
+
 public class GamePresenter extends AbstractPresenter {
     public static final String fxml = "/fxml/LobbyView.fxml";
     //public static final String fxml = "/fxml/GameView.fxml";
@@ -33,11 +43,16 @@ public class GamePresenter extends AbstractPresenter {
      * Method called when the RollDice button is pressed
      * <p>
      * If the RollDice button is pressed,
-     * this methods tries to request the lobbyService to send a RollDiceRequest.
-     * @param event The ActionEvent created by pressing the send Message button
+     * this methods tries to request the GameService to send a RollDiceRequest.
+     * @param event The ActionEvent created by pressing the Roll Dice button
      * @author Kirstin, Pieter
-     * @see de.uol.swp.client.lobby.LobbyService
+     * @see de.uol.swp.client.game.GameService
      * @since 2021-01-07
+     *
+     * Enhanced by Carsten Dekker
+     * @since 2021-01-13
+     *
+     * I have changed the place of the method to the new GamePresenter.
      */
     @FXML
     public void onRollDice (ActionEvent event) {
