@@ -8,6 +8,9 @@ import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import javafx.collections.ObservableList;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Classes that manages lobbies
  *
@@ -18,7 +21,7 @@ import javafx.collections.ObservableList;
 public class LobbyService {
 
     private final EventBus eventBus;
-    private ObservableList<String> joinedLobbies;
+    private List<String> joinedLobbies = new ArrayList<>();
 
     /**
      * Constructor
@@ -77,7 +80,7 @@ public class LobbyService {
         this.joinedLobbies.remove(name);
     }
 
-    public ObservableList<String> getJoinedLobbies() { return joinedLobbies;}
+    public List<String> getJoinedLobbies() { return joinedLobbies;}
 
     /**
      * Creates a new RollDiceRequest and puts it on the Eventbus

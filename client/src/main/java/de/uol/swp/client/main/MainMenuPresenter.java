@@ -5,8 +5,10 @@ import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
 import de.uol.swp.client.auth.events.ShowLoginViewEvent;
 import de.uol.swp.client.chat.ChatService;
+import de.uol.swp.client.lobby.Event.ChangeToLobbyViewEvent;
 import de.uol.swp.client.lobby.LobbyCell;
 import de.uol.swp.client.lobby.LobbyService;
+import de.uol.swp.client.main.Event.ChangeToMainViewEvent;
 import de.uol.swp.common.chat.RequestChatMessage;
 import de.uol.swp.common.chat.ResponseChatMessage;
 import de.uol.swp.common.lobby.dto.LobbyDTO;
@@ -25,13 +27,17 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.control.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Manages the main menu
@@ -50,7 +56,7 @@ public class MainMenuPresenter extends AbstractPresenter {
 
     private ObservableList<String> lobbies;
 
-    private ObservableList<String> joinedLobbies;
+    private List<String> joinedLobbies;
 
     private User loggedInUser;
 
@@ -103,6 +109,7 @@ public class MainMenuPresenter extends AbstractPresenter {
         this.loggedInUser = message.getUser();
         userService.retrieveAllUsers();
         lobbyService.retrieveAllLobbies();
+        tabs.getTabs().add(mainMenuTab);
     }
 
     /**
@@ -121,7 +128,32 @@ public class MainMenuPresenter extends AbstractPresenter {
     public void lobbyCreatedSuccessful(LobbyCreatedMessage message) {
         LOG.debug("New lobby created by " + message.getUser().getUsername());
         lobbyService.retrieveAllLobbies();
+    }
+
+    @Subscribe
+    public void lobbyCreatedSuccessfulResp(LobbyCreatedSuccessfulResponse message) {
+        LOG.debug("Successfully Created Lobby " + message.getName());
+        lobbyService.addLobby(message.getName());
         this.joinedLobbies = lobbyService.getJoinedLobbies();
+        System.out.println("Main Menu Presenter lobbyCreatedSucc" + joinedLobbies);
+        updateTabs(joinedLobbies);
+    }
+
+    @Subscribe
+    public void lobbyJoinedSuccessfulResp(LobbyJoinedSuccessfulResponse message) {
+        LOG.debug("Successfully Created Lobby " + message.getName());
+        lobbyService.addLobby(message.getName());
+        this.joinedLobbies = lobbyService.getJoinedLobbies();
+        System.out.println("Main Menu Presenter lobbyJoinedSucc" + joinedLobbies);
+        updateTabs(joinedLobbies);
+    }
+
+    @Subscribe
+    public void lobbyLeftSuccessfulResp(LobbyLeftSuccessfulResponse message) {
+        LOG.debug("Successfully Created Lobby " + message.getName());
+        lobbyService.removeLobby(message.getName());
+        this.joinedLobbies = lobbyService.getJoinedLobbies();
+        System.out.println("Main Menu Presenter lobbyLeftSucc" + joinedLobbies);
         updateTabs(joinedLobbies);
     }
 
@@ -159,8 +191,6 @@ public class MainMenuPresenter extends AbstractPresenter {
     public void lobbySizeChanged(LobbySizeChangedMessage message) {
         LOG.debug("The lobby: " + message.getName() + " changed it's size");
         lobbyService.retrieveAllLobbies();
-        this.joinedLobbies = lobbyService.getJoinedLobbies();
-        updateTabs(joinedLobbies);
     }
 
     /**
@@ -379,15 +409,73 @@ public class MainMenuPresenter extends AbstractPresenter {
         });
     }
 
-    private void updateTabs(ObservableList<String> joinedLobbies) {
+    private void updateTabs(List<String> joinedLobbies) {
         //Attention: This must be done on the FX Thread!
         Platform.runLater(() -> {
-            tabs = new TabPane();
+
+            for (Iterator<Tab> iterator = tabs.getTabs().iterator(); iterator.hasNext();) {
+                Tab tab = iterator.next();
+                iterator.remove();
+            }
             tabs.getTabs().add(mainMenuTab);
             if (!joinedLobbies.isEmpty()) {
-                joinedLobbies.forEach(lobbyName -> tabs.getTabs().add(new Tab(lobbyName)));
+                joinedLobbies.forEach(lobbyName -> implementNewTab(lobbyName));
             }
         });
+    }
+
+    private void changeScene() {
+        if (tabs.getSelectionModel().getSelectedIndex()  == 0) {
+            ChangeToMainViewEvent changeToMainViewMessage = new ChangeToMainViewEvent(loggedInUser);
+            eventBus.post(changeToMainViewMessage);
+            System.out.println("Versuche Message zu posten. Transfer ins Main Menu.");
+        }
+        else if (tabs.getSelectionModel().getSelectedIndex() != 0) {
+            String lobbyToChangeTo = tabs.getSelectionModel().getSelectedItem().getText();
+            ChangeToLobbyViewEvent changeToLobbyViewMessage = new ChangeToLobbyViewEvent(loggedInUser, lobbyToChangeTo);
+            eventBus.post(changeToLobbyViewMessage);
+            System.out.println("Versuche Message zu posten. Transfer in die Lobby." + lobbyToChangeTo);
+        }
+
+    }
+
+    public void implementNewTab(String tabName) {
+        Tab tab = new Tab(tabName);
+        /*tab.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue) {
+                changeScene();
+                    System.out.println("Versuche Message zu posten");
+                }
+
+    });*/
+        tabs.getTabs().add(tab);
+        installTabHandlers(tabs);
+    }
+
+    /**
+     * looks up the styled part of tab header and installs a mouseHandler
+     * which calls the work load method.
+     *
+     * @param tabPane
+     */
+    private void installTabHandlers(TabPane tabPane) {
+        Set<Node> headers = tabPane.lookupAll(".tab-container");
+        headers.forEach(node -> {
+            // implementation detail: header of tabContainer is the TabHeaderSkin
+            Parent parent = node.getParent();
+            parent.setOnMouseClicked(ev -> handleHeader(parent));
+        });
+    }
+
+    /**
+     * Workload for tab.
+     * @param tabHeaderSkin
+     */
+    private void handleHeader(Node tabHeaderSkin) {
+        // implementation detail: skin keeps reference to associated Tab
+        Tab tab = (Tab) tabHeaderSkin.getProperties().get(Tab.class);
+        System.out.println("do stuff for tab: " + tab.getText());
+        changeScene();
     }
 
     /**

@@ -4,7 +4,11 @@ import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
 import de.uol.swp.client.ClientApp;
+import de.uol.swp.client.SceneManager;
+import de.uol.swp.client.lobby.Event.ChangeToLobbyViewEvent;
+import de.uol.swp.client.main.Event.ChangeToMainViewEvent;
 import de.uol.swp.client.main.MainMenuPresenter;
+import de.uol.swp.client.register.event.ShowRegistrationViewEvent;
 import de.uol.swp.common.lobby.message.UserJoinedLobbyMessage;
 import de.uol.swp.common.lobby.message.UserLeftLobbyMessage;
 import de.uol.swp.common.user.response.AllThisLobbyUsersResponse;
@@ -21,13 +25,14 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.control.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.List;
+import java.util.*;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 
 /**
  * Manages the lobby menu
@@ -46,7 +51,7 @@ public class LobbyPresenter extends AbstractPresenter {
 
     private ObservableList<String> lobbyUsers;
 
-    private ObservableList<String> joinedLobbies;
+    private List<String> joinedLobbies = new ArrayList<>();
 
     private User joinedLobbyUser;
 
@@ -155,8 +160,9 @@ public class LobbyPresenter extends AbstractPresenter {
         this.lobbyChatInput.setText("");
         lobbyChatArea.deleteText(0, lobbyChatArea.getLength());
         lobbyService.retrieveAllThisLobbyUsers(message.getName());
-        lobbyService.removeLobby(message.getName());
+        lobbyService.addLobby(message.getName());
         this.joinedLobbies = lobbyService.getJoinedLobbies();
+        System.out.println("LP " + joinedLobbies);
         updateTabs(joinedLobbies);
     }
 
@@ -178,7 +184,7 @@ public class LobbyPresenter extends AbstractPresenter {
         this.currentLobby = message.getName();
         this.lobbyChatInput.setText("");
         lobbyChatArea.deleteText(0, lobbyChatArea.getLength());
-        lobbyService.removeLobby(message.getName());
+        lobbyService.addLobby(message.getName());
         this.joinedLobbies = lobbyService.getJoinedLobbies();
         updateTabs(joinedLobbies);
     }
@@ -287,16 +293,75 @@ public class LobbyPresenter extends AbstractPresenter {
         });
     }
 
-    private void updateTabs(ObservableList<String> joinedLobbies) {
+    private void updateTabs(List<String> joinedLobbies) {
         //Attention: This must be done on the FX Thread!
         Platform.runLater(() -> {
-            tabs = new TabPane();
+
+            for (Iterator<Tab> iterator = tabs.getTabs().iterator(); iterator.hasNext();) {
+                Tab tab = iterator.next();
+                iterator.remove();
+            }
             tabs.getTabs().add(mainMenuTab);
             if (!joinedLobbies.isEmpty()) {
-                joinedLobbies.forEach(lobbyName -> tabs.getTabs().add(new Tab(lobbyName)));
+                joinedLobbies.forEach(lobbyName -> implementNewTab(lobbyName));
             }
         });
     }
+
+    private void changeScene() {
+        if (tabs.getSelectionModel().getSelectedIndex()  == 0) {
+            ChangeToMainViewEvent changeToMainViewMessage = new ChangeToMainViewEvent(joinedLobbyUser);
+            eventBus.post(changeToMainViewMessage);
+            System.out.println("Versuche Message zu posten. Transfer ins Main Menu.");
+        }
+        else if (tabs.getSelectionModel().getSelectedIndex() != 0) {
+            String lobbyToChangeTo = tabs.getSelectionModel().getSelectedItem().getText();
+            ChangeToLobbyViewEvent changeToLobbyViewMessage = new ChangeToLobbyViewEvent(joinedLobbyUser, lobbyToChangeTo);
+            eventBus.post(changeToLobbyViewMessage);
+            System.out.println("Versuche Message zu posten. Transfer in die Lobby." + lobbyToChangeTo);
+        }
+
+    }
+
+    public void implementNewTab(String tabName) {
+        Tab tab = new Tab(tabName);
+        /*tab.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue) {
+                changeScene();
+                    System.out.println("Versuche Message zu posten");
+                }
+
+    });*/
+        tabs.getTabs().add(tab);
+        installTabHandlers(tabs);
+    }
+
+    /**
+     * looks up the styled part of tab header and installs a mouseHandler
+     * which calls the work load method.
+     *
+     * @param tabPane
+     */
+    private void installTabHandlers(TabPane tabPane) {
+        Set<Node> headers = tabPane.lookupAll(".tab-container");
+        headers.forEach(node -> {
+            // implementation detail: header of tabContainer is the TabHeaderSkin
+            Parent parent = node.getParent();
+            parent.setOnMouseClicked(ev -> handleHeader(parent));
+        });
+    }
+
+    /**
+     * Workload for tab.
+     * @param tabHeaderSkin
+     */
+    private void handleHeader(Node tabHeaderSkin) {
+        // implementation detail: skin keeps reference to associated Tab
+        Tab tab = (Tab) tabHeaderSkin.getProperties().get(Tab.class);
+        System.out.println("do stuff for tab: " + tab.getText());
+        changeScene();
+    }
+
 
     /**
      * Updates the lobby chat when a ResponseChatMessage was posted to the EventBus.

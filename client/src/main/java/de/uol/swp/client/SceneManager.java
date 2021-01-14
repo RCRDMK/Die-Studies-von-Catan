@@ -7,7 +7,9 @@ import com.google.inject.Injector;
 import com.google.inject.assistedinject.Assisted;
 import de.uol.swp.client.auth.LoginPresenter;
 import de.uol.swp.client.auth.events.ShowLoginViewEvent;
+import de.uol.swp.client.lobby.Event.ChangeToLobbyViewEvent;
 import de.uol.swp.client.lobby.LobbyPresenter;
+import de.uol.swp.client.main.Event.ChangeToMainViewEvent;
 import de.uol.swp.client.main.MainMenuPresenter;
 import de.uol.swp.client.register.RegistrationPresenter;
 import de.uol.swp.client.register.event.RegistrationCanceledEvent;
@@ -261,6 +263,17 @@ public class SceneManager {
         showError(event.getMessage());
     }
 
+    @Subscribe
+    public void onChangeToMainViewEvent(ChangeToMainViewEvent event) {
+        System.out.println("Versuche Main Screen zu zeigen.");
+        showMainScreen(event.getUser());
+    }
+
+    @Subscribe
+    public void onChangeToLobbyViewEvent(ChangeToLobbyViewEvent event) {
+        System.out.println("Versuche Lobby Screen zu zeigen.");
+        showLobbyScreen(event.getUser(), event.getName());
+    }
     /**
      * Shows an error message inside an error alert
      * <p>
