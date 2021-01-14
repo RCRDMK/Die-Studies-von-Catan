@@ -3,18 +3,23 @@ package de.uol.swp.client.game;
 
 import com.google.common.eventbus.EventBus;
 import com.google.inject.Inject;
+import de.uol.swp.client.user.UserService;
 import de.uol.swp.common.game.message.RollDiceRequest;
 import de.uol.swp.common.user.User;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
- * Classes that manages lobbies
- *
+ * Class that manages games
+ * <p>
  * @author Carsten Dekker
  * @since 2021-01-13
  */
 
 @SuppressWarnings("UnstableApiUsage")
 public class GameService {
+
+    private static final Logger LOG = LogManager.getLogger(GameService.class);
 
     private final EventBus eventBus;
 

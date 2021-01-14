@@ -26,8 +26,8 @@ import org.apache.logging.log4j.Logger;
  */
 
 public class GamePresenter extends AbstractPresenter {
-    public static final String fxml = "/fxml/LobbyView.fxml";
-    //public static final String fxml = "/fxml/GameView.fxml";
+
+    public static final String fxml = "/fxml/GameView.fxml";
 
     private static final Logger LOG = LogManager.getLogger(GamePresenter.class);
 
@@ -57,5 +57,35 @@ public class GamePresenter extends AbstractPresenter {
     @FXML
     public void onRollDice (ActionEvent event) {
         gameService.rollDiceTest(this.currentLobby, this.joinedLobbyUser);
+    }
+
+    @FXML
+    public void onTrade (ActionEvent event) {
+        //TODO:...
+    }
+
+    @FXML
+    public void onBuildStreet (ActionEvent event) {
+        //TODO:...
+    }
+
+    @FXML
+    public void onBuildSettlement (ActionEvent event) {
+        //TODO:...
+    }
+
+    @FXML
+    public void onBuildTown (ActionEvent event) {
+        //TODO:...
+    }
+
+    @FXML
+    public void onBuyDevelopmentCard (ActionEvent event) {
+        //TODO:...
+    }
+
+    @FXML
+    public void onLeaveGame (ActionEvent event) {
+        //TODO:...
     }
 }
