@@ -44,6 +44,7 @@ public class SceneManager {
     private Scene lastScene = null;
     private Scene currentScene = null;
     private Scene lobbyScene;
+    private Scene gameScene;
 
     private final Injector injector;
 

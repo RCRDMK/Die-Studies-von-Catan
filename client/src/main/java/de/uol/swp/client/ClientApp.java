@@ -201,6 +201,8 @@ public class ClientApp extends Application implements ConnectionListener {
             sceneManager.showLobbyScreen(user, message.getName());
 
     }
+
+
     /**
      * Handles the successful leaving of a user
      *
