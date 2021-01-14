@@ -201,6 +201,29 @@ public class ClientApp extends Application implements ConnectionListener {
             sceneManager.showLobbyScreen(user, message.getName());
 
     }
+
+
+    /**
+     * Handles successful start of a game
+     * <p>
+     * If a StartGameResponse object is detected on the EventBus this
+     * method is called. It tells the SceneManager to show the lobby menu and sets
+     * this clients user to the user found in the object. If the loglevel is set
+     * to DEBUG or higher "user joined lobby " is written to the log.
+     *
+     * @param message The StartGameResponse object detected on the EventBus
+     * @see de.uol.swp.client.SceneManager
+     * @since 2021-01-14
+     * @author Kirstin Beyer
+     */
+    @Subscribe
+    public void userStartedGame(StartGameResponse message) {
+        LOG.debug("User " + message.getUser().getUsername() + " started a game ");
+        this.user = message.getUser();
+        sceneManager.showGameScreen(user, message.getName());
+    }
+
+
     /**
      * Handles the successful leaving of a user
      *

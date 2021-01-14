@@ -8,6 +8,7 @@ import com.google.inject.assistedinject.Assisted;
 import de.uol.swp.client.auth.LoginPresenter;
 import de.uol.swp.client.auth.events.ShowLoginViewEvent;
 import de.uol.swp.client.lobby.LobbyPresenter;
+import de.uol.swp.client.game.GamePresenter;
 import de.uol.swp.client.main.MainMenuPresenter;
 import de.uol.swp.client.register.RegistrationPresenter;
 import de.uol.swp.client.register.event.RegistrationCanceledEvent;
@@ -44,6 +45,7 @@ public class SceneManager {
     private Scene lastScene = null;
     private Scene currentScene = null;
     private Scene lobbyScene;
+    private Scene gameScene;
 
     private final Injector injector;
 
@@ -67,6 +69,7 @@ public class SceneManager {
         initMainView();
         initRegistrationView();
         initLobbyView();
+        initGameView();
     }
 
     /**
@@ -170,6 +173,26 @@ public class SceneManager {
             lobbyScene.getStylesheets().add(styleSheet);
         }
     }
+
+    /**
+     * Initializes the game view
+     * <p>
+     *  If the gameScene is null it gets set to a new scene containing the
+     *  a pane showing the game view as specified by the GameView
+     *  FXML file
+     *
+     * @see de.uol.swp.client.game.GamePresenter
+     * @author Kirstin Beyer
+     * @since 2021-01-14
+     */
+    private void initGameView() {
+        if (gameScene == null) {
+            Parent rootPane = initPresenter(GamePresenter.fxml);
+            gameScene = new Scene(rootPane, 800, 600);
+            gameScene.getStylesheets().add(styleSheet);
+        }
+    }
+
 
     /**
      * Handles ShowRegistrationViewEvent detected on the EventBus
@@ -359,6 +382,19 @@ public class SceneManager {
     public void showLobbyScreen(User currentUser, String lobbyname) {
         showScene(lobbyScene, "Lobby " + lobbyname );
     }
+
+    /**
+     * Shows the game screen
+     * <p>
+     * Switches the current Scene to the gameScene and sets the title of
+     * the window to "Game"
+     * @author Kirstin Beyer
+     * @since 2021-01-14
+     */
+    public void showGameScreen(User currentUser, String lobbyname) {
+        showScene(gameScene, "Game " + lobbyname );
+    }
+
 
 
 }
