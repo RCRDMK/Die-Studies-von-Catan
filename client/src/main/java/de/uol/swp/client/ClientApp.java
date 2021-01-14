@@ -215,13 +215,14 @@ public class ClientApp extends Application implements ConnectionListener {
      * @since 2021-01-14
      * @author Kirstin Beyer
      */
+    /*
     @Subscribe
     public void userStartedGame(StartGameResponse message) {
         LOG.debug("User " + message.getUser().getUsername() + " started a game ");
         this.user = message.getUser();
         sceneManager.showGameScreen(user, message.getName());
     }
-
+    */
 
     /**
      * Handles the successful leaving of a user
