@@ -20,6 +20,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import javax.security.auth.login.LoginException;
+import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -42,6 +43,9 @@ class AuthenticationServiceTest {
     final AuthenticationService authService = new AuthenticationService(bus, userManagement);
     private Object event;
 
+    AuthenticationServiceTest() throws SQLException {
+    }
+
     @Subscribe
     void handle(DeadEvent e) {
         this.event = e.getEvent();
@@ -61,7 +65,7 @@ class AuthenticationServiceTest {
     }
 
     @Test
-    void loginTest() throws InterruptedException {
+    void loginTest() throws InterruptedException, SQLException {
         userManagement.createUser(user);
         final LoginRequest loginRequest = new LoginRequest(user.getUsername(), user.getPassword());
         bus.post(loginRequest);
@@ -73,7 +77,7 @@ class AuthenticationServiceTest {
     }
 
     @Test
-    void loginTestFail() throws InterruptedException {
+    void loginTestFail() throws InterruptedException, SQLException {
         userManagement.createUser(user);
         final LoginRequest loginRequest = new LoginRequest(user.getUsername(), user.getPassword() + "äüö");
         bus.post(loginRequest);
@@ -85,7 +89,7 @@ class AuthenticationServiceTest {
     }
 
     @Test
-    void logoutTest() throws InterruptedException {
+    void logoutTest() throws InterruptedException, SQLException {
         loginUser(user);
         Optional<Session> session = authService.getSession(user);
 
@@ -102,7 +106,7 @@ class AuthenticationServiceTest {
         assertTrue(event instanceof UserLoggedOutMessage);
     }
 
-    private void loginUser(User userToLogin) {
+    private void loginUser(User userToLogin) throws SQLException {
         userManagement.createUser(userToLogin);
         final LoginRequest loginRequest = new LoginRequest(userToLogin.getUsername(), userToLogin.getPassword());
         bus.post(loginRequest);
@@ -124,7 +128,7 @@ class AuthenticationServiceTest {
      * @see javax.security.auth.login.LoginException
      */
     @Test
-    void loginLoggedInUser() {
+    void loginLoggedInUser() throws SQLException {
         loginUser(user);
         loginUser(user);
 
@@ -135,7 +139,7 @@ class AuthenticationServiceTest {
     }
 
     @Test
-    void loggedInUsers() throws InterruptedException {
+    void loggedInUsers() throws InterruptedException, SQLException {
         loginUser(user);
 
         RetrieveAllOnlineUsersRequest request = new RetrieveAllOnlineUsersRequest();
@@ -151,13 +155,14 @@ class AuthenticationServiceTest {
 
     // TODO: replace with parametrized test
     @Test
-    void twoLoggedInUsers() throws InterruptedException {
+    void twoLoggedInUsers() throws InterruptedException, SQLException {
         List<User> users = new ArrayList<>();
         users.add(user);
         users.add(user2);
         Collections.sort(users);
 
-        users.forEach(this::loginUser);
+        loginUser(user);
+        loginUser(user2);
 
         RetrieveAllOnlineUsersRequest request = new RetrieveAllOnlineUsersRequest();
         bus.post(request);
@@ -188,7 +193,7 @@ class AuthenticationServiceTest {
     }
 
     @Test
-    void getSessionsForUsersTest() {
+    void getSessionsForUsersTest() throws SQLException {
         loginUser(user);
         loginUser(user2);
         loginUser(user3);

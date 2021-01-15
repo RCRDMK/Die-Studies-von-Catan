@@ -22,6 +22,7 @@ import de.uol.swp.server.usermanagement.store.MainMemoryBasedUserStore;
 import de.uol.swp.server.usermanagement.store.UserStore;
 import org.junit.jupiter.api.*;
 
+import java.sql.SQLException;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.List;
@@ -48,6 +49,9 @@ public class LobbyServiceTest {
 
     final CountDownLatch lock = new CountDownLatch(1);
     Object event;
+
+    public LobbyServiceTest() throws SQLException {
+    }
 
     /**
      * Handles DeadEvents detected on the EventBus

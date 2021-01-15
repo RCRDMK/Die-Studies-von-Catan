@@ -38,7 +38,7 @@ class UserManagementTest {
     }
 
     @Test
-    void loginUser() {
+    void loginUser() throws SQLException {
         UserManagement management = getDefaultManagement();
         User userToLogIn = users.get(0);
 
@@ -69,7 +69,7 @@ class UserManagementTest {
     }
 
     @Test
-    void logoutUser() {
+    void logoutUser() throws SQLException {
         UserManagement management = getDefaultManagement();
         User userToLogin = users.get(0);
 
@@ -84,7 +84,7 @@ class UserManagementTest {
     }
 
     @Test
-    void createUser() {
+    void createUser() throws SQLException {
         UserManagement management = getDefaultManagement();
 
         management.createUser(userNotInStore);
@@ -99,7 +99,7 @@ class UserManagementTest {
     }
 
     @Test
-    void dropUser() {
+    void dropUser() throws SQLException {
         UserManagement management = getDefaultManagement();
         management.createUser(userNotInStore);
 
@@ -126,7 +126,7 @@ class UserManagementTest {
     }
 
     @Test
-    void updateUserPassword_NotLoggedIn() {
+    void updateUserPassword_NotLoggedIn() throws SQLException {
         UserManagement management = getDefaultManagement();
         User userToUpdate = users.get(0);
         User updatedUser = new UserDTO(userToUpdate.getUsername(), "newPassword", null);
@@ -139,7 +139,7 @@ class UserManagementTest {
     }
 
     @Test
-    void updateUser_Mail() {
+    void updateUser_Mail() throws SQLException {
         UserManagement management = getDefaultManagement();
         User userToUpdate = users.get(0);
         User updatedUser = new UserDTO(userToUpdate.getUsername(), "", "newMail@mail.com");
@@ -152,7 +152,7 @@ class UserManagementTest {
     }
 
     @Test
-    void updateUserPassword_LoggedIn() {
+    void updateUserPassword_LoggedIn() throws SQLException {
         UserManagement management = getDefaultManagement();
         User userToUpdate = users.get(0);
         User updatedUser = new UserDTO(userToUpdate.getUsername(), "newPassword", null);

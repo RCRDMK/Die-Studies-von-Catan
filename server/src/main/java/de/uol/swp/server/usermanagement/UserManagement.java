@@ -2,7 +2,10 @@ package de.uol.swp.server.usermanagement;
 
 import com.google.common.base.Strings;
 import de.uol.swp.common.user.User;
+import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.server.usermanagement.store.UserStore;
+import io.netty.handler.logging.LogLevel;
+import org.checkerframework.checker.nullness.Opt;
 
 import javax.inject.Inject;
 import java.sql.*;
@@ -39,11 +42,12 @@ public class UserManagement extends AbstractUserManagement {
     }
 
     @Override
-    public User login(String username, String password) {
-        Optional<User> user = userStore.findUser(username, password);
-        if (user.isPresent()){
-            this.loggedInUsers.put(username, user.get());
-            return user.get();
+    public User login(String username, String password) throws SQLException {
+        ResultSet resultSet= statement.executeQuery("select name from user where name = '"+username+"';");
+        User user = new UserDTO(username, password, "");
+        if(resultSet.next()){
+            this.loggedInUsers.put(username, user);
+            return user;
         }else{
             throw new SecurityException("Cannot auth user " + username);
         }
@@ -67,12 +71,16 @@ public class UserManagement extends AbstractUserManagement {
     }
 
     @Override
-    public User createUser(User userToCreate){
-        Optional<User> user = userStore.findUser(userToCreate.getUsername());
-        if (user.isPresent()){
+    public User createUser(User userToCreate) throws SQLException {
+
+        ResultSet resultSet = statement.executeQuery("select name from user where name = '"+userToCreate.getUsername()+"';");
+
+        if(!resultSet.next()){
+            statement.executeUpdate("insert into user(name, password) values ('"+userToCreate.getUsername()+"','"+userToCreate.getPassword()+"');");
+        }else{
             throw new UserManagementException("Username already used!");
         }
-        return userStore.createUser(userToCreate.getUsername(), userToCreate.getPassword(), userToCreate.getEMail());
+        return new UserDTO(userToCreate.getUsername(), userToCreate.getPassword(), userToCreate.getEMail());
     }
 
     @Override

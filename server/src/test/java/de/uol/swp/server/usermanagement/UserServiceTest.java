@@ -34,7 +34,7 @@ class UserServiceTest {
     }
 
     @Test
-    void registerUserTest() {
+    void registerUserTest() throws SQLException {
         final RegisterUserRequest request = new RegisterUserRequest(userToRegister);
 
         // The post will lead to a call of a UserService function
@@ -48,7 +48,7 @@ class UserServiceTest {
     }
 
     @Test
-    void registerSecondUserWithSameName() {
+    void registerSecondUserWithSameName() throws SQLException {
         final RegisterUserRequest request = new RegisterUserRequest(userToRegister);
         final RegisterUserRequest request2 = new RegisterUserRequest(userWithSameName);
 
