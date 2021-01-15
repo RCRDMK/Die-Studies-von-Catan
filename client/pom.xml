@@ -111,12 +111,5 @@
             <version>5.7.0</version>
             <scope>compile</scope>
         </dependency>
-
-        <dependency>
-            <groupId>com.sun.mail</groupId>
-            <artifactId>javax.mail</artifactId>
-            <version>1.6.2</version>
-        </dependency>
-
     </dependencies>
 </project>

@@ -1,7 +1,6 @@
 package de.uol.swp.client.register;
 
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
+import java.util.regex.Pattern;
 
 /**
  * Class that manages the RegistrationPresenter
@@ -23,12 +22,14 @@ public class RegistrationService {
      */
 
     public static boolean isValidEmailAddress(String email) {
-        try {
-            InternetAddress emailAddr = new InternetAddress(email);
-            emailAddr.validate();
-        } catch (AddressException e) {
+        String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\."+
+                "[a-zA-Z0-9_+&*-]+)*@" +
+                "(?:[a-zA-Z0-9-]+\\.)+[a-z" +
+                "A-Z]{2,7}$";
+
+        Pattern pat = Pattern.compile(emailRegex);
+        if(email == null)
             return false;
-        }
-        return true;
+        return pat.matcher(email).matches();
     }
 }
