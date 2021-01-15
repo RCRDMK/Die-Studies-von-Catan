@@ -36,6 +36,12 @@ public class RegistrationPresenter extends AbstractPresenter {
     @FXML
     private PasswordField passwordField2;
 
+    @FXML
+    private TextField emailField1;
+
+    @FXML
+    private TextField emailField2;
+
     /**
      * Default Constructor
      *
@@ -87,6 +93,7 @@ public class RegistrationPresenter extends AbstractPresenter {
      * @see de.uol.swp.client.register.event.RegistrationErrorEvent
      * @see de.uol.swp.client.SceneManager
      * @see de.uol.swp.client.user.UserService
+     * @see de.uol.swp.client.register.RegistrationService
      * @since 2019-09-02
      *
      */
@@ -98,8 +105,14 @@ public class RegistrationPresenter extends AbstractPresenter {
             eventBus.post(new RegistrationErrorEvent("Passwords are not equal"));
         } else if (Strings.isNullOrEmpty(passwordField1.getText())) {
             eventBus.post(new RegistrationErrorEvent("Password cannot be empty"));
+        } else if (!emailField1.getText().equals(emailField2.getText())) {
+            eventBus.post(new RegistrationErrorEvent("E-Mail Addresses are not equal"));
+        } else if (Strings.isNullOrEmpty(emailField1.getText())) {
+            eventBus.post(new RegistrationErrorEvent("E-Mail cannot be empty"));
+        } else if (!RegistrationService.isValidEmailAddress(emailField1.getText())) {
+            eventBus.post(new RegistrationErrorEvent("E-Mail is not valid"));
         } else {
-            userService.createUser(new UserDTO(loginField.getText(), passwordField1.getText(), "empty"));
+            userService.createUser(new UserDTO(loginField.getText(), passwordField1.getText(), emailField1.getText()));
         }
     }
 

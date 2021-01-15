@@ -148,7 +148,7 @@ public class SceneManager {
     private void initRegistrationView() {
         if (registrationScene == null) {
             Parent rootPane = initPresenter(RegistrationPresenter.fxml);
-            registrationScene = new Scene(rootPane, 400, 200);
+            registrationScene = new Scene(rootPane, 400, 260);
             registrationScene.getStylesheets().add(styleSheet);
         }
     }
