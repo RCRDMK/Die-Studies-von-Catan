@@ -11,6 +11,7 @@ import de.uol.swp.common.user.response.DropUserSuccessfulResponse;
 import de.uol.swp.server.usermanagement.store.MainMemoryBasedUserStore;
 import org.junit.jupiter.api.Test;
 
+import java.sql.SQLException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -28,6 +29,9 @@ class UserServiceTest {
     final EventBus bus = new EventBus();
     final UserManagement userManagement = new UserManagement(new MainMemoryBasedUserStore());
     final UserService userService = new UserService(bus, userManagement);
+
+    UserServiceTest() throws SQLException {
+    }
 
     @Test
     void registerUserTest() {
