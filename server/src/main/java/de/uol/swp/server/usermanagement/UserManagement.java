@@ -5,6 +5,7 @@ import de.uol.swp.common.user.User;
 import de.uol.swp.server.usermanagement.store.UserStore;
 
 import javax.inject.Inject;
+import java.sql.*;
 import java.util.List;
 import java.util.Optional;
 import java.util.SortedMap;
@@ -19,6 +20,7 @@ import java.util.TreeMap;
  */
 public class UserManagement extends AbstractUserManagement {
 
+    private final String CONNECTION = "jdbc:mysql://134.106.11.89:50101/user_store";
     private final UserStore userStore;
     private final SortedMap<String, User> loggedInUsers = new TreeMap<>();
 
@@ -45,6 +47,21 @@ public class UserManagement extends AbstractUserManagement {
         }
     }
 
+    public void buildConnection() throws SQLException {
+        DriverManager.registerDriver(new com.mysql.cj.jdbc.Driver());
+        Connection conn = DriverManager.getConnection("jdbc:mysql://134.106.11.89:50101", "root", "SWP2020j");        Statement statement = conn.createStatement();
+        statement.execute("use user_store;");
+        ResultSet resultSet = statement.executeQuery("Select name from user");
+        int tmp = 0;
+        while(resultSet.next()){
+            tmp++;
+        }
+        System.out.println(tmp);
+
+        resultSet.close();
+        statement.close();
+       conn.close();
+    }
     @Override
     public boolean isLoggedIn(User username) {
         return loggedInUsers.containsKey(username.getUsername());

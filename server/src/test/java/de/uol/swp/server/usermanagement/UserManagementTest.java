@@ -5,6 +5,7 @@ import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.server.usermanagement.store.MainMemoryBasedUserStore;
 import org.junit.jupiter.api.Test;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -190,5 +191,10 @@ class UserManagementTest {
         allUsers.forEach(u -> assertEquals(u.getPassword(), ""));
     }
 
+    @Test
+    void connectJDBCTest() throws SQLException {
+        UserManagement userManagement = getDefaultManagement();
+        userManagement.buildConnection();
+    }
 
 }
