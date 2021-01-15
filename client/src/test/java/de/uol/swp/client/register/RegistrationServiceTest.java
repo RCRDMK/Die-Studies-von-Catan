@@ -1,9 +1,9 @@
 package de.uol.swp.client.register;
 
-
 import org.junit.jupiter.api.Test;
 
-import static org.mockito.Mockito.mock;
+import static org.junit.jupiter.api.Assertions.*;
+
 
 /**
  * Test Class for the RegistrationService
@@ -17,19 +17,20 @@ public class RegistrationServiceTest {
 
     String emailAddress = "test@test.de";
     String emailAddress2 = "test";
-
-
+    String emailAddress3 = "";
+    String expectedRegex = "^[a-zA-Z0-9_+&*-]+(?:\\."+
+            "[a-zA-Z0-9_+&*-]+)*@" +
+            "(?:[a-zA-Z0-9-]+\\.)+[a-z" +
+            "A-Z]{2,7}$";
 
     @Test
     public void emailIsValidTest() {
-        RegistrationService service = mock(RegistrationService.class);
-
-
-
+        assertTrue(emailAddress.matches(expectedRegex));
     }
 
     @Test
     public void emailIsNotValidTest() {
-
+        assertFalse(emailAddress2.matches(expectedRegex));
+        assertFalse(emailAddress3.matches(expectedRegex));
     }
 }
