@@ -85,7 +85,8 @@ public class RegistrationPresenter extends AbstractPresenter {
      *
      * This Method is called when the register button is pressed. It posts an instance
      * of the RegistrationErrorEvent to the EventBus the SceneManager is subscribed
-     * to, if one of the fields is empty or the password fields are not equal.
+     * to, if one of the fields is empty, the password and E-Mail fields are not equal or the
+     * E-Mail is not valid.
      * If everything is filled in correctly the user service is requested to create
      * a new user.
      *
@@ -96,6 +97,8 @@ public class RegistrationPresenter extends AbstractPresenter {
      * @see de.uol.swp.client.register.RegistrationService
      * @since 2019-09-02
      *
+     * Enhanced by Carsten Dekker
+     * @since 2021-01-15
      */
     @FXML
     void onRegisterButtonPressed(ActionEvent event) {
