@@ -13,7 +13,7 @@ import java.util.Set;
  *
  * @author Iskander Yusupov
  * @see de.uol.swp.common.game.dto.GameDTO
- * @since 2019-10-08
+ * @since 2021-01-15
  */
 public interface Game extends Serializable {
 
