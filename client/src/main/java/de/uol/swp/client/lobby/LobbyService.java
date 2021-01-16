@@ -2,9 +2,7 @@ package de.uol.swp.client.lobby;
 
 import com.google.common.eventbus.EventBus;
 import com.google.inject.Inject;
-import de.uol.swp.common.game.message.RollDiceRequest;
 import de.uol.swp.common.lobby.request.*;
-import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 
 /**
@@ -65,20 +63,6 @@ public class LobbyService {
     public void leaveLobby(String name, UserDTO user) {
         LobbyLeaveUserRequest leaveUserRequest = new LobbyLeaveUserRequest(name, user);
         eventBus.post(leaveUserRequest);
-    }
-
-    /**
-     * Creates a new RollDiceRequest and puts it on the Eventbus
-     * <p>
-     * @param name Name of the lobby where the user wants to roll the dice
-     * @param user User who wants to roll the dice
-     * @see de.uol.swp.common.game.message.RollDiceRequest
-     * @author Kirstin, Pieter
-     * @since 2021-01-07
-     */
-    public void rollDiceTest(String name, User user) {
-        RollDiceRequest rollDiceRequest = new RollDiceRequest(name, user);
-        eventBus.post(rollDiceRequest);
     }
 
     /**
