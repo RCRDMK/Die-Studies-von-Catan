@@ -8,8 +8,8 @@ import de.uol.swp.common.user.response.game.AllThisGameUsersResponse;
  * This message is sent during the initialization of the user list. The server will
  * respond with a AllThisGameUsersResponse.
  *
- * @see AllThisGameUsersResponse
  * @author Iskander Yusupov
+ * @see AllThisGameUsersResponse
  * @since 2021-01-15
  */
 
@@ -19,6 +19,7 @@ public class RetrieveAllThisGameUsersRequest extends AbstractGameRequest {
     /**
      * Default constructor
      * <p>
+     *
      * @implNote this constructor is needed for serialization
      * @author Iskander Yusupov
      * @since 2021-01-15
@@ -29,6 +30,7 @@ public class RetrieveAllThisGameUsersRequest extends AbstractGameRequest {
     /**
      * Constructor
      * <p>
+     *
      * @param gameName name of the game
      * @author Iskander Yusupov
      * @since 2021-01-15

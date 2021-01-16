@@ -27,6 +27,7 @@ public class GameCreatedSuccessfulResponse extends AbstractResponseMessage {
     /**
      * Constructor
      * <p>
+     *
      * @author Iskander Yusupov
      * @since 2021-01-15
      */

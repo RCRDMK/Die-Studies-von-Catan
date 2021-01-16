@@ -11,7 +11,7 @@ import java.util.List;
 
 /**
  * Response message for the RetrieveAllGamesRequest
- *
+ * <p>
  * This message gets sent to the client that sent an RetrieveAllGamesRequest.
  * It contains a List with Game objects of every game currently existing on the
  * server.
@@ -27,7 +27,6 @@ import java.util.List;
 public class AllCreatedGamesResponse extends AbstractResponseMessage {
 
 
-
     final private ArrayList<GameDTO> games = new ArrayList<>();
 
     /**
@@ -37,12 +36,12 @@ public class AllCreatedGamesResponse extends AbstractResponseMessage {
      * @since 2021-01-15
      */
 
-    public  AllCreatedGamesResponse(){
+    public AllCreatedGamesResponse() {
     }
 
     /**
      * Constructor
-     *
+     * <p>
      * This constructor generates a new List of currently existing games in GameDTO from the given
      * Collection. The significant difference between the two being that the new
      * List contains copies of the GameDTO objects.

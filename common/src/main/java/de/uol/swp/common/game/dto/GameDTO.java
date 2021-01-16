@@ -9,7 +9,7 @@ import java.util.TreeSet;
 
 /**
  * Object to transfer the information of a game
- *
+ * <p>
  * This object is used to communicate the current state of games between
  * the server and clients. It contains information about the Name of the game,
  * who owns the game.

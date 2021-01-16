@@ -8,6 +8,7 @@ import java.util.List;
 /**
  * Message sent by the server when a user successfully creates a game
  * <p>
+ *
  * @author Iskander Yusupov
  * @since 2021-01-15
  */
@@ -20,7 +21,8 @@ public class GameCreatedMessage extends AbstractGameMessage {
 
     /**
      * Constructor
-     *<p>
+     * <p>
+     *
      * @param name name of the game
      * @param user user who joined the game
      * @author Iskander Yusupov
@@ -31,7 +33,7 @@ public class GameCreatedMessage extends AbstractGameMessage {
         super(name, user);
     }
 
-    public GameCreatedMessage(String username){
+    public GameCreatedMessage(String username) {
         this.username = username;
     }
 

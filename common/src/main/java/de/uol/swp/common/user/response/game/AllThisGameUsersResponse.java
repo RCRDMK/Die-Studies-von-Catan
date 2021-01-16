@@ -28,11 +28,12 @@ public class AllThisGameUsersResponse extends AbstractResponseMessage {
     /**
      * Default Constructor
      * <p>
+     *
      * @implNote this constructor is needed for serialization
      * @author Iskander Yusupov
      * @since 2021-01-15
      */
-    public AllThisGameUsersResponse(){
+    public AllThisGameUsersResponse() {
         // needed for serialization
     }
 
@@ -57,6 +58,7 @@ public class AllThisGameUsersResponse extends AbstractResponseMessage {
     /**
      * Getter for the list of users currently in the game
      * <p>
+     *
      * @return list of users currently in the game
      * @author Iskander Yusupov
      * @since 2021-01-15

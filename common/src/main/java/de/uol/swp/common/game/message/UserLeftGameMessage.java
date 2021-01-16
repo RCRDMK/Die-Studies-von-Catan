@@ -8,9 +8,10 @@ import java.util.List;
 /**
  * Message sent by the server when a user successfully leaves a game
  * <p>
+ *
+ * @author Iskander Yusupov
  * @see de.uol.swp.common.game.message.AbstractGameMessage
  * @see de.uol.swp.common.user.User
- * @author Iskander Yusupov
  * @since 2021-01-15
  */
 public class UserLeftGameMessage extends AbstractGameMessage {
@@ -20,6 +21,7 @@ public class UserLeftGameMessage extends AbstractGameMessage {
     /**
      * Default constructor
      * <p>
+     *
      * @implNote this constructor is needed for serialization
      * @author Iskander Yusupov
      * @since 2021-01-15
@@ -30,8 +32,9 @@ public class UserLeftGameMessage extends AbstractGameMessage {
     /**
      * Constructor
      * <p>
+     *
      * @param gameName name of the game
-     * @param user user who left the game
+     * @param user     user who left the game
      * @author Iskander Yusupov
      * @since 2021-01-15
      */

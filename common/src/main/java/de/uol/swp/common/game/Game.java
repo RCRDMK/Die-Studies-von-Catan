@@ -7,10 +7,9 @@ import java.util.Set;
 
 /**
  * Interface to unify game objects
- *
+ * <p>
  * This is an Interface to allow for multiple types of game objects since it is
  * possible that not every client has to have every information of the game.
- *
  *
  * @author Iskander Yusupov
  * @see de.uol.swp.common.game.dto.GameDTO

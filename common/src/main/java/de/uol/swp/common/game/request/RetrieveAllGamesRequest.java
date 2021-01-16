@@ -7,11 +7,11 @@ import de.uol.swp.common.message.AbstractRequestMessage;
  * <p>
  * This message is sent during the initialization of the game list. The server will
  * respond with a AllCreatedGamesResponse.
- *
+ * <p>
  * Enhanced by Marc Hermes on 2021-07-01
  *
- * @see de.uol.swp.common.game.response.AllCreatedGamesResponse
  * @author Iskander Yusupov
+ * @see de.uol.swp.common.game.response.AllCreatedGamesResponse
  * @since 2021-01-15
  */
 public class RetrieveAllGamesRequest extends AbstractRequestMessage {

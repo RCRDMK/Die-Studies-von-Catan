@@ -8,9 +8,9 @@ import java.util.Objects;
 /**
  * Base class of all game request messages. Basic handling of game data.
  *
+ * @author Iskander Yusupov
  * @see de.uol.swp.common.user.User
  * @see de.uol.swp.common.message.AbstractRequestMessage
- * @author Iskander Yusupov
  * @since 2021-01-15
  */
 public class AbstractGameRequest extends AbstractRequestMessage {
@@ -52,7 +52,7 @@ public class AbstractGameRequest extends AbstractRequestMessage {
     /**
      * Setter for the name variable
      *
-     * @param name  String containing the game's name
+     * @param name String containing the game's name
      * @since 2021-01-15
      */
     public void setName(String name) {
@@ -72,7 +72,7 @@ public class AbstractGameRequest extends AbstractRequestMessage {
     /**
      * Setter for the user variable
      *
-     * @param user  User responsible for the creation of this message
+     * @param user User responsible for the creation of this message
      * @since 2021-01-15
      */
     public void setUser(UserDTO user) {

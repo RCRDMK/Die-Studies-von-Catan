@@ -12,39 +12,25 @@ import java.util.Optional;
 /**
  * Manages starting, deletion and storing of games
  * <p>
+ *
+ * @author Iskander Yusupov
  * @see de.uol.swp.common.game.Game
  * @see de.uol.swp.common.game.dto.GameDTO
- * @author Iskander Yusupov
+ * @see de.uol.swp.server.game.AbstractGameManagement
  * @since 2021-01-15
  */
 
 public class GameManagement extends AbstractGameManagement {
     private final Map<String, Game> games = new HashMap<>();
 
-    /**
-     * Creates a new game and adds it to the list
-     * <p>
-     * @implNote the primary key of the games is the name therefore the name has
-     *           to be unique
-     * @param name the name of the game to create
-     * @param owner the user who wants to create a game
-     * @see de.uol.swp.common.user.User
-     * @author Iskander Yusupov
-     * @since 2021-01-15
-     */
+
+    @Override
     public void createGame(String name, User owner) {
         games.put(name, new GameDTO(name, owner));
     }
 
-    /**
-     * Deletes game with requested name
-     * <p>
-     * @param name String containing the name of the lobby to delete
-     * @throws IllegalArgumentException there exists no lobby with the  requested
-     *                                  name
-     * @author Iskander Yusupov
-     * @since 2021-01-15
-     */
+
+    @Override
     public void dropGame(String name) {
         if (!games.containsKey(name)) {
             throw new IllegalArgumentException("Game name " + name + " not found!");
@@ -52,15 +38,8 @@ public class GameManagement extends AbstractGameManagement {
         games.remove(name);
     }
 
-    /**
-     * Searches for the game with the requested name
-     * <p>
-     * @param name String containing the name of the game to search for
-     * @return either empty Optional or Optional containing the game
-     * @see Optional
-     * @author Iskander Yusupov
-     * @since 2021-01-15
-     */
+
+    @Override
     public Optional<Game> getGame(String name) {
         Game game = games.get(name);
         if (game != null) {
@@ -69,13 +48,9 @@ public class GameManagement extends AbstractGameManagement {
         return Optional.empty();
     }
 
-    /**
-     * getter
-     * @return containing a HashMap with games
-     * @since 2021-01-15
-     * @author Iskander Yusupov
-     */
-    public Map<String, Game> getAllGames(){
+
+    @Override
+    public Map<String, Game> getAllGames() {
         return games;
     }
 }

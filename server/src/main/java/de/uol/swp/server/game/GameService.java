@@ -41,6 +41,16 @@ public class GameService extends AbstractService {
     private final AuthenticationService authenticationService;
     private static final Logger LOG = LogManager.getLogger(GameService.class);
 
+    /**
+     * Constructor
+     * <p>
+     *
+     * @param gameManagement        The management class for creating, storing and deleting
+     *                              games
+     * @param authenticationService the user management
+     * @param eventBus              the server-wide EventBus
+     * @since 2021-01-07
+     */
     @Inject
     public GameService(GameManagement gameManagement, AuthenticationService authenticationService, EventBus eventBus) {
         super(eventBus);
@@ -51,10 +61,10 @@ public class GameService extends AbstractService {
 
     @Subscribe
     public void onCreateGameRequest(CreateGameRequest createGameRequest) {
-        try{
+        try {
             gameManagement.createGame(createGameRequest.getName(), createGameRequest.getUser());
             sendToAll(new GameCreatedMessage(createGameRequest.getName(), createGameRequest.getUser()));
-        }catch(IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             LOG.debug(e);
         }
         if (createGameRequest.getMessageContext().isPresent()) {
@@ -132,19 +142,20 @@ public class GameService extends AbstractService {
      * If a RollDiceRequest is detected on the EventBus, this method is called.
      * It rolls the dices and sends a ResponseChatMessage containing the user who roll the dice
      * and the result to every user in the lobby.
-     * @see de.uol.swp.common.game.message.RollDiceRequest
+     *
      * @param rollDiceRequest The RollDiceRequest found on the EventBus
      * @author Kirstin, Pieter
+     * @see de.uol.swp.common.game.message.RollDiceRequest
      * @since 2021-01-07
      */
     @Subscribe
-    private void onRollDiceRequest (RollDiceRequest rollDiceRequest) {
+    private void onRollDiceRequest(RollDiceRequest rollDiceRequest) {
         LOG.debug("Got new RollDiceRequest from user: " + rollDiceRequest.getUser());
 
         Dice dice = new Dice();
         dice.rollDice();
         String eyes = Integer.toString(dice.getEyes());
-        if (dice.getEyes() == 8 || dice.getEyes() == 11){
+        if (dice.getEyes() == 8 || dice.getEyes() == 11) {
             ResponseChatMessage msg = new ResponseChatMessage("Player " + rollDiceRequest.getUser().getUsername() + " rolled an " + eyes, rollDiceRequest.getName(), "Dice", System.currentTimeMillis());
             post(msg);
         } else {
