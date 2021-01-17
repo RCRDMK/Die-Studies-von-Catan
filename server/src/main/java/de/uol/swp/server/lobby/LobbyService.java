@@ -8,6 +8,7 @@ import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.message.*;
 import de.uol.swp.common.lobby.request.*;
 import de.uol.swp.common.lobby.response.AllCreatedLobbiesResponse;
+import de.uol.swp.common.lobby.response.AllLobbiesForSpecificUserResponse;
 import de.uol.swp.common.lobby.response.LobbyAlreadyExistsResponse;
 import de.uol.swp.common.message.MessageContext;
 import de.uol.swp.common.message.ResponseMessage;
@@ -256,5 +257,25 @@ public class LobbyService extends AbstractService {
         AllCreatedLobbiesResponse response = new AllCreatedLobbiesResponse(this.lobbyManagement.getAllLobbies().values());
         response.initWithMessage(msg);
         post(response);
+    }
+
+    /**
+     * This method retrieves the RetrieveAllLobbiesForUserRequest and creates a AllLobbiesForSpecificUserResponse
+     * with all lobbies in the lobbyManagement and sends it back to the specific user.
+     * <p>
+     *
+     * @param msg
+     * @see de.uol.swp.common.lobby.request.RetrieveAllLobbiesForUserRequest
+     * @see de.uol.swp.common.lobby.response.AllLobbiesForSpecificUserResponse
+     * @author René Meyer, Sergej Tulnev
+     * @since 2021-01-17
+     */
+    @Subscribe
+    public void onRetrieveAllLobbiesForSpecificUserRequest(RetrieveAllLobbiesForUserRequest msg) {
+        AllLobbiesForSpecificUserResponse response = new AllLobbiesForSpecificUserResponse(msg.getUser() ,this.lobbyManagement.getAllLobbies().values());
+        if(msg.getMessageContext().isPresent()){
+            var ctx =  msg.getMessageContext();
+            sendToSpecificUser(ctx.get(), response);
+        }
     }
 }

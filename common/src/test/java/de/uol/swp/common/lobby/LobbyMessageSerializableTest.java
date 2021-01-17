@@ -4,6 +4,7 @@ import de.uol.swp.common.SerializationTestHelper;
 import de.uol.swp.common.lobby.message.*;
 import de.uol.swp.common.lobby.request.*;
 import de.uol.swp.common.lobby.response.AllCreatedLobbiesResponse;
+import de.uol.swp.common.lobby.response.AllLobbiesForSpecificUserResponse;
 import de.uol.swp.common.lobby.response.LobbyAlreadyExistsResponse;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.user.response.JoinDeletedLobbyResponse;
@@ -26,14 +27,20 @@ public class LobbyMessageSerializableTest {
                 LobbyLeaveUserRequest.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new UserJoinedLobbyMessage("test", defaultUser),
                 UserJoinedLobbyMessage.class));
-        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new LobbyFullResponse("test"), LobbyFullResponse.class));
-        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new JoinDeletedLobbyResponse("test"),JoinDeletedLobbyResponse.class));
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new LobbyFullResponse("test"),
+                LobbyFullResponse.class));
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new JoinDeletedLobbyResponse("test"),
+                JoinDeletedLobbyResponse.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new UserLeftLobbyMessage("test", defaultUser),
                 UserLeftLobbyMessage.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new LobbyAlreadyExistsResponse(),
                 LobbyAlreadyExistsResponse.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new RetrieveAllLobbiesRequest(),
                 RetrieveAllLobbiesRequest.class));
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new RetrieveAllLobbiesForUserRequest(defaultUser),
+                RetrieveAllLobbiesForUserRequest.class ));
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new AllLobbiesForSpecificUserResponse(),
+                AllLobbiesForSpecificUserResponse.class ));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new AllCreatedLobbiesResponse(),
                 AllCreatedLobbiesResponse.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new AbstractLobbyMessage(),

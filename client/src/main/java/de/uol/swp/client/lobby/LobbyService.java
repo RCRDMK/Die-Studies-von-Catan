@@ -105,4 +105,17 @@ public class LobbyService {
         RetrieveAllLobbiesRequest cmd = new RetrieveAllLobbiesRequest();
         eventBus.post(cmd);
     }
+
+    /**
+     * Posts a request with an User Object to get a list of all lobbies where the user is joined on the EventBus
+     * <p>
+     * @param user User you want retrieve all joined lobbies from
+     * @see de.uol.swp.common.lobby.request.RetrieveAllLobbiesForUserRequest
+     * @author René Meyer, Sergej Tulnev
+     * @since 2021-01-17
+     */
+    public void retrieveAllLobbiesForSpecificUser(User user) {
+        RetrieveAllLobbiesForUserRequest cmd = new RetrieveAllLobbiesForUserRequest(user);
+        eventBus.post(cmd);
+    }
 }

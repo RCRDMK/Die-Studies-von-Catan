@@ -6,9 +6,12 @@ import com.google.common.eventbus.Subscribe;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import de.uol.swp.client.di.ClientModule;
+import de.uol.swp.client.lobby.LobbyService;
 import de.uol.swp.client.user.ClientUserService;
-import de.uol.swp.common.lobby.message.*;
+import de.uol.swp.common.lobby.request.RetrieveAllLobbiesForUserRequest;
+import de.uol.swp.common.lobby.response.AllLobbiesForSpecificUserResponse;
 import de.uol.swp.common.user.User;
+import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.user.exception.RegistrationExceptionMessage;
 import de.uol.swp.common.user.request.LogoutRequest;
 import de.uol.swp.common.user.response.*;
@@ -40,6 +43,8 @@ public class ClientApp extends Application implements ConnectionListener {
     private int port;
 
     private ClientUserService userService;
+
+    private LobbyService lobbyService;
 
     private User user;
 
@@ -84,6 +89,9 @@ public class ClientApp extends Application implements ConnectionListener {
         // get user service from guice, is needed for logout
         this.userService = injector.getInstance(ClientUserService.class);
 
+        // get user service from guice, is needed for logout
+        this.lobbyService = injector.getInstance(LobbyService.class);
+
         // get event bus from guice
         eventBus = injector.getInstance(EventBus.class);
         // Register this class for de.uol.swp.client.events (e.g. for exceptions)
@@ -114,20 +122,75 @@ public class ClientApp extends Application implements ConnectionListener {
         sceneManager.showLoginScreen();
     }
 
+
+    /**
+     * Gets executed when the user exits the program via x Button
+     * <p>
+     *
+     * @author enhanced by René Meyer, Sergej Tulnev
+     * @since 2021-01-17
+     */
     @Override
     public void stop() {
-        if (userService != null && user != null) {
-            userService.logout(user);
-            user = null;
+        // To prevent IllegalMonitorStateException - current Thread not owner
+        synchronized (eventBus)
+        {
+            try{
+                if (userService != null && user != null) {
+                    lobbyService.retrieveAllLobbiesForSpecificUser(user);
+                    // Wait for AllLobbiesForSpecificUserResponse on eventBus
+                    // and the execution of the Subscribe Method
+                    eventBus.wait();
+                }
+                eventBus.unregister(this);
+                // Important: Close connection so connection thread can terminate
+                // else client application will not stop
+                LOG.trace("Trying to shutting down client ...");
+                if (clientConnection != null) {
+                    clientConnection.close();
+                }
+                LOG.info("ClientConnection shutdown");
+            }
+            catch(Exception e){
+                LOG.info("Exception: " + e.getMessage());
+            }
         }
-        eventBus.unregister(this);
-        // Important: Close connection so connection thread can terminate
-        // else client application will not stop
-        LOG.trace("Trying to shutting down client ...");
-        if (clientConnection != null) {
-            clientConnection.close();
+    }
+
+    /**
+     * Logs when a RetrieveAllLobbiesForUserRequest was posted on the eventBus
+     * <p>
+     *
+     * @author René Meyer, Sergej Tulnev
+     * @param msg
+     * @since 2021-01-17
+     */
+    @Subscribe
+    public void retrieveAllLobbiesForUserRequest(RetrieveAllLobbiesForUserRequest msg){
+        LOG.info("Sent RetrieveAllLobbiesForUserRequest to server...");
+    }
+
+    /**
+     * Handles the lobby leaving and logout for the user
+     * <p>
+     * If an AllLobbiesForSpecificUserResponse is detected on the EventBus this
+     * method is called. First it gets the LobbyDTOs from the message.
+     * Then the leaveLobby function gets called for every lobby in the lobbies list.
+     * Finally the user gets logged out.
+     *
+     * @author René Meyer, Sergej Tulnev
+     * @param msg
+     * @since 2021-01-17
+     */
+    @Subscribe
+    public void retrieveAllLobbiesForSpecificUser(AllLobbiesForSpecificUserResponse msg) {
+        var lobbies = msg.getLobbyDTOs();
+        LOG.info("Retrieved AllLobbiesForSpecificUserResponse with " + (long) lobbies.size() + " lobbies from server...");
+        for(var lobby : lobbies){
+            lobbyService.leaveLobby(lobby.getName(), (UserDTO) msg.getUser());
+            LOG.info("Left Lobby: " + lobby.getName());
         }
-        LOG.info("ClientConnection shutdown");
+        userService.logout(user);
     }
 
     /**
