@@ -211,6 +211,31 @@ class LobbyServiceTest {
     }
 
     /**
+     * Test for the retrieveAllLobbiesForSpecificUser routine
+     *
+     * This Test creates a new LobbyService object registered to the EventBus of
+     * this test class. It then calls the retrieveAllLobbiesForSpecificUser function of the object
+     * and waits for it to post a RetrieveAllLobbiesForUserRequest object on the EventBus.
+     * If this happens within one second, the test is successful.
+     *
+     * @author René Meyer, Sergej Tulnev
+     * @throws InterruptedException thrown by lock.await()
+     * @since 2021-01-17
+     */
+    @Test
+    @DisplayName("X Button test client")
+    void retrieveAllLobbiesForSpecificUser() throws InterruptedException {
+
+        LobbyService lobbyService = new LobbyService(bus);
+
+        lobbyService.retrieveAllLobbiesForSpecificUser(defaultUser);
+
+        lock.await(1000, TimeUnit.MILLISECONDS);
+
+        assertTrue(event instanceof RetrieveAllLobbiesForUserRequest);
+    }
+
+    /**
      * Test for the retrieveAllLobbies routine
      *
      * This Test creates a new LobbyService object registered to the EventBus of
