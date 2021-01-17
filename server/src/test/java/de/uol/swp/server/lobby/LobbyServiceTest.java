@@ -5,10 +5,8 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import de.uol.swp.common.lobby.message.*;
 import de.uol.swp.common.lobby.Lobby;
-import de.uol.swp.common.lobby.request.CreateLobbyRequest;
-import de.uol.swp.common.lobby.request.LobbyJoinUserRequest;
-import de.uol.swp.common.lobby.request.LobbyLeaveUserRequest;
-import de.uol.swp.common.lobby.request.RetrieveAllThisLobbyUsersRequest;
+import de.uol.swp.common.lobby.request.*;
+import de.uol.swp.common.lobby.response.AllLobbiesForSpecificUserResponse;
 import de.uol.swp.common.message.MessageContext;
 import de.uol.swp.common.message.ResponseMessage;
 import de.uol.swp.common.message.ServerMessage;
@@ -222,7 +220,6 @@ public class LobbyServiceTest {
      * @author Marc Hermes
      * @since 2020-12-08
      */
-
     @Test
     void onRetrieveAllThisLobbyUsersRequest() {
 
@@ -282,4 +279,44 @@ public class LobbyServiceTest {
         assertTrue(lobby.get().getOwner() == userDTO1);
     }
 
+    /**
+     * This Test is for the X-Button Exit.
+     * <p>
+     * First we create 3 lobbies. 2 lobbies are created with userDTO and 1 lobby is created with userDTO01.
+     * Then we put a RetrieveAllLobbiesForUserRequest on the eventBus and call the
+     * onRetrieveAllLobbiesForSpecificUserRequest() function with the request as parameter.
+     * After that we check if the event is an instance of AllLobbiesForSpecificUserResponse.
+     * If this is true and the LobbyDTO count in the response is 2, this test is passed successfully.
+     * The LobbyDTO count in the response has to be 2 because the userDTO only is part of 2 lobbies
+     * and didnt join the 3rd lobby created by another userDTO01.
+     *
+     * @see RetrieveAllLobbiesForUserRequest
+     * @see AllLobbiesForSpecificUserResponse
+     * @since 2021-01-17
+     * @author René Meyer, Sergej Tulnev
+     */
+    @Test
+    @DisplayName("X Button test server")
+    void exitViaXButtonTest(){
+        lobbyManagement.createLobby("testLobby", userDTO);
+        lobbyManagement.createLobby("testLobby2", userDTO);
+        lobbyManagement.createLobby("testLobby3ByDifferentUser", userDTO1);
+        MessageContext ctx = new MessageContext() {
+            @Override
+            public void writeAndFlush(ResponseMessage message) {
+                bus.post(message);
+            }
+
+            @Override
+            public void writeAndFlush(ServerMessage message) {
+                bus.post(message);
+            }
+        };
+        RetrieveAllLobbiesForUserRequest request = new RetrieveAllLobbiesForUserRequest(userDTO);
+        request.setMessageContext(ctx);
+        lobbyService.onRetrieveAllLobbiesForSpecificUserRequest(request);
+        assertTrue(event instanceof AllLobbiesForSpecificUserResponse);
+        var lobbies = ((AllLobbiesForSpecificUserResponse) event).getLobbyDTOs();
+        assertEquals((long) lobbies.size(), 2);
+    }
 }

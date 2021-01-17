@@ -5,12 +5,9 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import de.uol.swp.client.user.UserService;
 import de.uol.swp.common.lobby.message.*;
-import de.uol.swp.common.lobby.request.CreateLobbyRequest;
-import de.uol.swp.common.lobby.request.RetrieveAllLobbiesRequest;
-import de.uol.swp.common.lobby.request.LobbyLeaveUserRequest;
+import de.uol.swp.common.lobby.request.*;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
-import de.uol.swp.common.lobby.request.LobbyJoinUserRequest;
 import de.uol.swp.common.user.request.*;
 import de.uol.swp.common.user.response.LobbyCreatedSuccessfulResponse;
 import org.junit.jupiter.api.AfterEach;
@@ -225,7 +222,6 @@ class LobbyServiceTest {
      * @throws InterruptedException thrown by lock.await()
      * @since 2020-07-12
      */
-
     @Test
     void retrieveAllLobbiesTest() throws InterruptedException {
 
