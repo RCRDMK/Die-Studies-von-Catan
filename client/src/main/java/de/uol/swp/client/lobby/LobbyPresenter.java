@@ -70,21 +70,6 @@ public class LobbyPresenter extends AbstractPresenter {
         //TODO:
     }
 
-    /**
-     * Method called when the RollDice button is pressed
-     * <p>
-     * If the RollDice button is pressed,
-     * this methods tries to request the lobbyService to send a RollDiceRequest.
-     * @param event The ActionEvent created by pressing the send Message button
-     * @author Kirstin, Pieter
-     * @see de.uol.swp.client.lobby.LobbyService
-     * @since 2021-01-07
-     */
-    @FXML
-    public void onRollDice (ActionEvent event) {
-        lobbyService.rollDiceTest(this.currentLobby, this.joinedLobbyUser);
-    }
-
 
     @FXML
     public void onLeaveLobby(ActionEvent event) {

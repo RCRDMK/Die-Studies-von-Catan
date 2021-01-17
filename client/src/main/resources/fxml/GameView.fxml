@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.canvas.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.uol.swp.client.game.GamePresenter">
+   <children>
+   </children>
+   <ListView fx:id="gameUsersView" layoutX="497.0" layoutY="50.0" prefHeight="81.0" prefWidth="88.0" />
+   <ToolBar layoutY="-5.0" prefHeight="22.0" prefWidth="600.0">
+     <items>
+         <Button mnemonicParsing="false" onAction="#onRollDice" text="Roll Dice" />
+         <Text fx:id="DiceOutput" strokeType="OUTSIDE" strokeWidth="0.0" text="Text" />
+         <Separator orientation="VERTICAL" />
+         <Button mnemonicParsing="false" onAction="#onTrade" text="Trade">
+         </Button>
+         <MenuButton layoutX="103.0" layoutY="11.0" mnemonicParsing="false" text="Build">
+            <items>
+               <MenuItem mnemonicParsing="false" onAction="#onBuildStreet" text="Street" />
+               <MenuItem mnemonicParsing="false" onAction="#onBuildSettlement" text="Settlement" />
+               <MenuItem mnemonicParsing="false" onAction="#onBuildTown" text="Town" />
+            </items>
+         </MenuButton>
+         <Button layoutX="153.0" layoutY="11.0" mnemonicParsing="false" onAction="#onBuyDevelopmentCard" text="Buy DevelopmentCard" />
+         <Region prefHeight="25.0" prefWidth="133.0" />
+         <Button mnemonicParsing="false" onAction="#onLeaveGame" text="Leave Game" />
+     </items>
+   </ToolBar>
+   <Canvas height="359.0" layoutX="5.0" layoutY="37.0" width="489.0" />
+</AnchorPane>
