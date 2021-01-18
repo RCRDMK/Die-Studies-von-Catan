@@ -2,6 +2,7 @@ package de.uol.swp.server.usermanagement.store;
 
 import de.uol.swp.common.user.User;
 
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,7 +23,7 @@ public interface UserStore {
      * @return The User without password information, if found
      * @since 2019-08-13
      */
-    Optional<User> findUser(String username, String password);
+    Optional<User> findUser(String username, String password) throws SQLException;
 
     /**
      * Find a user only by name
@@ -31,7 +32,7 @@ public interface UserStore {
      * @return The User without password information, if found
      * @since 2019-08-13
      */
-    Optional<User> findUser(String username);
+    Optional<User> findUser(String username) throws SQLException;
 
     /**
      * Create a new user
@@ -42,7 +43,7 @@ public interface UserStore {
      * @return The User without password information
      * @since 2019-08-13
      */
-    User createUser(String username, String password, String eMail);
+    User createUser(String username, String password, String eMail) throws SQLException;
 
     /**
      * Update user. Update only given fields. Username cannot be changed
@@ -53,7 +54,7 @@ public interface UserStore {
      * @return The User without password information
      * @since 2019-08-13
      */
-    User updateUser(String username, String password, String eMail);
+    User updateUser(String username, String password, String eMail) throws SQLException;
 
     /**
      * Remove user from store
@@ -61,7 +62,7 @@ public interface UserStore {
      * @param username the username of the user to remove
      * @since 2019-10-10
      */
-    void removeUser(String username);
+    void removeUser(String username) throws SQLException;
 
 
     /**
@@ -69,7 +70,7 @@ public interface UserStore {
      * @return A list of all users without password information
      * @since 2019-08-13
      */
-    List<User> getAllUsers();
+    List<User> getAllUsers() throws SQLException;
 
 
 }

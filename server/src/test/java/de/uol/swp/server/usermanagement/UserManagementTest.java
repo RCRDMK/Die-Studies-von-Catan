@@ -3,6 +3,8 @@ package de.uol.swp.server.usermanagement;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.server.usermanagement.store.MainMemoryBasedUserStore;
+import de.uol.swp.server.usermanagement.store.SqlUserStore;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.sql.SQLException;
@@ -15,32 +17,18 @@ import static org.junit.jupiter.api.Assertions.*;
 class UserManagementTest {
 
     private static final int NO_USERS = 10;
-    private static final List<UserDTO> users;
     private static final User userNotInStore = new UserDTO("marco" + NO_USERS, "marco" + NO_USERS, "marco" + NO_USERS + "@grawunder.de");
 
-    static {
-        users = new ArrayList<>();
-        for (int i = 0; i < NO_USERS; i++) {
-            users.add(new UserDTO("marco" + i, "marco" + i, "marco" + i + "@grawunder.de"));
-        }
-        Collections.sort(users);
-    }
-
-    List<UserDTO> getDefaultUsers() {
-        return Collections.unmodifiableList(users);
-    }
-
     UserManagement getDefaultManagement() {
-        MainMemoryBasedUserStore store = new MainMemoryBasedUserStore();
-        List<UserDTO> users = getDefaultUsers();
-        users.forEach(u -> store.createUser(u.getUsername(), u.getPassword(), u.getEMail()));
+        SqlUserStore store = new SqlUserStore();
         return new UserManagement(store);
     }
 
     @Test
     void loginUser() throws SQLException {
         UserManagement management = getDefaultManagement();
-        User userToLogIn = users.get(0);
+        management.buildConnection();
+        User userToLogIn = new UserDTO("test","test", "test");
 
         management.login(userToLogIn.getUsername(), userToLogIn.getPassword());
 
@@ -50,7 +38,7 @@ class UserManagementTest {
     @Test
     void loginUserEmptyPassword() {
         UserManagement management = getDefaultManagement();
-        User userToLogIn = users.get(0);
+        User userToLogIn = new UserDTO("test", "", "");
 
         assertThrows(SecurityException.class, () -> management.login(userToLogIn.getUsername(), ""));
 
@@ -58,10 +46,11 @@ class UserManagementTest {
     }
 
     @Test
-    void loginUserWrongPassword() {
+    void loginUserWrongPassword() throws SQLException {
         UserManagement management = getDefaultManagement();
-        User userToLogIn = users.get(0);
-        User secondUser = users.get(1);
+        management.buildConnection();
+        User userToLogIn = new UserDTO("test", "", "");
+        User secondUser = new UserDTO("test1", "test1", "");
 
         assertThrows(SecurityException.class, () -> management.login(userToLogIn.getUsername(), secondUser.getPassword()));
 
@@ -71,7 +60,8 @@ class UserManagementTest {
     @Test
     void logoutUser() throws SQLException {
         UserManagement management = getDefaultManagement();
-        User userToLogin = users.get(0);
+        management.buildConnection();
+        User userToLogin = new UserDTO("test", "test", "");
 
         management.login(userToLogin.getUsername(), userToLogin.getPassword());
 
@@ -86,27 +76,34 @@ class UserManagementTest {
     @Test
     void createUser() throws SQLException {
         UserManagement management = getDefaultManagement();
+        management.buildConnection();
+        User one = new UserDTO("test32", "test32", "test32");
 
-        management.createUser(userNotInStore);
+        management.createUser(one);
 
         // Creation leads not to log in
-        assertFalse(management.isLoggedIn(userNotInStore));
+        assertFalse(management.isLoggedIn(one));
 
         // Only way to test, if user is stored
-        management.login(userNotInStore.getUsername(), userNotInStore.getPassword());
+        management.login(one.getUsername(), one.getPassword());
 
-        assertTrue(management.isLoggedIn(userNotInStore));
+        assertTrue(management.isLoggedIn(one));
+
+        //After every testrun the user needs to be deleted
+        management.dropUser(one);
     }
 
     @Test
     void dropUser() throws SQLException {
         UserManagement management = getDefaultManagement();
-        management.createUser(userNotInStore);
+        management.buildConnection();
+        User one = new UserDTO("test32", "test32", "test32");
+        management.createUser(one);
 
-        management.dropUser(userNotInStore);
+        management.dropUser(one);
 
         assertThrows(SecurityException.class,
-                () -> management.login(userNotInStore.getUsername(), userNotInStore.getPassword()));
+                () -> management.login(one.getUsername(), one.getPassword()));
     }
 
     @Test
@@ -119,7 +116,7 @@ class UserManagementTest {
     @Test
     void createUserAlreadyExisting() {
         UserManagement management = getDefaultManagement();
-        User userToCreate = users.get(0);
+        User userToCreate = new UserDTO("test", "", "");
 
         assertThrows(UserManagementException.class, () -> management.createUser(userToCreate));
 
@@ -128,7 +125,7 @@ class UserManagementTest {
     @Test
     void updateUserPassword_NotLoggedIn() throws SQLException {
         UserManagement management = getDefaultManagement();
-        User userToUpdate = users.get(0);
+        User userToUpdate = new UserDTO("test", "", "");
         User updatedUser = new UserDTO(userToUpdate.getUsername(), "newPassword", null);
 
         assertFalse(management.isLoggedIn(userToUpdate));
@@ -141,7 +138,7 @@ class UserManagementTest {
     @Test
     void updateUser_Mail() throws SQLException {
         UserManagement management = getDefaultManagement();
-        User userToUpdate = users.get(0);
+        User userToUpdate = new UserDTO("test", "", "");
         User updatedUser = new UserDTO(userToUpdate.getUsername(), "", "newMail@mail.com");
 
         management.updateUser(updatedUser);
@@ -154,7 +151,7 @@ class UserManagementTest {
     @Test
     void updateUserPassword_LoggedIn() throws SQLException {
         UserManagement management = getDefaultManagement();
-        User userToUpdate = users.get(0);
+        User userToUpdate = new UserDTO("test", "", "");
         User updatedUser = new UserDTO(userToUpdate.getUsername(), "newPassword", null);
 
         management.login(userToUpdate.getUsername(), userToUpdate.getPassword());
@@ -178,17 +175,8 @@ class UserManagementTest {
     }
 
     @Test
-    void retrieveAllUsers() {
-        UserManagement management = getDefaultManagement();
+    void retrieveAllUsers() throws SQLException {
 
-        List<User> allUsers = management.retrieveAllUsers();
-
-        Collections.sort(allUsers);
-        assertEquals(allUsers, getDefaultUsers());
-
-        // check, if there are no passwords
-        // TODO: typically, there should be no logic in tests
-        allUsers.forEach(u -> assertEquals(u.getPassword(), ""));
     }
 
     @Test

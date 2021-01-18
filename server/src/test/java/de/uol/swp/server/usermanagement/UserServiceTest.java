@@ -78,7 +78,7 @@ class UserServiceTest {
      * @since 2020-12-15
     */
     @Test
-    void dropUserTest() throws InterruptedException {
+    void dropUserTest() throws InterruptedException, SQLException {
 
         final RegisterUserRequest registerRequest = new RegisterUserRequest(userToDrop);
         final DropUserRequest dropUserRequest = new DropUserRequest(userToDrop);

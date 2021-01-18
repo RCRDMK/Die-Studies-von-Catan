@@ -64,7 +64,7 @@ public interface ServerUserService {
      * @param user The user to remove
      * @since 2019-10-10
      */
-    void dropUser(User user);
+    void dropUser(User user) throws SQLException;
 
     /**
      * Update a user
@@ -79,7 +79,7 @@ public interface ServerUserService {
      * @return the updated user object
      * @since 2019-09-02
      */
-    User updateUser(User user);
+    User updateUser(User user) throws SQLException;
 
     /**
      * Retrieve the list of all current logged in users
@@ -87,6 +87,6 @@ public interface ServerUserService {
      * @return a list of users
      * @since 2017-03-17
      */
-    List<User> retrieveAllUsers();
+    List<User> retrieveAllUsers() throws SQLException;
 
 }
