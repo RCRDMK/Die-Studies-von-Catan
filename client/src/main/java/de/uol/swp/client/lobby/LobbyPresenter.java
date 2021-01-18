@@ -5,15 +5,15 @@ import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
 import de.uol.swp.common.lobby.message.UserJoinedLobbyMessage;
 import de.uol.swp.common.lobby.message.UserLeftLobbyMessage;
-import de.uol.swp.common.user.response.AllThisLobbyUsersResponse;
+import de.uol.swp.common.user.response.lobby.AllThisLobbyUsersResponse;
 import de.uol.swp.common.chat.RequestChatMessage;
 import de.uol.swp.common.chat.ResponseChatMessage;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.client.chat.ChatService;
-import de.uol.swp.common.user.response.LobbyCreatedSuccessfulResponse;
-import de.uol.swp.common.user.response.LobbyJoinedSuccessfulResponse;
-import de.uol.swp.common.user.response.LobbyLeftSuccessfulResponse;
+import de.uol.swp.common.user.response.lobby.LobbyCreatedSuccessfulResponse;
+import de.uol.swp.common.user.response.lobby.LobbyJoinedSuccessfulResponse;
+import de.uol.swp.common.user.response.lobby.LobbyLeftSuccessfulResponse;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -120,7 +120,7 @@ public class LobbyPresenter extends AbstractPresenter {
      * list of users currently in the lobby is requested.
      *
      * @param message the LobbyCreatedSuccessfulResponse object seen on the EventBus
-     * @see de.uol.swp.common.user.response.LobbyCreatedSuccessfulResponse
+     * @see LobbyCreatedSuccessfulResponse
      * @author Marc Hermes
      * @since 2020-12-02
      */
@@ -141,7 +141,7 @@ public class LobbyPresenter extends AbstractPresenter {
      * of this client is set to the one in the message received.
      *
      * @param message the LobbyJoinedSuccessfulResponse object seen on the EventBus
-     * @see de.uol.swp.common.user.response.LobbyJoinedSuccessfulResponse
+     * @see LobbyJoinedSuccessfulResponse
      * @author Marc Hermes
      * @since 2020-12-10
      */
@@ -161,7 +161,7 @@ public class LobbyPresenter extends AbstractPresenter {
      * of this client is set to the one in the message received.
      *
      * @param message the LobbyLeftSuccessfulResponse object seen on the EventBus
-     * @see de.uol.swp.common.user.response.LobbyLeftSuccessfulResponse
+     * @see LobbyLeftSuccessfulResponse
      * @author Marc Hermes
      * @since 2020-12-10
      */

@@ -14,7 +14,7 @@ import de.uol.swp.common.message.ResponseMessage;
 import de.uol.swp.common.message.ServerMessage;
 import de.uol.swp.common.user.Session;
 import de.uol.swp.common.user.User;
-import de.uol.swp.common.user.response.*;
+import de.uol.swp.common.user.response.lobby.*;
 import de.uol.swp.server.AbstractService;
 import de.uol.swp.server.usermanagement.AuthenticationService;
 import org.apache.logging.log4j.LogManager;
@@ -77,7 +77,7 @@ public class LobbyService extends AbstractService {
      * @param createLobbyRequest The CreateLobbyRequest found on the EventBus
      * @see de.uol.swp.server.lobby.LobbyManagement
      * @see de.uol.swp.common.lobby.message.LobbyCreatedMessage
-     * @see de.uol.swp.common.user.response.LobbyCreatedSuccessfulResponse
+     * @see LobbyCreatedSuccessfulResponse
      * @see de.uol.swp.common.lobby.response.LobbyAlreadyExistsResponse
      * @author Marco Grawunder
      * @since 2019-10-08
@@ -113,8 +113,8 @@ public class LobbyService extends AbstractService {
      * @param lobbyJoinUserRequest The LobbyJoinUserRequest found on the EventBus
      * @see de.uol.swp.common.lobby.Lobby
      * @see de.uol.swp.common.lobby.message.UserJoinedLobbyMessage
-     * @see de.uol.swp.common.user.response.LobbyJoinedSuccessfulResponse
-     * @see de.uol.swp.common.user.response.JoinDeletedLobbyResponse
+     * @see LobbyJoinedSuccessfulResponse
+     * @see JoinDeletedLobbyResponse
      * @author Marco Grawunder
      * @since 2019-10-08
      */
@@ -148,7 +148,7 @@ public class LobbyService extends AbstractService {
      * @param lobbyLeaveUserRequest The LobbyJoinUserRequest found on the EventBus
      * @see de.uol.swp.common.lobby.Lobby
      * @see de.uol.swp.common.lobby.message.UserLeftLobbyMessage
-     * @see de.uol.swp.common.user.response.LobbyLeftSuccessfulResponse
+     * @see LobbyLeftSuccessfulResponse
      * @author Marco Grawunder
      * @since 2019-10-08
      */
