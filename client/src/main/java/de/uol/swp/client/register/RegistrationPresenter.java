@@ -116,6 +116,11 @@ public class RegistrationPresenter extends AbstractPresenter {
             eventBus.post(new RegistrationErrorEvent("E-Mail is not valid"));
         } else {
             userService.createUser(new UserDTO(loginField.getText(), passwordField1.getText(), emailField1.getText()));
+            loginField.clear();
+            passwordField1.clear();
+            passwordField2.clear();
+            emailField1.clear();
+            emailField2.clear();
         }
     }
 
