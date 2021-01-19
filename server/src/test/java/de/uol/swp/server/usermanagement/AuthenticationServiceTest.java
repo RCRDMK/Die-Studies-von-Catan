@@ -37,9 +37,8 @@ class AuthenticationServiceTest {
     final User user3 = new UserDTO("name3", "password3", "email@test.de3");
 
 
-    final UserStore userStore = new MainMemoryBasedUserStore();
     final EventBus bus = new EventBus();
-    final UserManagement userManagement = new UserManagement(userStore);
+    final UserManagement userManagement = new UserManagement();
     final AuthenticationService authService = new AuthenticationService(bus, userManagement);
     private Object event;
 

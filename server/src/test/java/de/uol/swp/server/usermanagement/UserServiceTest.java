@@ -27,7 +27,7 @@ class UserServiceTest {
     final CountDownLatch lock = new CountDownLatch(1);
 
     final EventBus bus = new EventBus();
-    final UserManagement userManagement = new UserManagement(new MainMemoryBasedUserStore());
+    final UserManagement userManagement = new UserManagement();
     final UserService userService = new UserService(bus, userManagement);
 
     UserServiceTest() throws SQLException {

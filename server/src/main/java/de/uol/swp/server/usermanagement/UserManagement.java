@@ -1,18 +1,19 @@
 package de.uol.swp.server.usermanagement;
 
 import com.google.common.base.Strings;
+import com.mysql.cj.log.Log;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
+import de.uol.swp.server.lobby.LobbyService;
 import de.uol.swp.server.usermanagement.store.UserStore;
 import io.netty.handler.logging.LogLevel;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.checkerframework.checker.nullness.Opt;
 
 import javax.inject.Inject;
 import java.sql.*;
-import java.util.List;
-import java.util.Optional;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import java.util.*;
 
 /**
  * Handles most user related issues e.g. login/logout
@@ -20,34 +21,41 @@ import java.util.TreeMap;
  * @author Marco Grawunder
  * @see de.uol.swp.server.usermanagement.AbstractUserManagement
  * @since 2019-08-05
+ *
+ * Enhanced this class to make it possible to work with our database at the servers of the university.
+ * With that it is possible to retrieve, update, delete or insert users. Also it is possible to login/logout.
+ * @since 2021-01-19
+ * @author Marius Birk
  */
 public class UserManagement extends AbstractUserManagement {
 
     private final String CONNECTION = "jdbc:mysql://134.106.11.89:50101/user_store";
     private Connection connection;
     private Statement statement;
-    private UserStore userStore;
+    private static final Logger LOG = LogManager.getLogger(UserManagement.class);
     private final SortedMap<String, User> loggedInUsers = new TreeMap<>();
 
     /**
      * Constructor
      *
-     * @param userStore object of the UserStore to be used
      * @see de.uol.swp.server.usermanagement.store.UserStore
      * @since 2019-08-05
+     *
+     * The constructor changed to an empty constructor. The usual store is not longer needed.
+     * @since 2021-01-19
+     * @author Marius Birk
      */
     @Inject
-    public UserManagement(UserStore userStore) {
-        this.userStore = userStore;
+    public UserManagement() {
     }
 
 
     @Override
     public User login(String username, String password) throws SQLException {
         if (!password.isEmpty() || !password.isBlank() || password == null) {
-            ResultSet resultSet = statement.executeQuery("select name from user where name='" + username + "' and password='" + password + "';");
-            User user = new UserDTO(username, password, "");
+            ResultSet resultSet = statement.executeQuery("select name, mail from user where name='" + username + "' and password='" + password + "';");
             if (resultSet.next()) {
+                User user = new UserDTO(username, password, resultSet.getString(2));
                 this.loggedInUsers.put(username, user);
                 return user;
             } else {
@@ -111,24 +119,34 @@ public class UserManagement extends AbstractUserManagement {
 
     @Override
     public User updateUser(User userToUpdate) throws SQLException {
-        Optional<User> user = userStore.findUser(userToUpdate.getUsername());
-        if (!user.isPresent()) {
+        ResultSet resultSet;
+        try{
+            resultSet = statement.executeQuery("select * from user where name='" + userToUpdate.getUsername() + "';");
+        }catch (Exception e){
+            LOG.debug(e);
             throw new UserManagementException("Username unknown!");
         }
         // Only update if there are new values
-        String newPassword = firstNotNull(userToUpdate.getPassword(), user.get().getPassword());
-        String newEMail = firstNotNull(userToUpdate.getEMail(), user.get().getEMail());
-        return userStore.updateUser(userToUpdate.getUsername(), newPassword, newEMail);
+        String newPassword="";
+        String newEMail="";
+        if(resultSet.next()){
+            newPassword = firstNotNull(userToUpdate.getPassword(), resultSet.getString("password"));
+            newEMail = firstNotNull(userToUpdate.getEMail(), resultSet.getString("mail"));
+        }
+        statement.executeUpdate("update user set password='"+newPassword+"', mail='"+newEMail+"' where name='"+userToUpdate.getUsername()+"';");
+
+        return new UserDTO(userToUpdate.getUsername(), newPassword, newEMail);
 
     }
 
     @Override
     public void dropUser(User userToDrop) throws SQLException {
-        Optional<User> user = userStore.findUser(userToDrop.getUsername());
-        if (!user.isPresent()) {
+        ResultSet resultSet = statement.executeQuery("select name from user where name ='" + userToDrop.getUsername() + "';");
+        if (!resultSet.next()) {
             throw new UserManagementException("Username unknown!");
+        }else{
+            statement.executeUpdate("delete user from user where name='"+userToDrop.getUsername()+"';");
         }
-        userStore.removeUser(userToDrop.getUsername());
     }
 
     /**
@@ -151,8 +169,31 @@ public class UserManagement extends AbstractUserManagement {
         loggedInUsers.remove(user.getUsername());
     }
 
+    /**
+     * Enhanced/Changed method
+     * <p>
+     *  Changed some parts of this method to make it possible to work with our SQL database.
+     *  Now we are handeling a List of Users and retrieving all users out of our database.
+     *  The next step is to copy all of the retrieved users in a LinkedList and to return it.
+     *
+     * @see java.sql.SQLException
+     * @see java.util.LinkedList
+     * @return List of Users out of the database
+     * @author Marius Birk
+     */
     @Override
     public List<User> retrieveAllUsers() throws SQLException {
-        return userStore.getAllUsers();
+        List<User> userList = new LinkedList<>();
+        ResultSet resultSet;
+        try{
+            resultSet = statement.executeQuery("select * from user;");
+        }catch (Exception e){
+            LOG.debug(e);
+            throw new UserManagementException("Could not retrieve all users.");
+        }
+        while(resultSet.next()){
+            userList.add(new UserDTO(resultSet.getString(1), resultSet.getString(2), resultSet.getString(3)));
+        }
+        return userList;
     }
 }

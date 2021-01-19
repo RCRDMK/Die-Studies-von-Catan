@@ -2,7 +2,6 @@ package de.uol.swp.server.di;
 
 import com.google.common.eventbus.EventBus;
 import com.google.inject.AbstractModule;
-import de.uol.swp.server.usermanagement.store.SqlUserStore;
 import de.uol.swp.server.usermanagement.store.UserStore;
 
 /**
@@ -16,11 +15,9 @@ import de.uol.swp.server.usermanagement.store.UserStore;
 public class ServerModule extends AbstractModule {
 
     private final EventBus bus = new EventBus();
-    private final UserStore store = new SqlUserStore();
 
     @Override
     protected void configure() {
-        bind(UserStore.class).toInstance(store);
         bind(EventBus.class).toInstance(bus);
     }
 }
