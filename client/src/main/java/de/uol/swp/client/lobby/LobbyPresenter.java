@@ -25,6 +25,7 @@ import javafx.scene.control.TextField;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.EOFException;
 import java.util.List;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -126,12 +127,18 @@ public class LobbyPresenter extends AbstractPresenter {
      */
     @Subscribe
     public void createdSuccessful(LobbyCreatedSuccessfulResponse message) {
-        LOG.debug("Requesting update of User list in lobby because lobby was created.");
-        this.joinedLobbyUser = message.getUser();
-        this.currentLobby = message.getName();
-        this.lobbyChatInput.setText("");
-        lobbyChatArea.deleteText(0, lobbyChatArea.getLength());
-        lobbyService.retrieveAllThisLobbyUsers(message.getName());
+        if (this.currentLobby == null) {
+            //try {
+            LOG.debug("Requesting update of User list in lobby because lobby was created.");
+            this.joinedLobbyUser = message.getUser();
+            this.currentLobby = message.getName();
+            this.lobbyChatInput.setText("");
+            lobbyChatArea.deleteText(0, lobbyChatArea.getLength());
+                lobbyService.retrieveAllThisLobbyUsers(message.getName());
+            //} catch(EOFException ignore) {
+
+            //}
+        }
     }
 
     /**
@@ -147,11 +154,14 @@ public class LobbyPresenter extends AbstractPresenter {
      */
     @Subscribe
     public void userJoinedSuccessful(LobbyJoinedSuccessfulResponse message) {
-        LOG.debug("LobbyJoinedSuccessfulResponse successfully received");
-        this.joinedLobbyUser = message.getUser();
-        this.currentLobby = message.getName();
-        this.lobbyChatInput.setText("");
-        lobbyChatArea.deleteText(0, lobbyChatArea.getLength());
+        if (this.currentLobby == null) {
+            LOG.debug("LobbyJoinedSuccessfulResponse successfully received");
+            this.joinedLobbyUser = message.getUser();
+            this.currentLobby = message.getName();
+            this.lobbyChatInput.setText("");
+            lobbyChatArea.deleteText(0, lobbyChatArea.getLength());
+            lobbyService.retrieveAllThisLobbyUsers(message.getName());
+        }
     }
 
     /**
@@ -167,9 +177,13 @@ public class LobbyPresenter extends AbstractPresenter {
      */
     @Subscribe
     public void userLeftSuccessful(LobbyLeftSuccessfulResponse message) {
-        LOG.debug("LobbyLeftSuccessfulResponse successfully received");
-        this.joinedLobbyUser = message.getUser();
-        this.currentLobby = message.getName();
+        if (this.currentLobby != null) {
+            if (this.currentLobby.equals(message.getName())) {
+                LOG.debug("LobbyLeftSuccessfulResponse successfully received");
+                this.joinedLobbyUser = message.getUser();
+                this.currentLobby = message.getName();
+            }
+        }
     }
 
     /**
@@ -186,8 +200,12 @@ public class LobbyPresenter extends AbstractPresenter {
      */
     @Subscribe
     public void joinedSuccessful(UserJoinedLobbyMessage message) {
-        LOG.debug("Requesting update of User list in lobby because a User joined the lobby.");
-        lobbyService.retrieveAllThisLobbyUsers(message.getName());
+        if (this.currentLobby != null) {
+            if (this.currentLobby.equals(message.getName())) {
+                LOG.debug("Requesting update of User list in lobby because a User joined the lobby.");
+                lobbyService.retrieveAllThisLobbyUsers(message.getName());
+        }
+        }
     }
 
     /**
@@ -204,8 +222,12 @@ public class LobbyPresenter extends AbstractPresenter {
      */
     @Subscribe
     public void leftSuccessful(UserLeftLobbyMessage message) {
-        LOG.debug("Requesting update of User list in lobby because a User left the lobby.");
-        lobbyService.retrieveAllThisLobbyUsers(message.getName());
+        if (this.currentLobby != null) {
+            if (this.currentLobby.equals(message.getName())) {
+                LOG.debug("Requesting update of User list in lobby because a User left the lobby.");
+                lobbyService.retrieveAllThisLobbyUsers(message.getName());
+            }
+        }
     }
 
     /**
@@ -224,8 +246,12 @@ public class LobbyPresenter extends AbstractPresenter {
      */
     @Subscribe
     public void lobbyUserList(AllThisLobbyUsersResponse allThisLobbyUsersResponse) {
-        LOG.debug("Update of user list " + allThisLobbyUsersResponse.getUsers());
-        updateLobbyUsersList(allThisLobbyUsersResponse.getUsers());
+        if (this.currentLobby != null) {
+            if (this.currentLobby.equals(allThisLobbyUsersResponse.getName())) {
+                LOG.debug("Update of user list " + allThisLobbyUsersResponse.getUsers());
+                updateLobbyUsersList(allThisLobbyUsersResponse.getUsers());
+            }
+        }
     }
 
     /**
@@ -263,9 +289,11 @@ public class LobbyPresenter extends AbstractPresenter {
     @Subscribe
     public void onResponseChatMessage(ResponseChatMessage message) {
         // Only update Messages from used lobby chat
-        if (message.getChat().equals(currentLobby)) {
-            LOG.debug("Updated lobby chat area with new message..");
-            updateChat(message);
+        if (this.currentLobby != null) {
+            if (message.getChat().equals(currentLobby)) {
+                LOG.debug("Updated lobby chat area with new message..");
+                updateChat(message);
+            }
         }
     }
 

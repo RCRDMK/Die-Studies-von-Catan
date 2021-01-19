@@ -237,7 +237,8 @@ public class ClientApp extends Application implements ConnectionListener {
     public void userLeftLobby(LobbyLeftSuccessfulResponse message) {
         LOG.debug("User " + message.getUser().getUsername() + " left lobby ");
             this.user = message.getUser();
-            sceneManager.showMainScreen(user);
+            //sceneManager.showMainScreen(user);
+            sceneManager.removeLobbyTab(message.getUser(), message.getName());
     }
 
     /**

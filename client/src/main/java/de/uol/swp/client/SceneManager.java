@@ -15,16 +15,23 @@ import de.uol.swp.client.register.event.RegistrationCanceledEvent;
 import de.uol.swp.client.register.event.RegistrationErrorEvent;
 import de.uol.swp.client.register.event.ShowRegistrationViewEvent;
 import de.uol.swp.common.user.User;
+import de.uol.swp.common.user.response.LobbyLeftSuccessfulResponse;
 import javafx.application.Platform;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 /**
  * Class that manages which window/scene is currently shown
@@ -46,9 +53,13 @@ public class SceneManager {
     private Scene currentScene = null;
     private Scene lobbyScene;
     private Scene gameScene;
-
-
+    private Tab mainMenuTab;
+    private VBox vBox;
+    private Scene tabScene;
+    private Scene nextLobbyScene;
     private final Injector injector;
+    private TabPane tabPane;
+    private TabHelper tabHelper;
 
     @Inject
     public SceneManager(EventBus eventBus, Injector injected, @Assisted Stage primaryStage) {
@@ -69,8 +80,16 @@ public class SceneManager {
         initLoginView();
         initMainView();
         initRegistrationView();
-        initLobbyView();
-        initGameView();
+        nextLobbyScene = initLobbyView();
+        TabPane tabPane = new TabPane();
+        this.tabPane = tabPane;
+        this.tabHelper = new TabHelper(this.tabPane);
+        //VBox vBox = new VBox(tabPane);
+        //Scene tabScene = new Scene(vBox);
+        //Parent rootPane = initTab(TabsPresenter.fxml);
+        vBox = new VBox(tabHelper.getTabPane());
+        tabScene = new Scene(vBox);
+
     }
 
     /**
@@ -99,6 +118,19 @@ public class SceneManager {
         }
         return rootPane;
     }
+    private Parent initTab(String fxmlFile) {
+        Parent root;
+        FXMLLoader loader = injector.getInstance(FXMLLoader.class);
+        try {
+            URL url = getClass().getResource(fxmlFile);
+            LOG.debug("Loading " + url);
+            loader.setLocation(url);
+            root = loader.load();
+        } catch (Exception e) {
+            throw new RuntimeException("Could not load View!" + e.getMessage(), e);
+        }
+        return root;
+    }
 
     /**
      * Initializes the main menu view
@@ -116,6 +148,7 @@ public class SceneManager {
             Parent rootPane = initPresenter(MainMenuPresenter.fxml);
             mainScene = new Scene(rootPane, 800, 600);
             mainScene.getStylesheets().add(styleSheet);
+            mainMenuTab = new Tab("Main Menu");
         }
     }
 
@@ -167,12 +200,13 @@ public class SceneManager {
      * @author Marc Hermes, Ricardo Mook
      * @since 2020-11-19
      */
-    private void initLobbyView() {
-        if (lobbyScene == null) {
+    private Scene initLobbyView() {
+        //if (lobbyScene == null) {
             Parent rootPane = initPresenter(LobbyPresenter.fxml);
             lobbyScene = new Scene(rootPane, 800, 600);
             lobbyScene.getStylesheets().add(styleSheet);
-        }
+        //}
+        return lobbyScene;
     }
 
     /**
@@ -345,7 +379,17 @@ public class SceneManager {
      * @since 2019-09-03
      */
     public void showMainScreen(User currentUser) {
-        showScene(mainScene, "Welcome " + currentUser.getUsername());
+        showMainTab(currentUser);
+
+    }
+
+    public void showMainTab(User currentUser) {
+        mainMenuTab.setContent(mainScene.getRoot());
+        Platform.runLater(() -> {
+            tabHelper.getTabPane().getTabs().add(mainMenuTab);
+            primaryStage.setTitle("Catan");
+            primaryStage.setScene(tabScene);
+            primaryStage.show();});
     }
 
     /**
@@ -382,9 +426,35 @@ public class SceneManager {
      * @since 2020-11-19
      */
     public void showLobbyScreen(User currentUser, String lobbyname) {
-        showScene(lobbyScene, "Lobby " + lobbyname );
+        //showScene(lobbyScene, "Lobby " + lobbyname );
+        newLobbyTab(currentUser, lobbyname);
     }
 
+    public void newLobbyTab(User currentUser, String lobbyname) {
+        Tab lobbyTab = new Tab("Lobby " + lobbyname);
+        lobbyTab.setContent(nextLobbyScene.getRoot());
+        System.out.println(tabHelper.getTabPane().getTabs());
+        /*tabs = tabPane.getTabs();
+        Platform.runLater(() -> {
+            for (Iterator<Tab> iterator = tabPane.getTabs().iterator(); iterator.hasNext();) {
+            Tab tab = iterator.next();
+            iterator.remove();
+        }
+            System.out.println(tabs);
+            tabs.forEach(tab -> tabPane.getTabs().add(tab));
+            tabPane.getTabs().add(lobbyTab);
+        });*/
+        Platform.runLater(() -> {
+            tabHelper.getTabPane().getTabs().add(lobbyTab);
+        });
+        nextLobbyScene = initLobbyView();
+    }
+
+    public void removeLobbyTab(User currentUser, String lobbyname) {
+        Platform.runLater(() -> {
+            tabHelper.getTabPane().getTabs().remove(tabHelper.getTabByText("Lobby " + lobbyname));
+        });
+    }
     /**
      * Shows the game screen
      * <p>
@@ -397,6 +467,13 @@ public class SceneManager {
         showScene(gameScene, "Game " + lobbyname );
     }
 
+
+   /* @Subscribe
+    public void onLobbyLeftSuccessfulResponse(LobbyLeftSuccessfulResponse lobbyLeftSuccessfulResponse) {
+        Platform.runLater(() -> {
+          for (int i = 0; i <= tabPane.get)
+        });
+    }*/
 
 }
 

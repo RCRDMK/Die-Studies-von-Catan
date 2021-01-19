@@ -24,6 +24,7 @@ public class AllThisLobbyUsersResponse extends AbstractResponseMessage {
 
     private static final long serialVersionUID = -7113321823425212173L;
     final private ArrayList<UserDTO> users = new ArrayList<>();
+    private String lobby;
 
     /**
      * Default Constructor
@@ -48,7 +49,8 @@ public class AllThisLobbyUsersResponse extends AbstractResponseMessage {
      * @author Marc Hermes
      * @since 2020-12-02
      */
-    public AllThisLobbyUsersResponse(List<Session> users) {
+    public AllThisLobbyUsersResponse(List<Session> users, String lobbyName) {
+        this.lobby = lobbyName;
         for (Session user : users) {
             this.users.add(UserDTO.createWithoutPassword(user.getUser()));
         }
@@ -64,5 +66,7 @@ public class AllThisLobbyUsersResponse extends AbstractResponseMessage {
     public List<UserDTO> getUsers() {
         return users;
     }
+
+    public String getName() { return lobby; }
 
 }
