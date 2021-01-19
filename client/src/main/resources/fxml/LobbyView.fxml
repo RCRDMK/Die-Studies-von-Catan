@@ -10,6 +10,6 @@
       <Button layoutX="200.0" layoutY="366.0" mnemonicParsing="false" onAction="#onLeaveLobby" text="Leave Lobby" />
    </children>
    <TextArea fx:id="lobbyChatArea" editable="false" layoutX="302.0" layoutY="14.0" prefHeight="200" prefWidth="284.0" GridPane.rowIndex="2"> </TextArea>
-   <TextField fx:id="lobbyChatInput" layoutX="302.0" layoutY="229.0" onAction="#onSendMessage" prefHeight="25.0" prefWidth="196.0" GridPane.rowIndex="3"> </TextField>
+   <TextField fx:id="lobbyChatInput" layoutX="302.0" layoutY="229.0" onAction="#onSendMessage" prefHeight="25.0" prefWidth="196.0" promptText="Schicke eine Nachricht!" GridPane.rowIndex="3"> </TextField>
    <Button layoutX="509.0" layoutY="229.0" mnemonicParsing="false" onAction="#onSendMessage" prefHeight="25.0" prefWidth="77.0" text="Senden" />
 </AnchorPane>

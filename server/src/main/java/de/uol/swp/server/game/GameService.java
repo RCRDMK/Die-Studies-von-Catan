@@ -41,7 +41,7 @@ public class GameService extends AbstractService {
      * @since 2021-01-07
      */
     @Subscribe
-    private void onRollDiceRequest (RollDiceRequest rollDiceRequest) {
+    public void onRollDiceRequest (RollDiceRequest rollDiceRequest) {
         LOG.debug("Got new RollDiceRequest from user: " + rollDiceRequest.getUser());
 
         Dice dice = new Dice();
