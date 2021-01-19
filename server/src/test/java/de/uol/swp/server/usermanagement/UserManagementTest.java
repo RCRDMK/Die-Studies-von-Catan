@@ -18,7 +18,7 @@ class UserManagementTest {
     @Test
     void loginUser() throws SQLException {
         management.buildConnection();
-        User userToLogIn = new UserDTO("test", "test", "test");
+        User userToLogIn = new UserDTO("test2", "test2", "test");
 
         management.login(userToLogIn.getUsername(), userToLogIn.getPassword());
 
@@ -145,7 +145,7 @@ class UserManagementTest {
     void updateUserPassword_LoggedIn() throws SQLException {
         management.buildConnection();
 
-        User userToUpdate = new UserDTO("test", "test", "");
+        User userToUpdate = new UserDTO("test3", "test3", "");
         User updatedUser = new UserDTO(userToUpdate.getUsername(), "newPassword", null);
 
         management.login(userToUpdate.getUsername(), userToUpdate.getPassword());
@@ -172,7 +172,7 @@ class UserManagementTest {
         management.buildConnection();
         List<User> userList = management.retrieveAllUsers();
 
-        assertEquals(9, userList.size());
+        assertEquals(management.retrieveAllUsers(), userList.size());
     }
 
     @Test

@@ -145,7 +145,7 @@ public class UserManagement extends AbstractUserManagement {
         if (!resultSet.next()) {
             throw new UserManagementException("Username unknown!");
         }else{
-            statement.executeUpdate("delete user from user where name='"+userToDrop.getUsername()+"';");
+            statement.executeUpdate("delete from user where name='"+userToDrop.getUsername()+"';");
         }
     }
 
