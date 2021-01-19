@@ -172,7 +172,7 @@ class UserManagementTest {
         management.buildConnection();
         List<User> userList = management.retrieveAllUsers();
 
-        assertEquals(management.retrieveAllUsers(), userList.size());
+        assertEquals(management.retrieveAllUsers().size(), userList.size());
     }
 
     @Test
