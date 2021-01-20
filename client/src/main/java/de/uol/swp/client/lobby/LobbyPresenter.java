@@ -25,11 +25,9 @@ import javafx.scene.control.TextField;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.EOFException;
 import java.util.List;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 
 /**
  * Manages the lobby menu
@@ -115,8 +113,7 @@ public class LobbyPresenter extends AbstractPresenter {
     /**
      * Handles successful lobby creation
      * <p>
-     * If a LobbyCreatedSuccessfulResponse is posted to the EventBus the loggedInUser of this client is set to the one
-     * in the message received and the full list of users currently in the lobby is requested.
+     * If a LobbyCreatedSuccessfulResponse is detected on the EventBus this method invokes createdSuccessfulLogic.
      *
      * @param message the LobbyCreatedSuccessfulResponse object seen on the EventBus
      *
@@ -126,35 +123,37 @@ public class LobbyPresenter extends AbstractPresenter {
      */
     @Subscribe
     public void createdSuccessful(LobbyCreatedSuccessfulResponse message) {
-        if (this.currentLobby == null) {
-            //try {
-            LOG.debug("Requesting update of User list in lobby because lobby was created.");
-            this.joinedLobbyUser = message.getUser();
-            this.currentLobby = message.getName();
-            this.lobbyChatInput.setText("");
-            lobbyChatArea.deleteText(0, lobbyChatArea.getLength());
-                lobbyService.retrieveAllThisLobbyUsers(message.getName());
-            //} catch(EOFException ignore) {
-
-            //}
-        }
         createdSuccessfulLogic(message);
     }
 
+    /**
+     * The Method invoked by createdSuccessful()
+     * <p>
+     * If the currentLobby is null, meaning this is an empty LobbyPresenter that is ready to be used for a new lobby tab,
+     * the parameters of this LobbyPresenter are updated to the User and Lobby given by the lcsr Response.
+     * An update of the Users in the currentLobby is also requested.
+     *
+     * @param lcsr the LobbyCreatedSuccessfulResponse given by the original subscriber method.
+     *
+     * @author Alexander Losse, Marc Hermes
+     * @see de.uol.swp.common.user.response.LobbyCreatedSuccessfulResponse
+     * @since 2021-01-20
+     */
     public void createdSuccessfulLogic(LobbyCreatedSuccessfulResponse lcsr) {
-        LOG.debug("Requesting update of User list in lobby because lobby was created.");
-        this.joinedLobbyUser = lcsr.getUser();
-        this.currentLobby = lcsr.getName();
-        this.lobbyChatInput.setText("");
-        lobbyChatArea.deleteText(0, lobbyChatArea.getLength());
-        lobbyService.retrieveAllThisLobbyUsers(lcsr.getName());
+        if (this.currentLobby == null) {
+            LOG.debug("Requesting update of User list in lobby because lobby was created.");
+            this.joinedLobbyUser = lcsr.getUser();
+            this.currentLobby = lcsr.getName();
+            this.lobbyChatInput.setText("");
+            lobbyChatArea.deleteText(0, lobbyChatArea.getLength());
+            lobbyService.retrieveAllThisLobbyUsers(lcsr.getName());
+        }
     }
 
     /**
      * Handles successful joining in the lobby
      * <p>
-     * If a LobbyJoinedSuccessfulResponse is posted to the EventBus the loggedInUser of this client is set to the one in
-     * the message received.
+     * If a LobbyJoinedSuccessfulResponse is detected on the EventBus this method invokes userJoinedSuccessfulLogic
      *
      * @param message the LobbyJoinedSuccessfulResponse object seen on the EventBus
      *
@@ -164,31 +163,37 @@ public class LobbyPresenter extends AbstractPresenter {
      */
     @Subscribe
     public void userJoinedSuccessful(LobbyJoinedSuccessfulResponse message) {
-        if (this.currentLobby == null) {
-            LOG.debug("LobbyJoinedSuccessfulResponse successfully received");
-            this.joinedLobbyUser = message.getUser();
-            this.currentLobby = message.getName();
-            this.lobbyChatInput.setText("");
-            lobbyChatArea.deleteText(0, lobbyChatArea.getLength());
-            lobbyService.retrieveAllThisLobbyUsers(message.getName());
-        }
         userJoinedSuccessfulLogic(message);
     }
-
+    /**
+     * The Method invoked by userJoinedSuccessful()
+     * <p>
+     * If the currentLobby is null, meaning this is an empty LobbyPresenter that is ready to be used for a new lobby tab,
+     * the parameters of this LobbyPresenter are updated to the User and Lobby given by the ljsr Response.
+     * An update of the Users in the currentLobby is also requested.
+     *
+     * @param ljsr the LobbyJoinedSuccessfulResponse given by the original subscriber method.
+     *
+     * @author Alexander Losse, Marc Hermes
+     * @see de.uol.swp.common.user.response.LobbyJoinedSuccessfulResponse
+     * @since 2021-01-20
+     */
     public void userJoinedSuccessfulLogic(LobbyJoinedSuccessfulResponse ljsr) {
-        LOG.debug("LobbyJoinedSuccessfulResponse successfully received");
-        this.joinedLobbyUser = ljsr.getUser();
-        this.currentLobby = ljsr.getName();
-        this.lobbyChatInput.setText("");
-        lobbyChatArea.deleteText(0, lobbyChatArea.getLength());
+        if (this.currentLobby == null) {
+            LOG.debug("LobbyJoinedSuccessfulResponse successfully received");
+            this.joinedLobbyUser = ljsr.getUser();
+            this.currentLobby = ljsr.getName();
+            this.lobbyChatInput.setText("");
+            lobbyChatArea.deleteText(0, lobbyChatArea.getLength());
+            lobbyService.retrieveAllThisLobbyUsers(ljsr.getName());
+        }
     }
 
 
     /**
      * Handles successful leaving of lobby
      * <p>
-     * If a LobbyLeftSuccessfulResponse is posted to the EventBus the loggedInUser of this client is set to the one in
-     * the message received.
+     * If a LobbyLeftSuccessfulResponse is detected on the EventBus the method userLeftSuccessfulLogic is invoked.
      *
      * @param message the LobbyLeftSuccessfulResponse object seen on the EventBus
      *
@@ -198,27 +203,25 @@ public class LobbyPresenter extends AbstractPresenter {
      */
     @Subscribe
     public void userLeftSuccessful(LobbyLeftSuccessfulResponse message) {
-        if (this.currentLobby != null) {
-            if (this.currentLobby.equals(message.getName())) {
-                LOG.debug("LobbyLeftSuccessfulResponse successfully received");
-                this.joinedLobbyUser = message.getUser();
-                this.currentLobby = message.getName();
-            }
-        }
         userLeftSuccessfulLogic(message);
     }
 
+    /**
+     * Has no functionality currently, but might be used in the future.
+     *
+     * @param llsr the LobbyLeftSuccessfulResponse given by the original subscriber method
+     *
+     * @author Alexander Losse, Marc Hermes
+     * @see de.uol.swp.common.user.response.LobbyLeftSuccessfulResponse
+     * @since 2021-01-20
+     */
     public void userLeftSuccessfulLogic(LobbyLeftSuccessfulResponse llsr) {
-        LOG.debug("LobbyLeftSuccessfulResponse successfully received");
-        this.joinedLobbyUser = llsr.getUser();
-        this.currentLobby = llsr.getName();
     }
 
     /**
      * Handles successful lobby join from the user
      * <p>
-     * If a UserJoinedLobbyMessage is posted to the EventBus the joinedLobbyUser of this client is set to the one in the
-     * message received and the full list of users currently in the lobby is requested.
+     * If a UserJoinedLobbyMessage is detected on the EventBus the method joinedSuccessfulLogic is invoked.
      *
      * @param message the UserJoinedLobbyMessage object seen on the EventBus
      *
@@ -228,24 +231,35 @@ public class LobbyPresenter extends AbstractPresenter {
      */
     @Subscribe
     public void joinedSuccessful(UserJoinedLobbyMessage message) {
-        if (this.currentLobby != null) {
-            if (this.currentLobby.equals(message.getName())) {
-                LOG.debug("Requesting update of User list in lobby because a User joined the lobby.");
-                lobbyService.retrieveAllThisLobbyUsers(message.getName());
-        }
-        }
- joinedSuccessfulLogic(message);
+        joinedSuccessfulLogic(message);
     }
+
+    /**
+     * The Method invoked by joinedSuccessful()
+     * <p>
+     * If the currentLobby is not null, meaning this is an not an empty LobbyPresenter and the lobby name stored
+     * in this LobbyPresenter equals the one in the received Message, an update of the Users in the currentLobby
+     * is requested.
+     *
+     * @param ujlm the UserJoinedLobbyMessage given by the original subscriber method.
+     *
+     * @author Alexander Losse, Marc Hermes
+     * @see de.uol.swp.common.lobby.message.UserJoinedLobbyMessage
+     * @since 2021-01-20
+     */
     public void joinedSuccessfulLogic(UserJoinedLobbyMessage ujlm){
-        LOG.debug("Requesting update of User list in lobby because a User joined the lobby.");
-        lobbyService.retrieveAllThisLobbyUsers(ujlm.getName());
+        if (this.currentLobby != null) {
+            if (this.currentLobby.equals(ujlm.getName())) {
+                LOG.debug("Requesting update of User list in lobby because a User joined the lobby.");
+                lobbyService.retrieveAllThisLobbyUsers(ujlm.getName());
+            }
+        }
     }
 
     /**
      * Handles successful lobby leave of the user
      * <p>
-     * If a UserLeftLobbyMessage is posted to the EventBus the joinedLobbyUser of this client is set to the one in the
-     * message received and the full list of users currently remaining in the lobby is requested.
+     * If a UserJoinedLobbyMessage is detected on the EventBus the method leftSuccessfulLogic is invoked.
      *
      * @param message the UserLeftLobbyMessage object seen on the EventBus
      *
@@ -257,13 +271,25 @@ public class LobbyPresenter extends AbstractPresenter {
     public void leftSuccessful(UserLeftLobbyMessage message) {
 leftSuccessfulLogic(message);
     }
+
+    /**
+     * The Method invoked by leftSuccessful()
+     * <p>
+     * If the currentLobby is not null, meaning this is an not an empty LobbyPresenter and the lobby name stored
+     * in this LobbyPresenter equals the one in the received Message, an update of the Users in the currentLobby
+     * is requested.
+     *
+     * @param ullm the UserLeftLobbyMessage given by the original subscriber method.
+     *
+     * @author Alexander Losse, Marc Hermes
+     * @see de.uol.swp.common.lobby.message.UserLeftLobbyMessage
+     * @since 2021-01-20
+     */
     public void leftSuccessfulLogic(UserLeftLobbyMessage ullm){
-        LOG.debug("Requesting update of User list in lobby because a User left the lobby.");
-        lobbyService.retrieveAllThisLobbyUsers(ullm.getName());
         if (this.currentLobby != null) {
-            if (this.currentLobby.equals(message.getName())) {
+            if (this.currentLobby.equals(ullm.getName())) {
                 LOG.debug("Requesting update of User list in lobby because a User left the lobby.");
-                lobbyService.retrieveAllThisLobbyUsers(message.getName());
+                lobbyService.retrieveAllThisLobbyUsers(ullm.getName());
             }
         }
     }
@@ -271,9 +297,7 @@ leftSuccessfulLogic(message);
     /**
      * Handles new list of users
      * <p>
-     * If a new AllThisLobbyUsersResponse object is posted to the EventBus the names of users currently in this lobby
-     * are put onto the user list in the lobby menu. Furthermore if the LOG-Level is set to DEBUG the message "Update of
-     * user list" with the names of all current users in the lobby is displayed in the log.
+     * If a AllThisLobbyUsersResponse is detected on the EventBus the method lobbyUserListLogic is invoked.
      *
      * @param allThisLobbyUsersResponse the AllThisLobbyUsersResponse object seen on the EventBus
      *
@@ -283,17 +307,29 @@ leftSuccessfulLogic(message);
      */
     @Subscribe
     public void lobbyUserList(AllThisLobbyUsersResponse allThisLobbyUsersResponse) {
+        lobbyUserListLogic(allThisLobbyUsersResponse);
+    }
+
+    /**
+     * The Method invoked by leftSuccessful()
+     * <p>
+     * If the currentLobby is not null, meaning this is an not an empty LobbyPresenter and the lobby name stored
+     * in this LobbyPresenter equals the one in the received Response, the method updateLobbyUsersList is invoked
+     * to update the List of the Users in the currentLobby in regards to the list given by the response.
+     *
+     * @param atlur the AllThisLobbyUsersResponse given by the original subscriber method.
+     *
+     * @author Alexander Losse, Marc Hermes
+     * @see de.uol.swp.common.user.response.AllThisLobbyUsersResponse
+     * @since 2021-01-20
+     */
+    public void lobbyUserListLogic(AllThisLobbyUsersResponse atlur){
         if (this.currentLobby != null) {
-            if (this.currentLobby.equals(allThisLobbyUsersResponse.getName())) {
-                LOG.debug("Update of user list " + allThisLobbyUsersResponse.getUsers());
-                updateLobbyUsersList(allThisLobbyUsersResponse.getUsers());
+            if (this.currentLobby.equals(atlur.getName())) {
+                LOG.debug("Update of user list " + atlur.getUsers());
+                updateLobbyUsersList(atlur.getUsers());
             }
         }
-lobbyUserListLogic(allThisLobbyUsersResponse);
-    }
-    public void lobbyUserListLogic(AllThisLobbyUsersResponse atlur){
-        LOG.debug("Update of user list " + atlur.getUsers());
-        updateLobbyUsersList(atlur.getUsers());
     }
 
     /**
@@ -327,13 +363,33 @@ updateLobbyUsersListLogic(lobbyUserList);
 
     /**
      * Updates the lobby chat when a ResponseChatMessage was posted to the EventBus.
+     * <p>
+     * If a ResponseChatMessage is detected on the EventBus the method onResponseChatMessageLogic is invoked.
      *
-     * @param message
+     * @param message the ResponseChatMessage object seen on the EventBus
+     *
+     * @author ?
+     * @see de.uol.swp.common.chat.ResponseChatMessage
+     * @since ?
      */
     @Subscribe
     public void onResponseChatMessage(ResponseChatMessage message) {
         onResponseChatMessageLogic(message);
     }
+
+    /**
+     * The Method invoked by leftSuccessful()
+     * <p>
+     * If the currentLobby is not null, meaning this is an not an empty LobbyPresenter and the lobby name stored
+     * in this LobbyPresenter equals the one in the received Response, the method updateChat is invoked
+     * to update the chat of the currentLobby in regards to the input given by the response.
+     *
+     * @param rcm the ResponseChatMessage given by the original subscriber method.
+     *
+     * @author Alexander Losse, Marc Hermes
+     * @see de.uol.swp.common.chat.ResponseChatMessage
+     * @since 2021-01-20
+     */
     public void onResponseChatMessageLogic(ResponseChatMessage rcm){
         // Only update Messages from used lobby chat
         if (this.currentLobby != null) {

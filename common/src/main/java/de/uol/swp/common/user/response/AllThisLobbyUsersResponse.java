@@ -46,6 +46,7 @@ public class AllThisLobbyUsersResponse extends AbstractResponseMessage {
      * variable set to an empty String.
      *
      * @param users List of all sessions of the users currently in the lobby
+     * @param lobbyName String of the name of the Lobby
      * @author Marc Hermes
      * @since 2020-12-02
      */
@@ -67,6 +68,13 @@ public class AllThisLobbyUsersResponse extends AbstractResponseMessage {
         return users;
     }
 
+    /**
+     * Getter for the name of the lobby
+     * <p>
+     * @return string name of the lobby
+     * @author Marc Hermes
+     * @since 2021-01-20
+     */
     public String getName() { return lobby; }
 
 }

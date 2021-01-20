@@ -5,9 +5,6 @@ import com.google.inject.Inject;
 import de.uol.swp.common.lobby.request.*;
 import de.uol.swp.common.user.UserDTO;
 
-import java.io.EOFException;
-import java.io.IOException;
-
 /**
  * Classes that manages lobbies
  *
@@ -77,12 +74,8 @@ public class LobbyService {
      * @since 2020-12-02
      */
     public void retrieveAllThisLobbyUsers(String lobbyName){
-        //try {
-            RetrieveAllThisLobbyUsersRequest lobbyUsersRequest = new RetrieveAllThisLobbyUsersRequest(lobbyName);
-            eventBus.post(lobbyUsersRequest);
-        //} catch(IOException ignore) {
-
-        //}
+        RetrieveAllThisLobbyUsersRequest lobbyUsersRequest = new RetrieveAllThisLobbyUsersRequest(lobbyName);
+        eventBus.post(lobbyUsersRequest);
     }
 
     /**

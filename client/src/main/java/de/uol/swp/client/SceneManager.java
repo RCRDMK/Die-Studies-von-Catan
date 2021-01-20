@@ -15,9 +15,7 @@ import de.uol.swp.client.register.event.RegistrationCanceledEvent;
 import de.uol.swp.client.register.event.RegistrationErrorEvent;
 import de.uol.swp.client.register.event.ShowRegistrationViewEvent;
 import de.uol.swp.common.user.User;
-import de.uol.swp.common.user.response.LobbyLeftSuccessfulResponse;
 import javafx.application.Platform;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -30,8 +28,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Iterator;
 
 /**
  * Class that manages which window/scene is currently shown
@@ -72,7 +68,7 @@ public class SceneManager {
     /**
      * Subroutine to initialize all views
      * <p>
-     * This is a subroutine of the constructor to initialize all views
+     * This is a subroutine of the constructor to initialize all views, as well as creating the TabPane
      * @author Marco Grawunder
      * @since 2019-09-03
      */
@@ -84,9 +80,6 @@ public class SceneManager {
         TabPane tabPane = new TabPane();
         this.tabPane = tabPane;
         this.tabHelper = new TabHelper(this.tabPane);
-        //VBox vBox = new VBox(tabPane);
-        //Scene tabScene = new Scene(vBox);
-        //Parent rootPane = initTab(TabsPresenter.fxml);
         vBox = new VBox(tabHelper.getTabPane());
         tabScene = new Scene(vBox);
 
@@ -118,26 +111,15 @@ public class SceneManager {
         }
         return rootPane;
     }
-    private Parent initTab(String fxmlFile) {
-        Parent root;
-        FXMLLoader loader = injector.getInstance(FXMLLoader.class);
-        try {
-            URL url = getClass().getResource(fxmlFile);
-            LOG.debug("Loading " + url);
-            loader.setLocation(url);
-            root = loader.load();
-        } catch (Exception e) {
-            throw new RuntimeException("Could not load View!" + e.getMessage(), e);
-        }
-        return root;
-    }
 
     /**
      * Initializes the main menu view
      * <p>
      * If the mainScene is null it gets set to a new scene containing the
      * a pane showing the main menu view as specified by the MainMenuView
-     * FXML file.
+     * FXML file. ALso a mainMenuTab is created which cannot be closed.
+     *
+     * enhanced by Alexander Losse and Marc Hermes - 2021-01-20
      *
      * @see de.uol.swp.client.main.MainMenuPresenter
      * @author Marco Grawunder
@@ -149,6 +131,7 @@ public class SceneManager {
             mainScene = new Scene(rootPane, 800, 600);
             mainScene.getStylesheets().add(styleSheet);
             mainMenuTab = new Tab("Main Menu");
+            mainMenuTab.setClosable(false);
         }
     }
 
@@ -192,20 +175,19 @@ public class SceneManager {
     /**
      * Initializes the lobby view
      * <p>
-     *  If the lobbyScene is null it gets set to a new scene containing the
-     *  a pane showing the lobby view as specified by the LobbyView
-     *  FXML file
+     *  If a new lobbyScene is needed this method will return a new lobbyScene containing the
+     *  pane showing the lobby view as specified by the LobbyView FXML file
+     *
+     *  enhanced by Alexander Losse and Marc Hermes - 2021-01-20
      *
      * @see de.uol.swp.client.lobby.LobbyPresenter
      * @author Marc Hermes, Ricardo Mook
      * @since 2020-11-19
      */
     private Scene initLobbyView() {
-        //if (lobbyScene == null) {
             Parent rootPane = initPresenter(LobbyPresenter.fxml);
             lobbyScene = new Scene(rootPane, 800, 600);
             lobbyScene.getStylesheets().add(styleSheet);
-        //}
         return lobbyScene;
     }
 
@@ -227,7 +209,6 @@ public class SceneManager {
             gameScene.getStylesheets().add(styleSheet);
         }
     }
-
 
 
     /**
@@ -373,8 +354,10 @@ public class SceneManager {
     /**
      * Shows the main menu
      * <p>
-     * Switches the current Scene to the mainScene and sets the title of
-     * the window to "Welcome " and the username of the current user
+     * Invoked the Method showMainTab instead of switching the Scene to the MainScene
+     *
+     * enhanced by Alexander Losse and Marc Hermes - 2021-01-20
+     *
      * @author Marco Grawunder
      * @since 2019-09-03
      */
@@ -383,6 +366,15 @@ public class SceneManager {
 
     }
 
+    /**
+     * Shows the main menu tab
+     * <p>
+     * This method will set the content of the mainMenuTab to that of the view of the mainScene
+     * Also the mainMenuTab is added to the TabPane and the tabScene is shown on the primary stage.
+     *
+     * @author Alexander Losse, Marc Hermes
+     * @since 2021-01-20
+     */
     public void showMainTab(User currentUser) {
         mainMenuTab.setContent(mainScene.getRoot());
         Platform.runLater(() -> {
@@ -420,39 +412,52 @@ public class SceneManager {
     /**
      * Shows the lobby screen
      * <p>
-     * Switches the current Scene to the lobbyScene and sets the title of
-     * the window to "Lobby"
+     * This method invokes the newLobbyTab() method resulting in the creation of a new lobby tab
+     *
+     * enhanced by Alexander Losse and Marc Hermes - 2021-01-20
+     *
      * @author Marc Hermes, Ricardo Mook
      * @since 2020-11-19
      */
     public void showLobbyScreen(User currentUser, String lobbyname) {
-        //showScene(lobbyScene, "Lobby " + lobbyname );
         newLobbyTab(currentUser, lobbyname);
     }
 
+    /**
+     * Creates a new lobby tab
+     *
+     * When this method is invoked a new lobby tab with a specific name is created.
+     * The content of the new lobby tab is set to the root of the currently empty nextLobbyScene
+     * The lobby tab is then added to the TabPane.
+     * Afterwards a new empty nextLobbyScene is created, for the next usage of this method.
+     *
+     * @param lobbyname the name of the lobby for which a tab is created
+     * @author Alexander Losse, Marc Hermes
+     * @since 2021-01-20
+     */
     public void newLobbyTab(User currentUser, String lobbyname) {
         Tab lobbyTab = new Tab("Lobby " + lobbyname);
         lobbyTab.setContent(nextLobbyScene.getRoot());
-        System.out.println(tabHelper.getTabPane().getTabs());
-        /*tabs = tabPane.getTabs();
+        lobbyTab.setClosable(false);
         Platform.runLater(() -> {
-            for (Iterator<Tab> iterator = tabPane.getTabs().iterator(); iterator.hasNext();) {
-            Tab tab = iterator.next();
-            iterator.remove();
-        }
-            System.out.println(tabs);
-            tabs.forEach(tab -> tabPane.getTabs().add(tab));
-            tabPane.getTabs().add(lobbyTab);
-        });*/
-        Platform.runLater(() -> {
-            tabHelper.getTabPane().getTabs().add(lobbyTab);
+            tabHelper.addTab(lobbyTab);
         });
         nextLobbyScene = initLobbyView();
     }
 
+    /**
+     * Removes an old lobby tab
+     *
+     * When this method is invoked a lobby tab with a specific name is removed from
+     * the TabPane.
+     *
+     * @param lobbyname the name of the lobby that corresponds to the tab that is to be deleted
+     * @author Alexander Losse, Marc Hermes
+     * @since 2021-01-20
+     */
     public void removeLobbyTab(User currentUser, String lobbyname) {
         Platform.runLater(() -> {
-            tabHelper.getTabPane().getTabs().remove(tabHelper.getTabByText("Lobby " + lobbyname));
+            tabHelper.removeTab("Lobby " + lobbyname);
         });
     }
     /**
@@ -466,14 +471,6 @@ public class SceneManager {
     public void showGameScreen(User currentUser, String lobbyname) {
         showScene(gameScene, "Game " + lobbyname );
     }
-
-
-   /* @Subscribe
-    public void onLobbyLeftSuccessfulResponse(LobbyLeftSuccessfulResponse lobbyLeftSuccessfulResponse) {
-        Platform.runLater(() -> {
-          for (int i = 0; i <= tabPane.get)
-        });
-    }*/
 
 }
 
