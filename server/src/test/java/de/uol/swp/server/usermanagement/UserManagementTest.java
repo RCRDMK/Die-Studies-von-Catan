@@ -128,7 +128,7 @@ class UserManagementTest {
     void updateUserPassword_NotLoggedIn() {
         UserManagement management = getDefaultManagement();
         User userToUpdate = users.get(0);
-        User updatedUser = new UserDTO(userToUpdate.getUsername(), "newPassword", null);
+        User updatedUser = new UserDTO(userToUpdate.getUsername(), "newPassword", userToUpdate.getEMail());
 
         assertFalse(management.isLoggedIn(userToUpdate));
         management.updateUser(updatedUser);
@@ -154,7 +154,7 @@ class UserManagementTest {
     void updateUserPassword_LoggedIn() {
         UserManagement management = getDefaultManagement();
         User userToUpdate = users.get(0);
-        User updatedUser = new UserDTO(userToUpdate.getUsername(), "newPassword", null);
+        User updatedUser = new UserDTO(userToUpdate.getUsername(), "newPassword", userToUpdate.getEMail());
 
         management.login(userToUpdate.getUsername(), userToUpdate.getPassword());
         assertTrue(management.isLoggedIn(userToUpdate));

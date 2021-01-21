@@ -8,7 +8,7 @@ import de.uol.swp.common.lobby.request.RetrieveAllThisLobbyUsersRequest;
 import de.uol.swp.common.lobby.message.UserJoinedLobbyMessage;
 import de.uol.swp.common.lobby.message.UserLeftLobbyMessage;
 import de.uol.swp.common.user.UserDTO;
-import de.uol.swp.common.user.response.LobbyCreatedSuccessfulResponse;
+import de.uol.swp.common.user.response.lobby.LobbyCreatedSuccessfulResponse;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

@@ -1,4 +1,4 @@
-package de.uol.swp.common.user.response;
+package de.uol.swp.common.user.response.game;
 
 import de.uol.swp.common.message.AbstractResponseMessage;
 import de.uol.swp.common.user.User;
@@ -6,17 +6,17 @@ import de.uol.swp.common.user.User;
 import java.util.Objects;
 
 /**
- * Response that is sent to the User who requested to create a lobby.
+ * Response that is sent to the User who requested to create a game.
  * <p>
  * Contains the user who sent the request initially (he is also the owner)
- * as well as the name of the lobby that was successfully created
+ * as well as the name of the game that was successfully created
  *
- * @author Marc Hermes
- * @since 2020-11-24
+ * @author Iskander Yusupov
+ * @since 2021-01-15
  */
 
 
-public class LobbyCreatedSuccessfulResponse extends AbstractResponseMessage {
+public class GameCreatedSuccessfulResponse extends AbstractResponseMessage {
 
     private static final long serialVersionUID = -8113921823425219873L;
 
@@ -27,15 +27,16 @@ public class LobbyCreatedSuccessfulResponse extends AbstractResponseMessage {
     /**
      * Constructor
      * <p>
-     * @author Marc Hermes
-     * @since 2020-11-24
+     *
+     * @author Iskander Yusupov
+     * @since 2021-01-15
      */
 
-    public LobbyCreatedSuccessfulResponse(User user) {
+    public GameCreatedSuccessfulResponse(User user) {
         this.user = user;
     }
 
-    public LobbyCreatedSuccessfulResponse(String name, User user) {
+    public GameCreatedSuccessfulResponse(String name, User user) {
         this.user = user;
         this.name = name;
     }
@@ -52,7 +53,7 @@ public class LobbyCreatedSuccessfulResponse extends AbstractResponseMessage {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        LobbyCreatedSuccessfulResponse that = (LobbyCreatedSuccessfulResponse) o;
+        de.uol.swp.common.user.response.game.GameCreatedSuccessfulResponse that = (de.uol.swp.common.user.response.game.GameCreatedSuccessfulResponse) o;
         return Objects.equals(user, that.user);
     }
 

@@ -1,6 +1,6 @@
 package de.uol.swp.common.lobby.request;
 
-import de.uol.swp.common.user.response.AllThisLobbyUsersResponse;
+import de.uol.swp.common.user.response.lobby.AllThisLobbyUsersResponse;
 
 /**
  * Request for initialising the user list in the lobby

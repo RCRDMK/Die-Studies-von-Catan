@@ -15,6 +15,9 @@ import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.user.exception.RegistrationExceptionMessage;
 import de.uol.swp.common.user.request.LogoutRequest;
 import de.uol.swp.common.user.response.*;
+import de.uol.swp.common.user.response.lobby.LobbyCreatedSuccessfulResponse;
+import de.uol.swp.common.user.response.lobby.LobbyJoinedSuccessfulResponse;
+import de.uol.swp.common.user.response.lobby.LobbyLeftSuccessfulResponse;
 import io.netty.channel.Channel;
 import javafx.application.Application;
 import javafx.stage.Stage;
@@ -89,7 +92,7 @@ public class ClientApp extends Application implements ConnectionListener {
         // get user service from guice, is needed for logout
         this.userService = injector.getInstance(ClientUserService.class);
 
-        // get user service from guice, is needed for logout
+        // get lobby service from guice, is needed for logout
         this.lobbyService = injector.getInstance(LobbyService.class);
 
         // get event bus from guice

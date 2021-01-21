@@ -1,4 +1,4 @@
-package de.uol.swp.common.user.response;
+package de.uol.swp.common.user.response.lobby;
 
 import de.uol.swp.common.message.AbstractResponseMessage;
 
