@@ -117,8 +117,8 @@ class UserManagementTest {
     void updateUserPassword_NotLoggedIn() throws SQLException {
         management.buildConnection();
 
-        User userToUpdate = new UserDTO("test", "test", "");
-        User updatedUser = new UserDTO(userToUpdate.getUsername(), "newPassword", null);
+        User userToUpdate = new UserDTO("test", "test", "irgendwas@irgendwo.de");
+        User updatedUser = new UserDTO(userToUpdate.getUsername(), "newPassword", "irgendwas@irgendwo.de");
 
         assertFalse(management.isLoggedIn(userToUpdate));
         management.updateUser(updatedUser);
@@ -145,8 +145,8 @@ class UserManagementTest {
     void updateUserPassword_LoggedIn() throws SQLException {
         management.buildConnection();
 
-        User userToUpdate = new UserDTO("test3", "test3", "");
-        User updatedUser = new UserDTO(userToUpdate.getUsername(), "newPassword", null);
+        User userToUpdate = new UserDTO("test3", "test3", "irgendwas@irgendwo.de");
+        User updatedUser = new UserDTO(userToUpdate.getUsername(), "newPassword", "irgendwas@irgendwo.de");
 
         management.login(userToUpdate.getUsername(), userToUpdate.getPassword());
         assertTrue(management.isLoggedIn(userToUpdate));

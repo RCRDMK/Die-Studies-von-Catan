@@ -110,7 +110,7 @@ public class UserManagement extends AbstractUserManagement {
         ResultSet resultSet = statement.executeQuery("select name from user where name = '" + userToCreate.getUsername() + "';");
 
         if (!resultSet.next()) {
-            statement.executeUpdate("insert into user(name, password) values ('" + userToCreate.getUsername() + "','" + userToCreate.getPassword() + "');");
+            statement.executeUpdate("insert into user(name, password, mail) values ('" + userToCreate.getUsername() + "','" + userToCreate.getPassword() + "','"+userToCreate.getEMail()+"');");
         } else {
             throw new UserManagementException("Username already used!");
         }
