@@ -104,13 +104,12 @@
             <artifactId>ignite-guice</artifactId>
             <version>1.0.2</version>
         </dependency>
+
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
             <version>5.7.0</version>
             <scope>compile</scope>
         </dependency>
-
-
     </dependencies>
 </project>
