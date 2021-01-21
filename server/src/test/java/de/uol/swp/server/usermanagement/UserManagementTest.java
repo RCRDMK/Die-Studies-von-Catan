@@ -181,5 +181,4 @@ class UserManagementTest {
     void connectJDBCTest() throws SQLException {
         management.buildConnection();
     }
-
 }

@@ -29,6 +29,7 @@ public class UserDTO implements User {
     public UserDTO(String username, String password, String eMail) {
         assert Objects.nonNull(username);
         assert Objects.nonNull(password);
+        assert Objects.nonNull(eMail);
         this.username = username;
         this.password = password;
         this.eMail = eMail;
