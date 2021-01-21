@@ -10,6 +10,10 @@ import de.uol.swp.common.user.request.*;
 import de.uol.swp.common.user.response.*;
 import de.uol.swp.common.user.response.DropUserSuccessfulResponse;
 import de.uol.swp.common.user.response.LoginSuccessfulResponse;
+import de.uol.swp.common.user.response.lobby.AllThisLobbyUsersResponse;
+import de.uol.swp.common.user.response.lobby.LobbyCreatedSuccessfulResponse;
+import de.uol.swp.common.user.response.lobby.LobbyJoinedSuccessfulResponse;
+import de.uol.swp.common.user.response.lobby.LobbyLeftSuccessfulResponse;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
