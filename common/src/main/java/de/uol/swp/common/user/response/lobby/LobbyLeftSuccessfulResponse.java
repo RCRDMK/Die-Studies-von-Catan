@@ -1,4 +1,4 @@
-package de.uol.swp.common.user.response;
+package de.uol.swp.common.user.response.lobby;
 
 import de.uol.swp.common.message.AbstractResponseMessage;
 import de.uol.swp.common.user.User;
@@ -6,28 +6,28 @@ import de.uol.swp.common.user.User;
 import java.util.Objects;
 
 /**
- * Response that is sent to the User who requested to join the lobby.
+ * Response that is sent to the User who requested to leave the lobby.
  * <p>
  * Contains the user who sent the request initially
- * as well as the name of the lobby that was successfully joined
+ * as well as the name of the lobby that was successfully left
  *
  * @author Marc Hermes
  * @since 2020-12-10
  */
 
-public class LobbyJoinedSuccessfulResponse extends AbstractResponseMessage {
+public class LobbyLeftSuccessfulResponse extends AbstractResponseMessage {
 
-    private static final long serialVersionUID = -2343921823425219873L;
+    private static final long serialVersionUID = -2343451823425219873L;
 
     private final User user;
 
     private String name;
 
-    public LobbyJoinedSuccessfulResponse(User user) {
+    public LobbyLeftSuccessfulResponse(User user) {
         this.user = user;
     }
 
-    public LobbyJoinedSuccessfulResponse(String name, User user) {
+    public LobbyLeftSuccessfulResponse(String name, User user) {
         this.user = user;
         this.name = name;
     }
@@ -45,7 +45,7 @@ public class LobbyJoinedSuccessfulResponse extends AbstractResponseMessage {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        LobbyJoinedSuccessfulResponse that = (LobbyJoinedSuccessfulResponse) o;
+        LobbyLeftSuccessfulResponse that = (LobbyLeftSuccessfulResponse) o;
         return Objects.equals(user, that.user);
     }
 
@@ -53,4 +53,5 @@ public class LobbyJoinedSuccessfulResponse extends AbstractResponseMessage {
     public int hashCode() {
         return Objects.hash(user);
     }
+
 }
