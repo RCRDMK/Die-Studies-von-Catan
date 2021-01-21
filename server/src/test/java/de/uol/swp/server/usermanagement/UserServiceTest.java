@@ -45,6 +45,7 @@ class UserServiceTest {
 
         assertNotNull(loggedInUser);
         assertEquals(loggedInUser, userToRegister);
+        userManagement.dropUser(userToRegister);
     }
 
     @Test

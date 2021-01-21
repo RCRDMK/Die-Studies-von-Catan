@@ -160,6 +160,8 @@ class UserManagementTest {
         management.login(updatedUser.getUsername(), updatedUser.getPassword());
         assertTrue(management.isLoggedIn(updatedUser));
 
+        management.updateUser(userToUpdate);
+
     }
 
     @Test
