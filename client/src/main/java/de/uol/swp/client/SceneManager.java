@@ -69,6 +69,7 @@ public class SceneManager {
      * Subroutine to initialize all views
      * <p>
      * This is a subroutine of the constructor to initialize all views, as well as creating the TabPane
+     * enhanced by Alexander Losse and Marc Hermes - 2021-01-20
      * @author Marco Grawunder
      * @since 2019-09-03
      */
