@@ -53,6 +53,7 @@ public class SceneManager {
     private VBox vBox;
     private Scene tabScene;
     private Scene nextLobbyScene;
+    private Scene nextGameScene;
     private final Injector injector;
     private TabPane tabPane;
     private TabHelper tabHelper;
@@ -78,6 +79,7 @@ public class SceneManager {
         initMainView();
         initRegistrationView();
         nextLobbyScene = initLobbyView();
+        nextGameScene = initGameView();
         TabPane tabPane = new TabPane();
         this.tabPane = tabPane;
         this.tabHelper = new TabHelper(this.tabPane);
@@ -189,7 +191,7 @@ public class SceneManager {
             Parent rootPane = initPresenter(LobbyPresenter.fxml);
             lobbyScene = new Scene(rootPane, 800, 600);
             lobbyScene.getStylesheets().add(styleSheet);
-        return lobbyScene;
+            return lobbyScene;
     }
 
     /**
@@ -203,12 +205,11 @@ public class SceneManager {
      * @author Kirstin Beyer
      * @since 2021-01-14
      */
-    private void initGameView() {
-        if (gameScene == null) {
+    private Scene initGameView() {
             Parent rootPane = initPresenter(GamePresenter.fxml);
             gameScene = new Scene(rootPane, 800, 600);
             gameScene.getStylesheets().add(styleSheet);
-        }
+            return gameScene;
     }
 
 
@@ -464,13 +465,51 @@ public class SceneManager {
     /**
      * Shows the game screen
      * <p>
-     * Switches the current Scene to the gameScene and sets the title of
-     * the window to "Game"
+     * This method invokes the newGameTab() method resulting in the creation of a new game tab
+     *
      * @author Kirstin Beyer
      * @since 2021-01-14
      */
     public void showGameScreen(User currentUser, String lobbyname) {
-        showScene(gameScene, "Game " + lobbyname );
+        newGameTab(currentUser, "Game " + lobbyname );
+    }
+
+    /**
+     * Creates a new game tab
+     *
+     * When this method is invoked a new game tab with a specific name is created.
+     * The content of the new game tab is set to the root of the currently empty nextGameScene
+     * The game tab is then added to the TabPane.
+     * Afterwards a new empty nextGameScene is created, for the next usage of this method.
+     *
+     * @param gamename the name of the game for which a tab is created
+     * @author Marc Hermes
+     * @since 2021-01-21
+     */
+    public void newGameTab(User currentUser, String gamename) {
+        Tab gameTab = new Tab("Game " + gamename);
+        gameTab.setContent(nextGameScene.getRoot());
+        gameTab.setClosable(false);
+        Platform.runLater(() -> {
+            tabHelper.addTab(gameTab);
+        });
+        nextGameScene = initGameView();
+    }
+
+    /**
+     * Removes an old game tab
+     *
+     * When this method is invoked a game tab with a specific name is removed from
+     * the TabPane.
+     *
+     * @param gamename the name of the game that corresponds to the tab that is to be deleted
+     * @author Marc Hermes
+     * @since 2021-01-21
+     */
+    public void removeGameTab(User currentUser, String gamename) {
+        Platform.runLater(() -> {
+            tabHelper.removeTab("Game " + gamename);
+        });
     }
 
 }

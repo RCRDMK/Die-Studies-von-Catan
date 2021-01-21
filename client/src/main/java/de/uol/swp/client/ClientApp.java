@@ -11,6 +11,8 @@ import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.exception.RegistrationExceptionMessage;
 import de.uol.swp.common.user.request.LogoutRequest;
 import de.uol.swp.common.user.response.*;
+import de.uol.swp.common.user.response.game.GameCreatedSuccessfulResponse;
+import de.uol.swp.common.user.response.game.GameLeftSuccessfulResponse;
 import de.uol.swp.common.user.response.lobby.LobbyCreatedSuccessfulResponse;
 import de.uol.swp.common.user.response.lobby.LobbyJoinedSuccessfulResponse;
 import de.uol.swp.common.user.response.lobby.LobbyLeftSuccessfulResponse;
@@ -211,28 +213,27 @@ public class ClientApp extends Application implements ConnectionListener {
      * to DEBUG or higher "user joined lobby " is written to the log.
      *
      * @param message The StartGameResponse object detected on the EventBus
-     * @see de.uol.swp.client.SceneManager
+     * @see de.uol.swp.common.user.response.game.GameCreatedSuccessfulResponse
      * @since 2021-01-14
      * @author Kirstin Beyer
      */
-    /*
     @Subscribe
-    public void userStartedGame(StartGameResponse message) {
+    public void userStartedGame(GameCreatedSuccessfulResponse message) {
         LOG.debug("User " + message.getUser().getUsername() + " started a game ");
         this.user = message.getUser();
         sceneManager.showGameScreen(user, message.getName());
     }
-    */
+
 
     /**
-     * Handles the successful leaving of a user
+     * Handles the successful leaving of a user from a lobby
      * <p>
      * If an LobbyLeftSuccessfulResponse object is detected on the EventBus this method is called.
      * It tells the SceneManager to remove the tab corresponding to the lobby that was left.
      *
      * @param message the LobbyLeftSuccessfulResponse detected on the EventBus
      *
-     * @see de.uol.swp.common.user.response.LobbyLeftSuccessfulResponse
+     * @see de.uol.swp.common.user.response.lobby.LobbyLeftSuccessfulResponse
      * @since 2021-01-20
      * @author Alexander Losse, Marc Hermes
      */
@@ -241,6 +242,25 @@ public class ClientApp extends Application implements ConnectionListener {
         LOG.debug("User " + message.getUser().getUsername() + " left lobby ");
             this.user = message.getUser();
             sceneManager.removeLobbyTab(message.getUser(), message.getName());
+    }
+
+    /**
+     * Handles the successful leaving of a user from a game
+     * <p>
+     * If an GameLeftSuccessfulResponse object is detected on the EventBus this method is called.
+     * It tells the SceneManager to remove the tab corresponding to the game that was left.
+     *
+     * @param message the LobbyLeftSuccessfulResponse detected on the EventBus
+     *
+     * @see de.uol.swp.common.user.response.game.GameLeftSuccessfulResponse
+     * @since 2021-01-21
+     * @author Marc Hermes
+     */
+    @Subscribe
+    public void userLeftGame(GameLeftSuccessfulResponse message) {
+        LOG.debug("User " + message.getUser().getUsername() + " left game ");
+        this.user = message.getUser();
+        sceneManager.removeGameTab(message.getUser(), message.getName());
     }
 
     /**
