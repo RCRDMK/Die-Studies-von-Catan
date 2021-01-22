@@ -24,6 +24,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Handles the lobby requests send by the users
@@ -280,8 +281,11 @@ public class LobbyService extends AbstractService {
             // Could be already logged out
             if (userToLogOut != null) {
                 var lobbies = lobbyManagement.getAllLobbies();
+                // Create lobbiesCopy because of ConcurrentModificationException,
+                // so it doesn't matter when in the meantime the lobbies Object gets modified, while we still loop through it
+                var lobbiesCopy = lobbies.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
                 // Loop lobbies
-                Iterator<Map.Entry<String, Lobby>> it = lobbies.entrySet().iterator();
+                Iterator<Map.Entry<String, Lobby>> it = lobbiesCopy.entrySet().iterator();
                 var i = 0;
                 while (it.hasNext()) {
                     Map.Entry<String, Lobby> entry = it.next();
