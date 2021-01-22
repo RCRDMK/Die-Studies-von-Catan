@@ -286,7 +286,7 @@ public class LobbyService extends AbstractService {
                 while (it.hasNext()) {
                     Map.Entry<String, Lobby> entry = it.next();
                     Lobby lobby = entry.getValue();
-                    if(lobby.getUsers().contains(userToLogOut.getWithoutPassword()) || lobby.getOwner().equals(userToLogOut)){
+                    if(lobby.getUsers().contains(userToLogOut)){
                         // leave every lobby the user is part of
                         var lobbyLeaveRequest = new LobbyLeaveUserRequest(lobby.getName(), (UserDTO) userToLogOut);
                         if(msg.getMessageContext().isPresent()){
