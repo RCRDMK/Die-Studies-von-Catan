@@ -4,6 +4,13 @@ import com.google.common.eventbus.EventBus;
 import com.google.inject.Inject;
 import de.uol.swp.common.lobby.request.*;
 import de.uol.swp.common.user.UserDTO;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.util.Optional;
 
 /**
  * Classes that manages lobbies
@@ -15,6 +22,8 @@ import de.uol.swp.common.user.UserDTO;
 public class LobbyService {
 
     private final EventBus eventBus;
+    private static final Logger LOG = LogManager.getLogger(LobbyPresenter.class);
+
 
     /**
      * Constructor
@@ -88,5 +97,11 @@ public class LobbyService {
     public void retrieveAllLobbies() {
         RetrieveAllLobbiesRequest cmd = new RetrieveAllLobbiesRequest();
         eventBus.post(cmd);
+    }
+
+    public void startGame(String lobbyName, UserDTO user) {
+        StartGameRequest startGameRequest = new StartGameRequest(lobbyName, user);
+        eventBus.post(startGameRequest);
+        LOG.debug("StartGameRequest posted on Eventbus");
     }
 }

@@ -4,6 +4,7 @@ import de.uol.swp.common.user.User;
 
 import java.io.Serializable;
 import java.util.Set;
+import java.util.Timer;
 
 /**
  * Interface to unify lobby objects
@@ -53,6 +54,8 @@ public interface Lobby extends Serializable {
      */
     void joinUser(User user);
 
+    void joinPlayerReady(User user);
+
     /**
      * Removes an user from the lobby
      *
@@ -61,6 +64,7 @@ public interface Lobby extends Serializable {
      */
     void leaveUser(User user);
 
+    Timer getTimer();
     /**
      * Getter for all users in the lobby
      *
@@ -68,5 +72,9 @@ public interface Lobby extends Serializable {
      * @since 2019-10-08
      */
     Set<User> getUsers();
+
+    Set<User> getPlayersReady();
+
+    void setPlayersReadyToNull();
 
 }

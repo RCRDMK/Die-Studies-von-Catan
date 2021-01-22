@@ -6,6 +6,7 @@ import de.uol.swp.common.user.User;
 import java.util.Collections;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.Timer; import java.util.TimerTask;
 
 /**
  * Object to transfer the information of a game lobby
@@ -22,6 +23,10 @@ public class LobbyDTO implements Lobby {
     private final String name;
     private User owner;
     private final Set<User> users = new TreeSet<>();
+    private final Set<User> playersready = new TreeSet<>();
+    private Timer timer = new Timer();
+
+
 
     /**
      * Constructor
@@ -45,6 +50,11 @@ public class LobbyDTO implements Lobby {
     @Override
     public void joinUser(User user) {
         this.users.add(user);
+    }
+
+    @Override
+    public void joinPlayerReady(User user) {
+        this.playersready.add(user);
     }
 
     @Override
@@ -78,4 +88,12 @@ public class LobbyDTO implements Lobby {
         return Collections.unmodifiableSet(users);
     }
 
+    @Override
+    public Set<User> getPlayersReady() { return Collections.unmodifiableSet(playersready); }
+
+    @Override
+    public void setPlayersReadyToNull() {this.playersready.removeAll(playersready);}
+
+    @Override
+    public Timer getTimer() {return timer;}
 }

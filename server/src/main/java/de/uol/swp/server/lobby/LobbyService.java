@@ -4,6 +4,7 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import de.uol.swp.common.game.request.PlayerReadyRequest;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.message.*;
 import de.uol.swp.common.lobby.request.*;
@@ -16,6 +17,7 @@ import de.uol.swp.common.user.Session;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.response.lobby.*;
 import de.uol.swp.server.AbstractService;
+import de.uol.swp.server.game.GameService;
 import de.uol.swp.server.usermanagement.AuthenticationService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -100,6 +102,7 @@ public class LobbyService extends AbstractService {
             }
         }
     }
+
 
     /**
      * Handles LobbyJoinUserRequests found on the EventBus

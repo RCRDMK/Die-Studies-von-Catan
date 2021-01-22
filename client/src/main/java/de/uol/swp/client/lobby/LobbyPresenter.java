@@ -4,10 +4,16 @@ import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
 import de.uol.swp.client.chat.ChatService;
+import de.uol.swp.client.game.GameService;
 import de.uol.swp.common.chat.RequestChatMessage;
 import de.uol.swp.common.chat.ResponseChatMessage;
+import de.uol.swp.common.game.message.GameCreatedMessage;
+import de.uol.swp.common.game.request.PlayerReadyRequest;
+import de.uol.swp.common.lobby.message.LobbyCreatedMessage;
+import de.uol.swp.common.lobby.message.StartGameMessage;
 import de.uol.swp.common.lobby.message.UserJoinedLobbyMessage;
 import de.uol.swp.common.lobby.message.UserLeftLobbyMessage;
+import de.uol.swp.common.lobby.request.CreateGameRequest;
 import de.uol.swp.common.user.response.lobby.AllThisLobbyUsersResponse;
 import de.uol.swp.common.chat.RequestChatMessage;
 import de.uol.swp.common.chat.ResponseChatMessage;
@@ -22,9 +28,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -32,6 +36,7 @@ import java.util.List;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Manages the lobby menu
@@ -69,11 +74,14 @@ public class LobbyPresenter extends AbstractPresenter {
     @Inject
     private ChatService chatService;
 
+    @Inject
+    private GameService gameService;
+
     @FXML
     public void onStartGame(ActionEvent event) {
-        //TODO:
+        LOG.debug("StartGame Button pressed");
+        lobbyService.startGame(this.currentLobby, (UserDTO) this.joinedLobbyUser);
     }
-
 
     @FXML
     public void onLeaveLobby(ActionEvent event) {
@@ -123,7 +131,7 @@ public class LobbyPresenter extends AbstractPresenter {
      * @param message the LobbyCreatedSuccessfulResponse object seen on the EventBus
      *
      * @author Marc Hermes
-     * @see de.uol.swp.common.user.response.LobbyCreatedSuccessfulResponse
+     * @see de.uol.swp.common.user.response.lobby.LobbyCreatedSuccessfulResponse
      * @since 2020-12-02
      */
     @Subscribe
@@ -149,7 +157,7 @@ public class LobbyPresenter extends AbstractPresenter {
      * @param message the LobbyJoinedSuccessfulResponse object seen on the EventBus
      *
      * @author Marc Hermes
-     * @see de.uol.swp.common.user.response.LobbyJoinedSuccessfulResponse
+     * @see de.uol.swp.common.user.response.lobby.LobbyJoinedSuccessfulResponse
      * @since 2020-12-10
      */
     @Subscribe
@@ -175,7 +183,7 @@ public class LobbyPresenter extends AbstractPresenter {
      * @param message the LobbyLeftSuccessfulResponse object seen on the EventBus
      *
      * @author Marc Hermes
-     * @see de.uol.swp.common.user.response.LobbyLeftSuccessfulResponse
+     * @see de.uol.swp.common.user.response.lobby.LobbyLeftSuccessfulResponse
      * @since 2020-12-10
      */
     @Subscribe
@@ -246,7 +254,7 @@ leftSuccessfulLogic(message);
      */
     @Subscribe
     public void lobbyUserList(AllThisLobbyUsersResponse allThisLobbyUsersResponse) {
-lobbyUserListLogic(allThisLobbyUsersResponse);
+        lobbyUserListLogic(allThisLobbyUsersResponse);
     }
     public void lobbyUserListLogic(AllThisLobbyUsersResponse atlur){
         LOG.debug("Update of user list " + atlur.getUsers());
@@ -313,4 +321,39 @@ updateChatLogic(message);
         var readableTime = time.format(resultdate);
         lobbyChatArea.insertText(lobbyChatArea.getLength(), readableTime + " " + rcm.getUsername() + ": " + rcm.getMessage() + "\n");
     }
+
+
+    @Subscribe
+    public void startGamePopup(StartGameMessage message) {startGamePopupLogic(message);}
+    public void startGamePopupLogic(StartGameMessage sgm) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Confirmation Dialog with Custom Actions");
+        alert.setHeaderText("Ready to play?");
+        alert.setContentText("Choose your option.");
+
+        ButtonType buttonTypeYes = new ButtonType("Yes", ButtonBar.ButtonData.YES);
+        ButtonType buttonTypeNo = new ButtonType("No", ButtonBar.ButtonData.NO);
+
+        alert.getButtonTypes().setAll(buttonTypeYes, buttonTypeNo);
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.get() == buttonTypeYes){
+            PlayerReadyRequest playerReadyRequest = new PlayerReadyRequest(sgm.getName(),(UserDTO) this.joinedLobbyUser);
+            eventBus.post(playerReadyRequest);
+        } else if (result.get() == buttonTypeNo) {
+            // ... user chose "No"
+        }
+    }
+
+    @Subscribe
+    public void gameCreatedSuccessful(GameCreatedMessage message) {
+        gameCreatedSuccessfulLogic(message);
+    }
+
+    public void gameCreatedSuccessfulLogic(GameCreatedMessage gcm) {
+        LOG.debug("New game created by " + gcm.getUser().getUsername());
+        gameService.retrieveAllGames();
+    }
+
+
 }

@@ -10,6 +10,9 @@ import de.uol.swp.common.game.message.*;
 import de.uol.swp.common.game.request.*;
 import de.uol.swp.common.game.message.RollDiceRequest;
 import de.uol.swp.common.game.response.AllCreatedGamesResponse;
+import de.uol.swp.common.lobby.Lobby;
+import de.uol.swp.common.lobby.message.StartGameMessage;
+import de.uol.swp.common.lobby.request.StartGameRequest;
 import de.uol.swp.common.message.MessageContext;
 import de.uol.swp.common.message.ResponseMessage;
 import de.uol.swp.common.message.ServerMessage;
@@ -19,12 +22,16 @@ import de.uol.swp.common.user.response.game.GameCreatedSuccessfulResponse;
 import de.uol.swp.common.user.response.game.GameLeftSuccessfulResponse;
 import de.uol.swp.server.AbstractService;
 import de.uol.swp.server.game.dice.Dice;
+import de.uol.swp.server.lobby.LobbyManagement;
+import de.uol.swp.server.lobby.LobbyManagementException;
+import de.uol.swp.server.lobby.LobbyService;
 import de.uol.swp.server.usermanagement.AuthenticationService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.TimerTask;
 
 
 /**
@@ -39,6 +46,8 @@ public class GameService extends AbstractService {
 
     private final GameManagement gameManagement;
     private final AuthenticationService authenticationService;
+    private final LobbyService lobbyService;
+    private final LobbyManagement lobbyManagement;
     private static final Logger LOG = LogManager.getLogger(GameService.class);
 
     /**
@@ -52,10 +61,12 @@ public class GameService extends AbstractService {
      * @since 2021-01-07
      */
     @Inject
-    public GameService(GameManagement gameManagement, AuthenticationService authenticationService, EventBus eventBus) {
+    public GameService(GameManagement gameManagement, AuthenticationService authenticationService, LobbyService lobbyService, LobbyManagement lobbyManagement, EventBus eventBus) {
         super(eventBus);
         this.gameManagement = gameManagement;
         this.authenticationService = authenticationService;
+        this.lobbyService = lobbyService;
+        this.lobbyManagement = lobbyManagement;
     }
 
 
@@ -164,6 +175,44 @@ public class GameService extends AbstractService {
         }
 
         LOG.debug("Posted ResponseChatMessage on eventBus");
+    }
+
+    @Subscribe
+    public void onStartGameRequest(StartGameRequest startGameRequest) {
+        Optional<Lobby> lobby = lobbyManagement.getLobby(startGameRequest.getName());
+        System.out.println(lobby.get().getUsers().size());
+        if (lobby.get().getUsers().size() > 1) {
+            lobbyService.sendToAllInLobby(startGameRequest.getName(), new StartGameMessage(startGameRequest.getName()));
+            LOG.debug("send StartGameMessage to all users");
+        } else {
+            throw new LobbyManagementException("Not enough players in lobby");
+        }
+
+        int seconds = 10;
+
+        class RemindTask extends TimerTask {
+            public void run() {
+                startGameTimeOut(lobby);
+                lobby.get().getTimer().cancel();
+            }
+        }
+
+        lobby.get().getTimer().schedule(new RemindTask(), seconds*1000);
+    }
+
+    public void startGameTimeOut(Optional<Lobby> lobby) {
+        if (lobby.get().getPlayersReady().size() == lobby.get().getUsers().size()) {
+            gameManagement.createGame(lobby.get().getName(), lobby.get().getOwner());
+        } else {
+            throw new LobbyManagementException("Not enough players ready to start the game");
+        }
+        lobby.get().setPlayersReadyToNull();
+    }
+
+    @Subscribe
+    public void onPlayerReadyRequest(PlayerReadyRequest playerReadyRequest) {
+        Optional<Lobby> lobby = lobbyManagement.getLobby(playerReadyRequest.getName());
+        lobby.get().joinPlayerReady(playerReadyRequest.getUser());
     }
 
 }

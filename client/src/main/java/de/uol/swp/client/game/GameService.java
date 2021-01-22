@@ -5,6 +5,8 @@ import com.google.common.eventbus.EventBus;
 import com.google.inject.Inject;
 import de.uol.swp.client.user.UserService;
 import de.uol.swp.common.game.message.RollDiceRequest;
+import de.uol.swp.common.game.request.RetrieveAllGamesRequest;
+import de.uol.swp.common.lobby.request.RetrieveAllLobbiesRequest;
 import de.uol.swp.common.user.User;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -48,4 +50,10 @@ public class GameService {
         RollDiceRequest rollDiceRequest = new RollDiceRequest(name, user);
         eventBus.post(rollDiceRequest);
     }
+
+    public void retrieveAllGames() {
+        RetrieveAllGamesRequest cmd = new RetrieveAllGamesRequest();
+        eventBus.post(cmd);
+    }
+
 }
