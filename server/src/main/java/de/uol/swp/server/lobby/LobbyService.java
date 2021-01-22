@@ -261,14 +261,16 @@ public class LobbyService extends AbstractService {
      * Handles LogoutRequests found on the EventBus
      *
      * If a LogoutRequest is detected on the EventBus, this method is called. It
-     * tries to logout a user via the UserManagement. If this succeeds the user and
-     * his Session are removed from the userSessions Map and a UserLoggedOutMessage
-     * is posted on the EventBus.
+     * gets all lobbies from the LobbyManagement and loops through them.
+     * If the user is part of a lobby, he gets removed from it.
+     * If he is the last user in the lobby, the lobby gets dropped.
+     * Finally we log how many lobbies the user left.
      *
      * @param msg the LogoutRequest
      * @see de.uol.swp.common.user.request.LogoutRequest
-     * @see de.uol.swp.common.user.message.UserLoggedOutMessage
-     * @since 2019-08-30
+     * @see de.uol.swp.common.lobby.request.LobbyLeaveUserRequest
+     * @author René Meyer, Sergej Tulnev
+     * @since 2021-01-22
      */
     @Subscribe
     public void onLogoutRequest(LogoutRequest msg) {
