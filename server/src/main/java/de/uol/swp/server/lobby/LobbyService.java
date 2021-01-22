@@ -14,16 +14,16 @@ import de.uol.swp.common.message.ResponseMessage;
 import de.uol.swp.common.message.ServerMessage;
 import de.uol.swp.common.user.Session;
 import de.uol.swp.common.user.User;
+import de.uol.swp.common.user.UserDTO;
+import de.uol.swp.common.user.message.UserLoggedOutMessage;
+import de.uol.swp.common.user.request.LogoutRequest;
 import de.uol.swp.common.user.response.lobby.*;
 import de.uol.swp.server.AbstractService;
 import de.uol.swp.server.usermanagement.AuthenticationService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Handles the lobby requests send by the users
@@ -38,7 +38,6 @@ public class LobbyService extends AbstractService {
     private final LobbyManagement lobbyManagement;
     private final AuthenticationService authenticationService;
     private static final Logger LOG = LogManager.getLogger(LobbyService.class);
-    final private Map<Session, User> userSessions = new HashMap<>();
 
     /**
      * Constructor
@@ -256,5 +255,48 @@ public class LobbyService extends AbstractService {
         AllCreatedLobbiesResponse response = new AllCreatedLobbiesResponse(this.lobbyManagement.getAllLobbies().values());
         response.initWithMessage(msg);
         post(response);
+    }
+
+    /**
+     * Handles LogoutRequests found on the EventBus
+     *
+     * If a LogoutRequest is detected on the EventBus, this method is called. It
+     * tries to logout a user via the UserManagement. If this succeeds the user and
+     * his Session are removed from the userSessions Map and a UserLoggedOutMessage
+     * is posted on the EventBus.
+     *
+     * @param msg the LogoutRequest
+     * @see de.uol.swp.common.user.request.LogoutRequest
+     * @see de.uol.swp.common.user.message.UserLoggedOutMessage
+     * @since 2019-08-30
+     */
+    @Subscribe
+    public void onLogoutRequest(LogoutRequest msg) {
+        if (msg.getSession().isPresent()) {
+            Session session = msg.getSession().get();
+            var userToLogOut = session.getUser();
+            // Could be already logged out
+            if (userToLogOut != null) {
+                var lobbies = lobbyManagement.getAllLobbies();
+                // Loop lobbies
+                Iterator<Map.Entry<String, Lobby>> it = lobbies.entrySet().iterator();
+                var i = 0;
+                while (it.hasNext()) {
+                    Map.Entry<String, Lobby> entry = it.next();
+                    Lobby lobby = entry.getValue();
+                    if(lobby.getUsers().contains(userToLogOut.getWithoutPassword()) || lobby.getOwner().equals(userToLogOut)){
+                        // leave every lobby the user is part of
+                        var lobbyLeaveRequest = new LobbyLeaveUserRequest(lobby.getName(), (UserDTO) userToLogOut);
+                        if(msg.getMessageContext().isPresent()){
+                            lobbyLeaveRequest.setMessageContext(msg.getMessageContext().get());
+                            this.onLobbyLeaveUserRequest(lobbyLeaveRequest);
+                        }
+                    }
+                    i++;
+                }
+                var lobbyString = i>1? " lobbies":" lobby";
+                LOG.debug("Left " + i + lobbyString+" for User: " + userToLogOut.getUsername());
+            }
+        }
     }
 }
