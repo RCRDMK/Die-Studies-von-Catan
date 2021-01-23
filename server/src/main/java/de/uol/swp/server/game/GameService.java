@@ -177,10 +177,14 @@ public class GameService extends AbstractService {
         LOG.debug("Posted ResponseChatMessage on eventBus");
     }
 
+/*
     @Subscribe
     public void onStartGameRequest(StartGameRequest startGameRequest) {
         Optional<Lobby> lobby = lobbyManagement.getLobby(startGameRequest.getName());
-        System.out.println(lobby.get().getUsers().size());
+        System.out.println(startGameRequest.getName());
+        lobbyManagement.dropLobby(startGameRequest.getName());
+        System.out.println(lobby.get().getName());
+
         if (lobby.get().getUsers().size() > 1) {
             lobbyService.sendToAllInLobby(startGameRequest.getName(), new StartGameMessage(startGameRequest.getName()));
             LOG.debug("send StartGameMessage to all users");
@@ -198,7 +202,10 @@ public class GameService extends AbstractService {
         }
 
         lobby.get().getTimer().schedule(new RemindTask(), seconds*1000);
+
+
     }
+
 
     public void startGameTimeOut(Optional<Lobby> lobby) {
         if (lobby.get().getPlayersReady().size() == lobby.get().getUsers().size()) {
@@ -214,5 +221,5 @@ public class GameService extends AbstractService {
         Optional<Lobby> lobby = lobbyManagement.getLobby(playerReadyRequest.getName());
         lobby.get().joinPlayerReady(playerReadyRequest.getUser());
     }
-
+*/
 }

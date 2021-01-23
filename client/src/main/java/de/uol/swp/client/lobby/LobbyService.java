@@ -99,8 +99,8 @@ public class LobbyService {
         eventBus.post(cmd);
     }
 
-    public void startGame(String lobbyName, UserDTO user) {
-        StartGameRequest startGameRequest = new StartGameRequest(lobbyName, user);
+    public void startGame(String name, UserDTO user) {
+        StartGameRequest startGameRequest = new StartGameRequest(name, user);
         eventBus.post(startGameRequest);
         LOG.debug("StartGameRequest posted on Eventbus");
     }

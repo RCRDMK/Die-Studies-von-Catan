@@ -1,38 +1,38 @@
 package de.uol.swp.common.lobby.request;
 
-import de.uol.swp.common.message.AbstractRequestMessage;
-import de.uol.swp.common.user.User;
-
+import de.uol.swp.common.lobby.request.AbstractLobbyRequest;
+import de.uol.swp.common.user.UserDTO;
 
 /**
- * Request sent to the server when a user wants to roll the dice
+ * Request sent to the server when a user wants to leave a lobby
  * <p>
- * @see AbstractRequestMessage
- * @see User
- * @author Kirstin, Pieter
- * @since 2021-01-07
+ * @see AbstractLobbyRequest
+ * @see de.uol.swp.common.user.User
+ * @author Marco Grawunder
+ * @since 2019-10-08
  */
+public class StartGameRequest extends AbstractLobbyRequest {
 
-public class StartGameRequest extends AbstractRequestMessage{
-
-    private final String name;
-    private final User user;
-
+    /**
+     * Default constructor
+     * <p>
+     * @implNote this constructor is needed for serialization
+     * @author Marco Grawunder
+     * @since 2019-10-08
+     */
+    public StartGameRequest() {
+    }
 
     /**
      * Constructor
-     * @since 2021-01-07
+     * <p>
+     * @param lobbyName name of the lobby
+     * @param user user who wants to leave the lobby
+     * @author Marco Grawunder
+     * @since 2019-10-08
      */
-    public StartGameRequest(String name, User user) {
-        this.name = name;
-        this.user = user;
+    public StartGameRequest(String lobbyName, UserDTO user) {
+        super(lobbyName, user);
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public User getUser() {
-        return user;
-    }
 }

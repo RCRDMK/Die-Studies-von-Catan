@@ -17,15 +17,11 @@ import de.uol.swp.common.user.Session;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.response.lobby.*;
 import de.uol.swp.server.AbstractService;
-import de.uol.swp.server.game.GameService;
 import de.uol.swp.server.usermanagement.AuthenticationService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Handles the lobby requests send by the users
@@ -260,4 +256,53 @@ public class LobbyService extends AbstractService {
         response.initWithMessage(msg);
         post(response);
     }
+
+
+    @Subscribe
+    public void onStartGameRequest(StartGameRequest startGameRequest) {
+        Optional<Lobby> lobby = lobbyManagement.getLobby(startGameRequest.getName());
+        System.out.println(startGameRequest.getName());
+        lobbyManagement.dropLobby(startGameRequest.getName());
+        System.out.println(lobby.get().getName());
+
+        if (lobby.get().getUsers().size() > 1) {
+            sendToAllInLobby(startGameRequest.getName(), new StartGameMessage(startGameRequest.getName()));
+            LOG.debug("send StartGameMessage to all users");
+        } else {
+            throw new LobbyManagementException("Not enough players in lobby");
+        }
+
+        int seconds = 10;
+
+        class RemindTask extends TimerTask {
+            public void run() {
+                startGameTimeOut(lobby);
+                lobby.get().getTimer().cancel();
+            }
+        }
+
+        lobby.get().getTimer().schedule(new RemindTask(), seconds*1000);
+
+
+    }
+
+
+    public void startGameTimeOut(Optional<Lobby> lobby) {
+        if (lobby.get().getPlayersReady().size() == lobby.get().getUsers().size()) {
+            LOG.debug("create game");
+            //gameManagement.createGame(lobby.get().getName(), lobby.get().getOwner());
+        } else {
+            throw new LobbyManagementException("Not enough players ready to start the game");
+        }
+        lobby.get().setPlayersReadyToNull();
+    }
+
+    @Subscribe
+    public void onPlayerReadyRequest(PlayerReadyRequest playerReadyRequest) {
+        Optional<Lobby> lobby = lobbyManagement.getLobby(playerReadyRequest.getName());
+        lobby.get().joinPlayerReady(playerReadyRequest.getUser());
+    }
+
+
+
 }
