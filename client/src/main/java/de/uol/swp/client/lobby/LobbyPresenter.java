@@ -9,20 +9,12 @@ import de.uol.swp.common.chat.RequestChatMessage;
 import de.uol.swp.common.chat.ResponseChatMessage;
 import de.uol.swp.common.game.message.GameCreatedMessage;
 import de.uol.swp.common.game.request.PlayerReadyRequest;
-import de.uol.swp.common.lobby.message.LobbyCreatedMessage;
-import de.uol.swp.common.lobby.message.StartGameMessage;
 import de.uol.swp.common.lobby.message.UserJoinedLobbyMessage;
 import de.uol.swp.common.lobby.message.UserLeftLobbyMessage;
-import de.uol.swp.common.lobby.request.CreateGameRequest;
-import de.uol.swp.common.user.response.lobby.AllThisLobbyUsersResponse;
-import de.uol.swp.common.chat.RequestChatMessage;
-import de.uol.swp.common.chat.ResponseChatMessage;
+import de.uol.swp.common.lobby.request.StartGameRequest;
+import de.uol.swp.common.user.response.lobby.*;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
-import de.uol.swp.client.chat.ChatService;
-import de.uol.swp.common.user.response.lobby.LobbyCreatedSuccessfulResponse;
-import de.uol.swp.common.user.response.lobby.LobbyJoinedSuccessfulResponse;
-import de.uol.swp.common.user.response.lobby.LobbyLeftSuccessfulResponse;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -35,7 +27,6 @@ import org.apache.logging.log4j.Logger;
 import java.util.List;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -148,7 +139,7 @@ public class LobbyPresenter extends AbstractPresenter {
      * @param lcsr the LobbyCreatedSuccessfulResponse given by the original subscriber method.
      *
      * @author Alexander Losse, Marc Hermes
-     * @see de.uol.swp.common.user.response.LobbyCreatedSuccessfulResponse
+     * @see de.uol.swp.common.user.response.lobby.LobbyCreatedSuccessfulResponse
      * @since 2021-01-20
      */
     public void createdSuccessfulLogic(LobbyCreatedSuccessfulResponse lcsr) {
@@ -187,7 +178,7 @@ public class LobbyPresenter extends AbstractPresenter {
      * @param ljsr the LobbyJoinedSuccessfulResponse given by the original subscriber method.
      *
      * @author Alexander Losse, Marc Hermes
-     * @see de.uol.swp.common.user.response.LobbyJoinedSuccessfulResponse
+     * @see de.uol.swp.common.user.response.lobby.LobbyJoinedSuccessfulResponse
      * @since 2021-01-20
      */
     public void userJoinedSuccessfulLogic(LobbyJoinedSuccessfulResponse ljsr) {
@@ -224,7 +215,7 @@ public class LobbyPresenter extends AbstractPresenter {
      * @param llsr the LobbyLeftSuccessfulResponse given by the original subscriber method
      *
      * @author Alexander Losse, Marc Hermes
-     * @see de.uol.swp.common.user.response.LobbyLeftSuccessfulResponse
+     * @see de.uol.swp.common.user.response.lobby.LobbyLeftSuccessfulResponse
      * @since 2021-01-20
      */
     public void userLeftSuccessfulLogic(LobbyLeftSuccessfulResponse llsr) {
@@ -332,7 +323,7 @@ leftSuccessfulLogic(message);
      * @param atlur the AllThisLobbyUsersResponse given by the original subscriber method.
      *
      * @author Alexander Losse, Marc Hermes
-     * @see de.uol.swp.common.user.response.AllThisLobbyUsersResponse
+     * @see de.uol.swp.common.user.response.lobby.AllThisLobbyUsersResponse
      * @since 2021-01-20
      */
     public void lobbyUserListLogic(AllThisLobbyUsersResponse atlur){
@@ -429,25 +420,30 @@ updateChatLogic(message);
 
 
     @Subscribe
-    public void startGamePopup(StartGameMessage message) {startGamePopupLogic(message);}
-    public void startGamePopupLogic(StartGameMessage sgm) {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Confirmation Dialog with Custom Actions");
-        alert.setHeaderText("Ready to play?");
-        alert.setContentText("Choose your option.");
+    public void startGamePopup(StartGameResponse message) {startGamePopupLogic(message);}
+    public void startGamePopupLogic(StartGameResponse sgm) {
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Confirmation Dialog with Custom Actions");
+            alert.setHeaderText("Ready to play?");
+            alert.setContentText("Choose your option.");
 
-        ButtonType buttonTypeYes = new ButtonType("Yes", ButtonBar.ButtonData.YES);
-        ButtonType buttonTypeNo = new ButtonType("No", ButtonBar.ButtonData.NO);
+            ButtonType buttonTypeYes = new ButtonType("Yes", ButtonBar.ButtonData.CANCEL_CLOSE);
+            ButtonType buttonTypeNo = new ButtonType("No", ButtonBar.ButtonData.CANCEL_CLOSE);
 
-        alert.getButtonTypes().setAll(buttonTypeYes, buttonTypeNo);
+            alert.getButtonTypes().setAll(buttonTypeYes, buttonTypeNo);
 
-        Optional<ButtonType> result = alert.showAndWait();
-        if (result.get() == buttonTypeYes){
-            PlayerReadyRequest playerReadyRequest = new PlayerReadyRequest(sgm.getName(),(UserDTO) this.joinedLobbyUser);
-            eventBus.post(playerReadyRequest);
-        } else if (result.get() == buttonTypeNo) {
-            // ... user chose "No"
-        }
+            Optional<ButtonType> result = alert.showAndWait();
+            if (result.get() == buttonTypeYes){
+                LOG.debug("test YES");
+                PlayerReadyRequest playerReadyRequest = new PlayerReadyRequest(sgm.getName(),(UserDTO) this.joinedLobbyUser);
+                eventBus.post(playerReadyRequest);
+            } else if (result.get() == buttonTypeNo) {
+                // ... user chose "No"
+            }
+            alert.close();
+        });
+
     }
 
     @Subscribe

@@ -24,7 +24,7 @@ public class LobbyDTO implements Lobby {
     private User owner;
     private final Set<User> users = new TreeSet<>();
     private final Set<User> playersready = new TreeSet<>();
-    private Timer timer = new Timer();
+    //private Timer timer = new Timer();
 
 
 
@@ -94,6 +94,6 @@ public class LobbyDTO implements Lobby {
     @Override
     public void setPlayersReadyToNull() {this.playersready.removeAll(playersready);}
 
-    @Override
-    public Timer getTimer() {return timer;}
+    //@Override
+    //public Timer getTimer() {return timer;}
 }

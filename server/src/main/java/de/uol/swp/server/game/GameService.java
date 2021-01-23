@@ -10,9 +10,6 @@ import de.uol.swp.common.game.message.*;
 import de.uol.swp.common.game.request.*;
 import de.uol.swp.common.game.message.RollDiceRequest;
 import de.uol.swp.common.game.response.AllCreatedGamesResponse;
-import de.uol.swp.common.lobby.Lobby;
-import de.uol.swp.common.lobby.message.StartGameMessage;
-import de.uol.swp.common.lobby.request.StartGameRequest;
 import de.uol.swp.common.message.MessageContext;
 import de.uol.swp.common.message.ResponseMessage;
 import de.uol.swp.common.message.ServerMessage;
@@ -23,7 +20,6 @@ import de.uol.swp.common.user.response.game.GameLeftSuccessfulResponse;
 import de.uol.swp.server.AbstractService;
 import de.uol.swp.server.game.dice.Dice;
 import de.uol.swp.server.lobby.LobbyManagement;
-import de.uol.swp.server.lobby.LobbyManagementException;
 import de.uol.swp.server.lobby.LobbyService;
 import de.uol.swp.server.usermanagement.AuthenticationService;
 import org.apache.logging.log4j.LogManager;
@@ -31,7 +27,6 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.TimerTask;
 
 
 /**

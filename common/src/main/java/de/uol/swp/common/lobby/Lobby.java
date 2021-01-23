@@ -64,7 +64,7 @@ public interface Lobby extends Serializable {
      */
     void leaveUser(User user);
 
-    Timer getTimer();
+    //Timer getTimer();
     /**
      * Getter for all users in the lobby
      *

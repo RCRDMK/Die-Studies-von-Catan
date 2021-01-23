@@ -261,17 +261,13 @@ public class LobbyService extends AbstractService {
     @Subscribe
     public void onStartGameRequest(StartGameRequest startGameRequest) {
         Optional<Lobby> lobby = lobbyManagement.getLobby(startGameRequest.getName());
-        System.out.println(startGameRequest.getName());
-        lobbyManagement.dropLobby(startGameRequest.getName());
-        System.out.println(lobby.get().getName());
-
         if (lobby.get().getUsers().size() > 1) {
-            sendToAllInLobby(startGameRequest.getName(), new StartGameMessage(startGameRequest.getName()));
+            sendToSpecificUser(startGameRequest.getMessageContext().get(), new StartGameResponse(startGameRequest.getName(),startGameRequest.getUser()));
             LOG.debug("send StartGameMessage to all users");
         } else {
             throw new LobbyManagementException("Not enough players in lobby");
         }
-
+        /*
         int seconds = 10;
 
         class RemindTask extends TimerTask {
@@ -282,8 +278,7 @@ public class LobbyService extends AbstractService {
         }
 
         lobby.get().getTimer().schedule(new RemindTask(), seconds*1000);
-
-
+        */
     }
 
 
