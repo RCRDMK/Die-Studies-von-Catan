@@ -202,7 +202,7 @@ public class LobbyService extends AbstractService {
             List<Session> lobbyUsers = authenticationService.getSessions(lobby.get().getUsers());
             if (retrieveAllThisLobbyUsersRequest.getMessageContext().isPresent()) {
                 Optional<MessageContext> ctx = retrieveAllThisLobbyUsersRequest.getMessageContext();
-                sendToSpecificUser(ctx.get(), new AllThisLobbyUsersResponse(lobbyUsers));
+                sendToSpecificUser(ctx.get(), new AllThisLobbyUsersResponse(lobbyUsers, retrieveAllThisLobbyUsersRequest.getName()));
             }
         }
     }

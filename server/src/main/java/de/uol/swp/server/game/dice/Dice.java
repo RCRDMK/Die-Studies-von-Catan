@@ -11,7 +11,7 @@ import java.util.Random;
 
 public class Dice {
 
-    int eyes = 0;
+    private int eyes = 0;
 
     public void rollDice(){
         Random r1 = new Random();

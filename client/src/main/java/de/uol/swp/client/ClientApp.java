@@ -196,8 +196,6 @@ public class ClientApp extends Application implements ConnectionListener {
      */
     @Subscribe
     public void userJoinedLobby(LobbyJoinedSuccessfulResponse message) {
-        //TODO: Make it possible for the User to select a Lobby that he wants to join,
-        // currently the user is only able to join the only lobby on pressing the button
         LOG.debug("user joined lobby ");
         this.user = message.getUser();
             sceneManager.showLobbyScreen(user, message.getName());
@@ -228,18 +226,21 @@ public class ClientApp extends Application implements ConnectionListener {
 
     /**
      * Handles the successful leaving of a user
+     * <p>
+     * If an LobbyLeftSuccessfulResponse object is detected on the EventBus this method is called.
+     * It tells the SceneManager to remove the tab corresponding to the lobby that was left.
      *
-     * If an UserLeftLobbyMessage object is detected on the EventBus this method is called.
-     * It tells the SceneManager to show the main menu.
+     * @param message the LobbyLeftSuccessfulResponse detected on the EventBus
      *
-     * @param message
-     * @see de.uol.swp.client.SceneManager
+     * @see de.uol.swp.common.user.response.LobbyLeftSuccessfulResponse
+     * @since 2021-01-20
+     * @author Alexander Losse, Marc Hermes
      */
     @Subscribe
     public void userLeftLobby(LobbyLeftSuccessfulResponse message) {
         LOG.debug("User " + message.getUser().getUsername() + " left lobby ");
             this.user = message.getUser();
-            sceneManager.showMainScreen(user);
+            sceneManager.removeLobbyTab(message.getUser(), message.getName());
     }
 
     /**
