@@ -14,6 +14,7 @@ import de.uol.swp.common.lobby.message.LobbyCreatedMessage;
 import de.uol.swp.common.lobby.message.LobbyDroppedMessage;
 import de.uol.swp.common.lobby.message.LobbySizeChangedMessage;
 import de.uol.swp.common.lobby.response.AllCreatedLobbiesResponse;
+import de.uol.swp.common.lobby.response.AlreadyJoinedThisLobbyResponse;
 import de.uol.swp.common.lobby.response.LobbyAlreadyExistsResponse;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
@@ -313,6 +314,31 @@ onLobbyFullResponseLogic(response);
         Date resultDate = new Date();
         var readableTime = time.format(resultDate);
         textArea.insertText(textArea.getLength(), readableTime + " SYSTEM: Can't join full lobby " + lfr.getLobbyName() + " \n");
+    }
+
+    /**
+     * Method called when an AlreadyJoinedThisLobbyResponse was posted on the eventBus.
+     * <p>
+     * If an AlreadyJoinedThisLobbyResponse was posted on the eventBus, this method will remember the User , that
+     * he already joined this lobby in another Tab.
+     *
+     * @param response The ResponseMessage contains the name of the lobby.
+     *
+     * @author Carsten Dekker
+     * @see de.uol.swp.common.lobby.response.AlreadyJoinedThisLobbyResponse
+     * @since 2021-01-22
+     */
+
+    @Subscribe
+    public void onAlreadyJoinedThisLobbyResponse(AlreadyJoinedThisLobbyResponse response) {
+        onAlreadyJoinedThisLobbyResponseLogic(response);
+    }
+    public void onAlreadyJoinedThisLobbyResponseLogic(AlreadyJoinedThisLobbyResponse response){
+        LOG.debug("Can't join lobby " + response.getLobbyName() + " because the User joined this lobby already.");
+        var time = new SimpleDateFormat("HH:mm");
+        Date resultDate = new Date();
+        var readableTime = time.format(resultDate);
+        textArea.insertText(textArea.getLength(), readableTime + " SYSTEM: Can't join the lobby " + response.getLobbyName() + "twice." + "\n");
     }
 
     /**
