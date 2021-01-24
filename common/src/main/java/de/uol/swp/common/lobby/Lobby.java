@@ -55,7 +55,7 @@ public interface Lobby extends Serializable {
     void joinUser(User user);
 
     /**
-     * Adds a new user to the ready to start the game players list
+     * Adds a new user to the "ready to start the game" players list
      *
      * @param user The new user that is ready to start
      * @since 2021-01-24
@@ -71,7 +71,6 @@ public interface Lobby extends Serializable {
      */
     void leaveUser(User user);
 
-    //Timer getTimer();
     /**
      * Getter for all users in the lobby
      *
