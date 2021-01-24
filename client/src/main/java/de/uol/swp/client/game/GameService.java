@@ -51,6 +51,13 @@ public class GameService {
         eventBus.post(rollDiceRequest);
     }
 
+    /**
+     * Posts a request to get a list of all existing games on the EventBus
+     *
+     * @see de.uol.swp.common.game.request.RetrieveAllGamesRequest
+     * @since 2020-04-12
+     * @author Kirstin Beyer, Iskander Yusupov
+     */
     public void retrieveAllGames() {
         RetrieveAllGamesRequest cmd = new RetrieveAllGamesRequest();
         eventBus.post(cmd);

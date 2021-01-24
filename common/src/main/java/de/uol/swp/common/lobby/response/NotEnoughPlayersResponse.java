@@ -4,18 +4,18 @@ import de.uol.swp.common.message.AbstractResponseMessage;
 
 
 /**
- * Message sent to the client when a lobby already exists.
+ * Message sent to the client when a lobby has not enough players to start the game.
  *
+ * @author Kirstin Beyer, Iskander Yusupov
  * @see de.uol.swp.common.message.ResponseMessage
- * @author Marius Birk and Carsten Dekker
- * @since 2020-12-02
+ * @since 2021-01-24
  */
 public class NotEnoughPlayersResponse extends AbstractResponseMessage {
     /**
      * Default constructor
      *
-     * @implNote this constructor is needed for serialization
-     * @since 2019-10-08
+     * @author Kirstin Beyer, Iskander Yusupov
+     * @since 2021-01-24
      */
     public NotEnoughPlayersResponse() {
     }

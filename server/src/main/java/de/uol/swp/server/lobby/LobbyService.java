@@ -258,7 +258,19 @@ public class LobbyService extends AbstractService {
         post(response);
     }
 
-
+    /**
+     *Handles StartGameRequest found on the EventBus
+     * <p>
+     * If a StartGameRequest is detected on the EventBus, this method is called.
+     * If the number of players in the lobby is more than 1, Method creates StartGameRequest with lobby of the lobby and user,
+     * which will be sent to all players in the lobby.
+     * Else Method creates NotEnoughPlayersResponse and sends it to a specific user that sent the initial request.
+     *
+     * @param startGameRequest the StartGameRequest found on the EventBus
+     * @see de.uol.swp.common.lobby.request.StartGameRequest
+     * @author Kirstin Beyer, Iskander Yusupov
+     * @since 2021-01-24
+     */
     @Subscribe
     public void onStartGameRequest(StartGameRequest startGameRequest) {
         Optional<Lobby> lobby = lobbyManagement.getLobby(startGameRequest.getName());
@@ -289,13 +301,23 @@ public class LobbyService extends AbstractService {
     public void startGameTimeOut(Optional<Lobby> lobby) {
         if (lobby.get().getPlayersReady().size() == lobby.get().getUsers().size()) {
             LOG.debug("create game");
-            //gameManagemteent.createGame(lobby.get().getName(), lobby.get().getOwner());
+            //gameManagement.createGame(lobby.get().getName(), lobby.get().getOwner());
         } else {
             throw new LobbyManagementException("Not enough players ready to start the game");
         }
         lobby.get().setPlayersReadyToNull();
     }
 
+    /**
+     * Handles PlayerReadyRequest found on the EventBus
+     *<p>
+     * If a PlayerReadyRequest is detected on the EventBus, this method is called.
+     *
+     * @param playerReadyRequest the PlayerReadyRequest found on the EventBus
+     * @see de.uol.swp.common.game.request.PlayerReadyRequest
+     * @author Kirstin Beyer, Iskander Yusupov
+     * @since 2021-01-24
+     */
     @Subscribe
     public void onPlayerReadyRequest(PlayerReadyRequest playerReadyRequest) {
         Optional<Lobby> lobby = lobbyManagement.getLobby(playerReadyRequest.getName());

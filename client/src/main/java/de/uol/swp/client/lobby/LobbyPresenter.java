@@ -74,6 +74,16 @@ public class LobbyPresenter extends AbstractPresenter {
     @Inject
     private GameService gameService;
 
+
+    /**
+     * Method called when the StartGame button is pressed
+     * <p>
+     *
+     * @param event The ActionEvent created by pressing the StartGame button
+     * @author Kirstin Beyer und Iskander Yusupov
+     * @see de.uol.swp.client.lobby.LobbyService
+     * @since 2021-01-23
+     */
     @FXML
     public void onStartGame(ActionEvent event) {
         LOG.debug("StartGame Button pressed");
@@ -99,7 +109,6 @@ public class LobbyPresenter extends AbstractPresenter {
      * The message is of type RequestChatMessage If this will result in an exception, go log the exception
      *
      * @param event The ActionEvent created by pressing the send Message button
-     *
      * @author Anton, René, Sergej
      * @see de.uol.swp.client.chat.ChatService
      * @since 2020-12-06
@@ -126,7 +135,6 @@ public class LobbyPresenter extends AbstractPresenter {
      * If a LobbyCreatedSuccessfulResponse is detected on the EventBus this method invokes createdSuccessfulLogic.
      *
      * @param message the LobbyCreatedSuccessfulResponse object seen on the EventBus
-     *
      * @author Marc Hermes
      * @see de.uol.swp.common.user.response.lobby.LobbyCreatedSuccessfulResponse
      * @since 2020-12-02
@@ -144,7 +152,6 @@ public class LobbyPresenter extends AbstractPresenter {
      * An update of the Users in the currentLobby is also requested.
      *
      * @param lcsr the LobbyCreatedSuccessfulResponse given by the original subscriber method.
-     *
      * @author Alexander Losse, Marc Hermes
      * @see de.uol.swp.common.user.response.lobby.LobbyCreatedSuccessfulResponse
      * @since 2021-01-20
@@ -166,7 +173,6 @@ public class LobbyPresenter extends AbstractPresenter {
      * If a LobbyJoinedSuccessfulResponse is detected on the EventBus this method invokes userJoinedSuccessfulLogic
      *
      * @param message the LobbyJoinedSuccessfulResponse object seen on the EventBus
-     *
      * @author Marc Hermes
      * @see de.uol.swp.common.user.response.lobby.LobbyJoinedSuccessfulResponse
      * @since 2020-12-10
@@ -175,6 +181,7 @@ public class LobbyPresenter extends AbstractPresenter {
     public void userJoinedSuccessful(LobbyJoinedSuccessfulResponse message) {
         userJoinedSuccessfulLogic(message);
     }
+
     /**
      * The Method invoked by userJoinedSuccessful()
      * <p>
@@ -183,7 +190,6 @@ public class LobbyPresenter extends AbstractPresenter {
      * An update of the Users in the currentLobby is also requested.
      *
      * @param ljsr the LobbyJoinedSuccessfulResponse given by the original subscriber method.
-     *
      * @author Alexander Losse, Marc Hermes
      * @see de.uol.swp.common.user.response.lobby.LobbyJoinedSuccessfulResponse
      * @since 2021-01-20
@@ -206,7 +212,6 @@ public class LobbyPresenter extends AbstractPresenter {
      * If a LobbyLeftSuccessfulResponse is detected on the EventBus the method userLeftSuccessfulLogic is invoked.
      *
      * @param message the LobbyLeftSuccessfulResponse object seen on the EventBus
-     *
      * @author Marc Hermes
      * @see de.uol.swp.common.user.response.lobby.LobbyLeftSuccessfulResponse
      * @since 2020-12-10
@@ -220,7 +225,6 @@ public class LobbyPresenter extends AbstractPresenter {
      * Has no functionality currently, but might be used in the future.
      *
      * @param llsr the LobbyLeftSuccessfulResponse given by the original subscriber method
-     *
      * @author Alexander Losse, Marc Hermes
      * @see de.uol.swp.common.user.response.lobby.LobbyLeftSuccessfulResponse
      * @since 2021-01-20
@@ -234,7 +238,6 @@ public class LobbyPresenter extends AbstractPresenter {
      * If a UserJoinedLobbyMessage is detected on the EventBus the method joinedSuccessfulLogic is invoked.
      *
      * @param message the UserJoinedLobbyMessage object seen on the EventBus
-     *
      * @author Marc Hermes
      * @see de.uol.swp.common.lobby.message.UserJoinedLobbyMessage
      * @since 2020-12-03
@@ -252,12 +255,11 @@ public class LobbyPresenter extends AbstractPresenter {
      * is requested.
      *
      * @param ujlm the UserJoinedLobbyMessage given by the original subscriber method.
-     *
      * @author Alexander Losse, Marc Hermes
      * @see de.uol.swp.common.lobby.message.UserJoinedLobbyMessage
      * @since 2021-01-20
      */
-    public void joinedSuccessfulLogic(UserJoinedLobbyMessage ujlm){
+    public void joinedSuccessfulLogic(UserJoinedLobbyMessage ujlm) {
         if (this.currentLobby != null) {
             if (this.currentLobby.equals(ujlm.getName())) {
                 LOG.debug("Requesting update of User list in lobby because a User joined the lobby.");
@@ -272,14 +274,13 @@ public class LobbyPresenter extends AbstractPresenter {
      * If a UserJoinedLobbyMessage is detected on the EventBus the method leftSuccessfulLogic is invoked.
      *
      * @param message the UserLeftLobbyMessage object seen on the EventBus
-     *
      * @author Marc Hermes
      * @see de.uol.swp.common.lobby.message.UserLeftLobbyMessage
      * @since 2020-12-03
      */
     @Subscribe
     public void leftSuccessful(UserLeftLobbyMessage message) {
-leftSuccessfulLogic(message);
+        leftSuccessfulLogic(message);
     }
 
     /**
@@ -290,12 +291,11 @@ leftSuccessfulLogic(message);
      * is requested.
      *
      * @param ullm the UserLeftLobbyMessage given by the original subscriber method.
-     *
      * @author Alexander Losse, Marc Hermes
      * @see de.uol.swp.common.lobby.message.UserLeftLobbyMessage
      * @since 2021-01-20
      */
-    public void leftSuccessfulLogic(UserLeftLobbyMessage ullm){
+    public void leftSuccessfulLogic(UserLeftLobbyMessage ullm) {
         if (this.currentLobby != null) {
             if (this.currentLobby.equals(ullm.getName())) {
                 LOG.debug("Requesting update of User list in lobby because a User left the lobby.");
@@ -310,7 +310,6 @@ leftSuccessfulLogic(message);
      * If a AllThisLobbyUsersResponse is detected on the EventBus the method lobbyUserListLogic is invoked.
      *
      * @param allThisLobbyUsersResponse the AllThisLobbyUsersResponse object seen on the EventBus
-     *
      * @author Marc Hermes, Ricardo Mook
      * @see AllThisLobbyUsersResponse
      * @since 2020-12-02
@@ -328,12 +327,11 @@ leftSuccessfulLogic(message);
      * to update the List of the Users in the currentLobby in regards to the list given by the response.
      *
      * @param atlur the AllThisLobbyUsersResponse given by the original subscriber method.
-     *
      * @author Alexander Losse, Marc Hermes
      * @see de.uol.swp.common.user.response.lobby.AllThisLobbyUsersResponse
      * @since 2021-01-20
      */
-    public void lobbyUserListLogic(AllThisLobbyUsersResponse atlur){
+    public void lobbyUserListLogic(AllThisLobbyUsersResponse atlur) {
         if (this.currentLobby != null) {
             if (this.currentLobby.equals(atlur.getName())) {
                 LOG.debug("Update of user list " + atlur.getUsers());
@@ -350,7 +348,6 @@ leftSuccessfulLogic(message);
      * user list. If there ist no user list this creates one.
      *
      * @param lobbyUserList A list of UserDTO objects including all currently logged in users
-     *
      * @implNote The code inside this Method has to run in the JavaFX-application thread. Therefore it is crucial not to
      * remove the {@code Platform.runLater()}
      * @author Marc Hermes, Ricardo Mook
@@ -358,9 +355,10 @@ leftSuccessfulLogic(message);
      * @since 2020-12-02
      */
     private void updateLobbyUsersList(List<UserDTO> lobbyUserList) {
-updateLobbyUsersListLogic(lobbyUserList);
+        updateLobbyUsersListLogic(lobbyUserList);
     }
-    public void updateLobbyUsersListLogic(List<UserDTO> l){
+
+    public void updateLobbyUsersListLogic(List<UserDTO> l) {
         // Attention: This must be done on the FX Thread!
         Platform.runLater(() -> {
             if (lobbyUsers == null) {
@@ -378,7 +376,6 @@ updateLobbyUsersListLogic(lobbyUserList);
      * If a ResponseChatMessage is detected on the EventBus the method onResponseChatMessageLogic is invoked.
      *
      * @param message the ResponseChatMessage object seen on the EventBus
-     *
      * @author ?
      * @see de.uol.swp.common.chat.ResponseChatMessage
      * @since ?
@@ -396,12 +393,11 @@ updateLobbyUsersListLogic(lobbyUserList);
      * to update the chat of the currentLobby in regards to the input given by the response.
      *
      * @param rcm the ResponseChatMessage given by the original subscriber method.
-     *
      * @author Alexander Losse, Marc Hermes
      * @see de.uol.swp.common.chat.ResponseChatMessage
      * @since 2021-01-20
      */
-    public void onResponseChatMessageLogic(ResponseChatMessage rcm){
+    public void onResponseChatMessageLogic(ResponseChatMessage rcm) {
         // Only update Messages from used lobby chat
         if (this.currentLobby != null) {
             if (rcm.getChat().equals(currentLobby)) {
@@ -416,8 +412,11 @@ updateLobbyUsersListLogic(lobbyUserList);
      *
      * @param message
      */
-    private void updateChat(ResponseChatMessage message) { updateChatLogic(message); }
-    private void updateChatLogic(ResponseChatMessage rcm){
+    private void updateChat(ResponseChatMessage message) {
+        updateChatLogic(message);
+    }
+
+    private void updateChatLogic(ResponseChatMessage rcm) {
         var time = new SimpleDateFormat("HH:mm");
         Date resultdate = new Date((long) rcm.getTime().doubleValue());
         var readableTime = time.format(resultdate);
@@ -425,8 +424,36 @@ updateLobbyUsersListLogic(lobbyUserList);
     }
 
 
+    /**
+     * Method called when the StartGame button is pressed
+     * <p>
+     * If StartGameMessage is detected on the EventBus the method startGamePopupLogic is invoked.
+     *
+     * @param message The ActionEvent created by pressing the StartGame button
+     * @author Kirstin Beyer, Iskander Yusupov
+     * @see de.uol.swp.common.lobby.message.StartGameMessage
+     * @since 2021-01-23
+     */
     @Subscribe
-    public void startGamePopup(StartGameMessage message) {startGamePopupLogic(message); LOG.debug("open startGame Popup");}
+    public void startGamePopup(StartGameMessage message) {
+        startGamePopupLogic(message);
+        LOG.debug("open startGame Popup");
+    }
+
+    /**
+     * The Method invoked by startGamePopup()
+     * <p>
+     * <p>
+     * Method opens confirmation window with two options: Yes & No
+     * Which asks if each player is ready to start the game.
+     * If button Yes is pressed, then PlayerReadyRequest is posted on the EventBus.
+     * Else TODO: what happens when player is not ready
+     *
+     * @param sgm the startGamePopup given by the original subscriber method.
+     * @author Kirstin Beyer, Iskander Yusupov
+     * @see de.uol.swp.common.lobby.message.StartGameMessage
+     * @since 2021-01-23
+     */
     public void startGamePopupLogic(StartGameMessage sgm) {
         if (this.currentLobby.equals(sgm.getName())) {
             Platform.runLater(() -> {
@@ -440,8 +467,8 @@ updateLobbyUsersListLogic(lobbyUserList);
                 alert.getButtonTypes().setAll(buttonTypeYes, buttonTypeNo);
 
                 Optional<ButtonType> result = alert.showAndWait();
-                if (result.get() == buttonTypeYes){
-                    PlayerReadyRequest playerReadyRequest = new PlayerReadyRequest(sgm.getName(),(UserDTO) this.joinedLobbyUser);
+                if (result.get() == buttonTypeYes) {
+                    PlayerReadyRequest playerReadyRequest = new PlayerReadyRequest(sgm.getName(), (UserDTO) this.joinedLobbyUser);
                     eventBus.post(playerReadyRequest);
                 } else if (result.get() == buttonTypeNo) {
                     // ... user chose "No"
@@ -451,25 +478,65 @@ updateLobbyUsersListLogic(lobbyUserList);
         }
     }
 
+    /**
+     * Handles unsuccessful start of the game.
+     * <p>
+     * If NotEnoughPlayersResponse is detected on the EventBus the method onNotEnoughPlayersResponseLogic is invoked.
+     *
+     * @param message the NotEnoughPlayersResponse object seen on the EventBus
+     * @author Kirstin Beyer, Iskander Yusupov
+     * @see de.uol.swp.common.lobby.response.NotEnoughPlayersResponse
+     * @since 2021-01-23
+     */
     @Subscribe
     public void onNotEnoughPlayersResponse(NotEnoughPlayersResponse message) {
         onNotEnoughPlayersResponseLogic(message);
     }
-    public void onNotEnoughPlayersResponseLogic(NotEnoughPlayersResponse nepr){
+
+    /**
+     * The Method invoked by onNotEnoughPlayersResponse()
+     * <p>
+     * Notifies player that not enough players are inside the lobby to start the game.
+     *
+     * @param nepr the NotEnoughPlayersResponse given by the original subscriber method.
+     * @author Kirstin Beyer, Iskander Yusupov
+     * @see de.uol.swp.common.lobby.response.NotEnoughPlayersResponse
+     * @since 2021-01-23
+     */
+    public void onNotEnoughPlayersResponseLogic(NotEnoughPlayersResponse nepr) {
         LOG.debug("Not enough Players in Lobby to start game");
         notEnoughPlayersLabel.setVisible(true);
     }
 
-
+    /**
+     * Handles successful creation of the game.
+     * <p>
+     * If GameCreatedMessage is detected on the EventBus the method gameCreatedSuccessfulLogic is invoked.
+     *
+     * @param message the NotEnoughPlayersResponse object seen on the EventBus
+     * @author Kirstin Beyer, Iskander Yusupov
+     * @see de.uol.swp.common.game.message.GameCreatedMessage
+     * @since 2021-01-23
+     */
     @Subscribe
     public void gameCreatedSuccessful(GameCreatedMessage message) {
         gameCreatedSuccessfulLogic(message);
     }
 
+    /**
+     * The Method invoked by gameCreatedSuccessful()
+     * <p>
+     * Notifies player that game is created.
+     * An update of the existing Games is also requested.
+     *
+     * @param gcm the GameCreatedMessage given by the original subscriber method.
+     * @author Kirstin Beyer, Iskander Yusupov
+     * @see de.uol.swp.common.game.message.GameCreatedMessage
+     * @since 2021-01-23
+     */
     public void gameCreatedSuccessfulLogic(GameCreatedMessage gcm) {
         LOG.debug("New game created by " + gcm.getUser().getUsername());
         gameService.retrieveAllGames();
     }
-
 
 }

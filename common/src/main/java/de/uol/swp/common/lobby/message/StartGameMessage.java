@@ -6,12 +6,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Message sent by the server when a user successfully joins a lobby
+ * Message sent by the server when there are enough players in the lobby and game can be started.
  * <p>
  * @see AbstractLobbyMessage
  * @see de.uol.swp.common.user.User
- * @author Marco Grawunder
- * @since 2019-10-08
+ * @author Kirstin Beyer, Iskander Yusupov
+ * @since 2021-01-24
  */
 public class StartGameMessage extends AbstractLobbyMessage {
 
@@ -21,8 +21,8 @@ public class StartGameMessage extends AbstractLobbyMessage {
      * Default constructor
      * <p>
      * @implNote this constructor is needed for serialization
-     * @author Marco Grawunder
-     * @since 2019-10-08
+     * @author Kirstin Beyer, Iskander Yusupov
+     * @since 2021-01-24
      */
     public StartGameMessage() {
     }
@@ -32,8 +32,8 @@ public class StartGameMessage extends AbstractLobbyMessage {
      * <p>
      * @param lobbyName name of the lobby
      * @param user user sent startGameRequest
-     * @author Marco Grawunder
-     * @since 2019-10-08
+     * @author Kirstin Beyer, Iskander Yusupov
+     * @since 2021-01-24
      */
     public StartGameMessage(String lobbyName, UserDTO user) {
         super(lobbyName, user);

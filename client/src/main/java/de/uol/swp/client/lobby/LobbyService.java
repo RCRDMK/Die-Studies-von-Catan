@@ -4,13 +4,9 @@ import com.google.common.eventbus.EventBus;
 import com.google.inject.Inject;
 import de.uol.swp.common.lobby.request.*;
 import de.uol.swp.common.user.UserDTO;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonBar;
-import javafx.scene.control.ButtonType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.Optional;
 
 /**
  * Classes that manages lobbies
@@ -29,8 +25,8 @@ public class LobbyService {
      * Constructor
      *
      * @param eventBus The EventBus set in ClientModule
-     * @see de.uol.swp.client.di.ClientModule
      * @author Marco Grawunder
+     * @see de.uol.swp.client.di.ClientModule
      * @since 2019-11-20
      */
     @Inject
@@ -46,8 +42,8 @@ public class LobbyService {
      *
      * @param name Name chosen for the new lobby
      * @param user User who wants to create the new lobby
-     * @see de.uol.swp.common.lobby.request.CreateLobbyRequest
      * @author Marco Grawunder
+     * @see de.uol.swp.common.lobby.request.CreateLobbyRequest
      * @since 2019-11-20
      */
     public void createNewLobby(String name, UserDTO user) {
@@ -60,8 +56,8 @@ public class LobbyService {
      *
      * @param name Name of the lobby the user wants to join
      * @param user User who wants to join the lobby
-     * @see de.uol.swp.common.lobby.request.LobbyJoinUserRequest
      * @author Marco Grawunder
+     * @see de.uol.swp.common.lobby.request.LobbyJoinUserRequest
      * @since 2019-11-20
      */
     public void joinLobby(String name, UserDTO user) {
@@ -77,12 +73,13 @@ public class LobbyService {
     /**
      * Creates a new RetrieveAllThisLobbyUsersRequest and puts it on the Eventbus
      * <p>
+     *
      * @param lobbyName Name of the lobby of which the User list was requested
-     * @see de.uol.swp.common.lobby.request.RetrieveAllThisLobbyUsersRequest
      * @author Marc Hermes, Ricardo Mook
+     * @see de.uol.swp.common.lobby.request.RetrieveAllThisLobbyUsersRequest
      * @since 2020-12-02
      */
-    public void retrieveAllThisLobbyUsers(String lobbyName){
+    public void retrieveAllThisLobbyUsers(String lobbyName) {
         RetrieveAllThisLobbyUsersRequest lobbyUsersRequest = new RetrieveAllThisLobbyUsersRequest(lobbyName);
         eventBus.post(lobbyUsersRequest);
     }
@@ -90,15 +87,24 @@ public class LobbyService {
     /**
      * Posts a request to get a list of all existing lobbies on the EventBus
      *
+     * @author Carsten Dekker and Marius Birk
      * @see de.uol.swp.common.lobby.request.RetrieveAllLobbiesRequest
      * @since 2020-04-12
-     * @author Carsten Dekker and Marius Birk
      */
     public void retrieveAllLobbies() {
         RetrieveAllLobbiesRequest cmd = new RetrieveAllLobbiesRequest();
         eventBus.post(cmd);
     }
 
+    /**
+     * Posts a request to start a game on the EventBus.
+     *
+     * @param name Name of the lobby of which User wants to start the game.
+     * @param user User who wants to start the game.
+     * @author Kirstin Beyer, Iskander Yusupov
+     * @see de.uol.swp.common.lobby.request.StartGameRequest
+     * @since 2021-01-24
+     */
     public void startGame(String name, UserDTO user) {
         StartGameRequest startGameRequest = new StartGameRequest(name, user);
         eventBus.post(startGameRequest);

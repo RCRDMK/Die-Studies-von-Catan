@@ -1,24 +1,25 @@
 package de.uol.swp.common.lobby.request;
 
-import de.uol.swp.common.lobby.request.AbstractLobbyRequest;
 import de.uol.swp.common.user.UserDTO;
 
 /**
- * Request sent to the server when a user wants to leave a lobby
+ * Request sent to the server when a user in the lobby wants to start the game
  * <p>
- * @see AbstractLobbyRequest
+ *
+ * @author Kirstin Beyer, Iskander Yusupov
+ * @see de.uol.swp.common.lobby.request.AbstractLobbyRequest
  * @see de.uol.swp.common.user.User
- * @author Marco Grawunder
- * @since 2019-10-08
+ * @since 2021-01-24
  */
 public class StartGameRequest extends AbstractLobbyRequest {
 
     /**
      * Default constructor
      * <p>
+     *
      * @implNote this constructor is needed for serialization
-     * @author Marco Grawunder
-     * @since 2019-10-08
+     * @author Kirstin Beyer, Iskander Yusupov
+     * @since 2021-01-24
      */
     public StartGameRequest() {
     }
@@ -26,10 +27,11 @@ public class StartGameRequest extends AbstractLobbyRequest {
     /**
      * Constructor
      * <p>
+     *
      * @param lobbyName name of the lobby
-     * @param user user who wants to leave the lobby
-     * @author Marco Grawunder
-     * @since 2019-10-08
+     * @param user      user trying to start the game
+     * @author Kirstin Beyer, Iskander Yusupov
+     * @since 2021-01-24
      */
     public StartGameRequest(String lobbyName, UserDTO user) {
         super(lobbyName, user);
