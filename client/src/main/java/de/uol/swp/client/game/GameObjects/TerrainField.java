@@ -7,7 +7,6 @@ import javafx.scene.paint.Color;
  * This Class holds all information needed to handle the terrain-cards, their placement and their dice-value
  *
  * @author pieter vogt
- * @see de.uol.swp.client.AbstractPresenter
  * @since 24-01-2021
  */
 public class TerrainField {
@@ -54,6 +53,12 @@ public class TerrainField {
 
     //methods
 
+    /**
+     * determines the color to draw its hostobject
+     * @return the color for the placementobject
+     * @author pieter vogt
+     * @since 24-01-2021
+     */
     public Color determineColorOfTerrain() {
         Color c;
         switch (this.name) {

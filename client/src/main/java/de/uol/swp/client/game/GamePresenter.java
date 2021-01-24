@@ -97,11 +97,23 @@ public class GamePresenter extends AbstractPresenter implements Initializable {
 
     Stack<TerrainField> tStack;
 
+    /**
+     * this method holds the size of the terraincards in pixels
+     * <p>
+     * at the moment this function is used to define the width and height of a card because they are treated as a
+     * circle. in future this may be modified to address a potentially scalable canvas. if the canvas gets scalable in
+     * the future, the cardsizes need to scale along for this to be of any use.
+     */
     public double cardSize() {
         return 50.0;
     }
 
-
+    /**
+     * Method for generating a stack of terraincards for a standard-ruleset-playfield
+     * @return stack of terraincards
+     * @author pieter vogt
+     * @since 24-01-2021
+     */
     public Stack<TerrainField> getStandardStack() {
         Stack<TerrainField> s = new Stack<>();
 
@@ -185,6 +197,11 @@ public class GamePresenter extends AbstractPresenter implements Initializable {
         return s;
     }
 
+    /**
+     * initializes everything that needs to be present before any playeraction
+     * @author pieter vogt
+     * @since 24-01-2021
+     */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         tStack = getStandardStack(); //in future -> tStack = (some stack send by server);
@@ -192,17 +209,24 @@ public class GamePresenter extends AbstractPresenter implements Initializable {
         draw();
     }
 
-
+    /**
+     * The method that actually draws colored stuff to the screen.
+     * <p>
+     *     This method draws its items from back to front, meaning backmost items need to be drawn first and so on.
+     * </p>
+     * @author pieter vogt
+     * @since 24-01-2021
+     */
     public void draw() {
         //preparation
-        Vector lastPosition;
+        Vector lastPosition; //this vector points from the (0,0)-point to the last Terrainfield that was placed.
         GraphicsContext g = this.canvas.getGraphicsContext2D();
 
-        //paint background
+
+        //paint black background
         g.setFill(Color.BLACK);
         g.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
 
-        //draw cards
 
         //draw middle card first for placement-reference of other cards
         g.setFill(tStack.peek().determineColorOfTerrain()); //determine color of upmost card of stack
@@ -211,6 +235,7 @@ public class GamePresenter extends AbstractPresenter implements Initializable {
         lastPosition = tStack.peek().getPosition(); //save current position for placement of next card
         g.fillText(tStack.peek().getName(), lastPosition.getX() + (cardSize() / 2), lastPosition.getY() + (cardSize() / 2));
         tStack.pop(); //pop current card
+
 
         //draw other cards
         for (TerrainField tf : tStack) {
