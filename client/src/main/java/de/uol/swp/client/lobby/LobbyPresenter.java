@@ -435,10 +435,7 @@ public class LobbyPresenter extends AbstractPresenter {
      * @since 2021-01-23
      */
     @Subscribe
-    public void startGamePopup(StartGameMessage message) {
-        startGamePopupLogic(message);
-        LOG.debug("open startGame Popup");
-    }
+    public void startGamePopup(StartGameMessage message) { startGamePopupLogic(message); }
 
     /**
      * The Method invoked by startGamePopup()
@@ -455,26 +452,28 @@ public class LobbyPresenter extends AbstractPresenter {
      * @since 2021-01-23
      */
     public void startGamePopupLogic(StartGameMessage sgm) {
-        if (this.currentLobby.equals(sgm.getName())) {
-            Platform.runLater(() -> {
-                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-                alert.setTitle("Start Game");
-                alert.setHeaderText("Ready to play?");
+        if (this.currentLobby != null) {
+            if (this.currentLobby.equals(sgm.getName())) {
+                Platform.runLater(() -> {
+                    Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                    alert.setTitle("Start Game");
+                    alert.setHeaderText("Ready to play?");
 
-                ButtonType buttonTypeYes = new ButtonType("Yes", ButtonBar.ButtonData.CANCEL_CLOSE);
-                ButtonType buttonTypeNo = new ButtonType("No", ButtonBar.ButtonData.CANCEL_CLOSE);
+                    ButtonType buttonTypeYes = new ButtonType("Yes", ButtonBar.ButtonData.CANCEL_CLOSE);
+                    ButtonType buttonTypeNo = new ButtonType("No", ButtonBar.ButtonData.CANCEL_CLOSE);
 
-                alert.getButtonTypes().setAll(buttonTypeYes, buttonTypeNo);
+                    alert.getButtonTypes().setAll(buttonTypeYes, buttonTypeNo);
 
-                Optional<ButtonType> result = alert.showAndWait();
-                if (result.get() == buttonTypeYes) {
-                    PlayerReadyRequest playerReadyRequest = new PlayerReadyRequest(sgm.getName(), (UserDTO) this.joinedLobbyUser);
-                    eventBus.post(playerReadyRequest);
-                } else if (result.get() == buttonTypeNo) {
-                    // ... user chose "No"
-                }
-                alert.close();
-            });
+                    Optional<ButtonType> result = alert.showAndWait();
+                    if (result.get() == buttonTypeYes) {
+                        PlayerReadyRequest playerReadyRequest = new PlayerReadyRequest(sgm.getName(), (UserDTO) this.joinedLobbyUser);
+                        eventBus.post(playerReadyRequest);
+                    } else if (result.get() == buttonTypeNo) {
+                        // ... user chose "No"
+                    }
+                    alert.close();
+                });
+            }
         }
     }
 

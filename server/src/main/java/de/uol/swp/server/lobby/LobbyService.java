@@ -18,6 +18,8 @@ import de.uol.swp.common.user.Session;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.response.lobby.*;
 import de.uol.swp.server.AbstractService;
+import de.uol.swp.server.game.GameManagement;
+import de.uol.swp.server.game.GameService;
 import de.uol.swp.server.usermanagement.AuthenticationService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -258,54 +260,8 @@ public class LobbyService extends AbstractService {
         post(response);
     }
 
-    /**
-     * Handles StartGameRequest found on the EventBus
-     * <p>
-     * If a StartGameRequest is detected on the EventBus, this method is called.
-     * If the number of players in the lobby is more than 1, Method creates StartGameRequest with name of the lobby and user,
-     * which will be sent to all players in the lobby.
-     * Else Method creates NotEnoughPlayersResponse and sends it to a specific user that sent the initial request.
-     *
-     * @param startGameRequest the StartGameRequest found on the EventBus
-     * @see de.uol.swp.common.lobby.request.StartGameRequest
-     * @author Kirstin Beyer, Iskander Yusupov
-     * @since 2021-01-24
-     */
-    @Subscribe
-    public void onStartGameRequest(StartGameRequest startGameRequest) {
-        Optional<Lobby> lobby = lobbyManagement.getLobby(startGameRequest.getName());
-        if (lobby.get().getUsers().size() > 1) {
-            sendToAllInLobby(startGameRequest.getName(),new StartGameMessage(startGameRequest.getName(), startGameRequest.getUser()));
-            LOG.debug("send StartGameMessage to all users");
-        } else {
-            sendToSpecificUser(startGameRequest.getMessageContext().get(), new NotEnoughPlayersResponse());
-            throw new LobbyManagementException("Not enough players in lobby");
-        }
-
-
+    public Optional<Lobby> getLobby(String lobbyName) {
+        return lobbyManagement.getLobby(lobbyName);
     }
-
-    /**
-     * Handles PlayerReadyRequest found on the EventBus
-     *<p>
-     * If a PlayerReadyRequest is detected on the EventBus, this method is called.
-     * Method adds ready players to the
-     * @param playerReadyRequest the PlayerReadyRequest found on the EventBus
-     * @see de.uol.swp.common.game.request.PlayerReadyRequest
-     * @author Kirstin Beyer, Iskander Yusupov
-     * @since 2021-01-24
-     */
-    @Subscribe
-    public void onPlayerReadyRequest(PlayerReadyRequest playerReadyRequest) {
-        Optional<Lobby> lobby = lobbyManagement.getLobby(playerReadyRequest.getName());
-        lobby.get().joinPlayerReady(playerReadyRequest.getUser());
-        if (lobby.get().getPlayersReady().size() == lobby.get().getUsers().size()) {
-            LOG.debug("create game");
-            //gameManagement.createGame(lobby.get().getName(), lobby.get().getOwner());
-        } else {
-            throw new LobbyManagementException("Not enough players ready to start the game");
-        }
-    }
-
 
 }

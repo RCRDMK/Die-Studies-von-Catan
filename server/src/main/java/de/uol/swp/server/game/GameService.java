@@ -10,6 +10,10 @@ import de.uol.swp.common.game.message.*;
 import de.uol.swp.common.game.request.*;
 import de.uol.swp.common.game.message.RollDiceRequest;
 import de.uol.swp.common.game.response.AllCreatedGamesResponse;
+import de.uol.swp.common.lobby.Lobby;
+import de.uol.swp.common.lobby.message.StartGameMessage;
+import de.uol.swp.common.lobby.request.StartGameRequest;
+import de.uol.swp.common.lobby.response.NotEnoughPlayersResponse;
 import de.uol.swp.common.message.MessageContext;
 import de.uol.swp.common.message.ResponseMessage;
 import de.uol.swp.common.message.ServerMessage;
@@ -20,6 +24,7 @@ import de.uol.swp.common.user.response.game.GameLeftSuccessfulResponse;
 import de.uol.swp.server.AbstractService;
 import de.uol.swp.server.game.dice.Dice;
 import de.uol.swp.server.lobby.LobbyManagement;
+import de.uol.swp.server.lobby.LobbyManagementException;
 import de.uol.swp.server.lobby.LobbyService;
 import de.uol.swp.server.usermanagement.AuthenticationService;
 import org.apache.logging.log4j.LogManager;
@@ -27,6 +32,8 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Timer;
+import java.util.TimerTask;
 
 
 /**
@@ -40,9 +47,8 @@ import java.util.Optional;
 public class GameService extends AbstractService {
 
     private final GameManagement gameManagement;
-    private final AuthenticationService authenticationService;
     private final LobbyService lobbyService;
-    private final LobbyManagement lobbyManagement;
+    private final AuthenticationService authenticationService;
     private static final Logger LOG = LogManager.getLogger(GameService.class);
 
     /**
@@ -56,12 +62,11 @@ public class GameService extends AbstractService {
      * @since 2021-01-07
      */
     @Inject
-    public GameService(GameManagement gameManagement, AuthenticationService authenticationService, LobbyService lobbyService, LobbyManagement lobbyManagement, EventBus eventBus) {
+    public GameService(GameManagement gameManagement, LobbyService lobbyService, AuthenticationService authenticationService, EventBus eventBus) {
         super(eventBus);
         this.gameManagement = gameManagement;
         this.authenticationService = authenticationService;
         this.lobbyService = lobbyService;
-        this.lobbyManagement = lobbyManagement;
     }
 
 
@@ -170,6 +175,94 @@ public class GameService extends AbstractService {
         }
 
         LOG.debug("Posted ResponseChatMessage on eventBus");
+    }
+
+
+    /**
+     * Prepares a given ServerMessage to be send to all players in the lobby and
+     * posts it on the EventBus
+     *<p>
+     * @param lobbyName Name of the lobby the players are in
+     * @param message   the message to be send to the users
+     * @see de.uol.swp.common.message.ServerMessage
+     * @author Marco Grawunder
+     * @since 2019-10-08
+     */
+    public void sendToAllInLobby(String lobbyName, ServerMessage message) {
+        Optional<Lobby> lobby = lobbyService.getLobby(lobbyName);
+
+        if (lobby.isPresent()) {
+            message.setReceiver(authenticationService.getSessions(lobby.get().getUsers()));
+            post(message);
+        } else {
+            throw new LobbyManagementException("Lobby unknown!");
+
+        }
+    }
+
+    /**
+     * Handles StartGameRequest found on the EventBus
+     * <p>
+     * If a StartGameRequest is detected on the EventBus, this method is called.
+     * If the number of players in the lobby is more than 1, Method creates StartGameRequest with name of the lobby and user,
+     * which will be sent to all players in the lobby.
+     * Else Method creates NotEnoughPlayersResponse and sends it to a specific user that sent the initial request.
+     *
+     * @param startGameRequest the StartGameRequest found on the EventBus
+     * @see de.uol.swp.common.lobby.request.StartGameRequest
+     * @author Kirstin Beyer, Iskander Yusupov
+     * @since 2021-01-24
+     */
+    @Subscribe
+    public void onStartGameRequest(StartGameRequest startGameRequest) {
+        Optional<Lobby> lobby = lobbyService.getLobby(startGameRequest.getName());
+        if (lobby.get().getUsers().size() > 1) {
+            sendToAllInLobby(startGameRequest.getName(),new StartGameMessage(startGameRequest.getName(), startGameRequest.getUser()));
+            LOG.debug("send StartGameMessage to all users");
+        } else {
+            sendToSpecificUser(startGameRequest.getMessageContext().get(), new NotEnoughPlayersResponse());
+            throw new LobbyManagementException("Not enough players in lobby");
+        }
+
+        int seconds = 60;
+        Timer timer = new Timer();
+
+        class RemindTask extends TimerTask {
+            public void run() {
+                LOG.debug("Timer test");
+                startGameTimeOut(lobby);
+                timer.cancel();
+            }
+        }
+
+        timer.schedule(new RemindTask(), seconds*1000);
+
+    }
+
+    public void startGameTimeOut(Optional<Lobby> lobby) {
+        if (lobby.get().getPlayersReady().size() == lobby.get().getUsers().size()) {
+            LOG.debug("create game");
+            gameManagement.createGame(lobby.get().getName(), lobby.get().getOwner());
+        } else {
+            throw new LobbyManagementException("Not enough players ready to start the game");
+        }
+        lobby.get().setPlayersReadyToNull();
+    }
+
+    /**
+     * Handles PlayerReadyRequest found on the EventBus
+     *<p>
+     * If a PlayerReadyRequest is detected on the EventBus, this method is called.
+     * Method adds ready players to the
+     * @param playerReadyRequest the PlayerReadyRequest found on the EventBus
+     * @see de.uol.swp.common.game.request.PlayerReadyRequest
+     * @author Kirstin Beyer, Iskander Yusupov
+     * @since 2021-01-24
+     */
+    @Subscribe
+    public void onPlayerReadyRequest(PlayerReadyRequest playerReadyRequest) {
+        Optional<Lobby> lobby = lobbyService.getLobby(playerReadyRequest.getName());
+        lobby.get().joinPlayerReady(playerReadyRequest.getUser());
     }
 
 }
