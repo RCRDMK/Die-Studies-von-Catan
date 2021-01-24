@@ -3,6 +3,9 @@ package de.uol.swp.server.usermanagement;
 import com.google.common.eventbus.DeadEvent;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
+import de.uol.swp.common.message.MessageContext;
+import de.uol.swp.common.message.ResponseMessage;
+import de.uol.swp.common.message.ServerMessage;
 import de.uol.swp.common.user.Session;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
@@ -11,12 +14,15 @@ import de.uol.swp.common.user.request.LoginRequest;
 import de.uol.swp.common.user.request.LogoutRequest;
 import de.uol.swp.common.user.request.RetrieveAllOnlineUsersRequest;
 import de.uol.swp.common.user.response.AllOnlineUsersResponse;
+import de.uol.swp.server.lobby.LobbyManagement;
+import de.uol.swp.server.lobby.LobbyService;
 import de.uol.swp.server.message.ClientAuthorizedMessage;
 import de.uol.swp.server.message.ServerExceptionMessage;
 import de.uol.swp.server.usermanagement.store.MainMemoryBasedUserStore;
 import de.uol.swp.server.usermanagement.store.UserStore;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import javax.security.auth.login.LoginException;
@@ -40,6 +46,8 @@ class AuthenticationServiceTest {
     final EventBus bus = new EventBus();
     final UserManagement userManagement = new UserManagement(userStore);
     final AuthenticationService authService = new AuthenticationService(bus, userManagement);
+    final LobbyManagement lobbyManagement = new LobbyManagement();
+    final LobbyService lobbyService = new LobbyService(lobbyManagement, authService, bus);
     private Object event;
 
     @Subscribe
@@ -214,5 +222,47 @@ class AuthenticationServiceTest {
         assertTrue(sessions.contains(session3.get()));
 
     }
+    /**
+     * This Test is for the X-Button Exit.
+     * <p>
+     * First we login the user and retrieve the session.
+     * Now we create a testlobby. We check if the lobbies size is 1.
+     * After that we prepare the logoutrequest and call the onLogoutRequest method.
+     * The user should be logged out and the lobby dropped, because he was the only one in the lobby.
+     * If the lobbies count is 0 now, the test passed successfully
+     *
+     * @since 2021-01-17
+     * @author René Meyer, Sergej Tulnev
+     */
+    @Test
+    @DisplayName("X Button exit")
+    void exitViaXButtonTest(){
+        // Login User and create lobby
+        loginUser(user);
+        Optional<Session> session = authService.getSession(user);
+        assertTrue(session.isPresent());
+        lobbyManagement.createLobby("testLobby", user);
+        var lobbies = lobbyManagement.getAllLobbies();
+        assertEquals((long) lobbies.size(), 1);
+        // Prepare Logout Request
+        final LogoutRequest logoutRequest = new LogoutRequest();
+        logoutRequest.setSession(session.get());
+        MessageContext ctx = new MessageContext() {
+            @Override
+            public void writeAndFlush(ResponseMessage message) {
+                bus.post(message);
+            }
 
+            @Override
+            public void writeAndFlush(ServerMessage message) {
+                bus.post(message);
+            }
+        };
+        logoutRequest.setSession(session.get());
+        logoutRequest.setMessageContext(ctx);
+        lobbyService.onLogoutRequest(logoutRequest);
+        // User logged out, lobbies count has to be zero
+        lobbies = lobbyManagement.getAllLobbies();
+        assertEquals((long) lobbies.size(), 0);
+    }
 }
