@@ -9,9 +9,12 @@ import de.uol.swp.common.chat.RequestChatMessage;
 import de.uol.swp.common.chat.ResponseChatMessage;
 import de.uol.swp.common.game.message.GameCreatedMessage;
 import de.uol.swp.common.game.request.PlayerReadyRequest;
+import de.uol.swp.common.lobby.message.StartGameMessage;
 import de.uol.swp.common.lobby.message.UserJoinedLobbyMessage;
 import de.uol.swp.common.lobby.message.UserLeftLobbyMessage;
 import de.uol.swp.common.lobby.request.StartGameRequest;
+import de.uol.swp.common.lobby.response.LobbyAlreadyExistsResponse;
+import de.uol.swp.common.lobby.response.NotEnoughPlayersResponse;
 import de.uol.swp.common.user.response.lobby.*;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
@@ -59,6 +62,9 @@ public class LobbyPresenter extends AbstractPresenter {
     @FXML
     private ListView<String> lobbyUsersView;
 
+    @FXML
+    public Label notEnoughPlayersLabel;
+
     @Inject
     private LobbyService lobbyService;
 
@@ -72,6 +78,7 @@ public class LobbyPresenter extends AbstractPresenter {
     public void onStartGame(ActionEvent event) {
         LOG.debug("StartGame Button pressed");
         lobbyService.startGame(this.currentLobby, (UserDTO) this.joinedLobbyUser);
+        notEnoughPlayersLabel.setVisible(false);
     }
 
     @FXML
@@ -331,6 +338,7 @@ leftSuccessfulLogic(message);
             if (this.currentLobby.equals(atlur.getName())) {
                 LOG.debug("Update of user list " + atlur.getUsers());
                 updateLobbyUsersList(atlur.getUsers());
+
             }
         }
     }
@@ -408,9 +416,7 @@ updateLobbyUsersListLogic(lobbyUserList);
      *
      * @param message
      */
-    private void updateChat(ResponseChatMessage message) {
-updateChatLogic(message);
-    }
+    private void updateChat(ResponseChatMessage message) { updateChatLogic(message); }
     private void updateChatLogic(ResponseChatMessage rcm){
         var time = new SimpleDateFormat("HH:mm");
         Date resultdate = new Date((long) rcm.getTime().doubleValue());
@@ -420,31 +426,40 @@ updateChatLogic(message);
 
 
     @Subscribe
-    public void startGamePopup(StartGameResponse message) {startGamePopupLogic(message);}
-    public void startGamePopupLogic(StartGameResponse sgm) {
-        Platform.runLater(() -> {
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-            alert.setTitle("Confirmation Dialog with Custom Actions");
-            alert.setHeaderText("Ready to play?");
-            alert.setContentText("Choose your option.");
+    public void startGamePopup(StartGameMessage message) {startGamePopupLogic(message); LOG.debug("open startGame Popup");}
+    public void startGamePopupLogic(StartGameMessage sgm) {
+        if (this.currentLobby.equals(sgm.getName())) {
+            Platform.runLater(() -> {
+                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                alert.setTitle("Start Game");
+                alert.setHeaderText("Ready to play?");
 
-            ButtonType buttonTypeYes = new ButtonType("Yes", ButtonBar.ButtonData.CANCEL_CLOSE);
-            ButtonType buttonTypeNo = new ButtonType("No", ButtonBar.ButtonData.CANCEL_CLOSE);
+                ButtonType buttonTypeYes = new ButtonType("Yes", ButtonBar.ButtonData.CANCEL_CLOSE);
+                ButtonType buttonTypeNo = new ButtonType("No", ButtonBar.ButtonData.CANCEL_CLOSE);
 
-            alert.getButtonTypes().setAll(buttonTypeYes, buttonTypeNo);
+                alert.getButtonTypes().setAll(buttonTypeYes, buttonTypeNo);
 
-            Optional<ButtonType> result = alert.showAndWait();
-            if (result.get() == buttonTypeYes){
-                LOG.debug("test YES");
-                PlayerReadyRequest playerReadyRequest = new PlayerReadyRequest(sgm.getName(),(UserDTO) this.joinedLobbyUser);
-                eventBus.post(playerReadyRequest);
-            } else if (result.get() == buttonTypeNo) {
-                // ... user chose "No"
-            }
-            alert.close();
-        });
-
+                Optional<ButtonType> result = alert.showAndWait();
+                if (result.get() == buttonTypeYes){
+                    PlayerReadyRequest playerReadyRequest = new PlayerReadyRequest(sgm.getName(),(UserDTO) this.joinedLobbyUser);
+                    eventBus.post(playerReadyRequest);
+                } else if (result.get() == buttonTypeNo) {
+                    // ... user chose "No"
+                }
+                alert.close();
+            });
+        }
     }
+
+    @Subscribe
+    public void onNotEnoughPlayersResponse(NotEnoughPlayersResponse message) {
+        onNotEnoughPlayersResponseLogic(message);
+    }
+    public void onNotEnoughPlayersResponseLogic(NotEnoughPlayersResponse nepr){
+        LOG.debug("Not enough Players in Lobby to start game");
+        notEnoughPlayersLabel.setVisible(true);
+    }
+
 
     @Subscribe
     public void gameCreatedSuccessful(GameCreatedMessage message) {

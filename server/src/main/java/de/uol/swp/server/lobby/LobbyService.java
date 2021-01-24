@@ -10,6 +10,7 @@ import de.uol.swp.common.lobby.message.*;
 import de.uol.swp.common.lobby.request.*;
 import de.uol.swp.common.lobby.response.AllCreatedLobbiesResponse;
 import de.uol.swp.common.lobby.response.LobbyAlreadyExistsResponse;
+import de.uol.swp.common.lobby.response.NotEnoughPlayersResponse;
 import de.uol.swp.common.message.MessageContext;
 import de.uol.swp.common.message.ResponseMessage;
 import de.uol.swp.common.message.ServerMessage;
@@ -262,11 +263,14 @@ public class LobbyService extends AbstractService {
     public void onStartGameRequest(StartGameRequest startGameRequest) {
         Optional<Lobby> lobby = lobbyManagement.getLobby(startGameRequest.getName());
         if (lobby.get().getUsers().size() > 1) {
-            sendToSpecificUser(startGameRequest.getMessageContext().get(), new StartGameResponse(startGameRequest.getName(),startGameRequest.getUser()));
+            sendToAllInLobby(startGameRequest.getName(),new StartGameMessage(startGameRequest.getName(), startGameRequest.getUser()));
             LOG.debug("send StartGameMessage to all users");
         } else {
+            sendToSpecificUser(startGameRequest.getMessageContext().get(), new NotEnoughPlayersResponse());
             throw new LobbyManagementException("Not enough players in lobby");
         }
+        startGameTimeOut(lobby);
+
         /*
         int seconds = 10;
 
@@ -285,7 +289,7 @@ public class LobbyService extends AbstractService {
     public void startGameTimeOut(Optional<Lobby> lobby) {
         if (lobby.get().getPlayersReady().size() == lobby.get().getUsers().size()) {
             LOG.debug("create game");
-            //gameManagement.createGame(lobby.get().getName(), lobby.get().getOwner());
+            //gameManagemteent.createGame(lobby.get().getName(), lobby.get().getOwner());
         } else {
             throw new LobbyManagementException("Not enough players ready to start the game");
         }
@@ -296,6 +300,8 @@ public class LobbyService extends AbstractService {
     public void onPlayerReadyRequest(PlayerReadyRequest playerReadyRequest) {
         Optional<Lobby> lobby = lobbyManagement.getLobby(playerReadyRequest.getName());
         lobby.get().joinPlayerReady(playerReadyRequest.getUser());
+        System.out.println(lobby.get().getPlayersReady().size());
+        startGameTimeOut(lobby);
     }
 
 
