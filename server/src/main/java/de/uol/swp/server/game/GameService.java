@@ -69,20 +69,6 @@ public class GameService extends AbstractService {
         this.lobbyService = lobbyService;
     }
 
-
-    @Subscribe
-    public void onCreateGameRequest(CreateGameRequest createGameRequest) {
-        try {
-            gameManagement.createGame(createGameRequest.getName(), createGameRequest.getUser());
-            sendToAll(new GameCreatedMessage(createGameRequest.getName(), createGameRequest.getUser()));
-        } catch (IllegalArgumentException e) {
-            LOG.debug(e);
-        }
-        if (createGameRequest.getMessageContext().isPresent()) {
-            sendToSpecificUser(createGameRequest.getMessageContext().get(), new GameCreatedSuccessfulResponse(createGameRequest.getName(), createGameRequest.getUser()));
-        }
-    }
-
     @Subscribe
     public void onGameLeaveUserRequest(GameLeaveUserRequest gameLeaveUserRequest) {
         Optional<Game> game = gameManagement.getGame(gameLeaveUserRequest.getName());
@@ -196,7 +182,6 @@ public class GameService extends AbstractService {
             post(message);
         } else {
             throw new LobbyManagementException("Lobby unknown!");
-
         }
     }
 
@@ -219,34 +204,33 @@ public class GameService extends AbstractService {
         if (lobby.get().getUsers().size() > 1) {
             sendToAllInLobby(startGameRequest.getName(),new StartGameMessage(startGameRequest.getName(), startGameRequest.getUser()));
             LOG.debug("send StartGameMessage to all users");
+            int seconds = 60;
+            Timer timer = new Timer();
+            class RemindTask extends TimerTask {
+                public void run() {
+                    if (gameManagement.getGame(lobby.get().getName()).isEmpty()) {
+                        startGame(lobby);
+                        if (gameManagement.getGame(lobby.get().getName()).isEmpty()) {
+                            throw new LobbyManagementException("Not enough players ready to start the game");
+                        }
+                    }
+                    timer.cancel();
+                    lobby.get().setPlayersReadyToNull();
+                }
+            }
+            timer.schedule(new RemindTask(), seconds*1000);
         } else {
             sendToSpecificUser(startGameRequest.getMessageContext().get(), new NotEnoughPlayersResponse());
-            throw new LobbyManagementException("Not enough players in lobby");
         }
-
-        int seconds = 60;
-        Timer timer = new Timer();
-
-        class RemindTask extends TimerTask {
-            public void run() {
-                LOG.debug("Timer test");
-                startGameTimeOut(lobby);
-                timer.cancel();
-            }
-        }
-
-        timer.schedule(new RemindTask(), seconds*1000);
-
     }
 
-    public void startGameTimeOut(Optional<Lobby> lobby) {
-        if (lobby.get().getPlayersReady().size() == lobby.get().getUsers().size()) {
-            LOG.debug("create game");
-            gameManagement.createGame(lobby.get().getName(), lobby.get().getOwner());
-        } else {
-            throw new LobbyManagementException("Not enough players ready to start the game");
+    public void startGame(Optional<Lobby> lobby) {
+        if (gameManagement.getGame(lobby.get().getName()).isEmpty()) {
+            if (lobby.get().getPlayersReady().size() == lobby.get().getUsers().size()) {
+                gameManagement.createGame(lobby.get().getName(), lobby.get().getOwner());
+                sendToAllInLobby(lobby.get().getName(), new GameCreatedMessage(lobby.get().getName()));
+            }
         }
-        lobby.get().setPlayersReadyToNull();
     }
 
     /**
@@ -263,6 +247,7 @@ public class GameService extends AbstractService {
     public void onPlayerReadyRequest(PlayerReadyRequest playerReadyRequest) {
         Optional<Lobby> lobby = lobbyService.getLobby(playerReadyRequest.getName());
         lobby.get().joinPlayerReady(playerReadyRequest.getUser());
+        startGame(lobby);
     }
 
 }

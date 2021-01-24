@@ -7,6 +7,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import de.uol.swp.client.di.ClientModule;
 import de.uol.swp.client.user.ClientUserService;
+import de.uol.swp.common.game.message.GameCreatedMessage;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.exception.RegistrationExceptionMessage;
 import de.uol.swp.common.user.request.LogoutRequest;
@@ -215,14 +216,12 @@ public class ClientApp extends Application implements ConnectionListener {
      * @since 2021-01-14
      * @author Kirstin Beyer
      */
-    /*
+
     @Subscribe
-    public void userStartedGame(StartGameResponse message) {
-        LOG.debug("User " + message.getUser().getUsername() + " started a game ");
-        this.user = message.getUser();
+    public void userStartedGame(GameCreatedMessage message) {
+        LOG.debug("Game was succesfully started");
         sceneManager.showGameScreen(user, message.getName());
     }
-    */
 
     /**
      * Handles the successful leaving of a user
@@ -232,7 +231,7 @@ public class ClientApp extends Application implements ConnectionListener {
      *
      * @param message the LobbyLeftSuccessfulResponse detected on the EventBus
      *
-     * @see de.uol.swp.common.user.response.LobbyLeftSuccessfulResponse
+     * @see de.uol.swp.common.user.response.lobby.LobbyLeftSuccessfulResponse
      * @since 2021-01-20
      * @author Alexander Losse, Marc Hermes
      */

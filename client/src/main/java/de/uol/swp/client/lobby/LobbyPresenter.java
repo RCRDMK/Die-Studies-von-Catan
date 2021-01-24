@@ -465,12 +465,15 @@ public class LobbyPresenter extends AbstractPresenter {
                     alert.getButtonTypes().setAll(buttonTypeYes, buttonTypeNo);
 
                     Optional<ButtonType> result = alert.showAndWait();
+                    boolean ready;
+                    ready = false;
                     if (result.get() == buttonTypeYes) {
-                        PlayerReadyRequest playerReadyRequest = new PlayerReadyRequest(sgm.getName(), (UserDTO) this.joinedLobbyUser);
-                        eventBus.post(playerReadyRequest);
+                        ready = true;
                     } else if (result.get() == buttonTypeNo) {
-                        // ... user chose "No"
+                        ready = false;
                     }
+                    PlayerReadyRequest playerReadyRequest = new PlayerReadyRequest(sgm.getName(), (UserDTO) this.joinedLobbyUser, ready);
+                    eventBus.post(playerReadyRequest);
                     alert.close();
                 });
             }
@@ -534,8 +537,8 @@ public class LobbyPresenter extends AbstractPresenter {
      * @since 2021-01-23
      */
     public void gameCreatedSuccessfulLogic(GameCreatedMessage gcm) {
-        LOG.debug("New game created by " + gcm.getUser().getUsername());
-        gameService.retrieveAllGames();
+        LOG.debug("New game " + gcm.getName() + " created");
+        //gameService.retrieveAllGames();
     }
 
 }

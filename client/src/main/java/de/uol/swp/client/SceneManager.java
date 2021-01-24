@@ -77,6 +77,7 @@ public class SceneManager {
         initLoginView();
         initMainView();
         initRegistrationView();
+        initGameView();
         nextLobbyScene = initLobbyView();
         TabPane tabPane = new TabPane();
         this.tabPane = tabPane;
@@ -203,6 +204,7 @@ public class SceneManager {
      * @author Kirstin Beyer
      * @since 2021-01-14
      */
+
     private void initGameView() {
         if (gameScene == null) {
             Parent rootPane = initPresenter(GamePresenter.fxml);
@@ -395,7 +397,6 @@ public class SceneManager {
      */
     public void showLoginScreen() {
         showScene(loginScene, "Login");
-
     }
 
     /**

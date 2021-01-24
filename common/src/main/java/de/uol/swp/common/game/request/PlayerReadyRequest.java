@@ -15,6 +15,8 @@ import de.uol.swp.common.user.UserDTO;
  */
 public class PlayerReadyRequest extends AbstractGameRequest {
 
+    boolean ready;
+
     /**
      * Default constructor
      * <p>
@@ -35,8 +37,9 @@ public class PlayerReadyRequest extends AbstractGameRequest {
      * @author Kirstin Beyer, Iskander Yusupov
      * @since 2021-01-24
      */
-    public PlayerReadyRequest(String name, UserDTO user) {
+    public PlayerReadyRequest(String name, UserDTO user, boolean ready) {
         super(name, user);
+        this.ready = ready;
     }
 
 }
