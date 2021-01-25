@@ -193,6 +193,8 @@ public class GameService extends AbstractService {
      * If a StartGameRequest is detected on the EventBus, this method is called.
      * If the number of players in the lobby is more than 1, Method creates StartGameRequest with name of the lobby and user,
      * which will be sent to all players in the lobby.
+     * It starts a timer and tries to start the game afterwards. If no game was created a NotEnoughPlayersResponse is sent to
+     * all users that are ready to start the game.
      * Else Method creates NotEnoughPlayersResponse and sends it to a specific user that sent the initial request.
      *
      * @param startGameRequest the StartGameRequest found on the EventBus
@@ -230,6 +232,16 @@ public class GameService extends AbstractService {
         }
     }
 
+    /**
+     * Method to create and start a game
+     * <p>
+     * A new game is created if at least 2 players are to start the game and if not already a game exists.
+     * All players ready are joined to the game and a GameCreatedMessage is send to all players in the game.
+     * @param lobby lobby that wants to start a game
+     * @author Kirstin Beyer, Iskander Yusupov
+     * @since 2021-01-24
+     */
+
     public void startGame(Optional<Lobby> lobby) {
         if (gameManagement.getGame(lobby.get().getName()).isEmpty()) {
             if (Players == lobby.get().getUsers().size()) {
@@ -249,7 +261,7 @@ public class GameService extends AbstractService {
      * Handles PlayerReadyRequest found on the EventBus
      *<p>
      * If a PlayerReadyRequest is detected on the EventBus, this method is called.
-     * Method adds ready players to the
+     * Method adds ready players to the PlayerReady list and counts the number of player responses in variable Player
      * @param playerReadyRequest the PlayerReadyRequest found on the EventBus
      * @see de.uol.swp.common.game.request.PlayerReadyRequest
      * @author Kirstin Beyer, Iskander Yusupov

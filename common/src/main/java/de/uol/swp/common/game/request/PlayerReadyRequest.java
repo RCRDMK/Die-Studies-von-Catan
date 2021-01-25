@@ -34,6 +34,7 @@ public class PlayerReadyRequest extends AbstractGameRequest {
      *
      * @param name name of the lobby
      * @param user User which is ready to start the game
+     * @param ready boolean if player is ready (true) or not ready (false) to start game
      * @author Kirstin Beyer, Iskander Yusupov
      * @since 2021-01-24
      */

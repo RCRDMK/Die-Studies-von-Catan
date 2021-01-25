@@ -440,11 +440,10 @@ public class LobbyPresenter extends AbstractPresenter {
     /**
      * The Method invoked by startGamePopup()
      * <p>
-     * <p>
      * Method opens confirmation window with two options: Yes & No
      * Which asks if each player is ready to start the game.
-     * If button Yes is pressed, then PlayerReadyRequest is posted on the EventBus.
-     * Else TODO: what happens when player is not ready
+     * If button Yes is pressed, then PlayerReadyRequest with the boolean true is posted on the EventBus.
+     * Else PlayerReadyRequest contains false
      *
      * @param sgm the startGamePopup given by the original subscriber method.
      * @author Kirstin Beyer, Iskander Yusupov
