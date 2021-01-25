@@ -9,11 +9,9 @@ import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.exception.DropUserExceptionMessage;
 import de.uol.swp.common.user.exception.RegistrationExceptionMessage;
 import de.uol.swp.common.user.request.DropUserRequest;
+import de.uol.swp.common.user.request.PingRequest;
 import de.uol.swp.common.user.request.RegisterUserRequest;
-import de.uol.swp.common.user.response.AllOnlineUsersResponse;
-import de.uol.swp.common.user.response.DropUserSuccessfulResponse;
-import de.uol.swp.common.user.response.LoginSuccessfulResponse;
-import de.uol.swp.common.user.response.RegistrationSuccessfulResponse;
+import de.uol.swp.common.user.response.*;
 import de.uol.swp.server.AbstractService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -107,6 +105,26 @@ public class UserService extends AbstractService {
             LOG.error(e);
             returnMessage = new DropUserExceptionMessage("Cannot drop user "+dropUserRequest.getUser()+" "+e.getMessage());
         }
+        post(returnMessage);
+    }
+
+    /**
+     * Handles PingRequests found on the EventBus
+     *
+     * If a PingRequest is detected on the EventBus, this method is called.
+     * It sends a PingResponse back to the User.
+     *
+     * @author Philip Nitsche
+     * @param pingRequest The PingRequest found on the EventBus
+     * @see de.uol.swp.common.user.request.PingRequest
+     * @since 2021-01-22
+     */
+
+    @Subscribe
+    private void onPingRequest(PingRequest pingRequest){
+        ActivUserList.updateActivUser(pingRequest.getUser().toString(), pingRequest.getTime());
+        ResponseMessage returnMessage;
+        returnMessage = new PingResponse(pingRequest.getUser(), pingRequest.getTime());
         post(returnMessage);
     }
 

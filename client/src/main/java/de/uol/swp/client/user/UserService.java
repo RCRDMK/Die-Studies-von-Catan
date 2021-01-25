@@ -94,4 +94,8 @@ public class UserService implements ClientUserService {
 		bus.post(cmd);
 	}
 
+	public void ping(User user) {
+		PingRequest pr = new PingRequest(user, System.currentTimeMillis());
+		bus.post(pr);
+	}
 }

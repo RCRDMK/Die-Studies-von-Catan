@@ -39,6 +39,7 @@ public class UserManagement extends AbstractUserManagement {
         Optional<User> user = userStore.findUser(username, password);
         if (user.isPresent()){
             this.loggedInUsers.put(username, user.get());
+            ActivUserList.addActivUser(username);
             return user.get();
         }else{
             throw new SecurityException("Cannot auth user " + username);
@@ -99,6 +100,7 @@ public class UserManagement extends AbstractUserManagement {
     @Override
     public void logout(User user) {
         loggedInUsers.remove(user.getUsername());
+        ActivUserList.removeActivUser(user.toString());
     }
 
     @Override
