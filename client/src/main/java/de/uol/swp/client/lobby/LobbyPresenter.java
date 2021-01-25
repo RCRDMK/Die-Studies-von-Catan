@@ -459,9 +459,8 @@ public class LobbyPresenter extends AbstractPresenter {
                     alert.setTitle("Start Game");
                     alert.setHeaderText("Ready to play?");
 
-                    ButtonType buttonTypeYes = new ButtonType("Yes", ButtonBar.ButtonData.CANCEL_CLOSE);
-                    ButtonType buttonTypeNo = new ButtonType("No", ButtonBar.ButtonData.CANCEL_CLOSE);
-
+                    ButtonType buttonTypeYes = new ButtonType("Yes", ButtonBar.ButtonData.YES);
+                    ButtonType buttonTypeNo = new ButtonType("No", ButtonBar.ButtonData.NO);
                     alert.getButtonTypes().setAll(buttonTypeYes, buttonTypeNo);
 
                     Optional<ButtonType> result = alert.showAndWait();

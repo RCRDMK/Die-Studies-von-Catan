@@ -42,4 +42,13 @@ public class PlayerReadyRequest extends AbstractGameRequest {
         this.ready = ready;
     }
 
+    /**
+     * Getter for the boolean value
+     *
+     * @return boolean if player is ready to start
+     * @since 2021-01-24
+     */
+    public boolean getBoolean() {
+        return this.ready;
+    }
 }

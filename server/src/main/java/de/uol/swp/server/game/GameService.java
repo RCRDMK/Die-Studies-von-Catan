@@ -18,6 +18,7 @@ import de.uol.swp.common.message.MessageContext;
 import de.uol.swp.common.message.ResponseMessage;
 import de.uol.swp.common.message.ServerMessage;
 import de.uol.swp.common.user.Session;
+import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.response.game.AllThisGameUsersResponse;
 import de.uol.swp.common.user.response.game.GameCreatedSuccessfulResponse;
 import de.uol.swp.common.user.response.game.GameLeftSuccessfulResponse;
@@ -50,6 +51,7 @@ public class GameService extends AbstractService {
     private final LobbyService lobbyService;
     private final AuthenticationService authenticationService;
     private static final Logger LOG = LogManager.getLogger(GameService.class);
+    private int Players;
 
     /**
      * Constructor
@@ -202,6 +204,7 @@ public class GameService extends AbstractService {
     public void onStartGameRequest(StartGameRequest startGameRequest) {
         Optional<Lobby> lobby = lobbyService.getLobby(startGameRequest.getName());
         if (lobby.get().getUsers().size() > 1) {
+            lobby.get().setPlayersReadyToNull();
             sendToAllInLobby(startGameRequest.getName(),new StartGameMessage(startGameRequest.getName(), startGameRequest.getUser()));
             LOG.debug("send StartGameMessage to all users");
             int seconds = 60;
@@ -209,13 +212,15 @@ public class GameService extends AbstractService {
             class RemindTask extends TimerTask {
                 public void run() {
                     if (gameManagement.getGame(lobby.get().getName()).isEmpty()) {
+                        Players = lobby.get().getUsers().size();
                         startGame(lobby);
                         if (gameManagement.getGame(lobby.get().getName()).isEmpty()) {
-                            throw new LobbyManagementException("Not enough players ready to start the game");
+                            for (User user : lobby.get().getPlayersReady()) {
+                                sendToSpecificUser(startGameRequest.getMessageContext().get(), new NotEnoughPlayersResponse());
+                            }
                         }
                     }
                     timer.cancel();
-                    lobby.get().setPlayersReadyToNull();
                 }
             }
             timer.schedule(new RemindTask(), seconds*1000);
@@ -226,9 +231,15 @@ public class GameService extends AbstractService {
 
     public void startGame(Optional<Lobby> lobby) {
         if (gameManagement.getGame(lobby.get().getName()).isEmpty()) {
-            if (lobby.get().getPlayersReady().size() == lobby.get().getUsers().size()) {
-                gameManagement.createGame(lobby.get().getName(), lobby.get().getOwner());
-                sendToAllInLobby(lobby.get().getName(), new GameCreatedMessage(lobby.get().getName()));
+            if (Players == lobby.get().getUsers().size()) {
+                if (lobby.get().getPlayersReady().size() > 1) {
+                    gameManagement.createGame(lobby.get().getName(), lobby.get().getOwner());
+                    Optional<Game> game = gameManagement.getGame(lobby.get().getName());
+                    for (User user : lobby.get().getPlayersReady()) {
+                        game.get().joinUser(user);
+                    }
+                    sendToAllInGame(game.get().getName(), new GameCreatedMessage(game.get().getName()));
+                }
             }
         }
     }
@@ -245,9 +256,14 @@ public class GameService extends AbstractService {
      */
     @Subscribe
     public void onPlayerReadyRequest(PlayerReadyRequest playerReadyRequest) {
-        Optional<Lobby> lobby = lobbyService.getLobby(playerReadyRequest.getName());
-        lobby.get().joinPlayerReady(playerReadyRequest.getUser());
-        startGame(lobby);
+        if (playerReadyRequest.getBoolean()) {
+            Players += 1;
+            Optional<Lobby> lobby = lobbyService.getLobby(playerReadyRequest.getName());
+            lobby.get().joinPlayerReady(playerReadyRequest.getUser());
+            startGame(lobby);
+        } else if (!playerReadyRequest.getBoolean()) {
+            Players += 1;
+        }
     }
 
 }

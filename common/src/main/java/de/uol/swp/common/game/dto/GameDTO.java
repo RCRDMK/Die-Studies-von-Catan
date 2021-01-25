@@ -42,6 +42,10 @@ public class GameDTO implements Game {
         return name;
     }
 
+    @Override
+    public void joinUser(User user) {
+        this.users.add(user);
+    }
 
     @Override
     public void leaveUser(User user) {
