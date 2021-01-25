@@ -23,6 +23,7 @@ import de.uol.swp.server.usermanagement.store.MainMemoryBasedUserStore;
 import de.uol.swp.server.usermanagement.store.UserStore;
 import org.junit.jupiter.api.*;
 
+import java.sql.SQLException;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.List;
@@ -39,9 +40,8 @@ import static org.junit.jupiter.api.Assertions.*;
 public class LobbyServiceTest {
     final EventBus bus = new EventBus();
     LobbyManagement lobbyManagement = new LobbyManagement();
-    LobbyService lobbyService = new LobbyService(lobbyManagement, new AuthenticationService(bus, new UserManagement(new MainMemoryBasedUserStore())), bus);
-    final UserStore userStore = new MainMemoryBasedUserStore();
-    final UserManagement userManagement = new UserManagement(userStore);
+    LobbyService lobbyService = new LobbyService(lobbyManagement, new AuthenticationService(bus, new UserManagement()), bus);
+    final UserManagement userManagement = new UserManagement();
     final AuthenticationService authenticationService = new AuthenticationService(bus, userManagement);
 
     UserDTO userDTO = new UserDTO("Peter", "lustig", "peter.lustig@uol.de");
@@ -49,6 +49,9 @@ public class LobbyServiceTest {
 
     final CountDownLatch lock = new CountDownLatch(1);
     Object event;
+
+    public LobbyServiceTest() throws SQLException {
+    }
 
     /**
      * Handles DeadEvents detected on the EventBus

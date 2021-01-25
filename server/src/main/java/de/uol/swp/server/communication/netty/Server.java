@@ -2,6 +2,7 @@ package de.uol.swp.server.communication.netty;
 
 import de.uol.swp.common.MyObjectDecoder;
 import de.uol.swp.common.MyObjectEncoder;
+import de.uol.swp.server.usermanagement.UserManagement;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandler;
@@ -26,7 +27,7 @@ public class Server {
 
     private static final Logger LOG = LogManager.getLogger(Server.class);
 
-
+    private UserManagement userManagement;
     private final ChannelHandler serverHandler;
 
     /**
@@ -48,6 +49,13 @@ public class Server {
      * @throws Exception server failed to start e.g. because the port is already in use
      * @see InetSocketAddress
      * @since 2019-11-20
+     *
+     * Enhanced.
+     * <p>
+     *     Just added that the connection to the database will be closed, if the server is going to shut down.
+     *
+     * @since 2021-01-18
+     * @author Marius Birk
      */
     public void start(int port) throws Exception {
         EventLoopGroup bossGroup = new NioEventLoopGroup(1);
@@ -72,6 +80,7 @@ public class Server {
             // Just wait for server shutdown
             ChannelFuture f = b.bind().sync();
             f.channel().closeFuture().sync();
+            this.userManagement.closeConnection();
         } finally {
             bossGroup.shutdownGracefully().sync();
             workerGroup.shutdownGracefully().sync();

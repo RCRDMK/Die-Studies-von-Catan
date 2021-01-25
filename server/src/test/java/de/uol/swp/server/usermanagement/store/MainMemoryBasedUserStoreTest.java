@@ -4,6 +4,7 @@ import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import org.junit.jupiter.api.Test;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -36,7 +37,7 @@ class MainMemoryBasedUserStoreTest {
     }
 
     @Test
-    void findUserByName() {
+    void findUserByName() throws SQLException {
         // arrange
         UserStore store = getDefaultStore();
         User userToCreate = getDefaultUsers().get(0);
@@ -51,7 +52,7 @@ class MainMemoryBasedUserStoreTest {
     }
 
     @Test
-    void findUserByName_NotFound() {
+    void findUserByName_NotFound() throws SQLException {
         UserStore store = getDefaultStore();
         User userToFind = getDefaultUsers().get(0);
 
@@ -61,7 +62,7 @@ class MainMemoryBasedUserStoreTest {
     }
 
     @Test
-    void findUserByNameAndPassword() {
+    void findUserByNameAndPassword() throws SQLException {
         UserStore store = getDefaultStore();
         User userToCreate = getDefaultUsers().get(1);
         store.createUser(userToCreate.getUsername(), userToCreate.getPassword(), userToCreate.getEMail());
@@ -74,7 +75,7 @@ class MainMemoryBasedUserStoreTest {
     }
 
     @Test
-    void findUserByNameAndPassword_NotFound() {
+    void findUserByNameAndPassword_NotFound() throws SQLException {
         UserStore store = getDefaultStore();
         User userToFind = getDefaultUsers().get(0);
 
@@ -84,7 +85,7 @@ class MainMemoryBasedUserStoreTest {
     }
 
     @Test
-    void findUserByNameAndPassword_EmptyUser_NotFound() {
+    void findUserByNameAndPassword_EmptyUser_NotFound() throws SQLException {
         UserStore store = getDefaultStore();
 
         Optional<User> userFound = store.findUser(null, "");
@@ -94,7 +95,7 @@ class MainMemoryBasedUserStoreTest {
 
 
     @Test
-    void overwriteUser() {
+    void overwriteUser() throws SQLException {
         UserStore store = getDefaultStore();
         User userToCreate = getDefaultUsers().get(1);
         store.createUser(userToCreate.getUsername(), userToCreate.getPassword(), userToCreate.getEMail());
@@ -110,7 +111,7 @@ class MainMemoryBasedUserStoreTest {
 
 
     @Test
-    void updateUser() {
+    void updateUser() throws SQLException {
         UserStore store = getDefaultStore();
         User userToUpdate = getDefaultUsers().get(2);
 
@@ -124,7 +125,7 @@ class MainMemoryBasedUserStoreTest {
     }
 
     @Test
-    void changePassword() {
+    void changePassword() throws SQLException {
         UserStore store = getDefaultStore();
         User userToUpdate = getDefaultUsers().get(2);
 
@@ -138,7 +139,7 @@ class MainMemoryBasedUserStoreTest {
     }
 
     @Test
-    void dropUser() {
+    void dropUser() throws SQLException {
         UserStore store = getDefaultStore();
         User userToRemove = getDefaultUsers().get(3);
 
@@ -159,7 +160,7 @@ class MainMemoryBasedUserStoreTest {
     }
 
     @Test
-    void getAllUsers() {
+    void getAllUsers() throws SQLException {
         UserStore store = getDefaultStore();
         List<UserDTO> allUsers = getDefaultUsers();
 
