@@ -18,6 +18,8 @@ import io.netty.channel.ChannelHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.sql.SQLException;
+
 /**
  * This class handles the startup of the server, as well as, the creation of default
  * users while the MainMemoryBasedUserStore is still in use.
@@ -70,14 +72,7 @@ class ServerApp {
 	 * @param injector the google guice injector used for dependency injection
 	 * @since 2019-09-18
 	 */
-	private static void createServices(Injector injector) {
-		UserManagement userManagement = injector.getInstance(UserManagement.class);
-
-		// TODO: Remove after registration is implemented
-		for (int i = 0; i < 5; i++) {
-			userManagement.createUser(new UserDTO("test" + i, "test" + i, "test" + i + "@test.de"));
-		}
-
+	private static void createServices(Injector injector){
 		// Remark: As these services are not referenced by any other class
 		// we will need to create instances here (and inject dependencies)
 		injector.getInstance(UserService.class);

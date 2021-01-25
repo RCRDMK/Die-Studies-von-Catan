@@ -9,6 +9,7 @@ import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.message.*;
 import de.uol.swp.common.lobby.request.*;
 import de.uol.swp.common.lobby.response.AllCreatedLobbiesResponse;
+import de.uol.swp.common.lobby.response.AlreadyJoinedThisLobbyResponse;
 import de.uol.swp.common.lobby.response.LobbyAlreadyExistsResponse;
 import de.uol.swp.common.lobby.response.NotEnoughPlayersResponse;
 import de.uol.swp.common.message.MessageContext;
@@ -16,6 +17,9 @@ import de.uol.swp.common.message.ResponseMessage;
 import de.uol.swp.common.message.ServerMessage;
 import de.uol.swp.common.user.Session;
 import de.uol.swp.common.user.User;
+import de.uol.swp.common.user.UserDTO;
+import de.uol.swp.common.user.message.UserLoggedOutMessage;
+import de.uol.swp.common.user.request.LogoutRequest;
 import de.uol.swp.common.user.response.lobby.*;
 import de.uol.swp.server.AbstractService;
 import de.uol.swp.server.game.GameManagement;
@@ -25,6 +29,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Handles the lobby requests send by the users
@@ -39,7 +44,6 @@ public class LobbyService extends AbstractService {
     private final LobbyManagement lobbyManagement;
     private final AuthenticationService authenticationService;
     private static final Logger LOG = LogManager.getLogger(LobbyService.class);
-    final private Map<Session, User> userSessions = new HashMap<>();
 
     /**
      * Constructor
@@ -102,7 +106,6 @@ public class LobbyService extends AbstractService {
         }
     }
 
-
     /**
      * Handles LobbyJoinUserRequests found on the EventBus
      * <p>
@@ -115,10 +118,16 @@ public class LobbyService extends AbstractService {
      * @param lobbyJoinUserRequest The LobbyJoinUserRequest found on the EventBus
      * @see de.uol.swp.common.lobby.Lobby
      * @see de.uol.swp.common.lobby.message.UserJoinedLobbyMessage
-     * @see LobbyJoinedSuccessfulResponse
-     * @see JoinDeletedLobbyResponse
+     * @see de.uol.swp.common.user.response.lobby.LobbyJoinedSuccessfulResponse
+     * @see de.uol.swp.common.user.response.lobby.JoinDeletedLobbyResponse
      * @author Marco Grawunder
      * @since 2019-10-08
+     * <p>
+     * Enhanced by Carsten Dekker
+     * <p>
+     * If a user already joined the lobby, he gets an AlreadyJoinedThisLobbyResponse.
+     * @see de.uol.swp.common.lobby.response.AlreadyJoinedThisLobbyResponse
+     * @since 2021-01-22
      */
     @Subscribe
     public void onLobbyJoinUserRequest(LobbyJoinUserRequest lobbyJoinUserRequest) {
@@ -126,14 +135,16 @@ public class LobbyService extends AbstractService {
         if (!lobby.isPresent()) {
             sendToSpecificUser(lobbyJoinUserRequest.getMessageContext().get(), new JoinDeletedLobbyResponse(lobbyJoinUserRequest.getName()));
         }
-        if (lobby.get().getUsers().size() < 4 && lobbyJoinUserRequest.getMessageContext().isPresent()) {
+        if (lobby.get().getUsers().size() < 4 && !lobby.get().getUsers().contains(lobbyJoinUserRequest.getUser()) && lobbyJoinUserRequest.getMessageContext().isPresent()) {
                 lobby.get().joinUser(lobbyJoinUserRequest.getUser());
                 sendToAllInLobby(lobbyJoinUserRequest.getName(), new UserJoinedLobbyMessage(lobbyJoinUserRequest.getName(), lobbyJoinUserRequest.getUser()));
                 sendToSpecificUser(lobbyJoinUserRequest.getMessageContext().get(), new LobbyJoinedSuccessfulResponse(lobbyJoinUserRequest.getName(), lobbyJoinUserRequest.getUser()));
                 sendToAll(new LobbySizeChangedMessage(lobbyJoinUserRequest.getName()));
         } else {
-            if (lobbyJoinUserRequest.getMessageContext().isPresent()) {
+            if (lobbyJoinUserRequest.getMessageContext().isPresent() && lobby.get().getUsers().size() == 4) {
                 sendToSpecificUser(lobbyJoinUserRequest.getMessageContext().get(), new LobbyFullResponse(lobbyJoinUserRequest.getName()));
+            } else {
+                sendToSpecificUser(lobbyJoinUserRequest.getMessageContext().get(), new AlreadyJoinedThisLobbyResponse(lobbyJoinUserRequest.getName()));
             }
         }
     }
@@ -258,6 +269,54 @@ public class LobbyService extends AbstractService {
         AllCreatedLobbiesResponse response = new AllCreatedLobbiesResponse(this.lobbyManagement.getAllLobbies().values());
         response.initWithMessage(msg);
         post(response);
+    }
+
+    /**
+     * Handles LogoutRequests found on the EventBus
+     *
+     * If a LogoutRequest is detected on the EventBus, this method is called. It
+     * gets all lobbies from the LobbyManagement and loops through them.
+     * If the user is part of a lobby, he gets removed from it.
+     * If he is the last user in the lobby, the lobby gets dropped.
+     * Finally we log how many lobbies the user left.
+     *
+     * @param msg the LogoutRequest
+     * @see de.uol.swp.common.user.request.LogoutRequest
+     * @see de.uol.swp.common.lobby.request.LobbyLeaveUserRequest
+     * @author René Meyer, Sergej Tulnev
+     * @since 2021-01-22
+     */
+    @Subscribe
+    public void onLogoutRequest(LogoutRequest msg) {
+        if (msg.getSession().isPresent()) {
+            Session session = msg.getSession().get();
+            var userToLogOut = session.getUser();
+            // Could be already logged out
+            if (userToLogOut != null) {
+                var lobbies = lobbyManagement.getAllLobbies();
+                // Create lobbiesCopy because of ConcurrentModificationException,
+                // so it doesn't matter when in the meantime the lobbies Object gets modified, while we still loop through it
+                var lobbiesCopy = lobbies.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+                // Loop lobbies
+                Iterator<Map.Entry<String, Lobby>> it = lobbiesCopy.entrySet().iterator();
+                var i = 0;
+                while (it.hasNext()) {
+                    Map.Entry<String, Lobby> entry = it.next();
+                    Lobby lobby = entry.getValue();
+                    if(lobby.getUsers().contains(userToLogOut)){
+                        // leave every lobby the user is part of
+                        var lobbyLeaveRequest = new LobbyLeaveUserRequest(lobby.getName(), (UserDTO) userToLogOut);
+                        if(msg.getMessageContext().isPresent()){
+                            lobbyLeaveRequest.setMessageContext(msg.getMessageContext().get());
+                            this.onLobbyLeaveUserRequest(lobbyLeaveRequest);
+                        }
+                    }
+                    i++;
+                }
+                var lobbyString = i>1? " lobbies":" lobby";
+                LOG.debug("Left " + i + lobbyString+" for User: " + userToLogOut.getUsername());
+            }
+        }
     }
 
     public Optional<Lobby> getLobby(String lobbyName) {
