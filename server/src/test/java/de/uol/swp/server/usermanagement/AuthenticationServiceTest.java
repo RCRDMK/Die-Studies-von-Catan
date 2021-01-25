@@ -240,7 +240,7 @@ class AuthenticationServiceTest {
      */
     @Test
     @DisplayName("X Button exit")
-    void exitViaXButtonTest(){
+    void exitViaXButtonTest() throws SQLException {
         // Login User and create lobby
         loginUser(user);
         Optional<Session> session = authService.getSession(user);
