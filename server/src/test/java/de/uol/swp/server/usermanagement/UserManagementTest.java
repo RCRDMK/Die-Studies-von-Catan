@@ -145,7 +145,7 @@ class UserManagementTest {
     void updateUserPassword_LoggedIn() throws SQLException {
         management.buildConnection();
 
-        User userToUpdate = new UserDTO("test3", "test3", "irgendwas@irgendwo.de");
+        User userToUpdate = new UserDTO("test1", "test1", "irgendwas@irgendwo.de");
         User updatedUser = new UserDTO(userToUpdate.getUsername(), "newPassword", "irgendwas@irgendwo.de");
 
         management.login(userToUpdate.getUsername(), userToUpdate.getPassword());
