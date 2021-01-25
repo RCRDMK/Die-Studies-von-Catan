@@ -205,6 +205,7 @@ public class GameService extends AbstractService {
         Optional<Lobby> lobby = lobbyService.getLobby(startGameRequest.getName());
         if (lobby.get().getUsers().size() > 1) {
             lobby.get().setPlayersReadyToNull();
+            Players = 0;
             sendToAllInLobby(startGameRequest.getName(),new StartGameMessage(startGameRequest.getName(), startGameRequest.getUser()));
             LOG.debug("send StartGameMessage to all users");
             int seconds = 60;
