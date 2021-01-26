@@ -10,31 +10,28 @@ import de.uol.swp.common.game.message.*;
 import de.uol.swp.common.game.request.*;
 import de.uol.swp.common.game.message.RollDiceRequest;
 import de.uol.swp.common.game.response.AllCreatedGamesResponse;
+import de.uol.swp.common.game.response.GameAlreadyExistsResponse;
+import de.uol.swp.common.game.response.NotLobbyOwnerResponse;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.message.StartGameMessage;
 import de.uol.swp.common.lobby.request.StartGameRequest;
-import de.uol.swp.common.lobby.response.NotEnoughPlayersResponse;
 import de.uol.swp.common.message.MessageContext;
 import de.uol.swp.common.message.ResponseMessage;
 import de.uol.swp.common.message.ServerMessage;
 import de.uol.swp.common.user.Session;
 import de.uol.swp.common.user.User;
+import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.user.response.game.AllThisGameUsersResponse;
-import de.uol.swp.common.user.response.game.GameCreatedSuccessfulResponse;
 import de.uol.swp.common.user.response.game.GameLeftSuccessfulResponse;
 import de.uol.swp.server.AbstractService;
 import de.uol.swp.server.game.dice.Dice;
-import de.uol.swp.server.lobby.LobbyManagement;
 import de.uol.swp.server.lobby.LobbyManagementException;
 import de.uol.swp.server.lobby.LobbyService;
 import de.uol.swp.server.usermanagement.AuthenticationService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 
 
 /**
@@ -124,6 +121,12 @@ public class GameService extends AbstractService {
         }
     }
 
+    public void sendToListOfUsers(Set<User> receiver, String gameName, ServerMessage message) {
+        message.setReceiver(authenticationService.getSessions(receiver));
+        post(message);
+    }
+
+
     public void sendToSpecificUser(MessageContext ctx, ResponseMessage message) {
         ctx.writeAndFlush(message);
     }
@@ -178,7 +181,6 @@ public class GameService extends AbstractService {
      */
     public void sendToAllInLobby(String lobbyName, ServerMessage message) {
         Optional<Lobby> lobby = lobbyService.getLobby(lobbyName);
-
         if (lobby.isPresent()) {
             message.setReceiver(authenticationService.getSessions(lobby.get().getUsers()));
             post(message);
@@ -195,7 +197,7 @@ public class GameService extends AbstractService {
      * which will be sent to all players in the lobby.
      * It starts a timer and tries to start the game afterwards. If no game was created a NotEnoughPlayersResponse is sent to
      * all users that are ready to start the game.
-     * Else Method creates NotEnoughPlayersResponse and sends it to a specific user that sent the initial request.
+     * Else Method creates NotLobbyOwnerResponse, NotEnoughPlayersResponse or GameAlreadyExistsResponse and sends it to a specific user that sent the initial request.
      *
      * @param startGameRequest the StartGameRequest found on the EventBus
      * @see de.uol.swp.common.lobby.request.StartGameRequest
@@ -205,30 +207,33 @@ public class GameService extends AbstractService {
     @Subscribe
     public void onStartGameRequest(StartGameRequest startGameRequest) {
         Optional<Lobby> lobby = lobbyService.getLobby(startGameRequest.getName());
-        if (lobby.get().getUsers().size() > 1) {
+        if (gameManagement.getGame(lobby.get().getName()).isEmpty() && lobby.get().getUsers().size() > 1 && startGameRequest.getUser().toString().equals(lobby.get().getOwner().toString())) {
             lobby.get().setPlayersReadyToNull();
             Players = 0;
-            sendToAllInLobby(startGameRequest.getName(),new StartGameMessage(startGameRequest.getName(), startGameRequest.getUser()));
-            LOG.debug("send StartGameMessage to all users");
+            sendToAllInLobby(startGameRequest.getName(), new StartGameMessage(startGameRequest.getName(), startGameRequest.getUser()));
             int seconds = 60;
             Timer timer = new Timer();
             class RemindTask extends TimerTask {
                 public void run() {
-                    if (gameManagement.getGame(lobby.get().getName()).isEmpty()) {
+                    if (gameManagement.getGame(lobby.get().getName()).isEmpty() && Players != lobby.get().getUsers().size()) {
                         Players = lobby.get().getUsers().size();
-                        startGame(lobby);
-                        if (gameManagement.getGame(lobby.get().getName()).isEmpty()) {
-                            for (User user : lobby.get().getPlayersReady()) {
-                                sendToSpecificUser(startGameRequest.getMessageContext().get(), new NotEnoughPlayersResponse());
-                            }
+                        try {
+                            startGame(lobby);
+                        } catch (GameManagementException e) {
+                            LOG.debug(e);
+                            sendToListOfUsers(lobby.get().getPlayersReady(), lobby.get().getName(), new NotEnoughPlayersMessage());
                         }
                     }
                     timer.cancel();
                 }
             }
-            timer.schedule(new RemindTask(), seconds*1000);
-        } else {
-            sendToSpecificUser(startGameRequest.getMessageContext().get(), new NotEnoughPlayersResponse());
+            timer.schedule(new RemindTask(), seconds * 1000);
+        } else if (!startGameRequest.getUser().toString().equals(lobby.get().getOwner().toString())) {
+            sendToSpecificUser(startGameRequest.getMessageContext().get(), new NotLobbyOwnerResponse());
+        } else if (gameManagement.getGame(lobby.get().getName()).isPresent()) {
+            sendToSpecificUser(startGameRequest.getMessageContext().get(), new GameAlreadyExistsResponse());
+        } else if (lobby.get().getUsers().size() < 2){
+            sendToListOfUsers(lobby.get().getUsers(), lobby.get().getName(), new NotEnoughPlayersMessage());
         }
     }
 
@@ -243,17 +248,15 @@ public class GameService extends AbstractService {
      */
 
     public void startGame(Optional<Lobby> lobby) {
-        if (gameManagement.getGame(lobby.get().getName()).isEmpty()) {
-            if (Players == lobby.get().getUsers().size()) {
-                if (lobby.get().getPlayersReady().size() > 1) {
-                    gameManagement.createGame(lobby.get().getName(), lobby.get().getOwner());
-                    Optional<Game> game = gameManagement.getGame(lobby.get().getName());
-                    for (User user : lobby.get().getPlayersReady()) {
-                        game.get().joinUser(user);
-                    }
-                    sendToAllInGame(game.get().getName(), new GameCreatedMessage(game.get().getName()));
-                }
+        if (lobby.get().getPlayersReady().size() > 1) {
+            gameManagement.createGame(lobby.get().getName(), lobby.get().getOwner());
+            Optional<Game> game = gameManagement.getGame(lobby.get().getName());
+            for (User user : lobby.get().getPlayersReady()) {
+                game.get().joinUser(user);
             }
+            sendToAllInGame(game.get().getName(), new GameCreatedMessage(game.get().getName()));
+        } else {
+            throw new GameManagementException("Not enough Players ready!");
         }
     }
 
@@ -269,14 +272,22 @@ public class GameService extends AbstractService {
      */
     @Subscribe
     public void onPlayerReadyRequest(PlayerReadyRequest playerReadyRequest) {
+        Optional<Lobby> lobby = lobbyService.getLobby(playerReadyRequest.getName());
         if (playerReadyRequest.getBoolean()) {
             Players += 1;
-            Optional<Lobby> lobby = lobbyService.getLobby(playerReadyRequest.getName());
             lobby.get().joinPlayerReady(playerReadyRequest.getUser());
-            startGame(lobby);
         } else if (!playerReadyRequest.getBoolean()) {
             Players += 1;
         }
+        if (Players == lobby.get().getUsers().size() && gameManagement.getGame(lobby.get().getName()).isEmpty()) {
+            try {
+                startGame(lobby);
+            } catch (GameManagementException e) {
+                LOG.debug(e);
+                sendToListOfUsers(lobby.get().getPlayersReady(), lobby.get().getName(), new NotEnoughPlayersMessage());
+            }
+        }
+
     }
 
 }

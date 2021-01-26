@@ -8,13 +8,13 @@ import de.uol.swp.client.game.GameService;
 import de.uol.swp.common.chat.RequestChatMessage;
 import de.uol.swp.common.chat.ResponseChatMessage;
 import de.uol.swp.common.game.message.GameCreatedMessage;
+import de.uol.swp.common.game.message.NotEnoughPlayersMessage;
 import de.uol.swp.common.game.request.PlayerReadyRequest;
+import de.uol.swp.common.game.response.GameAlreadyExistsResponse;
+import de.uol.swp.common.game.response.NotLobbyOwnerResponse;
 import de.uol.swp.common.lobby.message.StartGameMessage;
 import de.uol.swp.common.lobby.message.UserJoinedLobbyMessage;
 import de.uol.swp.common.lobby.message.UserLeftLobbyMessage;
-import de.uol.swp.common.lobby.request.StartGameRequest;
-import de.uol.swp.common.lobby.response.LobbyAlreadyExistsResponse;
-import de.uol.swp.common.lobby.response.NotEnoughPlayersResponse;
 import de.uol.swp.common.user.response.lobby.*;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
@@ -65,6 +65,12 @@ public class LobbyPresenter extends AbstractPresenter {
     @FXML
     public Label notEnoughPlayersLabel;
 
+    @FXML
+    public Label notLobbyOwnerLabel;
+
+    @FXML
+    public Label gameAlreadyExistsLabel;
+
     @Inject
     private LobbyService lobbyService;
 
@@ -88,7 +94,10 @@ public class LobbyPresenter extends AbstractPresenter {
     public void onStartGame(ActionEvent event) {
         LOG.debug("StartGame Button pressed");
         lobbyService.startGame(this.currentLobby, (UserDTO) this.joinedLobbyUser);
+        gameAlreadyExistsLabel.setVisible(false);
+        notLobbyOwnerLabel.setVisible(false);
         notEnoughPlayersLabel.setVisible(false);
+
     }
 
     @FXML
@@ -453,6 +462,9 @@ public class LobbyPresenter extends AbstractPresenter {
     public void startGamePopupLogic(StartGameMessage sgm) {
         if (this.currentLobby != null) {
             if (this.currentLobby.equals(sgm.getName())) {
+                gameAlreadyExistsLabel.setVisible(false);
+                notLobbyOwnerLabel.setVisible(false);
+                notEnoughPlayersLabel.setVisible(false);
                 Platform.runLater(() -> {
                     Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
                     alert.setTitle("Start Game");
@@ -481,32 +493,98 @@ public class LobbyPresenter extends AbstractPresenter {
     /**
      * Handles unsuccessful start of the game.
      * <p>
-     * If NotEnoughPlayersResponse is detected on the EventBus the method onNotEnoughPlayersResponseLogic is invoked.
+     * If NotEnoughPlayersMessage is detected on the EventBus the method onNotEnoughPlayersMessageLogic is invoked.
      *
-     * @param message the NotEnoughPlayersResponse object seen on the EventBus
+     * @param message the NotEnoughPlayersMessage object seen on the EventBus
      * @author Kirstin Beyer, Iskander Yusupov
-     * @see de.uol.swp.common.lobby.response.NotEnoughPlayersResponse
+     * @see de.uol.swp.common.game.message.NotEnoughPlayersMessage
      * @since 2021-01-23
      */
     @Subscribe
-    public void onNotEnoughPlayersResponse(NotEnoughPlayersResponse message) {
-        onNotEnoughPlayersResponseLogic(message);
+    public void onNotEnoughPlayersMessage(NotEnoughPlayersMessage message) {
+        onNotEnoughPlayersMessageLogic(message);
     }
 
     /**
-     * The Method invoked by onNotEnoughPlayersResponse()
+     * The Method invoked by onNotEnoughPlayersMessage()
      * <p>
      * Notifies player that not enough players are inside the lobby to start the game.
      *
-     * @param nepr the NotEnoughPlayersResponse given by the original subscriber method.
+     * @param nepm the NotEnoughPlayersMessage given by the original subscriber method.
      * @author Kirstin Beyer, Iskander Yusupov
-     * @see de.uol.swp.common.lobby.response.NotEnoughPlayersResponse
+     * @see NotEnoughPlayersMessage
      * @since 2021-01-23
      */
-    public void onNotEnoughPlayersResponseLogic(NotEnoughPlayersResponse nepr) {
+    public void onNotEnoughPlayersMessageLogic(NotEnoughPlayersMessage nepm) {
         LOG.debug("Not enough Players in Lobby to start game");
+        gameAlreadyExistsLabel.setVisible(false);
+        notLobbyOwnerLabel.setVisible(false);
         notEnoughPlayersLabel.setVisible(true);
     }
+
+    /**
+     * Handles unsuccessful start of the game.
+     * <p>
+     * If NotLobbyOwnerResponse is detected on the EventBus the method onNotLobbyOwnerResponseLogic is invoked.
+     *
+     * @param message the NotLobbyOwnerResponse object seen on the EventBus
+     * @author Kirstin Beyer, Iskander Yusupov
+     * @see NotLobbyOwnerResponse
+     * @since 2021-01-23
+     */
+    @Subscribe
+    public void onNotLobbyOwnerResponse(NotLobbyOwnerResponse message) {
+        onNotLobbyOwnerResponseLogic(message);
+    }
+
+    /**
+     * The Method invoked by onNotLobbyOwnerResponse()
+     * <p>
+     * Notifies player that he is not the lobby owner and therefore not allowed to start the game.
+     *
+     * @param nlor the NotLobbyOwnerResponse given by the original subscriber method.
+     * @author Kirstin Beyer, Iskander Yusupov
+     * @see NotLobbyOwnerResponse
+     * @since 2021-01-23
+     */
+    public void onNotLobbyOwnerResponseLogic(NotLobbyOwnerResponse nlor) {
+        notEnoughPlayersLabel.setVisible(false);
+        gameAlreadyExistsLabel.setVisible(false);
+        notLobbyOwnerLabel.setVisible(true);
+    }
+
+    /**
+     * Handles unsuccessful start of the game.
+     * <p>
+     * If GameAlreadyExistsResponse is detected on the EventBus the method onGameAlreadyExistsResponseLogic is invoked.
+     *
+     * @param message the GameAlreadyExistsResponse object seen on the EventBus
+     * @author Kirstin Beyer, Iskander Yusupov
+     * @see GameAlreadyExistsResponse
+     * @since 2021-01-23
+     */
+    @Subscribe
+    public void onGameAlreadyExistsResponse(GameAlreadyExistsResponse message) {
+        onGameAlreadyExistsResponseLogic(message);
+    }
+
+    /**
+     * The Method invoked by onGameAlreadyExistsResponse()
+     * <p>
+     * Notifies player that game already exists.
+     *
+     * @param gaer the GameAlreadyExistsResponse given by the original subscriber method.
+     * @author Kirstin Beyer, Iskander Yusupov
+     * @see GameAlreadyExistsResponse
+     * @since 2021-01-23
+     */
+    public void onGameAlreadyExistsResponseLogic(GameAlreadyExistsResponse gaer) {
+        LOG.debug("Game already exists.");
+        notEnoughPlayersLabel.setVisible(false);
+        notLobbyOwnerLabel.setVisible(false);
+        gameAlreadyExistsLabel.setVisible(true);
+    }
+
 
     /**
      * Handles successful creation of the game.

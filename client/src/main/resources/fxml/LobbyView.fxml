@@ -1,19 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ListView?>
-<?import javafx.scene.control.TextArea?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.uol.swp.client.lobby.LobbyPresenter">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.uol.swp.client.lobby.LobbyPresenter">
    <ListView fx:id="lobbyUsersView" prefHeight="200.0" prefWidth="200.0" />
    <Button layoutX="406.0" layoutY="346.0" mnemonicParsing="false" onAction="#onStartGame" text="Start Game" />
    <Button layoutX="59.0" layoutY="346.0" mnemonicParsing="false" onAction="#onLeaveLobby" text="Leave Lobby" />
    <TextArea fx:id="lobbyChatArea" editable="false" layoutX="302.0" layoutY="14.0" prefHeight="200" prefWidth="284.0" GridPane.rowIndex="2"> </TextArea>
    <TextField fx:id="lobbyChatInput" layoutX="302.0" layoutY="229.0" onAction="#onSendMessage" prefHeight="25.0" prefWidth="196.0" promptText="Schicke eine Nachricht!" GridPane.rowIndex="3"> </TextField>
    <Button layoutX="509.0" layoutY="229.0" mnemonicParsing="false" onAction="#onSendMessage" prefHeight="25.0" prefWidth="77.0" text="Senden" />
-   <Label fx:id="notEnoughPlayersLabel" layoutX="349.0" layoutY="321.0" prefHeight="17.0" prefWidth="189.0" text="Not enough players to start game" visible = "false"/>
+   <Label fx:id="notEnoughPlayersLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="349.0" layoutY="321.0" prefHeight="17.0" prefWidth="189.0" text="Not enough players to start game" textAlignment="CENTER" visible="false" />
+   <Label fx:id="notLobbyOwnerLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="349.0" layoutY="321.0" prefHeight="17.0" prefWidth="189.0" text="You are not the lobby owner" textAlignment="CENTER" visible="false" />
+   <Label fx:id="gameAlreadyExistsLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="349.0" layoutY="321.0" prefHeight="17.0" prefWidth="189.0" text="Game already exists" textAlignment="CENTER" visible="false" />
 </AnchorPane>
