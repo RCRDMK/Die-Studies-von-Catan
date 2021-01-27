@@ -29,7 +29,7 @@ import java.util.*;
  */
 public class UserManagement extends AbstractUserManagement {
 
-    private final String CONNECTION = "jdbc:mysql://134.106.11.89:50101/user_store";
+    private final String CONNECTION = "jdbc:mysql://134.106.11.89:50102/user_store";
     private Connection connection;
     private Statement statement;
     private static final Logger LOG = LogManager.getLogger(UserManagement.class);
@@ -80,7 +80,7 @@ public class UserManagement extends AbstractUserManagement {
 
     public void buildConnection() throws SQLException {
         DriverManager.registerDriver(new com.mysql.cj.jdbc.Driver());
-        connection = DriverManager.getConnection("jdbc:mysql://134.106.11.89:50101", "root", "SWP2020j");
+        connection = DriverManager.getConnection("jdbc:mysql://134.106.11.89:50102", "root", "SWP2020j");
         statement = connection.createStatement();
         statement.execute("use user_store;");
     }
