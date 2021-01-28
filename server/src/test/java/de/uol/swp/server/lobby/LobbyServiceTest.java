@@ -9,6 +9,7 @@ import de.uol.swp.common.lobby.request.CreateLobbyRequest;
 import de.uol.swp.common.lobby.request.LobbyJoinUserRequest;
 import de.uol.swp.common.lobby.request.LobbyLeaveUserRequest;
 import de.uol.swp.common.lobby.request.RetrieveAllThisLobbyUsersRequest;
+import de.uol.swp.common.lobby.response.AlreadyJoinedThisLobbyResponse;
 import de.uol.swp.common.message.MessageContext;
 import de.uol.swp.common.message.ResponseMessage;
 import de.uol.swp.common.message.ServerMessage;
@@ -22,6 +23,7 @@ import de.uol.swp.server.usermanagement.store.MainMemoryBasedUserStore;
 import de.uol.swp.server.usermanagement.store.UserStore;
 import org.junit.jupiter.api.*;
 
+import java.sql.SQLException;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.List;
@@ -38,9 +40,8 @@ import static org.junit.jupiter.api.Assertions.*;
 public class LobbyServiceTest {
     final EventBus bus = new EventBus();
     LobbyManagement lobbyManagement = new LobbyManagement();
-    LobbyService lobbyService = new LobbyService(lobbyManagement, new AuthenticationService(bus, new UserManagement(new MainMemoryBasedUserStore())), bus);
-    final UserStore userStore = new MainMemoryBasedUserStore();
-    final UserManagement userManagement = new UserManagement(userStore);
+    LobbyService lobbyService = new LobbyService(lobbyManagement, new AuthenticationService(bus, new UserManagement()), bus);
+    final UserManagement userManagement = new UserManagement();
     final AuthenticationService authenticationService = new AuthenticationService(bus, userManagement);
 
     UserDTO userDTO = new UserDTO("Peter", "lustig", "peter.lustig@uol.de");
@@ -48,6 +49,9 @@ public class LobbyServiceTest {
 
     final CountDownLatch lock = new CountDownLatch(1);
     Object event;
+
+    public LobbyServiceTest() throws SQLException {
+    }
 
     /**
      * Handles DeadEvents detected on the EventBus
@@ -175,6 +179,49 @@ public class LobbyServiceTest {
         assertFalse(lobbyManagement.getLobby(lobbyName).get().getUsers().contains(userDTO4));
 
         assertTrue(event instanceof LobbyFullResponse);
+    }
+
+    /**
+     * This test shows that a user can join a lobby only once.
+     * <p>
+     * Additionally the test checks if the user receives a AlreadyJoinedThisLobbyResponse Message on the Bus
+     * when he tries to join lobby he is already in.
+     *
+     * @author Carsten Dekker
+     * @since 2021-01-22
+     */
+    @Test
+    @DisplayName("Join Versuch Lobby schon einmal beigetreten")
+    void LobbyAlreadyJoinedTest() throws LobbyManagementException {
+        String lobbyName = "TestLobby";
+        UserDTO userDTO = new UserDTO("Peter", "lustig", "peter.lustig@uol.de");
+
+        CreateLobbyRequest clr = new CreateLobbyRequest(lobbyName, userDTO);
+        LobbyJoinUserRequest ljur1 = new LobbyJoinUserRequest(lobbyName, userDTO);
+
+        lobbyService.onCreateLobbyRequest(clr);
+
+        assertNotNull(lobbyManagement.getLobby(lobbyName).get());
+
+        MessageContext ctx = new MessageContext() {
+            @Override
+            public void writeAndFlush(ResponseMessage message) {
+            bus.post(message);
+            }
+
+            @Override
+            public void writeAndFlush(ServerMessage message) {
+            bus.post(message);
+            }
+        };
+
+        ljur1.setMessageContext(ctx);
+
+        lobbyService.onLobbyJoinUserRequest(ljur1);
+
+        assertEquals(1, lobbyManagement.getLobby(lobbyName).get().getUsers().size());
+
+        assertTrue(event instanceof AlreadyJoinedThisLobbyResponse);
     }
 
 

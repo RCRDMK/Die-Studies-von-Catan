@@ -11,6 +11,7 @@ import de.uol.swp.common.user.response.DropUserSuccessfulResponse;
 import de.uol.swp.server.usermanagement.store.MainMemoryBasedUserStore;
 import org.junit.jupiter.api.Test;
 
+import java.sql.SQLException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -26,11 +27,14 @@ class UserServiceTest {
     final CountDownLatch lock = new CountDownLatch(1);
 
     final EventBus bus = new EventBus();
-    final UserManagement userManagement = new UserManagement(new MainMemoryBasedUserStore());
+    final UserManagement userManagement = new UserManagement();
     final UserService userService = new UserService(bus, userManagement);
 
+    UserServiceTest() throws SQLException {
+    }
+
     @Test
-    void registerUserTest() {
+    void registerUserTest() throws SQLException {
         final RegisterUserRequest request = new RegisterUserRequest(userToRegister);
 
         // The post will lead to a call of a UserService function
@@ -41,10 +45,11 @@ class UserServiceTest {
 
         assertNotNull(loggedInUser);
         assertEquals(loggedInUser, userToRegister);
+        userManagement.dropUser(userToRegister);
     }
 
     @Test
-    void registerSecondUserWithSameName() {
+    void registerSecondUserWithSameName() throws SQLException {
         final RegisterUserRequest request = new RegisterUserRequest(userToRegister);
         final RegisterUserRequest request2 = new RegisterUserRequest(userWithSameName);
 
@@ -60,6 +65,8 @@ class UserServiceTest {
         // old user should not be overwritten!
         assertNotEquals(loggedInUser.getEMail(), userWithSameName.getEMail());
 
+        userManagement.dropUser(userToRegister);
+
     }
 
     /**
@@ -74,7 +81,7 @@ class UserServiceTest {
      * @since 2020-12-15
     */
     @Test
-    void dropUserTest() throws InterruptedException {
+    void dropUserTest() throws InterruptedException, SQLException {
 
         final RegisterUserRequest registerRequest = new RegisterUserRequest(userToDrop);
         final DropUserRequest dropUserRequest = new DropUserRequest(userToDrop);

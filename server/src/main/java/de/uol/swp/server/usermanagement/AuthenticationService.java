@@ -22,6 +22,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.security.auth.login.LoginException;
+import java.sql.SQLException;
 import java.util.*;
 
 /**
@@ -52,9 +53,10 @@ public class AuthenticationService extends AbstractService {
      * @since 2019-08-30
      */
     @Inject
-    public AuthenticationService(EventBus bus, UserManagement userManagement) {
+    public AuthenticationService(EventBus bus, UserManagement userManagement) throws SQLException {
         super(bus);
         this.userManagement = userManagement;
+        this.userManagement.buildConnection();
     }
 
     /**
