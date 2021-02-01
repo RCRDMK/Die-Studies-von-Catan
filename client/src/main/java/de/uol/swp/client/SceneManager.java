@@ -135,6 +135,10 @@ public class SceneManager {
             mainScene.getStylesheets().add(styleSheet);
             mainMenuTab = new Tab("Main Menu");
             mainMenuTab.setClosable(false);
+            mainMenuTab.setContent(mainScene.getRoot());
+            Platform.runLater(() ->
+                tabHelper.getTabPane().getTabs().add(mainMenuTab)
+            );
         }
     }
 
@@ -378,9 +382,9 @@ public class SceneManager {
      * @since 2021-01-20
      */
     public void showMainTab(User currentUser) {
-        mainMenuTab.setContent(mainScene.getRoot());
+        //mainMenuTab.setContent(mainScene.getRoot());
         Platform.runLater(() -> {
-            tabHelper.getTabPane().getTabs().add(mainMenuTab);
+            //tabHelper.getTabPane().getTabs().add(mainMenuTab);
             primaryStage.setTitle("Catan");
             primaryStage.setScene(tabScene);
             primaryStage.show();});

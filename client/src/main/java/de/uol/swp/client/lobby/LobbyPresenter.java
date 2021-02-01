@@ -53,6 +53,8 @@ public class LobbyPresenter extends AbstractPresenter {
 
     private String currentLobby;
 
+    private Boolean upForGarbageCollection = false;
+
     @FXML
     public TextField lobbyChatInput;
 
@@ -121,7 +123,7 @@ public class LobbyPresenter extends AbstractPresenter {
      * @param message the LobbyCreatedSuccessfulResponse object seen on the EventBus
      *
      * @author Marc Hermes
-     * @see de.uol.swp.common.user.response.LobbyCreatedSuccessfulResponse
+     * @see de.uol.swp.common.user.response.lobby.LobbyCreatedSuccessfulResponse
      * @since 2020-12-02
      */
     @Subscribe
@@ -139,11 +141,11 @@ public class LobbyPresenter extends AbstractPresenter {
      * @param lcsr the LobbyCreatedSuccessfulResponse given by the original subscriber method.
      *
      * @author Alexander Losse, Marc Hermes
-     * @see de.uol.swp.common.user.response.LobbyCreatedSuccessfulResponse
+     * @see de.uol.swp.common.user.response.lobby.LobbyCreatedSuccessfulResponse
      * @since 2021-01-20
      */
     public void createdSuccessfulLogic(LobbyCreatedSuccessfulResponse lcsr) {
-        if (this.currentLobby == null) {
+        if (this.currentLobby == null && !upForGarbageCollection) {
             LOG.debug("Requesting update of User list in lobby because lobby was created.");
             this.joinedLobbyUser = lcsr.getUser();
             this.currentLobby = lcsr.getName();
@@ -161,7 +163,7 @@ public class LobbyPresenter extends AbstractPresenter {
      * @param message the LobbyJoinedSuccessfulResponse object seen on the EventBus
      *
      * @author Marc Hermes
-     * @see de.uol.swp.common.user.response.LobbyJoinedSuccessfulResponse
+     * @see de.uol.swp.common.user.response.lobby.LobbyJoinedSuccessfulResponse
      * @since 2020-12-10
      */
     @Subscribe
@@ -178,11 +180,11 @@ public class LobbyPresenter extends AbstractPresenter {
      * @param ljsr the LobbyJoinedSuccessfulResponse given by the original subscriber method.
      *
      * @author Alexander Losse, Marc Hermes
-     * @see de.uol.swp.common.user.response.LobbyJoinedSuccessfulResponse
+     * @see de.uol.swp.common.user.response.lobby.LobbyJoinedSuccessfulResponse
      * @since 2021-01-20
      */
     public void userJoinedSuccessfulLogic(LobbyJoinedSuccessfulResponse ljsr) {
-        if (this.currentLobby == null) {
+        if (this.currentLobby == null && !upForGarbageCollection) {
             LOG.debug("LobbyJoinedSuccessfulResponse successfully received");
             this.joinedLobbyUser = ljsr.getUser();
             this.currentLobby = ljsr.getName();
@@ -201,7 +203,7 @@ public class LobbyPresenter extends AbstractPresenter {
      * @param message the LobbyLeftSuccessfulResponse object seen on the EventBus
      *
      * @author Marc Hermes
-     * @see de.uol.swp.common.user.response.LobbyLeftSuccessfulResponse
+     * @see de.uol.swp.common.user.response.lobby.LobbyLeftSuccessfulResponse
      * @since 2020-12-10
      */
     @Subscribe
@@ -215,10 +217,16 @@ public class LobbyPresenter extends AbstractPresenter {
      * @param llsr the LobbyLeftSuccessfulResponse given by the original subscriber method
      *
      * @author Alexander Losse, Marc Hermes
-     * @see de.uol.swp.common.user.response.LobbyLeftSuccessfulResponse
+     * @see de.uol.swp.common.user.response.lobby.LobbyLeftSuccessfulResponse
      * @since 2021-01-20
      */
     public void userLeftSuccessfulLogic(LobbyLeftSuccessfulResponse llsr) {
+        if (this.currentLobby != null) {
+            if (this.currentLobby.equals(llsr.getName())) {
+                this.currentLobby = null;
+                this.upForGarbageCollection = true;
+            }
+        }
     }
 
     /**
@@ -323,7 +331,7 @@ leftSuccessfulLogic(message);
      * @param atlur the AllThisLobbyUsersResponse given by the original subscriber method.
      *
      * @author Alexander Losse, Marc Hermes
-     * @see de.uol.swp.common.user.response.AllThisLobbyUsersResponse
+     * @see de.uol.swp.common.user.response.lobby.AllThisLobbyUsersResponse
      * @since 2021-01-20
      */
     public void lobbyUserListLogic(AllThisLobbyUsersResponse atlur){
@@ -418,3 +426,4 @@ updateChatLogic(message);
         lobbyChatArea.insertText(lobbyChatArea.getLength(), readableTime + " " + rcm.getUsername() + ": " + rcm.getMessage() + "\n");
     }
 }
+
