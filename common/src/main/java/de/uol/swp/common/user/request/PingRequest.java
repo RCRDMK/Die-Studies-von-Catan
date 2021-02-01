@@ -1,7 +1,6 @@
 package de.uol.swp.common.user.request;
 
 import de.uol.swp.common.message.AbstractRequestMessage;
-import de.uol.swp.common.user.User;
 
 import java.util.Objects;
 
@@ -10,59 +9,59 @@ import java.util.Objects;
  * a ping with the user
  *
  * @author Philip
- * @since  2021-01-25
+ * @since 2021-01-25
  */
 
 public class PingRequest extends AbstractRequestMessage {
 
-        private User user;
-        private Long time;
+    private String username;
+    private Long time;
 
-        /**
-         * Constructor
-         *
-         * @param user User the user tries to send Ping
-         * @author Philip
-         * @since  2021-01-22
-         */
-        public PingRequest(User user, Long time) {
-            this.user = user;
-            this.time = time;
-        }
+    /**
+     * Constructor
+     *
+     * @param username User the user tries to send Ping
+     * @author Philip
+     * @since 2021-01-22
+     */
+    public PingRequest(String username, Long time) {
+        this.username = username;
+        this.time = time;
+    }
 
-        @Override
-        public boolean authorizationNeeded() {
-            return false;
-        }
+    @Override
+    public boolean authorizationNeeded() {
+        return false;
+    }
 
-        /**
-         * Setter for the user variable
-         *
-         * @param user User containing the new user
-         * @author Philip
-         * @since  2021-01-22
-         */
-        public void setUser(User user) {
-            this.user = user;
-        }
+    /**
+     * Setter for the user variable
+     *
+     * @param username Username containing the new user
+     * @author Philip
+     * @since 2021-01-22
+     */
+    public void setUsername(String username) {
+        this.username = username;
+    }
 
-        /**
-         * Getter for the user variable
-         *
-         * @return User tries to send Ping
-         * @author Philip
-         * @since  2021-01-22
-         */
-        public User getUser() {
-            return user;
-        }
+    /**
+     * Getter for the user variable
+     *
+     * @return Username tries to send Ping
+     * @author Philip
+     * @since 2021-01-22
+     */
+    public String getUsername() {
+        return username;
+    }
 
     /**
      * Setter for the time variable
      *
      * @param time Long containing the new user
      * @author Philip
-     * @since  2021-01-22
+     * @since 2021-01-22
      */
     public void setTime(Long time) {
         this.time = time;
@@ -73,7 +72,7 @@ public class PingRequest extends AbstractRequestMessage {
      *
      * @return Long tries to send Ping
      * @author Philip
-     * @since  2021-01-22
+     * @since 2021-01-22
      */
     public Long getTime() {
         return time;
@@ -84,12 +83,12 @@ public class PingRequest extends AbstractRequestMessage {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         PingRequest that = (PingRequest) o;
-        return Objects.equals(user, that.user) && Objects.equals(time, that.time);
+        return Objects.equals(username, that.username) && Objects.equals(time, that.time);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(user, time);
+        return Objects.hash(username, time);
     }
 
-    }
+}

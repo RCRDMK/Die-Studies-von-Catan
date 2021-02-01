@@ -28,8 +28,8 @@ import java.util.*;
 /**
  * Mapping authentication event bus calls to user management calls
  *
- * @see de.uol.swp.server.AbstractService
  * @author Marco Grawunder
+ * @see de.uol.swp.server.AbstractService
  * @since 2019-08-30
  */
 @SuppressWarnings("UnstableApiUsage")
@@ -47,7 +47,7 @@ public class AuthenticationService extends AbstractService {
     /**
      * Constructor
      *
-     * @param bus The EventBus used throughout the entire server
+     * @param bus            The EventBus used throughout the entire server
      * @param userManagement object of the UserManagement to use
      * @see de.uol.swp.server.usermanagement.UserManagement
      * @since 2019-08-30
@@ -93,7 +93,7 @@ public class AuthenticationService extends AbstractService {
 
     /**
      * Handles LoginRequests found on the EventBus
-     *
+     * <p>
      * If a LoginRequest is detected on the EventBus, this method is called. It
      * tries to login a user via the UserManagement. If this succeeds the user and
      * his Session are stored in the userSessions Map and a ClientAuthorizedMessage
@@ -102,10 +102,10 @@ public class AuthenticationService extends AbstractService {
      * If a user is already logged in, a ServerExceptionMessage is posted on the bus. (René, Sergej)
      *
      * @param msg the LoginRequest
+     * @author René, Sergej
      * @see de.uol.swp.common.user.request.LoginRequest
      * @see de.uol.swp.server.message.ClientAuthorizedMessage
      * @see de.uol.swp.server.message.ServerExceptionMessage
-     * @author René, Sergej
      * @since 2021-01-03
      */
     @Subscribe
@@ -117,17 +117,15 @@ public class AuthenticationService extends AbstractService {
         try {
             // Beim UserDTO Objekt muss nur der Username übergeben werden, da die equals() Methode nur checkt ob der Username übereinstimmt
             var loggedInUser = new UserDTO(msg.getUsername(), "", "");
-            if(!userManagement.isLoggedIn(loggedInUser))
-            {
+            if (!userManagement.isLoggedIn(loggedInUser)) {
                 User newUser = userManagement.login(msg.getUsername(), msg.getPassword());
                 returnMessage = new ClientAuthorizedMessage(newUser);
                 Session newSession = UUIDSession.create(newUser);
                 userSessions.put(newSession, newUser);
                 returnMessage.setSession(newSession);
-            }
-            else{
-                LOG.debug("User "+ msg.getUsername() + " already logged in!");
-                returnMessage = new ServerExceptionMessage(new LoginException("User "+ msg.getUsername() + " already logged in!" ));
+            } else {
+                LOG.debug("User " + msg.getUsername() + " already logged in!");
+                returnMessage = new ServerExceptionMessage(new LoginException("User " + msg.getUsername() + " already logged in!"));
             }
         } catch (Exception e) {
             LOG.error(e);
@@ -141,7 +139,7 @@ public class AuthenticationService extends AbstractService {
 
     /**
      * Handles LogoutRequests found on the EventBus
-     *
+     * <p>
      * If a LogoutRequest is detected on the EventBus, this method is called. It
      * tries to logout a user via the UserManagement. If this succeeds the user and
      * his Session are removed from the userSessions Map and a UserLoggedOutMessage
@@ -177,7 +175,7 @@ public class AuthenticationService extends AbstractService {
 
     /**
      * Handles RetrieveAllOnlineUsersRequests found on the EventBus
-     *
+     * <p>
      * If a RetrieveAllOnlineUsersRequest is detected on the EventBus, this method
      * is called. It posts a AllOnlineUsersResponse containing user objects for
      * every logged in user on the EventBus.
