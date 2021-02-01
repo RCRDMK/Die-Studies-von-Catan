@@ -467,7 +467,7 @@ public class LobbyPresenter extends AbstractPresenter {
                 notEnoughPlayersLabel.setVisible(false);
                 Platform.runLater(() -> {
                     Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-                    alert.setTitle("Start Game" + sgm.getName());
+                    alert.setTitle("Start Game " + sgm.getName());
                     alert.setHeaderText("Ready to play?");
 
                     ButtonType buttonTypeYes = new ButtonType("Yes", ButtonBar.ButtonData.YES);
