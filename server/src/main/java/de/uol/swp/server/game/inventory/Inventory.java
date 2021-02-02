@@ -37,6 +37,7 @@ public class Inventory {
     private int unitSettlement = 5;
     private int unitRoad = 15;
 
+
     /**
      * Getter and Setter for Resource
      * <p>
@@ -113,6 +114,7 @@ public class Inventory {
     public void setLargestArmy(boolean largestArmy) { this.largestArmy = largestArmy; }
 
     public void setLongestRoad(boolean longestRoad) { this.longestRoad = longestRoad; }
+
 
     /**
      * Getter and Setter for Building Units
