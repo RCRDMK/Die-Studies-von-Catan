@@ -214,14 +214,13 @@ public class ClientApp extends Application implements ConnectionListener {
      * to DEBUG or higher "user joined lobby " is written to the log.
      *
      * @param message The StartGameResponse object detected on the EventBus
-     * @see de.uol.swp.common.user.response.game.GameCreatedSuccessfulResponse
+     * @see de.uol.swp.common.game.message.GameCreatedMessage
      * @since 2021-01-14
      * @author Kirstin Beyer
      */
     @Subscribe
-    public void userStartedGame(GameCreatedSuccessfulResponse message) {
-        LOG.debug("User " + message.getUser().getUsername() + " started a game ");
-        this.user = message.getUser();
+    public void userStartedGame(GameCreatedMessage message) {
+        LOG.debug(" Started a game " + message.getName());
         sceneManager.showGameScreen(user, message.getName());
     }
 

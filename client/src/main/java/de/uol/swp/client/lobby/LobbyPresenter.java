@@ -9,7 +9,6 @@ import de.uol.swp.common.chat.RequestChatMessage;
 import de.uol.swp.common.chat.ResponseChatMessage;
 import de.uol.swp.common.game.message.GameCreatedMessage;
 import de.uol.swp.common.game.message.NotEnoughPlayersMessage;
-import de.uol.swp.common.game.request.PlayerReadyRequest;
 import de.uol.swp.common.game.response.GameAlreadyExistsResponse;
 import de.uol.swp.common.game.response.NotLobbyOwnerResponse;
 import de.uol.swp.common.lobby.message.StartGameMessage;
@@ -53,8 +52,6 @@ public class LobbyPresenter extends AbstractPresenter {
 
     private String currentLobby;
 
-    private Boolean upForGarbageCollection = false;
-
     @FXML
     public TextField lobbyChatInput;
 
@@ -81,6 +78,10 @@ public class LobbyPresenter extends AbstractPresenter {
 
     @Inject
     private GameService gameService;
+    private Alert alert;
+
+    private ButtonType buttonTypeYes;
+    private ButtonType buttonTypeNo;
 
 
     /**
@@ -99,7 +100,6 @@ public class LobbyPresenter extends AbstractPresenter {
         gameAlreadyExistsLabel.setVisible(false);
         notLobbyOwnerLabel.setVisible(false);
         notEnoughPlayersLabel.setVisible(false);
-
     }
 
     @FXML
@@ -168,13 +168,19 @@ public class LobbyPresenter extends AbstractPresenter {
      * @since 2021-01-20
      */
     public void createdSuccessfulLogic(LobbyCreatedSuccessfulResponse lcsr) {
-        if (this.currentLobby == null && !upForGarbageCollection) {
+        if (this.currentLobby == null) {
             LOG.debug("Requesting update of User list in lobby because lobby was created.");
             this.joinedLobbyUser = lcsr.getUser();
             this.currentLobby = lcsr.getName();
             this.lobbyChatInput.setText("");
             lobbyChatArea.deleteText(0, lobbyChatArea.getLength());
             lobbyService.retrieveAllThisLobbyUsers(lcsr.getName());
+            Platform.runLater(() -> {
+                this.alert = new Alert(Alert.AlertType.CONFIRMATION);
+                this.buttonTypeYes = new ButtonType("Yes", ButtonBar.ButtonData.YES);
+                this.buttonTypeNo = new ButtonType("No", ButtonBar.ButtonData.NO);
+                alert.getButtonTypes().setAll(buttonTypeYes, buttonTypeNo);
+            });
         }
     }
 
@@ -206,13 +212,19 @@ public class LobbyPresenter extends AbstractPresenter {
      * @since 2021-01-20
      */
     public void userJoinedSuccessfulLogic(LobbyJoinedSuccessfulResponse ljsr) {
-        if (this.currentLobby == null && !upForGarbageCollection) {
+        if (this.currentLobby == null) {
             LOG.debug("LobbyJoinedSuccessfulResponse successfully received");
             this.joinedLobbyUser = ljsr.getUser();
             this.currentLobby = ljsr.getName();
             this.lobbyChatInput.setText("");
             lobbyChatArea.deleteText(0, lobbyChatArea.getLength());
             lobbyService.retrieveAllThisLobbyUsers(ljsr.getName());
+            Platform.runLater(() -> {
+                this.alert = new Alert(Alert.AlertType.CONFIRMATION);
+                this.buttonTypeYes = new ButtonType("Yes", ButtonBar.ButtonData.YES);
+                this.buttonTypeNo = new ButtonType("No", ButtonBar.ButtonData.NO);
+                alert.getButtonTypes().setAll(buttonTypeYes, buttonTypeNo);
+            });
         }
     }
 
@@ -244,7 +256,6 @@ public class LobbyPresenter extends AbstractPresenter {
         if (this.currentLobby != null) {
             if (this.currentLobby.equals(llsr.getName())) {
                 this.currentLobby = null;
-                this.upForGarbageCollection = true;
                 clearEventBus();
             }
         }
@@ -475,14 +486,8 @@ public class LobbyPresenter extends AbstractPresenter {
                 notLobbyOwnerLabel.setVisible(false);
                 notEnoughPlayersLabel.setVisible(false);
                 Platform.runLater(() -> {
-                    Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-                    alert.setTitle("Start Game " + sgm.getName());
-                    alert.setHeaderText("Ready to play?");
-
-                    ButtonType buttonTypeYes = new ButtonType("Yes", ButtonBar.ButtonData.YES);
-                    ButtonType buttonTypeNo = new ButtonType("No", ButtonBar.ButtonData.NO);
-                    alert.getButtonTypes().setAll(buttonTypeYes, buttonTypeNo);
-
+                    this.alert.setTitle("Start Game " + sgm.getName());
+                    this.alert.setHeaderText("Ready to play?");
                     Optional<ButtonType> result = alert.showAndWait();
                     boolean ready;
                     ready = false;
@@ -492,7 +497,6 @@ public class LobbyPresenter extends AbstractPresenter {
                         ready = false;
                     }
                     lobbyService.sendPlayerReadyRequest(sgm.getName(), (UserDTO) this.joinedLobbyUser, ready);
-                    alert.close();
                 });
             }
         }
@@ -520,13 +524,16 @@ public class LobbyPresenter extends AbstractPresenter {
      *
      * @param nepm the NotEnoughPlayersMessage given by the original subscriber method.
      * @author Kirstin Beyer, Iskander Yusupov
-     * @see NotEnoughPlayersMessage
+     * @see de.uol.swp.common.game.message.NotEnoughPlayersMessage
      * @since 2021-01-23
      */
     public void onNotEnoughPlayersMessageLogic(NotEnoughPlayersMessage nepm) {
         if (this.currentLobby != null) {
             if (this.currentLobby.equals(nepm.getName())) {
                 LOG.debug("Not enough Players in Lobby to start game");
+                Platform.runLater(() ->
+                    alert.close()
+                );
                 gameAlreadyExistsLabel.setVisible(false);
                 notLobbyOwnerLabel.setVisible(false);
                 notEnoughPlayersLabel.setVisible(true);
@@ -541,7 +548,7 @@ public class LobbyPresenter extends AbstractPresenter {
      *
      * @param message the NotLobbyOwnerResponse object seen on the EventBus
      * @author Kirstin Beyer, Iskander Yusupov
-     * @see NotLobbyOwnerResponse
+     * @see de.uol.swp.common.game.response.NotLobbyOwnerResponse
      * @since 2021-01-23
      */
     @Subscribe
@@ -556,7 +563,7 @@ public class LobbyPresenter extends AbstractPresenter {
      *
      * @param nlor the NotLobbyOwnerResponse given by the original subscriber method.
      * @author Kirstin Beyer, Iskander Yusupov
-     * @see NotLobbyOwnerResponse
+     * @see de.uol.swp.common.game.response.NotLobbyOwnerResponse
      * @since 2021-01-23
      */
     public void onNotLobbyOwnerResponseLogic(NotLobbyOwnerResponse nlor) {
@@ -576,7 +583,7 @@ public class LobbyPresenter extends AbstractPresenter {
      *
      * @param message the GameAlreadyExistsResponse object seen on the EventBus
      * @author Kirstin Beyer, Iskander Yusupov
-     * @see GameAlreadyExistsResponse
+     * @see de.uol.swp.common.game.response.GameAlreadyExistsResponse
      * @since 2021-01-23
      */
     @Subscribe
@@ -591,7 +598,7 @@ public class LobbyPresenter extends AbstractPresenter {
      *
      * @param gaer the GameAlreadyExistsResponse given by the original subscriber method.
      * @author Kirstin Beyer, Iskander Yusupov
-     * @see GameAlreadyExistsResponse
+     * @see de.uol.swp.common.game.response.GameAlreadyExistsResponse
      * @since 2021-01-23
      */
     public void onGameAlreadyExistsResponseLogic(GameAlreadyExistsResponse gaer) {
@@ -633,8 +640,12 @@ public class LobbyPresenter extends AbstractPresenter {
      * @since 2021-01-23
      */
     public void gameCreatedSuccessfulLogic(GameCreatedMessage gcm) {
-        LOG.debug("New game " + gcm.getName() + " created");
-        //gameService.retrieveAllGames();
+        if (this.currentLobby != null) {
+            if (this.currentLobby.equals(gcm.getName())) {
+                LOG.debug("New game " + gcm.getName() + " created");
+                //gameService.retrieveAllGames();
+            }
+        }
     }
 
 }
