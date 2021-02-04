@@ -42,6 +42,14 @@ public interface Game extends Serializable {
     User getOwner();
 
     /**
+     * Adds a new user to the game
+     *
+     * @param user The new user to add to the game
+     * @since 2021-01-25
+     */
+    void joinUser(User user);
+
+    /**
      * Removes an user from the game
      *
      * @param user The user to remove from the game
