@@ -22,6 +22,9 @@ public class LobbyDTO implements Lobby {
     private final String name;
     private User owner;
     private final Set<User> users = new TreeSet<>();
+    private final Set<User> playersReady = new TreeSet<>();
+
+
 
     /**
      * Constructor
@@ -45,6 +48,11 @@ public class LobbyDTO implements Lobby {
     @Override
     public void joinUser(User user) {
         this.users.add(user);
+    }
+
+    @Override
+    public void joinPlayerReady(User user) {
+        this.playersReady.add(user);
     }
 
     @Override
@@ -77,5 +85,11 @@ public class LobbyDTO implements Lobby {
     public Set<User> getUsers() {
         return Collections.unmodifiableSet(users);
     }
+
+    @Override
+    public Set<User> getPlayersReady() { return Collections.unmodifiableSet(playersReady); }
+
+    @Override
+    public void setPlayersReadyToNull() {this.playersReady.removeAll(playersReady);}
 
 }

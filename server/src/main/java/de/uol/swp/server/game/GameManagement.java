@@ -23,13 +23,31 @@ import java.util.Optional;
 public class GameManagement extends AbstractGameManagement {
     private final Map<String, Game> games = new HashMap<>();
 
-
+    /**
+     * Creates a new game and adds it to the list
+     * <p>
+     *
+     * @param name  the name of the game to create
+     * @param owner the user who wants to create a game
+     * @author Iskander Yusupov
+     * @see de.uol.swp.common.user.User
+     * @since 2021-01-15
+     */
     @Override
     public void createGame(String name, User owner) {
         games.put(name, new GameDTO(name, owner));
     }
 
-
+    /**
+     * Deletes game with requested name
+     * <p>
+     *
+     * @param name String containing the name of the game to delete
+     * @throws IllegalArgumentException there exists no game with the  requested
+     *                                  name
+     * @author Iskander Yusupov
+     * @since 2021-01-15
+     */
     @Override
     public void dropGame(String name) {
         if (!games.containsKey(name)) {
@@ -38,7 +56,16 @@ public class GameManagement extends AbstractGameManagement {
         games.remove(name);
     }
 
-
+    /**
+     * Searches for the game with the requested name
+     * <p>
+     *
+     * @param name String containing the name of the game to search for
+     * @return either empty Optional or Optional containing the game
+     * @author Iskander Yusupov
+     * @see Optional
+     * @since 2021-01-15
+     */
     @Override
     public Optional<Game> getGame(String name) {
         Game game = games.get(name);
@@ -48,7 +75,13 @@ public class GameManagement extends AbstractGameManagement {
         return Optional.empty();
     }
 
-
+    /**
+     * Searches for all games
+     *
+     * @return containing a HashMap with games
+     * @author Iskander Yusupov
+     * @since 2021-01-15
+     */
     @Override
     public Map<String, Game> getAllGames() {
         return games;
