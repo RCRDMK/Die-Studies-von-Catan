@@ -13,7 +13,7 @@ import java.util.Timer;
  * possible that not every client has to have every information of the lobby.
  *
  * Enhanced by Carsten Dekker and Marius Birk
- * @since 2020-04-12
+ * @since 2020-12-04
  * Now the Lobby class extends Serializable
  *
  * @author Marco Grawunder
