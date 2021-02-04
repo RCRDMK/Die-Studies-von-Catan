@@ -11,101 +11,41 @@ import java.util.Map;
  */
 public class Inventory {
 
-    // Resource
-    private int lumber = 0;
-    private int brick = 0;
-    private int grain = 0;
-    private int wool = 0;
-    private int ore = 0;
+    // Resource Cards
+    public Card lumber = new Card();
+    public Card brick = new Card();
+    public Card grain = new Card();
+    public Card wool = new Card();
+    public Card ore = new Card();
 
     // Development Cards
-    private int cardKnight = 0;
-    private int cardMonopoly = 0;
-    private int cardRoadBuilding = 0;
-    private int cardYearOfPlenty = 0;
-    private int cardVictoryPoint = 0;
+    public Card cardKnight = new Card();
+    public Card cardMonopoly = new Card();
+    public Card cardRoadBuilding = new Card();
+    public Card cardYearOfPlenty = new Card();
+
+
+    // Building Units
+    public Unit city = new Unit(4);
+    public Unit road = new Unit(15);
+    public Unit settlement = new Unit(5);
 
     // Achievements
     private int victoryPoints = 0;
     private int playedKnights = 0;
     private int continuousRoad = 0;
+    private int cardVictoryPoint = 0;
     private boolean largestArmy = false;
     private boolean longestRoad = false;
 
-    // Building Units
-    private int unitCity = 4;
-    private int unitSettlement = 5;
-    private int unitRoad = 15;
 
+    //Getter and Setter for Achievements
 
-    /**
-     * Getter and Setter for Resource
-     * <p>
-     * Setter are restricted
-     */
-    public int getLumber() { return lumber; }
-
-    public int getBrick() { return brick; }
-
-    public int getGrain() { return grain; }
-
-    public int getWool() { return wool; }
-
-    public int getOre() { return ore; }
-
-    public void setLumber(int lumber) { this.lumber = Math.max(lumber, 0); }
-
-    public void setBrick(int brick) { this.brick = Math.max(brick, 0); }
-
-    public void setGrain(int grain) { this.grain = Math.max(grain, 0); }
-
-    public void setWool(int wool) { this.wool = Math.max(wool, 0); }
-
-    public void setOre(int ore) { this.ore = Math.max(ore, 0); }
-
-
-    /**
-     * Getter and Setter for Development Cards
-     * <p>
-     * Setter are restricted
-     */
-    public int getCardKnight() { return cardKnight; }
-
-    public int getCardMonopoly() { return cardMonopoly; }
-
-    public int getCardRoadBuilding() { return cardRoadBuilding; }
-
-    public int getCardYearOfPlenty() { return cardYearOfPlenty; }
-
-    public int getCardVictoryPoint() { return cardVictoryPoint; }
-
-    public void setCardKnight(int cardKnight) { this.cardKnight = Math.max(cardKnight, 0); }
-
-    public void setCardMonopoly(int cardMonopoly) { this.cardMonopoly = Math.max(cardMonopoly, 0); }
-
-    public void setCardRoadBuilding(int cardRoadBuilding) { this.cardRoadBuilding = Math.max(cardRoadBuilding, 0); }
-
-    public void setCardYearOfPlenty(int cardYearOfPlenty) { this.cardYearOfPlenty = Math.max(cardYearOfPlenty, 0); }
-
-    public void setCardVictoryPoint(int cardVictoryPoint) { this.cardVictoryPoint = Math.max(cardVictoryPoint, 0); }
-
-
-    /**
-     * Getter and Setter for Achievements
-     * <p>
-     * Setter are restricted
-     */
     public int getVictoryPoints() { return victoryPoints; }
 
     public int getPlayedKnights() { return playedKnights; }
 
     public int getNetworkRoad() { return continuousRoad; }
-
-    public void setVictoryPoints(int victoryPoints) { this.victoryPoints = Math.max(victoryPoints, 0); }
-
-    public void setPlayedKnights(int playedKnights) { this.playedKnights = Math.max(playedKnights, 0); }
-
-    public void setNetworkRoad(int networkRoad) { this.continuousRoad = Math.max(networkRoad, 0); }
 
     public boolean isLargestArmy() { return largestArmy; }
 
@@ -115,40 +55,35 @@ public class Inventory {
 
     public void setLongestRoad(boolean longestRoad) { this.longestRoad = longestRoad; }
 
+    public void setVictoryPoints(int victoryPoints) { this.victoryPoints = Math.max(victoryPoints, 0); }
 
-    /**
-     * Getter and Setter for Building Units
-     * <p>
-     * Setter are restricted
-     */
-    public int getUnitCity() { return unitCity; }
+    public void setPlayedKnights(int playedKnights) { this.playedKnights = Math.max(playedKnights, 0); }
 
-    public int getUnitSettlement() { return unitSettlement; }
+    public void setContinuousRoad(int continuousRoad) { this.continuousRoad = Math.max(continuousRoad, 0); }
 
-    public int getUnitRoad() { return unitRoad; }
 
-    public void setUnitCity(int unitCity) {
-        if (unitCity < 0) this.unitCity = 0;
-        else this.unitCity = Math.min(unitCity, 4);
+    //Increment the Victory Point Card
+    public void incCardVictoryPoint() {
+        this.cardVictoryPoint++;
+        this.victoryPoints++;
     }
 
-    public void setUnitSettlement(int unitSettlement) {
-        if (unitSettlement < 0) this.unitSettlement = 0;
-        else this.unitSettlement = Math.min(unitSettlement, 5);
+    //This method add the Resource Cards
+    public int getResource() {
+        return  lumber.getNumber() +
+                brick.getNumber() +
+                grain.getNumber() +
+                wool.getNumber() +
+                ore.getNumber();
     }
 
-    public void setUnitRoad(int unitRoad) {
-        if (unitRoad < 0) this.unitRoad = 0;
-        else this.unitRoad = Math.min(unitRoad, 15);
-    }
-
-
-    // This method add the Resource
-    public int getResource() { return lumber + brick + grain + wool + ore; }
-
-    // This method add the Development Cards
+    //This method add the Development Cards
     public int getDevelopmentCards() {
-        return cardVictoryPoint + cardKnight + cardMonopoly + cardRoadBuilding + cardYearOfPlenty;
+        return  cardVictoryPoint +
+                cardKnight.getNumber() +
+                cardMonopoly.getNumber() +
+                cardRoadBuilding.getNumber() +
+                cardYearOfPlenty.getNumber();
     }
 
 
@@ -164,24 +99,24 @@ public class Inventory {
 
         Map<String, Integer> privateInventory = new HashMap<>();
 
-        // Resource
-        privateInventory.put("Lumber", lumber);
-        privateInventory.put("Brick", brick);
-        privateInventory.put("Grain", grain);
-        privateInventory.put("Wool", wool);
-        privateInventory.put("Ore", ore);
+        // Resource Cards
+        privateInventory.put("Lumber", lumber.getNumber());
+        privateInventory.put("Brick", brick.getNumber());
+        privateInventory.put("Grain", grain.getNumber());
+        privateInventory.put("Wool", wool.getNumber());
+        privateInventory.put("Ore", ore.getNumber());
 
         // Development Cards
-        privateInventory.put("Knight", cardKnight);
-        privateInventory.put("Monopoly", cardMonopoly);
-        privateInventory.put("Road Building", cardRoadBuilding);
-        privateInventory.put("Year of Plenty", cardYearOfPlenty);
+        privateInventory.put("Knight", cardKnight.getNumber());
+        privateInventory.put("Monopoly", cardMonopoly.getNumber());
+        privateInventory.put("Road Building", cardRoadBuilding.getNumber());
+        privateInventory.put("Year of Plenty", cardYearOfPlenty.getNumber());
         privateInventory.put("Victory Point Card", cardVictoryPoint);
 
         // Building Units
-        privateInventory.put("Citys", unitCity);
-        privateInventory.put("Settlements", unitSettlement);
-        privateInventory.put("Roads", unitRoad);
+        privateInventory.put("Citys", city.getNumber());
+        privateInventory.put("Roads", road.getNumber());
+        privateInventory.put("Settlements", settlement.getNumber());
 
         // Achievement
         privateInventory.put("Victory Points", victoryPoints);
