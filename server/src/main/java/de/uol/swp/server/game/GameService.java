@@ -221,7 +221,7 @@ public class GameService extends AbstractService {
                             startGame(lobby);
                         } catch (GameManagementException e) {
                             LOG.debug(e);
-                            sendToListOfUsers(lobby.get().getPlayersReady(), lobby.get().getName(), new NotEnoughPlayersMessage());
+                            sendToListOfUsers(lobby.get().getPlayersReady(), lobby.get().getName(), new NotEnoughPlayersMessage(lobby.get().getName()));
                         }
                     }
                     timer.cancel();
@@ -229,11 +229,11 @@ public class GameService extends AbstractService {
             }
             timer.schedule(new RemindTask(), seconds * 1000);
         } else if (!startGameRequest.getUser().toString().equals(lobby.get().getOwner().toString())) {
-            sendToSpecificUser(startGameRequest.getMessageContext().get(), new NotLobbyOwnerResponse());
+            sendToSpecificUser(startGameRequest.getMessageContext().get(), new NotLobbyOwnerResponse(lobby.get().getName()));
         } else if (gameManagement.getGame(lobby.get().getName()).isPresent()) {
-            sendToSpecificUser(startGameRequest.getMessageContext().get(), new GameAlreadyExistsResponse());
+            sendToSpecificUser(startGameRequest.getMessageContext().get(), new GameAlreadyExistsResponse(lobby.get().getName()));
         } else if (lobby.get().getUsers().size() < 2){
-            sendToListOfUsers(lobby.get().getUsers(), lobby.get().getName(), new NotEnoughPlayersMessage());
+            sendToListOfUsers(lobby.get().getUsers(), lobby.get().getName(), new NotEnoughPlayersMessage(lobby.get().getName()));
         }
     }
 
@@ -284,7 +284,7 @@ public class GameService extends AbstractService {
                 startGame(lobby);
             } catch (GameManagementException e) {
                 LOG.debug(e);
-                sendToListOfUsers(lobby.get().getPlayersReady(), lobby.get().getName(), new NotEnoughPlayersMessage());
+                sendToListOfUsers(lobby.get().getPlayersReady(), lobby.get().getName(), new NotEnoughPlayersMessage(lobby.get().getName()));
             }
         }
 

@@ -482,8 +482,7 @@ public class LobbyPresenter extends AbstractPresenter {
                     } else if (result.get() == buttonTypeNo) {
                         ready = false;
                     }
-                    PlayerReadyRequest playerReadyRequest = new PlayerReadyRequest(sgm.getName(), (UserDTO) this.joinedLobbyUser, ready);
-                    eventBus.post(playerReadyRequest);
+                    lobbyService.sendPlayerReadyRequest(sgm.getName(), (UserDTO) this.joinedLobbyUser, ready);
                     alert.close();
                 });
             }
@@ -516,10 +515,16 @@ public class LobbyPresenter extends AbstractPresenter {
      * @since 2021-01-23
      */
     public void onNotEnoughPlayersMessageLogic(NotEnoughPlayersMessage nepm) {
-        LOG.debug("Not enough Players in Lobby to start game");
-        gameAlreadyExistsLabel.setVisible(false);
-        notLobbyOwnerLabel.setVisible(false);
-        notEnoughPlayersLabel.setVisible(true);
+        System.out.println(this.currentLobby);
+        System.out.println(nepm.getName());
+        if (this.currentLobby != null) {
+            if (this.currentLobby.equals(nepm.getName())) {
+                LOG.debug("Not enough Players in Lobby to start game");
+                gameAlreadyExistsLabel.setVisible(false);
+                notLobbyOwnerLabel.setVisible(false);
+                notEnoughPlayersLabel.setVisible(true);
+            }
+        }
     }
 
     /**
@@ -548,9 +553,13 @@ public class LobbyPresenter extends AbstractPresenter {
      * @since 2021-01-23
      */
     public void onNotLobbyOwnerResponseLogic(NotLobbyOwnerResponse nlor) {
-        notEnoughPlayersLabel.setVisible(false);
-        gameAlreadyExistsLabel.setVisible(false);
-        notLobbyOwnerLabel.setVisible(true);
+        if (this.currentLobby != null) {
+            if (this.currentLobby.equals(nlor.getLobbyName())) {
+                notEnoughPlayersLabel.setVisible(false);
+                gameAlreadyExistsLabel.setVisible(false);
+                notLobbyOwnerLabel.setVisible(true);
+            }
+        }
     }
 
     /**
@@ -579,10 +588,14 @@ public class LobbyPresenter extends AbstractPresenter {
      * @since 2021-01-23
      */
     public void onGameAlreadyExistsResponseLogic(GameAlreadyExistsResponse gaer) {
-        LOG.debug("Game already exists.");
-        notEnoughPlayersLabel.setVisible(false);
-        notLobbyOwnerLabel.setVisible(false);
-        gameAlreadyExistsLabel.setVisible(true);
+        if (this.currentLobby != null) {
+            if (this.currentLobby.equals(gaer.getLobbyName())) {
+                LOG.debug("Game already exists.");
+                notEnoughPlayersLabel.setVisible(false);
+                notLobbyOwnerLabel.setVisible(false);
+                gameAlreadyExistsLabel.setVisible(true);
+            }
+        }
     }
 
 

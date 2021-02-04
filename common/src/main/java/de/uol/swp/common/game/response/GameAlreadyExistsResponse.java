@@ -2,6 +2,8 @@ package de.uol.swp.common.game.response;
 
 import de.uol.swp.common.message.AbstractResponseMessage;
 
+import java.util.Objects;
+
 
 /**
  * Message sent to the client when a lobby already exists.
@@ -11,13 +13,21 @@ import de.uol.swp.common.message.AbstractResponseMessage;
  * @since 2020-12-02
  */
 public class GameAlreadyExistsResponse extends AbstractResponseMessage {
-    /**
-     * Default constructor
-     *
-     * @implNote this constructor is needed for serialization
-     * @since 2019-10-08
-     */
-    public GameAlreadyExistsResponse() {
+
+
+    private String lobbyName;
+
+    public GameAlreadyExistsResponse(String lobbyName){
+        this.lobbyName = lobbyName;
+    }
+
+    public String getLobbyName() {
+        return lobbyName;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(lobbyName);
     }
 
 }

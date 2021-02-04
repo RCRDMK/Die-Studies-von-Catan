@@ -15,7 +15,6 @@ public class NotEnoughPlayersMessage extends AbstractGameMessage {
      * Constructor
      * @since 2021-01-07
      */
-    public NotEnoughPlayersMessage() {
-    }
+    public NotEnoughPlayersMessage(String name) {this.name = name; }
 
 }

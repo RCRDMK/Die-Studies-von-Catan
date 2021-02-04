@@ -2,6 +2,7 @@ package de.uol.swp.client.lobby;
 
 import com.google.common.eventbus.EventBus;
 import com.google.inject.Inject;
+import de.uol.swp.common.game.request.PlayerReadyRequest;
 import de.uol.swp.common.lobby.request.*;
 import de.uol.swp.common.user.UserDTO;
 import org.apache.logging.log4j.LogManager;
@@ -94,6 +95,20 @@ public class LobbyService {
     public void retrieveAllLobbies() {
         RetrieveAllLobbiesRequest cmd = new RetrieveAllLobbiesRequest();
         eventBus.post(cmd);
+    }
+
+    /**
+     * Posts a PlayerReadyRequest on the EventBus
+     *
+     * @param name Name of the lobby
+     * @param user User who sends PlayerReadyRequest
+     * @author Kirsitn
+     * @see PlayerReadyRequest
+     * @since 2021-02-04
+     */
+    public void sendPlayerReadyRequest(String name, UserDTO user, boolean ready) {
+        PlayerReadyRequest playerReadyRequest = new PlayerReadyRequest(name, (UserDTO) user, ready);
+        eventBus.post(playerReadyRequest);
     }
 
     /**
