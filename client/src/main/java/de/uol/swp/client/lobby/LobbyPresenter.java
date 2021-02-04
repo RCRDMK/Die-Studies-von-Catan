@@ -225,6 +225,7 @@ public class LobbyPresenter extends AbstractPresenter {
             if (this.currentLobby.equals(llsr.getName())) {
                 this.currentLobby = null;
                 this.upForGarbageCollection = true;
+                clearEventBus();
             }
         }
     }
