@@ -515,8 +515,6 @@ public class LobbyPresenter extends AbstractPresenter {
      * @since 2021-01-23
      */
     public void onNotEnoughPlayersMessageLogic(NotEnoughPlayersMessage nepm) {
-        System.out.println(this.currentLobby);
-        System.out.println(nepm.getName());
         if (this.currentLobby != null) {
             if (this.currentLobby.equals(nepm.getName())) {
                 LOG.debug("Not enough Players in Lobby to start game");
