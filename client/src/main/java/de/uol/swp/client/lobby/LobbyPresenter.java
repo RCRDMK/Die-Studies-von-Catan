@@ -52,6 +52,12 @@ public class LobbyPresenter extends AbstractPresenter {
 
     private String currentLobby;
 
+    private Alert alert;
+
+    private ButtonType buttonTypeYes;
+
+    private ButtonType buttonTypeNo;
+
     @FXML
     public TextField lobbyChatInput;
 
@@ -78,10 +84,6 @@ public class LobbyPresenter extends AbstractPresenter {
 
     @Inject
     private GameService gameService;
-    private Alert alert;
-
-    private ButtonType buttonTypeYes;
-    private ButtonType buttonTypeNo;
 
 
     /**
@@ -245,7 +247,11 @@ public class LobbyPresenter extends AbstractPresenter {
     }
 
     /**
-     * Has no functionality currently, but might be used in the future.
+     * The method invoked by userLeftSuccesful()
+     * <p>
+     * If the Lobby is left, meaning this Lobby Presenter is no longer needed,
+     * this presenter will no longer be registered on the event bus and no longer
+     * be reachable for responses, messages etc.
      *
      * @param llsr the LobbyLeftSuccessfulResponse given by the original subscriber method
      * @author Alexander Losse, Marc Hermes

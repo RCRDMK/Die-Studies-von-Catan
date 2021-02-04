@@ -12,7 +12,6 @@ import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.exception.RegistrationExceptionMessage;
 import de.uol.swp.common.user.request.LogoutRequest;
 import de.uol.swp.common.user.response.*;
-import de.uol.swp.common.user.response.game.GameCreatedSuccessfulResponse;
 import de.uol.swp.common.user.response.game.GameLeftSuccessfulResponse;
 import de.uol.swp.common.user.response.lobby.LobbyCreatedSuccessfulResponse;
 import de.uol.swp.common.user.response.lobby.LobbyJoinedSuccessfulResponse;
@@ -259,7 +258,6 @@ public class ClientApp extends Application implements ConnectionListener {
     @Subscribe
     public void userLeftGame(GameLeftSuccessfulResponse message) {
         LOG.debug("User " + message.getUser().getUsername() + " left game ");
-        this.user = message.getUser();
         sceneManager.removeGameTab(message.getUser(), message.getName());
     }
 
