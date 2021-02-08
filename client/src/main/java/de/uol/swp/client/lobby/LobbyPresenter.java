@@ -23,6 +23,7 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.stage.Modality;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -57,6 +58,10 @@ public class LobbyPresenter extends AbstractPresenter {
     private ButtonType buttonTypeYes;
 
     private ButtonType buttonTypeNo;
+
+    private Button btnYes;
+
+    private Button btnNo;
 
     @FXML
     public TextField lobbyChatInput;
@@ -177,12 +182,7 @@ public class LobbyPresenter extends AbstractPresenter {
             this.lobbyChatInput.setText("");
             lobbyChatArea.deleteText(0, lobbyChatArea.getLength());
             lobbyService.retrieveAllThisLobbyUsers(lcsr.getName());
-            Platform.runLater(() -> {
-                this.alert = new Alert(Alert.AlertType.CONFIRMATION);
-                this.buttonTypeYes = new ButtonType("Yes", ButtonBar.ButtonData.YES);
-                this.buttonTypeNo = new ButtonType("No", ButtonBar.ButtonData.NO);
-                alert.getButtonTypes().setAll(buttonTypeYes, buttonTypeNo);
-            });
+            Platform.runLater(this::setupButtonsAndAlerts);
         }
     }
 
@@ -207,6 +207,10 @@ public class LobbyPresenter extends AbstractPresenter {
      * If the currentLobby is null, meaning this is an empty LobbyPresenter that is ready to be used for a new lobby tab,
      * the parameters of this LobbyPresenter are updated to the User and Lobby given by the ljsr Response.
      * An update of the Users in the currentLobby is also requested.
+     * Furthermore the method setupButtonsAndAlerts is called to create the buttons and the alert for the
+     * pop-up Alert that shows up when the User is asked whether he is ready to start the game or not.
+     *
+     * enhanced by Marc Hermes - 2021-02-08
      *
      * @param ljsr the LobbyJoinedSuccessfulResponse given by the original subscriber method.
      * @author Alexander Losse, Marc Hermes
@@ -221,15 +225,69 @@ public class LobbyPresenter extends AbstractPresenter {
             this.lobbyChatInput.setText("");
             lobbyChatArea.deleteText(0, lobbyChatArea.getLength());
             lobbyService.retrieveAllThisLobbyUsers(ljsr.getName());
-            Platform.runLater(() -> {
-                this.alert = new Alert(Alert.AlertType.CONFIRMATION);
-                this.buttonTypeYes = new ButtonType("Yes", ButtonBar.ButtonData.YES);
-                this.buttonTypeNo = new ButtonType("No", ButtonBar.ButtonData.NO);
-                alert.getButtonTypes().setAll(buttonTypeYes, buttonTypeNo);
-            });
+            Platform.runLater(this::setupButtonsAndAlerts);
         }
     }
 
+    /**
+     * The method invoked when the Lobby Presenter is first used: when a lobby is joined/created.
+     * <p>
+     * The Alert asking the user whether he is ready to start the game or not aswell as its corresponding
+     * buttons buttonTypeYes/No are created.
+     * Also 2 more hidden buttons are created whose ActionEvents are linked to the buttonTypeYes/No buttons
+     * of the Alert.
+     * When either of those buttons is pressed onBtnYes/NoClicked will be called.
+     * The initial Modality of the Alert is also changed so that the Main Window can still be used even when the
+     * Alert is shown.
+     *
+     * @author Marc Hermes
+     * @since 2021-02-08
+     */
+    public void setupButtonsAndAlerts() {
+        this.alert = new Alert(Alert.AlertType.CONFIRMATION);
+        this.buttonTypeYes = new ButtonType("Yes", ButtonBar.ButtonData.YES);
+        this.buttonTypeNo = new ButtonType("No", ButtonBar.ButtonData.NO);
+        alert.getButtonTypes().setAll(buttonTypeYes, buttonTypeNo);
+        this.btnYes = (Button) alert.getDialogPane().lookupButton( buttonTypeYes );
+        btnYes.setOnAction( event -> {
+            onBtnYesClicked();
+            event.consume();
+        } );
+        this.btnNo = (Button) alert.getDialogPane().lookupButton( buttonTypeNo );
+        btnNo.setOnAction( event -> {
+            onBtnNoClicked();
+            event.consume();
+        } );
+        this.alert.initModality(Modality.NONE);
+    }
+
+    /**
+     * The method invoked when the Yes Button of the Alert is pressed
+     * <p>
+     * When the Button "Yes" is pressed in the Alert the Alert will be closed and the lobbyService will be called
+     * to send a PlayerReadyRequest with "true" to the Server.
+     *
+     * @author Marc Hermes
+     * @since 2021-02-08
+     */
+    public void onBtnYesClicked() {
+        alert.close();
+        lobbyService.sendPlayerReadyRequest(this.currentLobby, (UserDTO) this.joinedLobbyUser, true);
+    }
+
+    /**
+     * The method invoked when the No Button of the Alert is pressed
+     * <p>
+     * When the Button "No" is pressed in the Alert the Alert will be closed and the lobbyService will be called
+     * to send a PlayerReadyRequest with "false" to the Server.
+     *
+     * @author Marc Hermes
+     * @since 2021-02-08
+     */
+    public void onBtnNoClicked() {
+        alert.close();
+        lobbyService.sendPlayerReadyRequest(this.currentLobby, (UserDTO) this.joinedLobbyUser, false);
+    }
 
     /**
      * Handles successful leaving of lobby
@@ -477,8 +535,8 @@ public class LobbyPresenter extends AbstractPresenter {
      * <p>
      * Method opens confirmation window with two options: Yes & No
      * Which asks if each player is ready to start the game.
-     * If button Yes is pressed, then PlayerReadyRequest with the boolean true is posted on the EventBus.
-     * Else PlayerReadyRequest contains false
+     *
+     * enhanced by Marc Hermes - 2021-02-08
      *
      * @param sgm the startGamePopup given by the original subscriber method.
      * @author Kirstin Beyer, Iskander Yusupov
@@ -494,15 +552,7 @@ public class LobbyPresenter extends AbstractPresenter {
                 Platform.runLater(() -> {
                     this.alert.setTitle("Start Game " + sgm.getName());
                     this.alert.setHeaderText("Ready to play?");
-                    Optional<ButtonType> result = alert.showAndWait();
-                    boolean ready;
-                    ready = false;
-                    if (result.get() == buttonTypeYes) {
-                        ready = true;
-                    } else if (result.get() == buttonTypeNo) {
-                        ready = false;
-                    }
-                    lobbyService.sendPlayerReadyRequest(sgm.getName(), (UserDTO) this.joinedLobbyUser, ready);
+                    this.alert.show();
                 });
             }
         }

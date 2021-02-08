@@ -220,7 +220,7 @@ public class GameService extends AbstractService {
                             startGame(lobby);
                         } catch (GameManagementException e) {
                             LOG.debug(e);
-                            sendToListOfUsers(lobby.get().getPlayersReady(), lobby.get().getName(), new NotEnoughPlayersMessage(lobby.get().getName()));
+                            sendToListOfUsers(lobby.get().getUsers(), lobby.get().getName(), new NotEnoughPlayersMessage(lobby.get().getName()));
                         }
                     }
                     timer.cancel();
