@@ -70,8 +70,8 @@ class UserServiceTest {
     }
 
     /**
-    * Test for the dropUser routine on the server
-     *
+     * Test for the dropUser routine on the server
+     * <p>
      * This test method posts two Requests on the bus. The First request is a RegisterRequest and the
      * second one is a dropUserRequest.
      * First we expect the user userToDrop to be registered and then to get dropped.
@@ -79,7 +79,7 @@ class UserServiceTest {
      *
      * @author Marius Birk und Carsten Dekker
      * @since 2020-12-15
-    */
+     */
     @Test
     void dropUserTest() throws InterruptedException, SQLException {
 

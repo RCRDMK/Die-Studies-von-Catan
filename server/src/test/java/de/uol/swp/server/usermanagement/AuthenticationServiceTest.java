@@ -123,16 +123,16 @@ class AuthenticationServiceTest {
     }
 
     /**
-     *  This test makes sure that a user can't login when he already is.
+     * This test makes sure that a user can't login when he already is.
      * <p>
-     *  The test calls the loginUser function twice for the same user. And then
-     *  checks if the event is an instance of ServerExceptionMessage.
-     *  It also checks if the Exception of the ServerExceptionMessage is an instance of LoginException
-     *  Finally it also checks if the Exception Message equals "User ... already logged in!"
+     * The test calls the loginUser function twice for the same user. And then
+     * checks if the event is an instance of ServerExceptionMessage.
+     * It also checks if the Exception of the ServerExceptionMessage is an instance of LoginException
+     * Finally it also checks if the Exception Message equals "User ... already logged in!"
      *
      * @author Sergej, René
-     * @since 2021-01-03
      * @see javax.security.auth.login.LoginException
+     * @since 2021-01-03
      */
     @Test
     void loginLoggedInUser() throws SQLException {
@@ -142,7 +142,7 @@ class AuthenticationServiceTest {
         assertTrue(event instanceof ServerExceptionMessage);
         var exception = ((ServerExceptionMessage) event).getException();
         assertTrue(exception instanceof LoginException);
-        assertEquals(exception.getMessage() , "User " +user.getUsername()+ " already logged in!");
+        assertEquals(exception.getMessage(), "User " + user.getUsername() + " already logged in!");
     }
 
     @Test
@@ -226,6 +226,7 @@ class AuthenticationServiceTest {
         assertTrue(sessions.contains(session3.get()));
 
     }
+
     /**
      * This Test is for the X-Button Exit.
      * <p>
@@ -235,8 +236,8 @@ class AuthenticationServiceTest {
      * The user should be logged out and the lobby dropped, because he was the only one in the lobby.
      * If the lobbies count is 0 now, the test passed successfully
      *
-     * @since 2021-01-17
      * @author René Meyer, Sergej Tulnev
+     * @since 2021-01-17
      */
     @Test
     @DisplayName("X Button exit")

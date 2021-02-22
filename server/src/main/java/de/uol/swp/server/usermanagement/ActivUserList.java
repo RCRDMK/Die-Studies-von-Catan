@@ -13,7 +13,7 @@ import java.util.Hashtable;
 
 public class ActivUserList {
 
-    private static Hashtable activUserTable = new Hashtable();
+    static Hashtable activUserTable = new Hashtable();
 
     /**
      * Handles a list of active users

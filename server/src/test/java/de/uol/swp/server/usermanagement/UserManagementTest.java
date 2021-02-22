@@ -3,6 +3,7 @@ package de.uol.swp.server.usermanagement;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import org.junit.jupiter.api.Test;
+
 import java.sql.SQLException;
 import java.util.List;
 
