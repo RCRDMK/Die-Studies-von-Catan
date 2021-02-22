@@ -7,6 +7,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import de.uol.swp.client.di.ClientModule;
 import de.uol.swp.client.user.ClientUserService;
+import de.uol.swp.common.game.message.GameCreatedMessage;
 import de.uol.swp.client.user.UserService;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.exception.RegistrationExceptionMessage;
@@ -216,7 +217,7 @@ public class ClientApp extends Application implements ConnectionListener {
     public void userJoinedLobby(LobbyJoinedSuccessfulResponse message) {
         LOG.debug("user joined lobby ");
         this.user = message.getUser();
-        sceneManager.showLobbyScreen(user, message.getName());
+            sceneManager.showLobbyScreen(user, message.getName());
 
     }
 
@@ -233,14 +234,12 @@ public class ClientApp extends Application implements ConnectionListener {
      * @since 2021-01-14
      * @author Kirstin Beyer
      */
-    /*
+
     @Subscribe
-    public void userStartedGame(StartGameResponse message) {
-        LOG.debug("User " + message.getUser().getUsername() + " started a game ");
-        this.user = message.getUser();
+    public void userStartedGame(GameCreatedMessage message) {
+        LOG.debug("Game was succesfully started");
         sceneManager.showGameScreen(user, message.getName());
     }
-    */
 
     /**
      * Handles the successful leaving of a user
@@ -249,9 +248,10 @@ public class ClientApp extends Application implements ConnectionListener {
      * It tells the SceneManager to remove the tab corresponding to the lobby that was left.
      *
      * @param message the LobbyLeftSuccessfulResponse detected on the EventBus
-     * @author Alexander Losse, Marc Hermes
-     * @see de.uol.swp.common.user.response.LobbyLeftSuccessfulResponse
+     *
+     * @see de.uol.swp.common.user.response.lobby.LobbyLeftSuccessfulResponse
      * @since 2021-01-20
+     * @author Alexander Losse, Marc Hermes
      */
     @Subscribe
     public void userLeftLobby(LobbyLeftSuccessfulResponse message) {

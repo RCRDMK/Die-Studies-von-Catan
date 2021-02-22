@@ -14,9 +14,7 @@ import de.uol.swp.common.message.MessageContext;
 import de.uol.swp.common.message.ResponseMessage;
 import de.uol.swp.common.message.ServerMessage;
 import de.uol.swp.common.user.Session;
-import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
-import de.uol.swp.common.user.message.UserLoggedOutMessage;
 import de.uol.swp.common.user.request.LogoutRequest;
 import de.uol.swp.common.user.response.lobby.*;
 import de.uol.swp.server.AbstractService;
@@ -319,4 +317,9 @@ public class LobbyService extends AbstractService {
             }
         }
     }
+
+    public Optional<Lobby> getLobby(String lobbyName) {
+        return lobbyManagement.getLobby(lobbyName);
+    }
+
 }

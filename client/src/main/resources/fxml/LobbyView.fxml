@@ -14,7 +14,15 @@
    <TextArea fx:id="lobbyChatArea" editable="false" layoutX="302.0" layoutY="14.0" prefHeight="200" prefWidth="284.0"
              GridPane.rowIndex="2"> </TextArea>
    <TextField fx:id="lobbyChatInput" layoutX="302.0" layoutY="229.0" onAction="#onSendMessage" prefHeight="25.0"
-              prefWidth="196.0" promptText="Schicke eine Nachricht!" GridPane.rowIndex="3"> </TextField>
+              prefWidth="196.0" promptText="Send your Message!" GridPane.rowIndex="3"> </TextField>
    <Button layoutX="509.0" layoutY="229.0" mnemonicParsing="false" onAction="#onSendMessage" prefHeight="25.0"
-           prefWidth="77.0" text="Senden" />
+           prefWidth="77.0" text="Send" />
+   <Label fx:id="notEnoughPlayersLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="349.0" layoutY="321.0"
+          prefHeight="17.0" prefWidth="189.0" text="Not enough players to start game" textAlignment="CENTER"
+          visible="false" />
+   <Label fx:id="notLobbyOwnerLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="349.0" layoutY="321.0"
+          prefHeight="17.0" prefWidth="189.0" text="You are not the lobby owner" textAlignment="CENTER"
+          visible="false" />
+   <Label fx:id="gameAlreadyExistsLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="349.0" layoutY="321.0"
+          prefHeight="17.0" prefWidth="189.0" text="Game already exists" textAlignment="CENTER" visible="false" />
 </AnchorPane>
