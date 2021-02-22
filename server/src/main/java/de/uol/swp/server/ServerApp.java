@@ -37,10 +37,12 @@ class ServerApp {
      * <p>
      * This method handles the creation of the server components and the start of
      * the server
+     * It also starts the timer for users with connection problems
      *
      * @param args Any arguments given when starting the application e.g. a port
      *             number
-     * @since 2017-03-17
+     * @author Marco Grawunder, Philip
+     * @since 2021-01-22
      */
     public static void main(String[] args) throws Exception {
         int port = -1;
@@ -57,6 +59,7 @@ class ServerApp {
         LOG.info("Starting Server on port " + port);
 
         // create components
+        UserManagement.startTimerForActivUserList();
         Injector injector = Guice.createInjector(new ServerModule());
         createServices(injector);
         ServerHandler serverHandler = injector.getInstance(ServerHandler.class);

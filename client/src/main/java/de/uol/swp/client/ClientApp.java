@@ -7,6 +7,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import de.uol.swp.client.di.ClientModule;
 import de.uol.swp.client.user.ClientUserService;
+import de.uol.swp.client.user.UserService;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.exception.RegistrationExceptionMessage;
 import de.uol.swp.common.user.request.LogoutRequest;
@@ -140,22 +141,39 @@ public class ClientApp extends Application implements ConnectionListener {
      * this clients user to the user found in the object. If the loglevel is set
      * to DEBUG or higher "user logged in successfully " and the username of the
      * logged in user are written to the log.
+     * It also starts a Timer for the
      *
      * @param message The LoginSuccessfulResponse object detected on the EventBus
+     * @author Marco Grawunder, Philip
      * @see de.uol.swp.client.SceneManager
-     * @since 2017-03-17
+     * @since 2021-01-21
      */
     @Subscribe
     public void userLoggedIn(LoginSuccessfulResponse message) {
         LOG.debug("user logged in successfully " + message.getUser().getUsername());
         this.user = message.getUser();
         sceneManager.showMainScreen(user);
+        UserService.startTimerForPing(message.getUser().getUsername());
     }
+
+    /**
+     * Handles successful logout
+     * <p>
+     * If an LogoutSuccessfulResponse object is detected on the EventBus this
+     * method is called. It tells the SceneManager to show the LoginScree.
+     * It also starts a Timer for the
+     *
+     * @param message The LogoutSuccessfulResponse object detected on the EventBus
+     * @author Philip
+     * @see de.uol.swp.client.SceneManager
+     * @since 2021-01-21
+     */
 
     @Subscribe
     public void userLoggedOut(LogoutRequest message) {
         LOG.debug("user logged out ");
         sceneManager.showLoginScreen();
+        UserService.endTimerForPing();
     }
 
     /**
@@ -198,7 +216,7 @@ public class ClientApp extends Application implements ConnectionListener {
     public void userJoinedLobby(LobbyJoinedSuccessfulResponse message) {
         LOG.debug("user joined lobby ");
         this.user = message.getUser();
-            sceneManager.showLobbyScreen(user, message.getName());
+        sceneManager.showLobbyScreen(user, message.getName());
 
     }
 
@@ -231,16 +249,15 @@ public class ClientApp extends Application implements ConnectionListener {
      * It tells the SceneManager to remove the tab corresponding to the lobby that was left.
      *
      * @param message the LobbyLeftSuccessfulResponse detected on the EventBus
-     *
+     * @author Alexander Losse, Marc Hermes
      * @see de.uol.swp.common.user.response.LobbyLeftSuccessfulResponse
      * @since 2021-01-20
-     * @author Alexander Losse, Marc Hermes
      */
     @Subscribe
     public void userLeftLobby(LobbyLeftSuccessfulResponse message) {
         LOG.debug("User " + message.getUser().getUsername() + " left lobby ");
-            this.user = message.getUser();
-            sceneManager.removeLobbyTab(message.getUser(), message.getName());
+        this.user = message.getUser();
+        sceneManager.removeLobbyTab(message.getUser(), message.getName());
     }
 
     /**

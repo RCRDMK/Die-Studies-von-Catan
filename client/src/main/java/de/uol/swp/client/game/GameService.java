@@ -12,6 +12,7 @@ import org.apache.logging.log4j.Logger;
 /**
  * Class that manages games
  * <p>
+ *
  * @author Carsten Dekker
  * @since 2021-01-13
  */
@@ -32,15 +33,16 @@ public class GameService {
     /**
      * Creates a new RollDiceRequest and puts it on the Eventbus
      * <p>
+     *
      * @param name Name of the lobby where the user wants to roll the dice
      * @param user User who wants to roll the dice
-     * @see de.uol.swp.common.game.message.RollDiceRequest
      * @author Kirstin, Pieter
+     * @see de.uol.swp.common.game.message.RollDiceRequest
      * @since 2021-01-07
-     *
+     * <p>
      * Enhanced by Carsten Dekker
      * @since 2021-01-13
-     *
+     * <p>
      * I have changed the place of the method to the new GameService.
      * It is a temporary method.
      */

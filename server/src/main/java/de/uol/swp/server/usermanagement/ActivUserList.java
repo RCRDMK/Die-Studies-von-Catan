@@ -55,6 +55,15 @@ public class ActivUserList {
         activUserTable.remove(username);
     }
 
+    /**
+     * Handles a list of active users
+     * <p>
+     * Check whether a user has not sent a ping message for more than 60 seconds.
+     *
+     * @author Philip
+     * @since 2021-01-22
+     */
+
     public static void checkActivUser() {
         Enumeration enu = activUserTable.keys();
         while (enu.hasMoreElements()) {

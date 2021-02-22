@@ -8,6 +8,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * This class is used to hide the communication details
@@ -21,8 +22,8 @@ import java.util.Timer;
 public class UserService implements ClientUserService {
 
     private static final Logger LOG = LogManager.getLogger(UserService.class);
-    private final EventBus bus;
-    private Timer timer = new Timer();
+    private static EventBus bus = null;
+    private static Timer timer = new Timer();
 
     /**
      * Constructor
@@ -49,7 +50,6 @@ public class UserService implements ClientUserService {
     public void login(String username, String password) {
         LoginRequest msg = new LoginRequest(username, password);
         bus.post(msg);
-        startTimerForPing(username);
     }
 
 
@@ -57,7 +57,6 @@ public class UserService implements ClientUserService {
     public void logout(User username) {
         LogoutRequest msg = new LogoutRequest();
         bus.post(msg);
-        endTimerForPing();
     }
 
     @Override
@@ -99,25 +98,65 @@ public class UserService implements ClientUserService {
     /**
      * Method to send a Ping
      * <p>
-     * This method sends a request to logout a user and delete an users account.
-     * The requests are of the type DropUserRequest and LogoutRequest.
+     * This method sends a request for a Ping Message.
      *
-     * @param username The user to remove
-     * @author Carsten Dekker
-     * @see de.uol.swp.common.user.request.DropUserRequest
-     * @since 2020-12-15
+     * @param username from which the ping message is released
+     * @author Philip Nitsche
+     * @since 2021-01-22
      */
 
-    public void ping(String username) {
+    public void sendPing(String username) {
         PingRequest pr = new PingRequest(username, System.currentTimeMillis());
         bus.post(pr);
     }
 
-    public void startTimerForPing(String username) {
-        timer.schedule(TimerPingTask.run(username), 2000, 20000);
+    /**
+     * Method to send a Ping
+     * <p>
+     * This method starts a Timer for a Ping Message.
+     *
+     * @param username from which the ping message is released
+     * @author Philip Nitsche
+     * @since 2021-01-22
+     */
+
+    public static void startTimerForPing(String username) {
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                main(username);
+            }
+        }, 30000, 30000);
     }
 
-    public void endTimerForPing() {
+
+    /**
+     * Instance of UserService
+     * <p>
+     * Calls a non-static method from a static method with an instance
+     * of the class containing the non-static method
+     *
+     * @param username from which the ping message is released
+     * @author Philip Nitsche
+     * @since 2021-01-22
+     */
+
+    public static void main(String username) {
+        UserService d = new UserService(bus);
+        d.sendPing(username);
+    }
+
+    /**
+     * Method to send a Ping
+     * <p>
+     * This method stops the Timer for a Ping Message.
+     *
+     * @param
+     * @author Philip Nitsche
+     * @since 2021-01-22
+     */
+
+    public static void endTimerForPing() {
         timer.cancel();
     }
 }

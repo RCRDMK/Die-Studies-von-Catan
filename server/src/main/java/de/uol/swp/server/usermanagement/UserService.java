@@ -74,7 +74,8 @@ public class UserService extends AbstractService {
             returnMessage = new RegistrationSuccessfulResponse();
         } catch (Exception e) {
             LOG.error(e);
-            returnMessage = new RegistrationExceptionMessage("Cannot create user " + msg.getUser() + " " + e.getMessage());
+            returnMessage = new RegistrationExceptionMessage("Cannot create user " + msg.getUser() + " " +
+                    e.getMessage());
         }
         if (msg.getMessageContext().isPresent()) {
             returnMessage.setMessageContext(msg.getMessageContext().get());
@@ -106,7 +107,8 @@ public class UserService extends AbstractService {
             returnMessage = new DropUserSuccessfulResponse();
         } catch (Exception e) {
             LOG.error(e);
-            returnMessage = new DropUserExceptionMessage("Cannot drop user " + dropUserRequest.getUser() + " " + e.getMessage());
+            returnMessage = new DropUserExceptionMessage("Cannot drop user " + dropUserRequest.getUser() + " " +
+                    e.getMessage());
         }
         post(returnMessage);
     }
