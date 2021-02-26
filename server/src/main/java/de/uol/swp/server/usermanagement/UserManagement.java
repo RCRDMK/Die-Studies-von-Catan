@@ -26,6 +26,10 @@ import java.util.*;
  * Enhanced this class to make it possible to work with our database at the servers of the university.
  * With that it is possible to retrieve, update, delete or insert users. Also it is possible to login/logout.
  * @since 2021-01-19
+ *<p>
+ * Enhanced the complete class with PreparedStatements. PreparedStatements do not affect the functionality, but they secure our database
+ * from unwanted usernames for example.
+ * @since 2021-02-26
  */
 public class UserManagement extends AbstractUserManagement {
 
@@ -162,6 +166,8 @@ public class UserManagement extends AbstractUserManagement {
             updateUser.setString(3, userToUpdate.getUsername());
 
             updateUser.executeUpdate();
+        }else{
+            throw new UserManagementException("User unknown!");
         }
 
 
@@ -171,11 +177,16 @@ public class UserManagement extends AbstractUserManagement {
 
     @Override
     public void dropUser(User userToDrop) throws SQLException {
-        ResultSet resultSet = statement.executeQuery("select name from user where name ='" + userToDrop.getUsername() + "';");
+        String selectUserString = "select name from user where name =?;";
+        PreparedStatement dropUser = connection.prepareStatement(selectUserString);
+        dropUser.setString(1, userToDrop.getUsername());
+        ResultSet resultSet = dropUser.executeQuery();
         if (!resultSet.next()) {
             throw new UserManagementException("Username unknown!");
         } else {
-            statement.executeUpdate("delete from user where name='" + userToDrop.getUsername() + "';");
+            dropUser = connection.prepareStatement("delete from user where name=?;");
+            dropUser.setString(1, userToDrop.getUsername());
+            dropUser.executeUpdate();
         }
     }
 
@@ -215,8 +226,11 @@ public class UserManagement extends AbstractUserManagement {
     public List<User> retrieveAllUsers() throws SQLException {
         List<User> userList = new LinkedList<>();
         ResultSet resultSet;
+        PreparedStatement preparedStatement;
         try {
-            resultSet = statement.executeQuery("select * from user;");
+            String selectAllUsers = "select * from user;";
+            preparedStatement = connection.prepareStatement(selectAllUsers);
+            resultSet = preparedStatement.executeQuery();
         } catch (Exception e) {
             LOG.debug(e);
             throw new UserManagementException("Could not retrieve all users.");

@@ -165,7 +165,8 @@ class UserManagementTest {
     }
 
     @Test
-    void updateUnknownUser() {
+    void updateUnknownUser() throws SQLException {
+        management.buildConnection();
         assertThrows(UserManagementException.class, () -> management.updateUser(userNotInStore));
     }
 
