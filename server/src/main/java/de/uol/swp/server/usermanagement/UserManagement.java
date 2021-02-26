@@ -26,7 +26,7 @@ import java.util.*;
  * Enhanced this class to make it possible to work with our database at the servers of the university.
  * With that it is possible to retrieve, update, delete or insert users. Also it is possible to login/logout.
  * @since 2021-01-19
- *<p>
+ * <p>
  * Enhanced the complete class with PreparedStatements. PreparedStatements do not affect the functionality, but they secure our database
  * from unwanted usernames for example.
  * @since 2021-02-26
@@ -89,10 +89,16 @@ public class UserManagement extends AbstractUserManagement {
     public User login(String username, String password) throws SQLException {
         if (!password.isEmpty() || !password.isBlank() || password == null) {
             String login = "select name, mail from user where name=? and password=?;";
-            PreparedStatement loginUser = connection.prepareStatement(login);
-            loginUser.setString(1, username);
-            loginUser.setString(2, password);
-            ResultSet resultSet = loginUser.executeQuery();
+            ResultSet resultSet = null;
+            try {
+                PreparedStatement loginUser = connection.prepareStatement(login);
+                loginUser.setString(1, username);
+                loginUser.setString(2, password);
+                resultSet = loginUser.executeQuery();
+            } catch (SQLException e) {
+                LOG.debug("Fehler bei der Datenbankabfrage");
+                e.printStackTrace();
+            }
             if (resultSet.next()) {
                 User user = new UserDTO(username, password, resultSet.getString(2));
                 this.loggedInUsers.put(username, user);
@@ -100,10 +106,10 @@ public class UserManagement extends AbstractUserManagement {
             } else {
                 throw new SecurityException("Cannot auth user " + username);
             }
-
         } else {
             throw new SecurityException("Cannot auth user " + username);
         }
+
     }
 
     @Override
@@ -112,7 +118,7 @@ public class UserManagement extends AbstractUserManagement {
     }
 
     @Override
-    public User createUser(User userToCreate){
+    public User createUser(User userToCreate) {
         String getUsername = "select name from user where name = ?;";
         ResultSet resultSet;
         try {
@@ -135,8 +141,6 @@ public class UserManagement extends AbstractUserManagement {
             LOG.error("Fehler bei der Datenbankabfrage");
             e.printStackTrace();
         }
-
-
         return new UserDTO(userToCreate.getUsername(), userToCreate.getPassword(), userToCreate.getEMail());
     }
 
@@ -156,37 +160,46 @@ public class UserManagement extends AbstractUserManagement {
         // Only update if there are new values
         String newPassword = "";
         String newEMail = "";
-        if (resultSet.next()) {
-            newPassword = firstNotNull(userToUpdate.getPassword(), resultSet.getString("password"));
-            newEMail = firstNotNull(userToUpdate.getEMail(), resultSet.getString("mail"));
-            String updateUserString = "update user set password=?, mail=? where name=?;";
-            updateUser = connection.prepareStatement(updateUserString);
-            updateUser.setString(1, userToUpdate.getPassword());
-            updateUser.setString(2, userToUpdate.getEMail());
-            updateUser.setString(3, userToUpdate.getUsername());
 
-            updateUser.executeUpdate();
-        }else{
+        if (resultSet.next()) {
+            try {
+                newPassword = firstNotNull(userToUpdate.getPassword(), resultSet.getString("password"));
+                newEMail = firstNotNull(userToUpdate.getEMail(), resultSet.getString("mail"));
+                String updateUserString = "update user set password=?, mail=? where name=?;";
+                updateUser = connection.prepareStatement(updateUserString);
+                updateUser.setString(1, userToUpdate.getPassword());
+                updateUser.setString(2, userToUpdate.getEMail());
+                updateUser.setString(3, userToUpdate.getUsername());
+
+                updateUser.executeUpdate();
+            } catch (SQLException e) {
+                LOG.debug(e);
+                throw new UserManagementException("Username unknown!");
+            }
+        } else {
             throw new UserManagementException("User unknown!");
         }
-
-
         return new UserDTO(userToUpdate.getUsername(), newPassword, newEMail);
-
     }
 
     @Override
     public void dropUser(User userToDrop) throws SQLException {
         String selectUserString = "select name from user where name =?;";
-        PreparedStatement dropUser = connection.prepareStatement(selectUserString);
-        dropUser.setString(1, userToDrop.getUsername());
-        ResultSet resultSet = dropUser.executeQuery();
-        if (!resultSet.next()) {
-            throw new UserManagementException("Username unknown!");
-        } else {
-            dropUser = connection.prepareStatement("delete from user where name=?;");
+        try{
+            PreparedStatement dropUser = connection.prepareStatement(selectUserString);
             dropUser.setString(1, userToDrop.getUsername());
-            dropUser.executeUpdate();
+            ResultSet resultSet = dropUser.executeQuery();
+            if (!resultSet.next()) {
+                throw new UserManagementException("Username unknown!");
+            } else {
+                dropUser = connection.prepareStatement("delete from user where name=?;");
+                dropUser.setString(1, userToDrop.getUsername());
+                dropUser.executeUpdate();
+            }
+
+        }catch (SQLException e) {
+            LOG.debug(e);
+            throw new UserManagementException("User could not be dropped!");
         }
     }
 
