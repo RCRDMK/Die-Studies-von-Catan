@@ -1,4 +1,4 @@
-package de.uol.swp.server.game.cards;
+package de.uol.swp.server.game.inventory;
 
 import org.junit.jupiter.api.Test;
 

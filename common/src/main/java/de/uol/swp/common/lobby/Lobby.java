@@ -4,6 +4,7 @@ import de.uol.swp.common.user.User;
 
 import java.io.Serializable;
 import java.util.Set;
+import java.util.Timer;
 
 /**
  * Interface to unify lobby objects
@@ -12,7 +13,7 @@ import java.util.Set;
  * possible that not every client has to have every information of the lobby.
  *
  * Enhanced by Carsten Dekker and Marius Birk
- * @since 2020-04-12
+ * @since 2020-12-04
  * Now the Lobby class extends Serializable
  *
  * @author Marco Grawunder
@@ -54,6 +55,15 @@ public interface Lobby extends Serializable {
     void joinUser(User user);
 
     /**
+     * Adds a new user to the "ready to start the game" players list
+     *
+     * @param user The new user that is ready to start
+     * @since 2021-01-24
+     */
+
+    void joinPlayerReady(User user);
+
+    /**
      * Removes an user from the lobby
      *
      * @param user The user to remove from the lobby
@@ -69,4 +79,14 @@ public interface Lobby extends Serializable {
      */
     Set<User> getUsers();
 
+    /**
+     * Getter for all user in this lobby which are ready to start the game
+     *
+     * @return A Set containing all user in this lobby which are ready to start the game
+     * @since 2021-01-24
+     */
+
+    Set<User> getPlayersReady();
+
+    void setPlayersReadyToNull();
 }

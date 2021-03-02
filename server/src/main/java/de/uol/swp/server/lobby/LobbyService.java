@@ -8,14 +8,13 @@ import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.message.*;
 import de.uol.swp.common.lobby.request.*;
 import de.uol.swp.common.lobby.response.AllCreatedLobbiesResponse;
+import de.uol.swp.common.lobby.response.AlreadyJoinedThisLobbyResponse;
 import de.uol.swp.common.lobby.response.LobbyAlreadyExistsResponse;
 import de.uol.swp.common.message.MessageContext;
 import de.uol.swp.common.message.ResponseMessage;
 import de.uol.swp.common.message.ServerMessage;
 import de.uol.swp.common.user.Session;
-import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
-import de.uol.swp.common.user.message.UserLoggedOutMessage;
 import de.uol.swp.common.user.request.LogoutRequest;
 import de.uol.swp.common.user.response.lobby.*;
 import de.uol.swp.server.AbstractService;
@@ -113,10 +112,16 @@ public class LobbyService extends AbstractService {
      * @param lobbyJoinUserRequest The LobbyJoinUserRequest found on the EventBus
      * @see de.uol.swp.common.lobby.Lobby
      * @see de.uol.swp.common.lobby.message.UserJoinedLobbyMessage
-     * @see LobbyJoinedSuccessfulResponse
-     * @see JoinDeletedLobbyResponse
+     * @see de.uol.swp.common.user.response.lobby.LobbyJoinedSuccessfulResponse
+     * @see de.uol.swp.common.user.response.lobby.JoinDeletedLobbyResponse
      * @author Marco Grawunder
      * @since 2019-10-08
+     * <p>
+     * Enhanced by Carsten Dekker
+     * <p>
+     * If a user already joined the lobby, he gets an AlreadyJoinedThisLobbyResponse.
+     * @see de.uol.swp.common.lobby.response.AlreadyJoinedThisLobbyResponse
+     * @since 2021-01-22
      */
     @Subscribe
     public void onLobbyJoinUserRequest(LobbyJoinUserRequest lobbyJoinUserRequest) {
@@ -124,14 +129,16 @@ public class LobbyService extends AbstractService {
         if (!lobby.isPresent()) {
             sendToSpecificUser(lobbyJoinUserRequest.getMessageContext().get(), new JoinDeletedLobbyResponse(lobbyJoinUserRequest.getName()));
         }
-        if (lobby.get().getUsers().size() < 4 && lobbyJoinUserRequest.getMessageContext().isPresent()) {
+        if (lobby.get().getUsers().size() < 4 && !lobby.get().getUsers().contains(lobbyJoinUserRequest.getUser()) && lobbyJoinUserRequest.getMessageContext().isPresent()) {
                 lobby.get().joinUser(lobbyJoinUserRequest.getUser());
                 sendToAllInLobby(lobbyJoinUserRequest.getName(), new UserJoinedLobbyMessage(lobbyJoinUserRequest.getName(), lobbyJoinUserRequest.getUser()));
                 sendToSpecificUser(lobbyJoinUserRequest.getMessageContext().get(), new LobbyJoinedSuccessfulResponse(lobbyJoinUserRequest.getName(), lobbyJoinUserRequest.getUser()));
                 sendToAll(new LobbySizeChangedMessage(lobbyJoinUserRequest.getName()));
         } else {
-            if (lobbyJoinUserRequest.getMessageContext().isPresent()) {
+            if (lobbyJoinUserRequest.getMessageContext().isPresent() && lobby.get().getUsers().size() == 4) {
                 sendToSpecificUser(lobbyJoinUserRequest.getMessageContext().get(), new LobbyFullResponse(lobbyJoinUserRequest.getName()));
+            } else {
+                sendToSpecificUser(lobbyJoinUserRequest.getMessageContext().get(), new AlreadyJoinedThisLobbyResponse(lobbyJoinUserRequest.getName()));
             }
         }
     }
@@ -305,4 +312,9 @@ public class LobbyService extends AbstractService {
             }
         }
     }
+
+    public Optional<Lobby> getLobby(String lobbyName) {
+        return lobbyManagement.getLobby(lobbyName);
+    }
+
 }

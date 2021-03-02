@@ -18,6 +18,8 @@ import de.uol.swp.server.AbstractService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.sql.SQLException;
+
 /**
  * Mapping vom event bus calls to user management calls
  *
@@ -42,9 +44,10 @@ public class UserService extends AbstractService {
      * @since 2019-08-05
      */
     @Inject
-    public UserService(EventBus eventBus, UserManagement userManagement) {
+    public UserService(EventBus eventBus, UserManagement userManagement) throws SQLException {
         super(eventBus);
         this.userManagement = userManagement;
+        this.userManagement.buildConnection();
     }
 
     /**
