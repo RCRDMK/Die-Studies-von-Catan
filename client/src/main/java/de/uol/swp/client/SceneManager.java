@@ -5,6 +5,10 @@ import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.assistedinject.Assisted;
+import de.uol.swp.client.account.event.ShowUserSettingsViewEvent;
+import de.uol.swp.client.account.event.LeaveUserSettingsEvent;
+import de.uol.swp.client.account.UserSettingsPresenter;
+import de.uol.swp.client.account.event.UserSettingsErrorEvent;
 import de.uol.swp.client.auth.LoginPresenter;
 import de.uol.swp.client.auth.events.ShowLoginViewEvent;
 import de.uol.swp.client.game.GamePresenter;
@@ -26,7 +30,6 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 import java.net.URL;
 
 /**
@@ -56,6 +59,7 @@ public class SceneManager {
     private final Injector injector;
     private TabPane tabPane;
     private TabHelper tabHelper;
+    private Scene userSettingsScene;
 
     @Inject
     public SceneManager(EventBus eventBus, Injector injected, @Assisted Stage primaryStage) {
@@ -78,6 +82,7 @@ public class SceneManager {
         initMainView();
         initRegistrationView();
         initGameView();
+        initUserSettingsView();
         nextLobbyScene = initLobbyView();
         TabPane tabPane = new TabPane();
         this.tabPane = tabPane;
@@ -213,6 +218,25 @@ public class SceneManager {
         }
     }
 
+    /**
+     * Initializes the userSettings view
+     * <p>
+     * If the userSettingsScene is null it gets set to a new scene containing the
+     * a pane showing the userSettings view as specified by the UserSettingsView
+     * FXML file.
+     *
+     * @see UserSettingsPresenter
+     * @author Carsten Dekker
+     * @since 2021-03-04
+     */
+    private void initUserSettingsView() {
+        if (userSettingsScene == null) {
+            Parent rootPane = initPresenter(UserSettingsPresenter.fxml);
+            userSettingsScene = new Scene(rootPane, 400, 300);
+            userSettingsScene.getStylesheets().add(styleSheet);
+        }
+    }
+
 
     /**
      * Handles ShowRegistrationViewEvent detected on the EventBus
@@ -277,6 +301,43 @@ public class SceneManager {
      */
     @Subscribe
     public void onRegistrationErrorEvent(RegistrationErrorEvent event) {
+        showError(event.getMessage());
+    }
+
+    /**
+     * Handles ShowUserSettingsViewEvent detected on the EventBus
+     * <p>
+     * If a ShowUserSettingsViewEvent is detected on the EventBus, this method gets
+     * called. It calls a method to switch the current screen to the showUserSettings screen.
+     *
+     * @param event The ShowUserSettingsViewEvent detected on the EventBus
+     * @see de.uol.swp.client.account.event.ShowUserSettingsViewEvent
+     * @author Carsten Dekker
+     * @since 2021-04-03
+     */
+    @Subscribe
+    public void onShowUserSettingsViewEvent(ShowUserSettingsViewEvent event) {
+        showUserSettingsScreen();
+    }
+
+    /**
+     * Handles UserSettingsCanceledEvent detected on the EventBus
+     * <p>
+     * If a UserSettingsCanceledEvent is detected on the EventBus, this method gets
+     * called. It calls a method to show the screen shown before userSettings.
+     *
+     * @param event The UserSettingsCanceledEvent detected on the EventBus
+     * @see LeaveUserSettingsEvent
+     * @author Carsten Dekker
+     * @since 2021-03-04
+     */
+    @Subscribe
+    public void onUserSettingsCanceledEvent(LeaveUserSettingsEvent event) {
+        showScene(lastScene, lastTitle);
+    }
+
+    @Subscribe
+    public void onUserSettingsErrorEvent(UserSettingsErrorEvent event) {
         showError(event.getMessage());
     }
 
@@ -379,6 +440,9 @@ public class SceneManager {
      * @since 2021-01-20
      */
     public void showMainTab(User currentUser) {
+        this.lastScene = currentScene;
+        this.lastTitle = primaryStage.getTitle();
+        this.currentScene = tabScene;
         mainMenuTab.setContent(mainScene.getRoot());
         Platform.runLater(() -> {
             tabHelper.getTabPane().getTabs().add(mainMenuTab);
@@ -423,6 +487,18 @@ public class SceneManager {
      */
     public void showLobbyScreen(User currentUser, String lobbyname) {
         newLobbyTab(currentUser, lobbyname);
+    }
+
+    /**
+     * Shows the userSettings screen
+     * <p>
+     * Switches the current Scene to the userSettingsScene and sets the title of
+     * the window to "UserSettings"
+     * @author Carsten Dekker
+     * @since 2021-04-03
+     */
+    public void showUserSettingsScreen() {
+        showScene(userSettingsScene, "UserSettings");
     }
 
     /**

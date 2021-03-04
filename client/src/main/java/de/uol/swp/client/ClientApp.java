@@ -10,6 +10,7 @@ import de.uol.swp.client.user.ClientUserService;
 import de.uol.swp.common.game.message.GameCreatedMessage;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.exception.RegistrationExceptionMessage;
+import de.uol.swp.common.user.exception.UpdateUserExceptionMessage;
 import de.uol.swp.common.user.request.LogoutRequest;
 import de.uol.swp.common.user.response.*;
 import de.uol.swp.common.user.response.lobby.LobbyCreatedSuccessfulResponse;
@@ -245,9 +246,9 @@ public class ClientApp extends Application implements ConnectionListener {
     /**
      * Handles unsuccessful registrations
      * <p>
-     * If an RegistrationExceptionMessage object is detected on the EventBus this
+     * If a RegistrationExceptionMessage object is detected on the EventBus this
      * method is called. It tells the SceneManager to show the sever error alert.
-     * If the loglevel is set to Error or higher "Registration error " and the
+     * If the loglevel is set to DEBUG or higher "Registration error " and the
      * error message are written to the log.
      *
      * @param message The RegistrationExceptionMessage object detected on the EventBus
@@ -258,6 +259,24 @@ public class ClientApp extends Application implements ConnectionListener {
     public void onRegistrationExceptionMessage(RegistrationExceptionMessage message) {
         sceneManager.showServerError("Registration error " + message);
         LOG.error("Registration error " + message);
+    }
+
+    /**
+     * Handles unsuccessful user updates
+     * <p>
+     * If an UpdateUserExceptionMessage object is detected on the EventBus this
+     * method is called. It tells the SceneManager to show the sever error alert.
+     * If the loglevel is set to DEBUG or higher "UpdateUser error " and the
+     * error message are written to the log.
+     *
+     * @param message The UpdateUserExceptionMessage object detected on the EventBus
+     * @see de.uol.swp.client.SceneManager
+     * @since 2021-03-04
+     */
+    @Subscribe
+    public void onUpdateUserExceptionMessage(UpdateUserExceptionMessage message) {
+        sceneManager.showServerError("UpdateUser error " + message);
+        LOG.error("UpdateUser error " + message);
     }
 
     /**
@@ -276,6 +295,22 @@ public class ClientApp extends Application implements ConnectionListener {
     public void onRegistrationSuccessfulMessage(RegistrationSuccessfulResponse message) {
         LOG.info("Registration successful.");
         sceneManager.showLoginScreen();
+    }
+
+    /**
+     * Handles successful user updates
+     * <p>
+     * If an UpdateUserSuccessfulResponse object is detected on the EventBus this
+     * method is called. If the loglevel is set to INFO or higher "Update user Successful."
+     * is written to the log.
+     *
+     * @param response The UpdateUserSuccessfulResponse object detected on the EventBus
+     * @see de.uol.swp.client.SceneManager
+     * @since 2019-09-02
+     */
+    @Subscribe
+    public void onUpdateUserSuccessfulResponse(UpdateUserSuccessfulResponse response) {
+        LOG.info("Update user successful.");
     }
 
     /**

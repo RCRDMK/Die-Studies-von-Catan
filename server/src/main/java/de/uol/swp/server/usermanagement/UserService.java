@@ -8,12 +8,11 @@ import de.uol.swp.common.message.ResponseMessage;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.exception.DropUserExceptionMessage;
 import de.uol.swp.common.user.exception.RegistrationExceptionMessage;
+import de.uol.swp.common.user.exception.UpdateUserExceptionMessage;
 import de.uol.swp.common.user.request.DropUserRequest;
 import de.uol.swp.common.user.request.RegisterUserRequest;
-import de.uol.swp.common.user.response.AllOnlineUsersResponse;
-import de.uol.swp.common.user.response.DropUserSuccessfulResponse;
-import de.uol.swp.common.user.response.LoginSuccessfulResponse;
-import de.uol.swp.common.user.response.RegistrationSuccessfulResponse;
+import de.uol.swp.common.user.request.UpdateUserRequest;
+import de.uol.swp.common.user.response.*;
 import de.uol.swp.server.AbstractService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -109,6 +108,35 @@ public class UserService extends AbstractService {
         } catch (Exception e) {
             LOG.error(e);
             returnMessage = new DropUserExceptionMessage("Cannot drop user "+dropUserRequest.getUser()+" "+e.getMessage());
+        }
+        post(returnMessage);
+    }
+
+    /**
+     * Handles UpdateUserRequests found on the EventBus
+     *
+     * If a UpdateUserRequest is detected on the EventBus, this method is called.
+     * It tries to update the user via the UserManagement. If this succeeds a
+     * UpdateUserSuccessfulResponse is posted on the EventBus otherwise a UpdateUserExceptionMessage
+     * gets posted there.
+     *
+     * @author Carsten Dekker
+     * @param updateUserRequest The DropUserRequest found on the EventBus
+     * @see de.uol.swp.common.user.request.UpdateUserRequest
+     * @since 2021-03-04
+     */
+    @Subscribe
+    private void onUpdateUserRequest(UpdateUserRequest updateUserRequest) {
+        if (LOG.isDebugEnabled()){
+            LOG.debug("Got new updateUser request with " + updateUserRequest.getUser());
+        }
+        ResponseMessage returnMessage;
+        try {
+            userManagement.updateUser(updateUserRequest.getUser());
+            returnMessage = new UpdateUserSuccessfulResponse();
+        } catch (Exception e) {
+            LOG.error(e);
+            returnMessage = new UpdateUserExceptionMessage("Cannot update user "+updateUserRequest.getUser()+" "+e.getMessage());
         }
         post(returnMessage);
     }
