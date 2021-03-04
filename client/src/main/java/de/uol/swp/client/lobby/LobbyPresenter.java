@@ -9,7 +9,6 @@ import de.uol.swp.common.chat.RequestChatMessage;
 import de.uol.swp.common.chat.ResponseChatMessage;
 import de.uol.swp.common.game.message.GameCreatedMessage;
 import de.uol.swp.common.game.message.NotEnoughPlayersMessage;
-import de.uol.swp.common.game.request.PlayerReadyRequest;
 import de.uol.swp.common.game.response.GameAlreadyExistsResponse;
 import de.uol.swp.common.game.response.NotLobbyOwnerResponse;
 import de.uol.swp.common.lobby.message.StartGameMessage;
@@ -24,6 +23,7 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.stage.Modality;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -52,6 +52,16 @@ public class LobbyPresenter extends AbstractPresenter {
     private User joinedLobbyUser;
 
     private String currentLobby;
+
+    private Alert alert;
+
+    private ButtonType buttonTypeYes;
+
+    private ButtonType buttonTypeNo;
+
+    private Button btnYes;
+
+    private Button btnNo;
 
     @FXML
     public TextField lobbyChatInput;
@@ -97,7 +107,6 @@ public class LobbyPresenter extends AbstractPresenter {
         gameAlreadyExistsLabel.setVisible(false);
         notLobbyOwnerLabel.setVisible(false);
         notEnoughPlayersLabel.setVisible(false);
-
     }
 
     @FXML
@@ -173,6 +182,7 @@ public class LobbyPresenter extends AbstractPresenter {
             this.lobbyChatInput.setText("");
             lobbyChatArea.deleteText(0, lobbyChatArea.getLength());
             lobbyService.retrieveAllThisLobbyUsers(lcsr.getName());
+            Platform.runLater(this::setupButtonsAndAlerts);
         }
     }
 
@@ -197,6 +207,10 @@ public class LobbyPresenter extends AbstractPresenter {
      * If the currentLobby is null, meaning this is an empty LobbyPresenter that is ready to be used for a new lobby tab,
      * the parameters of this LobbyPresenter are updated to the User and Lobby given by the ljsr Response.
      * An update of the Users in the currentLobby is also requested.
+     * Furthermore the method setupButtonsAndAlerts is called to create the buttons and the alert for the
+     * pop-up Alert that shows up when the User is asked whether he is ready to start the game or not.
+     *
+     * enhanced by Marc Hermes - 2021-02-08
      *
      * @param ljsr the LobbyJoinedSuccessfulResponse given by the original subscriber method.
      * @author Alexander Losse, Marc Hermes
@@ -211,9 +225,69 @@ public class LobbyPresenter extends AbstractPresenter {
             this.lobbyChatInput.setText("");
             lobbyChatArea.deleteText(0, lobbyChatArea.getLength());
             lobbyService.retrieveAllThisLobbyUsers(ljsr.getName());
+            Platform.runLater(this::setupButtonsAndAlerts);
         }
     }
 
+    /**
+     * The method invoked when the Lobby Presenter is first used: when a lobby is joined/created.
+     * <p>
+     * The Alert asking the user whether he is ready to start the game or not aswell as its corresponding
+     * buttons buttonTypeYes/No are created.
+     * Also 2 more hidden buttons are created whose ActionEvents are linked to the buttonTypeYes/No buttons
+     * of the Alert.
+     * When either of those buttons is pressed onBtnYes/NoClicked will be called.
+     * The initial Modality of the Alert is also changed so that the Main Window can still be used even when the
+     * Alert is shown.
+     *
+     * @author Marc Hermes
+     * @since 2021-02-08
+     */
+    public void setupButtonsAndAlerts() {
+        this.alert = new Alert(Alert.AlertType.CONFIRMATION);
+        this.buttonTypeYes = new ButtonType("Yes", ButtonBar.ButtonData.YES);
+        this.buttonTypeNo = new ButtonType("No", ButtonBar.ButtonData.NO);
+        alert.getButtonTypes().setAll(buttonTypeYes, buttonTypeNo);
+        this.btnYes = (Button) alert.getDialogPane().lookupButton( buttonTypeYes );
+        btnYes.setOnAction( event -> {
+            onBtnYesClicked();
+            event.consume();
+        } );
+        this.btnNo = (Button) alert.getDialogPane().lookupButton( buttonTypeNo );
+        btnNo.setOnAction( event -> {
+            onBtnNoClicked();
+            event.consume();
+        } );
+        this.alert.initModality(Modality.NONE);
+    }
+
+    /**
+     * The method invoked when the Yes Button of the Alert is pressed
+     * <p>
+     * When the Button "Yes" is pressed in the Alert the Alert will be closed and the lobbyService will be called
+     * to send a PlayerReadyRequest with "true" to the Server.
+     *
+     * @author Marc Hermes
+     * @since 2021-02-08
+     */
+    public void onBtnYesClicked() {
+        alert.close();
+        lobbyService.sendPlayerReadyRequest(this.currentLobby, (UserDTO) this.joinedLobbyUser, true);
+    }
+
+    /**
+     * The method invoked when the No Button of the Alert is pressed
+     * <p>
+     * When the Button "No" is pressed in the Alert the Alert will be closed and the lobbyService will be called
+     * to send a PlayerReadyRequest with "false" to the Server.
+     *
+     * @author Marc Hermes
+     * @since 2021-02-08
+     */
+    public void onBtnNoClicked() {
+        alert.close();
+        lobbyService.sendPlayerReadyRequest(this.currentLobby, (UserDTO) this.joinedLobbyUser, false);
+    }
 
     /**
      * Handles successful leaving of lobby
@@ -231,7 +305,11 @@ public class LobbyPresenter extends AbstractPresenter {
     }
 
     /**
-     * Has no functionality currently, but might be used in the future.
+     * The method invoked by userLeftSuccesful()
+     * <p>
+     * If the Lobby is left, meaning this Lobby Presenter is no longer needed,
+     * this presenter will no longer be registered on the event bus and no longer
+     * be reachable for responses, messages etc.
      *
      * @param llsr the LobbyLeftSuccessfulResponse given by the original subscriber method
      * @author Alexander Losse, Marc Hermes
@@ -239,6 +317,12 @@ public class LobbyPresenter extends AbstractPresenter {
      * @since 2021-01-20
      */
     public void userLeftSuccessfulLogic(LobbyLeftSuccessfulResponse llsr) {
+        if (this.currentLobby != null) {
+            if (this.currentLobby.equals(llsr.getName())) {
+                this.currentLobby = null;
+                clearEventBus();
+            }
+        }
     }
 
     /**
@@ -451,8 +535,8 @@ public class LobbyPresenter extends AbstractPresenter {
      * <p>
      * Method opens confirmation window with two options: Yes & No
      * Which asks if each player is ready to start the game.
-     * If button Yes is pressed, then PlayerReadyRequest with the boolean true is posted on the EventBus.
-     * Else PlayerReadyRequest contains false
+     *
+     * enhanced by Marc Hermes - 2021-02-08
      *
      * @param sgm the startGamePopup given by the original subscriber method.
      * @author Kirstin Beyer, Iskander Yusupov
@@ -466,24 +550,9 @@ public class LobbyPresenter extends AbstractPresenter {
                 notLobbyOwnerLabel.setVisible(false);
                 notEnoughPlayersLabel.setVisible(false);
                 Platform.runLater(() -> {
-                    Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-                    alert.setTitle("Start Game " + sgm.getName());
-                    alert.setHeaderText("Ready to play?");
-
-                    ButtonType buttonTypeYes = new ButtonType("Yes", ButtonBar.ButtonData.YES);
-                    ButtonType buttonTypeNo = new ButtonType("No", ButtonBar.ButtonData.NO);
-                    alert.getButtonTypes().setAll(buttonTypeYes, buttonTypeNo);
-
-                    Optional<ButtonType> result = alert.showAndWait();
-                    boolean ready;
-                    ready = false;
-                    if (result.get() == buttonTypeYes) {
-                        ready = true;
-                    } else if (result.get() == buttonTypeNo) {
-                        ready = false;
-                    }
-                    lobbyService.sendPlayerReadyRequest(sgm.getName(), (UserDTO) this.joinedLobbyUser, ready);
-                    alert.close();
+                    this.alert.setTitle("Start Game " + sgm.getName());
+                    this.alert.setHeaderText("Ready to play?");
+                    this.alert.show();
                 });
             }
         }
@@ -511,13 +580,16 @@ public class LobbyPresenter extends AbstractPresenter {
      *
      * @param nepm the NotEnoughPlayersMessage given by the original subscriber method.
      * @author Kirstin Beyer, Iskander Yusupov
-     * @see NotEnoughPlayersMessage
+     * @see de.uol.swp.common.game.message.NotEnoughPlayersMessage
      * @since 2021-01-23
      */
     public void onNotEnoughPlayersMessageLogic(NotEnoughPlayersMessage nepm) {
         if (this.currentLobby != null) {
             if (this.currentLobby.equals(nepm.getName())) {
                 LOG.debug("Not enough Players in Lobby to start game");
+                Platform.runLater(() ->
+                    alert.close()
+                );
                 gameAlreadyExistsLabel.setVisible(false);
                 notLobbyOwnerLabel.setVisible(false);
                 notEnoughPlayersLabel.setVisible(true);
@@ -532,7 +604,7 @@ public class LobbyPresenter extends AbstractPresenter {
      *
      * @param message the NotLobbyOwnerResponse object seen on the EventBus
      * @author Kirstin Beyer, Iskander Yusupov
-     * @see NotLobbyOwnerResponse
+     * @see de.uol.swp.common.game.response.NotLobbyOwnerResponse
      * @since 2021-01-23
      */
     @Subscribe
@@ -547,7 +619,7 @@ public class LobbyPresenter extends AbstractPresenter {
      *
      * @param nlor the NotLobbyOwnerResponse given by the original subscriber method.
      * @author Kirstin Beyer, Iskander Yusupov
-     * @see NotLobbyOwnerResponse
+     * @see de.uol.swp.common.game.response.NotLobbyOwnerResponse
      * @since 2021-01-23
      */
     public void onNotLobbyOwnerResponseLogic(NotLobbyOwnerResponse nlor) {
@@ -567,7 +639,7 @@ public class LobbyPresenter extends AbstractPresenter {
      *
      * @param message the GameAlreadyExistsResponse object seen on the EventBus
      * @author Kirstin Beyer, Iskander Yusupov
-     * @see GameAlreadyExistsResponse
+     * @see de.uol.swp.common.game.response.GameAlreadyExistsResponse
      * @since 2021-01-23
      */
     @Subscribe
@@ -582,7 +654,7 @@ public class LobbyPresenter extends AbstractPresenter {
      *
      * @param gaer the GameAlreadyExistsResponse given by the original subscriber method.
      * @author Kirstin Beyer, Iskander Yusupov
-     * @see GameAlreadyExistsResponse
+     * @see de.uol.swp.common.game.response.GameAlreadyExistsResponse
      * @since 2021-01-23
      */
     public void onGameAlreadyExistsResponseLogic(GameAlreadyExistsResponse gaer) {
@@ -624,8 +696,13 @@ public class LobbyPresenter extends AbstractPresenter {
      * @since 2021-01-23
      */
     public void gameCreatedSuccessfulLogic(GameCreatedMessage gcm) {
-        LOG.debug("New game " + gcm.getName() + " created");
-        //gameService.retrieveAllGames();
+        if (this.currentLobby != null) {
+            if (this.currentLobby.equals(gcm.getName())) {
+                LOG.debug("New game " + gcm.getName() + " created");
+                //gameService.retrieveAllGames();
+            }
+        }
     }
 
 }
+
