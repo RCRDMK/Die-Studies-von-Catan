@@ -4,8 +4,12 @@ import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
 import de.uol.swp.client.chat.ChatService;
 import de.uol.swp.client.lobby.LobbyPresenter;
+import de.uol.swp.client.game.GamePresenterException;
 import de.uol.swp.client.lobby.LobbyService;
+import de.uol.swp.common.game.message.GameDroppedMessage;
 import de.uol.swp.common.user.User;
+import de.uol.swp.common.user.UserDTO;
+import de.uol.swp.common.user.response.game.GameLeftSuccessfulResponse;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -85,7 +89,13 @@ public class GamePresenter extends AbstractPresenter {
     }
 
     @FXML
-    public void onLeaveGame (ActionEvent event) {
-        //TODO:...
+    public void onLeaveGame(ActionEvent event) {
+        if (this.currentLobby != null && this.joinedLobbyUser != null) {
+            gameService.leaveGame(this.currentLobby, this.joinedLobbyUser);
+        } else if (this.currentLobby == null && this.joinedLobbyUser != null) {
+            throw new GamePresenterException("Name der jetzigen Lobby ist nicht vorhanden!");
+        } else {
+            throw new GamePresenterException("Der jetzige User ist nicht vorhanden");
+        }
     }
 }

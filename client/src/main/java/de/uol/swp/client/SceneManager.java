@@ -14,7 +14,9 @@ import de.uol.swp.client.register.RegistrationPresenter;
 import de.uol.swp.client.register.event.RegistrationCanceledEvent;
 import de.uol.swp.client.register.event.RegistrationErrorEvent;
 import de.uol.swp.client.register.event.ShowRegistrationViewEvent;
+import de.uol.swp.common.game.message.GameDroppedMessage;
 import de.uol.swp.common.user.User;
+import de.uol.swp.common.user.response.game.GameLeftSuccessfulResponse;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -262,10 +264,49 @@ public class SceneManager {
      * @author Marco Grawunder
      * @since 2019-09-03
      */
+
     @Subscribe
     public void onRegistrationCanceledEvent(RegistrationCanceledEvent event) {
         showScene(lastScene, lastTitle);
     }
+
+    /**
+     * Handles a GameLeftSuccessfulResponse when detected on the Eventbus
+     * <p>
+     *
+     * If a GameLeftSuccessfulResponse is detected on the Eventbus this method
+     * gets called. It removes the Gametab which was passed on from the
+     * GameLeftSuccessfulResponse.
+     * @param response The GameLeftSuccessfulResponse detected on the Eventbus
+     * @see de.uol.swp.common.user.response.game.GameLeftSuccessfulResponse
+     * @author Ricardo Mook, Alexander Losse
+     * @since 2021-03-04
+     */
+
+    @Subscribe
+    public void onUserLeaveGameEvent(GameLeftSuccessfulResponse response){
+        removeGameTab(response.getUser(),response.getName());
+    }
+
+    /**
+     * Handles a GameDroppedMessage when detected on the Eventbus
+     * <p>
+     *
+     * If a GameDropppedMessage is detected on the Eventbus this method
+     * gets called. It removes the Gametab which was passed on from the
+     * GameDroppedMessage.
+     *
+     * @param message The GameDroppedMessage detected on the Eventbus
+     * @see de.uol.swp.common.game.message.GameDroppedMessage
+     * @author Ricardo Mook, Alexander Losse
+     * @since 2021-03-04
+     */
+
+    @Subscribe
+    public void onUserDropGameEvent(GameDroppedMessage message){
+        removeGameTab(message.getUser(), message.getName());
+    }
+
 
     /**
      * Handles RegistrationErrorEvent detected on the EventBus
