@@ -9,6 +9,9 @@ import javafx.scene.control.TextField;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+
 /**
  * Manages the login window
  *
@@ -52,7 +55,7 @@ public class LoginPresenter extends AbstractPresenter {
      *
      */
     @FXML
-    private void onLoginButtonPressed(ActionEvent event) {
+    private void onLoginButtonPressed(ActionEvent event) throws InvalidKeySpecException, NoSuchAlgorithmException {
         userService.login(loginField.getText(), passwordField.getText());
         passwordField.clear();
         loginField.clear();
