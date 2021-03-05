@@ -270,43 +270,6 @@ public class SceneManager {
         showScene(lastScene, lastTitle);
     }
 
-    /**
-     * Handles a GameLeftSuccessfulResponse when detected on the Eventbus
-     * <p>
-     *
-     * If a GameLeftSuccessfulResponse is detected on the Eventbus this method
-     * gets called. It removes the Gametab which was passed on from the
-     * GameLeftSuccessfulResponse.
-     * @param response The GameLeftSuccessfulResponse detected on the Eventbus
-     * @see de.uol.swp.common.user.response.game.GameLeftSuccessfulResponse
-     * @author Ricardo Mook, Alexander Losse
-     * @since 2021-03-04
-     */
-
-    @Subscribe
-    public void onUserLeaveGameEvent(GameLeftSuccessfulResponse response){
-        removeGameTab(response.getUser(),response.getName());
-    }
-
-    /**
-     * Handles a GameDroppedMessage when detected on the Eventbus
-     * <p>
-     *
-     * If a GameDropppedMessage is detected on the Eventbus this method
-     * gets called. It removes the Gametab which was passed on from the
-     * GameDroppedMessage.
-     *
-     * @param message The GameDroppedMessage detected on the Eventbus
-     * @see de.uol.swp.common.game.message.GameDroppedMessage
-     * @author Ricardo Mook, Alexander Losse
-     * @since 2021-03-04
-     */
-
-    @Subscribe
-    public void onUserDropGameEvent(GameDroppedMessage message){
-        removeGameTab(message.getUser(), message.getName());
-    }
-
 
     /**
      * Handles RegistrationErrorEvent detected on the EventBus
@@ -547,11 +510,13 @@ public class SceneManager {
      * When this method is invoked a game tab with a specific name is removed from
      * the TabPane.
      *
+     * enhanced by Alexander Losse, Ricardo Mook - 2021-03-05
+     *
      * @param gamename the name of the game that corresponds to the tab that is to be deleted
      * @author Marc Hermes
-     * @since 2021-01-21
+     * @since 2021-01-2
      */
-    public void removeGameTab(User currentUser, String gamename) {
+    public void removeGameTab(String gamename) {
         Platform.runLater(() -> {
             tabHelper.removeTab("Game " + gamename);
         });
