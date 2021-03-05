@@ -703,6 +703,9 @@ public class LobbyPresenter extends AbstractPresenter {
             }
         }
     }
+    public User getJoinedLobbyUser(){
+        return joinedLobbyUser;
+    }
 
 }
 
