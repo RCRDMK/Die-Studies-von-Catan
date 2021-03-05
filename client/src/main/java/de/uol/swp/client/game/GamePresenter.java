@@ -6,10 +6,13 @@ import de.uol.swp.client.chat.ChatService;
 import de.uol.swp.client.lobby.LobbyPresenter;
 import de.uol.swp.client.game.GamePresenterException;
 import de.uol.swp.client.lobby.LobbyService;
+import de.uol.swp.common.game.message.GameCreatedMessage;
 import de.uol.swp.common.game.message.GameDroppedMessage;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.user.response.game.GameLeftSuccessfulResponse;
+import de.uol.swp.common.user.response.lobby.LobbyCreatedSuccessfulResponse;
+import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -96,6 +99,49 @@ public class GamePresenter extends AbstractPresenter {
             throw new GamePresenterException("Name der jetzigen Lobby ist nicht vorhanden!");
         } else {
             throw new GamePresenterException("Der jetzige User ist nicht vorhanden");
+        }
+    }
+
+
+
+
+
+
+
+
+
+    /**
+     * Handles successful lobby creation
+     * <p>
+     * If a LobbyCreatedSuccessfulResponse is detected on the EventBus this method invokes createdSuccessfulLogic.
+     *
+     * @param message the LobbyCreatedSuccessfulResponse object seen on the EventBus
+     * @author Marc Hermes
+     * @see de.uol.swp.common.user.response.lobby.LobbyCreatedSuccessfulResponse
+     * @since 2020-12-02
+     */
+    @Subscribe
+    public void gameStartedSuccessful(GameCreatedMessage message) {
+        gameStartedSuccessfulLogic(message);
+    }
+
+    /**
+     * The Method invoked by createdSuccessful()
+     * <p>
+     * If the currentLobby is null, meaning this is an empty LobbyPresenter that is ready to be used for a new lobby tab,
+     * the parameters of this LobbyPresenter are updated to the User and Lobby given by the lcsr Response.
+     * An update of the Users in the currentLobby is also requested.
+     *
+     * @param gcm the LobbyCreatedSuccessfulResponse given by the original subscriber method.
+     * @author Alexander Losse, Marc Hermes
+     * @see LobbyCreatedSuccessfulResponse
+     * @since 2021-01-20
+     */
+    public void gameStartedSuccessfulLogic(GameCreatedMessage gcm) {
+        if (this.currentLobby == null) {
+            LOG.debug("Requesting update of User list in lobby because lobby was created.");
+            this.joinedLobbyUser = joinedLobbyUser;
+            this.currentLobby = gcm.getName();
         }
     }
 }
