@@ -253,7 +253,7 @@ public class GameService extends AbstractService {
             for (User user : lobby.get().getPlayersReady()) {
                 game.get().joinUser(user);
             }
-            sendToAllInGame(game.get().getName(), new GameCreatedMessage(game.get().getName()));
+            sendToAllInGame(game.get().getName(), new GameCreatedMessage(game.get().getName(), uDTO));
         } else {
             throw new GameManagementException("Not enough Players ready!");
         }

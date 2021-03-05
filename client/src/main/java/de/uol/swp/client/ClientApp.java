@@ -262,7 +262,6 @@ public class ClientApp extends Application implements ConnectionListener {
     public void userDroppedGame(GameDroppedMessage message){
         LOG.debug("Successfully dropped game  " + message.getName());
         sceneManager.removeGameTab(message.getName());
-        sceneManager.removeLobbyTab(message.getUser(),message.getName());
     }
 
 
@@ -282,7 +281,6 @@ public class ClientApp extends Application implements ConnectionListener {
     public void userLeftGame(GameLeftSuccessfulResponse message) {
         LOG.debug("Successfully left game  " + message.getName());
         sceneManager.removeGameTab(message.getName());
-        sceneManager.removeLobbyTab(message.getUser(),message.getName());
     }
 
     /**

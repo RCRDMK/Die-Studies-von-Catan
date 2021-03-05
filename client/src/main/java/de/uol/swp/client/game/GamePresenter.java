@@ -6,6 +6,7 @@ import de.uol.swp.client.chat.ChatService;
 import de.uol.swp.client.lobby.LobbyPresenter;
 import de.uol.swp.client.game.GamePresenterException;
 import de.uol.swp.client.lobby.LobbyService;
+import de.uol.swp.client.user.UserService;
 import de.uol.swp.common.game.message.GameCreatedMessage;
 import de.uol.swp.common.game.message.GameDroppedMessage;
 import de.uol.swp.common.user.User;
@@ -44,6 +45,9 @@ public class GamePresenter extends AbstractPresenter {
 
     @Inject
     private GameService gameService;
+
+    @Inject
+    private LobbyService lobbyService;
 
 
     /**
@@ -100,6 +104,16 @@ public class GamePresenter extends AbstractPresenter {
         } else {
             throw new GamePresenterException("Der jetzige User ist nicht vorhanden");
         }
+
+
+        if (this.currentLobby != null && this.joinedLobbyUser != null) {
+            lobbyService.leaveLobby(this.currentLobby, (UserDTO) this.joinedLobbyUser);
+        }
+        else if (this.currentLobby == null && this.joinedLobbyUser != null) {
+            throw new GamePresenterException("Name der jetzigen Lobby ist nicht vorhanden!");
+        } else {
+            throw new GamePresenterException("Der jetzige User ist nicht vorhanden");
+        }
     }
 
 
@@ -140,7 +154,7 @@ public class GamePresenter extends AbstractPresenter {
     public void gameStartedSuccessfulLogic(GameCreatedMessage gcm) {
         if (this.currentLobby == null) {
             LOG.debug("Requesting update of User list in lobby because lobby was created.");
-            this.joinedLobbyUser = joinedLobbyUser;
+            this.joinedLobbyUser = gcm.getUser();
             this.currentLobby = gcm.getName();
         }
     }
