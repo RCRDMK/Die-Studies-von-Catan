@@ -13,6 +13,8 @@ public class GameCreatedMessage extends AbstractGameMessage {
 
     /**
      * Constructor
+     *
+     * enhanced by Alexander Losse, Ricardo Mook 2021-03-05
      * @since 2021-01-07
      */
     public GameCreatedMessage(String name, UserDTO user) {

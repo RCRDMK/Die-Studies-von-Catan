@@ -283,6 +283,8 @@ public class ClientApp extends Application implements ConnectionListener {
         sceneManager.removeGameTab(message.getName());
     }
 
+
+
     /**
      * Handles unsuccessful registrations
      * <p>
