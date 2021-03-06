@@ -321,21 +321,32 @@ public class SceneManager {
     }
 
     /**
-     * Handles UserSettingsCanceledEvent detected on the EventBus
+     * Handles LeaveUserSettingsEvent detected on the EventBus
      * <p>
-     * If a UserSettingsCanceledEvent is detected on the EventBus, this method gets
+     * If a LeaveUserSettingsEvent is detected on the EventBus, this method gets
      * called. It calls a method to show the screen shown before userSettings.
      *
-     * @param event The UserSettingsCanceledEvent detected on the EventBus
-     * @see LeaveUserSettingsEvent
+     * @param event The LeaveUserSettingsEvent detected on the EventBus
+     * @see de.uol.swp.client.account.event.LeaveUserSettingsEvent
      * @author Carsten Dekker
      * @since 2021-03-04
      */
     @Subscribe
-    public void onUserSettingsCanceledEvent(LeaveUserSettingsEvent event) {
+    public void onLeaveUserSettingsEvent(LeaveUserSettingsEvent event) {
         showScene(lastScene, lastTitle);
     }
 
+    /**
+     * Handles UserSettingsErrorEvent detected on the EventBus
+     * <p>
+     * If a UserSettingsErrorEvent is detected on the EventBus, this method gets
+     * called. It shows the error message of the event in a error alert.
+     *
+     * @param event The UserSettingsErrorEvent detected on the EventBus
+     * @see de.uol.swp.client.account.event.UserSettingsErrorEvent
+     * @author Carsten Dekker
+     * @since 2021-03-06
+     */
     @Subscribe
     public void onUserSettingsErrorEvent(UserSettingsErrorEvent event) {
         showError(event.getMessage());

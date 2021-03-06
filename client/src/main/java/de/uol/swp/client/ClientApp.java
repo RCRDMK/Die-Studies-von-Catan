@@ -269,6 +269,8 @@ public class ClientApp extends Application implements ConnectionListener {
      * If the loglevel is set to DEBUG or higher "UpdateUser error " and the
      * error message are written to the log.
      *
+     * @author Carsten Dekker
+     *
      * @param message The UpdateUserExceptionMessage object detected on the EventBus
      * @see de.uol.swp.client.SceneManager
      * @since 2021-03-04
@@ -304,9 +306,11 @@ public class ClientApp extends Application implements ConnectionListener {
      * method is called. If the loglevel is set to INFO or higher "Update user Successful."
      * is written to the log.
      *
+     * @author Carsten Dekker
+     *
      * @param response The UpdateUserSuccessfulResponse object detected on the EventBus
      * @see de.uol.swp.client.SceneManager
-     * @since 2019-09-02
+     * @since 2021-03-04
      */
     @Subscribe
     public void onUpdateUserSuccessfulResponse(UpdateUserSuccessfulResponse response) {
