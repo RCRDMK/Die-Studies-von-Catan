@@ -59,7 +59,6 @@ class UserManagementTest {
         management.logout(userToLogin);
 
         assertFalse(management.isLoggedIn(userToLogin));
-
     }
 
     @Test
@@ -165,7 +164,8 @@ class UserManagementTest {
     }
 
     @Test
-    void updateUnknownUser() {
+    void updateUnknownUser() throws SQLException {
+        management.buildConnection();
         assertThrows(UserManagementException.class, () -> management.updateUser(userNotInStore));
     }
 
