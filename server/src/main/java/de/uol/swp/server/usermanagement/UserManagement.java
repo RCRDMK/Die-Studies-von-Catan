@@ -45,12 +45,12 @@ public class UserManagement extends AbstractUserManagement {
      * Constructor
      *
      * @author Marius Birk
+     * @author Marius Birk
      * @see de.uol.swp.server.usermanagement.store.UserStore
      * @since 2019-08-05
      * <p>
      * The constructor changed to an empty constructor. The usual store is not longer needed.
      * @since 2021-01-19
-     * @author Marius Birk
      */
     @Inject
     public UserManagement() {
@@ -106,6 +106,7 @@ public class UserManagement extends AbstractUserManagement {
             if (resultSet.next()) {
                 User user = new UserDTO(username, password, resultSet.getString(2));
                 this.loggedInUsers.put(username, user);
+                ActiveUserList.addActiveUser(username);
                 return user;
             } else {
                 throw new SecurityException("Cannot auth user " + username);
@@ -189,7 +190,7 @@ public class UserManagement extends AbstractUserManagement {
     @Override
     public void dropUser(User userToDrop) throws SQLException {
         String selectUserString = "select name from user where name =?;";
-        try{
+        try {
             PreparedStatement dropUser = connection.prepareStatement(selectUserString);
             dropUser.setString(1, userToDrop.getUsername());
             ResultSet resultSet = dropUser.executeQuery();
@@ -201,7 +202,7 @@ public class UserManagement extends AbstractUserManagement {
                 dropUser.executeUpdate();
             }
 
-        }catch (SQLException e) {
+        } catch (SQLException e) {
             LOG.debug(e);
             throw new UserManagementException("User could not be dropped!");
         }
@@ -225,7 +226,7 @@ public class UserManagement extends AbstractUserManagement {
     @Override
     public void logout(User user) {
         loggedInUsers.remove(user.getUsername());
-        ActivUserList.removeActivUser(user.getUsername());
+        ActiveUserList.removeActiveUser(user.getUsername());
     }
 
     /**
@@ -238,6 +239,7 @@ public class UserManagement extends AbstractUserManagement {
      */
 
     public static void pingLogout(String username) {
+        ActiveUserList.removeActiveUser(username);
         loggedInUsers.remove(username);
     }
 
@@ -255,7 +257,12 @@ public class UserManagement extends AbstractUserManagement {
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
-                ActivUserList.checkActivUser();
+                List<String> userToDrop = ActiveUserList.checkActiveUser();
+                if (userToDrop.size() >= 1) {
+                    for (int i = 0; i < userToDrop.size(); i++) {
+                        pingLogout(userToDrop.get(i));
+                    }
+                }
             }
         }, 30000, 30000);
     }
@@ -282,10 +289,9 @@ public class UserManagement extends AbstractUserManagement {
      *
      * @return List of Users out of the database
      * @author Marius Birk
+     * @author Marius Birk
      * @see java.sql.SQLException
      * @see java.util.LinkedList
-     * @return List of Users out of the database
-     * @author Marius Birk
      */
     @Override
     public List<User> retrieveAllUsers() throws SQLException {

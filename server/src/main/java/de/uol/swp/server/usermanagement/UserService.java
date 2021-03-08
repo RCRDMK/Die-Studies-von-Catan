@@ -128,7 +128,7 @@ public class UserService extends AbstractService {
 
     @Subscribe
     private void onPingRequest(PingRequest pingRequest) {
-        ActivUserList.updateActivUser(pingRequest.getUsername(), pingRequest.getTime());
+        ActiveUserList.updateActiveUser(pingRequest.getUsername(), pingRequest.getTime());
         ResponseMessage returnMessage;
         returnMessage = new PingResponse(pingRequest.getUsername(), pingRequest.getTime());
         post(returnMessage);

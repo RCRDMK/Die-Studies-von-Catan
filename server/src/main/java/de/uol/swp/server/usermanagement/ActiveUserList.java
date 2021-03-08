@@ -1,7 +1,9 @@
 package de.uol.swp.server.usermanagement;
 
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.List;
 
 /**
  * Maintains a list of active users to log out inactive users
@@ -11,9 +13,10 @@ import java.util.Hashtable;
  * @since 2021-01-22
  */
 
-public class ActivUserList {
+public class ActiveUserList {
 
-    static Hashtable activUserTable = new Hashtable();
+    static Hashtable<String, Long> activeUserTable = new Hashtable<>();
+    static List<String> userToDropList = new ArrayList<String>();
 
     /**
      * Handles a list of active users
@@ -25,8 +28,8 @@ public class ActivUserList {
      * @since 2021-01-22
      */
 
-    public static void updateActivUser(String username, Long time) {
-        activUserTable.put(username, time);
+    public static void updateActiveUser(String username, Long time) {
+        activeUserTable.put(username, time);
     }
 
     /**
@@ -38,8 +41,8 @@ public class ActivUserList {
      * @since 2021-01-22
      */
 
-    public static void addActivUser(String username) {
-        activUserTable.put(username, System.currentTimeMillis());
+    public static void addActiveUser(String username) {
+        activeUserTable.put(username, System.currentTimeMillis());
     }
 
     /**
@@ -51,8 +54,8 @@ public class ActivUserList {
      * @since 2021-01-22
      */
 
-    public static void removeActivUser(String username) {
-        activUserTable.remove(username);
+    public static void removeActiveUser(String username) {
+        activeUserTable.remove(username);
     }
 
     /**
@@ -62,16 +65,18 @@ public class ActivUserList {
      *
      * @author Philip
      * @since 2021-01-22
+     * @return
      */
 
-    public static void checkActivUser() {
-        Enumeration enu = activUserTable.keys();
+    public static List<String> checkActiveUser() {
+        Enumeration<String> enu = activeUserTable.keys();
         while (enu.hasMoreElements()) {
-            String username = enu.nextElement().toString();
-            long t2 = (long) activUserTable.get(username);
-            if (t2 >= 60000) {
-                UserManagement.pingLogout(username);
+            String username = enu.nextElement();
+            long t2 = activeUserTable.get(username);
+            if ((System.currentTimeMillis() - t2) >= 60000) {
+                userToDropList.add(username);
             }
         }
+        return(userToDropList);
     }
 }

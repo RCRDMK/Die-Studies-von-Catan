@@ -19,9 +19,10 @@ import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class ActivUserListTest {
+class ActiveUserListTest {
 
 
     private final CountDownLatch lock = new CountDownLatch(1);
@@ -36,7 +37,7 @@ public class ActivUserListTest {
     final LobbyService lobbyService = new LobbyService(lobbyManagement, authService, bus);
     private Object event;
 
-    public ActivUserListTest() throws SQLException {
+    public ActiveUserListTest() throws SQLException {
     }
 
     @Subscribe
@@ -58,7 +59,7 @@ public class ActivUserListTest {
     }
 
     @Test
-    void addActivUserTest() throws InterruptedException, SQLException {
+    void addActiveUserTest() throws InterruptedException, SQLException {
         userManagement.createUser(user);
         final LoginRequest loginRequest1 = new LoginRequest(user.getUsername(), user.getPassword());
         bus.post(loginRequest1);
@@ -68,14 +69,14 @@ public class ActivUserListTest {
         bus.post(loginRequest2);
         lock.await(1000, TimeUnit.MILLISECONDS);
 
-        assertTrue(ActivUserList.activUserTable.containsKey("name"));
-        assertTrue(ActivUserList.activUserTable.containsKey("name2"));
+        assertTrue(ActiveUserList.activeUserTable.containsKey("name"));
+        assertTrue(ActiveUserList.activeUserTable.containsKey("name2"));
         userManagement.dropUser(user);
         userManagement.dropUser(user2);
     }
 
     @Test
-    void removeActivUserTest() throws InterruptedException, SQLException {
+    void removeActiveUserTest() throws InterruptedException, SQLException {
         userManagement.createUser(user);
         final LoginRequest loginRequest1 = new LoginRequest(user.getUsername(), user.getPassword());
         bus.post(loginRequest1);
@@ -91,8 +92,8 @@ public class ActivUserListTest {
         bus.post(logoutRequest);
 
         lock.await(1000, TimeUnit.MILLISECONDS);
-        assertFalse(ActivUserList.activUserTable.containsKey("name"));
-        assertTrue(ActivUserList.activUserTable.containsKey("name2"));
+        assertFalse(ActiveUserList.activeUserTable.containsKey("name"));
+        assertTrue(ActiveUserList.activeUserTable.containsKey("name2"));
         userManagement.dropUser(user2);
     }
 }
