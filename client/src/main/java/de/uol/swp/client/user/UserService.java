@@ -105,7 +105,7 @@ public class UserService implements ClientUserService {
     /**
      * Method to return a hashed password. It creates a char array out of the original password and hands this over to the
      * hashPassword method.
-     * @since 2020-03-04
+     * @since 2021-03-04
      * @author Marius Birk
      * @param password
      * @return
@@ -119,7 +119,7 @@ public class UserService implements ClientUserService {
     /**
      * This method creates an byte array of the given Password. With help of the salt key and the keyfactory,
      * it creates a hashed password in form of a secretkey.
-     * @since 2020-03-04
+     * @since 2021-03-04
      * @author Marius Birk
      * @param password
      * @return encoded Password

@@ -59,7 +59,6 @@ class UserManagementTest {
         management.logout(userToLogin);
 
         assertFalse(management.isLoggedIn(userToLogin));
-
     }
 
     @Test
