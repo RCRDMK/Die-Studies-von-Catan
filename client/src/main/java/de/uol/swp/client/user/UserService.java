@@ -3,13 +3,19 @@ package de.uol.swp.client.user;
 import com.google.common.eventbus.EventBus;
 import com.google.inject.Inject;
 import de.uol.swp.common.user.User;
+import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.user.request.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.Timer;
+import javax.crypto.SecretKey;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.TimerTask;
 
+import org.apache.commons.codec.binary.Hex;
 /**
  * This class is used to hide the communication details
  * implements de.uol.common.user.UserService
@@ -17,13 +23,13 @@ import java.util.TimerTask;
  * @author Marco Grawunder
  * @see ClientUserService
  * @since 2017-03-17
+ *
  */
 @SuppressWarnings("UnstableApiUsage")
 public class UserService implements ClientUserService {
 
     private static final Logger LOG = LogManager.getLogger(UserService.class);
-    private static EventBus bus = null;
-    private static Timer timer = new Timer();
+    private final EventBus bus;
 
     /**
      * Constructor
@@ -47,7 +53,8 @@ public class UserService implements ClientUserService {
      * @since 2017-03-17
      */
     @Override
-    public void login(String username, String password) {
+    public void login(String username, String password) throws InvalidKeySpecException, NoSuchAlgorithmException {
+        password = convertStringToHash(password);
         LoginRequest msg = new LoginRequest(username, password);
         bus.post(msg);
     }
@@ -60,8 +67,9 @@ public class UserService implements ClientUserService {
     }
 
     @Override
-    public void createUser(User user) {
-        RegisterUserRequest request = new RegisterUserRequest(user);
+    public void createUser(User user) throws InvalidKeySpecException, NoSuchAlgorithmException {
+        User hashedPassword = new UserDTO(user.getUsername(), convertStringToHash(user.getPassword()), user.getEMail());
+        RegisterUserRequest request = new RegisterUserRequest(hashedPassword);
         bus.post(request);
     }
 
@@ -84,8 +92,9 @@ public class UserService implements ClientUserService {
     }
 
     @Override
-    public void updateUser(User user) {
-        UpdateUserRequest request = new UpdateUserRequest(user);
+    public void updateUser(User user) throws InvalidKeySpecException, NoSuchAlgorithmException {
+        User hashedPassword = new UserDTO(user.getUsername(), convertStringToHash(user.getPassword()), user.getEMail());
+        UpdateUserRequest request = new UpdateUserRequest(hashedPassword);
         bus.post(request);
     }
 
@@ -96,67 +105,100 @@ public class UserService implements ClientUserService {
     }
 
     /**
-     * Method to send a Ping
-     * <p>
-     * This method sends a request for a Ping Message.
-     *
-     * @param username from which the ping message is released
-     * @author Philip Nitsche
-     * @since 2021-01-22
+     * Method to return a hashed password. It creates a char array out of the original password and hands this over to the
+     * hashPassword method.
+     * @since 2021-03-04
+     * @author Marius Birk
+     * @param password
+     * @return
+     * @throws InvalidKeySpecException
+     * @throws NoSuchAlgorithmException
      */
-
-    public void sendPing(String username) {
-        PingRequest pr = new PingRequest(username, System.currentTimeMillis());
-        bus.post(pr);
+    public String convertStringToHash(String password) throws InvalidKeySpecException, NoSuchAlgorithmException {
+        return Hex.encodeHexString(hashPassword(password.toCharArray()));
     }
 
     /**
-     * Method to send a Ping
-     * <p>
-     * This method starts a Timer for a Ping Message.
-     *
-     * @param username from which the ping message is released
-     * @author Philip Nitsche
-     * @since 2021-01-22
+     * This method creates an byte array of the given Password. With help of the salt key and the keyfactory,
+     * it creates a hashed password in form of a secretkey.
+     * @since 2021-03-04
+     * @author Marius Birk
+     * @param password
+     * @return encoded Password
+     * @throws InvalidKeySpecException
+     * @throws NoSuchAlgorithmException
      */
+    private byte[] hashPassword(final char[] password) throws InvalidKeySpecException, NoSuchAlgorithmException {
+        final String SALT = "saltKey";
+        SecretKeyFactory secretKeyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA512");
+        PBEKeySpec spec = new PBEKeySpec(password, SALT.getBytes(), 10000, 512);
+        SecretKey key = secretKeyFactory.generateSecret(spec);
 
-    public static void startTimerForPing(String username) {
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                main(username);
-            }
-        }, 30000, 30000);
+        return key.getEncoded();
     }
 
+	/**
+	 * Method to send a Ping
+	 * <p>
+	 * This method sends a request for a Ping Message.
+	 *
+	 * @param username from which the ping message is released
+	 * @author Philip Nitsche
+	 * @since 2021-01-22
+	 */
 
-    /**
-     * Instance of UserService
-     * <p>
-     * Calls a non-static method from a static method with an instance
-     * of the class containing the non-static method
-     *
-     * @param username from which the ping message is released
-     * @author Philip Nitsche
-     * @since 2021-01-22
-     */
+	public void sendPing(String username) {
+		PingRequest pr = new PingRequest(username, System.currentTimeMillis());
+		bus.post(pr);
+	}
 
-    public static void main(String username) {
-        UserService d = new UserService(bus);
-        d.sendPing(username);
-    }
+	/**
+	 * Method to send a Ping
+	 * <p>
+	 * This method starts a Timer for a Ping Message.
+	 *
+	 * @param username from which the ping message is released
+	 * @author Philip Nitsche
+	 * @since 2021-01-22
+	 */
 
-    /**
-     * Method to send a Ping
-     * <p>
-     * This method stops the Timer for a Ping Message.
-     *
-     * @param
-     * @author Philip Nitsche
-     * @since 2021-01-22
-     */
+	public static void startTimerForPing(String username) {
+		timer.schedule(new TimerTask() {
+			@Override
+			public void run() {
+				main(username);
+			}
+		}, 30000, 30000);
+	}
 
-    public static void endTimerForPing() {
-        timer.cancel();
-    }
+
+	/**
+	 * Instance of UserService
+	 * <p>
+	 * Calls a non-static method from a static method with an instance
+	 * of the class containing the non-static method
+	 *
+	 * @param username from which the ping message is released
+	 * @author Philip Nitsche
+	 * @since 2021-01-22
+	 */
+
+	public static void main(String username) {
+		UserService d = new UserService(bus);
+		d.sendPing(username);
+	}
+
+	/**
+	 * Method to send a Ping
+	 * <p>
+	 * This method stops the Timer for a Ping Message.
+	 *
+	 * @param
+	 * @author Philip Nitsche
+	 * @since 2021-01-22
+	 */
+
+	public static void endTimerForPing() {
+		timer.cancel();
+	}
 }
