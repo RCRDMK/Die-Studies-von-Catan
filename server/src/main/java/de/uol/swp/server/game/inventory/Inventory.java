@@ -24,7 +24,6 @@ public class Inventory {
     public Card cardRoadBuilding = new Card();
     public Card cardYearOfPlenty = new Card();
 
-
     // Building Units
     public Unit city = new Unit(4);
     public Unit road = new Unit(15);
@@ -45,7 +44,7 @@ public class Inventory {
 
     public int getPlayedKnights() { return playedKnights; }
 
-    public int getNetworkRoad() { return continuousRoad; }
+    public int getContinuousRoad() { return continuousRoad; }
 
     public boolean isLargestArmy() { return largestArmy; }
 
@@ -85,7 +84,6 @@ public class Inventory {
                 cardRoadBuilding.getNumber() +
                 cardYearOfPlenty.getNumber();
     }
-
 
     /**
      * Creates Private Inventory View

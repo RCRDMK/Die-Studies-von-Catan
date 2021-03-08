@@ -1,0 +1,283 @@
+package de.uol.swp.server.game.inventory;
+
+import org.junit.jupiter.api.Test;
+
+import java.util.HashMap;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+/**
+ * Test Class for the Inventory
+ *
+ * @author Anton
+ * @since 2021-03-08
+ */
+public class InventoryTest {
+
+    Inventory inventory = new Inventory();
+    HashMap privateInventory = inventory.getPrivateView();
+    HashMap publicInventory = inventory.getPublicView();
+
+    //This test analyzes the Private Inventory View
+    @Test
+    void onGetPrivateView() {
+        assertTrue(privateInventory instanceof HashMap);
+
+        // Resource Cards
+        assertEquals(privateInventory.get("Lumber"), 0);
+        assertEquals(privateInventory.get("Brick"), 0);
+        assertEquals(privateInventory.get("Grain"), 0);
+        assertEquals(privateInventory.get("Wool"), 0);
+        assertEquals(privateInventory.get("Ore"), 0);
+
+        // Development Cards
+        assertEquals(privateInventory.get("Knight"), 0);
+        assertEquals(privateInventory.get("Monopoly"), 0);
+        assertEquals(privateInventory.get("Road Building"), 0);
+        assertEquals(privateInventory.get("Year of Plenty"), 0);
+        assertEquals(privateInventory.get("Victory Point Card"), 0);
+
+        // Building Units
+        assertEquals(privateInventory.get("Citys"), 4);
+        assertEquals(privateInventory.get("Roads"), 15);
+        assertEquals(privateInventory.get("Settlements"), 5);
+
+        // Achievement
+        assertEquals(privateInventory.get("Victory Points"), 0);
+    }
+
+    //This test analyzes the Public Inventory View
+    @Test
+    void onGetPublicView() {
+        assertTrue(publicInventory instanceof HashMap);
+
+        assertEquals(publicInventory.get("Resource"), 0);
+        assertEquals(publicInventory.get("Development Cards"), 0);
+        assertEquals(publicInventory.get("Played Knights"), 0);
+        assertEquals(publicInventory.get("Continuous Road"), 0);
+        assertEquals(publicInventory.get("Largest Army"), 0);
+        assertEquals(publicInventory.get("Longest Road"), 0);
+        assertEquals(publicInventory.get("Public Victory Points"), 0);
+    }
+
+    //Incrementer Test
+    @Test
+    void onIncNumber() {
+
+        // Resource Cards
+        inventory.lumber.incNumber();
+        inventory.brick.incNumber();
+        inventory.grain.incNumber();
+        inventory.wool.incNumber();
+        inventory.ore.incNumber();
+
+        // Development Cards
+        inventory.cardKnight.incNumber();
+        inventory.cardMonopoly.incNumber();
+        inventory.cardRoadBuilding.incNumber();
+        inventory.cardYearOfPlenty.incNumber();
+        inventory.incCardVictoryPoint();
+
+        // Inventory analysis
+        privateInventory = inventory.getPrivateView();
+        assertEquals(privateInventory.get("Lumber"), 1);
+        assertEquals(privateInventory.get("Brick"), 1);
+        assertEquals(privateInventory.get("Grain"), 1);
+        assertEquals(privateInventory.get("Wool"), 1);
+        assertEquals(privateInventory.get("Ore"), 1);
+        assertEquals(privateInventory.get("Knight"), 1);
+        assertEquals(privateInventory.get("Monopoly"), 1);
+        assertEquals(privateInventory.get("Road Building"), 1);
+        assertEquals(privateInventory.get("Year of Plenty"), 1);
+        assertEquals(privateInventory.get("Victory Point Card"), 1);
+        assertEquals(privateInventory.get("Citys"), 4);
+        assertEquals(privateInventory.get("Roads"), 15);
+        assertEquals(privateInventory.get("Settlements"), 5);
+        assertEquals(privateInventory.get("Victory Points"), 1);
+
+        publicInventory = inventory.getPublicView();
+        assertEquals(publicInventory.get("Resource"), 5);
+        assertEquals(publicInventory.get("Development Cards"), 5);
+        assertEquals(publicInventory.get("Played Knights"), 0);
+        assertEquals(publicInventory.get("Continuous Road"), 0);
+        assertEquals(publicInventory.get("Largest Army"), 0);
+        assertEquals(publicInventory.get("Longest Road"), 0);
+        assertEquals(publicInventory.get("Public Victory Points"), 0);
+    }
+
+    //Incrementer with number Test
+    @Test
+    void onIncNumberWithNumber() {
+
+        // Resource Cards
+        inventory.lumber.incNumber();
+        inventory.brick.incNumber();
+        inventory.grain.incNumber();
+        inventory.wool.incNumber();
+        inventory.ore.incNumber();
+
+        // Development Cards
+        inventory.cardKnight.incNumber();
+        inventory.cardMonopoly.incNumber();
+        inventory.cardRoadBuilding.incNumber();
+        inventory.cardYearOfPlenty.incNumber();
+
+        // Resource Cards
+        inventory.lumber.incNumber(5);
+        inventory.brick.incNumber(5);
+        inventory.grain.incNumber(5);
+        inventory.wool.incNumber(5);
+        inventory.ore.incNumber(5);
+
+        // Development Cards
+        inventory.cardKnight.incNumber(5);
+        inventory.cardMonopoly.incNumber(5);
+        inventory.cardRoadBuilding.incNumber(5);
+        inventory.cardYearOfPlenty.incNumber(5);
+
+        // Inventory analysis
+        privateInventory = inventory.getPrivateView();
+        assertEquals(privateInventory.get("Lumber"), 6);
+        assertEquals(privateInventory.get("Brick"), 6);
+        assertEquals(privateInventory.get("Grain"), 6);
+        assertEquals(privateInventory.get("Wool"), 6);
+        assertEquals(privateInventory.get("Ore"), 6);
+        assertEquals(privateInventory.get("Knight"), 6);
+        assertEquals(privateInventory.get("Monopoly"), 6);
+        assertEquals(privateInventory.get("Road Building"), 6);
+        assertEquals(privateInventory.get("Year of Plenty"), 6);
+        assertEquals(privateInventory.get("Victory Point Card"), 0);
+        assertEquals(privateInventory.get("Citys"), 4);
+        assertEquals(privateInventory.get("Roads"), 15);
+        assertEquals(privateInventory.get("Settlements"), 5);
+        assertEquals(privateInventory.get("Victory Points"), 0);
+
+        publicInventory = inventory.getPublicView();
+        assertEquals(publicInventory.get("Resource"), 30);
+        assertEquals(publicInventory.get("Development Cards"), 24);
+        assertEquals(publicInventory.get("Played Knights"), 0);
+        assertEquals(publicInventory.get("Continuous Road"), 0);
+        assertEquals(publicInventory.get("Largest Army"), 0);
+        assertEquals(publicInventory.get("Longest Road"), 0);
+        assertEquals(publicInventory.get("Public Victory Points"), 0);
+    }
+
+    //Decrementer Test
+    @Test
+    void onDecNumber() {
+
+        // Resource Cards
+        inventory.lumber.incNumber();
+        inventory.brick.incNumber();
+        inventory.grain.incNumber();
+        inventory.wool.incNumber();
+        inventory.ore.incNumber();
+
+        // Development Cards
+        inventory.cardKnight.incNumber();
+        inventory.cardMonopoly.incNumber();
+        inventory.cardRoadBuilding.incNumber();
+        inventory.cardYearOfPlenty.incNumber();
+
+        // Resource Cards
+        inventory.lumber.decNumber();
+        inventory.brick.decNumber();
+        inventory.grain.decNumber();
+        inventory.wool.decNumber();
+        inventory.ore.decNumber();
+
+        // Development Cards
+        inventory.cardKnight.decNumber();
+        inventory.cardMonopoly.decNumber();
+        inventory.cardRoadBuilding.decNumber();
+        inventory.cardYearOfPlenty.decNumber();
+
+        // Building Units
+        inventory.city.decNumber();
+        inventory.road.decNumber();
+        inventory.settlement.decNumber();
+
+        // Inventory analysis
+        privateInventory = inventory.getPrivateView();
+        assertEquals(privateInventory.get("Lumber"), 0);
+        assertEquals(privateInventory.get("Brick"), 0);
+        assertEquals(privateInventory.get("Grain"), 0);
+        assertEquals(privateInventory.get("Wool"), 0);
+        assertEquals(privateInventory.get("Ore"), 0);
+        assertEquals(privateInventory.get("Knight"), 0);
+        assertEquals(privateInventory.get("Monopoly"), 0);
+        assertEquals(privateInventory.get("Road Building"), 0);
+        assertEquals(privateInventory.get("Year of Plenty"), 0);
+        assertEquals(privateInventory.get("Victory Point Card"), 0);
+        assertEquals(privateInventory.get("Citys"), 3);
+        assertEquals(privateInventory.get("Roads"), 14);
+        assertEquals(privateInventory.get("Settlements"), 4);
+        assertEquals(privateInventory.get("Victory Points"), 0);
+
+        publicInventory = inventory.getPublicView();
+        assertEquals(publicInventory.get("Resource"), 0);
+        assertEquals(publicInventory.get("Development Cards"), 0);
+        assertEquals(publicInventory.get("Played Knights"), 0);
+        assertEquals(publicInventory.get("Continuous Road"), 0);
+        assertEquals(publicInventory.get("Largest Army"), 0);
+        assertEquals(publicInventory.get("Longest Road"), 0);
+        assertEquals(publicInventory.get("Public Victory Points"), 0);
+    }
+
+    //Decrementer with number Test
+    @Test
+    void onDncNumberWithNumber() {
+
+        // Resource Cards
+        inventory.lumber.incNumber(5);
+        inventory.brick.incNumber(5);
+        inventory.grain.incNumber(5);
+        inventory.wool.incNumber(5);
+        inventory.ore.incNumber(5);
+
+        // Development Cards
+        inventory.cardKnight.incNumber(5);
+        inventory.cardMonopoly.incNumber(5);
+        inventory.cardRoadBuilding.incNumber(5);
+        inventory.cardYearOfPlenty.incNumber(5);
+
+        // Resource Cards
+        inventory.lumber.decNumber(3);
+        inventory.brick.decNumber(3);
+        inventory.grain.decNumber(3);
+        inventory.wool.decNumber(3);
+        inventory.ore.decNumber(3);
+
+        // Development Cards
+        inventory.cardKnight.decNumber(3);
+        inventory.cardMonopoly.decNumber(3);
+        inventory.cardRoadBuilding.decNumber(3);
+        inventory.cardYearOfPlenty.decNumber(3);
+
+        // Inventory analysis
+        privateInventory = inventory.getPrivateView();
+        assertEquals(privateInventory.get("Lumber"), 2);
+        assertEquals(privateInventory.get("Brick"), 2);
+        assertEquals(privateInventory.get("Grain"), 2);
+        assertEquals(privateInventory.get("Wool"), 2);
+        assertEquals(privateInventory.get("Ore"), 2);
+        assertEquals(privateInventory.get("Knight"), 2);
+        assertEquals(privateInventory.get("Monopoly"), 2);
+        assertEquals(privateInventory.get("Road Building"), 2);
+        assertEquals(privateInventory.get("Year of Plenty"), 2);
+        assertEquals(privateInventory.get("Victory Point Card"), 0);
+        assertEquals(privateInventory.get("Citys"), 4);
+        assertEquals(privateInventory.get("Roads"), 15);
+        assertEquals(privateInventory.get("Settlements"), 5);
+        assertEquals(privateInventory.get("Victory Points"), 0);
+
+        publicInventory = inventory.getPublicView();
+        assertEquals(publicInventory.get("Resource"), 10);
+        assertEquals(publicInventory.get("Development Cards"), 8);
+        assertEquals(publicInventory.get("Played Knights"), 0);
+        assertEquals(publicInventory.get("Continuous Road"), 0);
+        assertEquals(publicInventory.get("Largest Army"), 0);
+        assertEquals(publicInventory.get("Longest Road"), 0);
+        assertEquals(publicInventory.get("Public Victory Points"), 0);
+    }
+}
