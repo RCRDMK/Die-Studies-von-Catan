@@ -1,15 +1,10 @@
 package de.uol.swp.server.usermanagement;
 
 import com.google.common.base.Strings;
-import com.mysql.cj.log.Log;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
-import de.uol.swp.server.lobby.LobbyService;
-import de.uol.swp.server.usermanagement.store.UserStore;
-import io.netty.handler.logging.LogLevel;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.checkerframework.checker.nullness.Opt;
 
 import javax.inject.Inject;
 import java.sql.*;
