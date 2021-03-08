@@ -50,7 +50,7 @@ class UserManagementTest {
     @Test
     void logoutUser() throws SQLException {
         management.buildConnection();
-        User userToLogin = new UserDTO("test", "33eda9895af9f99456b85c2381bfc49543531e92517e3b7c67e86310874dd3a0e08b0dae5d3103ddabcf1794d3833c52659c35c2980f71ce6705bf967a96d856", "");
+        User userToLogin = new UserDTO("test", "0835ae0b1f8bcb3508e09990403eea4200e294be58224fb0c97ea652cd59fcd97219815a27564680a72ee28b614adcc2843df4c7dcc3f64cf721dea5189db475", "");
 
         management.login(userToLogin.getUsername(), userToLogin.getPassword());
 
@@ -131,7 +131,7 @@ class UserManagementTest {
         management.buildConnection();
 
         User userToUpdate = new UserDTO("test2", "33eda9895af9f99456b85c2381bfc49543531e92517e3b7c67e86310874dd3a0e08b0dae5d3103ddabcf1794d3833c52659c35c2980f71ce6705bf967a96d856", "");
-        User updatedUser = new UserDTO(userToUpdate.getUsername(), "test2", "new1Mail@mail.com");
+        User updatedUser = new UserDTO(userToUpdate.getUsername(), "994dac907995937160371992ecbdf9b34242db0abb3943807b5baa6be0c6908f72ea87b7dadd2bce6cf700c8dfb7d57b0566f544af8c30336a15d5f732d85613", "new1Mail@mail.com");
 
         management.updateUser(updatedUser);
 
