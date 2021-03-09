@@ -2,6 +2,8 @@ package de.uol.swp.client.user;
 
 import de.uol.swp.common.user.User;
 
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.List;
 
 /**
@@ -23,7 +25,7 @@ public interface ClientUserService {
      * @param password the password of the user
      * @since 2017-03-17
      */
-    void login(String username, String password);
+    void login(String username, String password) throws InvalidKeySpecException, NoSuchAlgorithmException;
 
     /**
      * Log out from server
@@ -42,7 +44,7 @@ public interface ClientUserService {
      * @param user The user to create
      * @since 2019-09-02
      */
-    void createUser(User user);
+    void createUser(User user) throws InvalidKeySpecException, NoSuchAlgorithmException;
 
     /**
      * Removes a user from the sore
@@ -68,7 +70,7 @@ public interface ClientUserService {
      *             these fields are not updated
      * @since 2019-09-02
      */
-    void updateUser(User user);
+    void updateUser(User user) throws InvalidKeySpecException, NoSuchAlgorithmException;
 
     /**
      * Retrieve the list of all current logged in users

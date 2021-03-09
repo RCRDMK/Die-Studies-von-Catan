@@ -18,6 +18,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -93,7 +95,7 @@ class LobbyServiceTest {
      * @throws InterruptedException thrown by lock.await()
      * @since 2020-12-02
      */
-    private void loginUser() throws InterruptedException {
+    private void loginUser() throws InterruptedException, InvalidKeySpecException, NoSuchAlgorithmException {
         UserService userService = new UserService(bus);
         userService.login(defaultUser.getUsername(), defaultUser.getPassword());
         lock.await(1000, TimeUnit.MILLISECONDS);
@@ -127,7 +129,7 @@ class LobbyServiceTest {
      */
     @Test
     @DisplayName("Erstelle Lobby")
-    void createLobbyTest() throws InterruptedException {
+    void createLobbyTest() throws InterruptedException, InvalidKeySpecException, NoSuchAlgorithmException {
         loginUser();
         initializeTextFields();
 
@@ -161,7 +163,7 @@ class LobbyServiceTest {
      */
     @Test
     @DisplayName("Verlasse Lobby")
-    void leaveLobbyTest() throws InterruptedException {
+    void leaveLobbyTest() throws InterruptedException, InvalidKeySpecException, NoSuchAlgorithmException {
         loginUser();
         initializeTextFields();
 
@@ -198,7 +200,7 @@ class LobbyServiceTest {
      */
     @Test
     @DisplayName("Erstelle Lobby Umlaute")
-    void createLobbyWithVowelMutationTest() throws InterruptedException {
+    void createLobbyWithVowelMutationTest() throws InterruptedException, InvalidKeySpecException, NoSuchAlgorithmException {
         loginUser();
         lobbyname = "äüÖÄöÜ";
 
@@ -311,7 +313,7 @@ class LobbyServiceTest {
 
     @Test
     @DisplayName("Beitrete Lobby")
-    void joinLobbyTest() throws InterruptedException {
+    void joinLobbyTest() throws InterruptedException, InvalidKeySpecException, NoSuchAlgorithmException {
         loginUser();
         initializeTextFields();
         loginUser();

@@ -354,7 +354,7 @@ onLobbyFullResponseLogic(response);
      */
     @Subscribe
     public void onJoinDeletedLobbyResponse(JoinDeletedLobbyResponse response) {
-onJoinDeletedLobbyResponseLogic(response);
+        onJoinDeletedLobbyResponseLogic(response);
     }
     public void onJoinDeletedLobbyResponseLogic(JoinDeletedLobbyResponse jdlr){
         LOG.debug("Can't join lobby " + jdlr.getLobbyName() + " because the lobby was deleted.");
@@ -375,7 +375,7 @@ onJoinDeletedLobbyResponseLogic(response);
 
     @Subscribe
     public void onLobbyAlreadyExistsMessage(LobbyAlreadyExistsResponse message) {
- onLobbyAlreadyExistsMessageLogic(message);
+        onLobbyAlreadyExistsMessageLogic(message);
     }
     public void onLobbyAlreadyExistsMessageLogic(LobbyAlreadyExistsResponse laer){
         LOG.debug("Lobby with Name " + lobbyNameTextField.getText() + " already exists.");
@@ -478,6 +478,7 @@ onJoinDeletedLobbyResponseLogic(response);
             lobbyAlreadyExistsLabel.setVisible(false);
             lobbyService.createNewLobby(lobbyNameTextField.getText(), (UserDTO) this.loggedInUser);
         }
+        lobbyNameTextField.clear();
     }
 
     @FXML

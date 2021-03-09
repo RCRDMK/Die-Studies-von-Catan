@@ -7,10 +7,15 @@ import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.user.request.*;
 import de.uol.swp.common.user.response.DropUserSuccessfulResponse;
+import org.checkerframework.checker.fenum.qual.AwtAlphaCompositingRule;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.opentest4j.AssertionFailedError;
 
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -84,7 +89,7 @@ class UserServiceTest {
      * @throws InterruptedException thrown by lock.await()
      * @since 2019-10-10
      */
-    private void loginUser() throws InterruptedException {
+    private void loginUser() throws InterruptedException, InvalidKeySpecException, NoSuchAlgorithmException {
         UserService userService = new UserService(bus);
         userService.login(defaultUser.getUsername(), defaultUser.getPassword());
         lock.await(1000, TimeUnit.MILLISECONDS);
@@ -102,14 +107,15 @@ class UserServiceTest {
      * @since 2019-10-10
      */
     @Test
-    void loginTest() throws InterruptedException {
+    void loginTest() throws InterruptedException, InvalidKeySpecException, NoSuchAlgorithmException {
+        UserService userService = new UserService(bus);
         loginUser();
 
         assertTrue(event instanceof LoginRequest);
 
         LoginRequest loginRequest = (LoginRequest) event;
         assertEquals(loginRequest.getUsername(), defaultUser.getUsername());
-        assertEquals(loginRequest.getPassword(), defaultUser.getPassword());
+        assertEquals(loginRequest.getPassword(), userService.convertStringToHash(defaultUser.getPassword()));
     }
 
     /**
@@ -127,7 +133,7 @@ class UserServiceTest {
      * @since 2019-10-10
      */
     @Test
-    void logoutTest() throws InterruptedException {
+    void logoutTest() throws InterruptedException, InvalidKeySpecException, NoSuchAlgorithmException {
         loginUser();
         event = null;
 
@@ -159,7 +165,7 @@ class UserServiceTest {
      * @since 2019-10-10
      */
     @Test
-    void createUserTest() throws InterruptedException {
+    void createUserTest() throws InterruptedException, InvalidKeySpecException, NoSuchAlgorithmException {
         UserService userService = new UserService(bus);
         userService.createUser(defaultUser);
 
@@ -170,7 +176,7 @@ class UserServiceTest {
         RegisterUserRequest request = (RegisterUserRequest) event;
 
         assertEquals(request.getUser().getUsername(), defaultUser.getUsername());
-        assertEquals(request.getUser().getPassword(), defaultUser.getPassword());
+        assertEquals(request.getUser().getPassword(), userService.convertStringToHash(defaultUser.getPassword()));
         assertEquals(request.getUser().getEMail(), defaultUser.getEMail());
         assertFalse(request.authorizationNeeded());
 
@@ -192,7 +198,7 @@ class UserServiceTest {
      * @since 2019-10-10
      */
     @Test
-    void updateUserTest() throws InterruptedException {
+    void updateUserTest() throws InterruptedException, InvalidKeySpecException, NoSuchAlgorithmException {
         UserService userService = new UserService(bus);
         userService.updateUser(defaultUser);
 
@@ -203,7 +209,7 @@ class UserServiceTest {
         UpdateUserRequest request = (UpdateUserRequest) event;
 
         assertEquals(request.getUser().getUsername(), defaultUser.getUsername());
-        assertEquals(request.getUser().getPassword(), defaultUser.getPassword());
+        assertEquals(request.getUser().getPassword(), userService.convertStringToHash(defaultUser.getPassword()));
         assertEquals(request.getUser().getEMail(), defaultUser.getEMail());
         assertTrue(request.authorizationNeeded());
     }
@@ -226,7 +232,7 @@ class UserServiceTest {
      * @since 2020-12-15
      */
     @Test
-    void dropUserTest() throws InterruptedException {
+    void dropUserTest() throws InterruptedException, InvalidKeySpecException, NoSuchAlgorithmException {
         loginUser();
         event = null;
 
@@ -258,4 +264,17 @@ class UserServiceTest {
         assertTrue(event instanceof RetrieveAllOnlineUsersRequest);
     }
 
+    @Test
+    void convertStringToHashTest() throws InvalidKeySpecException, NoSuchAlgorithmException {
+        UserService userService = new UserService(bus);
+
+        assertEquals(userService.convertStringToHash("test"), userService.convertStringToHash(defaultUser.getPassword()));
+    }
+
+    @Test
+    void failedConvertStringToHashTest() throws InvalidKeySpecException, NoSuchAlgorithmException {
+        UserService userService = new UserService(bus);
+
+        assertNotEquals(userService.convertStringToHash("Test"), userService.convertStringToHash(defaultUser.getPassword()));
+    }
 }
