@@ -16,7 +16,6 @@ import org.apache.logging.log4j.Logger;
 
 import java.net.URL;
 import java.util.ResourceBundle;
-import java.util.Stack;
 
 /**
  * Manages the GameView
@@ -42,7 +41,6 @@ public class GamePresenter extends AbstractPresenter implements Initializable {
     private GameService gameService;
     @FXML
     private Canvas canvas = new Canvas();
-
 
     /**
      * Method called when the RollDice button is pressed
@@ -95,7 +93,8 @@ public class GamePresenter extends AbstractPresenter implements Initializable {
         //TODO:...
     }
 
-    Stack<TerrainField> tStack;
+    //Container for Terrainfields
+    TerrainField[] tfArray;
 
     /**
      * this method holds the size of the terraincards in pixels
@@ -104,147 +103,109 @@ public class GamePresenter extends AbstractPresenter implements Initializable {
      * circle. in future this may be modified to address a potentially scalable canvas. if the canvas gets scalable in
      * the future, the cardsizes need to scale along for this to be of any use.
      */
+
     public double cardSize() {
-        return 50.0;
+        double d = Math.min(canvas.getHeight(), canvas.getWidth()); //Determine minimum Pixels in height and length of the canvas (we dont want the playfield to scale out of canvas, so we orient at the smaller axis)
+        return d / 8; // divide by 8 because the playfield is 7 cards wide and add 1/2 card each side for margin/borderspace. (looks nicer, trust me)
     }
 
     /**
      * Method for generating a stack of terraincards for a standard-ruleset-playfield
+     *
      * @return stack of terraincards
      * @author pieter vogt
      * @since 24-01-2021
      */
-    public Stack<TerrainField> getStandardStack() {
-        Stack<TerrainField> s = new Stack<>();
+    public TerrainField[] getStandardDeck() {
 
-        //Stack of cards get generated in same order as "spielfeld"-finespec in confluence. TODO: This should probably get done by the server in future. Think of this as a test-method wich can be adapted to server later.
+        TerrainField[] tempArray;
 
-        TerrainField f0 = new TerrainField("Ocean", 0, Vector.topRight(cardSize()));
-        s.push(f0);
-        TerrainField f1 = new TerrainField("Ocean", 0, Vector.topRight(cardSize()));
-        s.push(f1);
-        TerrainField f2 = new TerrainField("Ocean", 0, Vector.topRight(cardSize()));
-        s.push(f2);
-        TerrainField f3 = new TerrainField("Ocean", 0, Vector.bottomRight(cardSize()));
-        s.push(f3);
-        TerrainField f4 = new TerrainField("Ocean", 0, Vector.bottomRight(cardSize()));
-        s.push(f4);
-        TerrainField f5 = new TerrainField("Ocean", 0, Vector.bottomRight(cardSize()));
-        s.push(f5);
-        TerrainField f6 = new TerrainField("Ocean", 0, Vector.bottom((cardSize())));
-        s.push(f6);
-        TerrainField f7 = new TerrainField("Ocean", 0, Vector.bottom((cardSize())));
-        s.push(f7);
-        TerrainField f8 = new TerrainField("Ocean", 0, Vector.bottom((cardSize())));
-        s.push(f8);
-        TerrainField f9 = new TerrainField("Ocean", 0, Vector.bottomLeft((cardSize())));
-        s.push(f9);
-        TerrainField f10 = new TerrainField("Ocean", 0, Vector.bottomLeft((cardSize())));
-        s.push(f10);
-        TerrainField f11 = new TerrainField("Ocean", 0, Vector.bottomLeft((cardSize())));
-        s.push(f11);
-        TerrainField f12 = new TerrainField("Ocean", 0, Vector.topLeft((cardSize())));
-        s.push(f12);
-        TerrainField f13 = new TerrainField("Ocean", 0, Vector.topLeft((cardSize())));
-        s.push(f13);
-        TerrainField f14 = new TerrainField("Ocean", 0, Vector.topLeft((cardSize())));
-        s.push(f14);
-        TerrainField f15 = new TerrainField("Ocean", 0, Vector.top((cardSize())));
-        s.push(f15);
-        TerrainField f16 = new TerrainField("Ocean", 0, Vector.top((cardSize())));
-        s.push(f16);
-        TerrainField f17 = new TerrainField("Ocean", 0, Vector.topRight((cardSize())));
-        s.push(f17);
+        //Stack of cards get generated in same order as "spielfeld"-finespec in confluence. TODO: This should probably get done by the server in future. Think of this as a test-method wich can be migrated to server later.
 
+        //beginning of oceans
+        TerrainField f0 = new TerrainField("Ocean", 0, Vector.bottomLeft(cardSize()));
+        TerrainField f1 = new TerrainField("Ocean", 0, Vector.bottomLeft(cardSize()));
+        TerrainField f2 = new TerrainField("Ocean", 0, Vector.bottomLeft(cardSize()));
+        TerrainField f3 = new TerrainField("Ocean", 0, Vector.topLeft(cardSize()));
+        TerrainField f4 = new TerrainField("Ocean", 0, Vector.topLeft(cardSize()));
+        TerrainField f5 = new TerrainField("Ocean", 0, Vector.topLeft(cardSize()));
+        TerrainField f6 = new TerrainField("Ocean", 0, Vector.top((cardSize())));
+        TerrainField f7 = new TerrainField("Ocean", 0, Vector.top((cardSize())));
+        TerrainField f8 = new TerrainField("Ocean", 0, Vector.top((cardSize())));
+        TerrainField f9 = new TerrainField("Ocean", 0, Vector.topRight((cardSize())));
+        TerrainField f10 = new TerrainField("Ocean", 0, Vector.topRight((cardSize())));
+        TerrainField f11 = new TerrainField("Ocean", 0, Vector.topRight((cardSize())));
+        TerrainField f12 = new TerrainField("Ocean", 0, Vector.bottomRight((cardSize())));
+        TerrainField f13 = new TerrainField("Ocean", 0, Vector.bottomRight((cardSize())));
+        TerrainField f14 = new TerrainField("Ocean", 0, Vector.bottomRight((cardSize())));
+        TerrainField f15 = new TerrainField("Ocean", 0, Vector.bottom((cardSize())));
+        TerrainField f16 = new TerrainField("Ocean", 0, Vector.bottom((cardSize())));
+        TerrainField f17 = new TerrainField("Ocean", 0, Vector.bottomLeft((cardSize())));
 
-        TerrainField f18 = new TerrainField("Forrest", 5, Vector.topRight(cardSize()));
-        s.push(f18);
-        TerrainField f19 = new TerrainField("Farmland", 2, Vector.topRight(cardSize()));
-        s.push(f19);
-        TerrainField f20 = new TerrainField("Forrest", 6, Vector.bottomRight(cardSize()));
-        s.push(f20);
-        TerrainField f21 = new TerrainField("Grassland", 3, Vector.bottomRight(cardSize()));
-        s.push(f21);
-        TerrainField f22 = new TerrainField("Grassland", 8, Vector.bottom(cardSize()));
-        s.push(f22);
-        TerrainField f23 = new TerrainField("Forrest", 10, Vector.bottom(cardSize()));
-        s.push(f23);
-        TerrainField f24 = new TerrainField("Farmland", 9, Vector.bottomLeft(cardSize()));
-        s.push(f24);
-        TerrainField f25 = new TerrainField("Grassland", 12, Vector.bottomLeft(cardSize()));
-        s.push(f25);
-        TerrainField f26 = new TerrainField("Hillside", 11, Vector.topLeft(cardSize()));
-        s.push(f26);
-        TerrainField f27 = new TerrainField("Grassland", 4, Vector.topLeft(cardSize()));
-        s.push(f27);
-        TerrainField f28 = new TerrainField("Hillside", 8, Vector.top(cardSize()));
-        s.push(f28);
-        TerrainField f29 = new TerrainField("Farmland", 10, Vector.topRight(cardSize()));
-        s.push(f29);
-        TerrainField f30 = new TerrainField("Hillside", 9, Vector.topRight(cardSize()));
-        s.push(f30);
-        TerrainField f31 = new TerrainField("Mountain", 4, Vector.bottomRight(cardSize()));
-        s.push(f31);
-        TerrainField f32 = new TerrainField("Farmland", 5, Vector.bottom(cardSize()));
-        s.push(f32);
-        TerrainField f33 = new TerrainField("Mountain", 6, Vector.bottomLeft(cardSize()));
-        s.push(f33);
-        TerrainField f34 = new TerrainField("Forrest", 3, Vector.top(cardSize()));
-        s.push(f34);
-        TerrainField f35 = new TerrainField("Desert", 0, null);
-        s.push(f35);
+        //beginning of landmasses
+        TerrainField f18 = new TerrainField("Forest", 5, Vector.bottomLeft(cardSize()));
+        TerrainField f19 = new TerrainField("Farmland", 2, Vector.bottomLeft(cardSize()));
+        TerrainField f20 = new TerrainField("Forest", 6, Vector.topLeft(cardSize()));
+        TerrainField f21 = new TerrainField("Grassland", 3, Vector.topLeft(cardSize()));
+        TerrainField f22 = new TerrainField("Grassland", 8, Vector.top(cardSize()));
+        TerrainField f23 = new TerrainField("Forest", 10, Vector.top(cardSize()));
+        TerrainField f24 = new TerrainField("Farmland", 9, Vector.topRight(cardSize()));
+        TerrainField f25 = new TerrainField("Grassland", 12, Vector.topRight(cardSize()));
+        TerrainField f26 = new TerrainField("Hillside", 11, Vector.bottomRight(cardSize()));
+        TerrainField f27 = new TerrainField("Grassland", 4, Vector.bottomRight(cardSize()));
+        TerrainField f28 = new TerrainField("Hillside", 8, Vector.bottom(cardSize()));
+        TerrainField f29 = new TerrainField("Farmland", 10, Vector.bottomLeft(cardSize()));
+        TerrainField f30 = new TerrainField("Hillside", 9, Vector.bottomLeft(cardSize()));
+        TerrainField f31 = new TerrainField("Mountain", 4, Vector.topLeft(cardSize()));
+        TerrainField f32 = new TerrainField("Farmland", 5, Vector.top(cardSize()));
+        TerrainField f33 = new TerrainField("Mountain", 6, Vector.topRight(cardSize()));
+        TerrainField f34 = new TerrainField("Forest", 3, Vector.bottomRight(cardSize()));
+        TerrainField f35 = new TerrainField("Mountain", 3, Vector.bottomLeft(cardSize()));
+        TerrainField f36 = new TerrainField("Desert", 0, new Vector(0, 0));
+        f36.setPosition(new Vector(((canvas.getWidth() / 2) - cardSize() / 2), ((canvas.getHeight() / 2)) - cardSize() / 2));
 
-        return s;
+        tempArray = new TerrainField[]{f0, f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, f15, f16, f17, f18, f19, f20, f21, f22, f23, f24, f25, f26, f27, f28, f29, f30, f31, f32, f33, f34, f35, f36};
+
+        for (int i = tempArray.length - 2; i >= 0; i--) { // tempArray.length - 2 because the desertfield (upmost "card") was already positioned, so we dont need to handle it again (index out of bounds when whe try to add tempArray[i+1]...)
+            tempArray[i].setPosition(Vector.addVector(tempArray[i + 1].getPosition(), tempArray[i].getPlacementVector())); //add position of last terrainfield and current placementvector to determine position.
+        }
+        return tempArray;
     }
 
     /**
      * initializes everything that needs to be present before any playeraction
+     *
      * @author pieter vogt
      * @since 24-01-2021
      */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        tStack = getStandardStack(); //in future -> tStack = (some stack send by server);
-
+        tfArray = getStandardDeck(); // In future this should be a deque send by the server.
         draw();
     }
 
     /**
      * The method that actually draws colored stuff to the screen.
      * <p>
-     *     This method draws its items from back to front, meaning backmost items need to be drawn first and so on.
+     * This method draws its items from back to front, meaning backmost items need to be drawn first and so on.
      * </p>
+     *
      * @author pieter vogt
      * @since 24-01-2021
      */
     public void draw() {
-        //preparation
-        Vector lastPosition; //this vector points from the (0,0)-point to the last Terrainfield that was placed.
-        GraphicsContext g = this.canvas.getGraphicsContext2D();
 
+        //preparation
+        GraphicsContext g = this.canvas.getGraphicsContext2D(); //this is the object thats doing the drawing and has all the methods for graphics related stuff.
 
         //paint black background
         g.setFill(Color.BLACK);
         g.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
 
-
-        //draw middle card first for placement-reference of other cards
-        g.setFill(tStack.peek().determineColorOfTerrain()); //determine color of upmost card of stack
-        tStack.peek().setPosition(new Vector(canvas.getWidth() / 2 - (cardSize() / 2), canvas.getHeight() / 2 - (cardSize() / 2))); //Set Position of first Terrainfield
-        g.fillOval(tStack.peek().getPosition().getX(), tStack.peek().getPosition().getY(), cardSize(), cardSize()); //draw circle with given color at given position TODO: implement actual graphics instead of cycles.
-        lastPosition = tStack.peek().getPosition(); //save current position for placement of next card
-        g.fillText(tStack.peek().getName(), lastPosition.getX() + (cardSize() / 2), lastPosition.getY() + (cardSize() / 2));
-        tStack.pop(); //pop current card
-
-
-        //draw other cards
-        for (TerrainField tf : tStack) {
-            g.setFill(tStack.peek().determineColorOfTerrain()); //determine color of upmost card of stack
-            tf.setPosition(Vector.addVector(lastPosition, tf.getPlacementVector())); //Set position of current terrainfield based on predecessor position and placement-vector.
-            g.fillOval(tf.getPosition().getX(), tf.getPosition().getY(), cardSize(), cardSize()); //draw circle with given color at given position
-            lastPosition = tf.getPosition();  //save current position for placement of next card
-            tStack.pop(); //pop current card
+        //draw terrainfields
+        for (int i = tfArray.length - 1; i >= 0; i--) {
+            g.setFill(tfArray[i].determineColorOfTerrain()); //determine color of upmost card of stack
+            g.fillOval(tfArray[i].getPosition().getX(), tfArray[i].getPosition().getY(), cardSize(), cardSize()); //draw circle with given color at given position TODO: This - in combination with the Vector.vector-methods - SHOULD be already scaling with canvassize. If and when a scalable Canvas gets implemented, this should be checked.
         }
     }
-
 }

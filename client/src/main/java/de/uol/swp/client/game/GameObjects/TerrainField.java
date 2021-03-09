@@ -54,19 +54,19 @@ public class TerrainField {
     //methods
 
     /**
-     * determines the color to draw its hostobject
-     * @return the color for the placementobject
+     * determines the color to draw its host-object
+     * @return the color for the host-object
      * @author pieter vogt
      * @since 24-01-2021
      */
     public Color determineColorOfTerrain() {
         Color c;
         switch (this.name) {
-            case "Forrest":
+            case "Forest":
                 c = Color.OLIVEDRAB;
                 break;
             case "Farmland":
-                c = Color.WHEAT;
+                c = Color.GOLDENROD;
                 break;
             case "Grassland":
                 c = Color.LAWNGREEN;
@@ -81,7 +81,7 @@ public class TerrainField {
                 c = Color.DODGERBLUE;
                 break;
             default:
-                c = Color.LIGHTYELLOW;
+                c = Color.BLANCHEDALMOND;
                 break;
         }
         return c;

@@ -28,5 +28,5 @@
          <Button mnemonicParsing="false" onAction="#onLeaveGame" text="Leave Game" />
      </items>
    </ToolBar>
-   <Canvas height="370.0" layoutY="30.0" width="370" />
+   <Canvas fx:id="canvas" height="370.0" layoutY="30.0" width="370" />
 </AnchorPane>
