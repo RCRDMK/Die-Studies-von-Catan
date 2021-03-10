@@ -11,7 +11,7 @@ import javafx.scene.paint.Color;
  */
 public class TerrainField {
 
-    //fields
+    //attributes
     private String name; //Name of the terrain-type this card represents.
     private int diceToken; //you need to roll this with the dice to generate the resources in this terrainfield.
     private Vector position; //the absolute postion in x and y on the playfield.

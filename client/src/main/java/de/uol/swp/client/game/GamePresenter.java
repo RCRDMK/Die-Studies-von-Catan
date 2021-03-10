@@ -97,30 +97,35 @@ public class GamePresenter extends AbstractPresenter implements Initializable {
     TerrainField[] tfArray;
 
     /**
-     * this method holds the size of the terraincards in pixels
+     * This method holds the size of the terrainfields in pixels.
      * <p>
-     * at the moment this function is used to define the width and height of a card because they are treated as a
-     * circle. in future this may be modified to address a potentially scalable canvas. if the canvas gets scalable in
-     * the future, the cardsizes need to scale along for this to be of any use.
+     * The cardsize is not a fixed value, because if the canvas becomes scalabe in a future update, the cards need to
+     * scale with it. So if we start to work with textures, they need to be scaled as well. Slight modifications to this
+     * method can do this.
+     *
+     * @author Pieter Vogt
+     * @since 2021-01-24
      */
 
     public double cardSize() {
-        double d = Math.min(canvas.getHeight(), canvas.getWidth()); //Determine minimum Pixels in height and length of the canvas (we dont want the playfield to scale out of canvas, so we orient at the smaller axis)
-        return d / 8; // divide by 8 because the playfield is 7 cards wide and add 1/2 card each side for margin/borderspace. (looks nicer, trust me)
+        double d = Math.min(canvas.getHeight(), canvas.getWidth()); //Determine minimum pixels in height and length of the canvas (we dont want the playfield to scale out of canvas, so we orient at the smaller axis)
+        return d / 8; // Divide by 8 because the playfield is 7 cards wide and add 1/2 card each side for margin so the cards dont touch the boundaries of the canvas.
     }
 
     /**
-     * Method for generating a stack of terraincards for a standard-ruleset-playfield
+     * Method for generating a stack of terrainfields for a standard-ruleset-playfield.
      *
-     * @return stack of terraincards
-     * @author pieter vogt
-     * @since 24-01-2021
+     * @return Array with TerrainFields in the standard-rulebook manner.
+     * @author Pieter Vogt
+     * @see <a href="https://confluence.swl.informatik.uni-oldenburg.de/display/SWP2020J/SpecCatan_1004+Spielfeld">Specification
+     * 1004</a>
+     * @since 2021-01-24
      */
     public TerrainField[] getStandardDeck() {
 
         TerrainField[] tempArray;
 
-        //Stack of cards get generated in same order as "spielfeld"-finespec in confluence. TODO: This should probably get done by the server in future. Think of this as a test-method wich can be migrated to server later.
+        //Array of cards get generated in same order as "spielfeld"-finespec in confluence. TODO: This should probably get done by the server in future. Think of this as a test-method wich can be migrated to server later.
 
         //beginning of oceans
         TerrainField f0 = new TerrainField("Ocean", 0, Vector.bottomLeft(cardSize()));
@@ -166,17 +171,17 @@ public class GamePresenter extends AbstractPresenter implements Initializable {
 
         tempArray = new TerrainField[]{f0, f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, f15, f16, f17, f18, f19, f20, f21, f22, f23, f24, f25, f26, f27, f28, f29, f30, f31, f32, f33, f34, f35, f36};
 
-        for (int i = tempArray.length - 2; i >= 0; i--) { // tempArray.length - 2 because the desertfield (upmost "card") was already positioned, so we dont need to handle it again (index out of bounds when whe try to add tempArray[i+1]...)
-            tempArray[i].setPosition(Vector.addVector(tempArray[i + 1].getPosition(), tempArray[i].getPlacementVector())); //add position of last terrainfield and current placementvector to determine position.
+        for (int i = tempArray.length - 2; i >= 0; i--) { // TempArray.length - 2 because the desert-field (upmost "card") was already positioned, so we dont need to handle it again (index out of bounds when whe try to add tempArray[i+1]...)
+            tempArray[i].setPosition(Vector.addVector(tempArray[i + 1].getPosition(), tempArray[i].getPlacementVector())); //Add position of last terrainfield and current placement-vector to determine position.
         }
         return tempArray;
     }
 
     /**
-     * initializes everything that needs to be present before any playeraction
+     * Initializes everything that needs to be done before the first player-action takes place.
      *
-     * @author pieter vogt
-     * @since 24-01-2021
+     * @author Pieter Vogt
+     * @since 2021-01-24
      */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -185,27 +190,28 @@ public class GamePresenter extends AbstractPresenter implements Initializable {
     }
 
     /**
-     * The method that actually draws colored stuff to the screen.
+     * The method that actually draws graphical objects to the screen.
      * <p>
-     * This method draws its items from back to front, meaning backmost items need to be drawn first and so on.
+     * This method draws its items from back to front, meaning backmost items need to be drawn first and so on. This is
+     * why the background is drawn first, etc.
      * </p>
      *
-     * @author pieter vogt
-     * @since 24-01-2021
+     * @author Pieter Vogt
+     * @since 2021-01-24
      */
     public void draw() {
 
-        //preparation
-        GraphicsContext g = this.canvas.getGraphicsContext2D(); //this is the object thats doing the drawing and has all the methods for graphics related stuff.
+        //Setup
+        GraphicsContext g = this.canvas.getGraphicsContext2D(); //This is the object that is doing the drawing and has all the graphics related methods.
 
-        //paint black background
+        //Paint black background
         g.setFill(Color.BLACK);
         g.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
 
-        //draw terrainfields
+        //Draw TerrainFields
         for (int i = tfArray.length - 1; i >= 0; i--) {
-            g.setFill(tfArray[i].determineColorOfTerrain()); //determine color of upmost card of stack
-            g.fillOval(tfArray[i].getPosition().getX(), tfArray[i].getPosition().getY(), cardSize(), cardSize()); //draw circle with given color at given position TODO: This - in combination with the Vector.vector-methods - SHOULD be already scaling with canvassize. If and when a scalable Canvas gets implemented, this should be checked.
+            g.setFill(tfArray[i].determineColorOfTerrain()); //Determine draw-color of current Terrainfield.
+            g.fillOval(tfArray[i].getPosition().getX(), tfArray[i].getPosition().getY(), cardSize(), cardSize()); //Draw circle with given color at given position TODO: This - in combination with the Vector.vector-methods - SHOULD be already scaling with canvassize. If and when a scalable Canvas gets implemented, this should be checked.
         }
     }
 }
