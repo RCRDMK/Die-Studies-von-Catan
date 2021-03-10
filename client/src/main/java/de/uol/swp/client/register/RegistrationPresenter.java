@@ -13,6 +13,9 @@ import javafx.fxml.FXML;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+
 /**
  * Manages the registration window
  *
@@ -101,7 +104,7 @@ public class RegistrationPresenter extends AbstractPresenter {
      * @since 2021-01-15
      */
     @FXML
-    void onRegisterButtonPressed(ActionEvent event) {
+    void onRegisterButtonPressed(ActionEvent event) throws InvalidKeySpecException, NoSuchAlgorithmException {
         if (Strings.isNullOrEmpty(loginField.getText())){
             eventBus.post(new RegistrationErrorEvent("Username cannot be empty"));
         } else if (!passwordField1.getText().equals(passwordField2.getText())) {
