@@ -147,22 +147,15 @@ public class GamePresenter extends AbstractPresenter {
      */
     @FXML
     public void onLeaveGame(ActionEvent event) {
-        if (this.currentLobby != null && this.joinedLobbyUser != null) {
-            gameService.leaveGame(this.currentLobby, this.joinedLobbyUser);
-        } else if (this.currentLobby == null && this.joinedLobbyUser != null) {
-            throw new GamePresenterException("Name der jetzigen Lobby ist nicht vorhanden!");
-        } else {
-            throw new GamePresenterException("Der jetzige User ist nicht vorhanden");
-        }
-
 
         if (this.currentLobby != null && this.joinedLobbyUser != null) {
             lobbyService.leaveLobby(this.currentLobby, (UserDTO) this.joinedLobbyUser);
+            gameService.leaveGame(this.currentLobby, this.joinedLobbyUser);
         }
         else if (this.currentLobby == null && this.joinedLobbyUser != null) {
-            throw new GamePresenterException("Name der jetzigen Lobby ist nicht vorhanden!");
+            throw new GamePresenterException("Name of the current Lobby is not available!");
         } else {
-            throw new GamePresenterException("Der jetzige User ist nicht vorhanden");
+            throw new GamePresenterException("User of the current Lobby is not available");
         }
     }
 
