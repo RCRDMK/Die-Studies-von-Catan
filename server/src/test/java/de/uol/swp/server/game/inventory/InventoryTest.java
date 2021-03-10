@@ -18,7 +18,9 @@ public class InventoryTest {
     HashMap privateInventory = inventory.getPrivateView();
     HashMap publicInventory = inventory.getPublicView();
 
-    //This test analyzes the Private Inventory View
+    /**
+     * This test analyzes the Private Inventory View
+     */
     @Test
     void onGetPrivateView() {
         assertTrue(privateInventory instanceof HashMap);
@@ -46,7 +48,9 @@ public class InventoryTest {
         assertEquals(privateInventory.get("Victory Points"), 0);
     }
 
-    //This test analyzes the Public Inventory View
+    /**
+     * This test analyzes the Public Inventory View
+     */
     @Test
     void onGetPublicView() {
         assertTrue(publicInventory instanceof HashMap);
@@ -60,18 +64,20 @@ public class InventoryTest {
         assertEquals(publicInventory.get("Public Victory Points"), 0);
     }
 
-    //Incrementer Test
+    /**
+     * Incrementer Test
+     */
     @Test
     void onIncNumber() {
 
-        // Resource Cards
+        // Resource Cards inc
         inventory.lumber.incNumber();
         inventory.brick.incNumber();
         inventory.grain.incNumber();
         inventory.wool.incNumber();
         inventory.ore.incNumber();
 
-        // Development Cards
+        // Development Cards inc
         inventory.cardKnight.incNumber();
         inventory.cardMonopoly.incNumber();
         inventory.cardRoadBuilding.incNumber();
@@ -105,31 +111,33 @@ public class InventoryTest {
         assertEquals(publicInventory.get("Public Victory Points"), 0);
     }
 
-    //Incrementer with number Test
+    /**
+     * Incrementer with number Test
+     */
     @Test
     void onIncNumberWithNumber() {
 
-        // Resource Cards
+        // Resource Cards inc
         inventory.lumber.incNumber();
         inventory.brick.incNumber();
         inventory.grain.incNumber();
         inventory.wool.incNumber();
         inventory.ore.incNumber();
 
-        // Development Cards
+        // Development Cards inc
         inventory.cardKnight.incNumber();
         inventory.cardMonopoly.incNumber();
         inventory.cardRoadBuilding.incNumber();
         inventory.cardYearOfPlenty.incNumber();
 
-        // Resource Cards
+        // Resource Cards inc with number
         inventory.lumber.incNumber(5);
         inventory.brick.incNumber(5);
         inventory.grain.incNumber(5);
         inventory.wool.incNumber(5);
         inventory.ore.incNumber(5);
 
-        // Development Cards
+        // Development Cards inc with number
         inventory.cardKnight.incNumber(5);
         inventory.cardMonopoly.incNumber(5);
         inventory.cardRoadBuilding.incNumber(5);
@@ -162,37 +170,39 @@ public class InventoryTest {
         assertEquals(publicInventory.get("Public Victory Points"), 0);
     }
 
-    //Decrementer Test
+    /**
+     * Decrementer Test
+     */
     @Test
     void onDecNumber() {
 
-        // Resource Cards
+        // Resource Cards inc
         inventory.lumber.incNumber();
         inventory.brick.incNumber();
         inventory.grain.incNumber();
         inventory.wool.incNumber();
         inventory.ore.incNumber();
 
-        // Development Cards
+        // Development Cards inc
         inventory.cardKnight.incNumber();
         inventory.cardMonopoly.incNumber();
         inventory.cardRoadBuilding.incNumber();
         inventory.cardYearOfPlenty.incNumber();
 
-        // Resource Cards
+        // Resource Cards dec
         inventory.lumber.decNumber();
         inventory.brick.decNumber();
         inventory.grain.decNumber();
         inventory.wool.decNumber();
         inventory.ore.decNumber();
 
-        // Development Cards
+        // Development Cards dec
         inventory.cardKnight.decNumber();
         inventory.cardMonopoly.decNumber();
         inventory.cardRoadBuilding.decNumber();
         inventory.cardYearOfPlenty.decNumber();
 
-        // Building Units
+        // Building Units dec
         inventory.city.decNumber();
         inventory.road.decNumber();
         inventory.settlement.decNumber();
@@ -224,31 +234,33 @@ public class InventoryTest {
         assertEquals(publicInventory.get("Public Victory Points"), 0);
     }
 
-    //Decrementer with number Test
+    /**
+     * Decrementer with number Test
+     */
     @Test
     void onDncNumberWithNumber() {
 
-        // Resource Cards
+        // Resource Cards inc
         inventory.lumber.incNumber(5);
         inventory.brick.incNumber(5);
         inventory.grain.incNumber(5);
         inventory.wool.incNumber(5);
         inventory.ore.incNumber(5);
 
-        // Development Cards
+        // Development Cards inc
         inventory.cardKnight.incNumber(5);
         inventory.cardMonopoly.incNumber(5);
         inventory.cardRoadBuilding.incNumber(5);
         inventory.cardYearOfPlenty.incNumber(5);
 
-        // Resource Cards
+        // Resource Cards dec
         inventory.lumber.decNumber(3);
         inventory.brick.decNumber(3);
         inventory.grain.decNumber(3);
         inventory.wool.decNumber(3);
         inventory.ore.decNumber(3);
 
-        // Development Cards
+        // Development Cards dec
         inventory.cardKnight.decNumber(3);
         inventory.cardMonopoly.decNumber(3);
         inventory.cardRoadBuilding.decNumber(3);
