@@ -20,6 +20,12 @@ public class InventoryTest {
 
     /**
      * This test analyzes the Private Inventory View
+     * <p>
+     * It examines whether the Private Inventory View
+     * is instance of a HashMap and analyzes their content.
+     *
+     * @author Anton
+     * @since 2021-03-08
      */
     @Test
     void onGetPrivateView() {
@@ -50,6 +56,12 @@ public class InventoryTest {
 
     /**
      * This test analyzes the Public Inventory View
+     * <p>
+     * It examines whether the Public Inventory View
+     * is instance of a HashMap and analyzes their content.
+     *
+     * @author Anton
+     * @since 2021-03-08
      */
     @Test
     void onGetPublicView() {
@@ -66,6 +78,11 @@ public class InventoryTest {
 
     /**
      * Incrementer Test
+     * <p>
+     * Increment the number of the cards and analyzes the HashMap
+     *
+     * @author Anton
+     * @since 2021-03-08
      */
     @Test
     void onIncNumber() {
@@ -83,6 +100,9 @@ public class InventoryTest {
         inventory.cardRoadBuilding.incNumber();
         inventory.cardYearOfPlenty.incNumber();
         inventory.incCardVictoryPoint();
+
+        // Building Unit inc
+        inventory.settlement.incNumber();
 
         // Inventory analysis
         privateInventory = inventory.getPrivateView();
@@ -113,6 +133,12 @@ public class InventoryTest {
 
     /**
      * Incrementer with number Test
+     * <p>
+     * Increment the number of the cards than
+     * increment they 5 times again and analyzes the HashMap
+     *
+     * @author Anton
+     * @since 2021-03-08
      */
     @Test
     void onIncNumberWithNumber() {
@@ -172,6 +198,12 @@ public class InventoryTest {
 
     /**
      * Decrementer Test
+     * <p>
+     * Increment the number of the cards than
+     * decrement they and the Building Units and analyzes the HashMap
+     *
+     * @author Anton
+     * @since 2021-03-08
      */
     @Test
     void onDecNumber() {
@@ -236,6 +268,12 @@ public class InventoryTest {
 
     /**
      * Decrementer with number Test
+     * <p>
+     * Increment the number of the cards 5 times than
+     * decrement they 3 times and analyzes the HashMap
+     *
+     * @author Anton
+     * @since 2021-03-08
      */
     @Test
     void onDncNumberWithNumber() {
