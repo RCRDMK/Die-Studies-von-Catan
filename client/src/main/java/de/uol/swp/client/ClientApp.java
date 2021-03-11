@@ -65,7 +65,7 @@ public class ClientApp extends Application implements ConnectionListener {
 
         if (args.size() != 2) {
             host = "localhost";
-            port = 8889;
+            port = 50100;
             System.err.println("Usage: " + ClientConnection.class.getSimpleName() + " host port");
             System.err.println("Using default port " + port + " on " + host);
         } else {
@@ -167,7 +167,7 @@ public class ClientApp extends Application implements ConnectionListener {
      * If an LobbyCreatedSuccessful object is detected on the EventBus this
      * method is called. It tells the SceneManager to show the lobby menu and sets
      * this clients user to the user found in the object. If the loglevel is set
-     * to DEBUG or higher "user created lobby " and the username of the
+     * to DEBUG or higher "user created lobby" and the username of the
      * logged in user are written to the log.
      *
      * @param message The LobbyCreatedMessage object detected on the EventBus

@@ -1,4 +1,5 @@
 package de.uol.swp.common.game.message;
+import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 
 /**
