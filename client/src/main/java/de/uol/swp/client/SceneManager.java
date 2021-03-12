@@ -30,6 +30,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
 import java.net.URL;
 
 /**
@@ -56,8 +57,9 @@ public class SceneManager {
     private VBox vBox;
     private Scene tabScene;
     private Scene nextLobbyScene;
+    private Scene nextGameScene;
     private final Injector injector;
-    private TabPane tabPane;
+    private TabPane tabPane = new TabPane();
     private TabHelper tabHelper;
     private Scene userSettingsScene;
 
@@ -73,23 +75,23 @@ public class SceneManager {
      * Subroutine to initialize all views
      * <p>
      * This is a subroutine of the constructor to initialize all views, as well as creating the TabPane
+     *
      * enhanced by Alexander Losse and Marc Hermes - 2021-01-20
+     *
      * @author Marco Grawunder
      * @since 2019-09-03
      */
     private void initViews() {
+        this.tabHelper = new TabHelper(this.tabPane);
+        vBox = new VBox(tabHelper.getTabPane());
+        tabScene = new Scene(vBox);
         initLoginView();
         initMainView();
         initRegistrationView();
         initGameView();
         initUserSettingsView();
         nextLobbyScene = initLobbyView();
-        TabPane tabPane = new TabPane();
-        this.tabPane = tabPane;
-        this.tabHelper = new TabHelper(this.tabPane);
-        vBox = new VBox(tabHelper.getTabPane());
-        tabScene = new Scene(vBox);
-
+        nextGameScene = initGameView();
     }
 
     /**
@@ -125,6 +127,7 @@ public class SceneManager {
      * If the mainScene is null it gets set to a new scene containing the
      * a pane showing the main menu view as specified by the MainMenuView
      * FXML file. ALso a mainMenuTab is created which cannot be closed.
+     * This mainMenuTab is then added to the tabPane.
      *
      * enhanced by Alexander Losse and Marc Hermes - 2021-01-20
      *
@@ -139,6 +142,10 @@ public class SceneManager {
             mainScene.getStylesheets().add(styleSheet);
             mainMenuTab = new Tab("Main Menu");
             mainMenuTab.setClosable(false);
+            mainMenuTab.setContent(mainScene.getRoot());
+            Platform.runLater(() ->
+                tabHelper.getTabPane().getTabs().add(mainMenuTab)
+            );
         }
     }
 
@@ -195,7 +202,7 @@ public class SceneManager {
             Parent rootPane = initPresenter(LobbyPresenter.fxml);
             lobbyScene = new Scene(rootPane, 800, 600);
             lobbyScene.getStylesheets().add(styleSheet);
-        return lobbyScene;
+            return lobbyScene;
     }
 
     /**
@@ -209,13 +216,11 @@ public class SceneManager {
      * @author Kirstin Beyer
      * @since 2021-01-14
      */
-
-    private void initGameView() {
-        if (gameScene == null) {
+    private Scene initGameView() {
             Parent rootPane = initPresenter(GamePresenter.fxml);
             gameScene = new Scene(rootPane, 800, 600);
             gameScene.getStylesheets().add(styleSheet);
-        }
+            return gameScene;
     }
 
     /**
@@ -429,7 +434,7 @@ public class SceneManager {
     /**
      * Shows the main menu
      * <p>
-     * Invoked the Method showMainTab instead of switching the Scene to the MainScene
+     * Invokes the Method showMainTab instead of switching the Scene to the MainScene
      *
      * enhanced by Alexander Losse and Marc Hermes - 2021-01-20
      *
@@ -444,8 +449,7 @@ public class SceneManager {
     /**
      * Shows the main menu tab
      * <p>
-     * This method will set the content of the mainMenuTab to that of the view of the mainScene
-     * Also the mainMenuTab is added to the TabPane and the tabScene is shown on the primary stage.
+     * The tabScene is shown on the primary stage and it's name is set to Catan.
      *
      * @author Alexander Losse, Marc Hermes
      * @since 2021-01-20
@@ -519,6 +523,7 @@ public class SceneManager {
      * The content of the new lobby tab is set to the root of the currently empty nextLobbyScene
      * The lobby tab is then added to the TabPane.
      * Afterwards a new empty nextLobbyScene is created, for the next usage of this method.
+     * Also the new Tab is shown immediately
      *
      * @param lobbyname the name of the lobby for which a tab is created
      * @author Alexander Losse, Marc Hermes
@@ -530,6 +535,7 @@ public class SceneManager {
         lobbyTab.setClosable(false);
         Platform.runLater(() -> {
             tabHelper.addTab(lobbyTab);
+            tabHelper.getTabPane().getSelectionModel().select(lobbyTab);
         });
         nextLobbyScene = initLobbyView();
     }
@@ -552,13 +558,53 @@ public class SceneManager {
     /**
      * Shows the game screen
      * <p>
-     * Switches the current Scene to the gameScene and sets the title of
-     * the window to "Game"
+     * This method invokes the newGameTab() method resulting in the creation of a new game tab
+     *
      * @author Kirstin Beyer
      * @since 2021-01-14
      */
-    public void showGameScreen(User currentUser, String lobbyname) {
-        showScene(gameScene, "Game " + lobbyname );
+    public void showGameScreen(User currentUser, String gamename) {
+        newGameTab(currentUser, gamename);
+    }
+
+    /**
+     * Creates a new game tab
+     *
+     * When this method is invoked a new game tab with a specific name is created.
+     * The content of the new game tab is set to the root of the currently empty nextGameScene
+     * The game tab is then added to the TabPane.
+     * Afterwards a new empty nextGameScene is created, for the next usage of this method.
+     * Also the new Tab is shown immediately
+     *
+     * @param gamename the name of the game for which a tab is created
+     * @author Marc Hermes
+     * @since 2021-01-21
+     */
+    public void newGameTab(User currentUser, String gamename) {
+        Tab gameTab = new Tab("Game " + gamename);
+        gameTab.setContent(nextGameScene.getRoot());
+        gameTab.setClosable(false);
+        Platform.runLater(() -> {
+            tabHelper.addTab(gameTab);
+            tabHelper.getTabPane().getSelectionModel().select(gameTab);
+        });
+        nextGameScene = initGameView();
+    }
+
+    /**
+     * Removes an old game tab
+     *
+     * When this method is invoked a game tab with a specific name is removed from
+     * the TabPane.
+     *
+     * @param gamename the name of the game that corresponds to the tab that is to be deleted
+     * @author Marc Hermes
+     * @since 2021-01-21
+     */
+    public void removeGameTab(User currentUser, String gamename) {
+        Platform.runLater(() -> {
+            tabHelper.removeTab("Game " + gamename);
+        });
     }
 
 }
