@@ -5,21 +5,17 @@ import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
 import de.uol.swp.client.game.GameObjects.TerrainField;
 import de.uol.swp.client.game.HelperObjects.Vector;
-import de.uol.swp.common.game.Gamefield;
+import de.uol.swp.common.game.GameField;
 import de.uol.swp.common.game.TerrainFieldContainer;
 import de.uol.swp.common.game.message.GameCreatedMessage;
 import de.uol.swp.common.user.User;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import java.net.URL;
-import java.util.ResourceBundle;
 
 /**
  * Manages the GameView
@@ -41,10 +37,13 @@ public class GamePresenter extends AbstractPresenter {
 
     private String currentLobby;
 
+    //Container for Terrainfields
+    private TerrainField[] tfArray;
+
     @Inject
     private GameService gameService;
     @FXML
-    private Canvas canvas = new Canvas();
+    private final Canvas canvas = new Canvas();
 
     /**
      * Method called when the RollDice button is pressed
@@ -96,9 +95,6 @@ public class GamePresenter extends AbstractPresenter {
     public void onLeaveGame(ActionEvent event) {
         //TODO:...
     }
-
-    //Container for Terrainfields
-    TerrainField[] tfArray;
 
     /**
      * This method holds the size of the terrainfields in pixels.
@@ -182,18 +178,6 @@ public class GamePresenter extends AbstractPresenter {
     }
 
     /**
-     * Initializes everything that needs to be done before the first player-action takes place.
-     *
-     * @author Pieter Vogt
-     * @since 2021-01-24
-     */
-    /*@Override
-    public void initialize(URL location, ResourceBundle resources) {
-        tfArray = getStandardDeck(); // In future this should be a deque send by the server.
-        draw();
-    }*/
-
-    /**
      * The method that actually draws graphical objects to the screen.
      * <p>
      * This method draws its items from back to front, meaning backmost items need to be drawn first and so on. This is
@@ -221,46 +205,44 @@ public class GamePresenter extends AbstractPresenter {
 
     @Subscribe
     public void onGameCreatedMessage(GameCreatedMessage gcm) {
-        onGameCreatedMessageLogic(gcm);
+        gameCreatedMessageLogic(gcm);
     }
 
-    public void onGameCreatedMessageLogic(GameCreatedMessage gcm) {
+    public void gameCreatedMessageLogic(GameCreatedMessage gcm) {
         initializeGameField(gcm.getGamefield());
     }
 
-    private void initializeGameField(Gamefield gamefield) {
+    public void initializeGameField(GameField gamefield) {
         tfArray = getCorrectPositionsOfFields();
-        TerrainFieldContainer[] terrainfieldcontainers = gamefield.gettFCs();
-        for (int i = 0; i < terrainfieldcontainers.length; i++) {
-            tfArray[i].setDiceToken(terrainfieldcontainers[i].getDiceTokens());
-            int fieldtype = terrainfieldcontainers[i].getFieldType();
-            String translatedFieldtype = "";
-            switch(fieldtype) {
+        TerrainFieldContainer[] terrainFieldContainers = gamefield.getTFCs();
+        for (int i = 0; i < terrainFieldContainers.length; i++) {
+            tfArray[i].setDiceToken(terrainFieldContainers[i].getDiceTokens());
+            int fieldType = terrainFieldContainers[i].getFieldType();
+            String translatedFieldType;
+            switch(fieldType) {
                 case 0:
-                    translatedFieldtype = "Ocean";
+                    translatedFieldType = "Ocean";
                     break;
                 case 1:
-                    translatedFieldtype = "Forest";
+                    translatedFieldType = "Forest";
                     break;
                 case 2:
-                    translatedFieldtype = "Farmland";
+                    translatedFieldType = "Farmland";
                     break;
                 case 3:
-                    translatedFieldtype = "Grassland";
+                    translatedFieldType = "Grassland";
                     break;
                 case 4:
-                    translatedFieldtype = "Hillside";
+                    translatedFieldType = "Hillside";
                     break;
                 case 5:
-                    translatedFieldtype = "Mountain";
-                    break;
-                case 6:
-                    translatedFieldtype = "Desert";
+                    translatedFieldType = "Mountain";
                     break;
                 default:
+                    translatedFieldType = "Desert";
                     break;
             }
-            tfArray[i].setName(translatedFieldtype);
+            tfArray[i].setName(translatedFieldType);
         }
         draw();
     }

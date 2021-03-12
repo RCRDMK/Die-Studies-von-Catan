@@ -4,8 +4,8 @@ import java.io.Serializable;
 
 public class TerrainFieldContainer implements Serializable {
 
-    public int fieldType = 0;
-    public int diceTokens = 0;
+    public int fieldType;
+    public int diceTokens;
     public BuildingSpot[] buildingSpots = new BuildingSpot[12];
 
     public TerrainFieldContainer(int fieldType, int diceTokens) {

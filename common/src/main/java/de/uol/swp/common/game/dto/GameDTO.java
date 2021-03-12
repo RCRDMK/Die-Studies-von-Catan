@@ -1,7 +1,7 @@
 package de.uol.swp.common.game.dto;
 
 import de.uol.swp.common.game.Game;
-import de.uol.swp.common.game.Gamefield;
+import de.uol.swp.common.game.GameField;
 import de.uol.swp.common.user.User;
 
 import java.util.Collections;
@@ -23,7 +23,7 @@ public class GameDTO implements Game {
     private final String name;
     private User owner;
     private final Set<User> users = new TreeSet<>();
-    private Gamefield gamefield;
+    private GameField gamefield;
 
 
     /**
@@ -82,12 +82,12 @@ public class GameDTO implements Game {
     }
 
     @Override
-    public Gamefield getGamefield() {
+    public GameField getGamefield() {
         return gamefield;
     }
 
     @Override
-    public void setGamefield(Gamefield gamefield) {
+    public void setGamefield(GameField gamefield) {
         this.gamefield = gamefield;
     }
 }

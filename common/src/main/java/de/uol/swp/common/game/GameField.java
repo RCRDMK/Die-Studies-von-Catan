@@ -2,14 +2,12 @@ package de.uol.swp.common.game;
 
 import java.io.Serializable;
 
-public class Gamefield implements Serializable {
+public class GameField implements Serializable {
 
 private TerrainFieldContainer[] tFCs = new TerrainFieldContainer[37];
 
-public Gamefield(){}
 
-public Gamefield(int variant) {
-    if (variant == 0) {
+public GameField() {
         TerrainFieldContainer[] tempArray = new TerrainFieldContainer[37];
         //"Ocean" = 0; "Forest" = 1; "Farmland" = 2; "Grassland" = 3; "Hillside" = 4; "Mountain" = 5; "Desert" = 6;
 
@@ -42,13 +40,10 @@ public Gamefield(int variant) {
         this.tFCs = tempArray;
     }
 
-    else if (variant > 0) {
         //TODO implementiere andere Spielfelder
-    }
 
-}
 
-    public TerrainFieldContainer[] gettFCs() {
+    public TerrainFieldContainer[] getTFCs() {
         return tFCs;
     }
 

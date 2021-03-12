@@ -17,13 +17,11 @@ public class TerrainField {
     private Vector position; //the absolute postion in x and y on the playfield.
     private final Vector placementVector; //this is a relative vector that determines the direction to the card wich was placed before this one.
 
-    //constructor
 
     public TerrainField(Vector placementVector) {
         this.placementVector = placementVector;
     }
 
-    //getter + setter
 
     public String getName() {
         return name;
@@ -50,8 +48,6 @@ public class TerrainField {
     public Vector getPlacementVector() {
         return placementVector;
     }
-
-    //methods
 
     /**
      * determines the color to draw its host-object

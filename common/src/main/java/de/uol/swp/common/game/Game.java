@@ -65,8 +65,8 @@ public interface Game extends Serializable {
      */
     Set<User> getUsers();
 
-    Gamefield getGamefield();
+    GameField getGamefield();
 
-    void setGamefield(Gamefield gamefield);
+    void setGamefield(GameField gamefield);
 
 }
