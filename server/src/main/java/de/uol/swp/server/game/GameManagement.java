@@ -1,6 +1,8 @@
 package de.uol.swp.server.game;
 
 
+import de.uol.swp.common.game.Gamefield;
+import de.uol.swp.common.game.TerrainFieldContainer;
 import de.uol.swp.common.game.dto.GameDTO;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.user.User;
@@ -35,7 +37,9 @@ public class GameManagement extends AbstractGameManagement {
      */
     @Override
     public void createGame(String name, User owner) {
-        games.put(name, new GameDTO(name, owner));
+        GameDTO game = new GameDTO(name, owner);
+        game.setGamefield(new Gamefield(0));
+        games.put(name, game);
     }
 
     /**
@@ -86,4 +90,5 @@ public class GameManagement extends AbstractGameManagement {
     public Map<String, Game> getAllGames() {
         return games;
     }
+
 }

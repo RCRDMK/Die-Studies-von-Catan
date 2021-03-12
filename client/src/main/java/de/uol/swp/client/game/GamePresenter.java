@@ -1,9 +1,13 @@
 package de.uol.swp.client.game;
 
+import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
 import de.uol.swp.client.game.GameObjects.TerrainField;
 import de.uol.swp.client.game.HelperObjects.Vector;
+import de.uol.swp.common.game.Gamefield;
+import de.uol.swp.common.game.TerrainFieldContainer;
+import de.uol.swp.common.game.message.GameCreatedMessage;
 import de.uol.swp.common.user.User;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -27,7 +31,7 @@ import java.util.ResourceBundle;
  * @since 2021-01-13
  */
 
-public class GamePresenter extends AbstractPresenter implements Initializable {
+public class GamePresenter extends AbstractPresenter {
 
     public static final String fxml = "/fxml/GameView.fxml";
 
@@ -121,52 +125,52 @@ public class GamePresenter extends AbstractPresenter implements Initializable {
      * 1004</a>
      * @since 2021-01-24
      */
-    public TerrainField[] getStandardDeck() {
+    public TerrainField[] getCorrectPositionsOfFields() {
 
         TerrainField[] tempArray;
 
         //Array of cards get generated in same order as "spielfeld"-finespec in confluence. TODO: This should probably get done by the server in future. Think of this as a test-method wich can be migrated to server later.
 
         //beginning of oceans
-        TerrainField f0 = new TerrainField("Ocean", 0, Vector.bottomLeft(cardSize()));
-        TerrainField f1 = new TerrainField("Ocean", 0, Vector.bottomLeft(cardSize()));
-        TerrainField f2 = new TerrainField("Ocean", 0, Vector.bottomLeft(cardSize()));
-        TerrainField f3 = new TerrainField("Ocean", 0, Vector.topLeft(cardSize()));
-        TerrainField f4 = new TerrainField("Ocean", 0, Vector.topLeft(cardSize()));
-        TerrainField f5 = new TerrainField("Ocean", 0, Vector.topLeft(cardSize()));
-        TerrainField f6 = new TerrainField("Ocean", 0, Vector.top((cardSize())));
-        TerrainField f7 = new TerrainField("Ocean", 0, Vector.top((cardSize())));
-        TerrainField f8 = new TerrainField("Ocean", 0, Vector.top((cardSize())));
-        TerrainField f9 = new TerrainField("Ocean", 0, Vector.topRight((cardSize())));
-        TerrainField f10 = new TerrainField("Ocean", 0, Vector.topRight((cardSize())));
-        TerrainField f11 = new TerrainField("Ocean", 0, Vector.topRight((cardSize())));
-        TerrainField f12 = new TerrainField("Ocean", 0, Vector.bottomRight((cardSize())));
-        TerrainField f13 = new TerrainField("Ocean", 0, Vector.bottomRight((cardSize())));
-        TerrainField f14 = new TerrainField("Ocean", 0, Vector.bottomRight((cardSize())));
-        TerrainField f15 = new TerrainField("Ocean", 0, Vector.bottom((cardSize())));
-        TerrainField f16 = new TerrainField("Ocean", 0, Vector.bottom((cardSize())));
-        TerrainField f17 = new TerrainField("Ocean", 0, Vector.bottomLeft((cardSize())));
+        TerrainField f0 = new TerrainField(Vector.bottomLeft(cardSize()));
+        TerrainField f1 = new TerrainField(Vector.bottomLeft(cardSize()));
+        TerrainField f2 = new TerrainField(Vector.bottomLeft(cardSize()));
+        TerrainField f3 = new TerrainField(Vector.topLeft(cardSize()));
+        TerrainField f4 = new TerrainField(Vector.topLeft(cardSize()));
+        TerrainField f5 = new TerrainField(Vector.topLeft(cardSize()));
+        TerrainField f6 = new TerrainField(Vector.top((cardSize())));
+        TerrainField f7 = new TerrainField(Vector.top((cardSize())));
+        TerrainField f8 = new TerrainField(Vector.top((cardSize())));
+        TerrainField f9 = new TerrainField(Vector.topRight((cardSize())));
+        TerrainField f10 = new TerrainField(Vector.topRight((cardSize())));
+        TerrainField f11 = new TerrainField(Vector.topRight((cardSize())));
+        TerrainField f12 = new TerrainField(Vector.bottomRight((cardSize())));
+        TerrainField f13 = new TerrainField(Vector.bottomRight((cardSize())));
+        TerrainField f14 = new TerrainField(Vector.bottomRight((cardSize())));
+        TerrainField f15 = new TerrainField(Vector.bottom((cardSize())));
+        TerrainField f16 = new TerrainField(Vector.bottom((cardSize())));
+        TerrainField f17 = new TerrainField(Vector.bottomLeft((cardSize())));
 
         //beginning of landmasses
-        TerrainField f18 = new TerrainField("Forest", 5, Vector.bottomLeft(cardSize()));
-        TerrainField f19 = new TerrainField("Farmland", 2, Vector.bottomLeft(cardSize()));
-        TerrainField f20 = new TerrainField("Forest", 6, Vector.topLeft(cardSize()));
-        TerrainField f21 = new TerrainField("Grassland", 3, Vector.topLeft(cardSize()));
-        TerrainField f22 = new TerrainField("Grassland", 8, Vector.top(cardSize()));
-        TerrainField f23 = new TerrainField("Forest", 10, Vector.top(cardSize()));
-        TerrainField f24 = new TerrainField("Farmland", 9, Vector.topRight(cardSize()));
-        TerrainField f25 = new TerrainField("Grassland", 12, Vector.topRight(cardSize()));
-        TerrainField f26 = new TerrainField("Hillside", 11, Vector.bottomRight(cardSize()));
-        TerrainField f27 = new TerrainField("Grassland", 4, Vector.bottomRight(cardSize()));
-        TerrainField f28 = new TerrainField("Hillside", 8, Vector.bottom(cardSize()));
-        TerrainField f29 = new TerrainField("Farmland", 10, Vector.bottomLeft(cardSize()));
-        TerrainField f30 = new TerrainField("Hillside", 9, Vector.bottomLeft(cardSize()));
-        TerrainField f31 = new TerrainField("Mountain", 4, Vector.topLeft(cardSize()));
-        TerrainField f32 = new TerrainField("Farmland", 5, Vector.top(cardSize()));
-        TerrainField f33 = new TerrainField("Mountain", 6, Vector.topRight(cardSize()));
-        TerrainField f34 = new TerrainField("Forest", 3, Vector.bottomRight(cardSize()));
-        TerrainField f35 = new TerrainField("Mountain", 3, Vector.bottomLeft(cardSize()));
-        TerrainField f36 = new TerrainField("Desert", 0, new Vector(0, 0));
+        TerrainField f18 = new TerrainField(Vector.bottomLeft(cardSize()));
+        TerrainField f19 = new TerrainField(Vector.bottomLeft(cardSize()));
+        TerrainField f20 = new TerrainField(Vector.topLeft(cardSize()));
+        TerrainField f21 = new TerrainField(Vector.topLeft(cardSize()));
+        TerrainField f22 = new TerrainField(Vector.top(cardSize()));
+        TerrainField f23 = new TerrainField(Vector.top(cardSize()));
+        TerrainField f24 = new TerrainField(Vector.topRight(cardSize()));
+        TerrainField f25 = new TerrainField(Vector.topRight(cardSize()));
+        TerrainField f26 = new TerrainField(Vector.bottomRight(cardSize()));
+        TerrainField f27 = new TerrainField(Vector.bottomRight(cardSize()));
+        TerrainField f28 = new TerrainField(Vector.bottom(cardSize()));
+        TerrainField f29 = new TerrainField(Vector.bottomLeft(cardSize()));
+        TerrainField f30 = new TerrainField(Vector.bottomLeft(cardSize()));
+        TerrainField f31 = new TerrainField(Vector.topLeft(cardSize()));
+        TerrainField f32 = new TerrainField(Vector.top(cardSize()));
+        TerrainField f33 = new TerrainField(Vector.topRight(cardSize()));
+        TerrainField f34 = new TerrainField(Vector.bottomRight(cardSize()));
+        TerrainField f35 = new TerrainField(Vector.bottomLeft(cardSize()));
+        TerrainField f36 = new TerrainField( new Vector(0, 0));
         f36.setPosition(new Vector(((canvas.getWidth() / 2) - cardSize() / 2), ((canvas.getHeight() / 2)) - cardSize() / 2));
 
         tempArray = new TerrainField[]{f0, f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, f15, f16, f17, f18, f19, f20, f21, f22, f23, f24, f25, f26, f27, f28, f29, f30, f31, f32, f33, f34, f35, f36};
@@ -183,11 +187,11 @@ public class GamePresenter extends AbstractPresenter implements Initializable {
      * @author Pieter Vogt
      * @since 2021-01-24
      */
-    @Override
+    /*@Override
     public void initialize(URL location, ResourceBundle resources) {
         tfArray = getStandardDeck(); // In future this should be a deque send by the server.
         draw();
-    }
+    }*/
 
     /**
      * The method that actually draws graphical objects to the screen.
@@ -213,5 +217,51 @@ public class GamePresenter extends AbstractPresenter implements Initializable {
             g.setFill(tfArray[i].determineColorOfTerrain()); //Determine draw-color of current Terrainfield.
             g.fillOval(tfArray[i].getPosition().getX(), tfArray[i].getPosition().getY(), cardSize(), cardSize()); //Draw circle with given color at given position TODO: This - in combination with the Vector.vector-methods - SHOULD be already scaling with canvassize. If and when a scalable Canvas gets implemented, this should be checked.
         }
+    }
+
+    @Subscribe
+    public void onGameCreatedMessage(GameCreatedMessage gcm) {
+        onGameCreatedMessageLogic(gcm);
+    }
+
+    public void onGameCreatedMessageLogic(GameCreatedMessage gcm) {
+        initializeGameField(gcm.getGamefield());
+    }
+
+    private void initializeGameField(Gamefield gamefield) {
+        tfArray = getCorrectPositionsOfFields();
+        TerrainFieldContainer[] terrainfieldcontainers = gamefield.gettFCs();
+        for (int i = 0; i < terrainfieldcontainers.length; i++) {
+            tfArray[i].setDiceToken(terrainfieldcontainers[i].getDiceTokens());
+            int fieldtype = terrainfieldcontainers[i].getFieldType();
+            String translatedFieldtype = "";
+            switch(fieldtype) {
+                case 0:
+                    translatedFieldtype = "Ocean";
+                    break;
+                case 1:
+                    translatedFieldtype = "Forest";
+                    break;
+                case 2:
+                    translatedFieldtype = "Farmland";
+                    break;
+                case 3:
+                    translatedFieldtype = "Grassland";
+                    break;
+                case 4:
+                    translatedFieldtype = "Hillside";
+                    break;
+                case 5:
+                    translatedFieldtype = "Mountain";
+                    break;
+                case 6:
+                    translatedFieldtype = "Desert";
+                    break;
+                default:
+                    break;
+            }
+            tfArray[i].setName(translatedFieldtype);
+        }
+        draw();
     }
 }

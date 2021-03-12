@@ -1,6 +1,7 @@
 package de.uol.swp.server.game;
 
 import de.uol.swp.common.game.Game;
+import de.uol.swp.common.game.dto.GameDTO;
 import de.uol.swp.common.user.User;
 
 import java.util.Map;
@@ -62,5 +63,6 @@ public interface ServerGameService {
      * @since 2021-01-15
      */
     Map<String, Game> getAllGames();
+
 
 }

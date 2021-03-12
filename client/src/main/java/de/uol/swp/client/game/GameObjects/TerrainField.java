@@ -19,9 +19,7 @@ public class TerrainField {
 
     //constructor
 
-    public TerrainField(String name, int diceToken, Vector placementVector) {
-        this.name = name;
-        this.diceToken = diceToken;
+    public TerrainField(Vector placementVector) {
         this.placementVector = placementVector;
     }
 
@@ -38,6 +36,8 @@ public class TerrainField {
     public int getDiceToken() {
         return diceToken;
     }
+
+    public void setDiceToken(int diceToken) {this.diceToken = diceToken;}
 
     public Vector getPosition() {
         return position;

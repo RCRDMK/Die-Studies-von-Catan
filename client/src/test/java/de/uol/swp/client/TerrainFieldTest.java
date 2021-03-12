@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import static javafx.scene.paint.Color.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-
+/*
 public class TerrainFieldTest {
 
     TerrainField tf1 = new TerrainField("Farmland", 9, new Vector(4, 2));
@@ -27,6 +27,7 @@ public class TerrainFieldTest {
      * @author Pieter Vogt
      * @since 2021-03-10
      */
+/*
     @Test
     void testColorDetermination() {
         assertEquals(GOLDENROD, tf1.determineColorOfTerrain());
@@ -37,4 +38,5 @@ public class TerrainFieldTest {
         assertEquals(GREY, tf6.determineColorOfTerrain());
         assertEquals(BLANCHEDALMOND, tf7.determineColorOfTerrain());
     }
-}
+
+}*/
