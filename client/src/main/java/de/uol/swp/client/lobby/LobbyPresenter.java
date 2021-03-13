@@ -10,6 +10,7 @@ import de.uol.swp.common.chat.ResponseChatMessage;
 import de.uol.swp.common.game.message.GameCreatedMessage;
 import de.uol.swp.common.game.message.NotEnoughPlayersMessage;
 import de.uol.swp.common.game.response.GameAlreadyExistsResponse;
+import de.uol.swp.common.game.response.GameCreatedSuccessfullyResponse;
 import de.uol.swp.common.game.response.NotLobbyOwnerResponse;
 import de.uol.swp.common.lobby.message.StartGameMessage;
 import de.uol.swp.common.lobby.message.UserJoinedLobbyMessage;
@@ -699,6 +700,8 @@ public class LobbyPresenter extends AbstractPresenter {
         if (this.currentLobby != null) {
             if (this.currentLobby.equals(gcm.getName())) {
                 LOG.debug("New game " + gcm.getName() + " created");
+                // Post GameCreatedSuccessfullyResponse to EventBus so we are able to access Lobby and User in GamePresenter
+                eventBus.post(new GameCreatedSuccessfullyResponse((UserDTO) this.joinedLobbyUser, this.currentLobby));
                 //gameService.retrieveAllGames();
             }
         }
