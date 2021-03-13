@@ -3,10 +3,8 @@ package de.uol.swp.client.game;
 
 import com.google.common.eventbus.EventBus;
 import com.google.inject.Inject;
-import de.uol.swp.client.user.UserService;
-import de.uol.swp.common.game.message.RollDiceRequest;
+import de.uol.swp.common.game.request.RollDiceRequest;
 import de.uol.swp.common.game.request.RetrieveAllGamesRequest;
-import de.uol.swp.common.lobby.request.RetrieveAllLobbiesRequest;
 import de.uol.swp.common.user.User;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -36,7 +34,7 @@ public class GameService {
      * <p>
      * @param name Name of the lobby where the user wants to roll the dice
      * @param user User who wants to roll the dice
-     * @see de.uol.swp.common.game.message.RollDiceRequest
+     * @see RollDiceRequest
      * @author Kirstin, Pieter
      * @since 2021-01-07
      *
