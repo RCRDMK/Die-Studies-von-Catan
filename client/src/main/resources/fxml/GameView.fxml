@@ -1,20 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.*?>
 <?import javafx.scene.canvas.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.uol.swp.client.game.GamePresenter">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.uol.swp.client.game.GamePresenter">
    <children>
-   </children>
-   <ListView fx:id="gameUsersView" layoutX="497.0" layoutY="50.0" prefHeight="81.0" prefWidth="88.0" />
-   <ToolBar layoutY="-5.0" prefHeight="22.0" prefWidth="600.0">
-     <items>
-         <Button mnemonicParsing="false" onAction="#onRollDice" text="Roll Dice" />
-         <Text fx:id="DiceOutput" strokeType="OUTSIDE" strokeWidth="0.0" text="Text" />
-         <Separator orientation="VERTICAL" />
-         <Button mnemonicParsing="false" onAction="#onTrade" text="Trade">
+       <TextArea fx:id="gameChatArea" editable="false" layoutX="370.0" layoutY="231.0" prefHeight="114.0" prefWidth="224.0" GridPane.rowIndex="2"> </TextArea>
+
+       <ListView fx:id="gameUsersView" layoutX="370.0" layoutY="30.0" prefHeight="90.0" prefWidth="224.0" />
+      <ToolBar layoutY="-5.0" prefHeight="35.0" prefWidth="600.0">
+        <items>
+            <Button mnemonicParsing="false" onAction="#onRollDice" text="Roll Dice" />
+            <Text fx:id="DiceOutput" strokeType="OUTSIDE" strokeWidth="0.0" text="Text" />
+            <Separator orientation="VERTICAL" />
+            <Button mnemonicParsing="false" onAction="#onTrade" text="Trade">
          </Button>
          <MenuButton layoutX="103.0" layoutY="11.0" mnemonicParsing="false" text="Build">
             <items>
@@ -29,4 +31,7 @@
      </items>
    </ToolBar>
    <Canvas fx:id="canvas" height="370.0" layoutY="30.0" width="370" />
+      <Button layoutX="534.0" layoutY="345.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="59.0" text="Send" onAction="#onSendMessage" />
+      <TextField layoutX="370.0" layoutY="345.0" prefHeight="25.0" prefWidth="161.0" promptText="Send Message.." onAction="#onSendMessage" fx:id="gameChatInput" />
+   </children>
 </AnchorPane>
