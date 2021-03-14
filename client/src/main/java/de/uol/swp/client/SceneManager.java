@@ -14,9 +14,7 @@ import de.uol.swp.client.register.RegistrationPresenter;
 import de.uol.swp.client.register.event.RegistrationCanceledEvent;
 import de.uol.swp.client.register.event.RegistrationErrorEvent;
 import de.uol.swp.client.register.event.ShowRegistrationViewEvent;
-import de.uol.swp.common.game.message.GameDroppedMessage;
 import de.uol.swp.common.user.User;
-import de.uol.swp.common.user.response.game.GameLeftSuccessfulResponse;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -28,7 +26,6 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 import java.net.URL;
 
 /**
@@ -514,7 +511,7 @@ public class SceneManager {
      *
      * @param gamename the name of the game that corresponds to the tab that is to be deleted
      * @author Marc Hermes
-     * @since 2021-01-2
+     * @since 2021-01-21
      */
     public void removeGameTab(String gamename) {
         Platform.runLater(() -> {

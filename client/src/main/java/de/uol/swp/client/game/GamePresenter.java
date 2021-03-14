@@ -4,29 +4,21 @@ import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
 import de.uol.swp.client.chat.ChatService;
-import de.uol.swp.client.lobby.LobbyPresenter;
-import de.uol.swp.client.game.GamePresenterException;
+
 import de.uol.swp.client.lobby.LobbyService;
-import de.uol.swp.client.user.UserService;
+
 import de.uol.swp.common.game.message.GameCreatedMessage;
-import de.uol.swp.common.game.message.GameDroppedMessage;
+
 import de.uol.swp.client.game.GameObjects.TerrainField;
 import de.uol.swp.client.game.HelperObjects.Vector;
-import de.uol.swp.client.chat.ChatService;
-import de.uol.swp.client.lobby.LobbyPresenter;
-import de.uol.swp.client.lobby.LobbyService;
+
 import de.uol.swp.common.chat.RequestChatMessage;
 import de.uol.swp.common.chat.ResponseChatMessage;
-import de.uol.swp.common.game.response.GameCreatedSuccessfullyResponse;
+
 import de.uol.swp.common.user.User;
-import de.uol.swp.common.user.response.lobby.LobbyCreatedSuccessfulResponse;
-import javafx.application.Platform;
-import javafx.collections.ObservableList;
+
 import de.uol.swp.common.user.UserDTO;
-import de.uol.swp.common.user.response.game.GameLeftSuccessfulResponse;
-import de.uol.swp.common.user.response.lobby.LobbyCreatedSuccessfulResponse;
-import javafx.application.Platform;
-import javafx.collections.ObservableList;
+
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -93,7 +85,7 @@ public class GamePresenter extends AbstractPresenter implements Initializable {
      * The message is of type RequestChatMessage If this will result in an exception, go log the exception
      *
      * @param event The ActionEvent created by pressing the send Message button
-     * @author  René, Sergej
+     * @author René, Sergej
      * @see de.uol.swp.client.chat.ChatService
      * @since 2021-03-08
      */
@@ -143,7 +135,7 @@ public class GamePresenter extends AbstractPresenter implements Initializable {
     public void onResponseChatMessageLogic(ResponseChatMessage rcm) {
         // Only update Messages from used game chat
         if (this.currentLobby != null) {
-            if (rcm.getChat().equals("game_"+currentLobby)) {
+            if (rcm.getChat().equals("game_" + currentLobby)) {
                 LOG.debug("Updated game chat area with new message..");
                 updateChat(rcm);
             }
@@ -172,7 +164,6 @@ public class GamePresenter extends AbstractPresenter implements Initializable {
      * If the RollDice button is pressed, this methods tries to request the GameService to send a RollDiceRequest.
      *
      * @param event The ActionEvent created by pressing the Roll Dice button
-     *
      * @author Kirstin, Pieter
      * @see de.uol.swp.client.game.GameService
      * @since 2021-01-07
@@ -266,8 +257,7 @@ public class GamePresenter extends AbstractPresenter implements Initializable {
         if (this.currentLobby != null && this.joinedLobbyUser != null) {
             lobbyService.leaveLobby(this.currentLobby, (UserDTO) this.joinedLobbyUser);
             gameService.leaveGame(this.currentLobby, this.joinedLobbyUser);
-        }
-        else if (this.currentLobby == null && this.joinedLobbyUser != null) {
+        } else if (this.currentLobby == null && this.joinedLobbyUser != null) {
             throw new GamePresenterException("Name of the current Lobby is not available!");
         } else {
             throw new GamePresenterException("User of the current Lobby is not available");
@@ -393,38 +383,4 @@ public class GamePresenter extends AbstractPresenter implements Initializable {
             g.fillOval(tfArray[i].getPosition().getX(), tfArray[i].getPosition().getY(), cardSize(), cardSize()); //Draw circle with given color at given position TODO: This - in combination with the Vector.vector-methods - SHOULD be already scaling with canvassize. If and when a scalable Canvas gets implemented, this should be checked.
         }
     }
-
-    /**
-     * Handles GameCreatedSuccessfullyResponse
-     * <p>
-     * If GameCreatedSuccessfullyResponse is detected on the EventBus the method createdSuccessfulLogic is invoked.
-     *
-     * @param response the GameCreatedSuccessfullyResponse object seen on the EventBus
-     * @author René Meyer
-     * @see de.uol.swp.common.game.response.GameCreatedSuccessfullyResponse
-     * @since 2021-03-08
-     */
-    @Subscribe
-    public void createdSuccessful(GameCreatedSuccessfullyResponse response) {
-        createdSuccessfulLogic(response);
-    }
-
-    /**
-     * The Method invoked by createdSuccessful()
-     * <p>
-     * After the game is successfully created it retrieves the joinedLobbyUser and the currentLobby from the
-     * GameCreatedSuccessfullyResponse.
-     *
-     * @param lcsr the GameCreatedSuccessfullyResponse given by the original subscriber method.
-     * @author René Meyer
-     * @see de.uol.swp.common.game.message.GameCreatedMessage
-     * @since 2021-03-08
-     */
-    public void createdSuccessfulLogic(GameCreatedSuccessfullyResponse lcsr) {
-        if (this.currentLobby == null) {
-            this.joinedLobbyUser = lcsr.getJoinedUser();
-            this.currentLobby = lcsr.getLobbyName();
-        }
-    }
-
 }
