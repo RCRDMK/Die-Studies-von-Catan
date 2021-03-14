@@ -239,7 +239,6 @@ public class GamePresenter extends AbstractPresenter {
             this.joinedLobbyUser = gcm.getUser();
             this.currentLobby = gcm.getName();
             initializeGameField(gcm.getGameField());
-
         }
     }
 
