@@ -15,6 +15,12 @@ import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.response.lobby.LobbyCreatedSuccessfulResponse;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
+import de.uol.swp.common.user.UserDTO;
+import de.uol.swp.common.user.response.game.AllThisGameUsersResponse;
+import de.uol.swp.common.user.response.lobby.AllThisLobbyUsersResponse;
+import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -22,11 +28,13 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.control.ListView;
 import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import java.text.SimpleDateFormat;
@@ -52,11 +60,17 @@ public class GamePresenter extends AbstractPresenter implements Initializable {
 
     private String currentLobby;
 
+    private ObservableList<String> gameUsers;
+
     //Container for Terrainfields
     TerrainField[] tfArray;
 
     @Inject
     private GameService gameService;
+
+    @FXML
+    private ListView<String> gameUsersView;
+
 
     @Inject
     private ChatService chatService;
@@ -77,7 +91,7 @@ public class GamePresenter extends AbstractPresenter implements Initializable {
      * The message is of type RequestChatMessage If this will result in an exception, go log the exception
      *
      * @param event The ActionEvent created by pressing the send Message button
-     * @author  René, Sergej
+     * @author René, Sergej
      * @see de.uol.swp.client.chat.ChatService
      * @since 2021-03-08
      */
@@ -127,7 +141,7 @@ public class GamePresenter extends AbstractPresenter implements Initializable {
     public void onResponseChatMessageLogic(ResponseChatMessage rcm) {
         // Only update Messages from used game chat
         if (this.currentLobby != null) {
-            if (rcm.getChat().equals("game_"+currentLobby)) {
+            if (rcm.getChat().equals("game_" + currentLobby)) {
                 LOG.debug("Updated game chat area with new message..");
                 updateChat(rcm);
             }
@@ -156,7 +170,6 @@ public class GamePresenter extends AbstractPresenter implements Initializable {
      * If the RollDice button is pressed, this methods tries to request the GameService to send a RollDiceRequest.
      *
      * @param event The ActionEvent created by pressing the Roll Dice button
-     *
      * @author Kirstin, Pieter
      * @see de.uol.swp.client.game.GameService
      * @since 2021-01-07
@@ -320,6 +333,62 @@ public class GamePresenter extends AbstractPresenter implements Initializable {
         }
     }
 
+    @Subscribe
+    public void gameUserList(AllThisGameUsersResponse allThisGameUsersResponse) {
+        gameUserListLogic(allThisGameUsersResponse);
+    }
+
+    /**
+     * The Method invoked by gameUserList()
+     * <p>
+     * If the currentLobby is not null, meaning this is an not an empty LobbyPresenter and the lobby name stored
+     * in this GamePresenter equals the one in the received Response, the method updateGameUsersList is invoked
+     * to update the List of the Users in the currentLobby in regards to the list given by the response.
+     *
+     * @param atgur the AllThisLobbyUsersResponse given by the original subscriber method.
+     * @author Iskander Yusupov
+     * @see de.uol.swp.common.user.response.game.AllThisGameUsersResponse
+     * @since 2021-03-14
+     */
+    public void gameUserListLogic(AllThisGameUsersResponse atgur) {
+        if (this.currentLobby != null) {
+            if (this.currentLobby.equals(atgur.getName())) {
+                LOG.debug("Update of user list " + atgur.getUsers());
+                updateGameUsersList(atgur.getUsers());
+
+            }
+        }
+    }
+
+    /**
+     * Updates the game menu user list of the current game according to the list given
+     * <p>
+     * This method clears the entire user list and then adds the name of each user in the list given to the game menu
+     * user list. If there ist no user list this creates one.
+     *
+     * @param gameUserList A list of UserDTO objects including all currently logged in users
+     * @implNote The code inside this Method has to run in the JavaFX-application thread. Therefore it is crucial not to
+     * remove the {@code Platform.runLater()}
+     * @author Iskander Yusupov , @design Marc Hermes, Ricardo Mook
+     * @see de.uol.swp.common.user.UserDTO
+     * @since 2020-03-14
+     */
+    private void updateGameUsersList(List<UserDTO> gameUserList) {
+        updateGameUsersListLogic(gameUserList);
+    }
+
+    public void updateGameUsersListLogic(List<UserDTO> l) {
+        // Attention: This must be done on the FX Thread!
+        Platform.runLater(() -> {
+            if (gameUsers == null) {
+                gameUsers = FXCollections.observableArrayList();
+                gameUsersView.setItems(gameUsers);
+            }
+            gameUsers.clear();
+            l.forEach(u -> gameUsers.add(u.getUsername()));
+        });
+    }
+
     /**
      * Handles GameCreatedSuccessfullyResponse
      * <p>
@@ -350,6 +419,7 @@ public class GamePresenter extends AbstractPresenter implements Initializable {
         if (this.currentLobby == null) {
             this.joinedLobbyUser = lcsr.getJoinedUser();
             this.currentLobby = lcsr.getLobbyName();
+            gameService.retrieveAllThisGameUsers(lcsr.getLobbyName());
         }
     }
 
