@@ -2,18 +2,34 @@ package de.uol.swp.common.game;
 
 import java.io.Serializable;
 
+/**
+ * The GameField class used to store information about the GameField
+ *
+ * @author Pieter Vogt, Marc Hermes
+ * @see de.uol.swp.common.game.TerrainFieldContainer
+ * @since 2021-03-13
+ */
 public class GameField implements Serializable {
 
-private TerrainFieldContainer[] tFCs = new TerrainFieldContainer[37];
+    private TerrainFieldContainer[] tFCs;
 
-
-public GameField() {
+    /**
+     * The constructor of the class
+     * <p>
+     * Fills the tFCs array with the TerrainFieldContainers.
+     * The TerrainFieldContainers contain the information for the standard playing field.
+     *
+     * @author Pieter Vogt, Marc Hermes
+     * @see de.uol.swp.common.game.TerrainFieldContainer
+     * @since 2021-03-13
+     */
+    public GameField() {
         TerrainFieldContainer[] tempArray = new TerrainFieldContainer[37];
         //"Ocean" = 0; "Forest" = 1; "Farmland" = 2; "Grassland" = 3; "Hillside" = 4; "Mountain" = 5; "Desert" = 6;
 
         //beginning of oceans
         for (int i = 0; i <= 17; i++) {
-            tempArray[i] = new TerrainFieldContainer(0,0);
+            tempArray[i] = new TerrainFieldContainer(0, 0);
         }
 
         //beginning of landmasses
@@ -40,9 +56,16 @@ public GameField() {
         this.tFCs = tempArray;
     }
 
-        //TODO implementiere andere Spielfelder
+    //TODO implementiere andere Spielfelder
 
 
+    /**
+     * Getter tFCs variable
+     *
+     * @author Pieter Vogt, Marc Hermes
+     * @return the TerrainFieldContainer array stored in this GameField
+     * @since 2021-03-13
+     */
     public TerrainFieldContainer[] getTFCs() {
         return tFCs;
     }

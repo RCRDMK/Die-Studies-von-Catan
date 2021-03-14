@@ -97,9 +97,9 @@ public class GamePresenter extends AbstractPresenter {
     }
 
     /**
-     * This method holds the size of the terrainfields in pixels.
+     * This method holds the size of the terrainFields in pixels.
      * <p>
-     * The cardsize is not a fixed value, because if the canvas becomes scalabe in a future update, the cards need to
+     * The card size is not a fixed value, because if the canvas becomes scalable in a future update, the cards need to
      * scale with it. So if we start to work with textures, they need to be scaled as well. Slight modifications to this
      * method can do this.
      *
@@ -113,9 +113,12 @@ public class GamePresenter extends AbstractPresenter {
     }
 
     /**
-     * Method for generating a stack of terrainfields for a standard-ruleset-playfield.
+     * Method for generating an array of terrainFields
+     * that have the correct relative and absolute positions to one another
      *
-     * @return Array with TerrainFields in the standard-rulebook manner.
+     * enhanced by Marc Hermes - 2021-03-13
+     *
+     * @return Array with TerrainFields having the correct positions.
      * @author Pieter Vogt
      * @see <a href="https://confluence.swl.informatik.uni-oldenburg.de/display/SWP2020J/SpecCatan_1004+Spielfeld">Specification
      * 1004</a>
@@ -203,18 +206,53 @@ public class GamePresenter extends AbstractPresenter {
         }
     }
 
+    /**
+     * Handles successful game creation
+     * <p>
+     * If a GameCreatedMessage is detected on the EventBus the method gameCreatedLogic is invoked.
+     *
+     * @param gcm the GameCreatedMessage object seen on the EventBus
+     * @author Marc Hermes
+     * @see de.uol.swp.common.game.message.GameCreatedMessage
+     * @since 2020-12-03
+     */
     @Subscribe
     public void onGameCreatedMessage(GameCreatedMessage gcm) {
         gameCreatedMessageLogic(gcm);
     }
 
+    /**
+     * The Method invoked by onGameCreatedMessage()
+     * <p>
+     * Invokes the initializeGameField() method with the GameField object contained in the gcm.
+     *
+     * @param gcm the GameCreatedMessage given by the original subscriber method.
+     * @author Pieter Vogt, Marc Hermes
+     * @see de.uol.swp.common.game.message.GameCreatedMessage
+     * @see de.uol.swp.common.game.GameField
+     * @since 2021-01-20
+     */
     public void gameCreatedMessageLogic(GameCreatedMessage gcm) {
-        initializeGameField(gcm.getGamefield());
+        initializeGameField(gcm.getGameField());
     }
 
-    public void initializeGameField(GameField gamefield) {
+    /**
+     * Method to initialize the GameField of this GamePresenter of this client
+     * <p>
+     * First creates the tfArray, then iterates over the terrainFieldContainers of the gameField
+     * to get the diceTokens values and copies them to the tfArray of this GamePresenter.
+     * Then the values of the fieldTypes are checked and translated into the correct String names
+     * of the tfArray TerrainFields.
+     *
+     * @author Marc Hermes
+     * @param gameField the gameField given by the Server
+     * @see de.uol.swp.common.game.GameField
+     * @see de.uol.swp.client.game.GameObjects.TerrainField
+     * @see de.uol.swp.common.game.TerrainFieldContainer
+     */
+    public void initializeGameField(GameField gameField) {
         tfArray = getCorrectPositionsOfFields();
-        TerrainFieldContainer[] terrainFieldContainers = gamefield.getTFCs();
+        TerrainFieldContainer[] terrainFieldContainers = gameField.getTFCs();
         for (int i = 0; i < terrainFieldContainers.length; i++) {
             tfArray[i].setDiceToken(terrainFieldContainers[i].getDiceTokens());
             int fieldType = terrainFieldContainers[i].getFieldType();

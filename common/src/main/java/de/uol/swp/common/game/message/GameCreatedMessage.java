@@ -12,18 +12,18 @@ import de.uol.swp.common.game.GameField;
  */
 
 public class GameCreatedMessage extends AbstractGameMessage {
-    private final GameField gamefield;
+    private final GameField gameField;
 
     /**
      * Constructor
      * @since 2021-01-07
      */
-    public GameCreatedMessage(String name, GameField gamefield) {
+    public GameCreatedMessage(String name, GameField gameField) {
         this.name = name;
-        this.gamefield = gamefield;
+        this.gameField = gameField;
     }
 
-    public GameField getGamefield() {
-        return gamefield;
+    public GameField getGameField() {
+        return gameField;
     }
 }

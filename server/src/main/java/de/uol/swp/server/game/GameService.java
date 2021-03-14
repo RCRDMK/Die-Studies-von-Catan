@@ -6,7 +6,6 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import de.uol.swp.common.chat.ResponseChatMessage;
 import de.uol.swp.common.game.Game;
-import de.uol.swp.common.game.dto.GameDTO;
 import de.uol.swp.common.game.message.*;
 import de.uol.swp.common.game.request.*;
 import de.uol.swp.common.game.message.RollDiceRequest;
@@ -254,7 +253,7 @@ public class GameService extends AbstractService {
             for (User user : lobby.get().getPlayersReady()) {
                 game.get().joinUser(user);
             }
-            sendToAllInGame(game.get().getName(), new GameCreatedMessage(game.get().getName(), game.get().getGamefield()));
+            sendToAllInGame(game.get().getName(), new GameCreatedMessage(game.get().getName(), game.get().getGameField()));
         } else {
             throw new GameManagementException("Not enough Players ready!");
         }

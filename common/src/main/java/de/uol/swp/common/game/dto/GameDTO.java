@@ -23,7 +23,7 @@ public class GameDTO implements Game {
     private final String name;
     private User owner;
     private final Set<User> users = new TreeSet<>();
-    private GameField gamefield;
+    private GameField gameField;
 
 
     /**
@@ -82,12 +82,12 @@ public class GameDTO implements Game {
     }
 
     @Override
-    public GameField getGamefield() {
-        return gamefield;
+    public GameField getGameField() {
+        return gameField;
     }
 
     @Override
-    public void setGamefield(GameField gamefield) {
-        this.gamefield = gamefield;
+    public void setGameField(GameField gameField) {
+        this.gameField = gameField;
     }
 }
