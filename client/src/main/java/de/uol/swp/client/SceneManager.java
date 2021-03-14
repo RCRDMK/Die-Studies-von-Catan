@@ -458,9 +458,7 @@ public class SceneManager {
         this.lastScene = currentScene;
         this.lastTitle = primaryStage.getTitle();
         this.currentScene = tabScene;
-        mainMenuTab.setContent(mainScene.getRoot());
         Platform.runLater(() -> {
-            tabHelper.getTabPane().getTabs().add(mainMenuTab);
             primaryStage.setTitle("Catan");
             primaryStage.setScene(tabScene);
             primaryStage.show();});

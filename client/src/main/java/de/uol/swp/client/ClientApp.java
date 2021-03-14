@@ -155,6 +155,23 @@ public class ClientApp extends Application implements ConnectionListener {
         sceneManager.showMainScreen(user);
     }
 
+    /**
+     * Handles successful Mail information response
+     * <p>
+     * If an RetrieveUserMailResponse object is detected on the EventBus this
+     * method is called. If the loglevel is set to INFO or higher "Got the response with the Mail from User "
+     * is written to the log.
+     *
+     * @param response The RetrieveUserMailResponse object detected on the EventBus
+     * @see de.uol.swp.client.account.UserSettingsPresenter
+     * @since 2021-03-14
+     */
+    @Subscribe
+    public void onRetrieveUserMailResponse(RetrieveUserMailResponse response) {
+        LOG.debug("Got the response with the Mail from User " + response.getUser().getUsername());
+        this.user = response.getUser();
+    }
+
     @Subscribe
     public void userLoggedOut(LogoutRequest message) {
         LOG.debug("user logged out ");
@@ -326,14 +343,28 @@ public class ClientApp extends Application implements ConnectionListener {
      * is written to the log.
      *
      * @author Carsten Dekker
-     *
      * @param response The UpdateUserSuccessfulResponse object detected on the EventBus
-     * @see de.uol.swp.client.SceneManager
      * @since 2021-03-04
      */
     @Subscribe
     public void onUpdateUserSuccessfulResponse(UpdateUserSuccessfulResponse response) {
         LOG.info("Update user successful.");
+    }
+
+    /**
+     * Handles the successful drop of a user
+     * <p>
+     * If an DropUserSuccessfulResponse object is detected on the EventBus this
+     * method is called. If the loglevel is set to INFO or higher "Drop user was successful."
+     * is written to the log.
+     *
+     * @author Carsten Dekker
+     * @param response The DropUserSuccessfulResponse object detected on the EventBus
+     * @since 2021-03-14
+     */
+    @Subscribe
+    public void onDropUserSuccessfulResponse(DropUserSuccessfulResponse response) {
+        LOG.info("Drop user was successful.");
     }
 
     /**

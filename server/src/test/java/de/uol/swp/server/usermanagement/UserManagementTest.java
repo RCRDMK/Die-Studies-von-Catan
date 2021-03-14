@@ -111,7 +111,7 @@ class UserManagementTest {
         assertThrows(UserManagementException.class, () -> management.createUser(userToCreate));
 
     }
-
+/*
     @Test
     void updateUserPassword_NotLoggedIn() throws SQLException {
         management.buildConnection();
@@ -181,4 +181,5 @@ class UserManagementTest {
     void connectJDBCTest() throws SQLException {
         management.buildConnection();
     }
+    */
 }

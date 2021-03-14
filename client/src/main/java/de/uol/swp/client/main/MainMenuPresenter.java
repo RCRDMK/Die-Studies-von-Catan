@@ -3,6 +3,7 @@ package de.uol.swp.client.main;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
+import de.uol.swp.client.account.UserSettingsService;
 import de.uol.swp.client.account.event.ShowUserSettingsViewEvent;
 import de.uol.swp.client.chat.ChatService;
 import de.uol.swp.client.lobby.LobbyCell;
@@ -13,6 +14,7 @@ import de.uol.swp.common.lobby.dto.LobbyDTO;
 import de.uol.swp.common.lobby.message.LobbyCreatedMessage;
 import de.uol.swp.common.lobby.message.LobbyDroppedMessage;
 import de.uol.swp.common.lobby.message.LobbySizeChangedMessage;
+import de.uol.swp.common.lobby.request.RetrieveAllThisLobbyUsersRequest;
 import de.uol.swp.common.lobby.response.AllCreatedLobbiesResponse;
 import de.uol.swp.common.lobby.response.AlreadyJoinedThisLobbyResponse;
 import de.uol.swp.common.lobby.response.LobbyAlreadyExistsResponse;
@@ -82,6 +84,9 @@ public class MainMenuPresenter extends AbstractPresenter {
 
     @Inject
     private ChatService chatService;
+
+    @Inject
+    private UserSettingsService userSettingsService;
 
     @FXML
     private ListView<String> usersView;
@@ -532,5 +537,6 @@ onLobbyFullResponseLogic(response);
     @FXML
     private void onUserSettingsButtonPressed(ActionEvent event) {
         eventBus.post(showSetViewMessage);
+        userSettingsService.retrieveUserMail(this.loggedInUser);
     }
 }

@@ -1,15 +1,16 @@
 package de.uol.swp.client.account;
 
 import com.google.common.base.Strings;
-import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
 import de.uol.swp.client.account.event.LeaveUserSettingsEvent;
 import de.uol.swp.client.account.event.UserSettingsErrorEvent;
 import de.uol.swp.client.auth.events.ShowLoginViewEvent;
-import de.uol.swp.client.user.ClientUserService;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
+import de.uol.swp.common.user.response.DropUserSuccessfulResponse;
+import de.uol.swp.common.user.response.RetrieveUserMailResponse;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -18,6 +19,8 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.Arrays;
 
 /**
@@ -80,25 +83,15 @@ public class UserSettingsPresenter extends AbstractPresenter {
     @FXML
     private Button confirmEmailButton;
 
+    @Inject
+    private UserSettingsService userSettingsService;
+
     /**
      * Default Constructor
      *
      * @since 2021-03-04
      */
     public UserSettingsPresenter() {
-    }
-
-    /**
-     * Constructor
-     *
-     * @param eventBus The EventBus set in ClientModule
-     * @param userService The injected ClientUserService
-     * @see de.uol.swp.client.di.ClientModule
-     * @since 2021-03-04
-     */
-    @Inject
-    public UserSettingsPresenter(EventBus eventBus, ClientUserService userService) {
-        setEventBus(eventBus);
     }
 
     /**
@@ -132,6 +125,7 @@ public class UserSettingsPresenter extends AbstractPresenter {
      */
     @FXML
     void onDropUserButtonPressed(ActionEvent event) {
+        LOG.debug(this.loggedInUser);
         userService.dropUser(this.loggedInUser);
         eventBus.post(new ShowLoginViewEvent());
     }
@@ -162,6 +156,7 @@ public class UserSettingsPresenter extends AbstractPresenter {
         for (TextField textField : Arrays.asList(currentEmailField, newEmailField1, newEmailField2)) {
             textField.setVisible(false);
         }
+        currentEmailField.setDisable(false);
         confirmPasswordButton.setVisible(true);
         confirmEmailButton.setVisible(false);
     }
@@ -192,12 +187,13 @@ public class UserSettingsPresenter extends AbstractPresenter {
         for (TextField textField : Arrays.asList(currentEmailField, newEmailField1, newEmailField2)) {
             textField.setVisible(true);
         }
+        currentEmailField.setDisable(true);
         confirmPasswordButton.setVisible(false);
         confirmEmailButton.setVisible(true);
     }
 
     @FXML
-    void onConfirmPasswordButtonPressed(ActionEvent event) {
+    void onConfirmPasswordButtonPressed(ActionEvent event) throws InvalidKeySpecException, NoSuchAlgorithmException {
         if (Strings.isNullOrEmpty(currentPasswordField.getText())){
             eventBus.post(new UserSettingsErrorEvent("Please enter your current password"));
         } else if (!newPasswordField1.getText().equals(newPasswordField2.getText())) {
@@ -205,20 +201,42 @@ public class UserSettingsPresenter extends AbstractPresenter {
         } else if (Strings.isNullOrEmpty(newPasswordField1.getText())) {
             eventBus.post(new UserSettingsErrorEvent("Password cannot be empty"));
         } else {
-            userService.updateUser(new UserDTO(loggedInUser.getUsername(), newPasswordField1.getText(), ""));
+            userService.updateUserPassword(new UserDTO(loggedInUser.getUsername(), newPasswordField1.getText(), ""),
+                     currentPasswordField.getText());
         }
     }
 
     @FXML
-    void onConfirmEmailButtonPressed(ActionEvent event) {
-        if (Strings.isNullOrEmpty(currentPasswordField.getText())){
-            eventBus.post(new UserSettingsErrorEvent("Please enter your current password"));
-        } else if (!newPasswordField1.getText().equals(newPasswordField2.getText())) {
-            eventBus.post(new UserSettingsErrorEvent("Passwords are not equal"));
-        } else if (Strings.isNullOrEmpty(newPasswordField1.getText())) {
-            eventBus.post(new UserSettingsErrorEvent("Password cannot be empty"));
+    void onConfirmEmailButtonPressed(ActionEvent event)  {
+        if (!newEmailField1.getText().equals(newEmailField2.getText())) {
+            eventBus.post(new UserSettingsErrorEvent("Email addresses are not equal"));
+        } else if (Strings.isNullOrEmpty(newEmailField1.getText())) {
+            eventBus.post(new UserSettingsErrorEvent("Email address cannot be empty"));
+        } else if (!userSettingsService.isValidEmailAddress(newEmailField1.getText())) {
+            eventBus.post(new UserSettingsErrorEvent("E-Mail is not valid"));
         } else {
-            userService.updateUser(new UserDTO(loggedInUser.getUsername(), "", ""));
+            userService.updateUserMail(new UserDTO(loggedInUser.getUsername(), "", newEmailField1.getText()));
+            currentEmailField.clear();
+            newEmailField1.clear();
+            newPasswordField2.clear();
         }
+    }
+
+    @Subscribe
+    public void onRetrieveUserMailResponse(RetrieveUserMailResponse retrieveUserMailResponse) {
+        retrieveUserMailResponseLogic(retrieveUserMailResponse);
+    }
+
+    public void retrieveUserMailResponseLogic(RetrieveUserMailResponse retrieveUserMailResponse) {
+        LOG.debug("User mail received " + retrieveUserMailResponse.getUser().getUsername());
+        this.loggedInUser = retrieveUserMailResponse.getUser();
+        currentEmailField.setText(retrieveUserMailResponse.getUser().getEMail());
+    }
+
+    @Subscribe
+    public void onDropUserSuccessfulResponse(DropUserSuccessfulResponse dropUserSuccessfulResponse) {
+        currentEmailField.clear();
+        newPasswordField1.clear();
+        newPasswordField2.clear();
     }
 }
