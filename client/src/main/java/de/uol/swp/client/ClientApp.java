@@ -8,6 +8,7 @@ import com.google.inject.Injector;
 import de.uol.swp.client.di.ClientModule;
 import de.uol.swp.client.user.ClientUserService;
 import de.uol.swp.common.game.message.GameCreatedMessage;
+import de.uol.swp.common.game.message.GameDroppedMessage;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.exception.RegistrationExceptionMessage;
 import de.uol.swp.common.user.exception.UpdateUserExceptionMessage;
@@ -184,7 +185,7 @@ public class ClientApp extends Application implements ConnectionListener {
      * If an LobbyCreatedSuccessful object is detected on the EventBus this
      * method is called. It tells the SceneManager to show the lobby menu and sets
      * this clients user to the user found in the object. If the loglevel is set
-     * to DEBUG or higher "user created lobby " and the username of the
+     * to DEBUG or higher "user created lobby" and the username of the
      * logged in user are written to the log.
      *
      * @param message The LobbyCreatedMessage object detected on the EventBus
@@ -262,6 +263,27 @@ public class ClientApp extends Application implements ConnectionListener {
     }
 
     /**
+     * Handles a GameDroppedMessage when detected on the Eventbus
+     * <p>
+     *
+     * If a GameDropppedMessage is detected on the Eventbus this method
+     * gets called. It removes the Gametab which was passed on from the
+     * GameDroppedMessage.
+     *
+     * @param message The GameDroppedMessage detected on the Eventbus
+     * @see de.uol.swp.common.game.message.GameDroppedMessage
+     * @author Ricardo Mook, Alexander Losse
+     * @since 2021-03-04
+     */
+
+    @Subscribe
+    public void userDroppedGame(GameDroppedMessage message){
+        LOG.debug("Successfully dropped game  " + message.getName());
+        sceneManager.removeGameTab(message.getName());
+    }
+
+
+    /**
      * Handles the successful leaving of a user from a game
      * <p>
      * If an GameLeftSuccessfulResponse object is detected on the EventBus this method is called.
@@ -275,9 +297,11 @@ public class ClientApp extends Application implements ConnectionListener {
      */
     @Subscribe
     public void userLeftGame(GameLeftSuccessfulResponse message) {
-        LOG.debug("User " + message.getUser().getUsername() + " left game ");
-        sceneManager.removeGameTab(message.getUser(), message.getName());
+        LOG.debug("Successfully left game  " + message.getName());
+        sceneManager.removeGameTab(message.getName());
     }
+
+
 
     /**
      * Handles unsuccessful registrations

@@ -3,11 +3,11 @@ package de.uol.swp.client.game;
 
 import com.google.common.eventbus.EventBus;
 import com.google.inject.Inject;
-import de.uol.swp.client.user.UserService;
 import de.uol.swp.common.game.message.RollDiceRequest;
+import de.uol.swp.common.game.request.GameLeaveUserRequest;
 import de.uol.swp.common.game.request.RetrieveAllGamesRequest;
-import de.uol.swp.common.lobby.request.RetrieveAllLobbiesRequest;
 import de.uol.swp.common.user.User;
+import de.uol.swp.common.user.UserDTO;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -61,6 +61,18 @@ public class GameService {
     public void retrieveAllGames() {
         RetrieveAllGamesRequest cmd = new RetrieveAllGamesRequest();
         eventBus.post(cmd);
+    }
+
+    /**
+     * Posts a request to leave the game on the Eventbus
+     *
+     * @see de.uol.swp.common.game.request.GameLeaveUserRequest
+     * @since 2021-03-04
+     * @author Alexander Losse, Ricardo Mook
+     */
+    public void leaveGame(String game, User user){
+        GameLeaveUserRequest leaveRequest= new GameLeaveUserRequest(game, (UserDTO) user);
+        eventBus.post(leaveRequest);
     }
 
 }

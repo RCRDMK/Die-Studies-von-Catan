@@ -1,21 +1,40 @@
 package de.uol.swp.client.game;
 
+import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
+import de.uol.swp.client.chat.ChatService;
+
+import de.uol.swp.client.lobby.LobbyService;
+
+import de.uol.swp.common.game.message.GameCreatedMessage;
+
 import de.uol.swp.client.game.GameObjects.TerrainField;
 import de.uol.swp.client.game.HelperObjects.Vector;
+
+import de.uol.swp.common.chat.RequestChatMessage;
+import de.uol.swp.common.chat.ResponseChatMessage;
+
 import de.uol.swp.common.user.User;
+
+import de.uol.swp.common.user.UserDTO;
+
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.net.URL;
 import java.util.ResourceBundle;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * Manages the GameView
@@ -37,10 +56,107 @@ public class GamePresenter extends AbstractPresenter implements Initializable {
 
     private String currentLobby;
 
+    //Container for Terrainfields
+    TerrainField[] tfArray;
+
     @Inject
     private GameService gameService;
+
+    @Inject
+    private ChatService chatService;
+
+    @FXML
+    public TextField gameChatInput;
+
+    @FXML
+    public TextArea gameChatArea;
+
     @FXML
     private Canvas canvas = new Canvas();
+
+    @Inject
+    private LobbyService lobbyService;
+
+
+    /**
+     * Method called when the send Message button is pressed
+     * <p>
+     * If the send Message button is pressed, this methods tries to request the chatService to send a specified message.
+     * The message is of type RequestChatMessage If this will result in an exception, go log the exception
+     *
+     * @param event The ActionEvent created by pressing the send Message button
+     * @author René, Sergej
+     * @see de.uol.swp.client.chat.ChatService
+     * @since 2021-03-08
+     */
+    @FXML
+    void onSendMessage(ActionEvent event) {
+        try {
+            var chatMessage = gameChatInput.getCharacters().toString();
+            // ChatID = game_lobbyname so we have seperate lobby and game chat separated by id
+            var chatId = "game_" + currentLobby;
+            if (!chatMessage.isEmpty()) {
+                RequestChatMessage message = new RequestChatMessage(chatMessage, chatId, joinedLobbyUser.getUsername(), System.currentTimeMillis());
+                chatService.sendMessage(message);
+            }
+            this.gameChatInput.setText("");
+        } catch (Exception e) {
+            LOG.debug(e);
+        }
+    }
+
+    /**
+     * Updates the game chat when a ResponseChatMessage was posted to the EventBus.
+     * <p>
+     * If a ResponseChatMessage is detected on the EventBus the method onResponseChatMessageLogic is invoked.
+     *
+     * @param message the ResponseChatMessage object seen on the EventBus
+     * @author ?
+     * @see de.uol.swp.common.chat.ResponseChatMessage
+     * @since ?
+     */
+    @Subscribe
+    public void onResponseChatMessage(ResponseChatMessage message) {
+        onResponseChatMessageLogic(message);
+    }
+
+    /**
+     * The Method invoked by onResponseChatMessage()
+     * <p>
+     * If the currentLobby is not null, meaning this is an not an empty LobbyPresenter and the lobby name stored
+     * in this LobbyPresenter equals the one in the received Response, the method updateChat is invoked
+     * to update the chat of the currentLobby in regards to the input given by the response.
+     *
+     * @param rcm the ResponseChatMessage given by the original subscriber method.
+     * @author Alexander Losse, Marc Hermes
+     * @see de.uol.swp.common.chat.ResponseChatMessage
+     * @since 2021-01-20
+     */
+    public void onResponseChatMessageLogic(ResponseChatMessage rcm) {
+        // Only update Messages from used game chat
+        if (this.currentLobby != null) {
+            if (rcm.getChat().equals("game_" + currentLobby)) {
+                LOG.debug("Updated game chat area with new message..");
+                updateChat(rcm);
+            }
+        }
+    }
+
+    /**
+     * Adds the ResponseChatMessage to the textArea
+     *
+     * @param message
+     */
+    private void updateChat(ResponseChatMessage message) {
+        updateChatLogic(message);
+    }
+
+    private void updateChatLogic(ResponseChatMessage rcm) {
+        var time = new SimpleDateFormat("HH:mm");
+        Date resultdate = new Date((long) rcm.getTime().doubleValue());
+        var readableTime = time.format(resultdate);
+        gameChatArea.insertText(gameChatArea.getLength(), readableTime + " " + rcm.getUsername() + ": " + rcm.getMessage() + "\n");
+    }
 
     /**
      * Method called when the RollDice button is pressed
@@ -48,7 +164,6 @@ public class GamePresenter extends AbstractPresenter implements Initializable {
      * If the RollDice button is pressed, this methods tries to request the GameService to send a RollDiceRequest.
      *
      * @param event The ActionEvent created by pressing the Roll Dice button
-     *
      * @author Kirstin, Pieter
      * @see de.uol.swp.client.game.GameService
      * @since 2021-01-07
@@ -88,13 +203,67 @@ public class GamePresenter extends AbstractPresenter implements Initializable {
         //TODO:...
     }
 
-    @FXML
-    public void onLeaveGame(ActionEvent event) {
-        //TODO:...
+    /**
+     * Handles successful game creation
+     * <p>
+     * If a GameCreatedMessage is detected on the EventBus this method invokes gameStartedSuccessfulLogic.
+     *
+     * @param message the GameCreatedMessage object seen on the EventBus
+     * @author Ricardo Mook, Alexander Losse
+     * @see de.uol.swp.common.game.message.GameCreatedMessage
+     * @since 2021-03-05
+     */
+    @Subscribe
+    public void gameStartedSuccessful(GameCreatedMessage message) {
+        gameStartedSuccessfulLogic(message);
     }
 
-    //Container for Terrainfields
-    TerrainField[] tfArray;
+    /**
+     * The Method invoked by gameStartedSuccessful()
+     * <p>
+     * If the currentLobby is null, meaning this is an empty GamePresenter that is ready to be used for a new game tab,
+     * the parameters of this GamePresenter are updated to the User and Lobby given by the gcm Message.
+     * An update of the Users in the currentLobby is also requested.
+     *
+     * @param gcm the GameCreatedMessage given by the original subscriber method.
+     * @author Alexander Losse, Ricardo Mook
+     * @see GameCreatedMessage
+     * @since 2021-03-05
+     */
+    public void gameStartedSuccessfulLogic(GameCreatedMessage gcm) {
+        if (this.currentLobby == null) {
+            LOG.debug("Requesting update of User list in game scene because game scene was created.");
+            this.joinedLobbyUser = gcm.getUser();
+            this.currentLobby = gcm.getName();
+        }
+    }
+
+    /**
+     * Method called when the leaveGame Button is pressed
+     * <p>
+     * If the leaveGameButton is pressed,
+     * the method tries to call the GameService method leaveGame
+     * It throws a GamePresenterException if joinedLobbyUser and currentLobby are not initialised
+     *
+     * @param event
+     * @author Ricardo Mook, Alexander Losse
+     * @see de.uol.swp.client.game.GameService
+     * @see de.uol.swp.client.game.GamePresenterException
+     * @since 2021-03-04
+     */
+    @FXML
+    public void onLeaveGame(ActionEvent event) {
+
+        if (this.currentLobby != null && this.joinedLobbyUser != null) {
+            lobbyService.leaveLobby(this.currentLobby, (UserDTO) this.joinedLobbyUser);
+            gameService.leaveGame(this.currentLobby, this.joinedLobbyUser);
+        } else if (this.currentLobby == null && this.joinedLobbyUser != null) {
+            throw new GamePresenterException("Name of the current Lobby is not available!");
+        } else {
+            throw new GamePresenterException("User of the current Lobby is not available");
+        }
+    }
+
 
     /**
      * This method holds the size of the terrainfields in pixels.
