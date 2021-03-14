@@ -43,7 +43,7 @@ public class GamePresenter extends AbstractPresenter {
     @Inject
     private GameService gameService;
     @FXML
-    private final Canvas canvas = new Canvas();
+    private Canvas canvas = new Canvas();
 
     /**
      * Method called when the RollDice button is pressed

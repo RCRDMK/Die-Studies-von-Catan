@@ -56,9 +56,6 @@ public class GameField implements Serializable {
         this.tFCs = tempArray;
     }
 
-    //TODO implementiere andere Spielfelder
-
-
     /**
      * Getter tFCs variable
      *
