@@ -23,6 +23,7 @@ public class LobbyDTO implements Lobby {
     private User owner;
     private final Set<User> users = new TreeSet<>();
     private final Set<User> playersReady = new TreeSet<>();
+    private String gameFieldVariant;
 
 
 
@@ -43,6 +44,11 @@ public class LobbyDTO implements Lobby {
     @Override
     public String getName() {
         return name;
+    }
+
+    @Override
+    public String getGameFieldVariant(){
+        return gameFieldVariant;
     }
 
     @Override
@@ -91,5 +97,10 @@ public class LobbyDTO implements Lobby {
 
     @Override
     public void setPlayersReadyToNull() {this.playersReady.removeAll(playersReady);}
+
+    @Override
+    public void setGameFieldVariant(String gfv){
+        this.gameFieldVariant=gfv;
+    }
 
 }

@@ -4,24 +4,16 @@ import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
 import de.uol.swp.client.chat.ChatService;
-
-import de.uol.swp.client.lobby.LobbyService;
-
-import de.uol.swp.common.game.message.GameCreatedMessage;
-
 import de.uol.swp.client.game.GameObjects.TerrainField;
 import de.uol.swp.client.game.HelperObjects.Vector;
+import de.uol.swp.client.lobby.LobbyService;
+import de.uol.swp.common.chat.RequestChatMessage;
+import de.uol.swp.common.chat.ResponseChatMessage;
 import de.uol.swp.common.game.GameField;
 import de.uol.swp.common.game.TerrainFieldContainer;
 import de.uol.swp.common.game.message.GameCreatedMessage;
-
-import de.uol.swp.common.chat.RequestChatMessage;
-import de.uol.swp.common.chat.ResponseChatMessage;
-
 import de.uol.swp.common.user.User;
-
 import de.uol.swp.common.user.UserDTO;
-
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
@@ -31,9 +23,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import java.net.URL;
-import java.util.ResourceBundle;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -375,6 +364,10 @@ public class GamePresenter extends AbstractPresenter {
         for (int i = tfArray.length - 1; i >= 0; i--) {
             g.setFill(tfArray[i].determineColorOfTerrain()); //Determine draw-color of current Terrainfield.
             g.fillOval(tfArray[i].getPosition().getX(), tfArray[i].getPosition().getY(), cardSize(), cardSize()); //Draw circle with given color at given position TODO: This - in combination with the Vector.vector-methods - SHOULD be already scaling with canvassize. If and when a scalable Canvas gets implemented, this should be checked.
+            if(tfArray[i].getDiceToken()!=0){
+                g.setFill(Color.WHITE);
+                g.fillText(Integer.toString(tfArray[i].getDiceToken()), tfArray[i].getPosition().getX() + (cardSize() / 2), tfArray[i].getPosition().getY() + (cardSize() / 2));
+            }
         }
     }
 

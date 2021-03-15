@@ -4,7 +4,6 @@ import de.uol.swp.common.user.User;
 
 import java.io.Serializable;
 import java.util.Set;
-import java.util.Timer;
 
 /**
  * Interface to unify lobby objects
@@ -79,6 +78,9 @@ public interface Lobby extends Serializable {
      */
     Set<User> getUsers();
 
+    //TODO:Kommentare
+    void setGameFieldVariant(String s);
+
     /**
      * Getter for all user in this lobby which are ready to start the game
      *
@@ -87,6 +89,9 @@ public interface Lobby extends Serializable {
      */
 
     Set<User> getPlayersReady();
+
+    //TODO:Kommentare
+    String getGameFieldVariant();
 
     void setPlayersReadyToNull();
 }

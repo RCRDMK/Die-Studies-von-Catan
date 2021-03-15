@@ -8,7 +8,6 @@ import de.uol.swp.common.game.GameField;
 import de.uol.swp.common.game.message.GameCreatedMessage;
 import de.uol.swp.common.game.request.GameLeaveUserRequest;
 import de.uol.swp.common.lobby.request.CreateLobbyRequest;
-import de.uol.swp.common.lobby.request.RetrieveAllThisLobbyUsersRequest;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.user.response.lobby.LobbyCreatedSuccessfulResponse;
 import org.junit.jupiter.api.AfterEach;
@@ -57,7 +56,6 @@ public class GamePresenterTest {
      * @author Ricardo Mook, Alexander Losse
      * @since 2021-03-05
      */
-
     @Test
     void onLeaveGame(){
         LobbyService lobbyService = new LobbyService(bus);
@@ -66,7 +64,7 @@ public class GamePresenterTest {
         LobbyCreatedSuccessfulResponse message2 = new LobbyCreatedSuccessfulResponse(userDTO);
         lobbyService.joinLobby("testLobby", userDTO1);
         GameService gameService = new GameService(bus);
-        GameCreatedMessage gMessage = new GameCreatedMessage("Testgame",userDTO, new GameField());
+        GameCreatedMessage gMessage = new GameCreatedMessage("Testgame",userDTO, new GameField("Standard"));
         GameLeaveUserRequest request = new GameLeaveUserRequest("Testgame",userDTO);
         gameService.leaveGame("Testgame",userDTO);
         assertTrue(event instanceof GameLeaveUserRequest);

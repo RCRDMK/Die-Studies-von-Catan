@@ -26,7 +26,7 @@ public interface ServerGameService {
      * @see de.uol.swp.common.user.User
      * @since 2021-01-15
      */
-    void createGame(String name, User owner);
+    void createGame(String name, User owner,String gameFieldVariant);
 
 
     /**
