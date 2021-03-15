@@ -1,5 +1,7 @@
 package de.uol.swp.server.usermanagement;
 
+import de.uol.swp.common.user.User;
+
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -15,8 +17,8 @@ import java.util.List;
 
 public class ActiveUserList {
 
-    static Hashtable<String, Long> activeUserTable = new Hashtable<>();
-    static List<String> userToDropList = new ArrayList<String>();
+    Hashtable<User, Long> activeUserTable = new Hashtable<>();
+    List<User> userToDropList = new ArrayList<>();
 
     /**
      * Handles a list of active users
@@ -28,8 +30,8 @@ public class ActiveUserList {
      * @since 2021-01-22
      */
 
-    public static void updateActiveUser(String username, Long time) {
-        activeUserTable.put(username, time);
+    public void updateActiveUser(User user, Long time) {
+        activeUserTable.put(user, time);
     }
 
     /**
@@ -41,8 +43,8 @@ public class ActiveUserList {
      * @since 2021-01-22
      */
 
-    public static void addActiveUser(String username) {
-        activeUserTable.put(username, System.currentTimeMillis());
+    public void addActiveUser(User user) {
+        activeUserTable.put(user, System.currentTimeMillis());
     }
 
     /**
@@ -54,29 +56,31 @@ public class ActiveUserList {
      * @since 2021-01-22
      */
 
-    public static void removeActiveUser(String username) {
-        activeUserTable.remove(username);
+    public void removeActiveUser(User user) {
+        activeUserTable.remove(user);
     }
 
     /**
      * Handles a list of active users
      * <p>
-     * Check whether a user has not sent a ping message for more than 60 seconds.
+     * Check whether a user has not sent a ping message for more than 60 seconds and creates a list from these.
+     * This list is then returned.
      *
+     * @return List of Users to Drop
      * @author Philip
      * @since 2021-01-22
-     * @return
      */
 
-    public static List<String> checkActiveUser() {
-        Enumeration<String> enu = activeUserTable.keys();
+    public List<User> checkActiveUser() {
+        userToDropList.clear();
+        Enumeration<User> enu = activeUserTable.keys();
         while (enu.hasMoreElements()) {
-            String username = enu.nextElement();
-            long t2 = activeUserTable.get(username);
+            User user = enu.nextElement();
+            long t2 = activeUserTable.get(user);
             if ((System.currentTimeMillis() - t2) >= 60000) {
-                userToDropList.add(username);
+                userToDropList.add(user);
             }
         }
-        return(userToDropList);
+        return (userToDropList);
     }
 }

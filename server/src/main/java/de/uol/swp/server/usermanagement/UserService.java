@@ -17,6 +17,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.sql.SQLException;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Mapping vom event bus calls to user management calls
@@ -32,6 +35,7 @@ public class UserService extends AbstractService {
     private static final Logger LOG = LogManager.getLogger(UserService.class);
 
     private final UserManagement userManagement;
+
 
     /**
      * Constructor
@@ -112,26 +116,4 @@ public class UserService extends AbstractService {
         }
         post(returnMessage);
     }
-
-    /**
-     * Handles PingRequests found on the EventBus
-     * <p>
-     * If a PingRequest is detected on the EventBus, this method is called.
-     * It sends a PingResponse back to the User.
-     * It tells the ActivUserList the last send Ping time from this User.
-     *
-     * @param pingRequest The PingRequest found on the EventBus
-     * @author Philip Nitsche
-     * @see de.uol.swp.common.user.request.PingRequest
-     * @since 2021-01-22
-     */
-
-    @Subscribe
-    private void onPingRequest(PingRequest pingRequest) {
-        ActiveUserList.updateActiveUser(pingRequest.getUsername(), pingRequest.getTime());
-        ResponseMessage returnMessage;
-        returnMessage = new PingResponse(pingRequest.getUsername(), pingRequest.getTime());
-        post(returnMessage);
-    }
-
 }

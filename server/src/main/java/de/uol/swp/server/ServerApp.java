@@ -59,7 +59,6 @@ class ServerApp {
         LOG.info("Starting Server on port " + port);
 
         // create components
-        UserManagement.startTimerForActivUserList();
         Injector injector = Guice.createInjector(new ServerModule());
         createServices(injector);
         ServerHandler serverHandler = injector.getInstance(ServerHandler.class);

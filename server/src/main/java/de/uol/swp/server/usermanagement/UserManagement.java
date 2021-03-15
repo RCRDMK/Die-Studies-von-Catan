@@ -34,7 +34,7 @@ public class UserManagement extends AbstractUserManagement {
     private Statement statement;
     private static final Logger LOG = LogManager.getLogger(UserManagement.class);
     private static final SortedMap<String, User> loggedInUsers = new TreeMap<>();
-    private static Timer timer = new Timer();
+
 
     /**
      * Constructor
@@ -101,7 +101,6 @@ public class UserManagement extends AbstractUserManagement {
             if (resultSet.next()) {
                 User user = new UserDTO(username, password, resultSet.getString(2));
                 this.loggedInUsers.put(username, user);
-                ActiveUserList.addActiveUser(username);
                 return user;
             } else {
                 throw new SecurityException("Cannot auth user " + username);
@@ -221,58 +220,6 @@ public class UserManagement extends AbstractUserManagement {
     @Override
     public void logout(User user) {
         loggedInUsers.remove(user.getUsername());
-        ActiveUserList.removeActiveUser(user.getUsername());
-    }
-
-    /**
-     * Logout User
-     * <p>
-     * Logs a User out. This methode is called when a User sends for more than 60 seconds no Ping message.
-     *
-     * @author Philip
-     * @since 2021-01-22
-     */
-
-    public static void pingLogout(String username) {
-        ActiveUserList.removeActiveUser(username);
-        loggedInUsers.remove(username);
-    }
-
-    /**
-     * Starts a Ping Timer
-     * <p>
-     * Starts a Ping Timer which checks every 30 seconds if the Users
-     * are still Online with a start delay of 30 seconds.
-     *
-     * @author Philip
-     * @since 2021-01-22
-     */
-
-    public static void startTimerForActivUserList() {
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                List<String> userToDrop = ActiveUserList.checkActiveUser();
-                if (userToDrop.size() >= 1) {
-                    for (int i = 0; i < userToDrop.size(); i++) {
-                        pingLogout(userToDrop.get(i));
-                    }
-                }
-            }
-        }, 30000, 30000);
-    }
-
-    /**
-     * Stops the Ping Timer
-     * <p>
-     * Stops the Ping Timer which checks every 30 seconds if the Users are still Online.
-     *
-     * @author Philip
-     * @since 2021-01-22
-     */
-
-    public void endTimerForPing() {
-        timer.cancel();
     }
 
     /**

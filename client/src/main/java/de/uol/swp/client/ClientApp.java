@@ -25,6 +25,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * The application class of the client
@@ -41,19 +43,15 @@ import java.util.List;
 public class ClientApp extends Application implements ConnectionListener {
 
     private static final Logger LOG = LogManager.getLogger(ClientApp.class);
-
     private String host;
     private int port;
-
     private ClientUserService userService;
-
     private User user;
-
     private ClientConnection clientConnection;
-
     private EventBus eventBus;
-
     private SceneManager sceneManager;
+    private long lastPingResponse;
+    private static Timer timer = new Timer();
 
     // -----------------------------------------------------
     // Java FX Methods
@@ -156,7 +154,9 @@ public class ClientApp extends Application implements ConnectionListener {
         LOG.debug("user logged in successfully " + message.getUser().getUsername());
         this.user = message.getUser();
         sceneManager.showMainScreen(user);
-        UserService.startTimerForPing(message.getUser().getUsername());
+        userService.startTimerForPing(message.getUser());
+        lastPingResponse = System.currentTimeMillis();
+        checkForTimeout();
     }
 
     /**
@@ -176,7 +176,8 @@ public class ClientApp extends Application implements ConnectionListener {
     public void userLoggedOut(LogoutRequest message) {
         LOG.debug("user logged out ");
         sceneManager.showLoginScreen();
-        UserService.endTimerForPing();
+        userService.endTimerForPing();
+        timer.cancel();
     }
 
     /**
@@ -219,7 +220,7 @@ public class ClientApp extends Application implements ConnectionListener {
     public void userJoinedLobby(LobbyJoinedSuccessfulResponse message) {
         LOG.debug("user joined lobby ");
         this.user = message.getUser();
-            sceneManager.showLobbyScreen(user, message.getName());
+        sceneManager.showLobbyScreen(user, message.getName());
 
     }
 
@@ -232,9 +233,9 @@ public class ClientApp extends Application implements ConnectionListener {
      * to DEBUG or higher "user joined lobby " is written to the log.
      *
      * @param message The StartGameResponse object detected on the EventBus
+     * @author Kirstin Beyer
      * @see de.uol.swp.common.game.message.GameCreatedMessage
      * @since 2021-01-14
-     * @author Kirstin Beyer
      */
     @Subscribe
     public void userStartedGame(GameCreatedMessage message) {
@@ -250,10 +251,9 @@ public class ClientApp extends Application implements ConnectionListener {
      * It tells the SceneManager to remove the tab corresponding to the lobby that was left.
      *
      * @param message the LobbyLeftSuccessfulResponse detected on the EventBus
-     *
+     * @author Alexander Losse, Marc Hermes
      * @see de.uol.swp.common.user.response.lobby.LobbyLeftSuccessfulResponse
      * @since 2021-01-20
-     * @author Alexander Losse, Marc Hermes
      */
     @Subscribe
     public void userLeftLobby(LobbyLeftSuccessfulResponse message) {
@@ -290,10 +290,9 @@ public class ClientApp extends Application implements ConnectionListener {
      * It tells the SceneManager to remove the tab corresponding to the game that was left.
      *
      * @param message the LobbyLeftSuccessfulResponse detected on the EventBus
-     *
+     * @author Marc Hermes
      * @see de.uol.swp.common.user.response.game.GameLeftSuccessfulResponse
      * @since 2021-01-21
-     * @author Marc Hermes
      */
     @Subscribe
     public void userLeftGame(GameLeftSuccessfulResponse message) {
@@ -354,6 +353,20 @@ public class ClientApp extends Application implements ConnectionListener {
         LOG.error("DeadEvent detected " + deadEvent);
     }
 
+    /**
+     * Handles the Ping Response Messages
+     * <p>
+     * Gets the latest Time form the Ping Response
+     *
+     * @author Philip, Marc
+     * @since 2021-01-22
+     */
+
+    @Subscribe
+    private void onPingResponse(PingResponse message) {
+        lastPingResponse = message.getTime();
+    }
+
     @Override
     public void exceptionOccurred(String e) {
         sceneManager.showServerError(e);
@@ -372,5 +385,43 @@ public class ClientApp extends Application implements ConnectionListener {
     public static void main(String[] args) {
         launch(args);
     }
+
+    /**
+     * Shows the login screen
+     * <p>
+     * If a user had a timeout this method is called to show the login screen.
+     *
+     * @author Philip, Marc
+     * @since 2021-01-22
+     */
+
+    private void checkoutTimeout() {
+        sceneManager.showLoginScreen();
+        userService.endTimerForPing();
+        timer.cancel();
+    }
+
+    /**
+     * Handles a Timer to check for a Timeout
+     * <p>
+     * Checks if the user has received a ping response in the last 120 seconds.
+     * If not checkoutTimeout will be called.
+     *
+     * @author Philip, Marc
+     * @since 2021-01-22
+     */
+
+    private void checkForTimeout() {
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                System.out.println(lastPingResponse);
+                if ((System.currentTimeMillis() - lastPingResponse) >= 120000) {
+                    checkoutTimeout();
+                }
+            }
+        }, 60000, 60000);
+    }
+
 
 }

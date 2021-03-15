@@ -1,6 +1,7 @@
 package de.uol.swp.common.user.request;
 
 import de.uol.swp.common.message.AbstractRequestMessage;
+import de.uol.swp.common.user.User;
 
 import java.util.Objects;
 
@@ -14,18 +15,19 @@ import java.util.Objects;
 
 public class PingRequest extends AbstractRequestMessage {
 
-    private String username;
+    private User user;
     private Long time;
+    private static final long serialVersionUID = -6032175459878192061L;
 
     /**
      * Constructor
      *
-     * @param username User the user tries to send Ping
+     * @param user User the user tries to send Ping
      * @author Philip
      * @since 2021-01-22
      */
-    public PingRequest(String username, Long time) {
-        this.username = username;
+    public PingRequest(User user, Long time) {
+        this.user = user;
         this.time = time;
     }
 
@@ -37,23 +39,23 @@ public class PingRequest extends AbstractRequestMessage {
     /**
      * Setter for the user variable
      *
-     * @param username Username containing the new user
+     * @param user containing the new user
      * @author Philip
      * @since 2021-01-22
      */
-    public void setUsername(String username) {
-        this.username = username;
+    public void setUser(User user) {
+        this.user = user;
     }
 
     /**
      * Getter for the user variable
      *
-     * @return Username tries to send Ping
+     * @return User tries to send Ping
      * @author Philip
      * @since 2021-01-22
      */
-    public String getUsername() {
-        return username;
+    public User getUser() {
+        return user;
     }
 
     /**
@@ -83,12 +85,12 @@ public class PingRequest extends AbstractRequestMessage {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         PingRequest that = (PingRequest) o;
-        return Objects.equals(username, that.username) && Objects.equals(time, that.time);
+        return Objects.equals(user, that.user) && Objects.equals(time, that.time);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(username, time);
+        return Objects.hash(user, time);
     }
 
 }
