@@ -38,9 +38,9 @@ class AuthenticationServiceTest {
 
     private final CountDownLatch lock = new CountDownLatch(1);
 
-    final User user = new UserDTO("name", "password", "email@test.de");
-    final User user2 = new UserDTO("name2", "password2", "email@test.de2");
-    final User user3 = new UserDTO("name3", "password3", "email@test.de3");
+    final User user = new UserDTO("name", "7a63639a836e576ee85336536040ce3b351fa0af1315f7c97e2956a298c72aced9acaae7be8fc36ba66bd20cd459a7321785c5a4af35ce6a620549f8f9d6c7dc", "email@test.de");
+    final User user2 = new UserDTO("name2", "bb886534800b205dd707d7e116e32eaa0563c7dfac8fdcf70e7cd83cc9d155c114c5c278e1a66bb6a37dd79badcb0a4d3acf3224508d82188a9ac2e0bf42ee7c", "email@test.de2");
+    final User user3 = new UserDTO("name3", "3a97ca2b95d063f0aa32e29d1ec9ac47733d10aa9c540df04dd01b90b346ccaa0af47f4ab28d01077c82efa808c464908a5f0962f94ebb92d3ec9b473ed3a2be", "email@test.de3");
 
 
     final EventBus bus = new EventBus();
