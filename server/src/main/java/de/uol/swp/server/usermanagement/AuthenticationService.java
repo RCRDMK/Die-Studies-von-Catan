@@ -238,7 +238,6 @@ public class AuthenticationService extends AbstractService {
             @Override
             public void run() {
                 List<User> userToDrop = activeUserList.checkActiveUser();
-                System.out.println(userToDrop);
                 if (userToDrop.size() >= 1) {
                     for (int i = 0; i < userToDrop.size(); i++) {
                         Optional<Session> session = getSession(userToDrop.get(i));

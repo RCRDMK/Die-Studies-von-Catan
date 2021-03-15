@@ -415,7 +415,6 @@ public class ClientApp extends Application implements ConnectionListener {
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
-                System.out.println(lastPingResponse);
                 if ((System.currentTimeMillis() - lastPingResponse) >= 120000) {
                     checkoutTimeout();
                 }
