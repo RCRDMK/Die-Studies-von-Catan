@@ -3,6 +3,7 @@ import javafx.collections.ListChangeListener;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -17,6 +18,7 @@ import java.util.List;
 public class TabHelper {
     private TabPane tabPane;
     private HashMap<String, Tab> tabsMap;
+    private HashMap<String, Tab> suspendedTabs;
 
     /**
      * Getter for the tabPane
@@ -53,6 +55,7 @@ public class TabHelper {
     public TabHelper(TabPane tabPane) {
         this.tabPane = tabPane;
         this.tabsMap = new HashMap<>();
+        this.suspendedTabs = new HashMap<>();
         initial();
     }
 
@@ -118,5 +121,20 @@ public class TabHelper {
      */
     public boolean removeTab(String text){
         return this.tabPane.getTabs().remove(getTabByText(text));
+    }
+
+    public boolean suspendTab(String text) {
+        suspendedTabs.put(text,getTabByText(text));
+        return removeTab(text);
+    }
+
+    public boolean unsuspendTab(String text) {
+        if (suspendedTabs.containsKey(text)) {
+            Tab tabToUnsuspend = suspendedTabs.remove(text);
+            return addTab(tabToUnsuspend);
+        }
+        else {
+            return false;
+        }
     }
 }
