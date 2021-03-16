@@ -241,7 +241,7 @@ public class GameService extends AbstractService {
                     if (gameManagement.getGame(lobby.get().getName()).isEmpty() && Players != lobby.get().getUsers().size()) {
                         Players = lobby.get().getUsers().size();
                         try {
-                            //startGame(lobby);
+                            startGame(lobby);
                         } catch (GameManagementException e) {
                             LOG.debug(e);
                             sendToListOfUsers(lobby.get().getUsers(), lobby.get().getName(), new NotEnoughPlayersMessage(lobby.get().getName()));

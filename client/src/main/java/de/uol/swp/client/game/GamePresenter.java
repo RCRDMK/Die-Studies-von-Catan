@@ -17,8 +17,6 @@ import de.uol.swp.common.chat.ResponseChatMessage;
 
 import de.uol.swp.common.user.User;
 
-import de.uol.swp.common.user.UserDTO;
-
 import de.uol.swp.common.user.response.game.GameLeftSuccessfulResponse;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;

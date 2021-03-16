@@ -3,7 +3,6 @@ import javafx.collections.ListChangeListener;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -123,11 +122,38 @@ public class TabHelper {
         return this.tabPane.getTabs().remove(getTabByText(text));
     }
 
+    /**
+     * Suspends a Tab
+     * <p>
+     * Puts the tab to suspend in the suspendedTabs Map and removes it from the
+     * tabsMap.
+     *
+     * @author Marc Hermes
+     * @param text The name of the Tab to suspend
+     * @return True when successfully suspended, false when not
+     * @since 2021-03-16
+     */
     public boolean suspendTab(String text) {
-        suspendedTabs.put(text,getTabByText(text));
-        return removeTab(text);
+        if (tabsMap.containsKey(text)) {
+            suspendedTabs.put(text, getTabByText(text));
+            return removeTab(text);
+        }
+        else {
+            return false;
+        }
     }
 
+    /**
+     * Unsuspends a Tab
+     * <p>
+     * Removes the tab to unsuspend from the suspendedTabs Map and adds it to the
+     * tabsMap.
+     *
+     * @author Marc Hermes
+     * @param text The name of the Tab to unsuspend
+     * @return True when successfully unsuspended, false when not
+     * @since 2021-03-16
+     */
     public boolean unsuspendTab(String text) {
         if (suspendedTabs.containsKey(text)) {
             Tab tabToUnsuspend = suspendedTabs.remove(text);

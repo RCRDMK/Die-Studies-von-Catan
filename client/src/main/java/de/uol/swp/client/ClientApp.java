@@ -227,7 +227,6 @@ public class ClientApp extends Application implements ConnectionListener {
         sceneManager.suspendLobbyTab(message.getName());
     }
 
-
     /**
      * Handles the successful leaving of a user from a lobby
      * <p>
@@ -243,8 +242,8 @@ public class ClientApp extends Application implements ConnectionListener {
     @Subscribe
     public void userLeftLobby(LobbyLeftSuccessfulResponse message) {
         LOG.debug("User " + message.getUser().getUsername() + " left lobby ");
-            this.user = message.getUser();
-            sceneManager.removeLobbyTab(message.getUser(), message.getName());
+        this.user = message.getUser();
+        sceneManager.removeLobbyTab(message.getUser(), message.getName());
     }
 
     /**
@@ -262,14 +261,12 @@ public class ClientApp extends Application implements ConnectionListener {
      * @author Ricardo Mook, Alexander Losse
      * @since 2021-03-04
      */
-
     @Subscribe
     public void userDroppedGame(GameDroppedMessage message){
         LOG.debug("Successfully dropped game  " + message.getName());
         sceneManager.removeGameTab(message.getName());
         sceneManager.unsuspendLobbyTab(message.getName());
     }
-
 
     /**
      * Handles the successful leaving of a user from a game
@@ -291,8 +288,6 @@ public class ClientApp extends Application implements ConnectionListener {
         sceneManager.removeGameTab(message.getName());
         sceneManager.unsuspendLobbyTab(message.getName());
     }
-
-
 
     /**
      * Handles unsuccessful registrations
