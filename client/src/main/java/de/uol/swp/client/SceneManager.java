@@ -532,7 +532,6 @@ public class SceneManager {
     public void suspendLobbyTab(String lobbyName) {
         Platform.runLater(() -> {
             tabHelper.suspendTab("Lobby " + lobbyName);
-            System.out.println("suspending tab: Lobby "+ lobbyName);
         });
     }
 
@@ -548,7 +547,6 @@ public class SceneManager {
     public void unsuspendLobbyTab(String lobbyName) {
         Platform.runLater(() -> {
             tabHelper.unsuspendTab("Lobby " + lobbyName);
-            System.out.println("Unsuspending tab: Lobby "+ lobbyName);
         });
     }
 }
