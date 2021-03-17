@@ -26,11 +26,10 @@ import javafx.scene.control.*;
 import javafx.stage.Modality;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 import java.util.List;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Optional;
+
 
 /**
  * Manages the lobby menu
@@ -703,6 +702,5 @@ public class LobbyPresenter extends AbstractPresenter {
             }
         }
     }
-
 }
 
