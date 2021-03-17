@@ -2,6 +2,7 @@ package de.uol.swp.server.game.inventory;
 
 import com.google.common.eventbus.EventBus;
 import de.uol.swp.common.game.Game;
+import de.uol.swp.common.game.request.GameLeaveUserRequest;
 import de.uol.swp.common.game.request.RetrieveAllThisGameUsersRequest;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.user.Session;
@@ -18,9 +19,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
-
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class GameServiceTest {
 
@@ -45,15 +44,15 @@ public class GameServiceTest {
     }
 
     /**
-     * Test checks if lobbies can be created with a certain name and
+     * Test checks if created lobby exists, then it is joined by userDTO1.
      * <p>
-     * whether a lobby that is referenced by the RetrieveAllThisLobbyUsersRequest
+     * Test also checks whether a game that is referenced by the RetrieveAllThisGameUsersRequest
      * <p>
-     * is also the same as the lobby itself.
+     * is also the same as the game itself.
      * <p>
-     * The lobby that was created by the User userDTO is also joined by userDTO1 and it is checked whether the
+     * The game that was created by the User userDTO and joined by userDTO1 is checked whether the
      * <p>
-     * lobby has references to the session of the users that joined the lobby.
+     * game has references to the session of the users that joined the game.
      *
      * @author Iskander Yusupov
      * @since 2020-03-14
@@ -78,7 +77,20 @@ public class GameServiceTest {
         }
 
     }
-
+    /**
+     * Test checks if created lobby exists, then it is joined by userDTO1 and userDTO2.
+     * <p>
+     * Test also checks whether a game that is referenced by the RetrieveAllThisGameUsersRequest
+     * <p>
+     * is also the same as the game itself.
+     * <p>
+     * The game that was created by the User userDTO and joined by userDTO1 and userDTO2 is checked whether the
+     * <p>
+     * game has references to the session of the users that joined the game.
+     *
+     * @author Iskander Yusupov
+     * @since 2020-03-14
+     */
     @Test
     void onRetrieveAllThisGameUsersRequest3() {
         LobbyService lobbyService = new LobbyService(lobbyManagement, authenticationService, bus);
@@ -91,6 +103,7 @@ public class GameServiceTest {
         GameService gameService = new GameService(gameManagement, lobbyService, authenticationService, bus);
         gameManagement.createGame(lobby.get().getName(), lobby.get().getOwner());
         Optional<Game> game = gameManagement.getGame(lobby.get().getName());
+        assertTrue(game.isPresent());
         RetrieveAllThisGameUsersRequest retrieveAllThisGameUsersRequest = new RetrieveAllThisGameUsersRequest(lobby.get().getName());
         assertSame(gameManagement.getGame(lobby.get().getName()).get().getName(), retrieveAllThisGameUsersRequest.getName());
         List<Session> gameUsers = authenticationService.getSessions(game.get().getUsers());
@@ -99,7 +112,20 @@ public class GameServiceTest {
         }
 
     }
-
+    /**
+     * Test checks if created lobby exists, then it is joined by userDTO1, userDTO2 and userDTO3.
+     * <p>
+     * Test also checks whether a game that is referenced by the RetrieveAllThisGameUsersRequest
+     * <p>
+     * is also the same as the game itself.
+     * <p>
+     * The game that was created by the User userDTO and joined by userDTO1, userDTO2 and userDTO3 is checked whether the
+     * <p>
+     * game has references to the session of the users that joined the game.
+     *
+     * @author Iskander Yusupov
+     * @since 2020-03-14
+     */
     @Test
     void onRetrieveAllThisGameUsersRequest4() {
         LobbyService lobbyService = new LobbyService(lobbyManagement, authenticationService, bus);
@@ -113,12 +139,70 @@ public class GameServiceTest {
         GameService gameService = new GameService(gameManagement, lobbyService, authenticationService, bus);
         gameManagement.createGame(lobby.get().getName(), lobby.get().getOwner());
         Optional<Game> game = gameManagement.getGame(lobby.get().getName());
+        assertTrue(game.isPresent());
         RetrieveAllThisGameUsersRequest retrieveAllThisGameUsersRequest = new RetrieveAllThisGameUsersRequest(lobby.get().getName());
         assertSame(gameManagement.getGame(lobby.get().getName()).get().getName(), retrieveAllThisGameUsersRequest.getName());
         List<Session> gameUsers = authenticationService.getSessions(game.get().getUsers());
         for (Session session : gameUsers) {
             assertTrue(userDTO == (session.getUser()) && userDTO1 == (session.getUser()) && userDTO2 == (session.getUser()) && userDTO3 == (session.getUser()));
         }
-
+    }
+    /**
+     * Test checks if created lobby exists, then it is joined by userDTO1 and userDTO2.
+     * <p>
+     * Test also checks whether a game that is referenced by the RetrieveAllThisGameUsersRequest
+     * <p>
+     * is also the same as the game itself.
+     * <p>
+     * userDTO1 leaves the game and test checks that the game doesn't contain him.
+     * <p>
+     * The game is checked that it has ONLY references to the session of the userDTO, userDTO2 and userDTO3.
+     * <p>
+     * userDTO2 leaves the game and test checks that the game doesn't contain him.
+     * <p>
+     * The game is checked that it has ONLY references to the session of the userDTO and userDTO3.
+     * <p>
+     * userDTO3 leaves the game and test checks that the game doesn't contain him.
+     * <p>
+     * The game is checked that it has ONLY references to the session of the userDTO.
+     *
+     * @author Iskander Yusupov
+     * @since 2020-03-14
+     */
+    @Test
+    void onRetrieveAllThisGameUsersRequestUserLeft() {
+        LobbyService lobbyService = new LobbyService(lobbyManagement, authenticationService, bus);
+        lobbyManagement.createLobby("testLobby", userDTO);
+        Optional<Lobby> lobby = lobbyManagement.getLobby("testLobby");
+        assertTrue(lobby.isPresent());
+        lobby.get().joinUser(userDTO1);
+        lobby.get().joinUser(userDTO2);
+        lobby.get().joinUser(userDTO3);
+        List<Session> lobbyUsers = authenticationService.getSessions(lobby.get().getUsers());
+        GameService gameService = new GameService(gameManagement, lobbyService, authenticationService, bus);
+        gameManagement.createGame(lobby.get().getName(), lobby.get().getOwner());
+        Optional<Game> game = gameManagement.getGame(lobby.get().getName());
+        assertTrue(game.isPresent());
+        RetrieveAllThisGameUsersRequest retrieveAllThisGameUsersRequest = new RetrieveAllThisGameUsersRequest(lobby.get().getName());
+        assertSame(gameManagement.getGame(lobby.get().getName()).get().getName(), retrieveAllThisGameUsersRequest.getName());
+        GameLeaveUserRequest gameLeaveUserRequest = new GameLeaveUserRequest(lobby.get().getName(), userDTO1);
+        gameService.onGameLeaveUserRequest(gameLeaveUserRequest);
+        assertFalse(game.get().getUsers().contains(userDTO1));
+        List<Session> gameUsers = authenticationService.getSessions(game.get().getUsers());
+        for (Session session : gameUsers) {
+            assertTrue(userDTO == (session.getUser()) && userDTO1 != (session.getUser()) && userDTO2 == (session.getUser()) && userDTO3 == (session.getUser()));
+        }
+        GameLeaveUserRequest gameLeaveUserRequest2 = new GameLeaveUserRequest(lobby.get().getName(), userDTO2);
+        gameService.onGameLeaveUserRequest(gameLeaveUserRequest2);
+        assertFalse(game.get().getUsers().contains(userDTO1));
+        for (Session session : gameUsers) {
+            assertTrue(userDTO == (session.getUser()) && userDTO1 != (session.getUser()) && userDTO2 != (session.getUser()) && userDTO3 == (session.getUser()));
+        }
+        GameLeaveUserRequest gameLeaveUserRequest3 = new GameLeaveUserRequest(lobby.get().getName(), userDTO3);
+        gameService.onGameLeaveUserRequest(gameLeaveUserRequest3);
+        assertFalse(game.get().getUsers().contains(userDTO3));
+        for (Session session : gameUsers) {
+            assertTrue(userDTO == (session.getUser()) && userDTO1 != (session.getUser()) && userDTO2 == (session.getUser()) && userDTO3 != (session.getUser()));
+        }
     }
 }
