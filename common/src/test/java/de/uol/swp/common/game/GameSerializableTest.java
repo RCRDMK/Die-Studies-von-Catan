@@ -17,12 +17,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class GameSerializableTest {
     private static final UserDTO defaultUser = new UserDTO("marco", "marco", "marco@grawunder.de");
     private static final ArrayList<Game> defaultCollection = new ArrayList<>();
+    private static final GameField defaultGameField = new GameField();
 
     @Test
     void testGameMessagesSerializable(){
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new AbstractGameMessage(defaultUser.getUsername(), defaultUser),
                 AbstractGameMessage.class));
-        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new GameCreatedMessage("test"),
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new GameCreatedMessage("test", defaultUser, defaultGameField),
                 GameCreatedMessage.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new GameDroppedMessage("test"),
                 GameDroppedMessage.class));
