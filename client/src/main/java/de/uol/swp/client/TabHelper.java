@@ -17,6 +17,7 @@ import java.util.List;
 public class TabHelper {
     private TabPane tabPane;
     private HashMap<String, Tab> tabsMap;
+    private HashMap<String, Tab> suspendedTabs;
 
     /**
      * Getter for the tabPane
@@ -53,6 +54,7 @@ public class TabHelper {
     public TabHelper(TabPane tabPane) {
         this.tabPane = tabPane;
         this.tabsMap = new HashMap<>();
+        this.suspendedTabs = new HashMap<>();
         initial();
     }
 
@@ -118,5 +120,47 @@ public class TabHelper {
      */
     public boolean removeTab(String text){
         return this.tabPane.getTabs().remove(getTabByText(text));
+    }
+
+    /**
+     * Suspends a Tab
+     * <p>
+     * Puts the tab to suspend in the suspendedTabs Map and removes it from the
+     * tabsMap.
+     *
+     * @author Marc Hermes
+     * @param text The name of the Tab to suspend
+     * @return True when successfully suspended, false when not
+     * @since 2021-03-16
+     */
+    public boolean suspendTab(String text) {
+        if (tabsMap.containsKey(text)) {
+            suspendedTabs.put(text, getTabByText(text));
+            return removeTab(text);
+        }
+        else {
+            return false;
+        }
+    }
+
+    /**
+     * Unsuspends a Tab
+     * <p>
+     * Removes the tab to unsuspend from the suspendedTabs Map and adds it to the
+     * tabsMap.
+     *
+     * @author Marc Hermes
+     * @param text The name of the Tab to unsuspend
+     * @return True when successfully unsuspended, false when not
+     * @since 2021-03-16
+     */
+    public boolean unsuspendTab(String text) {
+        if (suspendedTabs.containsKey(text)) {
+            Tab tabToUnsuspend = suspendedTabs.remove(text);
+            return addTab(tabToUnsuspend);
+        }
+        else {
+            return false;
+        }
     }
 }
