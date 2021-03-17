@@ -292,6 +292,7 @@ public class GamePresenter extends AbstractPresenter {
             }
         }
     }
+
     /**
      * Method called when the leaveGame Button is pressed
      * <p>
@@ -352,6 +353,7 @@ public class GamePresenter extends AbstractPresenter {
             }
         }
     }
+
     @Subscribe
     public void gameUserList(AllThisGameUsersResponse allThisGameUsersResponse) {
         gameUserListLogic(allThisGameUsersResponse);
@@ -428,7 +430,7 @@ public class GamePresenter extends AbstractPresenter {
     /**
      * Method for generating an array of terrainFields
      * that have the correct relative and absolute positions to one another
-     *
+     * <p>
      * enhanced by Marc Hermes - 2021-03-13
      *
      * @return Array with TerrainFields having the correct positions.
@@ -482,7 +484,7 @@ public class GamePresenter extends AbstractPresenter {
         TerrainField f33 = new TerrainField(Vector.topRight(cardSize()));
         TerrainField f34 = new TerrainField(Vector.bottomRight(cardSize()));
         TerrainField f35 = new TerrainField(Vector.bottomLeft(cardSize()));
-        TerrainField f36 = new TerrainField( new Vector(0, 0));
+        TerrainField f36 = new TerrainField(new Vector(0, 0));
         f36.setPosition(new Vector(((canvas.getWidth() / 2) - cardSize() / 2), ((canvas.getHeight() / 2)) - cardSize() / 2));
 
         tempArray = new TerrainField[]{f0, f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, f15, f16, f17, f18, f19, f20, f21, f22, f23, f24, f25, f26, f27, f28, f29, f30, f31, f32, f33, f34, f35, f36};
@@ -527,8 +529,8 @@ public class GamePresenter extends AbstractPresenter {
      * Then the values of the fieldTypes are checked and translated into the correct String names
      * of the tfArray TerrainFields.
      *
-     * @author Marc Hermes
      * @param gameField the gameField given by the Server
+     * @author Marc Hermes
      * @see de.uol.swp.common.game.GameField
      * @see de.uol.swp.client.game.GameObjects.TerrainField
      * @see de.uol.swp.common.game.TerrainFieldContainer
@@ -540,7 +542,7 @@ public class GamePresenter extends AbstractPresenter {
             tfArray[i].setDiceToken(terrainFieldContainers[i].getDiceTokens());
             int fieldType = terrainFieldContainers[i].getFieldType();
             String translatedFieldType;
-            switch(fieldType) {
+            switch (fieldType) {
                 case 0:
                     translatedFieldType = "Ocean";
                     break;

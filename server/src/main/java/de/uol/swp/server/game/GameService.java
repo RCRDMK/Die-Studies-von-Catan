@@ -304,7 +304,6 @@ public class GameService extends AbstractService {
      * Method adds ready players to the PlayerReady list and counts the number of player responses in variable Player
      * enhanced by Alexander Losse, Ricardo Mook 2021-03-05
      *
-     *
      * @param playerReadyRequest the PlayerReadyRequest found on the EventBus
      * @author Kirstin Beyer, Iskander Yusupov
      * @see de.uol.swp.common.game.request.PlayerReadyRequest

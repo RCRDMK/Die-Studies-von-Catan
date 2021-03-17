@@ -77,6 +77,7 @@ public class GameServiceTest {
         }
 
     }
+
     /**
      * Test checks if created lobby exists, then it is joined by userDTO1 and userDTO2.
      * <p>
@@ -112,6 +113,7 @@ public class GameServiceTest {
         }
 
     }
+
     /**
      * Test checks if created lobby exists, then it is joined by userDTO1, userDTO2 and userDTO3.
      * <p>
@@ -147,6 +149,7 @@ public class GameServiceTest {
             assertTrue(userDTO == (session.getUser()) && userDTO1 == (session.getUser()) && userDTO2 == (session.getUser()) && userDTO3 == (session.getUser()));
         }
     }
+
     /**
      * Test checks if created lobby exists, then it is joined by userDTO1 and userDTO2.
      * <p>

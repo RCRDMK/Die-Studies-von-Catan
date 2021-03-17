@@ -85,12 +85,12 @@ public class GameService {
     /**
      * Posts a request to leave the game on the Eventbus
      *
+     * @author Alexander Losse, Ricardo Mook
      * @see de.uol.swp.common.game.request.GameLeaveUserRequest
      * @since 2021-03-04
-     * @author Alexander Losse, Ricardo Mook
      */
-    public void leaveGame(String game, User user){
-        GameLeaveUserRequest leaveRequest= new GameLeaveUserRequest(game, (UserDTO) user);
+    public void leaveGame(String game, User user) {
+        GameLeaveUserRequest leaveRequest = new GameLeaveUserRequest(game, (UserDTO) user);
         eventBus.post(leaveRequest);
     }
 
