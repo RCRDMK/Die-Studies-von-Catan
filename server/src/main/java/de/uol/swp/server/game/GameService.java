@@ -20,6 +20,7 @@ import de.uol.swp.common.message.ResponseMessage;
 import de.uol.swp.common.message.ServerMessage;
 import de.uol.swp.common.user.Session;
 import de.uol.swp.common.user.User;
+import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.user.response.game.AllThisGameUsersResponse;
 import de.uol.swp.common.user.response.game.GameLeftSuccessfulResponse;
 import de.uol.swp.server.AbstractService;
@@ -141,6 +142,26 @@ public class GameService extends AbstractService {
         ctx.writeAndFlush(message);
     }
 
+    /**
+     * Sends a message to a specific user in the given game
+     *
+     * @param game    Optional<Game> game
+     * @param message ServerMessage message
+     * @param user    User user
+     * @author Alexander Losse, Ricardo Mook
+     * @since 2021-03-11
+     */
+    public void sendToSpecificUserInGame(Optional<Game> game, ServerMessage message, User user) {
+        if (game.isPresent()) {
+            List<Session> theList = new ArrayList<>();
+            theList.add(authenticationService.getSession(user).get());
+            message.setReceiver(theList);
+            post(message);
+        } else {
+            throw new GameManagementException("Game unknown!");
+        }
+    }
+
     @Subscribe
     public void onRetrieveAllGamesRequest(RetrieveAllGamesRequest msg) {
         AllCreatedGamesResponse response = new AllCreatedGamesResponse(this.gameManagement.getAllGames().values());
@@ -209,6 +230,8 @@ public class GameService extends AbstractService {
      * It starts a timer and tries to start the game afterwards. If no game was created a NotEnoughPlayersResponse is sent to
      * all users that are ready to start the game.
      * Else Method creates NotLobbyOwnerResponse, NotEnoughPlayersResponse or GameAlreadyExistsResponse and sends it to a specific user that sent the initial request.
+     * <p>
+     * enhanced by Alexander Losse, Ricardo Mook 2021-03-05
      *
      * @param startGameRequest the StartGameRequest found on the EventBus
      * @author Kirstin Beyer, Iskander Yusupov
@@ -253,6 +276,8 @@ public class GameService extends AbstractService {
      * <p>
      * A new game is created if at least 2 players are to start the game and if not already a game exists.
      * All players ready are joined to the game and a GameCreatedMessage is send to all players in the game.
+     * <p>
+     * enhanced by Alexander Losse, Ricardo Mook 2021-03-05
      *
      * @param lobby lobby that wants to start a game
      * @author Kirstin Beyer, Iskander Yusupov
@@ -265,8 +290,8 @@ public class GameService extends AbstractService {
             Optional<Game> game = gameManagement.getGame(lobby.get().getName());
             for (User user : lobby.get().getPlayersReady()) {
                 game.get().joinUser(user);
+                sendToSpecificUserInGame(game, new GameCreatedMessage(game.get().getName(), (UserDTO) user, game.get().getGameField()), user);
             }
-            sendToAllInGame(game.get().getName(), new GameCreatedMessage(game.get().getName()));
         } else {
             throw new GameManagementException("Not enough Players ready!");
         }
@@ -277,6 +302,8 @@ public class GameService extends AbstractService {
      * <p>
      * If a PlayerReadyRequest is detected on the EventBus, this method is called.
      * Method adds ready players to the PlayerReady list and counts the number of player responses in variable Player
+     * enhanced by Alexander Losse, Ricardo Mook 2021-03-05
+     *
      *
      * @param playerReadyRequest the PlayerReadyRequest found on the EventBus
      * @author Kirstin Beyer, Iskander Yusupov
@@ -300,7 +327,6 @@ public class GameService extends AbstractService {
                 sendToListOfUsers(lobby.get().getPlayersReady(), lobby.get().getName(), new NotEnoughPlayersMessage(lobby.get().getName()));
             }
         }
-
     }
 
 }

@@ -8,6 +8,7 @@ import com.google.inject.Injector;
 import de.uol.swp.client.di.ClientModule;
 import de.uol.swp.client.user.ClientUserService;
 import de.uol.swp.common.game.message.GameCreatedMessage;
+import de.uol.swp.common.game.message.GameDroppedMessage;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.exception.RegistrationExceptionMessage;
 import de.uol.swp.common.user.request.LogoutRequest;
@@ -166,7 +167,7 @@ public class ClientApp extends Application implements ConnectionListener {
      * If an LobbyCreatedSuccessful object is detected on the EventBus this
      * method is called. It tells the SceneManager to show the lobby menu and sets
      * this clients user to the user found in the object. If the loglevel is set
-     * to DEBUG or higher "user created lobby " and the username of the
+     * to DEBUG or higher "user created lobby" and the username of the
      * logged in user are written to the log.
      *
      * @param message The LobbyCreatedMessage object detected on the EventBus
@@ -208,9 +209,11 @@ public class ClientApp extends Application implements ConnectionListener {
      * Handles successful start of a game
      * <p>
      * If a StartGameResponse object is detected on the EventBus this
-     * method is called. It tells the SceneManager to show the lobby menu and sets
-     * this clients user to the user found in the object. If the loglevel is set
+     * method is called. It tells the SceneManager to show the lobby menu and suspend
+     * the corresponding LobbyTab. If the loglevel is set
      * to DEBUG or higher "user joined lobby " is written to the log.
+     *
+     * enhanced by Marc Hermes - 2021-03-15
      *
      * @param message The StartGameResponse object detected on the EventBus
      * @see de.uol.swp.common.game.message.GameCreatedMessage
@@ -221,8 +224,8 @@ public class ClientApp extends Application implements ConnectionListener {
     public void userStartedGame(GameCreatedMessage message) {
         LOG.debug(" Started a game " + message.getName());
         sceneManager.showGameScreen(user, message.getName());
+        sceneManager.suspendLobbyTab(message.getName());
     }
-
 
     /**
      * Handles the successful leaving of a user from a lobby
@@ -239,26 +242,51 @@ public class ClientApp extends Application implements ConnectionListener {
     @Subscribe
     public void userLeftLobby(LobbyLeftSuccessfulResponse message) {
         LOG.debug("User " + message.getUser().getUsername() + " left lobby ");
-            this.user = message.getUser();
-            sceneManager.removeLobbyTab(message.getUser(), message.getName());
+        this.user = message.getUser();
+        sceneManager.removeLobbyTab(message.getUser(), message.getName());
+    }
+
+    /**
+     * Handles a GameDroppedMessage when detected on the Eventbus
+     * <p>
+     *
+     * If a GameDroppedMessage is detected on the Eventbus this method
+     * gets called. It removes the GameTab which was passed on from the
+     * GameDroppedMessage and unsuspends the corresponding LobbyTab.
+     *
+     * enhanced by Marc Hermes - 2021-03-15
+     *
+     * @param message The GameDroppedMessage detected on the Eventbus
+     * @see de.uol.swp.common.game.message.GameDroppedMessage
+     * @author Ricardo Mook, Alexander Losse
+     * @since 2021-03-04
+     */
+    @Subscribe
+    public void userDroppedGame(GameDroppedMessage message){
+        LOG.debug("Successfully dropped game  " + message.getName());
+        sceneManager.removeGameTab(message.getName());
+        sceneManager.unsuspendLobbyTab(message.getName());
     }
 
     /**
      * Handles the successful leaving of a user from a game
      * <p>
      * If an GameLeftSuccessfulResponse object is detected on the EventBus this method is called.
-     * It tells the SceneManager to remove the tab corresponding to the game that was left.
+     * It tells the SceneManager to remove the tab corresponding to the game that was left
+     * and unsuspends the LobbyTab
+     *
+     * enhanced by Marc Hermes - 2021-03-15
      *
      * @param message the LobbyLeftSuccessfulResponse detected on the EventBus
-     *
      * @see de.uol.swp.common.user.response.game.GameLeftSuccessfulResponse
      * @since 2021-01-21
      * @author Marc Hermes
      */
     @Subscribe
     public void userLeftGame(GameLeftSuccessfulResponse message) {
-        LOG.debug("User " + message.getUser().getUsername() + " left game ");
-        sceneManager.removeGameTab(message.getUser(), message.getName());
+        LOG.debug("Successfully left game  " + message.getName());
+        sceneManager.removeGameTab(message.getName());
+        sceneManager.unsuspendLobbyTab(message.getName());
     }
 
     /**

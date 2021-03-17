@@ -26,7 +26,6 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 import java.net.URL;
 
 /**
@@ -262,10 +261,12 @@ public class SceneManager {
      * @author Marco Grawunder
      * @since 2019-09-03
      */
+
     @Subscribe
     public void onRegistrationCanceledEvent(RegistrationCanceledEvent event) {
         showScene(lastScene, lastTitle);
     }
+
 
     /**
      * Handles RegistrationErrorEvent detected on the EventBus
@@ -427,7 +428,7 @@ public class SceneManager {
 
     /**
      * Creates a new lobby tab
-     *
+     * <p>
      * When this method is invoked a new lobby tab with a specific name is created.
      * The content of the new lobby tab is set to the root of the currently empty nextLobbyScene
      * The lobby tab is then added to the TabPane.
@@ -451,7 +452,7 @@ public class SceneManager {
 
     /**
      * Removes an old lobby tab
-     *
+     * <p>
      * When this method is invoked a lobby tab with a specific name is removed from
      * the TabPane.
      *
@@ -478,7 +479,7 @@ public class SceneManager {
 
     /**
      * Creates a new game tab
-     *
+     * <p>
      * When this method is invoked a new game tab with a specific name is created.
      * The content of the new game tab is set to the root of the currently empty nextGameScene
      * The game tab is then added to the TabPane.
@@ -502,19 +503,50 @@ public class SceneManager {
 
     /**
      * Removes an old game tab
-     *
+     * <p>
      * When this method is invoked a game tab with a specific name is removed from
      * the TabPane.
+     *
+     * enhanced by Alexander Losse, Ricardo Mook - 2021-03-05
      *
      * @param gamename the name of the game that corresponds to the tab that is to be deleted
      * @author Marc Hermes
      * @since 2021-01-21
      */
-    public void removeGameTab(User currentUser, String gamename) {
+    public void removeGameTab(String gamename) {
         Platform.runLater(() -> {
             tabHelper.removeTab("Game " + gamename);
         });
     }
 
-}
+    /**
+     * Suspends a certain lobby Tab
+     * <p>
+     * When this method is invoked the tabHelper is used to suspend a lobby Tab.
+     * Suspended Tabs are removed from tabPane but not deleted.
+     *
+     * @author Marc Hermes
+     * @param lobbyName the name of the Lobby corresponding to the lobby Tab
+     * @since 2021-03-16
+     */
+    public void suspendLobbyTab(String lobbyName) {
+        Platform.runLater(() -> {
+            tabHelper.suspendTab("Lobby " + lobbyName);
+        });
+    }
 
+    /**
+     * Unsuspends a certain lobby Tab
+     * <p>
+     * When this method is invoked the tabHelper is used to unsuspend a lobby Tab.
+     *
+     * @author Marc Hermes
+     * @param lobbyName the name of the Lobby corresponding to the lobby Tab
+     * @since 2021-03-16
+     */
+    public void unsuspendLobbyTab(String lobbyName) {
+        Platform.runLater(() -> {
+            tabHelper.unsuspendTab("Lobby " + lobbyName);
+        });
+    }
+}

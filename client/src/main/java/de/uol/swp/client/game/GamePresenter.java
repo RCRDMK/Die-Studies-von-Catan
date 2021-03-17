@@ -3,38 +3,35 @@ package de.uol.swp.client.game;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
+import de.uol.swp.client.chat.ChatService;
+
+import de.uol.swp.client.lobby.LobbyService;
+
+import de.uol.swp.common.game.message.GameCreatedMessage;
+
 import de.uol.swp.client.game.GameObjects.TerrainField;
 import de.uol.swp.client.game.HelperObjects.Vector;
-import de.uol.swp.client.chat.ChatService;
-import de.uol.swp.client.lobby.LobbyPresenter;
-import de.uol.swp.client.lobby.LobbyService;
+import de.uol.swp.common.game.GameField;
+import de.uol.swp.common.game.TerrainFieldContainer;
+import de.uol.swp.common.game.message.GameCreatedMessage;
+
 import de.uol.swp.common.chat.RequestChatMessage;
 import de.uol.swp.common.chat.ResponseChatMessage;
-import de.uol.swp.common.game.response.GameCreatedSuccessfullyResponse;
+
 import de.uol.swp.common.user.User;
-import de.uol.swp.common.user.response.lobby.LobbyCreatedSuccessfulResponse;
-import javafx.application.Platform;
-import javafx.collections.ObservableList;
-import de.uol.swp.common.user.UserDTO;
-import de.uol.swp.common.user.response.game.AllThisGameUsersResponse;
-import de.uol.swp.common.user.response.lobby.AllThisLobbyUsersResponse;
-import javafx.application.Platform;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
+
+import de.uol.swp.common.user.response.game.GameLeftSuccessfulResponse;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import javafx.scene.control.ListView;
 import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.net.URL;
-import java.util.List;
 import java.util.ResourceBundle;
 
 import java.text.SimpleDateFormat;
@@ -50,7 +47,7 @@ import java.util.Date;
  * @since 2021-01-13
  */
 
-public class GamePresenter extends AbstractPresenter implements Initializable {
+public class GamePresenter extends AbstractPresenter {
 
     public static final String fxml = "/fxml/GameView.fxml";
 
@@ -60,17 +57,11 @@ public class GamePresenter extends AbstractPresenter implements Initializable {
 
     private String currentLobby;
 
-    private ObservableList<String> gameUsers;
-
-    //Container for Terrainfields
-    TerrainField[] tfArray;
+    //Container for TerrainFields
+    private TerrainField[] tfArray;
 
     @Inject
     private GameService gameService;
-
-    @FXML
-    private ListView<String> gameUsersView;
-
 
     @Inject
     private ChatService chatService;
@@ -83,6 +74,10 @@ public class GamePresenter extends AbstractPresenter implements Initializable {
 
     @FXML
     private Canvas canvas = new Canvas();
+
+    @Inject
+    private LobbyService lobbyService;
+
 
     /**
      * Method called when the send Message button is pressed
@@ -209,15 +204,107 @@ public class GamePresenter extends AbstractPresenter implements Initializable {
         //TODO:...
     }
 
-    @FXML
-    public void onLeaveGame(ActionEvent event) {
-        //TODO:...
+    /**
+     * Handles successful game creation
+     * <p>
+     * If a GameCreatedMessage is detected on the EventBus this method invokes gameStartedSuccessfulLogic.
+     *
+     * @param message the GameCreatedMessage object seen on the EventBus
+     * @author Ricardo Mook, Alexander Losse
+     * @see de.uol.swp.common.game.message.GameCreatedMessage
+     * @since 2021-03-05
+     */
+    @Subscribe
+    public void gameStartedSuccessful(GameCreatedMessage message) {
+        gameStartedSuccessfulLogic(message);
     }
 
     /**
-     * This method holds the size of the terrainfields in pixels.
+     * The Method invoked by gameStartedSuccessful()
      * <p>
-     * The cardsize is not a fixed value, because if the canvas becomes scalabe in a future update, the cards need to
+     * If the currentLobby is null, meaning this is an empty GamePresenter that is ready to be used for a new game tab,
+     * the parameters of this GamePresenter are updated to the User and Lobby given by the gcm Message.
+     * An update of the Users in the currentLobby is also requested.
+     *
+     * @param gcm the GameCreatedMessage given by the original subscriber method.
+     * @author Alexander Losse, Ricardo Mook
+     * @see GameCreatedMessage
+     * @see de.uol.swp.common.game.GameField
+     * @since 2021-03-05
+     */
+    public void gameStartedSuccessfulLogic(GameCreatedMessage gcm) {
+        if (this.currentLobby == null) {
+            LOG.debug("Requesting update of User list in game scene because game scene was created.");
+            this.joinedLobbyUser = gcm.getUser();
+            this.currentLobby = gcm.getName();
+            initializeGameField(gcm.getGameField());
+        }
+    }
+
+    /**
+     * Handles successful leaving of game
+     * <p>
+     * If a GameLeftSuccessfulResponse is detected on the EventBus the method gameLeftSuccessfulLogic is invoked.
+     *
+     * @param glsr the GameLeftSuccessfulResponse object seen on the EventBus
+     * @author Marc Hermes
+     * @see de.uol.swp.common.user.response.game.GameLeftSuccessfulResponse
+     * @since 2021-03-15
+     */
+    @Subscribe
+    public void gameLeftSuccessful(GameLeftSuccessfulResponse glsr) {
+        gameLeftSuccessfulLogic(glsr);
+    }
+
+    /**
+     * The method invoked by gameLeftSuccessful()
+     * <p>
+     * If the Game is left, meaning this Game Presenter is no longer needed,
+     * this presenter will no longer be registered on the event bus and no longer
+     * be reachable for responses, messages etc.
+     *
+     * @param glsr the GameLeftSuccessfulResponse given by the original subscriber method
+     * @author Marc Hermes
+     * @see de.uol.swp.common.user.response.game.GameLeftSuccessfulResponse
+     * @since 2021-03-15
+     */
+    public void gameLeftSuccessfulLogic(GameLeftSuccessfulResponse glsr) {
+        if (this.currentLobby != null) {
+            if (this.currentLobby.equals(glsr.getName())) {
+                this.currentLobby = null;
+                clearEventBus();
+            }
+        }
+    }
+    /**
+     * Method called when the leaveGame Button is pressed
+     * <p>
+     * If the leaveGameButton is pressed,
+     * the method tries to call the GameService method leaveGame
+     * It throws a GamePresenterException if joinedLobbyUser and currentLobby are not initialised
+     *
+     * @param event
+     * @author Ricardo Mook, Alexander Losse
+     * @see de.uol.swp.client.game.GameService
+     * @see de.uol.swp.client.game.GamePresenterException
+     * @since 2021-03-04
+     */
+    @FXML
+    public void onLeaveGame(ActionEvent event) {
+
+        if (this.currentLobby != null && this.joinedLobbyUser != null) {
+            gameService.leaveGame(this.currentLobby, this.joinedLobbyUser);
+        } else if (this.currentLobby == null && this.joinedLobbyUser != null) {
+            throw new GamePresenterException("Name of the current Lobby is not available!");
+        } else {
+            throw new GamePresenterException("User of the current Lobby is not available");
+        }
+    }
+
+    /**
+     * This method holds the size of the terrainFields in pixels.
+     * <p>
+     * The card size is not a fixed value, because if the canvas becomes scalable in a future update, the cards need to
      * scale with it. So if we start to work with textures, they need to be scaled as well. Slight modifications to this
      * method can do this.
      *
@@ -231,60 +318,63 @@ public class GamePresenter extends AbstractPresenter implements Initializable {
     }
 
     /**
-     * Method for generating a stack of terrainfields for a standard-ruleset-playfield.
+     * Method for generating an array of terrainFields
+     * that have the correct relative and absolute positions to one another
      *
-     * @return Array with TerrainFields in the standard-rulebook manner.
+     * enhanced by Marc Hermes - 2021-03-13
+     *
+     * @return Array with TerrainFields having the correct positions.
      * @author Pieter Vogt
      * @see <a href="https://confluence.swl.informatik.uni-oldenburg.de/display/SWP2020J/SpecCatan_1004+Spielfeld">Specification
      * 1004</a>
      * @since 2021-01-24
      */
-    public TerrainField[] getStandardDeck() {
+    public TerrainField[] getCorrectPositionsOfFields() {
 
         TerrainField[] tempArray;
 
         //Array of cards get generated in same order as "spielfeld"-finespec in confluence. TODO: This should probably get done by the server in future. Think of this as a test-method wich can be migrated to server later.
 
         //beginning of oceans
-        TerrainField f0 = new TerrainField("Ocean", 0, Vector.bottomLeft(cardSize()));
-        TerrainField f1 = new TerrainField("Ocean", 0, Vector.bottomLeft(cardSize()));
-        TerrainField f2 = new TerrainField("Ocean", 0, Vector.bottomLeft(cardSize()));
-        TerrainField f3 = new TerrainField("Ocean", 0, Vector.topLeft(cardSize()));
-        TerrainField f4 = new TerrainField("Ocean", 0, Vector.topLeft(cardSize()));
-        TerrainField f5 = new TerrainField("Ocean", 0, Vector.topLeft(cardSize()));
-        TerrainField f6 = new TerrainField("Ocean", 0, Vector.top((cardSize())));
-        TerrainField f7 = new TerrainField("Ocean", 0, Vector.top((cardSize())));
-        TerrainField f8 = new TerrainField("Ocean", 0, Vector.top((cardSize())));
-        TerrainField f9 = new TerrainField("Ocean", 0, Vector.topRight((cardSize())));
-        TerrainField f10 = new TerrainField("Ocean", 0, Vector.topRight((cardSize())));
-        TerrainField f11 = new TerrainField("Ocean", 0, Vector.topRight((cardSize())));
-        TerrainField f12 = new TerrainField("Ocean", 0, Vector.bottomRight((cardSize())));
-        TerrainField f13 = new TerrainField("Ocean", 0, Vector.bottomRight((cardSize())));
-        TerrainField f14 = new TerrainField("Ocean", 0, Vector.bottomRight((cardSize())));
-        TerrainField f15 = new TerrainField("Ocean", 0, Vector.bottom((cardSize())));
-        TerrainField f16 = new TerrainField("Ocean", 0, Vector.bottom((cardSize())));
-        TerrainField f17 = new TerrainField("Ocean", 0, Vector.bottomLeft((cardSize())));
+        TerrainField f0 = new TerrainField(Vector.bottomLeft(cardSize()));
+        TerrainField f1 = new TerrainField(Vector.bottomLeft(cardSize()));
+        TerrainField f2 = new TerrainField(Vector.bottomLeft(cardSize()));
+        TerrainField f3 = new TerrainField(Vector.topLeft(cardSize()));
+        TerrainField f4 = new TerrainField(Vector.topLeft(cardSize()));
+        TerrainField f5 = new TerrainField(Vector.topLeft(cardSize()));
+        TerrainField f6 = new TerrainField(Vector.top((cardSize())));
+        TerrainField f7 = new TerrainField(Vector.top((cardSize())));
+        TerrainField f8 = new TerrainField(Vector.top((cardSize())));
+        TerrainField f9 = new TerrainField(Vector.topRight((cardSize())));
+        TerrainField f10 = new TerrainField(Vector.topRight((cardSize())));
+        TerrainField f11 = new TerrainField(Vector.topRight((cardSize())));
+        TerrainField f12 = new TerrainField(Vector.bottomRight((cardSize())));
+        TerrainField f13 = new TerrainField(Vector.bottomRight((cardSize())));
+        TerrainField f14 = new TerrainField(Vector.bottomRight((cardSize())));
+        TerrainField f15 = new TerrainField(Vector.bottom((cardSize())));
+        TerrainField f16 = new TerrainField(Vector.bottom((cardSize())));
+        TerrainField f17 = new TerrainField(Vector.bottomLeft((cardSize())));
 
         //beginning of landmasses
-        TerrainField f18 = new TerrainField("Forest", 5, Vector.bottomLeft(cardSize()));
-        TerrainField f19 = new TerrainField("Farmland", 2, Vector.bottomLeft(cardSize()));
-        TerrainField f20 = new TerrainField("Forest", 6, Vector.topLeft(cardSize()));
-        TerrainField f21 = new TerrainField("Grassland", 3, Vector.topLeft(cardSize()));
-        TerrainField f22 = new TerrainField("Grassland", 8, Vector.top(cardSize()));
-        TerrainField f23 = new TerrainField("Forest", 10, Vector.top(cardSize()));
-        TerrainField f24 = new TerrainField("Farmland", 9, Vector.topRight(cardSize()));
-        TerrainField f25 = new TerrainField("Grassland", 12, Vector.topRight(cardSize()));
-        TerrainField f26 = new TerrainField("Hillside", 11, Vector.bottomRight(cardSize()));
-        TerrainField f27 = new TerrainField("Grassland", 4, Vector.bottomRight(cardSize()));
-        TerrainField f28 = new TerrainField("Hillside", 8, Vector.bottom(cardSize()));
-        TerrainField f29 = new TerrainField("Farmland", 10, Vector.bottomLeft(cardSize()));
-        TerrainField f30 = new TerrainField("Hillside", 9, Vector.bottomLeft(cardSize()));
-        TerrainField f31 = new TerrainField("Mountain", 4, Vector.topLeft(cardSize()));
-        TerrainField f32 = new TerrainField("Farmland", 5, Vector.top(cardSize()));
-        TerrainField f33 = new TerrainField("Mountain", 6, Vector.topRight(cardSize()));
-        TerrainField f34 = new TerrainField("Forest", 3, Vector.bottomRight(cardSize()));
-        TerrainField f35 = new TerrainField("Mountain", 3, Vector.bottomLeft(cardSize()));
-        TerrainField f36 = new TerrainField("Desert", 0, new Vector(0, 0));
+        TerrainField f18 = new TerrainField(Vector.bottomLeft(cardSize()));
+        TerrainField f19 = new TerrainField(Vector.bottomLeft(cardSize()));
+        TerrainField f20 = new TerrainField(Vector.topLeft(cardSize()));
+        TerrainField f21 = new TerrainField(Vector.topLeft(cardSize()));
+        TerrainField f22 = new TerrainField(Vector.top(cardSize()));
+        TerrainField f23 = new TerrainField(Vector.top(cardSize()));
+        TerrainField f24 = new TerrainField(Vector.topRight(cardSize()));
+        TerrainField f25 = new TerrainField(Vector.topRight(cardSize()));
+        TerrainField f26 = new TerrainField(Vector.bottomRight(cardSize()));
+        TerrainField f27 = new TerrainField(Vector.bottomRight(cardSize()));
+        TerrainField f28 = new TerrainField(Vector.bottom(cardSize()));
+        TerrainField f29 = new TerrainField(Vector.bottomLeft(cardSize()));
+        TerrainField f30 = new TerrainField(Vector.bottomLeft(cardSize()));
+        TerrainField f31 = new TerrainField(Vector.topLeft(cardSize()));
+        TerrainField f32 = new TerrainField(Vector.top(cardSize()));
+        TerrainField f33 = new TerrainField(Vector.topRight(cardSize()));
+        TerrainField f34 = new TerrainField(Vector.bottomRight(cardSize()));
+        TerrainField f35 = new TerrainField(Vector.bottomLeft(cardSize()));
+        TerrainField f36 = new TerrainField( new Vector(0, 0));
         f36.setPosition(new Vector(((canvas.getWidth() / 2) - cardSize() / 2), ((canvas.getHeight() / 2)) - cardSize() / 2));
 
         tempArray = new TerrainField[]{f0, f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, f15, f16, f17, f18, f19, f20, f21, f22, f23, f24, f25, f26, f27, f28, f29, f30, f31, f32, f33, f34, f35, f36};
@@ -293,18 +383,6 @@ public class GamePresenter extends AbstractPresenter implements Initializable {
             tempArray[i].setPosition(Vector.addVector(tempArray[i + 1].getPosition(), tempArray[i].getPlacementVector())); //Add position of last terrainfield and current placement-vector to determine position.
         }
         return tempArray;
-    }
-
-    /**
-     * Initializes everything that needs to be done before the first player-action takes place.
-     *
-     * @author Pieter Vogt
-     * @since 2021-01-24
-     */
-    @Override
-    public void initialize(URL location, ResourceBundle resources) {
-        tfArray = getStandardDeck(); // In future this should be a deque send by the server.
-        draw();
     }
 
     /**
@@ -333,94 +411,52 @@ public class GamePresenter extends AbstractPresenter implements Initializable {
         }
     }
 
-    @Subscribe
-    public void gameUserList(AllThisGameUsersResponse allThisGameUsersResponse) {
-        gameUserListLogic(allThisGameUsersResponse);
-    }
-
     /**
-     * The Method invoked by gameUserList()
+     * Method to initialize the GameField of this GamePresenter of this client
      * <p>
-     * If the currentLobby is not null, meaning this is an not an empty LobbyPresenter and the lobby name stored
-     * in this GamePresenter equals the one in the received Response, the method updateGameUsersList is invoked
-     * to update the List of the Users in the currentLobby in regards to the list given by the response.
+     * First creates the tfArray, then iterates over the terrainFieldContainers of the gameField
+     * to get the diceTokens values and copies them to the tfArray of this GamePresenter.
+     * Then the values of the fieldTypes are checked and translated into the correct String names
+     * of the tfArray TerrainFields.
      *
-     * @param atgur the AllThisLobbyUsersResponse given by the original subscriber method.
-     * @author Iskander Yusupov
-     * @see de.uol.swp.common.user.response.game.AllThisGameUsersResponse
-     * @since 2021-03-14
+     * @author Marc Hermes
+     * @param gameField the gameField given by the Server
+     * @see de.uol.swp.common.game.GameField
+     * @see de.uol.swp.client.game.GameObjects.TerrainField
+     * @see de.uol.swp.common.game.TerrainFieldContainer
      */
-    public void gameUserListLogic(AllThisGameUsersResponse atgur) {
-        if (this.currentLobby != null) {
-            if (this.currentLobby.equals(atgur.getName())) {
-                LOG.debug("Update of user list " + atgur.getUsers());
-                updateGameUsersList(atgur.getUsers());
-
+    public void initializeGameField(GameField gameField) {
+        tfArray = getCorrectPositionsOfFields();
+        TerrainFieldContainer[] terrainFieldContainers = gameField.getTFCs();
+        for (int i = 0; i < terrainFieldContainers.length; i++) {
+            tfArray[i].setDiceToken(terrainFieldContainers[i].getDiceTokens());
+            int fieldType = terrainFieldContainers[i].getFieldType();
+            String translatedFieldType;
+            switch(fieldType) {
+                case 0:
+                    translatedFieldType = "Ocean";
+                    break;
+                case 1:
+                    translatedFieldType = "Forest";
+                    break;
+                case 2:
+                    translatedFieldType = "Farmland";
+                    break;
+                case 3:
+                    translatedFieldType = "Grassland";
+                    break;
+                case 4:
+                    translatedFieldType = "Hillside";
+                    break;
+                case 5:
+                    translatedFieldType = "Mountain";
+                    break;
+                default:
+                    translatedFieldType = "Desert";
+                    break;
             }
+            tfArray[i].setName(translatedFieldType);
         }
+        draw();
     }
-
-    /**
-     * Updates the game menu user list of the current game according to the list given
-     * <p>
-     * This method clears the entire user list and then adds the name of each user in the list given to the game menu
-     * user list. If there ist no user list this creates one.
-     *
-     * @param gameUserList A list of UserDTO objects including all currently logged in users
-     * @implNote The code inside this Method has to run in the JavaFX-application thread. Therefore it is crucial not to
-     * remove the {@code Platform.runLater()}
-     * @author Iskander Yusupov , @design Marc Hermes, Ricardo Mook
-     * @see de.uol.swp.common.user.UserDTO
-     * @since 2020-03-14
-     */
-    private void updateGameUsersList(List<UserDTO> gameUserList) {
-        updateGameUsersListLogic(gameUserList);
-    }
-
-    public void updateGameUsersListLogic(List<UserDTO> l) {
-        // Attention: This must be done on the FX Thread!
-        Platform.runLater(() -> {
-            if (gameUsers == null) {
-                gameUsers = FXCollections.observableArrayList();
-                gameUsersView.setItems(gameUsers);
-            }
-            gameUsers.clear();
-            l.forEach(u -> gameUsers.add(u.getUsername()));
-        });
-    }
-
-    /**
-     * Handles GameCreatedSuccessfullyResponse
-     * <p>
-     * If GameCreatedSuccessfullyResponse is detected on the EventBus the method createdSuccessfulLogic is invoked.
-     *
-     * @param response the GameCreatedSuccessfullyResponse object seen on the EventBus
-     * @author René Meyer
-     * @see de.uol.swp.common.game.response.GameCreatedSuccessfullyResponse
-     * @since 2021-03-08
-     */
-    @Subscribe
-    public void createdSuccessful(GameCreatedSuccessfullyResponse response) {
-        createdSuccessfulLogic(response);
-    }
-
-    /**
-     * The Method invoked by createdSuccessful()
-     * <p>
-     * After the game is successfully created it retrieves the joinedLobbyUser and the currentLobby from the
-     * GameCreatedSuccessfullyResponse.
-     *
-     * @param lcsr the GameCreatedSuccessfullyResponse given by the original subscriber method.
-     * @author René Meyer
-     * @see de.uol.swp.common.game.message.GameCreatedMessage
-     * @since 2021-03-08
-     */
-    public void createdSuccessfulLogic(GameCreatedSuccessfullyResponse lcsr) {
-        if (this.currentLobby == null) {
-            this.joinedLobbyUser = lcsr.getJoinedUser();
-            this.currentLobby = lcsr.getLobbyName();
-            gameService.retrieveAllThisGameUsers(lcsr.getLobbyName());
-        }
-    }
-
 }
