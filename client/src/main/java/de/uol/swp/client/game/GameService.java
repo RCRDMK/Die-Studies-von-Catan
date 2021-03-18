@@ -3,12 +3,12 @@ package de.uol.swp.client.game;
 
 import com.google.common.eventbus.EventBus;
 import com.google.inject.Inject;
-import de.uol.swp.common.game.message.RollDiceRequest;
 import de.uol.swp.common.game.request.GameLeaveUserRequest;
 import de.uol.swp.common.game.request.RetrieveAllGamesRequest;
 import de.uol.swp.common.game.request.RetrieveAllThisGameUsersRequest;
 import de.uol.swp.common.lobby.request.RetrieveAllLobbiesRequest;
 import de.uol.swp.common.lobby.request.RetrieveAllThisLobbyUsersRequest;
+import de.uol.swp.common.game.request.RollDiceRequest;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import org.apache.logging.log4j.LogManager;
@@ -41,8 +41,8 @@ public class GameService {
      *
      * @param name Name of the lobby where the user wants to roll the dice
      * @param user User who wants to roll the dice
+     * @see de.uol.swp.common.game.request.RollDiceRequest
      * @author Kirstin, Pieter
-     * @see de.uol.swp.common.game.message.RollDiceRequest
      * @since 2021-01-07
      * <p>
      * Enhanced by Carsten Dekker

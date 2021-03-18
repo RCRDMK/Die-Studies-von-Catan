@@ -8,7 +8,7 @@ import de.uol.swp.common.chat.ResponseChatMessage;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.message.*;
 import de.uol.swp.common.game.request.*;
-import de.uol.swp.common.game.message.RollDiceRequest;
+import de.uol.swp.common.game.request.RollDiceRequest;
 import de.uol.swp.common.game.response.AllCreatedGamesResponse;
 import de.uol.swp.common.game.response.GameAlreadyExistsResponse;
 import de.uol.swp.common.game.response.NotLobbyOwnerResponse;
@@ -178,7 +178,7 @@ public class GameService extends AbstractService {
      *
      * @param rollDiceRequest The RollDiceRequest found on the EventBus
      * @author Kirstin, Pieter
-     * @see de.uol.swp.common.game.message.RollDiceRequest
+     * @see RollDiceRequest
      * @since 2021-01-07
      */
     @Subscribe
