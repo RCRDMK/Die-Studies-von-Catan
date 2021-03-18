@@ -11,17 +11,18 @@ import de.uol.swp.common.game.message.GameCreatedMessage;
 
 import de.uol.swp.client.game.GameObjects.TerrainField;
 import de.uol.swp.client.game.HelperObjects.Vector;
+import de.uol.swp.common.game.GameField;
+import de.uol.swp.common.game.TerrainFieldContainer;
+import de.uol.swp.common.game.message.GameCreatedMessage;
 
 import de.uol.swp.common.chat.RequestChatMessage;
 import de.uol.swp.common.chat.ResponseChatMessage;
 
 import de.uol.swp.common.user.User;
 
-import de.uol.swp.common.user.UserDTO;
-
+import de.uol.swp.common.user.response.game.GameLeftSuccessfulResponse;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.TextArea;
@@ -46,7 +47,7 @@ import java.util.Date;
  * @since 2021-01-13
  */
 
-public class GamePresenter extends AbstractPresenter implements Initializable {
+public class GamePresenter extends AbstractPresenter {
 
     public static final String fxml = "/fxml/GameView.fxml";
 
@@ -56,8 +57,8 @@ public class GamePresenter extends AbstractPresenter implements Initializable {
 
     private String currentLobby;
 
-    //Container for Terrainfields
-    TerrainField[] tfArray;
+    //Container for TerrainFields
+    private TerrainField[] tfArray;
 
     @Inject
     private GameService gameService;
@@ -228,6 +229,7 @@ public class GamePresenter extends AbstractPresenter implements Initializable {
      * @param gcm the GameCreatedMessage given by the original subscriber method.
      * @author Alexander Losse, Ricardo Mook
      * @see GameCreatedMessage
+     * @see de.uol.swp.common.game.GameField
      * @since 2021-03-05
      */
     public void gameStartedSuccessfulLogic(GameCreatedMessage gcm) {
@@ -235,9 +237,45 @@ public class GamePresenter extends AbstractPresenter implements Initializable {
             LOG.debug("Requesting update of User list in game scene because game scene was created.");
             this.joinedLobbyUser = gcm.getUser();
             this.currentLobby = gcm.getName();
+            initializeGameField(gcm.getGameField());
         }
     }
 
+    /**
+     * Handles successful leaving of game
+     * <p>
+     * If a GameLeftSuccessfulResponse is detected on the EventBus the method gameLeftSuccessfulLogic is invoked.
+     *
+     * @param glsr the GameLeftSuccessfulResponse object seen on the EventBus
+     * @author Marc Hermes
+     * @see de.uol.swp.common.user.response.game.GameLeftSuccessfulResponse
+     * @since 2021-03-15
+     */
+    @Subscribe
+    public void gameLeftSuccessful(GameLeftSuccessfulResponse glsr) {
+        gameLeftSuccessfulLogic(glsr);
+    }
+
+    /**
+     * The method invoked by gameLeftSuccessful()
+     * <p>
+     * If the Game is left, meaning this Game Presenter is no longer needed,
+     * this presenter will no longer be registered on the event bus and no longer
+     * be reachable for responses, messages etc.
+     *
+     * @param glsr the GameLeftSuccessfulResponse given by the original subscriber method
+     * @author Marc Hermes
+     * @see de.uol.swp.common.user.response.game.GameLeftSuccessfulResponse
+     * @since 2021-03-15
+     */
+    public void gameLeftSuccessfulLogic(GameLeftSuccessfulResponse glsr) {
+        if (this.currentLobby != null) {
+            if (this.currentLobby.equals(glsr.getName())) {
+                this.currentLobby = null;
+                clearEventBus();
+            }
+        }
+    }
     /**
      * Method called when the leaveGame Button is pressed
      * <p>
@@ -255,7 +293,6 @@ public class GamePresenter extends AbstractPresenter implements Initializable {
     public void onLeaveGame(ActionEvent event) {
 
         if (this.currentLobby != null && this.joinedLobbyUser != null) {
-            lobbyService.leaveLobby(this.currentLobby, (UserDTO) this.joinedLobbyUser);
             gameService.leaveGame(this.currentLobby, this.joinedLobbyUser);
         } else if (this.currentLobby == null && this.joinedLobbyUser != null) {
             throw new GamePresenterException("Name of the current Lobby is not available!");
@@ -264,11 +301,10 @@ public class GamePresenter extends AbstractPresenter implements Initializable {
         }
     }
 
-
     /**
-     * This method holds the size of the terrainfields in pixels.
+     * This method holds the size of the terrainFields in pixels.
      * <p>
-     * The cardsize is not a fixed value, because if the canvas becomes scalabe in a future update, the cards need to
+     * The card size is not a fixed value, because if the canvas becomes scalable in a future update, the cards need to
      * scale with it. So if we start to work with textures, they need to be scaled as well. Slight modifications to this
      * method can do this.
      *
@@ -282,60 +318,63 @@ public class GamePresenter extends AbstractPresenter implements Initializable {
     }
 
     /**
-     * Method for generating a stack of terrainfields for a standard-ruleset-playfield.
+     * Method for generating an array of terrainFields
+     * that have the correct relative and absolute positions to one another
      *
-     * @return Array with TerrainFields in the standard-rulebook manner.
+     * enhanced by Marc Hermes - 2021-03-13
+     *
+     * @return Array with TerrainFields having the correct positions.
      * @author Pieter Vogt
      * @see <a href="https://confluence.swl.informatik.uni-oldenburg.de/display/SWP2020J/SpecCatan_1004+Spielfeld">Specification
      * 1004</a>
      * @since 2021-01-24
      */
-    public TerrainField[] getStandardDeck() {
+    public TerrainField[] getCorrectPositionsOfFields() {
 
         TerrainField[] tempArray;
 
         //Array of cards get generated in same order as "spielfeld"-finespec in confluence. TODO: This should probably get done by the server in future. Think of this as a test-method wich can be migrated to server later.
 
         //beginning of oceans
-        TerrainField f0 = new TerrainField("Ocean", 0, Vector.bottomLeft(cardSize()));
-        TerrainField f1 = new TerrainField("Ocean", 0, Vector.bottomLeft(cardSize()));
-        TerrainField f2 = new TerrainField("Ocean", 0, Vector.bottomLeft(cardSize()));
-        TerrainField f3 = new TerrainField("Ocean", 0, Vector.topLeft(cardSize()));
-        TerrainField f4 = new TerrainField("Ocean", 0, Vector.topLeft(cardSize()));
-        TerrainField f5 = new TerrainField("Ocean", 0, Vector.topLeft(cardSize()));
-        TerrainField f6 = new TerrainField("Ocean", 0, Vector.top((cardSize())));
-        TerrainField f7 = new TerrainField("Ocean", 0, Vector.top((cardSize())));
-        TerrainField f8 = new TerrainField("Ocean", 0, Vector.top((cardSize())));
-        TerrainField f9 = new TerrainField("Ocean", 0, Vector.topRight((cardSize())));
-        TerrainField f10 = new TerrainField("Ocean", 0, Vector.topRight((cardSize())));
-        TerrainField f11 = new TerrainField("Ocean", 0, Vector.topRight((cardSize())));
-        TerrainField f12 = new TerrainField("Ocean", 0, Vector.bottomRight((cardSize())));
-        TerrainField f13 = new TerrainField("Ocean", 0, Vector.bottomRight((cardSize())));
-        TerrainField f14 = new TerrainField("Ocean", 0, Vector.bottomRight((cardSize())));
-        TerrainField f15 = new TerrainField("Ocean", 0, Vector.bottom((cardSize())));
-        TerrainField f16 = new TerrainField("Ocean", 0, Vector.bottom((cardSize())));
-        TerrainField f17 = new TerrainField("Ocean", 0, Vector.bottomLeft((cardSize())));
+        TerrainField f0 = new TerrainField(Vector.bottomLeft(cardSize()));
+        TerrainField f1 = new TerrainField(Vector.bottomLeft(cardSize()));
+        TerrainField f2 = new TerrainField(Vector.bottomLeft(cardSize()));
+        TerrainField f3 = new TerrainField(Vector.topLeft(cardSize()));
+        TerrainField f4 = new TerrainField(Vector.topLeft(cardSize()));
+        TerrainField f5 = new TerrainField(Vector.topLeft(cardSize()));
+        TerrainField f6 = new TerrainField(Vector.top((cardSize())));
+        TerrainField f7 = new TerrainField(Vector.top((cardSize())));
+        TerrainField f8 = new TerrainField(Vector.top((cardSize())));
+        TerrainField f9 = new TerrainField(Vector.topRight((cardSize())));
+        TerrainField f10 = new TerrainField(Vector.topRight((cardSize())));
+        TerrainField f11 = new TerrainField(Vector.topRight((cardSize())));
+        TerrainField f12 = new TerrainField(Vector.bottomRight((cardSize())));
+        TerrainField f13 = new TerrainField(Vector.bottomRight((cardSize())));
+        TerrainField f14 = new TerrainField(Vector.bottomRight((cardSize())));
+        TerrainField f15 = new TerrainField(Vector.bottom((cardSize())));
+        TerrainField f16 = new TerrainField(Vector.bottom((cardSize())));
+        TerrainField f17 = new TerrainField(Vector.bottomLeft((cardSize())));
 
         //beginning of landmasses
-        TerrainField f18 = new TerrainField("Forest", 5, Vector.bottomLeft(cardSize()));
-        TerrainField f19 = new TerrainField("Farmland", 2, Vector.bottomLeft(cardSize()));
-        TerrainField f20 = new TerrainField("Forest", 6, Vector.topLeft(cardSize()));
-        TerrainField f21 = new TerrainField("Grassland", 3, Vector.topLeft(cardSize()));
-        TerrainField f22 = new TerrainField("Grassland", 8, Vector.top(cardSize()));
-        TerrainField f23 = new TerrainField("Forest", 10, Vector.top(cardSize()));
-        TerrainField f24 = new TerrainField("Farmland", 9, Vector.topRight(cardSize()));
-        TerrainField f25 = new TerrainField("Grassland", 12, Vector.topRight(cardSize()));
-        TerrainField f26 = new TerrainField("Hillside", 11, Vector.bottomRight(cardSize()));
-        TerrainField f27 = new TerrainField("Grassland", 4, Vector.bottomRight(cardSize()));
-        TerrainField f28 = new TerrainField("Hillside", 8, Vector.bottom(cardSize()));
-        TerrainField f29 = new TerrainField("Farmland", 10, Vector.bottomLeft(cardSize()));
-        TerrainField f30 = new TerrainField("Hillside", 9, Vector.bottomLeft(cardSize()));
-        TerrainField f31 = new TerrainField("Mountain", 4, Vector.topLeft(cardSize()));
-        TerrainField f32 = new TerrainField("Farmland", 5, Vector.top(cardSize()));
-        TerrainField f33 = new TerrainField("Mountain", 6, Vector.topRight(cardSize()));
-        TerrainField f34 = new TerrainField("Forest", 3, Vector.bottomRight(cardSize()));
-        TerrainField f35 = new TerrainField("Mountain", 3, Vector.bottomLeft(cardSize()));
-        TerrainField f36 = new TerrainField("Desert", 0, new Vector(0, 0));
+        TerrainField f18 = new TerrainField(Vector.bottomLeft(cardSize()));
+        TerrainField f19 = new TerrainField(Vector.bottomLeft(cardSize()));
+        TerrainField f20 = new TerrainField(Vector.topLeft(cardSize()));
+        TerrainField f21 = new TerrainField(Vector.topLeft(cardSize()));
+        TerrainField f22 = new TerrainField(Vector.top(cardSize()));
+        TerrainField f23 = new TerrainField(Vector.top(cardSize()));
+        TerrainField f24 = new TerrainField(Vector.topRight(cardSize()));
+        TerrainField f25 = new TerrainField(Vector.topRight(cardSize()));
+        TerrainField f26 = new TerrainField(Vector.bottomRight(cardSize()));
+        TerrainField f27 = new TerrainField(Vector.bottomRight(cardSize()));
+        TerrainField f28 = new TerrainField(Vector.bottom(cardSize()));
+        TerrainField f29 = new TerrainField(Vector.bottomLeft(cardSize()));
+        TerrainField f30 = new TerrainField(Vector.bottomLeft(cardSize()));
+        TerrainField f31 = new TerrainField(Vector.topLeft(cardSize()));
+        TerrainField f32 = new TerrainField(Vector.top(cardSize()));
+        TerrainField f33 = new TerrainField(Vector.topRight(cardSize()));
+        TerrainField f34 = new TerrainField(Vector.bottomRight(cardSize()));
+        TerrainField f35 = new TerrainField(Vector.bottomLeft(cardSize()));
+        TerrainField f36 = new TerrainField( new Vector(0, 0));
         f36.setPosition(new Vector(((canvas.getWidth() / 2) - cardSize() / 2), ((canvas.getHeight() / 2)) - cardSize() / 2));
 
         tempArray = new TerrainField[]{f0, f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, f15, f16, f17, f18, f19, f20, f21, f22, f23, f24, f25, f26, f27, f28, f29, f30, f31, f32, f33, f34, f35, f36};
@@ -344,18 +383,6 @@ public class GamePresenter extends AbstractPresenter implements Initializable {
             tempArray[i].setPosition(Vector.addVector(tempArray[i + 1].getPosition(), tempArray[i].getPlacementVector())); //Add position of last terrainfield and current placement-vector to determine position.
         }
         return tempArray;
-    }
-
-    /**
-     * Initializes everything that needs to be done before the first player-action takes place.
-     *
-     * @author Pieter Vogt
-     * @since 2021-01-24
-     */
-    @Override
-    public void initialize(URL location, ResourceBundle resources) {
-        tfArray = getStandardDeck(); // In future this should be a deque send by the server.
-        draw();
     }
 
     /**
@@ -382,5 +409,54 @@ public class GamePresenter extends AbstractPresenter implements Initializable {
             g.setFill(tfArray[i].determineColorOfTerrain()); //Determine draw-color of current Terrainfield.
             g.fillOval(tfArray[i].getPosition().getX(), tfArray[i].getPosition().getY(), cardSize(), cardSize()); //Draw circle with given color at given position TODO: This - in combination with the Vector.vector-methods - SHOULD be already scaling with canvassize. If and when a scalable Canvas gets implemented, this should be checked.
         }
+    }
+
+    /**
+     * Method to initialize the GameField of this GamePresenter of this client
+     * <p>
+     * First creates the tfArray, then iterates over the terrainFieldContainers of the gameField
+     * to get the diceTokens values and copies them to the tfArray of this GamePresenter.
+     * Then the values of the fieldTypes are checked and translated into the correct String names
+     * of the tfArray TerrainFields.
+     *
+     * @author Marc Hermes
+     * @param gameField the gameField given by the Server
+     * @see de.uol.swp.common.game.GameField
+     * @see de.uol.swp.client.game.GameObjects.TerrainField
+     * @see de.uol.swp.common.game.TerrainFieldContainer
+     */
+    public void initializeGameField(GameField gameField) {
+        tfArray = getCorrectPositionsOfFields();
+        TerrainFieldContainer[] terrainFieldContainers = gameField.getTFCs();
+        for (int i = 0; i < terrainFieldContainers.length; i++) {
+            tfArray[i].setDiceToken(terrainFieldContainers[i].getDiceTokens());
+            int fieldType = terrainFieldContainers[i].getFieldType();
+            String translatedFieldType;
+            switch(fieldType) {
+                case 0:
+                    translatedFieldType = "Ocean";
+                    break;
+                case 1:
+                    translatedFieldType = "Forest";
+                    break;
+                case 2:
+                    translatedFieldType = "Farmland";
+                    break;
+                case 3:
+                    translatedFieldType = "Grassland";
+                    break;
+                case 4:
+                    translatedFieldType = "Hillside";
+                    break;
+                case 5:
+                    translatedFieldType = "Mountain";
+                    break;
+                default:
+                    translatedFieldType = "Desert";
+                    break;
+            }
+            tfArray[i].setName(translatedFieldType);
+        }
+        draw();
     }
 }

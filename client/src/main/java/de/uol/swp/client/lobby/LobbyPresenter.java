@@ -305,7 +305,7 @@ public class LobbyPresenter extends AbstractPresenter {
     }
 
     /**
-     * The method invoked by userLeftSuccesful()
+     * The method invoked by userLeftSuccessful()
      * <p>
      * If the Lobby is left, meaning this Lobby Presenter is no longer needed,
      * this presenter will no longer be registered on the event bus and no longer
@@ -667,7 +667,6 @@ public class LobbyPresenter extends AbstractPresenter {
             }
         }
     }
-
 
     /**
      * Handles successful creation of the game.
