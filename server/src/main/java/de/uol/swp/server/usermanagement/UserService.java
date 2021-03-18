@@ -132,8 +132,7 @@ public class UserService extends AbstractService {
         }
         ResponseMessage returnMessage;
         try {
-            userManagement.retrieveUserMail(retrieveUserMailRequest.getUser());
-            returnMessage = new RetrieveUserMailResponse(retrieveUserMailRequest.getUser());
+            returnMessage = new RetrieveUserMailResponse(userManagement.retrieveUserMail(retrieveUserMailRequest.getUser()));
         } catch (Exception e) {
             LOG.error(e);
             returnMessage = new RetrieveUserMailExceptionMessage("Cannot get user information "

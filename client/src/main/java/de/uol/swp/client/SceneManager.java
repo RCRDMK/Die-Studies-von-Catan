@@ -87,7 +87,6 @@ public class SceneManager {
         initLoginView();
         initMainView();
         initRegistrationView();
-        initGameView();
         initUserSettingsView();
         nextLobbyScene = initLobbyView();
         nextGameScene = initGameView();

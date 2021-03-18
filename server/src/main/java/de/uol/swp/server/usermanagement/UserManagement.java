@@ -144,6 +144,17 @@ public class UserManagement extends AbstractUserManagement {
         return new UserDTO(userToCreate.getUsername(), userToCreate.getPassword(), userToCreate.getEMail());
     }
 
+    /**
+     * Updates the users email.
+     * <p>
+     * This method updates the mail from the User in the database. It throws an exception if the user is not present in
+     * the database.
+     *
+     * @author Carsten Dekker
+     * @see java.sql.SQLException
+     * @return A new UserDTO with the username and the mail address
+     * @since 2021-03-12
+     */
     @Override
     public User updateUserMail(User toUpdateMail) throws SQLException {
         ResultSet resultSet;
@@ -176,6 +187,18 @@ public class UserManagement extends AbstractUserManagement {
         return new UserDTO(toUpdateMail.getUsername(), toUpdateMail.getPassword(), newEMail);
     }
 
+    /**
+     * Updates the users password.
+     * <p>
+     * This method updates the password from the User in the database. It throws an exception if the user is not present
+     * in the database or if the password, that the user entered in the UserSettingsView, is not the same as the
+     * currently used password.
+     *
+     * @author Carsten Dekker
+     * @see java.sql.SQLException
+     * @return A new UserDTO with the username and the mail address
+     * @since 2021-03-12
+     */
     @Override
     public User updateUserPassword(User toUpdatePassword, String currentPassword) throws SQLException {
         ResultSet resultSet;
@@ -212,6 +235,15 @@ public class UserManagement extends AbstractUserManagement {
         return new UserDTO(toUpdatePassword.getUsername(), newPassword, toUpdatePassword.getEMail());
     }
 
+    /**
+     * Deletes the user in the database.
+     * <p>
+     * This method drops the user from the database.
+     *
+     * @author Carsten Dekker
+     * @see java.sql.SQLException
+     * @since 2021-03-12
+     */
     @Override
     public void dropUser(User userToDrop) throws SQLException {
         String selectUserString = "select name from user where name =?;";
@@ -285,14 +317,13 @@ public class UserManagement extends AbstractUserManagement {
     }
 
     /**
-     * Selects the Mail from the database
+     * Selects the Mail from the database.
      * <p>
-     *  This method selects the mail from the User and creates a new UserDTO with the mail and an empty password.
-     *  The UserDTO gets returned to the UserService.
+     * This method selects the mail from the User and creates a new UserDTO with the mail and an empty password.
+     * The UserDTO gets returned to the UserService.
      *
      * @author Carsten Dekker
      * @see java.sql.SQLException
-     * @see java.util.LinkedList
      * @return A new UserDTO with the username and the mail address
      * @since 2021-03-12
      */

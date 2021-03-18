@@ -42,6 +42,7 @@ public class UserSettingsService {
      * @author Carsten Dekker
      * @param user the logged in user
      * @see de.uol.swp.client.account.UserSettingsPresenter
+     * @see de.uol.swp.common.user.request.RetrieveUserMailRequest
      * @since 2021-03-14
      */
     public void retrieveUserMail(User user) {
