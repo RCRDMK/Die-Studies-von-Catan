@@ -12,7 +12,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Test Class for the UserDTO
+ * Test Class for the LobbyDTO
  *
  * @author Marco Grawunder
  * @since 2019-10-08

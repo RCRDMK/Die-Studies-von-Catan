@@ -13,7 +13,7 @@ import de.uol.swp.common.game.GameField;
 import de.uol.swp.common.game.TerrainFieldContainer;
 import de.uol.swp.common.game.message.GameCreatedMessage;
 import de.uol.swp.common.user.User;
-import de.uol.swp.common.user.UserDTO;
+import de.uol.swp.common.user.response.game.GameLeftSuccessfulResponse;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
@@ -232,6 +232,41 @@ public class GamePresenter extends AbstractPresenter {
     }
 
     /**
+     * Handles successful leaving of game
+     * <p>
+     * If a GameLeftSuccessfulResponse is detected on the EventBus the method gameLeftSuccessfulLogic is invoked.
+     *
+     * @param glsr the GameLeftSuccessfulResponse object seen on the EventBus
+     * @author Marc Hermes
+     * @see de.uol.swp.common.user.response.game.GameLeftSuccessfulResponse
+     * @since 2021-03-15
+     */
+    @Subscribe
+    public void gameLeftSuccessful(GameLeftSuccessfulResponse glsr) {
+        gameLeftSuccessfulLogic(glsr);
+    }
+
+    /**
+     * The method invoked by gameLeftSuccessful()
+     * <p>
+     * If the Game is left, meaning this Game Presenter is no longer needed,
+     * this presenter will no longer be registered on the event bus and no longer
+     * be reachable for responses, messages etc.
+     *
+     * @param glsr the GameLeftSuccessfulResponse given by the original subscriber method
+     * @author Marc Hermes
+     * @see de.uol.swp.common.user.response.game.GameLeftSuccessfulResponse
+     * @since 2021-03-15
+     */
+    public void gameLeftSuccessfulLogic(GameLeftSuccessfulResponse glsr) {
+        if (this.currentLobby != null) {
+            if (this.currentLobby.equals(glsr.getName())) {
+                this.currentLobby = null;
+                clearEventBus();
+            }
+        }
+    }
+    /**
      * Method called when the leaveGame Button is pressed
      * <p>
      * If the leaveGameButton is pressed,
@@ -248,7 +283,6 @@ public class GamePresenter extends AbstractPresenter {
     public void onLeaveGame(ActionEvent event) {
 
         if (this.currentLobby != null && this.joinedLobbyUser != null) {
-            lobbyService.leaveLobby(this.currentLobby, (UserDTO) this.joinedLobbyUser);
             gameService.leaveGame(this.currentLobby, this.joinedLobbyUser);
         } else if (this.currentLobby == null && this.joinedLobbyUser != null) {
             throw new GamePresenterException("Name of the current Lobby is not available!");
