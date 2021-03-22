@@ -67,7 +67,7 @@ public class GameServiceTest {
         lobby.get().joinUser(userDTO1);
         List<Session> lobbyUsers = authenticationService.getSessions(lobby.get().getUsers());
         GameService gameService = new GameService(gameManagement, lobbyService, authenticationService, bus);
-        gameManagement.createGame(lobby.get().getName(), lobby.get().getOwner());
+        gameManagement.createGame(lobby.get().getName(), lobby.get().getOwner(),"Standard");
         Optional<Game> game = gameManagement.getGame(lobby.get().getName());
         RetrieveAllThisGameUsersRequest retrieveAllThisGameUsersRequest = new RetrieveAllThisGameUsersRequest(lobby.get().getName());
         assertSame(gameManagement.getGame(lobby.get().getName()).get().getName(), retrieveAllThisGameUsersRequest.getName());
@@ -102,7 +102,7 @@ public class GameServiceTest {
         lobby.get().joinUser(userDTO2);
         List<Session> lobbyUsers = authenticationService.getSessions(lobby.get().getUsers());
         GameService gameService = new GameService(gameManagement, lobbyService, authenticationService, bus);
-        gameManagement.createGame(lobby.get().getName(), lobby.get().getOwner());
+        gameManagement.createGame(lobby.get().getName(), lobby.get().getOwner(),"Standard");
         Optional<Game> game = gameManagement.getGame(lobby.get().getName());
         assertTrue(game.isPresent());
         RetrieveAllThisGameUsersRequest retrieveAllThisGameUsersRequest = new RetrieveAllThisGameUsersRequest(lobby.get().getName());
@@ -139,7 +139,7 @@ public class GameServiceTest {
         lobby.get().joinUser(userDTO3);
         List<Session> lobbyUsers = authenticationService.getSessions(lobby.get().getUsers());
         GameService gameService = new GameService(gameManagement, lobbyService, authenticationService, bus);
-        gameManagement.createGame(lobby.get().getName(), lobby.get().getOwner());
+        gameManagement.createGame(lobby.get().getName(), lobby.get().getOwner(),"Standard");
         Optional<Game> game = gameManagement.getGame(lobby.get().getName());
         assertTrue(game.isPresent());
         RetrieveAllThisGameUsersRequest retrieveAllThisGameUsersRequest = new RetrieveAllThisGameUsersRequest(lobby.get().getName());
@@ -183,7 +183,7 @@ public class GameServiceTest {
         lobby.get().joinUser(userDTO3);
         List<Session> lobbyUsers = authenticationService.getSessions(lobby.get().getUsers());
         GameService gameService = new GameService(gameManagement, lobbyService, authenticationService, bus);
-        gameManagement.createGame(lobby.get().getName(), lobby.get().getOwner());
+        gameManagement.createGame(lobby.get().getName(), lobby.get().getOwner(),"Standard");
         Optional<Game> game = gameManagement.getGame(lobby.get().getName());
         assertTrue(game.isPresent());
         RetrieveAllThisGameUsersRequest retrieveAllThisGameUsersRequest = new RetrieveAllThisGameUsersRequest(lobby.get().getName());
