@@ -12,18 +12,27 @@ import de.uol.swp.common.chat.ResponseChatMessage;
 import de.uol.swp.common.game.GameField;
 import de.uol.swp.common.game.TerrainFieldContainer;
 import de.uol.swp.common.game.message.GameCreatedMessage;
+
+import de.uol.swp.common.game.message.UserLeftGameMessage;
 import de.uol.swp.common.user.User;
+
+import de.uol.swp.common.user.UserDTO;
+import de.uol.swp.common.user.response.game.AllThisGameUsersResponse;
 import de.uol.swp.common.user.response.game.GameLeftSuccessfulResponse;
+import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
+import java.util.List;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -47,6 +56,8 @@ public class GamePresenter extends AbstractPresenter {
 
     private String currentLobby;
 
+    private ObservableList<String> gameUsers;
+
     //Container for TerrainFields
     private TerrainField[] tfArray;
 
@@ -67,6 +78,9 @@ public class GamePresenter extends AbstractPresenter {
 
     @Inject
     private LobbyService lobbyService;
+
+    @FXML
+    private ListView<String> gameUsersView;
 
 
     /**
@@ -227,6 +241,7 @@ public class GamePresenter extends AbstractPresenter {
             LOG.debug("Requesting update of User list in game scene because game scene was created.");
             this.joinedLobbyUser = gcm.getUser();
             this.currentLobby = gcm.getName();
+            gameService.retrieveAllThisGameUsers(gcm.getName());
             initializeGameField(gcm.getGameField());
         }
     }
@@ -261,11 +276,13 @@ public class GamePresenter extends AbstractPresenter {
     public void gameLeftSuccessfulLogic(GameLeftSuccessfulResponse glsr) {
         if (this.currentLobby != null) {
             if (this.currentLobby.equals(glsr.getName())) {
+
                 this.currentLobby = null;
                 clearEventBus();
             }
         }
     }
+
     /**
      * Method called when the leaveGame Button is pressed
      * <p>
@@ -292,6 +309,99 @@ public class GamePresenter extends AbstractPresenter {
     }
 
     /**
+     * Handles successful game leave of the user
+     * <p>
+     * If a UserLeftGameMessage is detected on the EventBus the method otherUserLeftSuccessfulLogic is invoked.
+     *
+     * @param message the UserLeftGameMessage object seen on the EventBus
+     * @author Iskander Yusupov
+     * @see de.uol.swp.common.game.message.UserLeftGameMessage
+     * @since 2021-03-17
+     */
+    @Subscribe
+    public void otherUserLeftSuccessful(UserLeftGameMessage message) {
+        otherUserLeftSuccessfulLogic(message);
+    }
+
+    /**
+     * The Method invoked by otherUserLeftSuccessful()
+     * <p>
+     * If the currentLobby is not null, meaning this is an not an empty GamePresenter and the game/lobby name stored
+     * in this GamePresenter equals the one in the received Message, an update of the Users in the currentLobby(current game)
+     * is requested.
+     *
+     * @param ulgm the UserLeftGameMessage given by the original subscriber method.
+     * @author Iskander Yusupov
+     * @see de.uol.swp.common.game.message.UserLeftGameMessage
+     * @since 2021-03-17
+     */
+    public void otherUserLeftSuccessfulLogic(UserLeftGameMessage ulgm) {
+        if (this.currentLobby != null) {
+            if (this.currentLobby.equals(ulgm.getName())) {
+                LOG.debug("Requesting update of User list in lobby because a User left the lobby.");
+                gameService.retrieveAllThisGameUsers(ulgm.getName());
+            }
+        }
+    }
+
+    @Subscribe
+    public void gameUserList(AllThisGameUsersResponse allThisGameUsersResponse) {
+        gameUserListLogic(allThisGameUsersResponse);
+    }
+
+    /**
+     * The Method invoked by gameUserList()
+     * <p>
+     * If the currentLobby is not null, meaning this is an not an empty LobbyPresenter and the lobby name stored
+     * in this GamePresenter equals the one in the received Response, the method updateGameUsersList is invoked
+     * to update the List of the Users in the currentLobby in regards to the list given by the response.
+     *
+     * @param atgur the AllThisLobbyUsersResponse given by the original subscriber method.
+     * @author Iskander Yusupov
+     * @see de.uol.swp.common.user.response.game.AllThisGameUsersResponse
+     * @since 2021-03-14
+     */
+    public void gameUserListLogic(AllThisGameUsersResponse atgur) {
+        if (this.currentLobby != null) {
+            if (this.currentLobby.equals(atgur.getName())) {
+                LOG.debug("Update of user list " + atgur.getUsers());
+                updateGameUsersList(atgur.getUsers());
+
+            }
+        }
+    }
+
+    /**
+     * Updates the game menu user list of the current game according to the list given
+     * <p>
+     * This method clears the entire user list and then adds the name of each user in the list given to the game menu
+     * user list. If there ist no user list this creates one.
+     *
+     * @param gameUserList A list of UserDTO objects including all currently logged in users
+     * @implNote The code inside this Method has to run in the JavaFX-application thread. Therefore it is crucial not to
+     * remove the {@code Platform.runLater()}
+     * @author Iskander Yusupov , @design Marc Hermes, Ricardo Mook
+     * @see de.uol.swp.common.user.UserDTO
+     * @since 2020-03-14
+     */
+    private void updateGameUsersList(List<UserDTO> gameUserList) {
+        updateGameUsersListLogic(gameUserList);
+    }
+
+    public void updateGameUsersListLogic(List<UserDTO> l) {
+        // Attention: This must be done on the FX Thread!
+        Platform.runLater(() -> {
+            if (gameUsers == null) {
+                gameUsers = FXCollections.observableArrayList();
+                gameUsersView.setItems(gameUsers);
+            }
+            gameUsers.clear();
+            l.forEach(u -> gameUsers.add(u.getUsername()));
+        });
+    }
+
+
+    /**
      * This method holds the size of the terrainFields in pixels.
      * <p>
      * The card size is not a fixed value, because if the canvas becomes scalable in a future update, the cards need to
@@ -310,7 +420,7 @@ public class GamePresenter extends AbstractPresenter {
     /**
      * Method for generating an array of terrainFields
      * that have the correct relative and absolute positions to one another
-     *
+     * <p>
      * enhanced by Marc Hermes - 2021-03-13
      *
      * @return Array with TerrainFields having the correct positions.
@@ -364,7 +474,7 @@ public class GamePresenter extends AbstractPresenter {
         TerrainField f33 = new TerrainField(Vector.topRight(cardSize()));
         TerrainField f34 = new TerrainField(Vector.bottomRight(cardSize()));
         TerrainField f35 = new TerrainField(Vector.bottomLeft(cardSize()));
-        TerrainField f36 = new TerrainField( new Vector(0, 0));
+        TerrainField f36 = new TerrainField(new Vector(0, 0));
         f36.setPosition(new Vector(((canvas.getWidth() / 2) - cardSize() / 2), ((canvas.getHeight() / 2)) - cardSize() / 2));
 
         tempArray = new TerrainField[]{f0, f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, f15, f16, f17, f18, f19, f20, f21, f22, f23, f24, f25, f26, f27, f28, f29, f30, f31, f32, f33, f34, f35, f36};
@@ -413,8 +523,8 @@ public class GamePresenter extends AbstractPresenter {
      * Then the values of the fieldTypes are checked and translated into the correct String names
      * of the tfArray TerrainFields.
      *
-     * @author Marc Hermes
      * @param gameField the gameField given by the Server
+     * @author Marc Hermes
      * @see de.uol.swp.common.game.GameField
      * @see de.uol.swp.client.game.GameObjects.TerrainField
      * @see de.uol.swp.common.game.TerrainFieldContainer
@@ -426,7 +536,7 @@ public class GamePresenter extends AbstractPresenter {
             tfArray[i].setDiceToken(terrainFieldContainers[i].getDiceTokens());
             int fieldType = terrainFieldContainers[i].getFieldType();
             String translatedFieldType;
-            switch(fieldType) {
+            switch (fieldType) {
                 case 0:
                     translatedFieldType = "Ocean";
                     break;

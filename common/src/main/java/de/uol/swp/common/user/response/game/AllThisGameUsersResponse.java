@@ -24,6 +24,7 @@ public class AllThisGameUsersResponse extends AbstractResponseMessage {
 
     private static final long serialVersionUID = -7113321823425212173L;
     final private ArrayList<UserDTO> users = new ArrayList<>();
+    private String game;
 
     /**
      * Default Constructor
@@ -49,7 +50,8 @@ public class AllThisGameUsersResponse extends AbstractResponseMessage {
      * @author Iskander Yusupov
      * @since 2021-01-15
      */
-    public AllThisGameUsersResponse(List<Session> users) {
+    public AllThisGameUsersResponse(List<Session> users, String gameName) {
+        this.game = gameName;
         for (Session user : users) {
             this.users.add(UserDTO.createWithoutPassword(user.getUser()));
         }
@@ -65,6 +67,18 @@ public class AllThisGameUsersResponse extends AbstractResponseMessage {
      */
     public List<UserDTO> getUsers() {
         return users;
+    }
+
+    /**
+     * Getter for the name of the game
+     * <p>
+     *
+     * @return string name of the game
+     * @author Iskander Yusupov
+     * @since 2021-03-14
+     */
+    public String getName() {
+        return game;
     }
 
 }
