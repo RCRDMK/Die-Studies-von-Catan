@@ -97,6 +97,17 @@ public class GameService extends AbstractService {
         }
     }
 
+    /**
+     * Handles RetrieveAllThisGameUsersRequests found on the EventBus
+     * <p>
+     * If a RetrieveAllThisGameUsersRequests is detected on the EventBus, this method is called.
+     * It prepares the sending of a AllThisGameUsersResponse for a specific user that sent the initial request.
+     *
+     * @param retrieveAllThisGameUsersRequest The RetrieveAllThisGameUsersRequest found on the EventBus
+     * @author Iskander Yusupov
+     * @see de.uol.swp.common.game.Game
+     * @since 2021-01-15
+     */
     @Subscribe
     public void onRetrieveAllThisGameUsersRequest(RetrieveAllThisGameUsersRequest retrieveAllThisGameUsersRequest) {
         Optional<Game> game = gameManagement.getGame(retrieveAllThisGameUsersRequest.getName());
@@ -104,7 +115,7 @@ public class GameService extends AbstractService {
             List<Session> gameUsers = authenticationService.getSessions(game.get().getUsers());
             if (retrieveAllThisGameUsersRequest.getMessageContext().isPresent()) {
                 Optional<MessageContext> ctx = retrieveAllThisGameUsersRequest.getMessageContext();
-                sendToSpecificUser(ctx.get(), new AllThisGameUsersResponse(gameUsers));
+                sendToSpecificUser(ctx.get(), new AllThisGameUsersResponse(gameUsers, retrieveAllThisGameUsersRequest.getName()));
             }
         }
     }
