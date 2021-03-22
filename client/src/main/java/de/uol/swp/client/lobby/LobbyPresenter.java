@@ -194,17 +194,16 @@ public class LobbyPresenter extends AbstractPresenter {
     /**
      * Sets the clickability of the lobbys options-buttons.
      * <p>
-     * If a User joins a lobby, hes automatically set up to not be able to klick any options-buttons regarding
-     * game-settings like wich game-field to chose and so on. When the User has created the lobby, hes automatically
-     * enabled to change game-settings.
+     * If a User joins a lobby, hes automatically denied to klick any options-buttons regarding game-settings like wich
+     * game-field to chose and so on. When the User has created the lobby, hes automatically enabled to change
+     * game-settings. If the Lobbyowner leaves, the variable "isLobbyOwner" gets updated on every client and after that
+     * this method is called again.
      * </p>
      *
      * @author Pieter Vogt
      * @since 2021-03-21
      */
 
-
-    //TODO: Buttons müssen sich bei Ändern des Lobbyowners anpassen.
     public void setGameOptionsButtonsVisibility() {
         if (isLobbyOwner) {
             randomGameField.setDisable(false);
@@ -457,7 +456,7 @@ public class LobbyPresenter extends AbstractPresenter {
                 LOG.debug("Requesting update of User list in lobby because a User left the lobby.");
                 lobbyService.retrieveAllThisLobbyUsers(ullm.getName());
                 if (ullm.getLobbyOwner().equals(joinedLobbyUser.getUsername())) {
-                    isLobbyOwner=true;
+                    isLobbyOwner = true;
                     setGameOptionsButtonsVisibility();
                 }
             }
