@@ -1,8 +1,8 @@
 package de.uol.swp.common.game.cards;
 
 /**
- *  Interface für die Siegpunktkarte
- *
+ * Interface für die Siegpunktkarte
+ * <p>
  * Die Siegpunktkarte wird zu den Entwicklungskarten gezählt
  *
  * @author Alexander Losse, Iskander Yusupov

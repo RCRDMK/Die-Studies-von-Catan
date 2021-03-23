@@ -66,7 +66,8 @@ public class GameDTO implements Game {
     @Override
     public void updateOwner(User user) {
         if (!this.users.contains(user)) {
-            throw new IllegalArgumentException("User " + user.getUsername() + "not found. Owner must be member of game!");
+            throw new IllegalArgumentException("User " + user.getUsername() +
+                    "not found. Owner must be member of game!");
         }
         this.owner = user;
     }

@@ -3,6 +3,7 @@ package de.uol.swp.server.usermanagement;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import org.junit.jupiter.api.Test;
+
 import java.sql.SQLException;
 import java.util.List;
 
@@ -12,7 +13,8 @@ import static org.junit.jupiter.api.Assertions.*;
 class UserManagementTest {
 
     private static final int NO_USERS = 10;
-    private static final User userNotInStore = new UserDTO("marco" + NO_USERS, "marco" + NO_USERS, "marco" + NO_USERS + "@grawunder.de");
+    private static final User userNotInStore = new UserDTO("marco" + NO_USERS, "marco" + NO_USERS,
+            "marco" + NO_USERS + "@grawunder.de");
     private UserManagement management = new UserManagement();
 
     @Test
@@ -42,7 +44,8 @@ class UserManagementTest {
         User userToLogIn = new UserDTO("test", "33eda9895af9f99456b85c2381bfc49543531e92517e3b7c67e86310874dd3a0e08b0dae5d3103ddabcf1794d3833c52659c35c2980f71ce6705bf967a96d856", "");
         User secondUser = new UserDTO("test1", "47b7d407c2e2f3aff0e21aa16802006ba1793fd47b2d3cacee7cf7360e751bff7b7d0c7946b42b97a5306c6708ab006d0d81ef41a0c9f94537a2846327c51236", "");
 
-        assertThrows(SecurityException.class, () -> management.login(userToLogIn.getUsername(), secondUser.getPassword()));
+        assertThrows(SecurityException.class, () -> management.login(userToLogIn.getUsername(),
+                secondUser.getPassword()));
 
         assertFalse(management.isLoggedIn(userToLogIn));
     }

@@ -9,7 +9,7 @@ import java.util.TreeSet;
 
 /**
  * Object to transfer the information of a game lobby
- *
+ * <p>
  * This object is used to communicate the current state of game lobbies between
  * the server and clients. It contains information about the Name of the lobby,
  * who owns the lobby and who joined the lobby.
@@ -25,13 +25,13 @@ public class LobbyDTO implements Lobby {
     private final Set<User> playersReady = new TreeSet<>();
 
 
-
     /**
      * Constructor
      *
      * @param name    The name the lobby should have
      * @param creator The user who created the lobby and therefore shall be the
      *                owner
+     * @author Marco Grawunder
      * @since 2019-10-08
      */
     public LobbyDTO(String name, User creator) {
@@ -71,7 +71,8 @@ public class LobbyDTO implements Lobby {
     @Override
     public void updateOwner(User user) {
         if (!this.users.contains(user)) {
-            throw new IllegalArgumentException("User " + user.getUsername() + "not found. Owner must be member of lobby!");
+            throw new IllegalArgumentException("User " + user.getUsername()
+                    + "not found. Owner must be member of lobby!");
         }
         this.owner = user;
     }
@@ -87,9 +88,13 @@ public class LobbyDTO implements Lobby {
     }
 
     @Override
-    public Set<User> getPlayersReady() { return Collections.unmodifiableSet(playersReady); }
+    public Set<User> getPlayersReady() {
+        return Collections.unmodifiableSet(playersReady);
+    }
 
     @Override
-    public void setPlayersReadyToNull() {this.playersReady.removeAll(playersReady);}
+    public void setPlayersReadyToNull() {
+        this.playersReady.removeAll(playersReady);
+    }
 
 }

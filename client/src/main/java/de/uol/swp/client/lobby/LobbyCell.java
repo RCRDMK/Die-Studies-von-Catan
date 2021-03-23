@@ -19,7 +19,7 @@ import javafx.scene.layout.Priority;
 
 public class LobbyCell extends ListCell<String> {
     HBox hbox = new HBox();
-    Label label= new Label("");
+    Label label = new Label("");
     Pane pane = new Pane();
     Button button = new Button("join");
 

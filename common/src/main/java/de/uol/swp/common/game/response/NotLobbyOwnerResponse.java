@@ -8,15 +8,15 @@ import java.util.Objects;
 /**
  * Message sent to the client when a lobby already exists.
  *
- * @see de.uol.swp.common.message.ResponseMessage
  * @author Marius Birk and Carsten Dekker
+ * @see de.uol.swp.common.message.ResponseMessage
  * @since 2020-12-02
  */
 public class NotLobbyOwnerResponse extends AbstractResponseMessage {
 
     private String lobbyName;
 
-    public NotLobbyOwnerResponse(String lobbyName){
+    public NotLobbyOwnerResponse(String lobbyName) {
         this.lobbyName = lobbyName;
     }
 

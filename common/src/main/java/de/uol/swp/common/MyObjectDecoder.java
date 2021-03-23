@@ -9,7 +9,7 @@ import org.apache.logging.log4j.Logger;
 
 /**
  * Class used to decode incoming Byte buffer into objects.
- *
+ * <p>
  * An Object of this class is used in the start methods of de.uol.swp.client.ClientConnection
  * and de.uol.swp.server.communication.Server
  *
@@ -24,6 +24,7 @@ public class MyObjectDecoder extends ObjectDecoder {
      * Constructor
      *
      * @param classResolver the ClassResolver the decoder should use
+     * @author Marco Grawunder
      * @since 2019-08-13
      */
     public MyObjectDecoder(ClassResolver classResolver) {

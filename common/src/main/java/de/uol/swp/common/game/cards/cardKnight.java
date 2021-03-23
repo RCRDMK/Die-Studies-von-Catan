@@ -1,8 +1,8 @@
 package de.uol.swp.common.game.cards;
 
 /**
- *  Interface für die Ritterkarte
- *
+ * Interface für die Ritterkarte
+ * <p>
  * Die Ritterkarte wird zu den Entwicklungskarten gezählt
  *
  * @author Alexander Losse, Iskander Yusupov

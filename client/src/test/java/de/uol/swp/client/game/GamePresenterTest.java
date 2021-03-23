@@ -8,7 +8,6 @@ import de.uol.swp.common.game.GameField;
 import de.uol.swp.common.game.message.GameCreatedMessage;
 import de.uol.swp.common.game.request.GameLeaveUserRequest;
 import de.uol.swp.common.lobby.request.CreateLobbyRequest;
-import de.uol.swp.common.lobby.request.RetrieveAllThisLobbyUsersRequest;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.user.response.lobby.LobbyCreatedSuccessfulResponse;
 import org.junit.jupiter.api.AfterEach;
@@ -59,16 +58,16 @@ public class GamePresenterTest {
      */
 
     @Test
-    void onLeaveGame(){
+    void onLeaveGame() {
         LobbyService lobbyService = new LobbyService(bus);
         CreateLobbyRequest message = new CreateLobbyRequest("testLobby", userDTO);
         lobbyService.createNewLobby("testLobby", userDTO);
         LobbyCreatedSuccessfulResponse message2 = new LobbyCreatedSuccessfulResponse(userDTO);
         lobbyService.joinLobby("testLobby", userDTO1);
         GameService gameService = new GameService(bus);
-        GameCreatedMessage gMessage = new GameCreatedMessage("Testgame",userDTO, new GameField());
-        GameLeaveUserRequest request = new GameLeaveUserRequest("Testgame",userDTO);
-        gameService.leaveGame("Testgame",userDTO);
+        GameCreatedMessage gMessage = new GameCreatedMessage("Testgame", userDTO, new GameField());
+        GameLeaveUserRequest request = new GameLeaveUserRequest("Testgame", userDTO);
+        gameService.leaveGame("Testgame", userDTO);
         assertTrue(event instanceof GameLeaveUserRequest);
     }
 }

@@ -146,6 +146,7 @@ public class ClientApp extends Application implements ConnectionListener {
      * logged in user are written to the log.
      *
      * @param message The LoginSuccessfulResponse object detected on the EventBus
+     * @author Marco Grawunder
      * @see de.uol.swp.client.SceneManager
      * @since 2017-03-17
      */
@@ -219,7 +220,7 @@ public class ClientApp extends Application implements ConnectionListener {
     public void userJoinedLobby(LobbyJoinedSuccessfulResponse message) {
         LOG.debug("user joined lobby ");
         this.user = message.getUser();
-            sceneManager.showLobbyScreen(user, message.getName());
+        sceneManager.showLobbyScreen(user, message.getName());
 
     }
 
@@ -230,13 +231,13 @@ public class ClientApp extends Application implements ConnectionListener {
      * method is called. It tells the SceneManager to show the lobby menu and suspend
      * the corresponding LobbyTab. If the loglevel is set
      * to DEBUG or higher "user joined lobby " is written to the log.
-     *
+     * <p>
      * enhanced by Marc Hermes - 2021-03-15
      *
      * @param message The StartGameResponse object detected on the EventBus
+     * @author Kirstin Beyer
      * @see de.uol.swp.common.game.message.GameCreatedMessage
      * @since 2021-01-14
-     * @author Kirstin Beyer
      */
     @Subscribe
     public void userStartedGame(GameCreatedMessage message) {
@@ -252,10 +253,9 @@ public class ClientApp extends Application implements ConnectionListener {
      * It tells the SceneManager to remove the tab corresponding to the lobby that was left.
      *
      * @param message the LobbyLeftSuccessfulResponse detected on the EventBus
-     *
+     * @author Alexander Losse, Marc Hermes
      * @see de.uol.swp.common.user.response.lobby.LobbyLeftSuccessfulResponse
      * @since 2021-01-20
-     * @author Alexander Losse, Marc Hermes
      */
     @Subscribe
     public void userLeftLobby(LobbyLeftSuccessfulResponse message) {
@@ -267,20 +267,20 @@ public class ClientApp extends Application implements ConnectionListener {
     /**
      * Handles a GameDroppedMessage when detected on the Eventbus
      * <p>
-     *
+     * <p>
      * If a GameDroppedMessage is detected on the Eventbus this method
      * gets called. It removes the GameTab which was passed on from the
      * GameDroppedMessage and unsuspends the corresponding LobbyTab.
-     *
+     * <p>
      * enhanced by Marc Hermes - 2021-03-15
      *
      * @param message The GameDroppedMessage detected on the Eventbus
-     * @see de.uol.swp.common.game.message.GameDroppedMessage
      * @author Ricardo Mook, Alexander Losse
+     * @see de.uol.swp.common.game.message.GameDroppedMessage
      * @since 2021-03-04
      */
     @Subscribe
-    public void userDroppedGame(GameDroppedMessage message){
+    public void userDroppedGame(GameDroppedMessage message) {
         LOG.debug("Successfully dropped game  " + message.getName());
         sceneManager.removeGameTab(message.getName());
         sceneManager.unsuspendLobbyTab(message.getName());
@@ -292,13 +292,13 @@ public class ClientApp extends Application implements ConnectionListener {
      * If an GameLeftSuccessfulResponse object is detected on the EventBus this method is called.
      * It tells the SceneManager to remove the tab corresponding to the game that was left
      * and unsuspends the LobbyTab
-     *
+     * <p>
      * enhanced by Marc Hermes - 2021-03-15
      *
      * @param message the LobbyLeftSuccessfulResponse detected on the EventBus
+     * @author Marc Hermes
      * @see de.uol.swp.common.user.response.game.GameLeftSuccessfulResponse
      * @since 2021-01-21
-     * @author Marc Hermes
      */
     @Subscribe
     public void userLeftGame(GameLeftSuccessfulResponse message) {
@@ -316,6 +316,7 @@ public class ClientApp extends Application implements ConnectionListener {
      * error message are written to the log.
      *
      * @param message The RegistrationExceptionMessage object detected on the EventBus
+     * @author Marco Grawunder
      * @see de.uol.swp.client.SceneManager
      * @since 2019-09-02
      */
@@ -354,6 +355,7 @@ public class ClientApp extends Application implements ConnectionListener {
      * to the log.
      *
      * @param message The RegistrationSuccessfulResponse object detected on the EventBus
+     * @author Marco Grawunder
      * @see de.uol.swp.client.SceneManager
      * @since 2019-09-02
      */
@@ -403,6 +405,7 @@ public class ClientApp extends Application implements ConnectionListener {
      * object to the log, if the loglevel is set to ERROR or higher.
      *
      * @param deadEvent The DeadEvent object found on the EventBus
+     * @author Marco Grawunder
      * @since 2019-08-07
      */
     @Subscribe
@@ -423,6 +426,7 @@ public class ClientApp extends Application implements ConnectionListener {
      * Default startup method for javafx applications
      *
      * @param args Any arguments given when starting the application
+     * @author Marco Grawunder
      * @since 2017-03-17
      */
     public static void main(String[] args) {

@@ -16,7 +16,7 @@ public class LobbyFullResponse extends AbstractResponseMessage {
 
     private String lobbyName;
 
-    public LobbyFullResponse(String lobbyName){
+    public LobbyFullResponse(String lobbyName) {
         this.lobbyName = lobbyName;
     }
 

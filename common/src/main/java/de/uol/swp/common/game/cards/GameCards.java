@@ -19,12 +19,20 @@ public abstract class GameCards {
         this.owner = owner;
     }
 
-    public int getID() { return ID; }
+    public int getID() {
+        return ID;
+    }
 
-    public String getName() { return name; }
+    public String getName() {
+        return name;
+    }
 
-    public String getOwner() { return owner; }
+    public String getOwner() {
+        return owner;
+    }
 
-    public void setOwner(String newOwner) { this.owner = newOwner; }
+    public void setOwner(String newOwner) {
+        this.owner = newOwner;
+    }
 
 }

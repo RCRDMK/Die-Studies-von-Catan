@@ -32,8 +32,10 @@ public class Server {
 
     /**
      * Constructor
-     *
+     * <p>
      * Creates a new Server Object
+     *
+     * @author Marco Grawunder
      * @see io.netty.channel.ChannelHandler
      * @see de.uol.swp.server.communication.ServerHandler
      * @since 2019-11-20
@@ -47,15 +49,15 @@ public class Server {
      *
      * @param port port number the server shall be reachable on
      * @throws Exception server failed to start e.g. because the port is already in use
+     * @author Marco Grawunder
+     * @author Marius Birk
      * @see InetSocketAddress
      * @since 2019-11-20
-     *
+     * <p>
      * Enhanced.
      * <p>
-     *     Just added that the connection to the database will be closed, if the server is going to shut down.
-     *
+     * Just added that the connection to the database will be closed, if the server is going to shut down.
      * @since 2021-01-18
-     * @author Marius Birk
      */
     public void start(int port) throws Exception {
         EventLoopGroup bossGroup = new NioEventLoopGroup(1);

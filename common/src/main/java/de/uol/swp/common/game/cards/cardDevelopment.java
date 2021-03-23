@@ -12,9 +12,9 @@ public interface cardDevelopment {
     /**
      * Gibt wieder, ob die Karte verwendet wurde.
      *
+     * @return boolean
      * @author Alexander Losse, Iskander Yusupov
      * @since 2020-12-16
-     * @return boolean
      */
     Boolean getPlayed();
 

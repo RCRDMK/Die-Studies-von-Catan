@@ -93,7 +93,6 @@ public class LobbyPresenter extends AbstractPresenter {
 
     /**
      * Method called when the StartGame button is pressed
-     * <p>
      *
      * @param event The ActionEvent created by pressing the StartGame button
      * @author Kirstin Beyer und Iskander Yusupov
@@ -108,6 +107,15 @@ public class LobbyPresenter extends AbstractPresenter {
         notLobbyOwnerLabel.setVisible(false);
         notEnoughPlayersLabel.setVisible(false);
     }
+
+    /**
+     * Method called when the LeaveLobby button is pressed
+     *
+     * @param event The ActionEvent created by pressing the LeaveLobby button
+     * @author ?
+     * @see de.uol.swp.client.lobby.LobbyService
+     * @since ?
+     */
 
     @FXML
     public void onLeaveLobby(ActionEvent event) {
@@ -138,7 +146,8 @@ public class LobbyPresenter extends AbstractPresenter {
             // ChatID = gets lobby name
             var chatId = currentLobby;
             if (!chatMessage.isEmpty()) {
-                RequestChatMessage message = new RequestChatMessage(chatMessage, chatId, joinedLobbyUser.getUsername(), System.currentTimeMillis());
+                RequestChatMessage message = new RequestChatMessage(chatMessage, chatId, joinedLobbyUser.getUsername(),
+                        System.currentTimeMillis());
                 chatService.sendMessage(message);
             }
             this.lobbyChatInput.setText("");
@@ -209,7 +218,7 @@ public class LobbyPresenter extends AbstractPresenter {
      * An update of the Users in the currentLobby is also requested.
      * Furthermore the method setupButtonsAndAlerts is called to create the buttons and the alert for the
      * pop-up Alert that shows up when the User is asked whether he is ready to start the game or not.
-     *
+     * <p>
      * enhanced by Marc Hermes - 2021-02-08
      *
      * @param ljsr the LobbyJoinedSuccessfulResponse given by the original subscriber method.
@@ -248,16 +257,16 @@ public class LobbyPresenter extends AbstractPresenter {
         this.buttonTypeYes = new ButtonType("Yes", ButtonBar.ButtonData.YES);
         this.buttonTypeNo = new ButtonType("No", ButtonBar.ButtonData.NO);
         alert.getButtonTypes().setAll(buttonTypeYes, buttonTypeNo);
-        this.btnYes = (Button) alert.getDialogPane().lookupButton( buttonTypeYes );
-        btnYes.setOnAction( event -> {
+        this.btnYes = (Button) alert.getDialogPane().lookupButton(buttonTypeYes);
+        btnYes.setOnAction(event -> {
             onBtnYesClicked();
             event.consume();
-        } );
-        this.btnNo = (Button) alert.getDialogPane().lookupButton( buttonTypeNo );
-        btnNo.setOnAction( event -> {
+        });
+        this.btnNo = (Button) alert.getDialogPane().lookupButton(buttonTypeNo);
+        btnNo.setOnAction(event -> {
             onBtnNoClicked();
             event.consume();
-        } );
+        });
         this.alert.initModality(Modality.NONE);
     }
 
@@ -513,7 +522,8 @@ public class LobbyPresenter extends AbstractPresenter {
         var time = new SimpleDateFormat("HH:mm");
         Date resultdate = new Date((long) rcm.getTime().doubleValue());
         var readableTime = time.format(resultdate);
-        lobbyChatArea.insertText(lobbyChatArea.getLength(), readableTime + " " + rcm.getUsername() + ": " + rcm.getMessage() + "\n");
+        lobbyChatArea.insertText(lobbyChatArea.getLength(), readableTime + " " + rcm.getUsername() + ": "
+                + rcm.getMessage() + "\n");
     }
 
 
@@ -528,14 +538,16 @@ public class LobbyPresenter extends AbstractPresenter {
      * @since 2021-01-23
      */
     @Subscribe
-    public void startGamePopup(StartGameMessage message) { startGamePopupLogic(message); }
+    public void startGamePopup(StartGameMessage message) {
+        startGamePopupLogic(message);
+    }
 
     /**
      * The Method invoked by startGamePopup()
      * <p>
      * Method opens confirmation window with two options: Yes & No
      * Which asks if each player is ready to start the game.
-     *
+     * <p>
      * enhanced by Marc Hermes - 2021-02-08
      *
      * @param sgm the startGamePopup given by the original subscriber method.
@@ -588,7 +600,7 @@ public class LobbyPresenter extends AbstractPresenter {
             if (this.currentLobby.equals(nepm.getName())) {
                 LOG.debug("Not enough Players in Lobby to start game");
                 Platform.runLater(() ->
-                    alert.close()
+                        alert.close()
                 );
                 gameAlreadyExistsLabel.setVisible(false);
                 notLobbyOwnerLabel.setVisible(false);

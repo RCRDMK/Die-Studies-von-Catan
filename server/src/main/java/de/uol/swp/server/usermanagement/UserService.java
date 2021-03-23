@@ -21,8 +21,8 @@ import java.sql.SQLException;
 /**
  * Mapping vom event bus calls to user management calls
  *
- * @see de.uol.swp.server.AbstractService
  * @author Marco Grawunder
+ * @see de.uol.swp.server.AbstractService
  * @since 2019-08-05
  */
 @SuppressWarnings("UnstableApiUsage")
@@ -36,8 +36,9 @@ public class UserService extends AbstractService {
     /**
      * Constructor
      *
-     * @param eventBus the EventBus used throughout the entire server (injected)
+     * @param eventBus       the EventBus used throughout the entire server (injected)
      * @param userManagement object of the UserManagement to use
+     * @author Marco Grawunder
      * @see de.uol.swp.server.usermanagement.UserManagement
      * @since 2019-08-05
      */
@@ -50,13 +51,14 @@ public class UserService extends AbstractService {
 
     /**
      * Handles RegisterUserRequests found on the EventBus
-     *
+     * <p>
      * If a RegisterUserRequest is detected on the EventBus, this method is called.
      * It tries to create a new user via the UserManagement. If this succeeds a
      * RegistrationSuccessfulResponse is posted on the EventBus otherwise a RegistrationExceptionMessage
      * gets posted there.
      *
      * @param msg The RegisterUserRequest found on the EventBus
+     * @author Marco Grawunder
      * @see de.uol.swp.server.usermanagement.UserManagement#createUser(User)
      * @see de.uol.swp.common.user.request.RegisterUserRequest
      * @see de.uol.swp.common.user.response.RegistrationSuccessfulResponse
@@ -65,16 +67,17 @@ public class UserService extends AbstractService {
      */
     @Subscribe
     private void onRegisterUserRequest(RegisterUserRequest msg) {
-        if (LOG.isDebugEnabled()){
+        if (LOG.isDebugEnabled()) {
             LOG.debug("Got new registration message with " + msg.getUser());
         }
         ResponseMessage returnMessage;
         try {
             User newUser = userManagement.createUser(msg.getUser());
             returnMessage = new RegistrationSuccessfulResponse();
-        }catch (Exception e){
+        } catch (Exception e) {
             LOG.error(e);
-            returnMessage = new RegistrationExceptionMessage("Cannot create user "+msg.getUser()+" "+e.getMessage());
+            returnMessage = new RegistrationExceptionMessage("Cannot create user " + msg.getUser() + " " +
+                    e.getMessage());
         }
         if (msg.getMessageContext().isPresent()) {
             returnMessage.setMessageContext(msg.getMessageContext().get());
@@ -84,20 +87,20 @@ public class UserService extends AbstractService {
 
     /**
      * Handles DropUserRequests found on the EventBus
-     *
+     * <p>
      * If a DropUserRequest is detected on the EventBus, this method is called.
      * It tries to delete the user via the UserManagement. If this succeeds a
      * DropUserSuccessfulResponse is posted on the EventBus otherwise a DropUserExceptionMessage
      * gets posted there.
      *
-     * @author Carsten Dekker
      * @param dropUserRequest The DropUserRequest found on the EventBus
+     * @author Carsten Dekker
      * @see de.uol.swp.common.user.request.DropUserRequest
      * @since 2020-12-15
      */
     @Subscribe
     private void onDropUserRequest(DropUserRequest dropUserRequest) {
-        if (LOG.isDebugEnabled()){
+        if (LOG.isDebugEnabled()) {
             LOG.debug("Got new dropUser request with " + dropUserRequest.getUser());
         }
         ResponseMessage returnMessage;
@@ -106,7 +109,8 @@ public class UserService extends AbstractService {
             returnMessage = new DropUserSuccessfulResponse();
         } catch (Exception e) {
             LOG.error(e);
-            returnMessage = new DropUserExceptionMessage("Cannot drop user "+dropUserRequest.getUser()+" "+e.getMessage());
+            returnMessage = new DropUserExceptionMessage("Cannot drop user " + dropUserRequest.getUser() +
+                    " " + e.getMessage());
         }
         returnMessage.setMessageContext(dropUserRequest.getMessageContext().get());
         post(returnMessage);
@@ -120,19 +124,20 @@ public class UserService extends AbstractService {
      * RetrieveUserInformationResponse is posted on the EventBus otherwise a RetrieveUserMailExceptionMessage
      * gets posted there.
      *
-     * @author Carsten Dekker
      * @param retrieveUserMailRequest The RetrieveUserMailRequest found on the EventBus
+     * @author Carsten Dekker
      * @see de.uol.swp.common.user.request.RetrieveUserMailRequest
      * @since 2021-03-12
      */
     @Subscribe
     private void onRetrieveUserMail(RetrieveUserMailRequest retrieveUserMailRequest) {
-        if (LOG.isDebugEnabled()){
+        if (LOG.isDebugEnabled()) {
             LOG.debug("Got a new retrieveUserMail request with " + retrieveUserMailRequest.getUser());
         }
         ResponseMessage returnMessage;
         try {
-            returnMessage = new RetrieveUserMailResponse(userManagement.retrieveUserMail(retrieveUserMailRequest.getUser()));
+            returnMessage = new RetrieveUserMailResponse(userManagement.retrieveUserMail(
+                    retrieveUserMailRequest.getUser()));
         } catch (Exception e) {
             LOG.error(e);
             returnMessage = new RetrieveUserMailExceptionMessage("Cannot get user information "
@@ -152,14 +157,14 @@ public class UserService extends AbstractService {
      * UpdateUserSuccessfulResponse is posted on the EventBus otherwise a UpdateUserExceptionMessage
      * gets posted there.
      *
-     * @author Carsten Dekker
      * @param updateUserMailRequest The UpdateUserRequest found on the EventBus
+     * @author Carsten Dekker
      * @see de.uol.swp.common.user.request.UpdateUserMailRequest
      * @since 2021-03-14
      */
     @Subscribe
     private void onUpdateUserMailRequest(UpdateUserMailRequest updateUserMailRequest) {
-        if (LOG.isDebugEnabled()){
+        if (LOG.isDebugEnabled()) {
             LOG.debug("Got a new updateUserMail request with " + updateUserMailRequest.getUser());
         }
         ResponseMessage returnMessage;
@@ -168,7 +173,8 @@ public class UserService extends AbstractService {
             returnMessage = new UpdateUserSuccessfulResponse();
         } catch (Exception e) {
             LOG.error(e);
-            returnMessage = new UpdateUserExceptionMessage("Cannot update user " + updateUserMailRequest.getUser() + " " +
+            returnMessage = new UpdateUserExceptionMessage("Cannot update user " +
+                    updateUserMailRequest.getUser() + " " +
                     e.getMessage());
         }
         if (updateUserMailRequest.getMessageContext().isPresent()) {
@@ -185,23 +191,25 @@ public class UserService extends AbstractService {
      * UpdateUserSuccessfulResponse is posted on the EventBus otherwise a UpdateUserExceptionMessage
      * gets posted there.
      *
-     * @author Carsten Dekker
      * @param updateUserPasswordRequest The UpdateUserRequest found on the EventBus
+     * @author Carsten Dekker
      * @see de.uol.swp.common.user.request.UpdateUserPasswordRequest
      * @since 2021-03-14
      */
     @Subscribe
     private void onUpdateUserPasswordRequest(UpdateUserPasswordRequest updateUserPasswordRequest) {
-        if (LOG.isDebugEnabled()){
+        if (LOG.isDebugEnabled()) {
             LOG.debug("Got a new updateUserPassword request with " + updateUserPasswordRequest.getUser());
         }
         ResponseMessage returnMessage;
         try {
-            userManagement.updateUserPassword(updateUserPasswordRequest.getUser(), updateUserPasswordRequest.getCurrentPassword());
+            userManagement.updateUserPassword(updateUserPasswordRequest.getUser(),
+                    updateUserPasswordRequest.getCurrentPassword());
             returnMessage = new UpdateUserSuccessfulResponse();
         } catch (Exception e) {
             LOG.error(e);
-            returnMessage = new UpdateUserExceptionMessage("Cannot update user " + updateUserPasswordRequest.getUser() + " " +
+            returnMessage = new UpdateUserExceptionMessage("Cannot update user " +
+                    updateUserPasswordRequest.getUser() + " " +
                     e.getMessage());
         }
         if (updateUserPasswordRequest.getMessageContext().isPresent()) {
@@ -209,4 +217,5 @@ public class UserService extends AbstractService {
         }
         post(returnMessage);
     }
+
 }

@@ -49,11 +49,11 @@ class LobbyPresenterTest {
 
     /**
      * This test checks if lobbies can be created with a certain name and
-     *
+     * <p>
      * and if RetrieveAllThisLobbyUsersRequest can be posted on the event bus thus becoming and event.
-     *
+     * <p>
      * It also checks if the method retrieveAllThisLobbyUsers() of the LobbyService(client) can be called
-     *
+     * <p>
      * successfully to create a RetrieveALlThisLobbyUsersRequest.
      *
      * @author Marc Hermes
@@ -73,11 +73,11 @@ class LobbyPresenterTest {
 
     /**
      * This test checks if lobbies can be created with a certain name, left and
-     *
+     * <p>
      * and if RetrieveAllThisLobbyUsersRequest can be posted on the event bus thus becoming and event.
-     *
+     * <p>
      * It also checks if the method retrieveAllThisLobbyUsers() of the LobbyService(client) can be called
-     *
+     * <p>
      * successfully to create a RetrieveALlThisLobbyUsersRequest.
      *
      * @author Marc Hermes
@@ -99,11 +99,11 @@ class LobbyPresenterTest {
 
     /**
      * This test checks if lobbies can be created with a certain name, joined  and
-     *
+     * <p>
      * if RetrieveAllThisLobbyUsersRequest can be posted on the event bus thus becoming and event.
-     *
+     * <p>
      * It also checks if the method retrieveAllThisLobbyUsers() of the LobbyService(client) can be called
-     *
+     * <p>
      * successfully to create a RetrieveALlThisLobbyUsersRequest.
      *
      * @author Marc Hermes

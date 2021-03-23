@@ -69,8 +69,8 @@ public interface Game extends Serializable {
     /**
      * Getter for the GameField of this game
      *
-     * @author Pieter Vogt, Marc Hermes
      * @return The GameField of this game
+     * @author Pieter Vogt, Marc Hermes
      * @see de.uol.swp.common.game.GameField
      * @since 2021-03-13
      */
@@ -79,8 +79,8 @@ public interface Game extends Serializable {
     /**
      * Setter for the GameField of this game
      *
-     * @author Pieter Vogt, Marc Hermes
      * @param gameField the GameField to be set as the gameField of this Game
+     * @author Pieter Vogt, Marc Hermes
      * @see de.uol.swp.common.game.GameField
      * @since 2021-03-13
      */

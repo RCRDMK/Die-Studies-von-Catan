@@ -14,7 +14,6 @@ import javax.inject.Inject;
  *
  * @author René, Anton, Sergej
  * @since 2020-11-22
- *
  */
 @SuppressWarnings("UnstableApiUsage")
 public class ChatService {
@@ -45,21 +44,21 @@ public class ChatService {
      */
 
     public void sendMessage(RequestChatMessage message) {
-        try{
-            if (message.getTime() - lastSendMessage >= 1000){
-                if (!message.getMessage().isEmpty() && message.getMessage()!=null && !message.getMessage().isBlank()) {
+        try {
+            if (message.getTime() - lastSendMessage >= 1000) {
+                if (!message.getMessage().isEmpty() && message.getMessage() != null && !message.getMessage().isBlank()) {
                     eventBus.post(message);
                     LOG.debug("User: " + message.getUsername() + " sent message: '" + message.getMessage() + "' to server.");
                     lastSendMessage = message.getTime();
 
-                }else {
+                } else {
                     ResponseEmptyChatMessage msg = new ResponseEmptyChatMessage(message.getMessage(), message.getChat(), message.getUsername(), message.getTime());
                     eventBus.post(msg);
-                    LOG.debug("Posted ResponseEmptyChatMessage on eventBus"+ message.getTime()+ lastSendMessage);
+                    LOG.debug("Posted ResponseEmptyChatMessage on eventBus" + message.getTime() + lastSendMessage);
                     lastSendMessage = message.getTime();
                 }
             }
-        } catch(NullPointerException e){
+        } catch (NullPointerException e) {
             ResponseEmptyChatMessage msg = new ResponseEmptyChatMessage("null", message.getChat(), message.getUsername(), message.getTime());
             eventBus.post(msg);
             LOG.debug("Posted ResponseEmptyChatMessage on eventBus");

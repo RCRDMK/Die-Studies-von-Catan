@@ -8,8 +8,8 @@ import java.util.Objects;
 /**
  * Request to register a new user
  *
- * @see de.uol.swp.common.user.User
  * @author Marco Grawunder
+ * @see de.uol.swp.common.user.User
  * @since 2019-09-02
  */
 public class RegisterUserRequest extends AbstractRequestMessage {
@@ -20,9 +20,10 @@ public class RegisterUserRequest extends AbstractRequestMessage {
      * Constructor
      *
      * @param user the new User to create
+     * @author Marco Grawunder
      * @since 2019-09-02
      */
-    public RegisterUserRequest(User user){
+    public RegisterUserRequest(User user) {
         this.toCreate = user;
     }
 
@@ -35,6 +36,7 @@ public class RegisterUserRequest extends AbstractRequestMessage {
      * Getter for the user variable
      *
      * @return the new user to create
+     * @author Marco Grawunder
      * @since 2019-09-02
      */
     public User getUser() {

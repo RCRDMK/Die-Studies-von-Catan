@@ -35,9 +35,10 @@ class LobbyDTOTest {
 
     /**
      * This test check whether a lobby is created correctly
-     *
+     * <p>
      * If the variables are not set correctly the test fails
      *
+     * @author Marco Grawunder
      * @since 2019-10-08
      */
     @Test
@@ -52,10 +53,11 @@ class LobbyDTOTest {
 
     /**
      * This test check whether a user can join a lobby
-     *
+     * <p>
      * The test fails if the size of the user list of the lobby does not get bigger
      * or a user who joined is not in the list.
      *
+     * @author Marco Grawunder
      * @since 2019-10-08
      */
     @Test
@@ -76,10 +78,11 @@ class LobbyDTOTest {
 
     /**
      * This test check whether a user can leave a lobby
-     *
+     * <p>
      * The test fails if the size of the user list of the lobby does not get smaller
      * or the user who left is still in the list.
      *
+     * @author Marco Grawunder
      * @since 2019-10-08
      */
     @Test
@@ -96,10 +99,11 @@ class LobbyDTOTest {
 
     /**
      * Test to check if the owner can leave the Lobby correctly
-     *
+     * <p>
      * This test fails if the owner field is not updated if the owner leaves the
      * lobby or if he still is in the user list of the lobby.
      *
+     * @author Marco Grawunder
      * @since 2019-10-08
      */
     @Test
@@ -117,9 +121,10 @@ class LobbyDTOTest {
     /**
      * This checks if the owner of a lobby can be updated and if he has have joined
      * the lobby
-     *
+     * <p>
      * This test fails if the owner cannot be updated or does not have to be joined
      *
+     * @author Marco Grawunder
      * @since 2019-10-08
      */
     @Test
@@ -135,9 +140,10 @@ class LobbyDTOTest {
 
     /**
      * This test check whether a lobby can be empty
-     *
+     * <p>
      * If the leaveUser function does not throw an Exception the test fails
      *
+     * @author Marco Grawunder
      * @since 2019-10-08
      */
     @Test

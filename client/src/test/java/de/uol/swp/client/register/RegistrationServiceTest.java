@@ -11,6 +11,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Test class for the RegistrationService
  * <p>
  * This class tests if we get the right boolean from the isValidEmailAddress method.
+ *
  * @author Carsten Dekker
  * @since 2021-01-15
  */

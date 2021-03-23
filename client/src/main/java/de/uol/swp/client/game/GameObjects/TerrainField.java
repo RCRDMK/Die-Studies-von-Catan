@@ -22,8 +22,8 @@ public class TerrainField {
     /**
      * Constructor
      *
-     * @author Pieter Vogt
      * @param placementVector
+     * @author Pieter Vogt
      * @since 2021-01-24
      */
     public TerrainField(Vector placementVector) {
@@ -34,8 +34,8 @@ public class TerrainField {
     /**
      * Getter for the name variable
      *
-     * @author Pieter Vogt
      * @return String containing the name of the TerrainField
+     * @author Pieter Vogt
      * @since 2021-01-24
      */
     public String getName() {
@@ -45,8 +45,8 @@ public class TerrainField {
     /**
      * Setter for the name variable
      *
-     * @author Pieter Vogt
      * @param name String containing the new name of the TerrainField
+     * @author Pieter Vogt
      * @since 2021-01-24
      */
     public void setName(String name) {
@@ -56,8 +56,8 @@ public class TerrainField {
     /**
      * Getter for the diceToken variable
      *
-     * @author Pieter Vogt
      * @return int containing the value of the diceTokens of the TerrainField
+     * @author Pieter Vogt
      * @since 2021-01-24
      */
     public int getDiceToken() {
@@ -67,17 +67,19 @@ public class TerrainField {
     /**
      * Setter for the diceTokens variable
      *
-     * @author Pieter Vogt
      * @param diceToken int containing the value of the diceTokens of this Terrainfield
+     * @author Pieter Vogt
      * @since 2021-01-24
      */
-    public void setDiceToken(int diceToken) {this.diceToken = diceToken;}
+    public void setDiceToken(int diceToken) {
+        this.diceToken = diceToken;
+    }
 
     /**
      * Getter for the position variable
      *
-     * @author Pieter Vogt
      * @return Vector containing the absolute position of the TerrainField
+     * @author Pieter Vogt
      * @since 2021-01-24
      */
     public Vector getPosition() {
@@ -87,8 +89,8 @@ public class TerrainField {
     /**
      * Setter for the position variable
      *
-     * @author Pieter Vogt
      * @param position Vector containing the new absolute position
+     * @author Pieter Vogt
      * @since 2021-01-24
      */
     public void setPosition(Vector position) {
@@ -98,8 +100,8 @@ public class TerrainField {
     /**
      * Getter for the placementVector variable
      *
-     * @author Pieter Vogt
      * @return Vector containing the (relative position) placementVector of the TerrainField
+     * @author Pieter Vogt
      * @since 2021-01-24
      */
     public Vector getPlacementVector() {
@@ -108,6 +110,7 @@ public class TerrainField {
 
     /**
      * determines the color to draw its host-object
+     *
      * @return the color for the host-object
      * @author pieter vogt
      * @since 24-01-2021

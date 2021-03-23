@@ -18,8 +18,6 @@ import de.uol.swp.server.lobby.LobbyManagement;
 import de.uol.swp.server.lobby.LobbyService;
 import de.uol.swp.server.message.ClientAuthorizedMessage;
 import de.uol.swp.server.message.ServerExceptionMessage;
-import de.uol.swp.server.usermanagement.store.MainMemoryBasedUserStore;
-import de.uol.swp.server.usermanagement.store.UserStore;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

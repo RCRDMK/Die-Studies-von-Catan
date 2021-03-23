@@ -15,6 +15,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 
 import org.apache.commons.codec.binary.Hex;
+
 /**
  * This class is used to hide the communication details
  * implements de.uol.common.user.UserService
@@ -33,6 +34,7 @@ public class UserService implements ClientUserService {
      * Constructor
      *
      * @param bus The  EventBus set in ClientModule
+     * @author Marco Grawunder
      * @see de.uol.swp.client.di.ClientModule
      * @since 2017-03-17
      */
@@ -48,6 +50,7 @@ public class UserService implements ClientUserService {
      *
      * @param username the name of the user
      * @param password the password of the user
+     * @author Marco Grawunder
      * @since 2017-03-17
      */
     @Override
@@ -135,12 +138,13 @@ public class UserService implements ClientUserService {
     /**
      * Method to return a hashed password. It creates a char array out of the original password and hands this over to the
      * hashPassword method.
-     * @since 2021-03-04
-     * @author Marius Birk
+     *
      * @param password
      * @return
      * @throws InvalidKeySpecException
      * @throws NoSuchAlgorithmException
+     * @author Marius Birk
+     * @since 2021-03-04
      */
     public String convertStringToHash(String password) throws InvalidKeySpecException, NoSuchAlgorithmException {
         return Hex.encodeHexString(hashPassword(password.toCharArray()));
@@ -149,12 +153,13 @@ public class UserService implements ClientUserService {
     /**
      * This method creates an byte array of the given Password. With help of the salt key and the keyfactory,
      * it creates a hashed password in form of a secretkey.
-     * @since 2021-03-04
-     * @author Marius Birk
+     *
      * @param password
      * @return encoded Password
      * @throws InvalidKeySpecException
      * @throws NoSuchAlgorithmException
+     * @author Marius Birk
+     * @since 2021-03-04
      */
     private byte[] hashPassword(final char[] password) throws InvalidKeySpecException, NoSuchAlgorithmException {
         final String SALT = "saltKey";

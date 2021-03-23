@@ -23,7 +23,9 @@ public class RequestChatMessage extends AbstractRequestMessage {
         return chat;
     }
 
-    public String getUsername() { return username; }
+    public String getUsername() {
+        return username;
+    }
 
     public Double getTime() {
         return time;

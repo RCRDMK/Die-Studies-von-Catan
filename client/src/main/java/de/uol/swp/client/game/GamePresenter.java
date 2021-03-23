@@ -4,24 +4,17 @@ import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
 import de.uol.swp.client.chat.ChatService;
-
 import de.uol.swp.client.lobby.LobbyService;
-
 import de.uol.swp.common.game.message.GameCreatedMessage;
-
 import de.uol.swp.client.game.GameObjects.TerrainField;
 import de.uol.swp.client.game.HelperObjects.Vector;
 import de.uol.swp.common.game.GameField;
 import de.uol.swp.common.game.TerrainFieldContainer;
-import de.uol.swp.common.game.message.GameCreatedMessage;
-
 import de.uol.swp.common.chat.RequestChatMessage;
 import de.uol.swp.common.chat.ResponseChatMessage;
-
 import de.uol.swp.common.game.message.UserLeftGameMessage;
 import de.uol.swp.common.lobby.message.UserLeftLobbyMessage;
 import de.uol.swp.common.user.User;
-
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.user.response.game.AllThisGameUsersResponse;
 import de.uol.swp.common.user.response.game.GameLeftSuccessfulResponse;
@@ -111,7 +104,8 @@ public class GamePresenter extends AbstractPresenter {
             // ChatID = game_lobbyname so we have seperate lobby and game chat separated by id
             var chatId = "game_" + currentLobby;
             if (!chatMessage.isEmpty()) {
-                RequestChatMessage message = new RequestChatMessage(chatMessage, chatId, joinedLobbyUser.getUsername(), System.currentTimeMillis());
+                RequestChatMessage message = new RequestChatMessage(chatMessage, chatId, joinedLobbyUser.getUsername(),
+                        System.currentTimeMillis());
                 chatService.sendMessage(message);
             }
             this.gameChatInput.setText("");
@@ -170,7 +164,8 @@ public class GamePresenter extends AbstractPresenter {
         var time = new SimpleDateFormat("HH:mm");
         Date resultdate = new Date((long) rcm.getTime().doubleValue());
         var readableTime = time.format(resultdate);
-        gameChatArea.insertText(gameChatArea.getLength(), readableTime + " " + rcm.getUsername() + ": " + rcm.getMessage() + "\n");
+        gameChatArea.insertText(gameChatArea.getLength(), readableTime + " " + rcm.getUsername() + ": "
+                + rcm.getMessage() + "\n");
     }
 
     /**
@@ -292,6 +287,7 @@ public class GamePresenter extends AbstractPresenter {
             }
         }
     }
+
 
     /**
      * Method called when the leaveGame Button is pressed
@@ -485,7 +481,8 @@ public class GamePresenter extends AbstractPresenter {
         TerrainField f34 = new TerrainField(Vector.bottomRight(cardSize()));
         TerrainField f35 = new TerrainField(Vector.bottomLeft(cardSize()));
         TerrainField f36 = new TerrainField(new Vector(0, 0));
-        f36.setPosition(new Vector(((canvas.getWidth() / 2) - cardSize() / 2), ((canvas.getHeight() / 2)) - cardSize() / 2));
+        f36.setPosition(new Vector(((canvas.getWidth() / 2) - cardSize() / 2), ((canvas.getHeight() / 2))
+                - cardSize() / 2));
 
         tempArray = new TerrainField[]{f0, f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, f15, f16, f17, f18, f19, f20, f21, f22, f23, f24, f25, f26, f27, f28, f29, f30, f31, f32, f33, f34, f35, f36};
 
@@ -529,6 +526,7 @@ public class GamePresenter extends AbstractPresenter {
      * Then the values of the fieldTypes are checked and translated into the correct String names
      * of the tfArray TerrainFields.
      *
+     * @param gameField the gameField given by the Server
      * @param gameField the gameField given by the Server
      * @author Marc Hermes
      * @see de.uol.swp.common.game.GameField

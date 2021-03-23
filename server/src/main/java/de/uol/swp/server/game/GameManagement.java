@@ -28,8 +28,9 @@ public class GameManagement extends AbstractGameManagement {
      * Creates a new game and adds it to the list
      * <p>
      * A new GameField is created and stored in the GameDTO object
-     *
+     * <p>
      * enhanced by Pieter Vogt, Marc Hermes - 2021-03-13
+     *
      * @param name  the name of the game to create
      * @param owner the user who wants to create a game
      * @author Iskander Yusupov

@@ -7,13 +7,14 @@ import de.uol.swp.common.user.User;
 /**
  * Request sent to the server when a user wants to roll the dice
  * <p>
+ *
+ * @author Kirstin, Pieter
  * @see AbstractRequestMessage
  * @see de.uol.swp.common.user.User
- * @author Kirstin, Pieter
  * @since 2021-01-07
  */
 
-public class RollDiceRequest extends AbstractRequestMessage{
+public class RollDiceRequest extends AbstractRequestMessage {
 
     private final String name;
     private final User user;
@@ -21,6 +22,7 @@ public class RollDiceRequest extends AbstractRequestMessage{
 
     /**
      * Constructor
+     *
      * @since 2021-01-07
      */
     public RollDiceRequest(String name, User user) {

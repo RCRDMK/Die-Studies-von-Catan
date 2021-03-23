@@ -59,8 +59,8 @@ public class GameField implements Serializable {
     /**
      * Getter tFCs variable
      *
-     * @author Pieter Vogt, Marc Hermes
      * @return the TerrainFieldContainer array stored in this GameField
+     * @author Pieter Vogt, Marc Hermes
      * @since 2021-03-13
      */
     public TerrainFieldContainer[] getTFCs() {

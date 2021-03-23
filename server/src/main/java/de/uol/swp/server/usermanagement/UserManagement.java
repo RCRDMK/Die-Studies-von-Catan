@@ -42,6 +42,7 @@ public class UserManagement extends AbstractUserManagement {
     /**
      * Constructor
      *
+     * @author Marco Grawunder
      * @author Marius Birk
      * @see de.uol.swp.server.usermanagement.store.UserStore
      * @since 2019-08-05
@@ -247,7 +248,7 @@ public class UserManagement extends AbstractUserManagement {
     @Override
     public void dropUser(User userToDrop) throws SQLException {
         String selectUserString = "select name from user where name =?;";
-        try{
+        try {
             PreparedStatement dropUser = connection.prepareStatement(selectUserString);
             dropUser.setString(1, userToDrop.getUsername());
             ResultSet resultSet = dropUser.executeQuery();
@@ -259,7 +260,7 @@ public class UserManagement extends AbstractUserManagement {
                 dropUser.executeUpdate();
             }
 
-        }catch (SQLException e) {
+        } catch (SQLException e) {
             LOG.debug(e);
             throw new UserManagementException("User could not be dropped!");
         }
@@ -274,6 +275,7 @@ public class UserManagement extends AbstractUserManagement {
      * @param firstValue  value to update to, empty String or null
      * @param secondValue the old value
      * @return String containing the value to be used in the update command
+     * @author Marco Grawunder
      * @since 2019-08-05
      */
     private String firstNotNull(String firstValue, String secondValue) {

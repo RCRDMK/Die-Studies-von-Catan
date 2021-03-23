@@ -17,8 +17,8 @@ import java.util.concurrent.TimeUnit;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- *  @author René, Anton, Sergej
- *  @since 2020-11-22
+ * @author René, Anton, Sergej
+ * @since 2020-11-22
  */
 
 public class ChatServiceTest {
@@ -31,7 +31,7 @@ public class ChatServiceTest {
 
     /**
      * Handles DeadEvents detected on the EventBus
-     *
+     * <p>
      * If a DeadEvent is detected the event variable of this class gets updated
      * to its event and its event is printed to the console output.
      *
@@ -45,7 +45,7 @@ public class ChatServiceTest {
 
     /**
      * Helper method run before each test case
-     *
+     * <p>
      * This method resets the variable event to null and registers the object of
      * this class to the EventBus.
      *
@@ -59,7 +59,7 @@ public class ChatServiceTest {
 
     /**
      * Helper method run after each test case
-     *
+     * <p>
      * This method only unregisters the object of this class from the EventBus.
      *
      * @since 2019-10-10
@@ -71,7 +71,7 @@ public class ChatServiceTest {
 
     /**
      * Test for the ChatService
-     *
+     * <p>
      * This test first creates a new RequestChatMessage object. It then
      * posts the RequestChatMessage object on the EventBus. After testing the RequestChatMessage
      * it creates a ResponseChatMessage with the parameters from the RequestChatMessage and posts that
@@ -81,8 +81,9 @@ public class ChatServiceTest {
      * @since 2020-12-10
      */
     @Test
-    void sendRequestChatMessageTest(){
-        RequestChatMessage message = new RequestChatMessage("testMessage", "testLobby", defaultUser.getUsername(), System.currentTimeMillis());
+    void sendRequestChatMessageTest() {
+        RequestChatMessage message = new RequestChatMessage("testMessage", "testLobby",
+                defaultUser.getUsername(), System.currentTimeMillis());
         bus.post(message);
     }
 
@@ -91,7 +92,8 @@ public class ChatServiceTest {
         lock.await(1000, TimeUnit.MILLISECONDS);
         assertNotNull(message);
 
-        ResponseChatMessage response = new ResponseChatMessage(message.getMessage(),message.getChat(),message.getUsername(),message.getTime());
+        ResponseChatMessage response = new ResponseChatMessage(message.getMessage(), message.getChat(),
+                message.getUsername(), message.getTime());
         assertEquals(response.getMessage(), "testMessage");
         assertEquals(response.getChat(), "testLobby");
         assertEquals(response.getUsername(), defaultUser.getUsername());
@@ -100,7 +102,7 @@ public class ChatServiceTest {
     }
 
     @Subscribe
-    void onResponseChatMessageTest(ResponseChatMessage message) throws InterruptedException{
+    void onResponseChatMessageTest(ResponseChatMessage message) throws InterruptedException {
         lock.await(1000, TimeUnit.MILLISECONDS);
         assertNotNull(message);
 

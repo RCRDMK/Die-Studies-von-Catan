@@ -41,8 +41,8 @@ public class GameService {
      *
      * @param name Name of the lobby where the user wants to roll the dice
      * @param user User who wants to roll the dice
-     * @see de.uol.swp.common.game.request.RollDiceRequest
      * @author Kirstin, Pieter
+     * @see de.uol.swp.common.game.request.RollDiceRequest
      * @since 2021-01-07
      * <p>
      * Enhanced by Carsten Dekker

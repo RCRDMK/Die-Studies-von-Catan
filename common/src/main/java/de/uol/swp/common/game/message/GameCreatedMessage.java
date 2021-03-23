@@ -1,4 +1,5 @@
 package de.uol.swp.common.game.message;
+
 import de.uol.swp.common.user.UserDTO;
 
 import de.uol.swp.common.game.GameField;

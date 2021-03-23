@@ -101,7 +101,6 @@ public class MainMenuPresenter extends AbstractPresenter {
      * message received and the full list of users currently logged in is requested.
      *
      * @param message the LoginSuccessfulResponse object seen on the EventBus
-     *
      * @author Marco Grawunder
      * @see de.uol.swp.common.user.response.LoginSuccessfulResponse
      * @since 2019-09-05
@@ -125,7 +124,6 @@ public class MainMenuPresenter extends AbstractPresenter {
      * posted in the console.
      *
      * @param message the LobbyCreatedMessage detected on the event bus
-     *
      * @author Ricardo Mook, Marc Hermes
      * @see de.uol.swp.common.lobby.message.LobbyCreatedMessage
      * @since 2020-11-19
@@ -148,7 +146,6 @@ public class MainMenuPresenter extends AbstractPresenter {
      * posted in the console.
      *
      * @param message the LobbyDroppedMessage detected on the event bus
-     *
      * @author Ricardo Mook, Marc Hermes
      * @see de.uol.swp.common.lobby.message.LobbyDroppedMessage
      * @since 2020-12-17
@@ -171,7 +168,6 @@ public class MainMenuPresenter extends AbstractPresenter {
      * posted in the console.
      *
      * @param message the LobbyDroppedMessage detected on the event bus
-     *
      * @author Ricardo Mook, Marc Hermes
      * @see de.uol.swp.common.lobby.message.LobbySizeChangedMessage
      * @since 2020-12-18
@@ -194,7 +190,6 @@ public class MainMenuPresenter extends AbstractPresenter {
      * <Username>} logged in." is displayed in the log.
      *
      * @param message the UserLoggedInMessage object seen on the EventBus
-     *
      * @author Marco Grawunder
      * @see de.uol.swp.common.user.message.UserLoggedInMessage
      * @since 2019-08-29
@@ -221,7 +216,6 @@ public class MainMenuPresenter extends AbstractPresenter {
      * <Username>} logged out." is displayed in the log.
      *
      * @param message the UserLoggedOutMessage object seen on the EventBus
-     *
      * @author Marco Grawunder
      * @see de.uol.swp.common.user.message.UserLoggedOutMessage
      * @since 2019-08-29
@@ -244,7 +238,6 @@ public class MainMenuPresenter extends AbstractPresenter {
      * list" with the names of all currently logged in users is displayed in the log.
      *
      * @param allUsersResponse the AllOnlineUsersResponse object seen on the EventBus
-     *
      * @author Marco Grawunder
      * @see de.uol.swp.common.user.response.AllOnlineUsersResponse
      * @since 2019-08-29
@@ -267,7 +260,6 @@ public class MainMenuPresenter extends AbstractPresenter {
      * the message "Update of lobby list" with the names of all currently existing lobbies is displayed in the log.
      *
      * @param allCreatedLobbiesResponse the AllCreatedLobbiesResponse object seen on the Eventbus
-     *
      * @author Carsten Dekker and Marius Birk
      * @see de.uol.swp.common.lobby.response.AllCreatedLobbiesResponse
      * @since 2020-04-12
@@ -292,7 +284,8 @@ public class MainMenuPresenter extends AbstractPresenter {
     public void onResponseChatMessage(ResponseChatMessage message) {
         onResponseChatMessageLogic(message);
     }
-    public void onResponseChatMessageLogic(ResponseChatMessage rcm){
+
+    public void onResponseChatMessageLogic(ResponseChatMessage rcm) {
         // Only update Messages from main chat
         if (rcm.getChat().equals("main")) {
             LOG.debug("Updated chat area with new message..");
@@ -307,15 +300,15 @@ public class MainMenuPresenter extends AbstractPresenter {
      * posting a 'Can't join lobby' message to the local chat.
      *
      * @param response
-     *
      * @author René
      * @since 2020-12-17
      */
     @Subscribe
     public void onLobbyFullResponse(LobbyFullResponse response) {
-onLobbyFullResponseLogic(response);
+        onLobbyFullResponseLogic(response);
     }
-    public void onLobbyFullResponseLogic(LobbyFullResponse lfr){
+
+    public void onLobbyFullResponseLogic(LobbyFullResponse lfr) {
         LOG.debug("Can't join lobby " + lfr.getLobbyName() + " because the lobby is full.");
         var time = new SimpleDateFormat("HH:mm");
         Date resultDate = new Date();
@@ -330,7 +323,6 @@ onLobbyFullResponseLogic(response);
      * he already joined this lobby in another Tab.
      *
      * @param response The ResponseMessage contains the name of the lobby.
-     *
      * @author Carsten Dekker
      * @see de.uol.swp.common.lobby.response.AlreadyJoinedThisLobbyResponse
      * @since 2021-01-22
@@ -340,7 +332,8 @@ onLobbyFullResponseLogic(response);
     public void onAlreadyJoinedThisLobbyResponse(AlreadyJoinedThisLobbyResponse response) {
         onAlreadyJoinedThisLobbyResponseLogic(response);
     }
-    public void onAlreadyJoinedThisLobbyResponseLogic(AlreadyJoinedThisLobbyResponse response){
+
+    public void onAlreadyJoinedThisLobbyResponseLogic(AlreadyJoinedThisLobbyResponse response) {
         LOG.debug("Can't join lobby " + response.getLobbyName() + " because the User joined this lobby already.");
         var time = new SimpleDateFormat("HH:mm");
         Date resultDate = new Date();
@@ -355,7 +348,6 @@ onLobbyFullResponseLogic(response);
      * deleted via posting a 'Lobby deleted' message to the local chat.
      *
      * @param response
-     *
      * @author Sergej
      * @since 2020-12-17
      */
@@ -363,7 +355,8 @@ onLobbyFullResponseLogic(response);
     public void onJoinDeletedLobbyResponse(JoinDeletedLobbyResponse response) {
         onJoinDeletedLobbyResponseLogic(response);
     }
-    public void onJoinDeletedLobbyResponseLogic(JoinDeletedLobbyResponse jdlr){
+
+    public void onJoinDeletedLobbyResponseLogic(JoinDeletedLobbyResponse jdlr) {
         LOG.debug("Can't join lobby " + jdlr.getLobbyName() + " because the lobby was deleted.");
         var time = new SimpleDateFormat("HH:mm");
         Date resultDate = new Date();
@@ -376,7 +369,6 @@ onLobbyFullResponseLogic(response);
      * Method called when a LobbyAlreadyExistsMessage was posted on the eventBus.
      *
      * @param message
-     *
      * @since 2020-12-02
      */
 
@@ -384,7 +376,8 @@ onLobbyFullResponseLogic(response);
     public void onLobbyAlreadyExistsMessage(LobbyAlreadyExistsResponse message) {
         onLobbyAlreadyExistsMessageLogic(message);
     }
-    public void onLobbyAlreadyExistsMessageLogic(LobbyAlreadyExistsResponse laer){
+
+    public void onLobbyAlreadyExistsMessageLogic(LobbyAlreadyExistsResponse laer) {
         LOG.debug("Lobby with Name " + lobbyNameTextField.getText() + " already exists.");
         lobbyNameInvalid.setVisible(false);
         lobbyAlreadyExistsLabel.setVisible(true);
@@ -397,7 +390,6 @@ onLobbyFullResponseLogic(response);
      * user list. If there is no user list this it creates one.
      *
      * @param userList A list of UserDTO objects including all currently logged in users
-     *
      * @implNote The code inside this Method has to run in the JavaFX-application thread. Therefore it is crucial not to
      * remove the {@code Platform.runLater()}
      * @author Marco Grawunder
@@ -434,7 +426,6 @@ onLobbyFullResponseLogic(response);
      * This method clears the entire lobby list and then adds a new list of lobbies.
      *
      * @param lobbyList A list of UserDTO objects including all existing lobbies
-     *
      * @implNote The code inside this Method has to run in the JavaFX-application thread. Therefore it is crucial not to
      * remove the {@code Platform.runLater()}
      * @author Carsten Dekker and Marius Birk
@@ -469,7 +460,6 @@ onLobbyFullResponseLogic(response);
      * Enhanced by Marius Birk and Carsten Dekker, 2020-02-12
      *
      * @param event The ActionEvent created by pressing the create lobby button
-     *
      * @author Marco Grawunder
      * @see de.uol.swp.client.lobby.LobbyService
      * @since 2019-11-20
@@ -501,7 +491,6 @@ onLobbyFullResponseLogic(response);
      * The message is of type RequestChatMessage If this will result in an exception, go log the exception
      *
      * @param event The ActionEvent created by pressing the send Message button
-     *
      * @see de.uol.swp.client.chat.ChatService
      * @since 2020-11-22
      */
@@ -527,12 +516,10 @@ onLobbyFullResponseLogic(response);
      * to.
      *
      * @param event The ActionEvent generated by pressing the settings button
-     *
      * @author Carsten Dekker
      * @see de.uol.swp.client.account.event.ShowUserSettingsViewEvent
      * @see de.uol.swp.client.SceneManager
      * @since 2021-03-04
-     *
      */
     @FXML
     private void onUserSettingsButtonPressed(ActionEvent event) {
