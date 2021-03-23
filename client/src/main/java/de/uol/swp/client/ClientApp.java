@@ -143,7 +143,7 @@ public class ClientApp extends Application implements ConnectionListener {
      * this clients user to the user found in the object. If the loglevel is set
      * to DEBUG or higher "user logged in successfully " and the username of the
      * logged in user are written to the log.
-     * It also starts a Timer for the
+     * It also starts a timer for the ping message and a sperate timer for the client to check if he has a timeout.
      *
      * @param message The LoginSuccessfulResponse object detected on the EventBus
      * @author Marco Grawunder, Philip
@@ -161,19 +161,6 @@ public class ClientApp extends Application implements ConnectionListener {
     }
 
     /**
-     * Handles successful logout
-     * <p>
-     * If an LogoutSuccessfulResponse object is detected on the EventBus this
-     * method is called. It tells the SceneManager to show the LoginScree.
-     * It also starts a Timer for the
-     *
-     * @param message The LogoutSuccessfulResponse object detected on the EventBus
-     * @author Philip
-     * @see de.uol.swp.client.SceneManager
-     * @since 2021-01-21
-     */
-
-    /**
      * Handles successful Mail information response
      * <p>
      * If an RetrieveUserMailResponse object is detected on the EventBus this
@@ -189,6 +176,19 @@ public class ClientApp extends Application implements ConnectionListener {
         LOG.debug("Got the response with the Mail from User " + response.getUser().getUsername());
         this.user = response.getUser();
     }
+
+    /**
+     * Handles successful logout
+     * <p>
+     * If an LogoutSuccessfulResponse object is detected on the EventBus this
+     * method is called. It tells the SceneManager to show the LoginScree.
+     * It also ends the timer for the ping message and the sperate timer for the client to check if he has a timeout.
+     *
+     * @param message The LogoutSuccessfulResponse object detected on the EventBus
+     * @author Philip
+     * @see de.uol.swp.client.SceneManager
+     * @since 2021-01-21
+     */
 
     @Subscribe
     public void userLoggedOut(LogoutRequest message) {
@@ -249,7 +249,7 @@ public class ClientApp extends Application implements ConnectionListener {
      * method is called. It tells the SceneManager to show the lobby menu and suspend
      * the corresponding LobbyTab. If the loglevel is set
      * to DEBUG or higher "user joined lobby " is written to the log.
-     *
+     * <p>
      * enhanced by Marc Hermes - 2021-03-15
      *
      * @param message The StartGameResponse object detected on the EventBus
@@ -285,20 +285,20 @@ public class ClientApp extends Application implements ConnectionListener {
     /**
      * Handles a GameDroppedMessage when detected on the Eventbus
      * <p>
-     *
+     * <p>
      * If a GameDroppedMessage is detected on the Eventbus this method
      * gets called. It removes the GameTab which was passed on from the
      * GameDroppedMessage and unsuspends the corresponding LobbyTab.
-     *
+     * <p>
      * enhanced by Marc Hermes - 2021-03-15
      *
      * @param message The GameDroppedMessage detected on the Eventbus
-     * @see de.uol.swp.common.game.message.GameDroppedMessage
      * @author Ricardo Mook, Alexander Losse
+     * @see de.uol.swp.common.game.message.GameDroppedMessage
      * @since 2021-03-04
      */
     @Subscribe
-    public void userDroppedGame(GameDroppedMessage message){
+    public void userDroppedGame(GameDroppedMessage message) {
         LOG.debug("Successfully dropped game  " + message.getName());
         sceneManager.removeGameTab(message.getName());
         sceneManager.unsuspendLobbyTab(message.getName());
@@ -310,7 +310,7 @@ public class ClientApp extends Application implements ConnectionListener {
      * If an GameLeftSuccessfulResponse object is detected on the EventBus this method is called.
      * It tells the SceneManager to remove the tab corresponding to the game that was left
      * and unsuspends the LobbyTab
-     *
+     * <p>
      * enhanced by Marc Hermes - 2021-03-15
      *
      * @param message the LobbyLeftSuccessfulResponse detected on the EventBus
@@ -351,9 +351,8 @@ public class ClientApp extends Application implements ConnectionListener {
      * If the loglevel is set to DEBUG or higher "UpdateUser error " and the
      * error message are written to the log.
      *
-     * @author Carsten Dekker
-     *
      * @param message The UpdateUserExceptionMessage object detected on the EventBus
+     * @author Carsten Dekker
      * @see de.uol.swp.client.SceneManager
      * @since 2021-03-04
      */
@@ -388,8 +387,8 @@ public class ClientApp extends Application implements ConnectionListener {
      * method is called. If the loglevel is set to INFO or higher "Update user Successful."
      * is written to the log.
      *
-     * @author Carsten Dekker
      * @param response The UpdateUserSuccessfulResponse object detected on the EventBus
+     * @author Carsten Dekker
      * @since 2021-03-04
      */
     @Subscribe
@@ -404,8 +403,8 @@ public class ClientApp extends Application implements ConnectionListener {
      * method is called. If the loglevel is set to INFO or higher "Drop user was successful."
      * is written to the log.
      *
-     * @author Carsten Dekker
      * @param response The DropUserSuccessfulResponse object detected on the EventBus
+     * @author Carsten Dekker
      * @since 2021-03-14
      */
     @Subscribe

@@ -293,7 +293,6 @@ public class UserManagement extends AbstractUserManagement {
      *
      * @return List of Users out of the database
      * @author Marius Birk
-     * @author Marius Birk
      * @see java.sql.SQLException
      * @see java.util.LinkedList
      */
