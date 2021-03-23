@@ -14,5 +14,5 @@
         <TextArea fx:id="textArea" editable="false" layoutY="164.0" prefHeight="191.0" prefWidth="284.0" GridPane.rowIndex="2" />
         <TextField fx:id="inputField" layoutY="355.0" onAction="#onSendMessage" prefHeight="25.0" prefWidth="207.0" promptText="Send your Message!" GridPane.rowIndex="3" />
         <Button layoutX="207.0" layoutY="355.0" mnemonicParsing="false" onAction="#onSendMessage" prefHeight="25.0" prefWidth="77.0" text="Send" />
-        <Button layoutX="461.0" layoutY="374.0" mnemonicParsing="false" onAction="#onDropUser" text="DeleteUser" GridPane.columnIndex="3" />
+        <Button layoutX="478.0" layoutY="374.0" mnemonicParsing="false" onAction="#onUserSettingsButtonPressed" text="Settings" />
 </AnchorPane>

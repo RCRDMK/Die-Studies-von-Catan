@@ -79,7 +79,22 @@ public interface ServerUserService {
      * @return the updated user object
      * @since 2019-09-02
      */
-    User updateUser(User user) throws SQLException;
+    User updateUserMail(User user) throws SQLException;
+
+    /**
+     * Update a user
+     *
+     * Updates the User specified by the User object.
+     *
+     * @implNote the User Object has to contain a unique identifier in order to
+     * 			 update the correct user
+     * @param user the user object containing all infos to
+     *             update, if some values are not set, (e.g. password is "")
+     *             these fields are not updated
+     * @return the updated user object
+     * @since 2019-09-02
+     */
+    User updateUserPassword(User user, String password) throws SQLException;
 
     /**
      * Retrieve the list of all current logged in users
@@ -89,4 +104,12 @@ public interface ServerUserService {
      */
     List<User> retrieveAllUsers() throws SQLException;
 
+    /**
+     * Retrieve the user information of the currently logged in user
+     *
+     * @author Carsten Dekker
+     * @return user information
+     * @since 2021-03-11
+     */
+    User retrieveUserMail(User user) throws SQLException;
 }

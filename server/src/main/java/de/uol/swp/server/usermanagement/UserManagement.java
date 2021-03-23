@@ -144,44 +144,106 @@ public class UserManagement extends AbstractUserManagement {
         return new UserDTO(userToCreate.getUsername(), userToCreate.getPassword(), userToCreate.getEMail());
     }
 
+    /**
+     * Updates the users email.
+     * <p>
+     * This method updates the mail from the User in the database. It throws an exception if the user is not present in
+     * the database.
+     *
+     * @author Carsten Dekker
+     * @see java.sql.SQLException
+     * @return A new UserDTO with the username and the mail address
+     * @since 2021-03-12
+     */
     @Override
-    public User updateUser(User userToUpdate) throws SQLException {
+    public User updateUserMail(User toUpdateMail) throws SQLException {
         ResultSet resultSet;
-        PreparedStatement updateUser;
+        PreparedStatement updateUserMail;
         try {
             String getUser = "select * from user where name=?;";
-            updateUser = connection.prepareStatement(getUser);
-            updateUser.setString(1, userToUpdate.getUsername());
-            resultSet = updateUser.executeQuery();
+            updateUserMail = connection.prepareStatement(getUser);
+            updateUserMail.setString(1, toUpdateMail.getUsername());
+            resultSet = updateUserMail.executeQuery();
         } catch (SQLException e) {
             LOG.debug(e);
             throw new UserManagementException("Username unknown!");
         }
-        // Only update if there are new values
-        String newPassword = "";
         String newEMail = "";
-
         if (resultSet.next()) {
             try {
-                newPassword = firstNotNull(userToUpdate.getPassword(), resultSet.getString("password"));
-                newEMail = firstNotNull(userToUpdate.getEMail(), resultSet.getString("mail"));
-                String updateUserString = "update user set password=?, mail=? where name=?;";
-                updateUser = connection.prepareStatement(updateUserString);
-                updateUser.setString(1, userToUpdate.getPassword());
-                updateUser.setString(2, userToUpdate.getEMail());
-                updateUser.setString(3, userToUpdate.getUsername());
-
-                updateUser.executeUpdate();
+                newEMail = firstNotNull(toUpdateMail.getEMail(), resultSet.getString("mail"));
+                String updateUserString = "update user set mail=? where name=?;";
+                updateUserMail = connection.prepareStatement(updateUserString);
+                updateUserMail.setString(1, toUpdateMail.getEMail());
+                updateUserMail.setString(2, toUpdateMail.getUsername());
+                updateUserMail.executeUpdate();
             } catch (SQLException e) {
                 LOG.debug(e);
                 throw new UserManagementException("Username unknown!");
             }
         } else {
-            throw new UserManagementException("User unknown!");
+            throw new UserManagementException("Username unknown!");
         }
-        return new UserDTO(userToUpdate.getUsername(), newPassword, newEMail);
+        return new UserDTO(toUpdateMail.getUsername(), toUpdateMail.getPassword(), newEMail);
     }
 
+    /**
+     * Updates the users password.
+     * <p>
+     * This method updates the password from the User in the database. It throws an exception if the user is not present
+     * in the database or if the password, that the user entered in the UserSettingsView, is not the same as the
+     * currently used password.
+     *
+     * @author Carsten Dekker
+     * @see java.sql.SQLException
+     * @return A new UserDTO with the username and the mail address
+     * @since 2021-03-12
+     */
+    @Override
+    public User updateUserPassword(User toUpdatePassword, String currentPassword) throws SQLException {
+        ResultSet resultSet;
+        PreparedStatement updateUserPassword;
+        try {
+            String getUser = "select * from user where name=?;";
+            updateUserPassword = connection.prepareStatement(getUser);
+            updateUserPassword.setString(1, toUpdatePassword.getUsername());
+            resultSet = updateUserPassword.executeQuery();
+        } catch (SQLException e) {
+            LOG.debug(e);
+            throw new UserManagementException("Username unknown!");
+        }
+        String newPassword = "";
+        if(resultSet.next()) {
+            if(resultSet.getString(2).equals(currentPassword)) {
+                try {
+                    newPassword = firstNotNull(toUpdatePassword.getPassword(), resultSet.getString("password"));
+                    String updateUserString = "update user set password=? where name=?;";
+                    updateUserPassword = connection.prepareStatement(updateUserString);
+                    updateUserPassword.setString(1, toUpdatePassword.getPassword());
+                    updateUserPassword.setString(2, toUpdatePassword.getUsername());
+                    updateUserPassword.executeUpdate();
+                } catch (SQLException e) {
+                    LOG.debug(e);
+                    throw new UserManagementException("Username unknown!");
+                }
+            } else {
+                throw new UserManagementException("The Send Password is not equal to the current password!");
+            }
+        } else {
+            throw new UserManagementException("Username unknown!");
+        }
+        return new UserDTO(toUpdatePassword.getUsername(), newPassword, toUpdatePassword.getEMail());
+    }
+
+    /**
+     * Deletes the user in the database.
+     * <p>
+     * This method drops the user from the database.
+     *
+     * @author Carsten Dekker
+     * @see java.sql.SQLException
+     * @since 2021-03-12
+     */
     @Override
     public void dropUser(User userToDrop) throws SQLException {
         String selectUserString = "select name from user where name =?;";
@@ -252,5 +314,36 @@ public class UserManagement extends AbstractUserManagement {
             userList.add(new UserDTO(resultSet.getString(1), resultSet.getString(2), resultSet.getString(3)));
         }
         return userList;
+    }
+
+    /**
+     * Selects the Mail from the database.
+     * <p>
+     * This method selects the mail from the User and creates a new UserDTO with the mail and an empty password.
+     * The UserDTO gets returned to the UserService.
+     *
+     * @author Carsten Dekker
+     * @see java.sql.SQLException
+     * @return A new UserDTO with the username and the mail address
+     * @since 2021-03-12
+     */
+    @Override
+    public User retrieveUserMail(User toGetInformation) throws SQLException {
+        ResultSet resultSet;
+        PreparedStatement preparedStatement;
+        try {
+            String selectMail = "select mail from user where name = ? ;";
+            preparedStatement = connection.prepareStatement(selectMail);
+            preparedStatement.setString(1, toGetInformation.getUsername());
+            resultSet = preparedStatement.executeQuery();
+        } catch (Exception e){
+            LOG.debug(e);
+            throw new UserManagementException("Username unknown");
+        }
+        if (resultSet.next()) {
+            return new UserDTO(toGetInformation.getUsername(), "", resultSet.getString(1));
+        } else {
+            return null;
+        }
     }
 }

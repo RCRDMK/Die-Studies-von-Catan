@@ -89,10 +89,40 @@ public class UserService implements ClientUserService {
         bus.post(dropUserRequest);
     }
 
+    /**
+     * Method to update the password of an user
+     * <p>
+     * This method sends a request to update the password of the user. The new password gets hashed.
+     * The requests is of the type UpdateUserPasswordRequest.
+     *
+     * @param user The user to update
+     * @param currentPassword the currently used password
+     * @author Carsten Dekker
+     * @see de.uol.swp.common.user.request.UpdateUserPasswordRequest
+     * @since 2020-03-14
+     */
     @Override
-    public void updateUser(User user) throws InvalidKeySpecException, NoSuchAlgorithmException {
+    public void updateUserPassword(User user, String currentPassword) throws InvalidKeySpecException, NoSuchAlgorithmException {
         User hashedPassword = new UserDTO(user.getUsername(), convertStringToHash(user.getPassword()), user.getEMail());
-        UpdateUserRequest request = new UpdateUserRequest(hashedPassword);
+        String hashedCurrentPassword = convertStringToHash(currentPassword);
+        UpdateUserPasswordRequest request = new UpdateUserPasswordRequest(hashedPassword, hashedCurrentPassword);
+        bus.post(request);
+    }
+
+    /**
+     * Method to update the email of the user
+     * <p>
+     * This method sends a request to update the email of the user.
+     * The requests is of the type UpdateUserMailRequest.
+     *
+     * @param user The user to update
+     * @author Carsten Dekker
+     * @see de.uol.swp.common.user.request.UpdateUserMailRequest
+     * @since 2020-03-14
+     */
+    @Override
+    public void updateUserMail(User user) {
+        UpdateUserMailRequest request = new UpdateUserMailRequest(user);
         bus.post(request);
     }
 
