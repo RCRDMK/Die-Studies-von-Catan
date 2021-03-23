@@ -8,12 +8,10 @@ import de.uol.swp.common.message.ResponseMessage;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.exception.DropUserExceptionMessage;
 import de.uol.swp.common.user.exception.RegistrationExceptionMessage;
-import de.uol.swp.common.user.request.DropUserRequest;
-import de.uol.swp.common.user.request.RegisterUserRequest;
-import de.uol.swp.common.user.response.AllOnlineUsersResponse;
-import de.uol.swp.common.user.response.DropUserSuccessfulResponse;
-import de.uol.swp.common.user.response.LoginSuccessfulResponse;
-import de.uol.swp.common.user.response.RegistrationSuccessfulResponse;
+import de.uol.swp.common.user.exception.RetrieveUserMailExceptionMessage;
+import de.uol.swp.common.user.exception.UpdateUserExceptionMessage;
+import de.uol.swp.common.user.request.*;
+import de.uol.swp.common.user.response.*;
 import de.uol.swp.server.AbstractService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -110,7 +108,105 @@ public class UserService extends AbstractService {
             LOG.error(e);
             returnMessage = new DropUserExceptionMessage("Cannot drop user "+dropUserRequest.getUser()+" "+e.getMessage());
         }
+        returnMessage.setMessageContext(dropUserRequest.getMessageContext().get());
         post(returnMessage);
     }
 
+    /**
+     * Handles RetrieveUserMailRequest found on the EventBus
+     * <p>
+     * If a RetrieveUserMailRequest is detected on the EventBus, this method is called.
+     * It tries to get the eMail from the user via the UserManagement. If this succeeds a
+     * RetrieveUserInformationResponse is posted on the EventBus otherwise a RetrieveUserMailExceptionMessage
+     * gets posted there.
+     *
+     * @author Carsten Dekker
+     * @param retrieveUserMailRequest The RetrieveUserMailRequest found on the EventBus
+     * @see de.uol.swp.common.user.request.RetrieveUserMailRequest
+     * @since 2021-03-12
+     */
+    @Subscribe
+    private void onRetrieveUserMail(RetrieveUserMailRequest retrieveUserMailRequest) {
+        if (LOG.isDebugEnabled()){
+            LOG.debug("Got a new retrieveUserMail request with " + retrieveUserMailRequest.getUser());
+        }
+        ResponseMessage returnMessage;
+        try {
+            returnMessage = new RetrieveUserMailResponse(userManagement.retrieveUserMail(retrieveUserMailRequest.getUser()));
+        } catch (Exception e) {
+            LOG.error(e);
+            returnMessage = new RetrieveUserMailExceptionMessage("Cannot get user information "
+                    + retrieveUserMailRequest.getUser() + " " + e.getMessage());
+        }
+        if (retrieveUserMailRequest.getMessageContext().isPresent()) {
+            returnMessage.setMessageContext(retrieveUserMailRequest.getMessageContext().get());
+        }
+        post(returnMessage);
+    }
+
+    /**
+     * Handles UpdateUserMailRequest found on the EventBus
+     * <p>
+     * If a UpdateUserMailRequest is detected on the EventBus, this method is called.
+     * It tries to update the users mail address via the UserManagement. If this succeeds a
+     * UpdateUserSuccessfulResponse is posted on the EventBus otherwise a UpdateUserExceptionMessage
+     * gets posted there.
+     *
+     * @author Carsten Dekker
+     * @param updateUserMailRequest The UpdateUserRequest found on the EventBus
+     * @see de.uol.swp.common.user.request.UpdateUserMailRequest
+     * @since 2021-03-14
+     */
+    @Subscribe
+    private void onUpdateUserMailRequest(UpdateUserMailRequest updateUserMailRequest) {
+        if (LOG.isDebugEnabled()){
+            LOG.debug("Got a new updateUserMail request with " + updateUserMailRequest.getUser());
+        }
+        ResponseMessage returnMessage;
+        try {
+            userManagement.updateUserMail(updateUserMailRequest.getUser());
+            returnMessage = new UpdateUserSuccessfulResponse();
+        } catch (Exception e) {
+            LOG.error(e);
+            returnMessage = new UpdateUserExceptionMessage("Cannot update user " + updateUserMailRequest.getUser() + " " +
+                    e.getMessage());
+        }
+        if (updateUserMailRequest.getMessageContext().isPresent()) {
+            returnMessage.setMessageContext(updateUserMailRequest.getMessageContext().get());
+        }
+        post(returnMessage);
+    }
+
+    /**
+     * Handles UpdateUserPasswordRequest found on the EventBus
+     * <p>
+     * If a UpdateUserPasswordRequest is detected on the EventBus, this method is called.
+     * It tries to update the user via the UserManagement. If this succeeds a
+     * UpdateUserSuccessfulResponse is posted on the EventBus otherwise a UpdateUserExceptionMessage
+     * gets posted there.
+     *
+     * @author Carsten Dekker
+     * @param updateUserPasswordRequest The UpdateUserRequest found on the EventBus
+     * @see de.uol.swp.common.user.request.UpdateUserPasswordRequest
+     * @since 2021-03-14
+     */
+    @Subscribe
+    private void onUpdateUserPasswordRequest(UpdateUserPasswordRequest updateUserPasswordRequest) {
+        if (LOG.isDebugEnabled()){
+            LOG.debug("Got a new updateUserPassword request with " + updateUserPasswordRequest.getUser());
+        }
+        ResponseMessage returnMessage;
+        try {
+            userManagement.updateUserPassword(updateUserPasswordRequest.getUser(), updateUserPasswordRequest.getCurrentPassword());
+            returnMessage = new UpdateUserSuccessfulResponse();
+        } catch (Exception e) {
+            LOG.error(e);
+            returnMessage = new UpdateUserExceptionMessage("Cannot update user " + updateUserPasswordRequest.getUser() + " " +
+                    e.getMessage());
+        }
+        if (updateUserPasswordRequest.getMessageContext().isPresent()) {
+            returnMessage.setMessageContext(updateUserPasswordRequest.getMessageContext().get());
+        }
+        post(returnMessage);
+    }
 }

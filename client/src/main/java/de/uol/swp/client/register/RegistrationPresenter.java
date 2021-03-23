@@ -45,6 +45,9 @@ public class RegistrationPresenter extends AbstractPresenter {
     @FXML
     private TextField emailField2;
 
+    @Inject
+    private RegistrationService registrationService;
+
     /**
      * Default Constructor
      *
@@ -115,7 +118,7 @@ public class RegistrationPresenter extends AbstractPresenter {
             eventBus.post(new RegistrationErrorEvent("E-Mail Addresses are not equal"));
         } else if (Strings.isNullOrEmpty(emailField1.getText())) {
             eventBus.post(new RegistrationErrorEvent("E-Mail cannot be empty"));
-        } else if (!RegistrationService.isValidEmailAddress(emailField1.getText())) {
+        } else if (!registrationService.isValidEmailAddress(emailField1.getText())) {
             eventBus.post(new RegistrationErrorEvent("E-Mail is not valid"));
         } else {
             userService.createUser(new UserDTO(loginField.getText(), passwordField1.getText(), emailField1.getText()));
