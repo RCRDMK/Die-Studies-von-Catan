@@ -20,8 +20,7 @@ public class RegistrationService {
      * @see de.uol.swp.client.register.RegistrationPresenter
      * @since 2021-01-15
      */
-
-    public static boolean isValidEmailAddress(String email) {
+    public boolean isValidEmailAddress(String email) {
         String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\."+
                 "[a-zA-Z0-9_+&*-]+)*@" +
                 "(?:[a-zA-Z0-9-]+\\.)+[a-z" +

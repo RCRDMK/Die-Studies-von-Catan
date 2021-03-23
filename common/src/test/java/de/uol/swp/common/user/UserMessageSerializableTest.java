@@ -3,6 +3,8 @@ package de.uol.swp.common.user;
 import de.uol.swp.common.SerializationTestHelper;
 import de.uol.swp.common.user.exception.DropUserExceptionMessage;
 import de.uol.swp.common.user.exception.RegistrationExceptionMessage;
+import de.uol.swp.common.user.exception.RetrieveUserMailExceptionMessage;
+import de.uol.swp.common.user.exception.UpdateUserExceptionMessage;
 import de.uol.swp.common.user.message.UserLoggedInMessage;
 import de.uol.swp.common.user.message.UserLoggedOutMessage;
 import de.uol.swp.common.user.message.UsersListMessage;
@@ -67,12 +69,23 @@ class UserMessageSerializableTest {
                 LobbyLeftSuccessfulResponse.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new RegistrationSuccessfulResponse(),
                RegistrationSuccessfulResponse.class));
-
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new DropUserExceptionMessage("Error"),
                 DropUserExceptionMessage.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new DropUserSuccessfulResponse(),
                 DropUserSuccessfulResponse.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new DropUserRequest(defaultUser),
                 DropUserRequest.class));
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new UpdateUserExceptionMessage("Error"),
+                UpdateUserExceptionMessage.class));
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new RetrieveUserMailExceptionMessage("Error"),
+                RetrieveUserMailExceptionMessage.class));
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new RetrieveUserMailRequest(defaultUser),
+                RetrieveUserMailRequest.class));
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new RetrieveUserMailResponse(defaultUser),
+                RetrieveUserMailResponse.class));
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new UpdateUserMailRequest(defaultUser),
+                UpdateUserMailRequest.class));
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new UpdateUserPasswordRequest(defaultUser, "marco"),
+                UpdateUserPasswordRequest.class));
     }
 }

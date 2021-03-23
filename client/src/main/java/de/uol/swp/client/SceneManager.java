@@ -5,6 +5,10 @@ import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.assistedinject.Assisted;
+import de.uol.swp.client.account.event.ShowUserSettingsViewEvent;
+import de.uol.swp.client.account.event.LeaveUserSettingsEvent;
+import de.uol.swp.client.account.UserSettingsPresenter;
+import de.uol.swp.client.account.event.UserSettingsErrorEvent;
 import de.uol.swp.client.auth.LoginPresenter;
 import de.uol.swp.client.auth.events.ShowLoginViewEvent;
 import de.uol.swp.client.game.GamePresenter;
@@ -56,6 +60,7 @@ public class SceneManager {
     private final Injector injector;
     private TabPane tabPane = new TabPane();
     private TabHelper tabHelper;
+    private Scene userSettingsScene;
 
     @Inject
     public SceneManager(EventBus eventBus, Injector injected, @Assisted Stage primaryStage) {
@@ -82,6 +87,7 @@ public class SceneManager {
         initLoginView();
         initMainView();
         initRegistrationView();
+        initUserSettingsView();
         nextLobbyScene = initLobbyView();
         nextGameScene = initGameView();
     }
@@ -215,6 +221,25 @@ public class SceneManager {
             return gameScene;
     }
 
+    /**
+     * Initializes the userSettings view
+     * <p>
+     * If the userSettingsScene is null it gets set to a new scene containing the
+     * a pane showing the userSettings view as specified by the UserSettingsView
+     * FXML file.
+     *
+     * @see UserSettingsPresenter
+     * @author Carsten Dekker
+     * @since 2021-03-04
+     */
+    private void initUserSettingsView() {
+        if (userSettingsScene == null) {
+            Parent rootPane = initPresenter(UserSettingsPresenter.fxml);
+            userSettingsScene = new Scene(rootPane, 400, 300);
+            userSettingsScene.getStylesheets().add(styleSheet);
+        }
+    }
+
 
     /**
      * Handles ShowRegistrationViewEvent detected on the EventBus
@@ -281,6 +306,54 @@ public class SceneManager {
      */
     @Subscribe
     public void onRegistrationErrorEvent(RegistrationErrorEvent event) {
+        showError(event.getMessage());
+    }
+
+    /**
+     * Handles ShowUserSettingsViewEvent detected on the EventBus
+     * <p>
+     * If a ShowUserSettingsViewEvent is detected on the EventBus, this method gets
+     * called. It calls a method to switch the current screen to the showUserSettings screen.
+     *
+     * @param event The ShowUserSettingsViewEvent detected on the EventBus
+     * @see de.uol.swp.client.account.event.ShowUserSettingsViewEvent
+     * @author Carsten Dekker
+     * @since 2021-04-03
+     */
+    @Subscribe
+    public void onShowUserSettingsViewEvent(ShowUserSettingsViewEvent event) {
+        showUserSettingsScreen();
+    }
+
+    /**
+     * Handles LeaveUserSettingsEvent detected on the EventBus
+     * <p>
+     * If a LeaveUserSettingsEvent is detected on the EventBus, this method gets
+     * called. It calls a method to show the screen shown before userSettings.
+     *
+     * @param event The LeaveUserSettingsEvent detected on the EventBus
+     * @see de.uol.swp.client.account.event.LeaveUserSettingsEvent
+     * @author Carsten Dekker
+     * @since 2021-03-04
+     */
+    @Subscribe
+    public void onLeaveUserSettingsEvent(LeaveUserSettingsEvent event) {
+        showScene(lastScene, lastTitle);
+    }
+
+    /**
+     * Handles UserSettingsErrorEvent detected on the EventBus
+     * <p>
+     * If a UserSettingsErrorEvent is detected on the EventBus, this method gets
+     * called. It shows the error message of the event in a error alert.
+     *
+     * @param event The UserSettingsErrorEvent detected on the EventBus
+     * @see de.uol.swp.client.account.event.UserSettingsErrorEvent
+     * @author Carsten Dekker
+     * @since 2021-03-06
+     */
+    @Subscribe
+    public void onUserSettingsErrorEvent(UserSettingsErrorEvent event) {
         showError(event.getMessage());
     }
 
@@ -382,6 +455,9 @@ public class SceneManager {
      * @since 2021-01-20
      */
     public void showMainTab(User currentUser) {
+        this.lastScene = currentScene;
+        this.lastTitle = primaryStage.getTitle();
+        this.currentScene = tabScene;
         Platform.runLater(() -> {
             primaryStage.setTitle("Catan");
             primaryStage.setScene(tabScene);
@@ -427,8 +503,20 @@ public class SceneManager {
     }
 
     /**
+     * Shows the userSettings screen
+     * <p>
+     * Switches the current Scene to the userSettingsScene and sets the title of
+     * the window to "UserSettings"
+     * @author Carsten Dekker
+     * @since 2021-04-03
+     */
+    public void showUserSettingsScreen() {
+        showScene(userSettingsScene, "UserSettings");
+    }
+
+    /**
      * Creates a new lobby tab
-     *
+     * <p>
      * When this method is invoked a new lobby tab with a specific name is created.
      * The content of the new lobby tab is set to the root of the currently empty nextLobbyScene
      * The lobby tab is then added to the TabPane.
@@ -452,7 +540,7 @@ public class SceneManager {
 
     /**
      * Removes an old lobby tab
-     *
+     * <p>
      * When this method is invoked a lobby tab with a specific name is removed from
      * the TabPane.
      *
@@ -479,7 +567,7 @@ public class SceneManager {
 
     /**
      * Creates a new game tab
-     *
+     * <p>
      * When this method is invoked a new game tab with a specific name is created.
      * The content of the new game tab is set to the root of the currently empty nextGameScene
      * The game tab is then added to the TabPane.
@@ -503,7 +591,7 @@ public class SceneManager {
 
     /**
      * Removes an old game tab
-     *
+     * <p>
      * When this method is invoked a game tab with a specific name is removed from
      * the TabPane.
      *
@@ -519,5 +607,34 @@ public class SceneManager {
         });
     }
 
-}
+    /**
+     * Suspends a certain lobby Tab
+     * <p>
+     * When this method is invoked the tabHelper is used to suspend a lobby Tab.
+     * Suspended Tabs are removed from tabPane but not deleted.
+     *
+     * @author Marc Hermes
+     * @param lobbyName the name of the Lobby corresponding to the lobby Tab
+     * @since 2021-03-16
+     */
+    public void suspendLobbyTab(String lobbyName) {
+        Platform.runLater(() -> {
+            tabHelper.suspendTab("Lobby " + lobbyName);
+        });
+    }
 
+    /**
+     * Unsuspends a certain lobby Tab
+     * <p>
+     * When this method is invoked the tabHelper is used to unsuspend a lobby Tab.
+     *
+     * @author Marc Hermes
+     * @param lobbyName the name of the Lobby corresponding to the lobby Tab
+     * @since 2021-03-16
+     */
+    public void unsuspendLobbyTab(String lobbyName) {
+        Platform.runLater(() -> {
+            tabHelper.unsuspendTab("Lobby " + lobbyName);
+        });
+    }
+}

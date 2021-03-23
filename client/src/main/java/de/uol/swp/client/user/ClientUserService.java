@@ -59,18 +59,32 @@ public interface ClientUserService {
     void dropUser(User user);
 
     /**
-     * Update a user
-     * <p>
+     * Update the password from a user
+     *
      * Updates the User specified by the User object.
      *
+     * @implNote the User Object has to contain a unique identifier in order to
+     * 			 update the correct user
      * @param user the user object containing all infos to
      *             update, if some values are not set, (e.g. password is "")
      *             these fields are not updated
-     * @implNote the User Object has to contain a unique identifier in order to
-     * update the correct user
-     * @since 2019-09-02
+     * @since 2021-03-14
      */
-    void updateUser(User user) throws InvalidKeySpecException, NoSuchAlgorithmException;
+    void updateUserPassword(User user, String currentPassword) throws InvalidKeySpecException, NoSuchAlgorithmException;
+
+    /**
+     * Update the mail from a user
+     *
+     * Updates the User specified by the User object.
+     *
+     * @implNote the User Object has to contain a unique identifier in order to
+     * 			 update the correct user
+     * @param user the user object containing all infos to
+     *             update, if some values are not set, (e.g. password is "")
+     *             these fields are not updated
+     * @since 2021-03-14
+     */
+    void updateUserMail(User user);
 
     /**
      * Retrieve the list of all current logged in users

@@ -4,6 +4,7 @@ import com.google.common.eventbus.DeadEvent;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import de.uol.swp.client.lobby.LobbyService;
+import de.uol.swp.common.game.GameField;
 import de.uol.swp.common.game.message.GameCreatedMessage;
 import de.uol.swp.common.game.request.GameLeaveUserRequest;
 import de.uol.swp.common.lobby.request.CreateLobbyRequest;
@@ -65,7 +66,7 @@ public class GamePresenterTest {
         LobbyCreatedSuccessfulResponse message2 = new LobbyCreatedSuccessfulResponse(userDTO);
         lobbyService.joinLobby("testLobby", userDTO1);
         GameService gameService = new GameService(bus);
-        GameCreatedMessage gMessage = new GameCreatedMessage("Testgame",userDTO);
+        GameCreatedMessage gMessage = new GameCreatedMessage("Testgame",userDTO, new GameField());
         GameLeaveUserRequest request = new GameLeaveUserRequest("Testgame",userDTO);
         gameService.leaveGame("Testgame",userDTO);
         assertTrue(event instanceof GameLeaveUserRequest);

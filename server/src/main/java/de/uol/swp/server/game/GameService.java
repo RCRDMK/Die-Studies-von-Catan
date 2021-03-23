@@ -8,7 +8,7 @@ import de.uol.swp.common.chat.ResponseChatMessage;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.message.*;
 import de.uol.swp.common.game.request.*;
-import de.uol.swp.common.game.message.RollDiceRequest;
+import de.uol.swp.common.game.request.RollDiceRequest;
 import de.uol.swp.common.game.response.AllCreatedGamesResponse;
 import de.uol.swp.common.game.response.GameAlreadyExistsResponse;
 import de.uol.swp.common.game.response.NotLobbyOwnerResponse;
@@ -97,6 +97,17 @@ public class GameService extends AbstractService {
         }
     }
 
+    /**
+     * Handles RetrieveAllThisGameUsersRequests found on the EventBus
+     * <p>
+     * If a RetrieveAllThisGameUsersRequests is detected on the EventBus, this method is called.
+     * It prepares the sending of a AllThisGameUsersResponse for a specific user that sent the initial request.
+     *
+     * @param retrieveAllThisGameUsersRequest The RetrieveAllThisGameUsersRequest found on the EventBus
+     * @author Iskander Yusupov
+     * @see de.uol.swp.common.game.Game
+     * @since 2021-01-15
+     */
     @Subscribe
     public void onRetrieveAllThisGameUsersRequest(RetrieveAllThisGameUsersRequest retrieveAllThisGameUsersRequest) {
         Optional<Game> game = gameManagement.getGame(retrieveAllThisGameUsersRequest.getName());
@@ -104,7 +115,7 @@ public class GameService extends AbstractService {
             List<Session> gameUsers = authenticationService.getSessions(game.get().getUsers());
             if (retrieveAllThisGameUsersRequest.getMessageContext().isPresent()) {
                 Optional<MessageContext> ctx = retrieveAllThisGameUsersRequest.getMessageContext();
-                sendToSpecificUser(ctx.get(), new AllThisGameUsersResponse(gameUsers));
+                sendToSpecificUser(ctx.get(), new AllThisGameUsersResponse(gameUsers, retrieveAllThisGameUsersRequest.getName()));
             }
         }
     }
@@ -167,7 +178,7 @@ public class GameService extends AbstractService {
      *
      * @param rollDiceRequest The RollDiceRequest found on the EventBus
      * @author Kirstin, Pieter
-     * @see de.uol.swp.common.game.message.RollDiceRequest
+     * @see RollDiceRequest
      * @since 2021-01-07
      */
     @Subscribe
@@ -279,7 +290,7 @@ public class GameService extends AbstractService {
             Optional<Game> game = gameManagement.getGame(lobby.get().getName());
             for (User user : lobby.get().getPlayersReady()) {
                 game.get().joinUser(user);
-                sendToSpecificUserInGame(game, new GameCreatedMessage(game.get().getName(), (UserDTO) user), user);
+                sendToSpecificUserInGame(game, new GameCreatedMessage(game.get().getName(), (UserDTO) user, game.get().getGameField()), user);
             }
         } else {
             throw new GameManagementException("Not enough Players ready!");

@@ -196,7 +196,7 @@ class UserServiceTest {
      *
      * @throws InterruptedException thrown by lock.await()
      * @since 2019-10-10
-     */
+
     @Test
     void updateUserTest() throws InterruptedException, InvalidKeySpecException, NoSuchAlgorithmException {
         UserService userService = new UserService(bus);
@@ -213,7 +213,7 @@ class UserServiceTest {
         assertEquals(request.getUser().getEMail(), defaultUser.getEMail());
         assertTrue(request.authorizationNeeded());
     }
-
+    */
     /**
      * Test for the dropUser routine
      *

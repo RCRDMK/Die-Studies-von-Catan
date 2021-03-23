@@ -26,10 +26,11 @@ import javafx.scene.control.*;
 import javafx.stage.Modality;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
 import java.util.List;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
+import java.util.Optional;
 
 /**
  * Manages the lobby menu
@@ -304,7 +305,7 @@ public class LobbyPresenter extends AbstractPresenter {
     }
 
     /**
-     * The method invoked by userLeftSuccesful()
+     * The method invoked by userLeftSuccessful()
      * <p>
      * If the Lobby is left, meaning this Lobby Presenter is no longer needed,
      * this presenter will no longer be registered on the event bus and no longer
@@ -667,7 +668,6 @@ public class LobbyPresenter extends AbstractPresenter {
         }
     }
 
-
     /**
      * Handles successful creation of the game.
      * <p>
@@ -702,5 +702,6 @@ public class LobbyPresenter extends AbstractPresenter {
             }
         }
     }
+
 }
 
