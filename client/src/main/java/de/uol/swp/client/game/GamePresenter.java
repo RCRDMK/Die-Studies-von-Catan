@@ -251,7 +251,7 @@ public class GamePresenter extends AbstractPresenter {
             LOG.debug("Requesting update of User list in game scene because game scene was created.");
             this.joinedLobbyUser = gcm.getUser();
             this.currentLobby = gcm.getName();
-            gameService.retrieveAllThisGameUsers(gcm.getName());
+            updateGameUsersList(gcm.getUsers());
             initializeGameField(gcm.getGameField());
         }
     }
@@ -286,7 +286,6 @@ public class GamePresenter extends AbstractPresenter {
     public void gameLeftSuccessfulLogic(GameLeftSuccessfulResponse glsr) {
         if (this.currentLobby != null) {
             if (this.currentLobby.equals(glsr.getName())) {
-
                 this.currentLobby = null;
                 clearEventBus();
             }

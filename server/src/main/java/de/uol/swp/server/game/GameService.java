@@ -90,7 +90,9 @@ public class GameService extends AbstractService {
                 }
                 game.get().leaveUser(gameLeaveUserRequest.getUser());
                 sendToAll(new GameSizeChangedMessage(gameLeaveUserRequest.getName()));
-                sendToAllInGame(gameLeaveUserRequest.getName(), new UserLeftGameMessage(gameLeaveUserRequest.getName(), gameLeaveUserRequest.getUser()));
+                ArrayList<UserDTO> usersInGame = new ArrayList<>();
+                for (User user : game.get().getUsers()) usersInGame.add((UserDTO) user);
+                sendToAllInGame(gameLeaveUserRequest.getName(), new UserLeftGameMessage(gameLeaveUserRequest.getName(), gameLeaveUserRequest.getUser(), usersInGame));
             }
         } else {
             throw new GameManagementException("Game unknown!");
@@ -243,14 +245,12 @@ public class GameService extends AbstractService {
         Optional<Lobby> lobby = lobbyService.getLobby(startGameRequest.getName());
         if (gameManagement.getGame(lobby.get().getName()).isEmpty() && lobby.get().getUsers().size() > 1 && startGameRequest.getUser().toString().equals(lobby.get().getOwner().toString())) {
             lobby.get().setPlayersReadyToNull();
-            Players = 0;
             sendToAllInLobby(startGameRequest.getName(), new StartGameMessage(startGameRequest.getName(), startGameRequest.getUser()));
             int seconds = 60;
             Timer timer = new Timer();
             class RemindTask extends TimerTask {
                 public void run() {
-                    if (gameManagement.getGame(lobby.get().getName()).isEmpty() && Players != lobby.get().getUsers().size()) {
-                        Players = lobby.get().getUsers().size();
+                    if (lobby.get().getPlayersReady().size() > 0 && gameManagement.getGame(lobby.get().getName()).isEmpty() && lobby.get().getPlayersReady().size() != lobby.get().getUsers().size()) {
                         try {
                             startGame(lobby);
                         } catch (GameManagementException e) {
@@ -288,9 +288,16 @@ public class GameService extends AbstractService {
         if (lobby.get().getPlayersReady().size() > 1) {
             gameManagement.createGame(lobby.get().getName(), lobby.get().getOwner());
             Optional<Game> game = gameManagement.getGame(lobby.get().getName());
+            ArrayList<UserDTO> usersInGame = new ArrayList<>();
             for (User user : lobby.get().getPlayersReady()) {
                 game.get().joinUser(user);
-                sendToSpecificUserInGame(game, new GameCreatedMessage(game.get().getName(), (UserDTO) user, game.get().getGameField()), user);
+                usersInGame.add((UserDTO) user);
+
+            }
+            lobby.get().setPlayersReadyToNull();
+            lobby.get().setRdyResponsesReceived(0);
+            for (User user : game.get().getUsers()) {
+                sendToSpecificUserInGame(game, new GameCreatedMessage(game.get().getName(), (UserDTO) user, game.get().getGameField(), usersInGame), user);
             }
         } else {
             throw new GameManagementException("Not enough Players ready!");
@@ -313,12 +320,12 @@ public class GameService extends AbstractService {
     public void onPlayerReadyRequest(PlayerReadyRequest playerReadyRequest) {
         Optional<Lobby> lobby = lobbyService.getLobby(playerReadyRequest.getName());
         if (playerReadyRequest.getBoolean()) {
-            Players += 1;
+            lobby.get().incrementRdyResponsesReceived();
             lobby.get().joinPlayerReady(playerReadyRequest.getUser());
         } else if (!playerReadyRequest.getBoolean()) {
-            Players += 1;
+            lobby.get().incrementRdyResponsesReceived();
         }
-        if (Players == lobby.get().getUsers().size() && gameManagement.getGame(lobby.get().getName()).isEmpty()) {
+        if (lobby.get().getRdyResponsesReceived() == lobby.get().getUsers().size() && gameManagement.getGame(lobby.get().getName()).isEmpty()) {
             try {
                 startGame(lobby);
             } catch (GameManagementException e) {

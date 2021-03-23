@@ -23,7 +23,7 @@ public class GameSerializableTest {
     void testGameMessagesSerializable(){
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new AbstractGameMessage(defaultUser.getUsername(), defaultUser),
                 AbstractGameMessage.class));
-        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new GameCreatedMessage("test", defaultUser, defaultGameField),
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new GameCreatedMessage("test", defaultUser, defaultGameField, new ArrayList<>()),
                 GameCreatedMessage.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new GameDroppedMessage("test"),
                 GameDroppedMessage.class));
@@ -31,7 +31,7 @@ public class GameSerializableTest {
                 GameSizeChangedMessage.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new NotEnoughPlayersMessage("test"),
                 NotEnoughPlayersMessage.class));
-        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new UserLeftGameMessage("test", defaultUser),
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new UserLeftGameMessage("test", defaultUser,new ArrayList<>()),
                 UserLeftGameMessage.class));
     }
 

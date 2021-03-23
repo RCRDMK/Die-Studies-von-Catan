@@ -23,7 +23,7 @@ public class LobbyDTO implements Lobby {
     private User owner;
     private final Set<User> users = new TreeSet<>();
     private final Set<User> playersReady = new TreeSet<>();
-
+    private int rdyResponsesReceived = 0;
 
 
     /**
@@ -92,4 +92,12 @@ public class LobbyDTO implements Lobby {
     @Override
     public void setPlayersReadyToNull() {this.playersReady.removeAll(playersReady);}
 
+    @Override
+    public void setRdyResponsesReceived(int responsesReceived) {this.rdyResponsesReceived = responsesReceived;}
+
+    @Override
+    public int getRdyResponsesReceived() {return this.rdyResponsesReceived;}
+
+    @Override
+    public void incrementRdyResponsesReceived() {this.rdyResponsesReceived++;}
 }

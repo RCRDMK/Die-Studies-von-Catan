@@ -89,4 +89,10 @@ public interface Lobby extends Serializable {
     Set<User> getPlayersReady();
 
     void setPlayersReadyToNull();
+
+    void incrementRdyResponsesReceived();
+
+    int getRdyResponsesReceived();
+
+    void setRdyResponsesReceived(int responsesReceived);
 }

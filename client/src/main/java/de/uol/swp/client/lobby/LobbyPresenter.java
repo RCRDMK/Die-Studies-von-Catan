@@ -27,6 +27,7 @@ import javafx.stage.Modality;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -178,10 +179,12 @@ public class LobbyPresenter extends AbstractPresenter {
         if (this.currentLobby == null) {
             LOG.debug("Requesting update of User list in lobby because lobby was created.");
             this.joinedLobbyUser = lcsr.getUser();
+            ArrayList<UserDTO> onlyLobbyOwneer = new ArrayList<UserDTO>();
+            onlyLobbyOwneer.add((UserDTO) joinedLobbyUser);
+            updateLobbyUsersList(onlyLobbyOwneer);
             this.currentLobby = lcsr.getName();
             this.lobbyChatInput.setText("");
             lobbyChatArea.deleteText(0, lobbyChatArea.getLength());
-            lobbyService.retrieveAllThisLobbyUsers(lcsr.getName());
             Platform.runLater(this::setupButtonsAndAlerts);
         }
     }
@@ -356,7 +359,7 @@ public class LobbyPresenter extends AbstractPresenter {
         if (this.currentLobby != null) {
             if (this.currentLobby.equals(ujlm.getName())) {
                 LOG.debug("Requesting update of User list in lobby because a User joined the lobby.");
-                lobbyService.retrieveAllThisLobbyUsers(ujlm.getName());
+                updateLobbyUsersList(ujlm.getUsers());
             }
         }
     }
@@ -392,7 +395,7 @@ public class LobbyPresenter extends AbstractPresenter {
         if (this.currentLobby != null) {
             if (this.currentLobby.equals(ullm.getName())) {
                 LOG.debug("Requesting update of User list in lobby because a User left the lobby.");
-                lobbyService.retrieveAllThisLobbyUsers(ullm.getName());
+                updateLobbyUsersList(ullm.getUsers());
             }
         }
     }
