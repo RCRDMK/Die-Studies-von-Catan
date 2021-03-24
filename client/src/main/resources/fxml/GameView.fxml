@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
 <?import javafx.scene.canvas.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
@@ -25,7 +24,8 @@
                <MenuItem mnemonicParsing="false" onAction="#onBuildTown" text="Town" />
             </items>
          </MenuButton>
-         <Button layoutX="153.0" layoutY="11.0" mnemonicParsing="false" onAction="#onBuyDevelopmentCard" text="Buy DevelopmentCard" />
+         <Button layoutX="153.0" layoutY="11.0" mnemonicParsing="false" onAction="#onBuyDevelopmentCard"
+                 text="Buy DevelopmentCard" />
          <Region prefHeight="25.0" prefWidth="133.0" />
          <Button mnemonicParsing="false" onAction="#onLeaveGame" text="Leave Game" />
      </items>

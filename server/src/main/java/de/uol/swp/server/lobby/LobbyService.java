@@ -78,7 +78,6 @@ public class LobbyService extends AbstractService {
      * Method enhanced by Marius Birk and Carsten Dekker, 2020-12-02
      *
      * @param createLobbyRequest The CreateLobbyRequest found on the EventBus
-     *
      * @author Marco Grawunder
      * @see de.uol.swp.server.lobby.LobbyManagement
      * @see de.uol.swp.common.lobby.message.LobbyCreatedMessage
@@ -108,13 +107,14 @@ public class LobbyService extends AbstractService {
     /**
      * Handles LobbyJoinUserRequests found on the EventBus
      * <p>
-     * If a LobbyJoinUserRequest is detected on the EventBus, this method is called. It adds a user to a Lobby stored in
-     * the LobbyManagement and sends a UserJoinedLobbyMessage to every user in the lobby. If a lobby already has 4
-     * users, this method will return a LobbyFullResponse to the user who requested to join the lobby If a lobby is not
-     * present, this method will return a JoinDeletedLobbyResponse to the user.
+     * If a LobbyJoinUserRequest is detected on the EventBus, this method is called.
+     * It adds a user to a Lobby stored in the LobbyManagement and sends a UserJoinedLobbyMessage
+     * to every user in the lobby.
+     * If a lobby already has 4 users, this method will return a LobbyFullResponse to the user
+     * who requested to join the lobby
+     * If a lobby is not present, this method will return a JoinDeletedLobbyResponse to the user.
      *
      * @param lobbyJoinUserRequest The LobbyJoinUserRequest found on the EventBus
-     *
      * @author Marco Grawunder
      * @see de.uol.swp.common.lobby.Lobby
      * @see de.uol.swp.common.lobby.message.UserJoinedLobbyMessage
@@ -151,14 +151,13 @@ public class LobbyService extends AbstractService {
     /**
      * Handles LobbyLeaveUserRequests found on the EventBus
      * <p>
-     * If a LobbyLeaveUserRequest is detected on the EventBus, this method is called. It removes a user from a Lobby
-     * stored in the LobbyManagement and sends a UserLeftLobbyMessage to every user in the lobby.
+     * If a LobbyLeaveUserRequest is detected on the EventBus, this method is called.
+     * It removes a user from a Lobby stored in the LobbyManagement and sends a
+     * UserLeftLobbyMessage to every user in the lobby.
      * <p>
-     * If a lobby was deleted, this methode will return a JoinDeletedLobbyResponse to the user who requested to join the
-     * lobby
+     * If a lobby was deleted, this methode will return a JoinDeletedLobbyResponse to the user who requested to join the lobby
      *
      * @param lobbyLeaveUserRequest The LobbyJoinUserRequest found on the EventBus
-     *
      * @author Marco Grawunder
      * @see de.uol.swp.common.lobby.Lobby
      * @see de.uol.swp.common.lobby.message.UserLeftLobbyMessage
@@ -201,7 +200,6 @@ public class LobbyService extends AbstractService {
      * sending of a AllThisLobbyUsersResponse for a specific user that sent the initial request.
      *
      * @param retrieveAllThisLobbyUsersRequest The RetrieveAllThisLobbyUsersRequest found on the EventBus
-     *
      * @author Marc Hermes, Ricardo Mook
      * @see de.uol.swp.common.lobby.Lobby
      * @since 2020-12-02
@@ -219,12 +217,12 @@ public class LobbyService extends AbstractService {
     }
 
     /**
-     * Prepares a given ServerMessage to be send to all players in the lobby and posts it on the EventBus
+     * Prepares a given ServerMessage to be send to all players in the lobby and
+     * posts it on the EventBus
      * <p>
      *
      * @param lobbyName Name of the lobby the players are in
      * @param message   the message to be send to the users
-     *
      * @author Marco Grawunder
      * @see de.uol.swp.common.message.ServerMessage
      * @since 2019-10-08
@@ -242,7 +240,8 @@ public class LobbyService extends AbstractService {
     }
 
     /**
-     * Prepares a given ResponseMessage to be send to the owner of lobby and posts it on the EventBus
+     * Prepares a given ResponseMessage to be send to the owner of lobby and
+     * posts it on the EventBus
      * <p>
      *
      * @param message the message to be send to the users
@@ -278,12 +277,13 @@ public class LobbyService extends AbstractService {
     /**
      * Handles LogoutRequests found on the EventBus
      * <p>
-     * If a LogoutRequest is detected on the EventBus, this method is called. It gets all lobbies from the
-     * LobbyManagement and loops through them. If the user is part of a lobby, he gets removed from it. If he is the
-     * last user in the lobby, the lobby gets dropped. Finally we log how many lobbies the user left.
+     * If a LogoutRequest is detected on the EventBus, this method is called. It
+     * gets all lobbies from the LobbyManagement and loops through them.
+     * If the user is part of a lobby, he gets removed from it.
+     * If he is the last user in the lobby, the lobby gets dropped.
+     * Finally we log how many lobbies the user left.
      *
      * @param msg the LogoutRequest
-     *
      * @author René Meyer, Sergej Tulnev
      * @see de.uol.swp.common.user.request.LogoutRequest
      * @see de.uol.swp.common.lobby.request.LobbyLeaveUserRequest

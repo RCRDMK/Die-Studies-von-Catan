@@ -1,19 +1,15 @@
 package de.uol.swp.server.usermanagement;
 
 import com.google.common.base.Strings;
-import com.mysql.cj.log.Log;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
-import de.uol.swp.server.lobby.LobbyService;
-import de.uol.swp.server.usermanagement.store.UserStore;
-import io.netty.handler.logging.LogLevel;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.checkerframework.checker.nullness.Opt;
 
 import javax.inject.Inject;
 import java.sql.*;
 import java.util.*;
+
 
 /**
  * Handles most user related issues e.g. login/logout
@@ -37,11 +33,13 @@ public class UserManagement extends AbstractUserManagement {
     private Connection connection;
     private Statement statement;
     private static final Logger LOG = LogManager.getLogger(UserManagement.class);
-    private final SortedMap<String, User> loggedInUsers = new TreeMap<>();
+    private static final SortedMap<String, User> loggedInUsers = new TreeMap<>();
+
 
     /**
      * Constructor
      *
+     * @author Marius Birk
      * @author Marius Birk
      * @see de.uol.swp.server.usermanagement.store.UserStore
      * @since 2019-08-05
@@ -74,7 +72,8 @@ public class UserManagement extends AbstractUserManagement {
     /**
      * Closes Connection
      * <p>
-     * This method will be closing the connection between database and server application. If the server is going to be shut down,
+     * This method will be closing the connection between database and server application.
+     * If the server is going to be shut down,
      * it will close the connection to the database.
      *
      * @author Marius Birk
@@ -247,7 +246,7 @@ public class UserManagement extends AbstractUserManagement {
     @Override
     public void dropUser(User userToDrop) throws SQLException {
         String selectUserString = "select name from user where name =?;";
-        try{
+        try {
             PreparedStatement dropUser = connection.prepareStatement(selectUserString);
             dropUser.setString(1, userToDrop.getUsername());
             ResultSet resultSet = dropUser.executeQuery();
@@ -259,7 +258,7 @@ public class UserManagement extends AbstractUserManagement {
                 dropUser.executeUpdate();
             }
 
-        }catch (SQLException e) {
+        } catch (SQLException e) {
             LOG.debug(e);
             throw new UserManagementException("User could not be dropped!");
         }
