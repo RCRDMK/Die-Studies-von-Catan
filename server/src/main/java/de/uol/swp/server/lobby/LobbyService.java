@@ -141,6 +141,10 @@ public class LobbyService extends AbstractService {
             sendToAllInLobby(lobbyJoinUserRequest.getName(), new UserJoinedLobbyMessage(lobbyJoinUserRequest.getName(), lobbyJoinUserRequest.getUser(), usersInLobby));
             sendToSpecificUser(lobbyJoinUserRequest.getMessageContext().get(), new LobbyJoinedSuccessfulResponse(lobbyJoinUserRequest.getName(), lobbyJoinUserRequest.getUser()));
             sendToAll(new LobbySizeChangedMessage(lobbyJoinUserRequest.getName()));
+            lobby.get().joinUser(lobbyJoinUserRequest.getUser());
+            sendToAllInLobby(lobbyJoinUserRequest.getName(), new UserJoinedLobbyMessage(lobbyJoinUserRequest.getName(), lobbyJoinUserRequest.getUser()));
+            sendToSpecificUser(lobbyJoinUserRequest.getMessageContext().get(), new LobbyJoinedSuccessfulResponse(lobbyJoinUserRequest.getName(), lobbyJoinUserRequest.getUser()));
+            sendToAll(new LobbySizeChangedMessage(lobbyJoinUserRequest.getName()));
         } else {
             if (lobbyJoinUserRequest.getMessageContext().isPresent() && lobby.get().getUsers().size() == 4) {
                 sendToSpecificUser(lobbyJoinUserRequest.getMessageContext().get(), new LobbyFullResponse(lobbyJoinUserRequest.getName()));

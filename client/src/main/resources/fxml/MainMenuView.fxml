@@ -3,7 +3,8 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.uol.swp.client.main.MainMenuPresenter">
+<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1"
+            xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.uol.swp.client.main.MainMenuPresenter">
         <ListView fx:id="usersView" prefHeight="164.0" prefWidth="284.0" GridPane.rowIndex="1" />
         <ListView fx:id="lobbiesView" layoutX="284.0" prefHeight="164.0" prefWidth="316.0" GridPane.rowIndex="3" />
         <TextField fx:id="lobbyNameTextField" layoutX="284" layoutY="164" onAction="#onCreateLobby" prefWidth="223.0" promptText="Enter Lobby Name" />

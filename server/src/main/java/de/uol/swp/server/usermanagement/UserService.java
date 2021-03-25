@@ -17,12 +17,15 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.sql.SQLException;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Mapping vom event bus calls to user management calls
  *
- * @see de.uol.swp.server.AbstractService
  * @author Marco Grawunder
+ * @see de.uol.swp.server.AbstractService
  * @since 2019-08-05
  */
 @SuppressWarnings("UnstableApiUsage")
@@ -33,10 +36,11 @@ public class UserService extends AbstractService {
 
     private final UserManagement userManagement;
 
+
     /**
      * Constructor
      *
-     * @param eventBus the EventBus used throughout the entire server (injected)
+     * @param eventBus       the EventBus used throughout the entire server (injected)
      * @param userManagement object of the UserManagement to use
      * @see de.uol.swp.server.usermanagement.UserManagement
      * @since 2019-08-05
@@ -50,7 +54,7 @@ public class UserService extends AbstractService {
 
     /**
      * Handles RegisterUserRequests found on the EventBus
-     *
+     * <p>
      * If a RegisterUserRequest is detected on the EventBus, this method is called.
      * It tries to create a new user via the UserManagement. If this succeeds a
      * RegistrationSuccessfulResponse is posted on the EventBus otherwise a RegistrationExceptionMessage
@@ -65,16 +69,17 @@ public class UserService extends AbstractService {
      */
     @Subscribe
     private void onRegisterUserRequest(RegisterUserRequest msg) {
-        if (LOG.isDebugEnabled()){
+        if (LOG.isDebugEnabled()) {
             LOG.debug("Got new registration message with " + msg.getUser());
         }
         ResponseMessage returnMessage;
         try {
             User newUser = userManagement.createUser(msg.getUser());
             returnMessage = new RegistrationSuccessfulResponse();
-        }catch (Exception e){
+        } catch (Exception e) {
             LOG.error(e);
-            returnMessage = new RegistrationExceptionMessage("Cannot create user "+msg.getUser()+" "+e.getMessage());
+            returnMessage = new RegistrationExceptionMessage("Cannot create user " + msg.getUser() + " " +
+                    e.getMessage());
         }
         if (msg.getMessageContext().isPresent()) {
             returnMessage.setMessageContext(msg.getMessageContext().get());
@@ -84,20 +89,20 @@ public class UserService extends AbstractService {
 
     /**
      * Handles DropUserRequests found on the EventBus
-     *
+     * <p>
      * If a DropUserRequest is detected on the EventBus, this method is called.
      * It tries to delete the user via the UserManagement. If this succeeds a
      * DropUserSuccessfulResponse is posted on the EventBus otherwise a DropUserExceptionMessage
      * gets posted there.
      *
-     * @author Carsten Dekker
      * @param dropUserRequest The DropUserRequest found on the EventBus
+     * @author Carsten Dekker
      * @see de.uol.swp.common.user.request.DropUserRequest
      * @since 2020-12-15
      */
     @Subscribe
     private void onDropUserRequest(DropUserRequest dropUserRequest) {
-        if (LOG.isDebugEnabled()){
+        if (LOG.isDebugEnabled()) {
             LOG.debug("Got new dropUser request with " + dropUserRequest.getUser());
         }
         ResponseMessage returnMessage;
@@ -106,7 +111,8 @@ public class UserService extends AbstractService {
             returnMessage = new DropUserSuccessfulResponse();
         } catch (Exception e) {
             LOG.error(e);
-            returnMessage = new DropUserExceptionMessage("Cannot drop user "+dropUserRequest.getUser()+" "+e.getMessage());
+            returnMessage = new DropUserExceptionMessage("Cannot drop user " + dropUserRequest.getUser() + " " +
+                    e.getMessage());
         }
         returnMessage.setMessageContext(dropUserRequest.getMessageContext().get());
         post(returnMessage);

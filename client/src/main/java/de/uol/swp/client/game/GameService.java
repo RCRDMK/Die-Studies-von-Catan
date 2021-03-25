@@ -43,11 +43,12 @@ public class GameService {
      * @param user User who wants to roll the dice
      * @see de.uol.swp.common.game.request.RollDiceRequest
      * @author Kirstin, Pieter
+     * @see de.uol.swp.common.game.message.RollDiceRequest
      * @since 2021-01-07
      * <p>
      * Enhanced by Carsten Dekker
      * @since 2021-01-13
-     * <p>
+     *
      * I have changed the place of the method to the new GameService.
      * It is a temporary method.
      */
