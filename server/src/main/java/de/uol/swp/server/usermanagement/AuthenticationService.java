@@ -152,8 +152,8 @@ public class AuthenticationService extends AbstractService {
      * his Session are removed from the userSessions Map and a UserLoggedOutMessage
      * is posted on the EventBus.
      *
-     * @author Marco, Philip, Marc
      * @param msg the LogoutRequest
+     * @author Marco, Philip, Marc
      * @see de.uol.swp.common.user.request.LogoutRequest
      * @see de.uol.swp.common.user.message.UserLoggedOutMessage
      * @since 2021-03-14
@@ -237,10 +237,10 @@ public class AuthenticationService extends AbstractService {
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
-                List<User> userToDrop = activeUserList.checkActiveUser();
-                if (userToDrop.size() >= 1) {
-                    for (int i = 0; i < userToDrop.size(); i++) {
-                        Optional<Session> session = getSession(userToDrop.get(i));
+                List<User> userToLogout = activeUserList.checkActiveUser();
+                if (userToLogout.size() >= 1) {
+                    for (int i = 0; i < userToLogout.size(); i++) {
+                        Optional<Session> session = getSession(userToLogout.get(i));
                         if (session.isPresent()) {
                             LogoutRequest logoutRequest = new LogoutRequest();
                             logoutRequest.setSession(session.get());
