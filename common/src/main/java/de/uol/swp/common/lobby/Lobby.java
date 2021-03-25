@@ -4,7 +4,7 @@ import de.uol.swp.common.user.User;
 
 import java.io.Serializable;
 import java.util.Set;
-import java.util.Timer;
+
 
 /**
  * Interface to unify lobby objects
@@ -90,9 +90,26 @@ public interface Lobby extends Serializable {
 
     void setPlayersReadyToNull();
 
+    /**
+     * Increases the amount of the received ready-responses of this lobby by 1.
+     *
+     * @since 2021-03-23
+     */
     void incrementRdyResponsesReceived();
 
+    /**
+     * Returns the amount ready-responses received for this lobby
+     *
+     * @return an int Value representing the amount of ready-responses received
+     * @since 2021-03-23
+     */
     int getRdyResponsesReceived();
 
+    /**
+     * Sets the ready-responses for this lobby to a certain value, usually 0.
+     *
+     * @param responsesReceived the ready-responses received in this lobby
+     * @since 2021-03-23
+     */
     void setRdyResponsesReceived(int responsesReceived);
 }

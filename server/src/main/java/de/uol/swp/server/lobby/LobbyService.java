@@ -23,7 +23,6 @@ import de.uol.swp.server.usermanagement.AuthenticationService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.lang.reflect.Array;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -139,10 +138,6 @@ public class LobbyService extends AbstractService {
             ArrayList<UserDTO> usersInLobby = new ArrayList<>();
             for (User user : lobby.get().getUsers()) usersInLobby.add(UserDTO.createWithoutPassword(user));
             sendToAllInLobby(lobbyJoinUserRequest.getName(), new UserJoinedLobbyMessage(lobbyJoinUserRequest.getName(), lobbyJoinUserRequest.getUser(), usersInLobby));
-            sendToSpecificUser(lobbyJoinUserRequest.getMessageContext().get(), new LobbyJoinedSuccessfulResponse(lobbyJoinUserRequest.getName(), lobbyJoinUserRequest.getUser()));
-            sendToAll(new LobbySizeChangedMessage(lobbyJoinUserRequest.getName()));
-            lobby.get().joinUser(lobbyJoinUserRequest.getUser());
-            sendToAllInLobby(lobbyJoinUserRequest.getName(), new UserJoinedLobbyMessage(lobbyJoinUserRequest.getName(), lobbyJoinUserRequest.getUser()));
             sendToSpecificUser(lobbyJoinUserRequest.getMessageContext().get(), new LobbyJoinedSuccessfulResponse(lobbyJoinUserRequest.getName(), lobbyJoinUserRequest.getUser()));
             sendToAll(new LobbySizeChangedMessage(lobbyJoinUserRequest.getName()));
         } else {

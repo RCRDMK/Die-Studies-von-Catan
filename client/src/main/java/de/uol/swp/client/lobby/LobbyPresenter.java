@@ -168,7 +168,7 @@ public class LobbyPresenter extends AbstractPresenter {
      * <p>
      * If the currentLobby is null, meaning this is an empty LobbyPresenter that is ready to be used for a new lobby tab,
      * the parameters of this LobbyPresenter are updated to the User and Lobby given by the lcsr Response.
-     * An update of the Users in the currentLobby is also requested.
+     * An update of the Users in the currentLobby is also done.
      *
      * @param lcsr the LobbyCreatedSuccessfulResponse given by the original subscriber method.
      * @author Alexander Losse, Marc Hermes
@@ -348,7 +348,7 @@ public class LobbyPresenter extends AbstractPresenter {
      * <p>
      * If the currentLobby is not null, meaning this is an not an empty LobbyPresenter and the lobby name stored
      * in this LobbyPresenter equals the one in the received Message, an update of the Users in the currentLobby
-     * is requested.
+     * is done.
      *
      * @param ujlm the UserJoinedLobbyMessage given by the original subscriber method.
      * @author Alexander Losse, Marc Hermes
@@ -384,7 +384,7 @@ public class LobbyPresenter extends AbstractPresenter {
      * <p>
      * If the currentLobby is not null, meaning this is an not an empty LobbyPresenter and the lobby name stored
      * in this LobbyPresenter equals the one in the received Message, an update of the Users in the currentLobby
-     * is requested.
+     * is done.
      *
      * @param ullm the UserLeftLobbyMessage given by the original subscriber method.
      * @author Alexander Losse, Marc Hermes
@@ -701,7 +701,6 @@ public class LobbyPresenter extends AbstractPresenter {
         if (this.currentLobby != null) {
             if (this.currentLobby.equals(gcm.getName())) {
                 LOG.debug("New game " + gcm.getName() + " created");
-                //gameService.retrieveAllGames();
             }
         }
     }

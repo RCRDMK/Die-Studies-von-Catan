@@ -1,11 +1,8 @@
 package de.uol.swp.common.lobby.message;
 
-import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Message sent by the server when a user successfully leaves a lobby
