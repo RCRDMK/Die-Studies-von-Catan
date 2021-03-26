@@ -60,7 +60,7 @@ class AuthenticationServiceTest {
     }
 
     @BeforeEach
-    void registerBus() {
+    void registerBus() throws SQLException {
         event = null;
         bus.register(this);
     }
