@@ -18,7 +18,7 @@ import java.util.List;
 public class ActiveUserList {
 
     Hashtable<User, Long> activeUserTable = new Hashtable<>();
-    List<User> userToDropList = new ArrayList<>();
+    List<User> userToLogoutList = new ArrayList<>();
 
     /**
      * Handles a list of active users
@@ -72,15 +72,15 @@ public class ActiveUserList {
      */
 
     public List<User> checkActiveUser() {
-        userToDropList.clear();
+        userToLogoutList.clear();
         Enumeration<User> enu = activeUserTable.keys();
         while (enu.hasMoreElements()) {
             User user = enu.nextElement();
             long t2 = activeUserTable.get(user);
             if ((System.currentTimeMillis() - t2) >= 60000) {
-                userToDropList.add(user);
+                userToLogoutList.add(user);
             }
         }
-        return (userToDropList);
+        return (userToLogoutList);
     }
 }
