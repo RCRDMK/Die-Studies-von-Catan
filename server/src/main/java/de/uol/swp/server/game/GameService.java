@@ -243,20 +243,29 @@ public class GameService extends AbstractService {
     @Subscribe
     public void onStartGameRequest(StartGameRequest startGameRequest) {
         Optional<Lobby> lobby = lobbyService.getLobby(startGameRequest.getName());
-        if (gameManagement.getGame(lobby.get().getName()).isEmpty() && lobby.get().getUsers().size() > 1 && startGameRequest.getUser().toString().equals(lobby.get().getOwner().toString())) {
+        Set<User> usersInLobby = lobby.get().getUsers();
+        if (gameManagement.getGame(lobby.get().getName()).isEmpty() && usersInLobby.size() > 1 && startGameRequest.getUser().getUsername().equals(lobby.get().getOwner().getUsername())) {
             lobby.get().setPlayersReadyToNull();
+            lobby.get().setGameShouldStart(true);
             sendToAllInLobby(startGameRequest.getName(), new StartGameMessage(startGameRequest.getName(), startGameRequest.getUser()));
-            int seconds = 60;
+            int seconds = 20;
             Timer timer = new Timer();
             class RemindTask extends TimerTask {
                 public void run() {
-                    if (lobby.get().getPlayersReady().size() > 0 && gameManagement.getGame(lobby.get().getName()).isEmpty() && lobby.get().getPlayersReady().size() != lobby.get().getUsers().size()) {
+                    Set<User> users = new TreeSet<>(usersInLobby);
+                    if (lobby.get().getPlayersReady().size()!=0) {
+                        users.removeAll(lobby.get().getPlayersReady());
+                    } else {users.clear();}
+                    if (lobby.get().getPlayersReady().size() > 1 && gameManagement.getGame(lobby.get().getName()).isEmpty()) {
                         try {
                             startGame(lobby);
+                            // TODO: sollte wahrscheinlich keine notenoughplayersmessage sein, sondern "You missed the game start"
+                            sendToListOfUsers(users, lobby.get().getName(), new NotEnoughPlayersMessage(lobby.get().getName()));
                         } catch (GameManagementException e) {
                             LOG.debug(e);
-                            sendToListOfUsers(lobby.get().getUsers(), lobby.get().getName(), new NotEnoughPlayersMessage(lobby.get().getName()));
                         }
+                    } else if (lobby.get().getPlayersReady().size() < 2 && lobby.get().getGameShouldStart()) {
+                        sendToListOfUsers(users, lobby.get().getName(), new NotEnoughPlayersMessage(lobby.get().getName()));
                     }
                     timer.cancel();
                 }
@@ -302,6 +311,7 @@ public class GameService extends AbstractService {
         } else {
             throw new GameManagementException("Not enough Players ready!");
         }
+        lobby.get().setGameShouldStart(false);
     }
 
     /**

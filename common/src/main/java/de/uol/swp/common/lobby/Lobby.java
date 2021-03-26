@@ -112,4 +112,8 @@ public interface Lobby extends Serializable {
      * @since 2021-03-23
      */
     void setRdyResponsesReceived(int responsesReceived);
+
+    boolean getGameShouldStart();
+
+    void setGameShouldStart(boolean value);
 }

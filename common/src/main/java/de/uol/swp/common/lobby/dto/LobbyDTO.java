@@ -24,6 +24,7 @@ public class LobbyDTO implements Lobby {
     private final Set<User> users = new TreeSet<>();
     private final Set<User> playersReady = new TreeSet<>();
     private int rdyResponsesReceived = 0;
+    private boolean gameShouldStart = false;
 
 
     /**
@@ -100,4 +101,10 @@ public class LobbyDTO implements Lobby {
 
     @Override
     public void incrementRdyResponsesReceived() {this.rdyResponsesReceived++;}
+
+    @Override
+    public boolean getGameShouldStart() {return this.gameShouldStart;}
+
+    @Override
+    public void setGameShouldStart(boolean value) {this.gameShouldStart=value;}
 }
