@@ -240,9 +240,11 @@ public class GameService extends AbstractService {
      */
     @Subscribe
     public void onStartGameRequest(StartGameRequest startGameRequest) {
+        System.out.println(startGameRequest.getGameFieldVariant());
         Optional<Lobby> lobby = lobbyService.getLobby(startGameRequest.getName());
         if (gameManagement.getGame(lobby.get().getName()).isEmpty() && lobby.get().getUsers().size() > 1 && startGameRequest.getUser().toString().equals(lobby.get().getOwner().toString())) {
             lobby.get().setPlayersReadyToNull();
+            lobby.get().setGameFieldVariant(startGameRequest.getGameFieldVariant());
             Players = 0;
             sendToAllInLobby(startGameRequest.getName(), new StartGameMessage(startGameRequest.getName(), startGameRequest.getUser()));
             int seconds = 60;
@@ -252,7 +254,7 @@ public class GameService extends AbstractService {
                     if (gameManagement.getGame(lobby.get().getName()).isEmpty() && Players != lobby.get().getUsers().size()) {
                         Players = lobby.get().getUsers().size();
                         try {
-                            startGame(lobby);
+                            startGame(lobby,lobby.get().getGameFieldVariant());
                         } catch (GameManagementException e) {
                             LOG.debug(e);
                             sendToListOfUsers(lobby.get().getUsers(), lobby.get().getName(), new NotEnoughPlayersMessage(lobby.get().getName()));
@@ -284,9 +286,9 @@ public class GameService extends AbstractService {
      * @since 2021-01-24
      */
 
-    public void startGame(Optional<Lobby> lobby) {
+    public void startGame(Optional<Lobby> lobby,String gameFieldVariant) {
         if (lobby.get().getPlayersReady().size() > 1) {
-            gameManagement.createGame(lobby.get().getName(), lobby.get().getOwner());
+            gameManagement.createGame(lobby.get().getName(), lobby.get().getOwner(),gameFieldVariant);
             Optional<Game> game = gameManagement.getGame(lobby.get().getName());
             for (User user : lobby.get().getPlayersReady()) {
                 game.get().joinUser(user);
@@ -320,7 +322,7 @@ public class GameService extends AbstractService {
         }
         if (Players == lobby.get().getUsers().size() && gameManagement.getGame(lobby.get().getName()).isEmpty()) {
             try {
-                startGame(lobby);
+                startGame(lobby,lobby.get().getGameFieldVariant());
             } catch (GameManagementException e) {
                 LOG.debug(e);
                 sendToListOfUsers(lobby.get().getPlayersReady(), lobby.get().getName(), new NotEnoughPlayersMessage(lobby.get().getName()));

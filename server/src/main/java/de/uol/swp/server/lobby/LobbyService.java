@@ -22,7 +22,10 @@ import de.uol.swp.server.usermanagement.AuthenticationService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.*;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -44,10 +47,10 @@ public class LobbyService extends AbstractService {
      * Constructor
      * <p>
      *
-     * @param lobbyManagement       The management class for creating, storing and deleting
-     *                              lobbies
+     * @param lobbyManagement       The management class for creating, storing and deleting lobbies
      * @param authenticationService the user management
      * @param eventBus              the server-wide EventBus
+     *
      * @since 2019-10-08
      */
     @Inject
@@ -61,17 +64,16 @@ public class LobbyService extends AbstractService {
     /**
      * Handles CreateLobbyRequests found on the EventBus
      * <p>
-     * If a CreateLobbyRequest is detected on the EventBus, this method is called.
-     * It creates a new Lobby via the LobbyManagement using the parameters from the
-     * request and sends a LobbyCreatedMessage to every connected user
+     * If a CreateLobbyRequest is detected on the EventBus, this method is called. It creates a new Lobby via the
+     * LobbyManagement using the parameters from the request and sends a LobbyCreatedMessage to every connected user
      * <p>
-     * It also creates a LobbyCreatedSuccessfulResponse and sends it to the owner of the Lobby, by looking at the context
-     * of the createLobbyRequest
+     * It also creates a LobbyCreatedSuccessfulResponse and sends it to the owner of the Lobby, by looking at the
+     * context of the createLobbyRequest
      * <p>
      * Method was enhanced by Marc Hermes, 2020-11-25
      * <p>
-     * Enhanced the Method with a query, so that if a lobby with the same name, as a lobby that already exists, can't be created.
-     * Also there is a LobbyAlreadyExistsResponse sent to the user, that wanted to create the lobby.
+     * Enhanced the Method with a query, so that if a lobby with the same name, as a lobby that already exists, can't be
+     * created. Also there is a LobbyAlreadyExistsResponse sent to the user, that wanted to create the lobby.
      * <p>
      * Method enhanced by Marius Birk and Carsten Dekker, 2020-12-02
      *
@@ -184,7 +186,7 @@ public class LobbyService extends AbstractService {
                 }
                 lobby.get().leaveUser(lobbyLeaveUserRequest.getUser());
                 sendToAll(new LobbySizeChangedMessage(lobbyLeaveUserRequest.getName()));
-                sendToAllInLobby(lobbyLeaveUserRequest.getName(), new UserLeftLobbyMessage(lobbyLeaveUserRequest.getName(), lobbyLeaveUserRequest.getUser()));
+                sendToAllInLobby(lobbyLeaveUserRequest.getName(), new UserLeftLobbyMessage(lobbyLeaveUserRequest.getName(), lobbyLeaveUserRequest.getUser(), lobby.get().getOwner().getUsername()));
             }
         } else {
             throw new LobbyManagementException("Lobby unknown!");
@@ -194,8 +196,8 @@ public class LobbyService extends AbstractService {
     /**
      * Handles RetrieveAllThisLobbyUsersRequests found on the EventBus
      * <p>
-     * If a RetrieveAllThisLobbyUsersRequests is detected on the EventBus, this method is called.
-     * It prepares the sending of a AllThisLobbyUsersResponse for a specific user that sent the initial request.
+     * If a RetrieveAllThisLobbyUsersRequests is detected on the EventBus, this method is called. It prepares the
+     * sending of a AllThisLobbyUsersResponse for a specific user that sent the initial request.
      *
      * @param retrieveAllThisLobbyUsersRequest The RetrieveAllThisLobbyUsersRequest found on the EventBus
      * @author Marc Hermes, Ricardo Mook
@@ -244,6 +246,7 @@ public class LobbyService extends AbstractService {
      *
      * @param message the message to be send to the users
      * @param ctx     the context of the message, here the session of the owner of the lobby
+     *
      * @author Marc Hermes
      * @see de.uol.swp.common.message.ResponseMessage
      * @see de.uol.swp.common.message.MessageContext
@@ -254,10 +257,11 @@ public class LobbyService extends AbstractService {
     }
 
     /**
-     * This method retrieves the RetrieveAllLobbiesRequest and creates a AllCreatedLobbiesResponse with all
-     * lobbies in the lobbyManagement.
+     * This method retrieves the RetrieveAllLobbiesRequest and creates a AllCreatedLobbiesResponse with all lobbies in
+     * the lobbyManagement.
      *
      * @param msg RetrieveAllLobbiesRequest
+     *
      * @author Carsten Dekker and Marius Birk
      * @see de.uol.swp.common.lobby.request.RetrieveAllLobbiesRequest
      * @see de.uol.swp.common.lobby.response.AllCreatedLobbiesResponse

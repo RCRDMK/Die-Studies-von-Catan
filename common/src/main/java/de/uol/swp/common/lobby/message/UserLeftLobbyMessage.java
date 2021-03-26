@@ -15,7 +15,10 @@ import java.util.List;
  */
 public class UserLeftLobbyMessage extends AbstractLobbyMessage {
 
+    //users Wird nirgends benutzt. Kann das weg? -Pieter
     final private ArrayList<UserDTO> users = new ArrayList<>();
+
+    final private String lobbyOwner;
 
     /**
      * Default constructor
@@ -25,6 +28,7 @@ public class UserLeftLobbyMessage extends AbstractLobbyMessage {
      * @since 2019-10-08
      */
     public UserLeftLobbyMessage() {
+        lobbyOwner="";
     }
 
     /**
@@ -35,11 +39,16 @@ public class UserLeftLobbyMessage extends AbstractLobbyMessage {
      * @author Marco Grawunder
      * @since 2019-10-08
      */
-    public UserLeftLobbyMessage(String lobbyName, UserDTO user) {
+    public UserLeftLobbyMessage(String lobbyName, UserDTO user, String lobbyOwner) {
         super(lobbyName, user);
+        this.lobbyOwner=lobbyOwner;
     }
 
     public List<UserDTO> getUsers() {
         return users;
+    }
+
+    public String getLobbyOwner(){
+        return this.lobbyOwner;
     }
 }

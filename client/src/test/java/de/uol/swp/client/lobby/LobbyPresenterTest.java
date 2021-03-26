@@ -92,7 +92,7 @@ class LobbyPresenterTest {
         LobbyCreatedSuccessfulResponse message2 = new LobbyCreatedSuccessfulResponse(userDTO);
         lobbyService.joinLobby("testLobby", userDTO1);
         //Jetzt verlässt der userDTO1 die Lobby.
-        UserLeftLobbyMessage message3 = new UserLeftLobbyMessage("testLobby", userDTO1);
+        UserLeftLobbyMessage message3 = new UserLeftLobbyMessage("testLobby", userDTO1,userDTO.getUsername());
         lobbyService.retrieveAllThisLobbyUsers(message2.getName());
         assertTrue(event instanceof RetrieveAllThisLobbyUsersRequest);
     }
