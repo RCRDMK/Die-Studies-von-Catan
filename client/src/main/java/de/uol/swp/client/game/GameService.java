@@ -6,8 +6,6 @@ import com.google.inject.Inject;
 import de.uol.swp.common.game.request.GameLeaveUserRequest;
 import de.uol.swp.common.game.request.RetrieveAllGamesRequest;
 import de.uol.swp.common.game.request.RetrieveAllThisGameUsersRequest;
-import de.uol.swp.common.lobby.request.RetrieveAllLobbiesRequest;
-import de.uol.swp.common.lobby.request.RetrieveAllThisLobbyUsersRequest;
 import de.uol.swp.common.game.request.RollDiceRequest;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
@@ -43,7 +41,6 @@ public class GameService {
      * @param user User who wants to roll the dice
      * @see de.uol.swp.common.game.request.RollDiceRequest
      * @author Kirstin, Pieter
-     * @see de.uol.swp.common.game.message.RollDiceRequest
      * @since 2021-01-07
      * <p>
      * Enhanced by Carsten Dekker
@@ -52,6 +49,8 @@ public class GameService {
      * I have changed the place of the method to the new GameService.
      * It is a temporary method.
      */
+
+    //Muss das hier bleiben? Als Testmethode ist das doch woanders zu verorten oder? -Pieter
     public void rollDiceTest(String name, User user) {
         RollDiceRequest rollDiceRequest = new RollDiceRequest(name, user);
         eventBus.post(rollDiceRequest);
