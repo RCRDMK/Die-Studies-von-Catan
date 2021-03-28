@@ -101,6 +101,9 @@ public class GamePresenter extends AbstractPresenter {
     @FXML
     private ListView<String> gameUsersView;
 
+    public GamePresenter() {
+    }
+
 
     /**
      * Method called when the send Message button is pressed
@@ -448,7 +451,7 @@ public class GamePresenter extends AbstractPresenter {
      * 1004</a>
      * @since 2021-01-24
      */
-    public TerrainField[] getCorrectPositionsOfFields() {
+    public Object[] getCorrectPositionsOfFields() {
 
         TerrainField[] tempArray;
 
@@ -503,42 +506,50 @@ public class GamePresenter extends AbstractPresenter {
         }
 
 
+        BuildingField[] tempStreetArray = new BuildingField[72];
+        BuildingField[] tempBuildArray = new BuildingField[54];
 
         int l = 0;
         int m = 0;
-        Vector tempVec = new Vector(0,0);
+        Vector tempVec;
 
-        for (int i = 0; i < 36; i++){
-
+        for (int i = 18; i < 36; i++){
+            fieldloop:
             for (int j = 0; j < 12; j++){
+                tempVec = Vector.addVector(tempArray[i].getPosition(),Vector.generalVector(cardSize()/Math.sqrt(2),315));
 
-                tempVec = Vector.addVector(tfArray[i].getPosition(),Vector.generalVector(cardSize(),30*j));
-
-                if (j % 2 == 1){
-                    for (int k = 0; k < l; k++){
-                        if (tempVec == buildArray[k].getPosition()) {
-                            break;
+                if (j % 2 == 0){
+                    tempVec = Vector.addVector(tempVec,Vector.generalVector(cardSize()/Math.sqrt(3),30*j));
+                    for (int k = 0; k < l; k++) {
+                        if (tempVec.getX() - tempBuildArray[k].getPosition().getX() < cardSize() / 100 && tempVec.getY() - tempBuildArray[k].getPosition().getY() < cardSize() / 100) {
+                            System.out.println("break");
+                            continue fieldloop;
                         }
                     }
-                    buildArray[l].setPosition(tempVec);
-                    buildArray[l].setName("Settlement");
-                    buildArray[l].setUsed(false);
+                    BuildingField b = new BuildingField(tempVec);
+                    b.setName("Settlement");
+                    b.setUsed(false);
+                    tempBuildArray[l] = b;
+                    System.out.println(l);
+                    System.out.println(tempBuildArray[l].getName());
                     l++;
                 } else {
+                    tempVec = Vector.addVector(tempVec,Vector.generalVector(cardSize()*0.5,30*j));
                     for (int k = 0; k < m; k++){
-                        if (tempVec == buildArray[k].getPosition()) {
-                            break;
+                        if (tempVec.getX() - tempStreetArray[k].getPosition().getX() < cardSize()/100 && tempVec.getY() - tempStreetArray[k].getPosition().getY() < cardSize()/100) {
+                            continue fieldloop;
                         }
                     }
-                    streetArray[m].setPosition(tempVec);
-                    streetArray[m].setName("Street");
-                    streetArray[m].setUsed(false);
+                    BuildingField s = new BuildingField(tempVec);
+                    s.setName("Street");
+                    s.setUsed(false);
+                    tempStreetArray[m] = s;
                     m++;
                 }
             }
         }
 
-        return tempArray;
+        return new Object[]{tempArray, tempStreetArray, tempBuildArray};
     }
 
     /**
@@ -569,9 +580,10 @@ public class GamePresenter extends AbstractPresenter {
                 g.fillText(Integer.toString(tfArray[i].getDiceToken()), tfArray[i].getPosition().getX() + (cardSize() / 2), tfArray[i].getPosition().getY() + (cardSize() / 2));
             }
         }
-
-        placeBuilding("Settlement", buildArray[12].getPosition());
-        placeBuilding("Street", streetArray[12].getPosition());
+        for (int i = 0; i < 100; i++) {
+            placeBuilding("Settlement", buildArray[i].getPosition());
+            placeBuilding("Street", streetArray[i].getPosition());
+        }
     }
 
     /**
@@ -585,9 +597,6 @@ public class GamePresenter extends AbstractPresenter {
      * @since 2021-01-24
      */
     public void placeBuilding(String building, Vector position) {
-        double x = position.getX();
-        double y = position.getY();
-
         GraphicsContext g = this.canvas.getGraphicsContext2D();
         Color color = Color.RED;
         g.setFill(color);
@@ -595,6 +604,12 @@ public class GamePresenter extends AbstractPresenter {
 
         switch (building) {
             case "Street":
+                double itemSize = cardSize() / 8;
+                Vector drawPosition = Vector.addVector(position,Vector.generalVector(itemSize/Math.sqrt(2),135));
+                double x = drawPosition.getX();
+                double y = drawPosition.getY();
+                g.fillOval(x, y, itemSize, itemSize);
+                /**
                 for (int i = 0; i < 6; i++) {
                     Vector tempPos = Vector.addVector(position, Vector.generalVector(cardSize() / 4, i * 30 + 30));
                     int idx = Arrays.asList(buildArray).indexOf(new BuildingField(tempPos));
@@ -604,9 +619,14 @@ public class GamePresenter extends AbstractPresenter {
                         break;
                     }
                 }
+                 */
                 break;
             case "Settlement":
-                g.fillOval(x, y, cardSize() / 4, cardSize() / 4);
+                itemSize = cardSize() / 4;
+                drawPosition = Vector.addVector(position,Vector.generalVector(itemSize/Math.sqrt(2),135));
+                x = drawPosition.getX();
+                y = drawPosition.getY();
+                g.fillOval(x, y, itemSize, itemSize);
                 break;
             case "Town":
                 break;
@@ -653,7 +673,11 @@ public class GamePresenter extends AbstractPresenter {
      * @see de.uol.swp.common.game.TerrainFieldContainer
      */
     public void initializeGameField(GameField gameField) {
-        tfArray = getCorrectPositionsOfFields();
+        Object[] obj = getCorrectPositionsOfFields();
+        tfArray = (TerrainField[]) obj[0];
+        streetArray = (BuildingField[]) obj[1];
+        buildArray = (BuildingField[]) obj[2];
+
         TerrainFieldContainer[] terrainFieldContainers = gameField.getTFCs();
         for (int i = 0; i < terrainFieldContainers.length; i++) {
             tfArray[i].setDiceToken(terrainFieldContainers[i].getDiceTokens());
