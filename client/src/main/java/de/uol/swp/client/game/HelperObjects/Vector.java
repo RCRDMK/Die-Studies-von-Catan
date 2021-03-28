@@ -95,4 +95,9 @@ public class Vector {
         double angle = 11 * (2 * Math.PI / 12);
         return new Vector(d * Math.cos(angle), d * Math.sin(angle));
     }
+
+    public static Vector generalVector(double d, double angle_deg) {
+        double angle = angle_deg / 360 * 2 * Math.PI;
+        return new Vector(d * Math.cos(angle), d * Math.sin(angle));
+    }
 }

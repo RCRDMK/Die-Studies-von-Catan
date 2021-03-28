@@ -4,6 +4,12 @@ import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
 import de.uol.swp.client.chat.ChatService;
+
+import de.uol.swp.client.game.GameObjects.BuildingField;
+import de.uol.swp.client.lobby.LobbyService;
+
+import de.uol.swp.common.game.message.GameCreatedMessage;
+
 import de.uol.swp.client.game.GameObjects.TerrainField;
 import de.uol.swp.client.game.HelperObjects.Vector;
 import de.uol.swp.client.lobby.LobbyService;
@@ -33,8 +39,14 @@ import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import java.util.List;
+
+import java.awt.*;
+import java.net.URL;
+import java.util.ResourceBundle;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Arrays;
 
 /**
  * Manages the GameView
@@ -60,6 +72,13 @@ public class GamePresenter extends AbstractPresenter {
 
     //Container for TerrainFields
     private TerrainField[] tfArray;
+
+    //Container for BuildingFields
+    private BuildingField[] buildArray;
+
+    //Container for StreetFields
+    private BuildingField[] streetArray;
+
 
     @Inject
     private GameService gameService;
@@ -482,6 +501,43 @@ public class GamePresenter extends AbstractPresenter {
         for (int i = tempArray.length - 2; i >= 0; i--) { // TempArray.length - 2 because the desert-field (upmost "card") was already positioned, so we dont need to handle it again (index out of bounds when whe try to add tempArray[i+1]...)
             tempArray[i].setPosition(Vector.addVector(tempArray[i + 1].getPosition(), tempArray[i].getPlacementVector())); //Add position of last terrainfield and current placement-vector to determine position.
         }
+
+
+
+        int l = 0;
+        int m = 0;
+        Vector tempVec = new Vector(0,0);
+
+        for (int i = 0; i < 36; i++){
+
+            for (int j = 0; j < 12; j++){
+
+                tempVec = Vector.addVector(tfArray[i].getPosition(),Vector.generalVector(cardSize(),30*j));
+
+                if (j % 2 == 1){
+                    for (int k = 0; k < l; k++){
+                        if (tempVec == buildArray[k].getPosition()) {
+                            break;
+                        }
+                    }
+                    buildArray[l].setPosition(tempVec);
+                    buildArray[l].setName("Settlement");
+                    buildArray[l].setUsed(false);
+                    l++;
+                } else {
+                    for (int k = 0; k < m; k++){
+                        if (tempVec == buildArray[k].getPosition()) {
+                            break;
+                        }
+                    }
+                    streetArray[m].setPosition(tempVec);
+                    streetArray[m].setName("Street");
+                    streetArray[m].setUsed(false);
+                    m++;
+                }
+            }
+        }
+
         return tempArray;
     }
 
@@ -513,6 +569,73 @@ public class GamePresenter extends AbstractPresenter {
                 g.fillText(Integer.toString(tfArray[i].getDiceToken()), tfArray[i].getPosition().getX() + (cardSize() / 2), tfArray[i].getPosition().getY() + (cardSize() / 2));
             }
         }
+
+        placeBuilding("Settlement", buildArray[12].getPosition());
+        placeBuilding("Street", streetArray[12].getPosition());
+    }
+
+    /**
+     * The method that actually draws graphical objects to the screen.
+     * <p>
+     * This method draws its items from back to front, meaning backmost items need to be drawn first and so on. This is
+     * why the background is drawn first, etc.
+     * </p>
+     *
+     * @author Pieter Vogt
+     * @since 2021-01-24
+     */
+    public void placeBuilding(String building, Vector position) {
+        double x = position.getX();
+        double y = position.getY();
+
+        GraphicsContext g = this.canvas.getGraphicsContext2D();
+        Color color = Color.RED;
+        g.setFill(color);
+        g.setLineWidth(cardSize()/10);
+
+        switch (building) {
+            case "Street":
+                for (int i = 0; i < 6; i++) {
+                    Vector tempPos = Vector.addVector(position, Vector.generalVector(cardSize() / 4, i * 30 + 30));
+                    int idx = Arrays.asList(buildArray).indexOf(new BuildingField(tempPos));
+                    if (idx > -1) {
+                        Vector streetPos = Vector.addVector(tempPos, Vector.generalVector(cardSize() / 2, i * 30 + 30 + 180));
+                        g.strokeLine(tempPos.getX(), tempPos.getY(), streetPos.getX(), streetPos.getY());
+                        break;
+                    }
+                }
+                break;
+            case "Settlement":
+                g.fillOval(x, y, cardSize() / 4, cardSize() / 4);
+                break;
+            case "Town":
+                break;
+        }
+
+
+        /**
+        switch (building) {
+            case "Street":
+                for (int i = 0; i < 6; i++) {
+                    Vector tempPos = Vector.addVector(position, Vector.generalVector(cardSize() / 4, i * 30 + 30));
+                    int idx = Arrays.asList(buildArray).indexOf(tempPos);
+                    if (idx > -1) {
+                        Vector streetPos = Vector.addVector(tempPos, Vector.generalVector(cardSize() / 2, i * 30 + 30 + 180));
+                        if (buildArray[idx].isUsed() || buildArray[Arrays.asList(buildArray).indexOf(tempPos)].building.isTrue()){
+                            g.strokeLine(tempPos.getX(), tempPos.getY(), streetPos.getX(), streetPos.getY());
+                        }
+                        break;
+                    }
+                }
+                break;
+            case "Settlement":
+                g.fillOval(x, y, cardSize() / 4, cardSize() / 4);
+                break;
+            case "Town":
+                break;
+        }
+         */
+
     }
 
     /**
