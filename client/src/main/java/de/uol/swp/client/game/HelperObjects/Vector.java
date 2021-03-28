@@ -96,6 +96,7 @@ public class Vector {
         return new Vector(d * Math.cos(angle), d * Math.sin(angle));
     }
 
+    // method to generate any vector with length d and angle angle_deg in degree
     public static Vector generalVector(double d, double angle_deg) {
         double angle = angle_deg / 360 * 2 * Math.PI;
         return new Vector(d * Math.cos(angle), d * Math.sin(angle));

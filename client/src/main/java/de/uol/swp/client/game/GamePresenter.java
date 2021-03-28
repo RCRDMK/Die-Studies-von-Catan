@@ -440,18 +440,21 @@ public class GamePresenter extends AbstractPresenter {
     }
 
     /**
-     * Method for generating an array of terrainFields
+     * Method for generating an array of terrainFields, buildFields and streetFields
      * that have the correct relative and absolute positions to one another
      * <p>
      * enhanced by Marc Hermes - 2021-03-13
+     * enhanced by Kirstin Beyer - 2021-03-28
      *
-     * @return Array with TerrainFields having the correct positions.
-     * @author Pieter Vogt
+     * @return Object containing array with TerrainFields, array with BuildingFields (for streets), array with BuildingFields (for buildings) having the correct positions.
+     * @author Pieter Vogt, Kirstin Beyer
      * @see <a href="https://confluence.swl.informatik.uni-oldenburg.de/display/SWP2020J/SpecCatan_1004+Spielfeld">Specification
      * 1004</a>
      * @since 2021-01-24
      */
     public Object[] getCorrectPositionsOfFields() {
+
+        //TerrainFields
 
         TerrainField[] tempArray;
 
@@ -506,6 +509,8 @@ public class GamePresenter extends AbstractPresenter {
         }
 
 
+        //BuildingFields
+
         BuildingField[] tempStreetArray = new BuildingField[72];
         BuildingField[] tempBuildArray = new BuildingField[54];
 
@@ -513,33 +518,40 @@ public class GamePresenter extends AbstractPresenter {
         int m = 0;
         Vector tempVec;
 
-        for (int i = 18; i < 36; i++){
+        // loop over all terrainFields (except ocean)
+        for (int i = 18; i < 37; i++){
+
+            // loop over 12 positions for each terrainField, even positions j mark buildFields, odd positions j mark streetFields
             fieldloop:
             for (int j = 0; j < 12; j++){
                 tempVec = Vector.addVector(tempArray[i].getPosition(),Vector.generalVector(cardSize()/Math.sqrt(2),315));
 
                 if (j % 2 == 0){
                     tempVec = Vector.addVector(tempVec,Vector.generalVector(cardSize()/Math.sqrt(3),30*j));
+
+                    // check if field is already in array
                     for (int k = 0; k < l; k++) {
-                        if (tempVec.getX() - tempBuildArray[k].getPosition().getX() < cardSize() / 100 && tempVec.getY() - tempBuildArray[k].getPosition().getY() < cardSize() / 100) {
-                            System.out.println("break");
+                        if (Math.abs(tempVec.getX() - tempBuildArray[k].getPosition().getX()) < (cardSize() / 100) && Math.abs(tempVec.getY() - tempBuildArray[k].getPosition().getY()) < (cardSize() / 100)) {
                             continue fieldloop;
                         }
                     }
+                    // add new BuildingField to buildArray
                     BuildingField b = new BuildingField(tempVec);
                     b.setName("Settlement");
                     b.setUsed(false);
                     tempBuildArray[l] = b;
-                    System.out.println(l);
-                    System.out.println(tempBuildArray[l].getName());
                     l++;
+
                 } else {
                     tempVec = Vector.addVector(tempVec,Vector.generalVector(cardSize()*0.5,30*j));
+
+                    // check if field is already in array
                     for (int k = 0; k < m; k++){
-                        if (tempVec.getX() - tempStreetArray[k].getPosition().getX() < cardSize()/100 && tempVec.getY() - tempStreetArray[k].getPosition().getY() < cardSize()/100) {
+                        if (Math.abs(tempVec.getX() - tempStreetArray[k].getPosition().getX()) < cardSize()/100 && Math.abs(tempVec.getY() - tempStreetArray[k].getPosition().getY()) < cardSize()/100) {
                             continue fieldloop;
                         }
                     }
+                    // add new BuildingField to streetArray
                     BuildingField s = new BuildingField(tempVec);
                     s.setName("Street");
                     s.setUsed(false);
@@ -580,21 +592,23 @@ public class GamePresenter extends AbstractPresenter {
                 g.fillText(Integer.toString(tfArray[i].getDiceToken()), tfArray[i].getPosition().getX() + (cardSize() / 2), tfArray[i].getPosition().getY() + (cardSize() / 2));
             }
         }
-        for (int i = 0; i < 100; i++) {
-            placeBuilding("Settlement", buildArray[i].getPosition());
+
+        //Draw Buildings
+        for (int i = 0; i < 72; i++) {
             placeBuilding("Street", streetArray[i].getPosition());
+        }
+        for (int i = 0; i < 54; i++) {
+            placeBuilding("Settlement", buildArray[i].getPosition());
         }
     }
 
     /**
-     * The method that actually draws graphical objects to the screen.
+     * Method to draw buildings to the screen.
      * <p>
-     * This method draws its items from back to front, meaning backmost items need to be drawn first and so on. This is
-     * why the background is drawn first, etc.
-     * </p>
+     * TODO: add logic about building permission for all building types (e.g. street, no other settlement nearby, etc.)
      *
-     * @author Pieter Vogt
-     * @since 2021-01-24
+     * @author Kirstin
+     * @since 2021-03-28
      */
     public void placeBuilding(String building, Vector position) {
         GraphicsContext g = this.canvas.getGraphicsContext2D();
@@ -609,17 +623,6 @@ public class GamePresenter extends AbstractPresenter {
                 double x = drawPosition.getX();
                 double y = drawPosition.getY();
                 g.fillOval(x, y, itemSize, itemSize);
-                /**
-                for (int i = 0; i < 6; i++) {
-                    Vector tempPos = Vector.addVector(position, Vector.generalVector(cardSize() / 4, i * 30 + 30));
-                    int idx = Arrays.asList(buildArray).indexOf(new BuildingField(tempPos));
-                    if (idx > -1) {
-                        Vector streetPos = Vector.addVector(tempPos, Vector.generalVector(cardSize() / 2, i * 30 + 30 + 180));
-                        g.strokeLine(tempPos.getX(), tempPos.getY(), streetPos.getX(), streetPos.getY());
-                        break;
-                    }
-                }
-                 */
                 break;
             case "Settlement":
                 itemSize = cardSize() / 4;
@@ -629,33 +632,13 @@ public class GamePresenter extends AbstractPresenter {
                 g.fillOval(x, y, itemSize, itemSize);
                 break;
             case "Town":
+                itemSize = cardSize() / 3;
+                drawPosition = Vector.addVector(position,Vector.generalVector(itemSize/Math.sqrt(2),135));
+                x = drawPosition.getX();
+                y = drawPosition.getY();
+                g.fillOval(x, y, itemSize, itemSize);
                 break;
         }
-
-
-        /**
-        switch (building) {
-            case "Street":
-                for (int i = 0; i < 6; i++) {
-                    Vector tempPos = Vector.addVector(position, Vector.generalVector(cardSize() / 4, i * 30 + 30));
-                    int idx = Arrays.asList(buildArray).indexOf(tempPos);
-                    if (idx > -1) {
-                        Vector streetPos = Vector.addVector(tempPos, Vector.generalVector(cardSize() / 2, i * 30 + 30 + 180));
-                        if (buildArray[idx].isUsed() || buildArray[Arrays.asList(buildArray).indexOf(tempPos)].building.isTrue()){
-                            g.strokeLine(tempPos.getX(), tempPos.getY(), streetPos.getX(), streetPos.getY());
-                        }
-                        break;
-                    }
-                }
-                break;
-            case "Settlement":
-                g.fillOval(x, y, cardSize() / 4, cardSize() / 4);
-                break;
-            case "Town":
-                break;
-        }
-         */
-
     }
 
     /**
