@@ -34,7 +34,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Optional;
 
 /**
  * Manages the lobby menu
@@ -122,7 +121,6 @@ public class LobbyPresenter extends AbstractPresenter {
      * <p>
      *
      * @param event The ActionEvent created by pressing the StartGame button
-     *
      * @author Kirstin Beyer und Iskander Yusupov
      * @see de.uol.swp.client.lobby.LobbyService
      * @since 2021-01-23
@@ -155,7 +153,6 @@ public class LobbyPresenter extends AbstractPresenter {
      * The message is of type RequestChatMessage If this will result in an exception, go log the exception
      *
      * @param event The ActionEvent created by pressing the send Message button
-     *
      * @author Anton, René, Sergej
      * @see de.uol.swp.client.chat.ChatService
      * @since 2020-12-06
@@ -182,7 +179,6 @@ public class LobbyPresenter extends AbstractPresenter {
      * If a LobbyCreatedSuccessfulResponse is detected on the EventBus this method invokes createdSuccessfulLogic.
      *
      * @param message the LobbyCreatedSuccessfulResponse object seen on the EventBus
-     *
      * @author Marc Hermes
      * @see de.uol.swp.common.user.response.lobby.LobbyCreatedSuccessfulResponse
      * @since 2020-12-02
@@ -224,7 +220,6 @@ public class LobbyPresenter extends AbstractPresenter {
      * An update of the Users in the currentLobby is also done.
      *
      * @param lcsr the LobbyCreatedSuccessfulResponse given by the original subscriber method.
-     *
      * @author Alexander Losse, Marc Hermes
      * @see de.uol.swp.common.user.response.lobby.LobbyCreatedSuccessfulResponse
      * @since 2021-01-20
@@ -233,9 +228,9 @@ public class LobbyPresenter extends AbstractPresenter {
         if (this.currentLobby == null) {
             LOG.debug("Requesting update of User list in lobby because lobby was created.");
             this.joinedLobbyUser = lcsr.getUser();
-            ArrayList<UserDTO> onlyLobbyOwneer = new ArrayList<UserDTO>();
-            onlyLobbyOwneer.add((UserDTO) joinedLobbyUser);
-            updateLobbyUsersList(onlyLobbyOwneer);
+            ArrayList<UserDTO> onlyLobbyOwner = new ArrayList<UserDTO>();
+            onlyLobbyOwner.add((UserDTO) joinedLobbyUser);
+            updateLobbyUsersList(onlyLobbyOwner);
             this.currentLobby = lcsr.getName();
             this.lobbyChatInput.setText("");
             lobbyChatArea.deleteText(0, lobbyChatArea.getLength());
@@ -250,7 +245,6 @@ public class LobbyPresenter extends AbstractPresenter {
      * If a LobbyJoinedSuccessfulResponse is detected on the EventBus this method invokes userJoinedSuccessfulLogic
      *
      * @param message the LobbyJoinedSuccessfulResponse object seen on the EventBus
-     *
      * @author Marc Hermes
      * @see de.uol.swp.common.user.response.lobby.LobbyJoinedSuccessfulResponse
      * @since 2020-12-10
@@ -272,7 +266,6 @@ public class LobbyPresenter extends AbstractPresenter {
      * enhanced by Marc Hermes - 2021-02-08
      *
      * @param ljsr the LobbyJoinedSuccessfulResponse given by the original subscriber method.
-     *
      * @author Alexander Losse, Marc Hermes
      * @see de.uol.swp.common.user.response.lobby.LobbyJoinedSuccessfulResponse
      * @since 2021-01-20
@@ -357,7 +350,6 @@ public class LobbyPresenter extends AbstractPresenter {
      * If a LobbyLeftSuccessfulResponse is detected on the EventBus the method userLeftSuccessfulLogic is invoked.
      *
      * @param message the LobbyLeftSuccessfulResponse object seen on the EventBus
-     *
      * @author Marc Hermes
      * @see de.uol.swp.common.user.response.lobby.LobbyLeftSuccessfulResponse
      * @since 2020-12-10
@@ -374,7 +366,6 @@ public class LobbyPresenter extends AbstractPresenter {
      * registered on the event bus and no longer be reachable for responses, messages etc.
      *
      * @param llsr the LobbyLeftSuccessfulResponse given by the original subscriber method
-     *
      * @author Alexander Losse, Marc Hermes
      * @see de.uol.swp.common.user.response.lobby.LobbyLeftSuccessfulResponse
      * @since 2021-01-20
@@ -394,7 +385,6 @@ public class LobbyPresenter extends AbstractPresenter {
      * If a UserJoinedLobbyMessage is detected on the EventBus the method joinedSuccessfulLogic is invoked.
      *
      * @param message the UserJoinedLobbyMessage object seen on the EventBus
-     *
      * @author Marc Hermes
      * @see de.uol.swp.common.lobby.message.UserJoinedLobbyMessage
      * @since 2020-12-03
@@ -412,7 +402,6 @@ public class LobbyPresenter extends AbstractPresenter {
      * is done.
      *
      * @param ujlm the UserJoinedLobbyMessage given by the original subscriber method.
-     *
      * @author Alexander Losse, Marc Hermes
      * @see de.uol.swp.common.lobby.message.UserJoinedLobbyMessage
      * @since 2021-01-20
@@ -432,7 +421,6 @@ public class LobbyPresenter extends AbstractPresenter {
      * If a UserJoinedLobbyMessage is detected on the EventBus the method leftSuccessfulLogic is invoked.
      *
      * @param message the UserLeftLobbyMessage object seen on the EventBus
-     *
      * @author Marc Hermes
      * @see de.uol.swp.common.lobby.message.UserLeftLobbyMessage
      * @since 2020-12-03
@@ -450,7 +438,6 @@ public class LobbyPresenter extends AbstractPresenter {
      * is done.
      *
      * @param ullm the UserLeftLobbyMessage given by the original subscriber method.
-     *
      * @author Alexander Losse, Marc Hermes
      * @see de.uol.swp.common.lobby.message.UserLeftLobbyMessage
      * @since 2021-01-20
@@ -474,7 +461,6 @@ public class LobbyPresenter extends AbstractPresenter {
      * If a AllThisLobbyUsersResponse is detected on the EventBus the method lobbyUserListLogic is invoked.
      *
      * @param allThisLobbyUsersResponse the AllThisLobbyUsersResponse object seen on the EventBus
-     *
      * @author Marc Hermes, Ricardo Mook
      * @see AllThisLobbyUsersResponse
      * @since 2020-12-02
@@ -492,7 +478,6 @@ public class LobbyPresenter extends AbstractPresenter {
      * List of the Users in the currentLobby in regards to the list given by the response.
      *
      * @param atlur the AllThisLobbyUsersResponse given by the original subscriber method.
-     *
      * @author Alexander Losse, Marc Hermes
      * @see de.uol.swp.common.user.response.lobby.AllThisLobbyUsersResponse
      * @since 2021-01-20
@@ -514,7 +499,6 @@ public class LobbyPresenter extends AbstractPresenter {
      * user list. If there ist no user list this creates one.
      *
      * @param lobbyUserList A list of UserDTO objects including all currently logged in users
-     *
      * @implNote The code inside this Method has to run in the JavaFX-application thread. Therefore it is crucial not to
      * remove the {@code Platform.runLater()}
      * @author Marc Hermes, Ricardo Mook
@@ -543,7 +527,6 @@ public class LobbyPresenter extends AbstractPresenter {
      * If a ResponseChatMessage is detected on the EventBus the method onResponseChatMessageLogic is invoked.
      *
      * @param message the ResponseChatMessage object seen on the EventBus
-     *
      * @author ?
      * @see de.uol.swp.common.chat.ResponseChatMessage
      * @since ?
@@ -561,7 +544,6 @@ public class LobbyPresenter extends AbstractPresenter {
      * the currentLobby in regards to the input given by the response.
      *
      * @param rcm the ResponseChatMessage given by the original subscriber method.
-     *
      * @author Alexander Losse, Marc Hermes
      * @see de.uol.swp.common.chat.ResponseChatMessage
      * @since 2021-01-20
@@ -599,7 +581,6 @@ public class LobbyPresenter extends AbstractPresenter {
      * If StartGameMessage is detected on the EventBus the method startGamePopupLogic is invoked.
      *
      * @param message The ActionEvent created by pressing the StartGame button
-     *
      * @author Kirstin Beyer, Iskander Yusupov
      * @see de.uol.swp.common.lobby.message.StartGameMessage
      * @since 2021-01-23
@@ -618,7 +599,6 @@ public class LobbyPresenter extends AbstractPresenter {
      * enhanced by Marc Hermes - 2021-02-08
      *
      * @param sgm the startGamePopup given by the original subscriber method.
-     *
      * @author Kirstin Beyer, Iskander Yusupov
      * @see de.uol.swp.common.lobby.message.StartGameMessage
      * @since 2021-01-23
@@ -644,7 +624,6 @@ public class LobbyPresenter extends AbstractPresenter {
      * If NotEnoughPlayersMessage is detected on the EventBus the method onNotEnoughPlayersMessageLogic is invoked.
      *
      * @param message the NotEnoughPlayersMessage object seen on the EventBus
-     *
      * @author Kirstin Beyer, Iskander Yusupov
      * @see de.uol.swp.common.game.message.NotEnoughPlayersMessage
      * @since 2021-01-23
@@ -660,7 +639,6 @@ public class LobbyPresenter extends AbstractPresenter {
      * Notifies player that not enough players are inside the lobby to start the game.
      *
      * @param nepm the NotEnoughPlayersMessage given by the original subscriber method.
-     *
      * @author Kirstin Beyer, Iskander Yusupov
      * @see de.uol.swp.common.game.message.NotEnoughPlayersMessage
      * @since 2021-01-23
@@ -685,7 +663,6 @@ public class LobbyPresenter extends AbstractPresenter {
      * If NotLobbyOwnerResponse is detected on the EventBus the method onNotLobbyOwnerResponseLogic is invoked.
      *
      * @param message the NotLobbyOwnerResponse object seen on the EventBus
-     *
      * @author Kirstin Beyer, Iskander Yusupov
      * @see de.uol.swp.common.game.response.NotLobbyOwnerResponse
      * @since 2021-01-23
@@ -701,7 +678,6 @@ public class LobbyPresenter extends AbstractPresenter {
      * Notifies player that he is not the lobby owner and therefore not allowed to start the game.
      *
      * @param nlor the NotLobbyOwnerResponse given by the original subscriber method.
-     *
      * @author Kirstin Beyer, Iskander Yusupov
      * @see de.uol.swp.common.game.response.NotLobbyOwnerResponse
      * @since 2021-01-23
@@ -722,7 +698,6 @@ public class LobbyPresenter extends AbstractPresenter {
      * If GameAlreadyExistsResponse is detected on the EventBus the method onGameAlreadyExistsResponseLogic is invoked.
      *
      * @param message the GameAlreadyExistsResponse object seen on the EventBus
-     *
      * @author Kirstin Beyer, Iskander Yusupov
      * @see de.uol.swp.common.game.response.GameAlreadyExistsResponse
      * @since 2021-01-23
@@ -738,7 +713,6 @@ public class LobbyPresenter extends AbstractPresenter {
      * Notifies player that game already exists.
      *
      * @param gaer the GameAlreadyExistsResponse given by the original subscriber method.
-     *
      * @author Kirstin Beyer, Iskander Yusupov
      * @see de.uol.swp.common.game.response.GameAlreadyExistsResponse
      * @since 2021-01-23
@@ -760,7 +734,6 @@ public class LobbyPresenter extends AbstractPresenter {
      * If GameCreatedMessage is detected on the EventBus the method gameCreatedSuccessfulLogic is invoked.
      *
      * @param message the NotEnoughPlayersResponse object seen on the EventBus
-     *
      * @author Kirstin Beyer, Iskander Yusupov
      * @see de.uol.swp.common.game.message.GameCreatedMessage
      * @since 2021-01-23
@@ -776,7 +749,6 @@ public class LobbyPresenter extends AbstractPresenter {
      * Notifies player that game is created. An update of the existing Games is also requested.
      *
      * @param gcm the GameCreatedMessage given by the original subscriber method.
-     *
      * @author Kirstin Beyer, Iskander Yusupov
      * @see de.uol.swp.common.game.message.GameCreatedMessage
      * @since 2021-01-23

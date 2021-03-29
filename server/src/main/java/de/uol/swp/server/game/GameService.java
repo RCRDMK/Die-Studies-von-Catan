@@ -47,7 +47,6 @@ public class GameService extends AbstractService {
     private final LobbyService lobbyService;
     private final AuthenticationService authenticationService;
     private static final Logger LOG = LogManager.getLogger(GameService.class);
-    private int players;
 
     /**
      * Constructor
@@ -56,7 +55,6 @@ public class GameService extends AbstractService {
      * @param gameManagement        The management class for creating, storing and deleting games
      * @param authenticationService the user management
      * @param eventBus              the server-wide EventBus
-     *
      * @since 2021-01-07
      */
     @Inject
@@ -105,7 +103,6 @@ public class GameService extends AbstractService {
      * of a AllThisGameUsersResponse for a specific user that sent the initial request.
      *
      * @param retrieveAllThisGameUsersRequest The RetrieveAllThisGameUsersRequest found on the EventBus
-     *
      * @author Iskander Yusupov
      * @see de.uol.swp.common.game.Game
      * @since 2021-01-15
@@ -150,7 +147,6 @@ public class GameService extends AbstractService {
      * @param game    Optional<Game> game
      * @param message ServerMessage message
      * @param user    User user
-     *
      * @author Alexander Losse, Ricardo Mook
      * @since 2021-03-11
      */
@@ -179,7 +175,6 @@ public class GameService extends AbstractService {
      * ResponseChatMessage containing the user who roll the dice and the result to every user in the lobby.
      *
      * @param rollDiceRequest The RollDiceRequest found on the EventBus
-     *
      * @author Kirstin, Pieter
      * @see RollDiceRequest
      * @since 2021-01-07
@@ -209,7 +204,6 @@ public class GameService extends AbstractService {
      *
      * @param lobbyName Name of the lobby the players are in
      * @param message   the message to be send to the users
-     *
      * @author Marco Grawunder
      * @see de.uol.swp.common.message.ServerMessage
      * @since 2019-10-08
@@ -235,9 +229,9 @@ public class GameService extends AbstractService {
      * sent the initial request.
      * <p>
      * enhanced by Alexander Losse, Ricardo Mook 2021-03-05
+     * enhanced by Marc Hermes 2021-03-25
      *
      * @param startGameRequest the StartGameRequest found on the EventBus
-     *
      * @author Kirstin Beyer, Iskander Yusupov
      * @see de.uol.swp.common.lobby.request.StartGameRequest
      * @since 2021-01-24
@@ -256,12 +250,14 @@ public class GameService extends AbstractService {
             class RemindTask extends TimerTask {
                 public void run() {
                     Set<User> users = new TreeSet<>(usersInLobby);
-                    if (lobby.get().getPlayersReady().size()!=0) {
+                    if (lobby.get().getPlayersReady().size() != 0) {
                         users.removeAll(lobby.get().getPlayersReady());
-                    } else {users.clear();}
+                    } else {
+                        users.clear();
+                    }
                     if (lobby.get().getPlayersReady().size() > 1 && gameManagement.getGame(lobby.get().getName()).isEmpty()) {
                         try {
-                            startGame(lobby,lobby.get().getGameFieldVariant());
+                            startGame(lobby, lobby.get().getGameFieldVariant());
                             // TODO: sollte wahrscheinlich keine notenoughplayersmessage sein, sondern "You missed the game start"
                             sendToListOfUsers(users, lobby.get().getName(), new NotEnoughPlayersMessage(lobby.get().getName()));
                         } catch (GameManagementException e) {
@@ -290,14 +286,14 @@ public class GameService extends AbstractService {
      * ready are joined to the game and a GameCreatedMessage is send to all players in the game.
      * <p>
      * enhanced by Alexander Losse, Ricardo Mook 2021-03-05 enhanced by Pieter Vogt 2021-03-26
+     * enhanced by Marc Hermes 2021-03-25
      *
      * @param lobby lobby that wants to start a game
-     *
      * @author Kirstin Beyer, Iskander Yusupov
      * @since 2021-01-24
      */
 
-    public void startGame(Optional<Lobby> lobby,String gameFieldVariant) {
+    public void startGame(Optional<Lobby> lobby, String gameFieldVariant) {
         if (lobby.get().getPlayersReady().size() > 1) {
             gameManagement.createGame(lobby.get().getName(), lobby.get().getOwner(), gameFieldVariant);
             Optional<Game> game = gameManagement.getGame(lobby.get().getName());
@@ -327,8 +323,9 @@ public class GameService extends AbstractService {
      * PlayerReady list and counts the number of player responses in variable Player enhanced by Alexander Losse,
      * Ricardo Mook 2021-03-05
      *
-     * @param playerReadyRequest the PlayerReadyRequest found on the EventBus
+     * enhanced by Marc Hermes 2021-03-25
      *
+     * @param playerReadyRequest the PlayerReadyRequest found on the EventBus
      * @author Kirstin Beyer, Iskander Yusupov
      * @see de.uol.swp.common.game.request.PlayerReadyRequest
      * @since 2021-01-24
@@ -361,7 +358,6 @@ public class GameService extends AbstractService {
      * game and whos turn is up now.</p>
      *
      * @param request Transports the games name and the senders UserDTO.
-     *
      * @author Pieter Vogt
      * @since 2021-03-26
      */
