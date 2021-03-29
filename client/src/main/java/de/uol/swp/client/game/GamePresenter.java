@@ -18,10 +18,10 @@ import de.uol.swp.common.chat.ResponseChatMessage;
 import de.uol.swp.common.game.GameField;
 import de.uol.swp.common.game.TerrainFieldContainer;
 import de.uol.swp.common.game.message.GameCreatedMessage;
-
+import de.uol.swp.common.game.message.NextTurnMessage;
 import de.uol.swp.common.game.message.UserLeftGameMessage;
+import de.uol.swp.common.game.request.EndTurnRequest;
 import de.uol.swp.common.user.User;
-
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.user.response.game.AllThisGameUsersResponse;
 import de.uol.swp.common.user.response.game.GameLeftSuccessfulResponse;
@@ -32,26 +32,24 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import java.util.List;
-
-import java.awt.*;
-import java.net.URL;
-import java.util.ResourceBundle;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Arrays;
+import java.util.List;
 
 /**
  * Manages the GameView
  * <p>
  * Class was build exactly like LobbyPresenter.
+ * <p>
+ * enhanced by Pieter Vogt 2021-03-26
  *
  * @author Carsten Dekker
  * @see de.uol.swp.client.AbstractPresenter
@@ -105,6 +103,9 @@ public class GamePresenter extends AbstractPresenter {
     }
 
 
+    @FXML
+    private Button EndTurnButton;
+
     /**
      * Method called when the send Message button is pressed
      * <p>
@@ -112,6 +113,7 @@ public class GamePresenter extends AbstractPresenter {
      * The message is of type RequestChatMessage If this will result in an exception, go log the exception
      *
      * @param event The ActionEvent created by pressing the send Message button
+     *
      * @author René, Sergej
      * @see de.uol.swp.client.chat.ChatService
      * @since 2021-03-08
@@ -138,6 +140,7 @@ public class GamePresenter extends AbstractPresenter {
      * If a ResponseChatMessage is detected on the EventBus the method onResponseChatMessageLogic is invoked.
      *
      * @param message the ResponseChatMessage object seen on the EventBus
+     *
      * @author ?
      * @see de.uol.swp.common.chat.ResponseChatMessage
      * @since ?
@@ -145,28 +148,6 @@ public class GamePresenter extends AbstractPresenter {
     @Subscribe
     public void onResponseChatMessage(ResponseChatMessage message) {
         onResponseChatMessageLogic(message);
-    }
-
-    /**
-     * The Method invoked by onResponseChatMessage()
-     * <p>
-     * If the currentLobby is not null, meaning this is an not an empty LobbyPresenter and the lobby name stored
-     * in this LobbyPresenter equals the one in the received Response, the method updateChat is invoked
-     * to update the chat of the currentLobby in regards to the input given by the response.
-     *
-     * @param rcm the ResponseChatMessage given by the original subscriber method.
-     * @author Alexander Losse, Marc Hermes
-     * @see de.uol.swp.common.chat.ResponseChatMessage
-     * @since 2021-01-20
-     */
-    public void onResponseChatMessageLogic(ResponseChatMessage rcm) {
-        // Only update Messages from used game chat
-        if (this.currentLobby != null) {
-            if (rcm.getChat().equals("game_" + currentLobby)) {
-                LOG.debug("Updated game chat area with new message..");
-                updateChat(rcm);
-            }
-        }
     }
 
     /**
@@ -186,23 +167,26 @@ public class GamePresenter extends AbstractPresenter {
     }
 
     /**
-     * Method called when the RollDice button is pressed
+     * The Method invoked by onResponseChatMessage()
      * <p>
-     * If the RollDice button is pressed, this methods tries to request the GameService to send a RollDiceRequest.
+     * If the currentLobby is not null, meaning this is an not an empty LobbyPresenter and the lobby name stored in this
+     * LobbyPresenter equals the one in the received Response, the method updateChat is invoked to update the chat of
+     * the currentLobby in regards to the input given by the response.
      *
-     * @param event The ActionEvent created by pressing the Roll Dice button
-     * @author Kirstin, Pieter
-     * @see de.uol.swp.client.game.GameService
-     * @since 2021-01-07
-     * <p>
-     * Enhanced by Carsten Dekker
-     * @since 2021-01-13
-     * <p>
-     * I have changed the place of the method to the new GamePresenter.
+     * @param rcm the ResponseChatMessage given by the original subscriber method.
+     *
+     * @author Alexander Losse, Marc Hermes
+     * @see de.uol.swp.common.chat.ResponseChatMessage
+     * @since 2021-01-20
      */
-    @FXML
-    public void onRollDice(ActionEvent event) {
-        gameService.rollDiceTest(this.currentLobby, this.joinedLobbyUser);
+    public void onResponseChatMessageLogic(ResponseChatMessage rcm) {
+        // Only update Messages from used game chat
+        if (this.currentLobby != null) {
+            if (rcm.getChat().equals("game_" + currentLobby)) {
+                LOG.debug("Updated game chat area with new message..");
+                updateChat(rcm);
+            }
+        }
     }
 
     @FXML
@@ -231,11 +215,38 @@ public class GamePresenter extends AbstractPresenter {
     }
 
     /**
+     * Method called when the RollDice button is pressed
+     * <p>
+     * If the RollDice button is pressed, this methods tries to request the GameService to send a RollDiceRequest.
+     *
+     * @param event The ActionEvent created by pressing the Roll Dice button
+     *
+     * @author Kirstin, Pieter
+     * @see de.uol.swp.client.game.GameService
+     * @since 2021-01-07
+     * <p>
+     * Enhanced by Carsten Dekker
+     * @since 2021-01-13
+     * <p>
+     * I have changed the place of the method to the new GamePresenter.
+     */
+    @FXML
+    public void onRollDice(ActionEvent event) {
+        gameService.rollDiceTest(this.currentLobby, this.joinedLobbyUser);
+    }
+
+    @FXML
+    public void onEndTurn(ActionEvent event) {
+        eventBus.post(new EndTurnRequest(this.currentLobby, (UserDTO) this.joinedLobbyUser));
+    }
+
+    /**
      * Handles successful game creation
      * <p>
      * If a GameCreatedMessage is detected on the EventBus this method invokes gameStartedSuccessfulLogic.
      *
      * @param message the GameCreatedMessage object seen on the EventBus
+     *
      * @author Ricardo Mook, Alexander Losse
      * @see de.uol.swp.common.game.message.GameCreatedMessage
      * @since 2021-03-05
@@ -249,10 +260,11 @@ public class GamePresenter extends AbstractPresenter {
      * The Method invoked by gameStartedSuccessful()
      * <p>
      * If the currentLobby is null, meaning this is an empty GamePresenter that is ready to be used for a new game tab,
-     * the parameters of this GamePresenter are updated to the User and Lobby given by the gcm Message.
-     * An update of the Users in the currentLobby is also requested.
+     * the parameters of this GamePresenter are updated to the User and Lobby given by the gcm Message. An update of the
+     * Users in the currentLobby is also requested.
      *
      * @param gcm the GameCreatedMessage given by the original subscriber method.
+     *
      * @author Alexander Losse, Ricardo Mook
      * @see GameCreatedMessage
      * @see de.uol.swp.common.game.GameField
@@ -274,6 +286,7 @@ public class GamePresenter extends AbstractPresenter {
      * If a GameLeftSuccessfulResponse is detected on the EventBus the method gameLeftSuccessfulLogic is invoked.
      *
      * @param glsr the GameLeftSuccessfulResponse object seen on the EventBus
+     *
      * @author Marc Hermes
      * @see de.uol.swp.common.user.response.game.GameLeftSuccessfulResponse
      * @since 2021-03-15
@@ -284,13 +297,31 @@ public class GamePresenter extends AbstractPresenter {
     }
 
     /**
+     * Changes the clickability of the button for ending your turn.
+     *
+     * <p>This method checks, if the the games name equals the name of the game in the message. If so, and if you are
+     * the player with the current turn (transported in message), your button for ending your turn gets clickable. If
+     * not, it becomes unclickable.</p>
+     *
+     * @param response
+     */
+    @Subscribe
+    public void nextPlayerTurn(NextTurnMessage response) {
+        if (response.getGameName().equals(currentLobby)) {
+            if (response.getPlayerWithCurrentTurn().equals(joinedLobbyUser.getUsername())) {
+                EndTurnButton.setDisable(false);
+            } else EndTurnButton.setDisable(true);
+        }
+    }
+
+    /**
      * The method invoked by gameLeftSuccessful()
      * <p>
-     * If the Game is left, meaning this Game Presenter is no longer needed,
-     * this presenter will no longer be registered on the event bus and no longer
-     * be reachable for responses, messages etc.
+     * If the Game is left, meaning this Game Presenter is no longer needed, this presenter will no longer be registered
+     * on the event bus and no longer be reachable for responses, messages etc.
      *
      * @param glsr the GameLeftSuccessfulResponse given by the original subscriber method
+     *
      * @author Marc Hermes
      * @see de.uol.swp.common.user.response.game.GameLeftSuccessfulResponse
      * @since 2021-03-15
@@ -308,11 +339,11 @@ public class GamePresenter extends AbstractPresenter {
     /**
      * Method called when the leaveGame Button is pressed
      * <p>
-     * If the leaveGameButton is pressed,
-     * the method tries to call the GameService method leaveGame
-     * It throws a GamePresenterException if joinedLobbyUser and currentLobby are not initialised
+     * If the leaveGameButton is pressed, the method tries to call the GameService method leaveGame It throws a
+     * GamePresenterException if joinedLobbyUser and currentLobby are not initialised
      *
      * @param event
+     *
      * @author Ricardo Mook, Alexander Losse
      * @see de.uol.swp.client.game.GameService
      * @see de.uol.swp.client.game.GamePresenterException
@@ -336,6 +367,7 @@ public class GamePresenter extends AbstractPresenter {
      * If a UserLeftGameMessage is detected on the EventBus the method otherUserLeftSuccessfulLogic is invoked.
      *
      * @param message the UserLeftGameMessage object seen on the EventBus
+     *
      * @author Iskander Yusupov
      * @see de.uol.swp.common.game.message.UserLeftGameMessage
      * @since 2021-03-17
@@ -348,11 +380,12 @@ public class GamePresenter extends AbstractPresenter {
     /**
      * The Method invoked by otherUserLeftSuccessful()
      * <p>
-     * If the currentLobby is not null, meaning this is an not an empty GamePresenter and the game/lobby name stored
-     * in this GamePresenter equals the one in the received Message, an update of the Users in the currentLobby(current game)
-     * is requested.
+     * If the currentLobby is not null, meaning this is an not an empty GamePresenter and the game/lobby name stored in
+     * this GamePresenter equals the one in the received Message, an update of the Users in the currentLobby(current
+     * game) is requested.
      *
      * @param ulgm the UserLeftGameMessage given by the original subscriber method.
+     *
      * @author Iskander Yusupov
      * @see de.uol.swp.common.game.message.UserLeftGameMessage
      * @since 2021-03-17
@@ -374,11 +407,12 @@ public class GamePresenter extends AbstractPresenter {
     /**
      * The Method invoked by gameUserList()
      * <p>
-     * If the currentLobby is not null, meaning this is an not an empty LobbyPresenter and the lobby name stored
-     * in this GamePresenter equals the one in the received Response, the method updateGameUsersList is invoked
-     * to update the List of the Users in the currentLobby in regards to the list given by the response.
+     * If the currentLobby is not null, meaning this is an not an empty LobbyPresenter and the lobby name stored in this
+     * GamePresenter equals the one in the received Response, the method updateGameUsersList is invoked to update the
+     * List of the Users in the currentLobby in regards to the list given by the response.
      *
      * @param atgur the AllThisLobbyUsersResponse given by the original subscriber method.
+     *
      * @author Iskander Yusupov
      * @see de.uol.swp.common.user.response.game.AllThisGameUsersResponse
      * @since 2021-03-14
@@ -400,6 +434,7 @@ public class GamePresenter extends AbstractPresenter {
      * user list. If there ist no user list this creates one.
      *
      * @param gameUserList A list of UserDTO objects including all currently logged in users
+     *
      * @implNote The code inside this Method has to run in the JavaFX-application thread. Therefore it is crucial not to
      * remove the {@code Platform.runLater()}
      * @author Iskander Yusupov , @design Marc Hermes, Ricardo Mook
@@ -458,7 +493,7 @@ public class GamePresenter extends AbstractPresenter {
 
         TerrainField[] tempArray;
 
-        //Array of cards get generated in same order as "spielfeld"-finespec in confluence. TODO: This should probably get done by the server in future. Think of this as a test-method wich can be migrated to server later.
+        //Array of cards get generated in same order as "spielfeld"-finespec in confluence.
 
         //beginning of oceans
         TerrainField f0 = new TerrainField(Vector.bottomLeft(cardSize()));
@@ -586,7 +621,7 @@ public class GamePresenter extends AbstractPresenter {
         //Draw TerrainFields
         for (int i = tfArray.length - 1; i >= 0; i--) {
             g.setFill(tfArray[i].determineColorOfTerrain()); //Determine draw-color of current Terrainfield.
-            g.fillOval(tfArray[i].getPosition().getX(), tfArray[i].getPosition().getY(), cardSize(), cardSize()); //Draw circle with given color at given position TODO: This - in combination with the Vector.vector-methods - SHOULD be already scaling with canvassize. If and when a scalable Canvas gets implemented, this should be checked.
+            g.fillOval(tfArray[i].getPosition().getX(), tfArray[i].getPosition().getY(), cardSize(), cardSize()); //Draw circle with given color at given position.
             if(tfArray[i].getDiceToken()!=0){
                 g.setFill(Color.WHITE);
                 g.fillText(Integer.toString(tfArray[i].getDiceToken()), tfArray[i].getPosition().getX() + (cardSize() / 2), tfArray[i].getPosition().getY() + (cardSize() / 2));
@@ -644,12 +679,12 @@ public class GamePresenter extends AbstractPresenter {
     /**
      * Method to initialize the GameField of this GamePresenter of this client
      * <p>
-     * First creates the tfArray, then iterates over the terrainFieldContainers of the gameField
-     * to get the diceTokens values and copies them to the tfArray of this GamePresenter.
-     * Then the values of the fieldTypes are checked and translated into the correct String names
-     * of the tfArray TerrainFields.
+     * First creates the tfArray, then iterates over the terrainFieldContainers of the gameField to get the diceTokens
+     * values and copies them to the tfArray of this GamePresenter. Then the values of the fieldTypes are checked and
+     * translated into the correct String names of the tfArray TerrainFields.
      *
      * @param gameField the gameField given by the Server
+     *
      * @author Marc Hermes
      * @see de.uol.swp.common.game.GameField
      * @see de.uol.swp.client.game.GameObjects.TerrainField
