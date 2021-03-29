@@ -14,6 +14,7 @@ import de.uol.swp.common.message.MessageContext;
 import de.uol.swp.common.message.ResponseMessage;
 import de.uol.swp.common.message.ServerMessage;
 import de.uol.swp.common.user.Session;
+import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.user.request.LogoutRequest;
 import de.uol.swp.common.user.response.lobby.*;
@@ -22,10 +23,7 @@ import de.uol.swp.server.usermanagement.AuthenticationService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -50,7 +48,6 @@ public class LobbyService extends AbstractService {
      * @param lobbyManagement       The management class for creating, storing and deleting lobbies
      * @param authenticationService the user management
      * @param eventBus              the server-wide EventBus
-     *
      * @since 2019-10-08
      */
     @Inject
@@ -124,6 +121,7 @@ public class LobbyService extends AbstractService {
      * @since 2019-10-08
      * <p>
      * Enhanced by Carsten Dekker
+     * enhanced by Marc Hermes 2021-03-25
      * <p>
      * If a user already joined the lobby, he gets an AlreadyJoinedThisLobbyResponse.
      * @since 2021-01-22
@@ -136,7 +134,9 @@ public class LobbyService extends AbstractService {
         }
         if (lobby.get().getUsers().size() < 4 && !lobby.get().getUsers().contains(lobbyJoinUserRequest.getUser()) && lobbyJoinUserRequest.getMessageContext().isPresent()) {
             lobby.get().joinUser(lobbyJoinUserRequest.getUser());
-            sendToAllInLobby(lobbyJoinUserRequest.getName(), new UserJoinedLobbyMessage(lobbyJoinUserRequest.getName(), lobbyJoinUserRequest.getUser()));
+            ArrayList<UserDTO> usersInLobby = new ArrayList<>();
+            for (User user : lobby.get().getUsers()) usersInLobby.add(UserDTO.createWithoutPassword(user));
+            sendToAllInLobby(lobbyJoinUserRequest.getName(), new UserJoinedLobbyMessage(lobbyJoinUserRequest.getName(), lobbyJoinUserRequest.getUser(), usersInLobby));
             sendToSpecificUser(lobbyJoinUserRequest.getMessageContext().get(), new LobbyJoinedSuccessfulResponse(lobbyJoinUserRequest.getName(), lobbyJoinUserRequest.getUser()));
             sendToAll(new LobbySizeChangedMessage(lobbyJoinUserRequest.getName()));
         } else {
@@ -156,6 +156,8 @@ public class LobbyService extends AbstractService {
      * UserLeftLobbyMessage to every user in the lobby.
      * <p>
      * If a lobby was deleted, this methode will return a JoinDeletedLobbyResponse to the user who requested to join the lobby
+     *
+     * enhanced by Marc Hermes 2021-03-25
      *
      * @param lobbyLeaveUserRequest The LobbyJoinUserRequest found on the EventBus
      * @author Marco Grawunder
@@ -186,7 +188,9 @@ public class LobbyService extends AbstractService {
                 }
                 lobby.get().leaveUser(lobbyLeaveUserRequest.getUser());
                 sendToAll(new LobbySizeChangedMessage(lobbyLeaveUserRequest.getName()));
-                sendToAllInLobby(lobbyLeaveUserRequest.getName(), new UserLeftLobbyMessage(lobbyLeaveUserRequest.getName(), lobbyLeaveUserRequest.getUser(), lobby.get().getOwner().getUsername()));
+                ArrayList<UserDTO> remainingUsers = new ArrayList<>();
+                for (User user : lobby.get().getUsers()) remainingUsers.add(UserDTO.createWithoutPassword(user));
+                sendToAllInLobby(lobbyLeaveUserRequest.getName(), new UserLeftLobbyMessage(lobbyLeaveUserRequest.getName(), lobbyLeaveUserRequest.getUser(), remainingUsers, lobby.get().getOwner().getUsername()));
             }
         } else {
             throw new LobbyManagementException("Lobby unknown!");
@@ -246,7 +250,6 @@ public class LobbyService extends AbstractService {
      *
      * @param message the message to be send to the users
      * @param ctx     the context of the message, here the session of the owner of the lobby
-     *
      * @author Marc Hermes
      * @see de.uol.swp.common.message.ResponseMessage
      * @see de.uol.swp.common.message.MessageContext
@@ -261,7 +264,6 @@ public class LobbyService extends AbstractService {
      * the lobbyManagement.
      *
      * @param msg RetrieveAllLobbiesRequest
-     *
      * @author Carsten Dekker and Marius Birk
      * @see de.uol.swp.common.lobby.request.RetrieveAllLobbiesRequest
      * @see de.uol.swp.common.lobby.response.AllCreatedLobbiesResponse

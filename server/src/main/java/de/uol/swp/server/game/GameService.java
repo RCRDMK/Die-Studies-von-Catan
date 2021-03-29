@@ -47,7 +47,6 @@ public class GameService extends AbstractService {
     private final LobbyService lobbyService;
     private final AuthenticationService authenticationService;
     private static final Logger LOG = LogManager.getLogger(GameService.class);
-    private int players;
 
     /**
      * Constructor
@@ -56,7 +55,6 @@ public class GameService extends AbstractService {
      * @param gameManagement        The management class for creating, storing and deleting games
      * @param authenticationService the user management
      * @param eventBus              the server-wide EventBus
-     *
      * @since 2021-01-07
      */
     @Inject
@@ -89,7 +87,9 @@ public class GameService extends AbstractService {
                 }
                 game.get().leaveUser(gameLeaveUserRequest.getUser());
                 sendToAll(new GameSizeChangedMessage(gameLeaveUserRequest.getName()));
-                sendToAllInGame(gameLeaveUserRequest.getName(), new UserLeftGameMessage(gameLeaveUserRequest.getName(), gameLeaveUserRequest.getUser()));
+                ArrayList<UserDTO> usersInGame = new ArrayList<>();
+                for (User user : game.get().getUsers()) usersInGame.add((UserDTO) user);
+                sendToAllInGame(gameLeaveUserRequest.getName(), new UserLeftGameMessage(gameLeaveUserRequest.getName(), gameLeaveUserRequest.getUser(), usersInGame));
             }
         } else {
             throw new GameManagementException("Game unknown!");
@@ -103,7 +103,6 @@ public class GameService extends AbstractService {
      * of a AllThisGameUsersResponse for a specific user that sent the initial request.
      *
      * @param retrieveAllThisGameUsersRequest The RetrieveAllThisGameUsersRequest found on the EventBus
-     *
      * @author Iskander Yusupov
      * @see de.uol.swp.common.game.Game
      * @since 2021-01-15
@@ -148,7 +147,6 @@ public class GameService extends AbstractService {
      * @param game    Optional<Game> game
      * @param message ServerMessage message
      * @param user    User user
-     *
      * @author Alexander Losse, Ricardo Mook
      * @since 2021-03-11
      */
@@ -177,7 +175,6 @@ public class GameService extends AbstractService {
      * ResponseChatMessage containing the user who roll the dice and the result to every user in the lobby.
      *
      * @param rollDiceRequest The RollDiceRequest found on the EventBus
-     *
      * @author Kirstin, Pieter
      * @see RollDiceRequest
      * @since 2021-01-07
@@ -207,7 +204,6 @@ public class GameService extends AbstractService {
      *
      * @param lobbyName Name of the lobby the players are in
      * @param message   the message to be send to the users
-     *
      * @author Marco Grawunder
      * @see de.uol.swp.common.message.ServerMessage
      * @since 2019-10-08
@@ -233,34 +229,42 @@ public class GameService extends AbstractService {
      * sent the initial request.
      * <p>
      * enhanced by Alexander Losse, Ricardo Mook 2021-03-05
+     * enhanced by Marc Hermes 2021-03-25
      *
      * @param startGameRequest the StartGameRequest found on the EventBus
-     *
      * @author Kirstin Beyer, Iskander Yusupov
      * @see de.uol.swp.common.lobby.request.StartGameRequest
      * @since 2021-01-24
      */
     @Subscribe
     public void onStartGameRequest(StartGameRequest startGameRequest) {
-        System.out.println(startGameRequest.getGameFieldVariant());
         Optional<Lobby> lobby = lobbyService.getLobby(startGameRequest.getName());
-        if (gameManagement.getGame(lobby.get().getName()).isEmpty() && lobby.get().getUsers().size() > 1 && startGameRequest.getUser().toString().equals(lobby.get().getOwner().toString())) {
+        Set<User> usersInLobby = lobby.get().getUsers();
+        if (gameManagement.getGame(lobby.get().getName()).isEmpty() && usersInLobby.size() > 1 && startGameRequest.getUser().getUsername().equals(lobby.get().getOwner().getUsername())) {
             lobby.get().setPlayersReadyToNull();
             lobby.get().setGameFieldVariant(startGameRequest.getGameFieldVariant());
-            players = 0;
+            lobby.get().setGameShouldStart(true);
             sendToAllInLobby(startGameRequest.getName(), new StartGameMessage(startGameRequest.getName(), startGameRequest.getUser()));
             int seconds = 60;
             Timer timer = new Timer();
             class RemindTask extends TimerTask {
                 public void run() {
-                    if (gameManagement.getGame(lobby.get().getName()).isEmpty() && players != lobby.get().getUsers().size()) {
-                        players = lobby.get().getUsers().size();
+                    Set<User> users = new TreeSet<>(usersInLobby);
+                    if (lobby.get().getPlayersReady().size() != 0) {
+                        users.removeAll(lobby.get().getPlayersReady());
+                    } else {
+                        users.clear();
+                    }
+                    if (lobby.get().getPlayersReady().size() > 1 && gameManagement.getGame(lobby.get().getName()).isEmpty()) {
                         try {
                             startGame(lobby, lobby.get().getGameFieldVariant());
+                            // TODO: sollte wahrscheinlich keine notenoughplayersmessage sein, sondern "You missed the game start"
+                            sendToListOfUsers(users, lobby.get().getName(), new NotEnoughPlayersMessage(lobby.get().getName()));
                         } catch (GameManagementException e) {
                             LOG.debug(e);
-                            sendToListOfUsers(lobby.get().getUsers(), lobby.get().getName(), new NotEnoughPlayersMessage(lobby.get().getName()));
                         }
+                    } else if (lobby.get().getPlayersReady().size() < 2 && lobby.get().getGameShouldStart()) {
+                        sendToListOfUsers(users, lobby.get().getName(), new NotEnoughPlayersMessage(lobby.get().getName()));
                     }
                     timer.cancel();
                 }
@@ -282,26 +286,34 @@ public class GameService extends AbstractService {
      * ready are joined to the game and a GameCreatedMessage is send to all players in the game.
      * <p>
      * enhanced by Alexander Losse, Ricardo Mook 2021-03-05 enhanced by Pieter Vogt 2021-03-26
+     * enhanced by Marc Hermes 2021-03-25
      *
      * @param lobby lobby that wants to start a game
-     *
      * @author Kirstin Beyer, Iskander Yusupov
      * @since 2021-01-24
      */
 
-    public void startGame(Optional<Lobby> lobby,String gameFieldVariant) {
+    public void startGame(Optional<Lobby> lobby, String gameFieldVariant) {
         if (lobby.get().getPlayersReady().size() > 1) {
             gameManagement.createGame(lobby.get().getName(), lobby.get().getOwner(), gameFieldVariant);
             Optional<Game> game = gameManagement.getGame(lobby.get().getName());
+            ArrayList<UserDTO> usersInGame = new ArrayList<>();
             for (User user : lobby.get().getPlayersReady()) {
                 game.get().joinUser(user);
-                sendToSpecificUserInGame(game, new GameCreatedMessage(game.get().getName(), (UserDTO) user, game.get().getGameField()), user);
+                usersInGame.add((UserDTO) user);
+
+            }
+            lobby.get().setPlayersReadyToNull();
+            lobby.get().setRdyResponsesReceived(0);
+            for (User user : game.get().getUsers()) {
+                sendToSpecificUserInGame(game, new GameCreatedMessage(game.get().getName(), (UserDTO) user, game.get().getGameField(), usersInGame), user);
             }
             game.get().setUpUserArrayList();
             sendToAllInGame(game.get().getName(), new NextTurnMessage(game.get().getName(), game.get().getUser(game.get().getTurn()).getUsername(), game.get().getTurn()));
         } else {
             throw new GameManagementException("Not enough Players ready!");
         }
+        lobby.get().setGameShouldStart(false);
     }
 
     /**
@@ -311,8 +323,9 @@ public class GameService extends AbstractService {
      * PlayerReady list and counts the number of player responses in variable Player enhanced by Alexander Losse,
      * Ricardo Mook 2021-03-05
      *
-     * @param playerReadyRequest the PlayerReadyRequest found on the EventBus
+     * enhanced by Marc Hermes 2021-03-25
      *
+     * @param playerReadyRequest the PlayerReadyRequest found on the EventBus
      * @author Kirstin Beyer, Iskander Yusupov
      * @see de.uol.swp.common.game.request.PlayerReadyRequest
      * @since 2021-01-24
@@ -321,12 +334,12 @@ public class GameService extends AbstractService {
     public void onPlayerReadyRequest(PlayerReadyRequest playerReadyRequest) {
         Optional<Lobby> lobby = lobbyService.getLobby(playerReadyRequest.getName());
         if (playerReadyRequest.getBoolean()) {
-            players += 1;
+            lobby.get().incrementRdyResponsesReceived();
             lobby.get().joinPlayerReady(playerReadyRequest.getUser());
         } else if (!playerReadyRequest.getBoolean()) {
-            players += 1;
+            lobby.get().incrementRdyResponsesReceived();
         }
-        if (players == lobby.get().getUsers().size() && gameManagement.getGame(lobby.get().getName()).isEmpty()) {
+        if (lobby.get().getRdyResponsesReceived() == lobby.get().getUsers().size() && gameManagement.getGame(lobby.get().getName()).isEmpty()) {
             try {
                 startGame(lobby, lobby.get().getGameFieldVariant());
             } catch (GameManagementException e) {
@@ -345,7 +358,6 @@ public class GameService extends AbstractService {
      * game and whos turn is up now.</p>
      *
      * @param request Transports the games name and the senders UserDTO.
-     *
      * @author Pieter Vogt
      * @since 2021-03-26
      */
