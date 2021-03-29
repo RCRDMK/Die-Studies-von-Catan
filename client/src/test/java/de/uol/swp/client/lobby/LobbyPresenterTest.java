@@ -96,6 +96,7 @@ class LobbyPresenterTest {
         ArrayList<UserDTO> users = new ArrayList<>();
         users.add(userDTO);
         //Jetzt verlässt der userDTO1 die Lobby.
+        UserLeftLobbyMessage message3 = new UserLeftLobbyMessage("testLobby", userDTO1,userDTO.getUsername());
         UserLeftLobbyMessage message3 = new UserLeftLobbyMessage("testLobby", userDTO1, users);
         lobbyService.retrieveAllThisLobbyUsers(message2.getName());
         assertTrue(event instanceof RetrieveAllThisLobbyUsersRequest);

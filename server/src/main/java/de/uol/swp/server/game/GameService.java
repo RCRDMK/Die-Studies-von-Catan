@@ -246,9 +246,10 @@ public class GameService extends AbstractService {
         Set<User> usersInLobby = lobby.get().getUsers();
         if (gameManagement.getGame(lobby.get().getName()).isEmpty() && usersInLobby.size() > 1 && startGameRequest.getUser().getUsername().equals(lobby.get().getOwner().getUsername())) {
             lobby.get().setPlayersReadyToNull();
+            lobby.get().setGameFieldVariant(startGameRequest.getGameFieldVariant());
             lobby.get().setGameShouldStart(true);
             sendToAllInLobby(startGameRequest.getName(), new StartGameMessage(startGameRequest.getName(), startGameRequest.getUser()));
-            int seconds = 20;
+            int seconds = 60;
             Timer timer = new Timer();
             class RemindTask extends TimerTask {
                 public void run() {
@@ -258,7 +259,7 @@ public class GameService extends AbstractService {
                     } else {users.clear();}
                     if (lobby.get().getPlayersReady().size() > 1 && gameManagement.getGame(lobby.get().getName()).isEmpty()) {
                         try {
-                            startGame(lobby);
+                            startGame(lobby,lobby.get().getGameFieldVariant());
                             // TODO: sollte wahrscheinlich keine notenoughplayersmessage sein, sondern "You missed the game start"
                             sendToListOfUsers(users, lobby.get().getName(), new NotEnoughPlayersMessage(lobby.get().getName()));
                         } catch (GameManagementException e) {
@@ -293,9 +294,9 @@ public class GameService extends AbstractService {
      * @since 2021-01-24
      */
 
-    public void startGame(Optional<Lobby> lobby) {
+    public void startGame(Optional<Lobby> lobby,String gameFieldVariant) {
         if (lobby.get().getPlayersReady().size() > 1) {
-            gameManagement.createGame(lobby.get().getName(), lobby.get().getOwner());
+            gameManagement.createGame(lobby.get().getName(), lobby.get().getOwner(),gameFieldVariant);
             Optional<Game> game = gameManagement.getGame(lobby.get().getName());
             ArrayList<UserDTO> usersInGame = new ArrayList<>();
             for (User user : lobby.get().getPlayersReady()) {
@@ -337,7 +338,7 @@ public class GameService extends AbstractService {
         }
         if (lobby.get().getRdyResponsesReceived() == lobby.get().getUsers().size() && gameManagement.getGame(lobby.get().getName()).isEmpty()) {
             try {
-                startGame(lobby);
+                startGame(lobby,lobby.get().getGameFieldVariant());
             } catch (GameManagementException e) {
                 LOG.debug(e);
                 sendToListOfUsers(lobby.get().getPlayersReady(), lobby.get().getName(), new NotEnoughPlayersMessage(lobby.get().getName()));

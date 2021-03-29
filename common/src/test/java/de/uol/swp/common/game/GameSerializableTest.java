@@ -1,3 +1,4 @@
+
 package de.uol.swp.common.game;
 
 import de.uol.swp.common.SerializationTestHelper;
@@ -10,14 +11,13 @@ import de.uol.swp.common.user.UserDTO;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
-import java.util.Collection;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class GameSerializableTest {
     private static final UserDTO defaultUser = new UserDTO("marco", "marco", "marco@grawunder.de");
     private static final ArrayList<Game> defaultCollection = new ArrayList<>();
-    private static final GameField defaultGameField = new GameField();
+    private static final GameField defaultGameField = new GameField("Standard");
 
     @Test
     void testGameMessagesSerializable(){
@@ -61,3 +61,4 @@ public class GameSerializableTest {
                 NotLobbyOwnerResponse.class));
     }
 }
+

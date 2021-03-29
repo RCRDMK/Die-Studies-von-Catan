@@ -17,6 +17,8 @@ public class UserLeftLobbyMessage extends AbstractLobbyMessage {
 
     private ArrayList<UserDTO> users = new ArrayList<>();
 
+    final private String lobbyOwner;
+
     /**
      * Default constructor
      * <p>
@@ -26,6 +28,7 @@ public class UserLeftLobbyMessage extends AbstractLobbyMessage {
      * @since 2019-10-08
      */
     public UserLeftLobbyMessage() {
+        lobbyOwner="";
     }
 
     /**
@@ -37,12 +40,17 @@ public class UserLeftLobbyMessage extends AbstractLobbyMessage {
      * @author Marco Grawunder
      * @since 2019-10-08
      */
-    public UserLeftLobbyMessage(String lobbyName, UserDTO user, ArrayList<UserDTO> lobbyUsers) {
+    public UserLeftLobbyMessage(String lobbyName, UserDTO user, ArrayList<UserDTO> lobbyUsers, String lobbyOwner) {
         super(lobbyName, user);
         this.users = lobbyUsers;
+        this.lobbyOwner=lobbyOwner;
     }
 
     public ArrayList<UserDTO> getUsers() {
         return users;
+    }
+
+    public String getLobbyOwner(){
+        return this.lobbyOwner;
     }
 }

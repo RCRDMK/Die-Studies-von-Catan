@@ -25,6 +25,8 @@ public class LobbyDTO implements Lobby {
     private final Set<User> playersReady = new TreeSet<>();
     private int rdyResponsesReceived = 0;
     private boolean gameShouldStart = false;
+    private String gameFieldVariant;
+
 
 
     /**
@@ -44,6 +46,11 @@ public class LobbyDTO implements Lobby {
     @Override
     public String getName() {
         return name;
+    }
+
+    @Override
+    public String getGameFieldVariant(){
+        return gameFieldVariant;
     }
 
     @Override
@@ -107,4 +114,9 @@ public class LobbyDTO implements Lobby {
 
     @Override
     public void setGameShouldStart(boolean value) {this.gameShouldStart=value;}
+    @Override
+    public void setGameFieldVariant(String gfv){
+        this.gameFieldVariant=gfv;
+    }
+
 }
