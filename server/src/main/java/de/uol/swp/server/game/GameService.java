@@ -8,7 +8,6 @@ import de.uol.swp.common.chat.ResponseChatMessage;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.message.*;
 import de.uol.swp.common.game.request.*;
-import de.uol.swp.common.game.request.RollDiceRequest;
 import de.uol.swp.common.game.response.AllCreatedGamesResponse;
 import de.uol.swp.common.game.response.GameAlreadyExistsResponse;
 import de.uol.swp.common.game.response.NotLobbyOwnerResponse;
@@ -48,16 +47,16 @@ public class GameService extends AbstractService {
     private final LobbyService lobbyService;
     private final AuthenticationService authenticationService;
     private static final Logger LOG = LogManager.getLogger(GameService.class);
-    private int Players;
+    private int players;
 
     /**
      * Constructor
      * <p>
      *
-     * @param gameManagement        The management class for creating, storing and deleting
-     *                              games
+     * @param gameManagement        The management class for creating, storing and deleting games
      * @param authenticationService the user management
      * @param eventBus              the server-wide EventBus
+     *
      * @since 2021-01-07
      */
     @Inject
@@ -102,10 +101,11 @@ public class GameService extends AbstractService {
     /**
      * Handles RetrieveAllThisGameUsersRequests found on the EventBus
      * <p>
-     * If a RetrieveAllThisGameUsersRequests is detected on the EventBus, this method is called.
-     * It prepares the sending of a AllThisGameUsersResponse for a specific user that sent the initial request.
+     * If a RetrieveAllThisGameUsersRequests is detected on the EventBus, this method is called. It prepares the sending
+     * of a AllThisGameUsersResponse for a specific user that sent the initial request.
      *
      * @param retrieveAllThisGameUsersRequest The RetrieveAllThisGameUsersRequest found on the EventBus
+     *
      * @author Iskander Yusupov
      * @see de.uol.swp.common.game.Game
      * @since 2021-01-15
@@ -150,6 +150,7 @@ public class GameService extends AbstractService {
      * @param game    Optional<Game> game
      * @param message ServerMessage message
      * @param user    User user
+     *
      * @author Alexander Losse, Ricardo Mook
      * @since 2021-03-11
      */
@@ -174,11 +175,11 @@ public class GameService extends AbstractService {
     /**
      * Handles RollDiceRequests found on the EventBus
      * <p>
-     * If a RollDiceRequest is detected on the EventBus, this method is called.
-     * It rolls the dices and sends a ResponseChatMessage containing the user who roll the dice
-     * and the result to every user in the lobby.
+     * If a RollDiceRequest is detected on the EventBus, this method is called. It rolls the dices and sends a
+     * ResponseChatMessage containing the user who roll the dice and the result to every user in the lobby.
      *
      * @param rollDiceRequest The RollDiceRequest found on the EventBus
+     *
      * @author Kirstin, Pieter
      * @see RollDiceRequest
      * @since 2021-01-07
@@ -203,12 +204,12 @@ public class GameService extends AbstractService {
 
 
     /**
-     * Prepares a given ServerMessage to be send to all players in the lobby and
-     * posts it on the EventBus
+     * Prepares a given ServerMessage to be send to all players in the lobby and posts it on the EventBus
      * <p>
      *
      * @param lobbyName Name of the lobby the players are in
      * @param message   the message to be send to the users
+     *
      * @author Marco Grawunder
      * @see de.uol.swp.common.message.ServerMessage
      * @since 2019-10-08
@@ -226,16 +227,17 @@ public class GameService extends AbstractService {
     /**
      * Handles StartGameRequest found on the EventBus
      * <p>
-     * If a StartGameRequest is detected on the EventBus, this method is called.
-     * If the number of players in the lobby is more than 1, Method creates StartGameRequest with name of the lobby and user,
-     * which will be sent to all players in the lobby.
-     * It starts a timer and tries to start the game afterwards. If no game was created a NotEnoughPlayersResponse is sent to
-     * all users that are ready to start the game.
-     * Else Method creates NotLobbyOwnerResponse, NotEnoughPlayersResponse or GameAlreadyExistsResponse and sends it to a specific user that sent the initial request.
+     * If a StartGameRequest is detected on the EventBus, this method is called. If the number of players in the lobby
+     * is more than 1, Method creates StartGameRequest with name of the lobby and user, which will be sent to all
+     * players in the lobby. It starts a timer and tries to start the game afterwards. If no game was created a
+     * NotEnoughPlayersResponse is sent to all users that are ready to start the game. Else Method creates
+     * NotLobbyOwnerResponse, NotEnoughPlayersResponse or GameAlreadyExistsResponse and sends it to a specific user that
+     * sent the initial request.
      * <p>
      * enhanced by Alexander Losse, Ricardo Mook 2021-03-05
      *
      * @param startGameRequest the StartGameRequest found on the EventBus
+     *
      * @author Kirstin Beyer, Iskander Yusupov
      * @see de.uol.swp.common.lobby.request.StartGameRequest
      * @since 2021-01-24
@@ -284,19 +286,20 @@ public class GameService extends AbstractService {
     /**
      * Method to create and start a game
      * <p>
-     * A new game is created if at least 2 players are to start the game and if not already a game exists.
-     * All players ready are joined to the game and a GameCreatedMessage is send to all players in the game.
+     * A new game is created if at least 2 players are to start the game and if not already a game exists. All players
+     * ready are joined to the game and a GameCreatedMessage is send to all players in the game.
      * <p>
-     * enhanced by Alexander Losse, Ricardo Mook 2021-03-05
+     * enhanced by Alexander Losse, Ricardo Mook 2021-03-05 enhanced by Pieter Vogt 2021-03-26
      *
      * @param lobby lobby that wants to start a game
+     *
      * @author Kirstin Beyer, Iskander Yusupov
      * @since 2021-01-24
      */
 
     public void startGame(Optional<Lobby> lobby,String gameFieldVariant) {
         if (lobby.get().getPlayersReady().size() > 1) {
-            gameManagement.createGame(lobby.get().getName(), lobby.get().getOwner(),gameFieldVariant);
+            gameManagement.createGame(lobby.get().getName(), lobby.get().getOwner(), gameFieldVariant);
             Optional<Game> game = gameManagement.getGame(lobby.get().getName());
             ArrayList<UserDTO> usersInGame = new ArrayList<>();
             for (User user : lobby.get().getPlayersReady()) {
@@ -309,6 +312,8 @@ public class GameService extends AbstractService {
             for (User user : game.get().getUsers()) {
                 sendToSpecificUserInGame(game, new GameCreatedMessage(game.get().getName(), (UserDTO) user, game.get().getGameField(), usersInGame), user);
             }
+            game.get().setUpUserArrayList();
+            sendToAllInGame(game.get().getName(), new NextTurnMessage(game.get().getName(), game.get().getUser(game.get().getTurn()).getUsername(), game.get().getTurn()));
         } else {
             throw new GameManagementException("Not enough Players ready!");
         }
@@ -318,11 +323,12 @@ public class GameService extends AbstractService {
     /**
      * Handles PlayerReadyRequest found on the EventBus
      * <p>
-     * If a PlayerReadyRequest is detected on the EventBus, this method is called.
-     * Method adds ready players to the PlayerReady list and counts the number of player responses in variable Player
-     * enhanced by Alexander Losse, Ricardo Mook 2021-03-05
+     * If a PlayerReadyRequest is detected on the EventBus, this method is called. Method adds ready players to the
+     * PlayerReady list and counts the number of player responses in variable Player enhanced by Alexander Losse,
+     * Ricardo Mook 2021-03-05
      *
      * @param playerReadyRequest the PlayerReadyRequest found on the EventBus
+     *
      * @author Kirstin Beyer, Iskander Yusupov
      * @see de.uol.swp.common.game.request.PlayerReadyRequest
      * @since 2021-01-24
@@ -338,7 +344,7 @@ public class GameService extends AbstractService {
         }
         if (lobby.get().getRdyResponsesReceived() == lobby.get().getUsers().size() && gameManagement.getGame(lobby.get().getName()).isEmpty()) {
             try {
-                startGame(lobby,lobby.get().getGameFieldVariant());
+                startGame(lobby, lobby.get().getGameFieldVariant());
             } catch (GameManagementException e) {
                 LOG.debug(e);
                 sendToListOfUsers(lobby.get().getPlayersReady(), lobby.get().getName(), new NotEnoughPlayersMessage(lobby.get().getName()));
@@ -346,4 +352,29 @@ public class GameService extends AbstractService {
         }
     }
 
+    /**
+     * Handles EndTurnRequests found on the eventbus.
+     *
+     * <p>If an EndTurnRequest is found on the eventbus, this method checks if the sender is the player with the
+     * current turn. If so, the method calls the nextRound method to increment the turncount. After that, the method
+     * sends a NextTurnMessage to all participants of the current game, telling them in wich turn they are now, in wich
+     * game and whos turn is up now.</p>
+     *
+     * @param request Transports the games name and the senders UserDTO.
+     *
+     * @author Pieter Vogt
+     * @since 2021-03-26
+     */
+    @Subscribe
+    public void onEndTurnRequest(EndTurnRequest request) {
+        if (request.getUser().getUsername().equals(gameManagement.getGame(request.getName()).get().getUser(gameManagement.getGame(request.getName()).get().getTurn()).getUsername())) {
+            try {
+                gameManagement.getGame(request.getName()).get().nextRound();
+                sendToAllInGame(gameManagement.getGame(request.getName()).get().getName(), new NextTurnMessage(gameManagement.getGame(request.getName()).get().getName(), gameManagement.getGame(request.getName()).get().getUser(gameManagement.getGame(request.getName()).get().getTurn()).getUsername(), gameManagement.getGame(request.getName()).get().getTurn()));
+            } catch (GameManagementException e) {
+                LOG.debug(e);
+                System.out.println("Sender " + request.getUser().getUsername() + " was not player with current turn");
+            }
+        }
+    }
 }
