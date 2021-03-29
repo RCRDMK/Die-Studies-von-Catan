@@ -23,6 +23,7 @@ public class MyObjectDecoder extends ObjectDecoder {
     /**
      * Constructor
      *
+     * @author Marco Grawunder
      * @param classResolver the ClassResolver the decoder should use
      * @since 2019-08-13
      */

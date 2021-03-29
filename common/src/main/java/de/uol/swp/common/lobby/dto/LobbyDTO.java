@@ -33,6 +33,7 @@ public class LobbyDTO implements Lobby {
     /**
      * Constructor
      *
+     * @author Marco Grawunder
      * @param name    The name the lobby should have
      * @param creator The user who created the lobby and therefore shall be the
      *                owner

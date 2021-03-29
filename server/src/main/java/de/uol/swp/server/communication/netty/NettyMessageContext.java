@@ -21,6 +21,7 @@ class NettyMessageContext implements MessageContext {
     /**
      * Constructor
      *
+     * @author Marco Grawunder
      * @param ctx the ChannelHandlerContext encapsulated by this
      * @since 2019-11-20
      */
@@ -31,6 +32,7 @@ class NettyMessageContext implements MessageContext {
     /**
      * Getter for the ChannelHandlerContext encapsulated by this class
      *
+     * @author Marco Grawunder
      * @return the ChannelHandlerContext
      * @see io.netty.channel.ChannelHandlerContext
      * @since 2019-11-20

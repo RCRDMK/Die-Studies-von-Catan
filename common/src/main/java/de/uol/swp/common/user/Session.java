@@ -15,6 +15,7 @@ public interface Session {
     /**
      * Getter for the SessionID
      *
+     * @author Marco Grawunder
      * @return ID of the session as String
      * @since 2019-08-05
      */
@@ -23,6 +24,7 @@ public interface Session {
     /**
      * Getter for the user that uses the session
      *
+     * @author Marco Grawunder
      * @return the user of the session as object implementing user
      * @see de.uol.swp.common.user.User
      * @since 2019-08-13

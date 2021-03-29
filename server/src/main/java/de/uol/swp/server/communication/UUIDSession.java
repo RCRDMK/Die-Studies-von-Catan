@@ -23,6 +23,7 @@ public class UUIDSession implements Session {
 	/**
 	 * private Constructor
 	 *
+	 * @author Marco Grawunder
 	 * @param user the user connected to the session
 	 * @since 2017-03-17
 	 */
@@ -38,6 +39,7 @@ public class UUIDSession implements Session {
 	 *
 	 * Builder exposed to every class in the server, used since the constructor is private
 	 *
+	 * @author Marco Grawunder
 	 * @param user the user connected to the session
 	 * @return a new UUIDSession object for the user
 	 * @since 2019-08-07

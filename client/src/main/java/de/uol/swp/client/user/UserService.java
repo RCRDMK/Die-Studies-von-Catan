@@ -37,6 +37,7 @@ public class UserService implements ClientUserService {
     /**
      * Constructor
      *
+     * @author Marco Grawunder
      * @param bus The  EventBus set in ClientModule
      * @see de.uol.swp.client.di.ClientModule
      * @since 2017-03-17
@@ -51,6 +52,7 @@ public class UserService implements ClientUserService {
     /**
      * Posts a login request to the EventBus
      *
+     * @author Marco Grawunder
      * @param username the name of the user
      * @param password the password of the user
      * @since 2017-03-17

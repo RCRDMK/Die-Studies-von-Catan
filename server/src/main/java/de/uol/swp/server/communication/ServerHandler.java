@@ -72,6 +72,7 @@ public class ServerHandler implements ServerHandlerDelegate {
     /**
      * Helper method that check if a Message has the required authorization
      *
+     * @author Marco Grawunder
      * @param ctx the MessageContext connected to the message to check
      * @param msg the message to check
      * @throws SecurityException authorization requirement not met
@@ -93,6 +94,7 @@ public class ServerHandler implements ServerHandlerDelegate {
      * It sends the ServerExceptionMessage to the affiliated client if a client is
      * affiliated.
      *
+     * @author Marco Grawunder
      * @param msg The ServerExceptionMessage found on the EventBus
      * @since 2019-11-20
      */
@@ -110,6 +112,7 @@ public class ServerHandler implements ServerHandlerDelegate {
      * It writes "DeadEvent detected " and the error message of the detected DeadEvent
      * object to the log, if the loglevel is set to WARN or higher.
      *
+     * @author Marco Grawunder
      * @param deadEvent The DeadEvent object found on the EventBus
      * @since 2019-11-20
      */
@@ -152,6 +155,7 @@ public class ServerHandler implements ServerHandlerDelegate {
      * sendToClient for sending as well as giving a new UserLoggedInMessage to sendMessage
      * for notifying all connected clients.
      *
+     * @author Marco Grawunder
      * @param msg The ClientAuthorizedMessage found on the EventBus
      * @see de.uol.swp.server.communication.ServerHandler#sendToClient(MessageContext, ResponseMessage)
      * @see de.uol.swp.server.communication.ServerHandler#sendMessage(ServerMessage)
@@ -176,6 +180,7 @@ public class ServerHandler implements ServerHandlerDelegate {
      * It gets the MessageContext and then gives the message to sendMessage in order
      * to send it to the connected client.
      *
+     * @author Marco Grawunder
      * @param msg The UserLoggedOutMessage found on the EventBus
      * @see de.uol.swp.server.communication.ServerHandler#sendMessage(ServerMessage)
      * @since 2019-11-20
@@ -198,6 +203,7 @@ public class ServerHandler implements ServerHandlerDelegate {
      * It gets the MessageContext and then gives it and the ResponseMessage to
      * sendToClient for sending.
      *
+     * @author Marco Grawunder
      * @param msg The ResponseMessage found on the EventBus
      * @see de.uol.swp.server.communication.ServerHandler#sendToClient(MessageContext, ResponseMessage)
      * @since 2019-11-20
@@ -224,6 +230,7 @@ public class ServerHandler implements ServerHandlerDelegate {
      * It sets the Session and MessageContext to null and then gives the message
      * to sendMessage in order to send it to all connected clients.
      *
+     * @author Marco Grawunder
      * @param msg The ServerMessage found on the EventBus
      * @see de.uol.swp.server.communication.ServerHandler#sendMessage(ServerMessage)
      * @since 2019-11-20
@@ -246,6 +253,7 @@ public class ServerHandler implements ServerHandlerDelegate {
     /**
      * Adds a new Session to the activeSessions
      *
+     * @author Marco Grawunder
      * @param ctx The MessageContext belonging to the Session
      * @param newSession the Session to add
      * @since 2019-11-20
@@ -259,6 +267,7 @@ public class ServerHandler implements ServerHandlerDelegate {
     /**
      * Removes a Session specified by MessageContext from the activeSessions
      *
+     * @author Marco Grawunder
      * @param ctx the MessageContext
      * @since 2019-11-20
      */
@@ -269,6 +278,7 @@ public class ServerHandler implements ServerHandlerDelegate {
     /**
      * Gets the Session for a given MessageContext
      *
+     * @author Marco Grawunder
      * @param ctx The MeesageContext
      * @see de.uol.swp.common.user.Session
      * @see de.uol.swp.common.message.MessageContext
@@ -283,6 +293,7 @@ public class ServerHandler implements ServerHandlerDelegate {
     /**
      * Gets MessageContext from Message
      *
+     * @author Marco Grawunder
      * @param message Message to get the MessageContext from
      * @see de.uol.swp.common.message.Message
      * @see de.uol.swp.common.message.MessageContext
@@ -302,6 +313,7 @@ public class ServerHandler implements ServerHandlerDelegate {
     /**
      * Gets MessageContext for specified receiver
      *
+     * @author Marco Grawunder
      * @param session Session of the user to search
      * @see de.uol.swp.common.user.Session
      * @see de.uol.swp.common.message.MessageContext
@@ -320,6 +332,7 @@ public class ServerHandler implements ServerHandlerDelegate {
     /**
      * Gets MessageContexts for specified receivers
      *
+     * @author Marco Grawunder
      * @param receiver A list containing the sessions of the users to search
      * @see de.uol.swp.common.user.Session
      * @see de.uol.swp.common.message.MessageContext
@@ -343,6 +356,7 @@ public class ServerHandler implements ServerHandlerDelegate {
     /**
      * Sends a ResponseMessage to a client specified by a MessageContext
      *
+     * @author Marco Grawunder
      * @param ctx The MessageContext containing the specified client
      * @param message The Message to send
      * @see de.uol.swp.common.message.ResponseMessage
@@ -357,6 +371,7 @@ public class ServerHandler implements ServerHandlerDelegate {
     /**
      * Sends a ServerMessage to either a specified receiver or all connected clients
      *
+     * @author Marco Grawunder
      * @param msg ServerMessage to send
      * @see de.uol.swp.common.message.ServerMessage
      * @since 2019-11-20
@@ -372,6 +387,7 @@ public class ServerHandler implements ServerHandlerDelegate {
     /**
      * Sends a ServerMessage to multiple users specified by a list of MessageContexts
      *
+     * @author Marco Grawunder
      * @param sendTo List of MessageContexts to send the message to
      * @param msg message to send
      * @see de.uol.swp.common.message.MessageContext

@@ -274,6 +274,7 @@ public class UserManagement extends AbstractUserManagement {
      * This method is used to set the new user values to the old ones if the values
      * in the update request were empty.
      *
+     * @author Marco Grawunder
      * @param firstValue  value to update to, empty String or null
      * @param secondValue the old value
      * @return String containing the value to be used in the update command

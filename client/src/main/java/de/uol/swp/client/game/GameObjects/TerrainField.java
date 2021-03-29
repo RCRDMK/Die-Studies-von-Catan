@@ -109,8 +109,8 @@ public class TerrainField {
     /**
      * determines the color to draw its host-object
      * @return the color for the host-object
-     * @author pieter vogt
-     * @since 24-01-2021
+     * @author Pieter Vogt
+     * @since 2021-01-04
      */
     public Color determineColorOfTerrain() {
         Color c;

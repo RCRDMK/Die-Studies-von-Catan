@@ -21,6 +21,7 @@ public interface ClientUserService {
     /**
      * Login with username and password
      *
+     * @author Marco Grawunder
      * @param username the name of the user
      * @param password the password of the user
      * @since 2017-03-17
@@ -30,6 +31,7 @@ public interface ClientUserService {
     /**
      * Log out from server
      *
+     * @author Marco Grawunder
      * @implNote the User Object has to contain a unique identifier in order to
      * remove the correct user
      * @since 2017-03-17
@@ -39,6 +41,7 @@ public interface ClientUserService {
     /**
      * Create a new persistent user
      *
+     * @author Marco Grawunder
      * @param user The user to create
      * @implNote the User Object has to contain a unique identifier in order to
      * remove the correct user
@@ -51,6 +54,7 @@ public interface ClientUserService {
      * <p>
      * Remove the User specified by the User object.
      *
+     * @author Marco Grawunder
      * @param user The user to remove
      * @implNote the User Object has to contain a unique identifier in order to
      * remove the correct user
@@ -62,6 +66,7 @@ public interface ClientUserService {
      * Update the password from a user
      *
      * Updates the User specified by the User object.
+     *
      *
      * @implNote the User Object has to contain a unique identifier in order to
      * 			 update the correct user

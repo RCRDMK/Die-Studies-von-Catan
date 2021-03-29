@@ -11,6 +11,7 @@ public class Main {
     /**
      * Entry point of the application if started as jar file generated via maven.
      *
+     * @author Marco Grawunder
      * @param args Any arguments given when starting the application
      * @since 2019-09-05
      */

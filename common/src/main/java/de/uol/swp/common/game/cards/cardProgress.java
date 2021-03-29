@@ -1,9 +1,9 @@
 package de.uol.swp.common.game.cards;
 
 /**
- *  Interface für die Fortschrittskarte
+ * Interface for the progresscard
  *
- * Die Fortschrittskarte wird zu den Entwicklungskarten gezählt
+ * The progresscard is counted among the developmentcards.
  *
  * @author Alexander Losse, Iskander Yusupov
  * @since 2020-12-16
@@ -11,7 +11,7 @@ package de.uol.swp.common.game.cards;
 
 public interface cardProgress extends cardDevelopment{
     /**
-     * Gibt einen String wieder, in welchem die spezifische Fortschrittskarte gespeichert ist
+     * Returns a string in which the specific progresscard is stored
      *
      * @author Alexander Losse, Iskander Yusupov
      * @since 2020-12-18
