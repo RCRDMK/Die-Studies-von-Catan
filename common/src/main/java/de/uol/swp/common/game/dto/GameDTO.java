@@ -29,7 +29,9 @@ public class GameDTO implements Game {
     private int overallTurns = 0; //This just counts +1 every time a player ends his turn. (good for Summaryscreen for example)
     private int turn = 0; //this points to the index of the user who now makes his turn.
     private ArrayList<User> userArrayList = new ArrayList<User>();
-
+    private boolean startingTurns = true;
+    private boolean countingUp = true;
+    private boolean lastPlayerSecondTurn = false;
 
     /**
      * Constructor
@@ -151,15 +153,56 @@ public class GameDTO implements Game {
     }
 
     /**
-     * Incrementing the counter of turns made in the game.
+     * Handling who can make his turn next.
      *
-     * <p>This method increments the counter that keeps track of how many turns were made in the game overall.</p>
+     * <p>This method checks, if the opening-phase is still ongoing. If so, it calls the method for handling the
+     * opening-phase. If not, it just increments the number of rounds played.</p>
      *
      * @author Pieter Vogt
      * @since 2021-03-26
      */
     @Override
     public void nextRound() {
-        overallTurns++;
+        if (startingTurns) {
+            openingPhase();
+        } else overallTurns++;
     }
+
+    /**
+     * Organizing the opening-phase for the set amount of players.
+     *
+     * <p>
+     * This is checking many different statements for boolean value to evaluate wich players turn is up next. It does
+     * this until every player did his move according to the games rules. For n players, the opening-phase goes from
+     * player 1 upwards to player n, then player n again and then backwards to player 1. After that, it disables the
+     * opening-phase for the rest of the game.
+     * </p>
+     *
+     * @author Pieter Vogt
+     * @since 2021-03-30
+     */
+
+    @Override
+    public void openingPhase() {
+        //If the players are in openingphase...
+
+        if (overallTurns == userArrayList.size() - 1 && !lastPlayerSecondTurn) { // 1)... and if the last player did his first turn but he did not use his second turn:
+            lastPlayerSecondTurn = true; // now he did.
+            countingUp = false; // we count backwards from now on.
+            return;
+        } else if (overallTurns <= userArrayList.size()) { // 2)... and if we are not at the last player ...
+            if (countingUp) { // 2a)... and if we still count up:
+                overallTurns++; //count one up.
+                return;
+            } else { // 2b)... and if we dont count up anymore ...
+                if (overallTurns > 0) {  // 2b1) ... and if we did not arrive back at player 1:
+                    overallTurns--; // count one down.
+                    countingUp = false; // dont count up anymore.
+                    return;
+                } else
+                    startingTurns = false; // 2b2) if we are at player 1 and were already counting backwards, end the openingphase.
+            }
+        }
+    }
+
 }

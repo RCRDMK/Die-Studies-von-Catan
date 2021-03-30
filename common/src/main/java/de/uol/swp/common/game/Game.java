@@ -152,4 +152,15 @@ public interface Game extends Serializable {
      */
     void nextRound();
 
+    /**
+     * Runs the initial Turn for every player.
+     * <p>
+     * If the game has 4 players, it lets the players do their turn in the following order: 1, 2, 3, 4, 4, 3, 2, 1.
+     * </p>
+     *
+     * @author Pieter Vogt
+     * @since 2021-03-30
+     */
+
+    void openingPhase();
 }
