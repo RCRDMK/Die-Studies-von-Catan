@@ -45,13 +45,8 @@ public class GameService {
      * <p>
      * Enhanced by Carsten Dekker
      * @since 2021-01-13
-     *
-     * I have changed the place of the method to the new GameService.
-     * It is a temporary method.
      */
-
-    //Muss das hier bleiben? Als Testmethode ist das doch woanders zu verorten oder? -Pieter
-    public void rollDiceTest(String name, User user) {
+    public void rollDice(String name, User user) {
         RollDiceRequest rollDiceRequest = new RollDiceRequest(name, user);
         eventBus.post(rollDiceRequest);
     }
