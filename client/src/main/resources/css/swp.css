@@ -1,0 +1,9 @@
+{
+-fx-background-color: black;
+}
+
+#loginField{
+    -fx-prompt-text-fill: red;
+    -fx-border-width: 1px;
+    -fx-border-color: white;
+}

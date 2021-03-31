@@ -36,6 +36,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -209,6 +210,23 @@ public class GamePresenter extends AbstractPresenter {
     @FXML
     public void onBuyDevelopmentCard(ActionEvent event) {
         //TODO:...
+    }
+
+    /**
+     * Method is called when an mouse click on the game canvas is detected
+     * <p>
+     * For demostration purposes, the canvas gets colored blue, when the player clicks on the game canvas
+     *
+     * @author Ricardo Mook
+     * @since 2021-03-31
+     *
+     */
+    @FXML
+    public void onCanvasClicked(MouseEvent mouse){
+        GraphicsContext gc = canvas.getGraphicsContext2D();
+
+        gc.setFill(Color.BLUE);
+        gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
     }
 
     /**
