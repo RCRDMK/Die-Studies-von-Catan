@@ -21,6 +21,7 @@ public class UserDTO implements User {
     /**
      * Constructor
      *
+     * @author Marco Grawunder
      * @param username username of the user
      * @param password password the user uses
      * @param eMail email address the user is registered to
@@ -38,6 +39,7 @@ public class UserDTO implements User {
     /**
      * Copy constructor
      *
+     * @author Marco Grawunder
      * @param user User object to copy the values of
      * @return UserDTO copy of User object
      * @since 2019-08-13
@@ -52,6 +54,7 @@ public class UserDTO implements User {
      * This constructor is used for the user list, because it would be a major security
      * flaw to send all user data including passwords to everyone connected.
      *
+     * @author Marco Grawunder
      * @param user User object to copy the values of
      * @return UserDTO copy of User object having the password variable left empty
      * @since 2019-08-13

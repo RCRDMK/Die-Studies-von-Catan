@@ -48,6 +48,7 @@ public class ClientConnection {
 	/**
 	 * Creates a new connection to a specific port on the given host
 	 *
+	 * @author Marco Grawunder
 	 * @param host The server name or IP to connect to
 	 * @param port The server port to connect to
 	 * @since 2017-03-17
@@ -64,6 +65,7 @@ public class ClientConnection {
 	 *
 	 * Sets the EventBus for the object and registers the object to it.
 	 *
+	 * @author Marco Grawunder
 	 * @implNote If the object already has an EventBus it is replaced but not unregistered
 	 * @param eventBus The new EventBus to set
 	 * @since 2019-09-18
@@ -81,6 +83,7 @@ public class ClientConnection {
 	 * pipeline.addLast()} method. Things usually added are encoders, decoders and
 	 * the ChannelHandler.
 	 *
+	 * @author Marco Grawunder
 	 * @implNote If no ChannelHandler is added, communication will not be possible
 	 * @throws Exception Connection failed
 	 * @since 2017-03-17
@@ -114,6 +117,7 @@ public class ClientConnection {
 	 * Disconnects the client from the server and prints the stack trace if an
 	 * InterruptedException is thrown.
 	 *
+	 * @author Marco Grawunder
 	 * @since 2017-03-17
 	 */
 	public void close() {
@@ -128,6 +132,7 @@ public class ClientConnection {
 	 * Calls the ConnectionEstablished method of every ConnectionListener added
 	 * to this.
 	 *
+	 * @author Marco Grawunder
 	 * @param channel The netty channel the new Connection is established on
 	 * @see de.uol.swp.client.ConnectionListener
 	 * @since 2017-03-17
@@ -142,6 +147,7 @@ public class ClientConnection {
 	/**
 	 * Add a new ConnectionListener to the ConnectionListener Array of this Object
 	 *
+	 * @author Marco Grawunder
 	 * @param listener The ConnectionListener to add to the Array
 	 * @see de.uol.swp.client.ConnectionListener
 	 * @since 2017-03-17
@@ -160,6 +166,7 @@ public class ClientConnection {
 	 * set to WARN or higher "Can only process ServerMessage and ResponseMessage.
 	 * Received " and the message are written to the LOG.
 	 *
+	 * @author Marco Grawunder
 	 * @param in The incoming messages read by the ClientHandler
 	 * @see de.uol.swp.client.ClientHandler
 	 * @since 2017-03-17
@@ -181,6 +188,7 @@ public class ClientConnection {
 	 * Otherwise "Some tries to send a message, but server is not connected" is
 	 * written to the LOG if the LOG-Level is set to WARN or higher.
 	 *
+	 * @author Marco Grawunder
 	 * @param message The RequestMessage object to  send to the server
 	 * @since 2019-08-29
 	 */
@@ -201,6 +209,7 @@ public class ClientConnection {
 	 * It calls the exceptionOccurred method of every ConnectionListener in the
 	 * ConnectionListener array.
 	 *
+	 * @author Marco Grawunder
 	 * @param message The ExceptionMessage object found on the EventBus
 	 * @since 2017-03-17
 	 */
@@ -218,6 +227,7 @@ public class ClientConnection {
 	 * It writes "DeadEvent detected " and the error message of the detected DeadEvent
 	 * object to the log, if the loglevel is set to WARN or higher.
 	 *
+	 * @author Marco Grawunder
 	 * @param deadEvent The DeadEvent object found on the EventBus
 	 * @since 2017-03-17
 	 */
@@ -233,6 +243,7 @@ public class ClientConnection {
 	 * It calls the exceptionOccurred method of every ConnectionListener in the
 	 * ConnectionListener array passing them the message.
 	 *
+	 * @author Marco Grawunder
 	 * @param message The ExceptionMessage object found on the EventBus
 	 * @see de.uol.swp.client.ClientHandler
 	 * @since 2017-03-17

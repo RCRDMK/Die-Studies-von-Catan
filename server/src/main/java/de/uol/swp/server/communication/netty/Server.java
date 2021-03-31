@@ -34,6 +34,8 @@ public class Server {
      * Constructor
      *
      * Creates a new Server Object
+     *
+     * @author Marco Grawunder
      * @see io.netty.channel.ChannelHandler
      * @see de.uol.swp.server.communication.ServerHandler
      * @since 2019-11-20
@@ -45,6 +47,7 @@ public class Server {
     /**
      * Start a new server on given port
      *
+     * @author Marco Grawunder
      * @param port port number the server shall be reachable on
      * @throws Exception server failed to start e.g. because the port is already in use
      * @see InetSocketAddress

@@ -21,6 +21,7 @@ public class AbstractLobbyRequest extends AbstractRequestMessage {
     /**
      * Default constructor
      *
+     * @author Marco Grawunder
      * @implNote this constructor is needed for serialization
      * @since 2019-10-08
      */
@@ -30,6 +31,7 @@ public class AbstractLobbyRequest extends AbstractRequestMessage {
     /**
      * Constructor
      *
+     * @author Marco Grawunder
      * @param name name of the lobby
      * @param user user responsible for the creation of this message
      * @since 2019-10-08
@@ -42,6 +44,7 @@ public class AbstractLobbyRequest extends AbstractRequestMessage {
     /**
      * Getter for the name variable
      *
+     * @author Marco Grawunder
      * @return String containing the lobby's name
      * @since 2019-10-08
      */
@@ -52,6 +55,7 @@ public class AbstractLobbyRequest extends AbstractRequestMessage {
     /**
      * Setter for the name variable
      *
+     * @author Marco Grawunder
      * @param name  String containing the lobby's name
      * @since 2019-10-08
      */
@@ -62,6 +66,7 @@ public class AbstractLobbyRequest extends AbstractRequestMessage {
     /**
      * Getter for the user variable
      *
+     * @author Marco Grawunder
      * @return User responsible for the creation of this message
      * @since 2019-10-08
      */
@@ -72,6 +77,7 @@ public class AbstractLobbyRequest extends AbstractRequestMessage {
     /**
      * Setter for the user variable
      *
+     * @author Marco Grawunder
      * @param user  User responsible for the creation of this message
      * @since 2019-10-08
      */

@@ -3,8 +3,8 @@ package de.uol.swp.client.game.HelperObjects;
 /**
  * This class is used for navigating in the 6-angled grid of terrain-fields.
  *
- * @author pieter vogt
- * @since 24-01-2021
+ * @author Pieter Vogt
+ * @since 2021-01-24
  */
 public class Vector {
     //attributes
@@ -33,12 +33,12 @@ public class Vector {
     /**
      * Adds 2 Vectors in JavaFX coordinate-system.
      *<p>
-     *     Because the JavaFX coordinate-system has its origin in the upper left corner and increments only into positive space,
-     *     the addition of two vectors needs to subtract the y-values. The reason is, that - although the x-axis in JavaFX behaves like the x-axis of a normal cartesian system -
-     *     the y-axis doesnt. The values of the y axis actually go up when you go down in screen-direction. To compensate for that, i changed the add- and substract- methods for vectors in the game.
+     * Because the JavaFX coordinate-system has its origin in the upper left corner and increments only into positive space,
+     * the addition of two vectors needs to subtract the y-values. The reason is, that - although the x-axis in JavaFX behaves like the x-axis of a normal cartesian system -
+     * the y-axis doesnt. The values of the y axis actually go up when you go down in screen-direction. To compensate for that, i changed the add- and substract- methods for vectors in the game.
      *</p>
      * @author Pieter Vogt
-     * @since 24-01-2021
+     * @since 2021-01-24
      * @param v1 Vector
      * @param v2 Vector
      * @return Vector as addition result
@@ -50,12 +50,12 @@ public class Vector {
     /**
      * Subtracts 2 Vectors in JavaFX-Coordinate System
      *<p>
-     *     Because the JavaFX coordinate-system has its origin in the upper left corner and increments only into positive space,
-     *     the substraction of two vectors needs to add the y-values. The reason is, that - although the x-axis in JavaFX behaves like the x-axis of a normal cartesian system -
-     *     the y-axis doesnt. The values of the y axis actually go up when you go down in screen-direction. To compensate for that, i changed the add- and substract- methods for vectors in the game.
+     *Because the JavaFX coordinate-system has its origin in the upper left corner and increments only into positive space,
+     *the substraction of two vectors needs to add the y-values. The reason is, that - although the x-axis in JavaFX behaves like the x-axis of a normal cartesian system -
+     *the y-axis doesnt. The values of the y axis actually go up when you go down in screen-direction. To compensate for that, i changed the add- and substract- methods for vectors in the game.
      *</p>
      * @author Pieter Vogt
-     * @since 24-01-2021
+     * @since 2021-01-24
      * @param v1 Vector
      * @param v2 Vector
      * @return Vector as subtraction result

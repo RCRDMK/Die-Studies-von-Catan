@@ -19,6 +19,7 @@ public interface ConnectionListener {
 	/**
 	 * Is called when the connection to the server has been established
 	 *
+	 * @author Marco Grawunder
 	 * @param channel The netty channel the connection is established on
 	 * @see de.uol.swp.client.ClientConnection
 	 * @since 2017-03-17
@@ -28,6 +29,7 @@ public interface ConnectionListener {
 	/**
 	 * If the server sends an exception, this method is called
 	 *
+	 * @author Marco Grawunder
 	 * @param cause The cause which led to sending the exception
 	 * @see de.uol.swp.client.ClientConnection
 	 * @since 2017-03-17
