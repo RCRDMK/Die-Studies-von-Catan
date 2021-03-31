@@ -1,6 +1,7 @@
 package de.uol.swp.client.game.GameObjects;
 
 import de.uol.swp.client.game.HelperObjects.Vector;
+import javafx.scene.Node;
 import javafx.scene.paint.Color;
 
 /**
@@ -17,13 +18,13 @@ public class TerrainField {
     private int diceToken; //you need to roll this with the dice to generate the resources in this terrainfield.
     private Vector position; //the absolute postion in x and y on the playfield.
     private final Vector placementVector; //this is a relative vector that determines the direction to the card wich was placed before this one.
-
+    private Node node;
 
     /**
      * Constructor
      *
-     * @author Pieter Vogt
      * @param placementVector
+     * @author Pieter Vogt
      * @since 2021-01-24
      */
     public TerrainField(Vector placementVector) {
@@ -34,8 +35,8 @@ public class TerrainField {
     /**
      * Getter for the name variable
      *
-     * @author Pieter Vogt
      * @return String containing the name of the TerrainField
+     * @author Pieter Vogt
      * @since 2021-01-24
      */
     public String getName() {
@@ -45,8 +46,8 @@ public class TerrainField {
     /**
      * Setter for the name variable
      *
-     * @author Pieter Vogt
      * @param name String containing the new name of the TerrainField
+     * @author Pieter Vogt
      * @since 2021-01-24
      */
     public void setName(String name) {
@@ -56,8 +57,8 @@ public class TerrainField {
     /**
      * Getter for the diceToken variable
      *
-     * @author Pieter Vogt
      * @return int containing the value of the diceTokens of the TerrainField
+     * @author Pieter Vogt
      * @since 2021-01-24
      */
     public int getDiceToken() {
@@ -67,17 +68,19 @@ public class TerrainField {
     /**
      * Setter for the diceTokens variable
      *
-     * @author Pieter Vogt
      * @param diceToken int containing the value of the diceTokens of this Terrainfield
+     * @author Pieter Vogt
      * @since 2021-01-24
      */
-    public void setDiceToken(int diceToken) {this.diceToken = diceToken;}
+    public void setDiceToken(int diceToken) {
+        this.diceToken = diceToken;
+    }
 
     /**
      * Getter for the position variable
      *
-     * @author Pieter Vogt
      * @return Vector containing the absolute position of the TerrainField
+     * @author Pieter Vogt
      * @since 2021-01-24
      */
     public Vector getPosition() {
@@ -87,8 +90,8 @@ public class TerrainField {
     /**
      * Setter for the position variable
      *
-     * @author Pieter Vogt
      * @param position Vector containing the new absolute position
+     * @author Pieter Vogt
      * @since 2021-01-24
      */
     public void setPosition(Vector position) {
@@ -98,8 +101,8 @@ public class TerrainField {
     /**
      * Getter for the placementVector variable
      *
-     * @author Pieter Vogt
      * @return Vector containing the (relative position) placementVector of the TerrainField
+     * @author Pieter Vogt
      * @since 2021-01-24
      */
     public Vector getPlacementVector() {
@@ -107,7 +110,30 @@ public class TerrainField {
     }
 
     /**
+     * Getter for the Node of this TerrainField
+     *
+     * @return the Node object of this TerrainField
+     * @author Marc Hermes
+     * @since 2021-03-31
+     */
+    public Node getNode() {
+        return this.node;
+    }
+
+    /**
+     * Setter for the Node of this TerrainField
+     *
+     * @param node the Node object to be set for this TerrainField
+     * @author Marc Hermes
+     * @since 2021-03-31
+     */
+    public void setNode(Node node) {
+        this.node = node;
+    }
+
+    /**
      * determines the color to draw its host-object
+     *
      * @return the color for the host-object
      * @author Pieter Vogt
      * @since 2021-01-04
