@@ -17,6 +17,7 @@ interface ServerHandlerDelegate {
 	/**
 	 * Is called when a new client connects
 	 *
+	 * @author Marco Grawunder
      * @param ctx The MessageContext for this client
 	 * @since 2017-03-17
 	 */
@@ -25,6 +26,7 @@ interface ServerHandlerDelegate {
 	/**
 	 * Is called when a client disconnects
 	 *
+	 * @author Marco Grawunder
      * @param ctx The MessageContext for this client
 	 * @since 2017-03-17
 	 */
@@ -34,6 +36,7 @@ interface ServerHandlerDelegate {
 	 * A message from a client connected via the ChannelHandlerContext ctx is received 
 	 * and can be processed
 	 *
+	 * @author Marco Grawunder
 	 * @param msg The message send from the client
 	 * @since 2017-03-17
 	 */

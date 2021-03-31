@@ -149,9 +149,9 @@ public class UserManagement extends AbstractUserManagement {
      * This method updates the mail from the User in the database. It throws an exception if the user is not present in
      * the database.
      *
+     * @return A new UserDTO with the username and the mail address
      * @author Carsten Dekker
      * @see java.sql.SQLException
-     * @return A new UserDTO with the username and the mail address
      * @since 2021-03-12
      */
     @Override
@@ -193,9 +193,9 @@ public class UserManagement extends AbstractUserManagement {
      * in the database or if the password, that the user entered in the UserSettingsView, is not the same as the
      * currently used password.
      *
+     * @return A new UserDTO with the username and the mail address
      * @author Carsten Dekker
      * @see java.sql.SQLException
-     * @return A new UserDTO with the username and the mail address
      * @since 2021-03-12
      */
     @Override
@@ -212,8 +212,8 @@ public class UserManagement extends AbstractUserManagement {
             throw new UserManagementException("Username unknown!");
         }
         String newPassword = "";
-        if(resultSet.next()) {
-            if(resultSet.getString(2).equals(currentPassword)) {
+        if (resultSet.next()) {
+            if (resultSet.getString(2).equals(currentPassword)) {
                 try {
                     newPassword = firstNotNull(toUpdatePassword.getPassword(), resultSet.getString("password"));
                     String updateUserString = "update user set password=? where name=?;";
@@ -238,6 +238,7 @@ public class UserManagement extends AbstractUserManagement {
      * Deletes the user in the database.
      * <p>
      * This method drops the user from the database.
+     * If the user is still logged in, he/she will be logged out before being deleted.
      *
      * @author Carsten Dekker
      * @see java.sql.SQLException
@@ -246,6 +247,9 @@ public class UserManagement extends AbstractUserManagement {
     @Override
     public void dropUser(User userToDrop) throws SQLException {
         String selectUserString = "select name from user where name =?;";
+        if (isLoggedIn(userToDrop)) {
+            logout(userToDrop);
+        }
         try {
             PreparedStatement dropUser = connection.prepareStatement(selectUserString);
             dropUser.setString(1, userToDrop.getUsername());
@@ -270,6 +274,7 @@ public class UserManagement extends AbstractUserManagement {
      * This method is used to set the new user values to the old ones if the values
      * in the update request were empty.
      *
+     * @author Marco Grawunder
      * @param firstValue  value to update to, empty String or null
      * @param secondValue the old value
      * @return String containing the value to be used in the update command
@@ -321,9 +326,9 @@ public class UserManagement extends AbstractUserManagement {
      * This method selects the mail from the User and creates a new UserDTO with the mail and an empty password.
      * The UserDTO gets returned to the UserService.
      *
+     * @return A new UserDTO with the username and the mail address
      * @author Carsten Dekker
      * @see java.sql.SQLException
-     * @return A new UserDTO with the username and the mail address
      * @since 2021-03-12
      */
     @Override
@@ -335,7 +340,7 @@ public class UserManagement extends AbstractUserManagement {
             preparedStatement = connection.prepareStatement(selectMail);
             preparedStatement.setString(1, toGetInformation.getUsername());
             resultSet = preparedStatement.executeQuery();
-        } catch (Exception e){
+        } catch (Exception e) {
             LOG.debug(e);
             throw new UserManagementException("Username unknown");
         }

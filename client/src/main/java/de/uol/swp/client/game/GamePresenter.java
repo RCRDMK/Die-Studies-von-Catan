@@ -5,19 +5,26 @@ import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
 import de.uol.swp.client.chat.ChatService;
 
+import de.uol.swp.client.game.GameObjects.BuildingField;
 import de.uol.swp.client.lobby.LobbyService;
 
 import de.uol.swp.common.game.message.GameCreatedMessage;
 
 import de.uol.swp.client.game.GameObjects.TerrainField;
 import de.uol.swp.client.game.HelperObjects.Vector;
+import de.uol.swp.client.lobby.LobbyService;
+import de.uol.swp.common.chat.RequestChatMessage;
+import de.uol.swp.common.chat.ResponseChatMessage;
 import de.uol.swp.common.game.GameField;
 import de.uol.swp.common.game.TerrainFieldContainer;
+import de.uol.swp.common.game.message.GameCreatedMessage;
+import de.uol.swp.common.game.message.NextTurnMessage;
 
 import de.uol.swp.common.chat.RequestChatMessage;
 import de.uol.swp.common.chat.ResponseChatMessage;
 
 import de.uol.swp.common.game.message.UserLeftGameMessage;
+import de.uol.swp.common.game.request.EndTurnRequest;
 import de.uol.swp.common.user.User;
 
 import de.uol.swp.common.user.UserDTO;
@@ -30,6 +37,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
@@ -41,11 +49,14 @@ import java.util.List;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Manages the GameView
  * <p>
  * Class was build exactly like LobbyPresenter.
+ * <p>
+ * enhanced by Pieter Vogt 2021-03-26
  *
  * @author Carsten Dekker
  * @see de.uol.swp.client.AbstractPresenter
@@ -66,6 +77,13 @@ public class GamePresenter extends AbstractPresenter {
 
     //Container for TerrainFields
     private TerrainField[] tfArray;
+
+    //Container for BuildingFields
+    private BuildingField[] buildArray;
+
+    //Container for StreetFields
+    private BuildingField[] streetArray;
+
 
     @Inject
     private GameService gameService;
@@ -88,6 +106,12 @@ public class GamePresenter extends AbstractPresenter {
     @FXML
     private ListView<String> gameUsersView;
 
+    public GamePresenter() {
+    }
+
+
+    @FXML
+    private Button EndTurnButton;
 
     /**
      * Method called when the send Message button is pressed
@@ -132,28 +156,6 @@ public class GamePresenter extends AbstractPresenter {
     }
 
     /**
-     * The Method invoked by onResponseChatMessage()
-     * <p>
-     * If the currentLobby is not null, meaning this is an not an empty LobbyPresenter and the lobby name stored
-     * in this LobbyPresenter equals the one in the received Response, the method updateChat is invoked
-     * to update the chat of the currentLobby in regards to the input given by the response.
-     *
-     * @param rcm the ResponseChatMessage given by the original subscriber method.
-     * @author Alexander Losse, Marc Hermes
-     * @see de.uol.swp.common.chat.ResponseChatMessage
-     * @since 2021-01-20
-     */
-    public void onResponseChatMessageLogic(ResponseChatMessage rcm) {
-        // Only update Messages from used game chat
-        if (this.currentLobby != null) {
-            if (rcm.getChat().equals("game_" + currentLobby)) {
-                LOG.debug("Updated game chat area with new message..");
-                updateChat(rcm);
-            }
-        }
-    }
-
-    /**
      * Adds the ResponseChatMessage to the textArea
      *
      * @param message
@@ -170,23 +172,25 @@ public class GamePresenter extends AbstractPresenter {
     }
 
     /**
-     * Method called when the RollDice button is pressed
+     * The Method invoked by onResponseChatMessage()
      * <p>
-     * If the RollDice button is pressed, this methods tries to request the GameService to send a RollDiceRequest.
+     * If the currentLobby is not null, meaning this is an not an empty LobbyPresenter and the lobby name stored in this
+     * LobbyPresenter equals the one in the received Response, the method updateChat is invoked to update the chat of
+     * the currentLobby in regards to the input given by the response.
      *
-     * @param event The ActionEvent created by pressing the Roll Dice button
-     * @author Kirstin, Pieter
-     * @see de.uol.swp.client.game.GameService
-     * @since 2021-01-07
-     * <p>
-     * Enhanced by Carsten Dekker
-     * @since 2021-01-13
-     * <p>
-     * I have changed the place of the method to the new GamePresenter.
+     * @param rcm the ResponseChatMessage given by the original subscriber method.
+     * @author Alexander Losse, Marc Hermes
+     * @see de.uol.swp.common.chat.ResponseChatMessage
+     * @since 2021-01-20
      */
-    @FXML
-    public void onRollDice(ActionEvent event) {
-        gameService.rollDice(this.currentLobby, this.joinedLobbyUser);
+    public void onResponseChatMessageLogic(ResponseChatMessage rcm) {
+        // Only update Messages from used game chat
+        if (this.currentLobby != null) {
+            if (rcm.getChat().equals("game_" + currentLobby)) {
+                LOG.debug("Updated game chat area with new message..");
+                updateChat(rcm);
+            }
+        }
     }
 
     @FXML
@@ -215,6 +219,31 @@ public class GamePresenter extends AbstractPresenter {
     }
 
     /**
+     * Method called when the RollDice button is pressed
+     * <p>
+     * If the RollDice button is pressed, this methods tries to request the GameService to send a RollDiceRequest.
+     *
+     * @param event The ActionEvent created by pressing the Roll Dice button
+     * @author Kirstin, Pieter
+     * @see de.uol.swp.client.game.GameService
+     * @since 2021-01-07
+     * <p>
+     * Enhanced by Carsten Dekker
+     * @since 2021-01-13
+     * <p>
+     * I have changed the place of the method to the new GamePresenter.
+     */
+    @FXML
+    public void onRollDice(ActionEvent event) {
+        gameService.rollDice(this.currentLobby, this.joinedLobbyUser);
+    }
+
+    @FXML
+    public void onEndTurn(ActionEvent event) {
+        eventBus.post(new EndTurnRequest(this.currentLobby, (UserDTO) this.joinedLobbyUser));
+    }
+
+    /**
      * Handles successful game creation
      * <p>
      * If a GameCreatedMessage is detected on the EventBus this method invokes gameStartedSuccessfulLogic.
@@ -233,8 +262,8 @@ public class GamePresenter extends AbstractPresenter {
      * The Method invoked by gameStartedSuccessful()
      * <p>
      * If the currentLobby is null, meaning this is an empty GamePresenter that is ready to be used for a new game tab,
-     * the parameters of this GamePresenter are updated to the User and Lobby given by the gcm Message.
-     * An update of the Users in the currentLobby is also requested.
+     * the parameters of this GamePresenter are updated to the User and Lobby given by the gcm Message. An update of the
+     * Users in the currentLobby is also requested.
      *
      * @param gcm the GameCreatedMessage given by the original subscriber method.
      * @author Alexander Losse, Ricardo Mook
@@ -247,7 +276,7 @@ public class GamePresenter extends AbstractPresenter {
             LOG.debug("Requesting update of User list in game scene because game scene was created.");
             this.joinedLobbyUser = gcm.getUser();
             this.currentLobby = gcm.getName();
-            gameService.retrieveAllThisGameUsers(gcm.getName());
+            updateGameUsersList(gcm.getUsers());
             initializeGameField(gcm.getGameField());
         }
     }
@@ -268,11 +297,28 @@ public class GamePresenter extends AbstractPresenter {
     }
 
     /**
+     * Changes the clickability of the button for ending your turn.
+     *
+     * <p>This method checks, if the the games name equals the name of the game in the message. If so, and if you are
+     * the player with the current turn (transported in message), your button for ending your turn gets clickable. If
+     * not, it becomes unclickable.</p>
+     *
+     * @param response
+     */
+    @Subscribe
+    public void nextPlayerTurn(NextTurnMessage response) {
+        if (response.getGameName().equals(currentLobby)) {
+            if (response.getPlayerWithCurrentTurn().equals(joinedLobbyUser.getUsername())) {
+                EndTurnButton.setDisable(false);
+            } else EndTurnButton.setDisable(true);
+        }
+    }
+
+    /**
      * The method invoked by gameLeftSuccessful()
      * <p>
-     * If the Game is left, meaning this Game Presenter is no longer needed,
-     * this presenter will no longer be registered on the event bus and no longer
-     * be reachable for responses, messages etc.
+     * If the Game is left, meaning this Game Presenter is no longer needed, this presenter will no longer be registered
+     * on the event bus and no longer be reachable for responses, messages etc.
      *
      * @param glsr the GameLeftSuccessfulResponse given by the original subscriber method
      * @author Marc Hermes
@@ -282,7 +328,6 @@ public class GamePresenter extends AbstractPresenter {
     public void gameLeftSuccessfulLogic(GameLeftSuccessfulResponse glsr) {
         if (this.currentLobby != null) {
             if (this.currentLobby.equals(glsr.getName())) {
-
                 this.currentLobby = null;
                 clearEventBus();
             }
@@ -292,9 +337,8 @@ public class GamePresenter extends AbstractPresenter {
     /**
      * Method called when the leaveGame Button is pressed
      * <p>
-     * If the leaveGameButton is pressed,
-     * the method tries to call the GameService method leaveGame
-     * It throws a GamePresenterException if joinedLobbyUser and currentLobby are not initialised
+     * If the leaveGameButton is pressed, the method tries to call the GameService method leaveGame It throws a
+     * GamePresenterException if joinedLobbyUser and currentLobby are not initialised
      *
      * @param event
      * @author Ricardo Mook, Alexander Losse
@@ -332,9 +376,9 @@ public class GamePresenter extends AbstractPresenter {
     /**
      * The Method invoked by otherUserLeftSuccessful()
      * <p>
-     * If the currentLobby is not null, meaning this is an not an empty GamePresenter and the game/lobby name stored
-     * in this GamePresenter equals the one in the received Message, an update of the Users in the currentLobby(current game)
-     * is requested.
+     * If the currentLobby is not null, meaning this is an not an empty GamePresenter and the game/lobby name stored in
+     * this GamePresenter equals the one in the received Message, an update of the Users in the currentLobby(current
+     * game) is requested.
      *
      * @param ulgm the UserLeftGameMessage given by the original subscriber method.
      * @author Iskander Yusupov
@@ -358,9 +402,9 @@ public class GamePresenter extends AbstractPresenter {
     /**
      * The Method invoked by gameUserList()
      * <p>
-     * If the currentLobby is not null, meaning this is an not an empty LobbyPresenter and the lobby name stored
-     * in this GamePresenter equals the one in the received Response, the method updateGameUsersList is invoked
-     * to update the List of the Users in the currentLobby in regards to the list given by the response.
+     * If the currentLobby is not null, meaning this is an not an empty LobbyPresenter and the lobby name stored in this
+     * GamePresenter equals the one in the received Response, the method updateGameUsersList is invoked to update the
+     * List of the Users in the currentLobby in regards to the list given by the response.
      *
      * @param atgur the AllThisLobbyUsersResponse given by the original subscriber method.
      * @author Iskander Yusupov
@@ -424,22 +468,25 @@ public class GamePresenter extends AbstractPresenter {
     }
 
     /**
-     * Method for generating an array of terrainFields
+     * Method for generating an array of terrainFields, buildFields and streetFields
      * that have the correct relative and absolute positions to one another
      * <p>
      * enhanced by Marc Hermes - 2021-03-13
+     * enhanced by Kirstin Beyer - 2021-03-28
      *
-     * @return Array with TerrainFields having the correct positions.
-     * @author Pieter Vogt
+     * @return Object containing array with TerrainFields, array with BuildingFields (for streets), array with BuildingFields (for buildings) having the correct positions.
+     * @author Pieter Vogt, Kirstin Beyer
      * @see <a href="https://confluence.swl.informatik.uni-oldenburg.de/display/SWP2020J/SpecCatan_1004+Spielfeld">Specification
      * 1004</a>
      * @since 2021-01-24
      */
-    public TerrainField[] getCorrectPositionsOfFields() {
+    public Object[] getCorrectPositionsOfFields() {
+
+        //TerrainFields
 
         TerrainField[] tempArray;
 
-        //Array of cards get generated in same order as "spielfeld"-finespec in confluence. TODO: This should probably get done by the server in future. Think of this as a test-method wich can be migrated to server later.
+        //Array of cards get generated in same order as "spielfeld"-finespec in confluence.
 
         //beginning of oceans
         TerrainField f0 = new TerrainField(Vector.bottomLeft(cardSize()));
@@ -488,7 +535,61 @@ public class GamePresenter extends AbstractPresenter {
         for (int i = tempArray.length - 2; i >= 0; i--) { // TempArray.length - 2 because the desert-field (upmost "card") was already positioned, so we dont need to handle it again (index out of bounds when whe try to add tempArray[i+1]...)
             tempArray[i].setPosition(Vector.addVector(tempArray[i + 1].getPosition(), tempArray[i].getPlacementVector())); //Add position of last terrainfield and current placement-vector to determine position.
         }
-        return tempArray;
+
+
+        //BuildingFields
+
+        BuildingField[] tempStreetArray = new BuildingField[72];
+        BuildingField[] tempBuildArray = new BuildingField[54];
+
+        int l = 0;
+        int m = 0;
+        Vector tempVec;
+
+        // loop over all terrainFields (except ocean)
+        for (int i = 18; i < 37; i++){
+
+            // loop over 12 positions for each terrainField, even positions j mark buildFields, odd positions j mark streetFields
+            fieldloop:
+            for (int j = 0; j < 12; j++){
+                tempVec = Vector.addVector(tempArray[i].getPosition(),Vector.generalVector(cardSize()/Math.sqrt(2),315));
+
+                if (j % 2 == 0){
+                    tempVec = Vector.addVector(tempVec,Vector.generalVector(cardSize()/Math.sqrt(3),30*j));
+
+                    // check if field is already in array
+                    for (int k = 0; k < l; k++) {
+                        if (Math.abs(tempVec.getX() - tempBuildArray[k].getPosition().getX()) < (cardSize() / 100) && Math.abs(tempVec.getY() - tempBuildArray[k].getPosition().getY()) < (cardSize() / 100)) {
+                            continue fieldloop;
+                        }
+                    }
+                    // add new BuildingField to buildArray
+                    BuildingField b = new BuildingField(tempVec);
+                    b.setName("Settlement");
+                    b.setUsed(false);
+                    tempBuildArray[l] = b;
+                    l++;
+
+                } else {
+                    tempVec = Vector.addVector(tempVec,Vector.generalVector(cardSize()*0.5,30*j));
+
+                    // check if field is already in array
+                    for (int k = 0; k < m; k++){
+                        if (Math.abs(tempVec.getX() - tempStreetArray[k].getPosition().getX()) < cardSize()/100 && Math.abs(tempVec.getY() - tempStreetArray[k].getPosition().getY()) < cardSize()/100) {
+                            continue fieldloop;
+                        }
+                    }
+                    // add new BuildingField to streetArray
+                    BuildingField s = new BuildingField(tempVec);
+                    s.setName("Street");
+                    s.setUsed(false);
+                    tempStreetArray[m] = s;
+                    m++;
+                }
+            }
+        }
+
+        return new Object[]{tempArray, tempStreetArray, tempBuildArray};
     }
 
     /**
@@ -513,17 +614,67 @@ public class GamePresenter extends AbstractPresenter {
         //Draw TerrainFields
         for (int i = tfArray.length - 1; i >= 0; i--) {
             g.setFill(tfArray[i].determineColorOfTerrain()); //Determine draw-color of current Terrainfield.
-            g.fillOval(tfArray[i].getPosition().getX(), tfArray[i].getPosition().getY(), cardSize(), cardSize()); //Draw circle with given color at given position TODO: This - in combination with the Vector.vector-methods - SHOULD be already scaling with canvassize. If and when a scalable Canvas gets implemented, this should be checked.
+            g.fillOval(tfArray[i].getPosition().getX(), tfArray[i].getPosition().getY(), cardSize(), cardSize()); //Draw circle with given color at given position.
+            if (tfArray[i].getDiceToken() != 0) {
+                g.setFill(Color.WHITE);
+                g.fillText(Integer.toString(tfArray[i].getDiceToken()), tfArray[i].getPosition().getX() + (cardSize() / 2), tfArray[i].getPosition().getY() + (cardSize() / 2));
+            }
+        }
+
+        //Draw Buildings
+        for (int i = 0; i < 72; i++) {
+            placeBuilding("Street", streetArray[i].getPosition());
+        }
+        for (int i = 0; i < 54; i++) {
+            placeBuilding("Settlement", buildArray[i].getPosition());
+        }
+    }
+
+    /**
+     * Method to draw buildings to the screen.
+     * <p>
+     * TODO: add logic about building permission for all building types (e.g. street, no other settlement nearby, etc.)
+     *
+     * @author Kirstin
+     * @since 2021-03-28
+     */
+    public void placeBuilding(String building, Vector position) {
+        GraphicsContext g = this.canvas.getGraphicsContext2D();
+        Color color = Color.RED;
+        g.setFill(color);
+        g.setLineWidth(cardSize()/10);
+
+        switch (building) {
+            case "Street":
+                double itemSize = cardSize() / 8;
+                Vector drawPosition = Vector.addVector(position,Vector.generalVector(itemSize/Math.sqrt(2),135));
+                double x = drawPosition.getX();
+                double y = drawPosition.getY();
+                g.fillOval(x, y, itemSize, itemSize);
+                break;
+            case "Settlement":
+                itemSize = cardSize() / 4;
+                drawPosition = Vector.addVector(position,Vector.generalVector(itemSize/Math.sqrt(2),135));
+                x = drawPosition.getX();
+                y = drawPosition.getY();
+                g.fillOval(x, y, itemSize, itemSize);
+                break;
+            case "Town":
+                itemSize = cardSize() / 3;
+                drawPosition = Vector.addVector(position,Vector.generalVector(itemSize/Math.sqrt(2),135));
+                x = drawPosition.getX();
+                y = drawPosition.getY();
+                g.fillOval(x, y, itemSize, itemSize);
+                break;
         }
     }
 
     /**
      * Method to initialize the GameField of this GamePresenter of this client
      * <p>
-     * First creates the tfArray, then iterates over the terrainFieldContainers of the gameField
-     * to get the diceTokens values and copies them to the tfArray of this GamePresenter.
-     * Then the values of the fieldTypes are checked and translated into the correct String names
-     * of the tfArray TerrainFields.
+     * First creates the tfArray, then iterates over the terrainFieldContainers of the gameField to get the diceTokens
+     * values and copies them to the tfArray of this GamePresenter. Then the values of the fieldTypes are checked and
+     * translated into the correct String names of the tfArray TerrainFields.
      *
      * @param gameField the gameField given by the Server
      * @author Marc Hermes
@@ -532,7 +683,11 @@ public class GamePresenter extends AbstractPresenter {
      * @see de.uol.swp.common.game.TerrainFieldContainer
      */
     public void initializeGameField(GameField gameField) {
-        tfArray = getCorrectPositionsOfFields();
+        Object[] obj = getCorrectPositionsOfFields();
+        tfArray = (TerrainField[]) obj[0];
+        streetArray = (BuildingField[]) obj[1];
+        buildArray = (BuildingField[]) obj[2];
+
         TerrainFieldContainer[] terrainFieldContainers = gameField.getTFCs();
         for (int i = 0; i < terrainFieldContainers.length; i++) {
             tfArray[i].setDiceToken(terrainFieldContainers[i].getDiceTokens());

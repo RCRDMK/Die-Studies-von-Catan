@@ -13,13 +13,16 @@ import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.lobby.request.LobbyJoinUserRequest;
 import de.uol.swp.common.user.request.*;
 import de.uol.swp.common.user.response.lobby.LobbyCreatedSuccessfulResponse;
+import org.checkerframework.checker.units.qual.A;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.Array;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -277,7 +280,9 @@ class LobbyServiceTest {
         lobbyService.createNewLobby("test", (UserDTO) defaultUser);
         LobbyCreatedSuccessfulResponse message2 = new LobbyCreatedSuccessfulResponse(defaultUser);
         lobbyService.joinLobby("test", (UserDTO) defaultUser2);
-        UserJoinedLobbyMessage message3 = new UserJoinedLobbyMessage("test", (UserDTO) defaultUser2);
+        ArrayList<UserDTO> users = new ArrayList<>();
+        users.add((UserDTO) defaultUser);
+        UserJoinedLobbyMessage message3 = new UserJoinedLobbyMessage("test", (UserDTO) defaultUser2,users);
         lobbyService.leaveLobby("test", (UserDTO) defaultUser2);
         lock.await(1000, TimeUnit.MILLISECONDS);
         assertTrue(event instanceof LobbyLeaveUserRequest);
@@ -299,7 +304,9 @@ class LobbyServiceTest {
         lobbyService.createNewLobby("test", (UserDTO) defaultUser);
         LobbyCreatedSuccessfulResponse message2 = new LobbyCreatedSuccessfulResponse(defaultUser);
         lobbyService.joinLobby("test", (UserDTO) defaultUser2);
-        UserJoinedLobbyMessage message3 = new UserJoinedLobbyMessage("test", (UserDTO) defaultUser2);
+        ArrayList<UserDTO> users = new ArrayList<>();
+        users.add((UserDTO) defaultUser);
+        UserJoinedLobbyMessage message3 = new UserJoinedLobbyMessage("test", (UserDTO) defaultUser2, users);
         lobbyService.leaveLobby("test", (UserDTO) defaultUser);
         lock.await(1000, TimeUnit.MILLISECONDS);
         assertTrue(event instanceof LobbyLeaveUserRequest);

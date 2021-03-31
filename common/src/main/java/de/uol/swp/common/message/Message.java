@@ -18,6 +18,7 @@ public interface Message extends Serializable{
 	/**
 	 * Allows to set a MessageContext, e.g. for network purposes
 	 *
+	 * @author Marco Grawunder
 	 * @param messageContext the MessageContext to be set
 	 * @see de.uol.swp.common.message.MessageContext
 	 * @since 2019-08-13
@@ -27,6 +28,7 @@ public interface Message extends Serializable{
 	/**
 	 * Retrieve the current message context
 	 *
+	 * @author Marco Grawunder
 	 * @implNote .isPresent() to check if the MessageContext got set
 	 * @implNote .get() to get the MessageContext object
 	 * @return Empty optional object or MessageContext
@@ -38,6 +40,7 @@ public interface Message extends Serializable{
 	/**
 	 * Set the current session
 	 *
+	 * @author Marco Grawunder
 	 * @param session the current session
 	 * @see de.uol.swp.common.user.Session
 	 * @since 2019-08-13
@@ -47,6 +50,7 @@ public interface Message extends Serializable{
 	/**
 	 * Retrieve current session
 	 *
+	 * @author Marco Grawunder
 	 * @implNote .isPresent() to check if the Session got set
 	 * @implNote .get() to get the Session object
 	 * @return Empty optional object or MessageContext
@@ -58,6 +62,7 @@ public interface Message extends Serializable{
 	 * Allow to create a new message, based on
 	 * the given one (copy)
 	 *
+	 * @author Marco Grawunder
 	 * @param otherMessage original Message
 	 * @since 2019-08-13
 	 */

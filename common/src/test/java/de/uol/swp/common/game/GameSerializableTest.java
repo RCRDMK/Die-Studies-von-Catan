@@ -1,3 +1,4 @@
+
 package de.uol.swp.common.game;
 
 import de.uol.swp.common.SerializationTestHelper;
@@ -10,20 +11,19 @@ import de.uol.swp.common.user.UserDTO;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
-import java.util.Collection;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class GameSerializableTest {
     private static final UserDTO defaultUser = new UserDTO("marco", "marco", "marco@grawunder.de");
     private static final ArrayList<Game> defaultCollection = new ArrayList<>();
-    private static final GameField defaultGameField = new GameField();
+    private static final GameField defaultGameField = new GameField("Standard");
 
     @Test
     void testGameMessagesSerializable(){
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new AbstractGameMessage(defaultUser.getUsername(), defaultUser),
                 AbstractGameMessage.class));
-        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new GameCreatedMessage("test", defaultUser, defaultGameField),
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new GameCreatedMessage("test", defaultUser, defaultGameField, new ArrayList<>()),
                 GameCreatedMessage.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new GameDroppedMessage("test"),
                 GameDroppedMessage.class));
@@ -31,7 +31,7 @@ public class GameSerializableTest {
                 GameSizeChangedMessage.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new NotEnoughPlayersMessage("test"),
                 NotEnoughPlayersMessage.class));
-        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new UserLeftGameMessage("test", defaultUser),
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new UserLeftGameMessage("test", defaultUser,new ArrayList<>()),
                 UserLeftGameMessage.class));
     }
 
@@ -61,3 +61,4 @@ public class GameSerializableTest {
                 NotLobbyOwnerResponse.class));
     }
 }
+

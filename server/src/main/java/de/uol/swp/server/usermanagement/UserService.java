@@ -40,6 +40,7 @@ public class UserService extends AbstractService {
     /**
      * Constructor
      *
+     * @author Marco Grawunder
      * @param eventBus       the EventBus used throughout the entire server (injected)
      * @param userManagement object of the UserManagement to use
      * @see de.uol.swp.server.usermanagement.UserManagement
@@ -60,6 +61,7 @@ public class UserService extends AbstractService {
      * RegistrationSuccessfulResponse is posted on the EventBus otherwise a RegistrationExceptionMessage
      * gets posted there.
      *
+     * @author Marco Grawunder
      * @param msg The RegisterUserRequest found on the EventBus
      * @see de.uol.swp.server.usermanagement.UserManagement#createUser(User)
      * @see de.uol.swp.common.user.request.RegisterUserRequest

@@ -14,6 +14,7 @@ import de.uol.swp.common.message.MessageContext;
 import de.uol.swp.common.message.ResponseMessage;
 import de.uol.swp.common.message.ServerMessage;
 import de.uol.swp.common.user.Session;
+import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.user.request.LogoutRequest;
 import de.uol.swp.common.user.response.lobby.*;
@@ -44,8 +45,8 @@ public class LobbyService extends AbstractService {
      * Constructor
      * <p>
      *
-     * @param lobbyManagement       The management class for creating, storing and deleting
-     *                              lobbies
+     * @author Marco Grawunder
+     * @param lobbyManagement       The management class for creating, storing and deleting lobbies
      * @param authenticationService the user management
      * @param eventBus              the server-wide EventBus
      * @since 2019-10-08
@@ -61,17 +62,16 @@ public class LobbyService extends AbstractService {
     /**
      * Handles CreateLobbyRequests found on the EventBus
      * <p>
-     * If a CreateLobbyRequest is detected on the EventBus, this method is called.
-     * It creates a new Lobby via the LobbyManagement using the parameters from the
-     * request and sends a LobbyCreatedMessage to every connected user
+     * If a CreateLobbyRequest is detected on the EventBus, this method is called. It creates a new Lobby via the
+     * LobbyManagement using the parameters from the request and sends a LobbyCreatedMessage to every connected user
      * <p>
-     * It also creates a LobbyCreatedSuccessfulResponse and sends it to the owner of the Lobby, by looking at the context
-     * of the createLobbyRequest
+     * It also creates a LobbyCreatedSuccessfulResponse and sends it to the owner of the Lobby, by looking at the
+     * context of the createLobbyRequest
      * <p>
      * Method was enhanced by Marc Hermes, 2020-11-25
      * <p>
-     * Enhanced the Method with a query, so that if a lobby with the same name, as a lobby that already exists, can't be created.
-     * Also there is a LobbyAlreadyExistsResponse sent to the user, that wanted to create the lobby.
+     * Enhanced the Method with a query, so that if a lobby with the same name, as a lobby that already exists, can't be
+     * created. Also there is a LobbyAlreadyExistsResponse sent to the user, that wanted to create the lobby.
      * <p>
      * Method enhanced by Marius Birk and Carsten Dekker, 2020-12-02
      *
@@ -122,6 +122,7 @@ public class LobbyService extends AbstractService {
      * @since 2019-10-08
      * <p>
      * Enhanced by Carsten Dekker
+     * enhanced by Marc Hermes 2021-03-25
      * <p>
      * If a user already joined the lobby, he gets an AlreadyJoinedThisLobbyResponse.
      * @since 2021-01-22
@@ -134,7 +135,9 @@ public class LobbyService extends AbstractService {
         }
         if (lobby.get().getUsers().size() < 4 && !lobby.get().getUsers().contains(lobbyJoinUserRequest.getUser()) && lobbyJoinUserRequest.getMessageContext().isPresent()) {
             lobby.get().joinUser(lobbyJoinUserRequest.getUser());
-            sendToAllInLobby(lobbyJoinUserRequest.getName(), new UserJoinedLobbyMessage(lobbyJoinUserRequest.getName(), lobbyJoinUserRequest.getUser()));
+            ArrayList<UserDTO> usersInLobby = new ArrayList<>();
+            for (User user : lobby.get().getUsers()) usersInLobby.add(UserDTO.createWithoutPassword(user));
+            sendToAllInLobby(lobbyJoinUserRequest.getName(), new UserJoinedLobbyMessage(lobbyJoinUserRequest.getName(), lobbyJoinUserRequest.getUser(), usersInLobby));
             sendToSpecificUser(lobbyJoinUserRequest.getMessageContext().get(), new LobbyJoinedSuccessfulResponse(lobbyJoinUserRequest.getName(), lobbyJoinUserRequest.getUser()));
             sendToAll(new LobbySizeChangedMessage(lobbyJoinUserRequest.getName()));
         } else {
@@ -154,6 +157,8 @@ public class LobbyService extends AbstractService {
      * UserLeftLobbyMessage to every user in the lobby.
      * <p>
      * If a lobby was deleted, this methode will return a JoinDeletedLobbyResponse to the user who requested to join the lobby
+     *
+     * enhanced by Marc Hermes 2021-03-25
      *
      * @param lobbyLeaveUserRequest The LobbyJoinUserRequest found on the EventBus
      * @author Marco Grawunder
@@ -184,7 +189,9 @@ public class LobbyService extends AbstractService {
                 }
                 lobby.get().leaveUser(lobbyLeaveUserRequest.getUser());
                 sendToAll(new LobbySizeChangedMessage(lobbyLeaveUserRequest.getName()));
-                sendToAllInLobby(lobbyLeaveUserRequest.getName(), new UserLeftLobbyMessage(lobbyLeaveUserRequest.getName(), lobbyLeaveUserRequest.getUser()));
+                ArrayList<UserDTO> remainingUsers = new ArrayList<>();
+                for (User user : lobby.get().getUsers()) remainingUsers.add(UserDTO.createWithoutPassword(user));
+                sendToAllInLobby(lobbyLeaveUserRequest.getName(), new UserLeftLobbyMessage(lobbyLeaveUserRequest.getName(), lobbyLeaveUserRequest.getUser(), remainingUsers, lobby.get().getOwner().getUsername()));
             }
         } else {
             throw new LobbyManagementException("Lobby unknown!");
@@ -194,8 +201,8 @@ public class LobbyService extends AbstractService {
     /**
      * Handles RetrieveAllThisLobbyUsersRequests found on the EventBus
      * <p>
-     * If a RetrieveAllThisLobbyUsersRequests is detected on the EventBus, this method is called.
-     * It prepares the sending of a AllThisLobbyUsersResponse for a specific user that sent the initial request.
+     * If a RetrieveAllThisLobbyUsersRequests is detected on the EventBus, this method is called. It prepares the
+     * sending of a AllThisLobbyUsersResponse for a specific user that sent the initial request.
      *
      * @param retrieveAllThisLobbyUsersRequest The RetrieveAllThisLobbyUsersRequest found on the EventBus
      * @author Marc Hermes, Ricardo Mook
@@ -254,8 +261,8 @@ public class LobbyService extends AbstractService {
     }
 
     /**
-     * This method retrieves the RetrieveAllLobbiesRequest and creates a AllCreatedLobbiesResponse with all
-     * lobbies in the lobbyManagement.
+     * This method retrieves the RetrieveAllLobbiesRequest and creates a AllCreatedLobbiesResponse with all lobbies in
+     * the lobbyManagement.
      *
      * @param msg RetrieveAllLobbiesRequest
      * @author Carsten Dekker and Marius Birk

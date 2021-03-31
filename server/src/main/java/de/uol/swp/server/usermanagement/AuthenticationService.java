@@ -52,6 +52,7 @@ public class AuthenticationService extends AbstractService {
     /**
      * Constructor
      *
+     * @author Marco Grawunder
      * @param bus            The EventBus used throughout the entire server
      * @param userManagement object of the UserManagement to use
      * @see de.uol.swp.server.usermanagement.UserManagement
@@ -68,6 +69,7 @@ public class AuthenticationService extends AbstractService {
     /**
      * Searches the Session for a given user
      *
+     * @author Marco Grawunder
      * @param user user whose Session is to be searched
      * @return either empty Optional or Optional containing the Session
      * @see de.uol.swp.common.user.Session
@@ -82,6 +84,7 @@ public class AuthenticationService extends AbstractService {
     /**
      * Searches the Sessions for a Set of given users
      *
+     * @author Marco Grawunder
      * @param users Set of users whose Sessions are to be searched
      * @return List containing the Sessions that where found
      * @see de.uol.swp.common.user.Session
@@ -152,8 +155,8 @@ public class AuthenticationService extends AbstractService {
      * his Session are removed from the userSessions Map and a UserLoggedOutMessage
      * is posted on the EventBus.
      *
-     * @author Marco, Philip, Marc
      * @param msg the LogoutRequest
+     * @author Marco, Philip, Marc
      * @see de.uol.swp.common.user.request.LogoutRequest
      * @see de.uol.swp.common.user.message.UserLoggedOutMessage
      * @since 2021-03-14
@@ -189,6 +192,7 @@ public class AuthenticationService extends AbstractService {
      * is called. It posts a AllOnlineUsersResponse containing user objects for
      * every logged in user on the EventBus.
      *
+     * @author Marco Grawunder
      * @param msg RetrieveAllOnlineUsersRequest found on the EventBus
      * @see de.uol.swp.common.user.request.RetrieveAllOnlineUsersRequest
      * @see de.uol.swp.common.user.response.AllOnlineUsersResponse
@@ -237,10 +241,10 @@ public class AuthenticationService extends AbstractService {
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
-                List<User> userToDrop = activeUserList.checkActiveUser();
-                if (userToDrop.size() >= 1) {
-                    for (int i = 0; i < userToDrop.size(); i++) {
-                        Optional<Session> session = getSession(userToDrop.get(i));
+                List<User> userToLogout = activeUserList.checkActiveUser();
+                if (userToLogout.size() >= 1) {
+                    for (int i = 0; i < userToLogout.size(); i++) {
+                        Optional<Session> session = getSession(userToLogout.get(i));
                         if (session.isPresent()) {
                             LogoutRequest logoutRequest = new LogoutRequest();
                             logoutRequest.setSession(session.get());

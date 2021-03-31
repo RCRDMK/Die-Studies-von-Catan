@@ -6,8 +6,6 @@ import com.google.inject.Inject;
 import de.uol.swp.common.game.request.GameLeaveUserRequest;
 import de.uol.swp.common.game.request.RetrieveAllGamesRequest;
 import de.uol.swp.common.game.request.RetrieveAllThisGameUsersRequest;
-import de.uol.swp.common.lobby.request.RetrieveAllLobbiesRequest;
-import de.uol.swp.common.lobby.request.RetrieveAllThisLobbyUsersRequest;
 import de.uol.swp.common.game.request.RollDiceRequest;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
@@ -90,4 +88,5 @@ public class GameService {
         GameLeaveUserRequest leaveRequest = new GameLeaveUserRequest(game, (UserDTO) user);
         eventBus.post(leaveRequest);
     }
+
 }

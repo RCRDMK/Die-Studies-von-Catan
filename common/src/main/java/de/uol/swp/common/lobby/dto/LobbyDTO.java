@@ -9,10 +9,12 @@ import java.util.TreeSet;
 
 /**
  * Object to transfer the information of a game lobby
- *
+ * <p>
  * This object is used to communicate the current state of game lobbies between
  * the server and clients. It contains information about the Name of the lobby,
  * who owns the lobby and who joined the lobby.
+ *
+ * enhanced by Marc Hermes 2021-03-25
  *
  * @author Marco Grawunder
  * @since 2019-10-08
@@ -23,12 +25,15 @@ public class LobbyDTO implements Lobby {
     private User owner;
     private final Set<User> users = new TreeSet<>();
     private final Set<User> playersReady = new TreeSet<>();
-
+    private int rdyResponsesReceived = 0;
+    private boolean gameShouldStart = false;
+    private String gameFieldVariant;
 
 
     /**
      * Constructor
      *
+     * @author Marco Grawunder
      * @param name    The name the lobby should have
      * @param creator The user who created the lobby and therefore shall be the
      *                owner
@@ -43,6 +48,11 @@ public class LobbyDTO implements Lobby {
     @Override
     public String getName() {
         return name;
+    }
+
+    @Override
+    public String getGameFieldVariant() {
+        return gameFieldVariant;
     }
 
     @Override
@@ -87,9 +97,43 @@ public class LobbyDTO implements Lobby {
     }
 
     @Override
-    public Set<User> getPlayersReady() { return Collections.unmodifiableSet(playersReady); }
+    public Set<User> getPlayersReady() {
+        return Collections.unmodifiableSet(playersReady);
+    }
 
     @Override
-    public void setPlayersReadyToNull() {this.playersReady.removeAll(playersReady);}
+    public void setPlayersReadyToNull() {
+        this.playersReady.removeAll(playersReady);
+    }
+
+    @Override
+    public void setRdyResponsesReceived(int responsesReceived) {
+        this.rdyResponsesReceived = responsesReceived;
+    }
+
+    @Override
+    public int getRdyResponsesReceived() {
+        return this.rdyResponsesReceived;
+    }
+
+    @Override
+    public void incrementRdyResponsesReceived() {
+        this.rdyResponsesReceived++;
+    }
+
+    @Override
+    public boolean getGameShouldStart() {
+        return this.gameShouldStart;
+    }
+
+    @Override
+    public void setGameShouldStart(boolean value) {
+        this.gameShouldStart = value;
+    }
+
+    @Override
+    public void setGameFieldVariant(String gfv) {
+        this.gameFieldVariant = gfv;
+    }
 
 }

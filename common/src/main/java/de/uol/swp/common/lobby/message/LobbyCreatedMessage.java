@@ -26,7 +26,6 @@ public class LobbyCreatedMessage extends AbstractLobbyMessage {
      * @author Ricardo Mook, Marc Hermes
      * @since 2020-11-19
      */
-
     public LobbyCreatedMessage(String name, UserDTO user) {
         super(name, user);
     }

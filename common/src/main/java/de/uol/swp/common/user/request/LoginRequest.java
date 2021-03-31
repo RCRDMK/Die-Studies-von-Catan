@@ -20,6 +20,7 @@ public class LoginRequest extends AbstractRequestMessage {
 	/**
 	 * Constructor
 	 *
+	 * @author Marco Grawunder
 	 * @param username username the user tries to log in with
 	 * @param password password the user tries to log in with
 	 * @since  2017-03-17
@@ -37,6 +38,7 @@ public class LoginRequest extends AbstractRequestMessage {
 	/**
 	 * Setter for the username variable
 	 *
+	 * @author Marco Grawunder
 	 * @param username String containing the new username
 	 * @since  2017-03-17
 	 */
@@ -47,6 +49,7 @@ public class LoginRequest extends AbstractRequestMessage {
 	/**
 	 * Getter for the username variable
 	 *
+	 * @author Marco Grawunder
 	 * @return String containing the username the user tries to log in with
 	 * @since  2017-03-17
 	 */
@@ -57,6 +60,7 @@ public class LoginRequest extends AbstractRequestMessage {
 	/**
 	 * Setter for the password variable
 	 *
+	 * @author Marco Grawunder
 	 * @param password String containing the new password
 	 * @since  2017-03-17
 	 */
@@ -67,6 +71,7 @@ public class LoginRequest extends AbstractRequestMessage {
 	/**
 	 * Getter for the password variable
 	 *
+	 * @author Marco Grawunder
 	 * @return String containing the password the user tries to log in with
 	 * @since  2017-03-17
 	 */

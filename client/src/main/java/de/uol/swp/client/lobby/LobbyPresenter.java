@@ -14,9 +14,12 @@ import de.uol.swp.common.game.response.NotLobbyOwnerResponse;
 import de.uol.swp.common.lobby.message.StartGameMessage;
 import de.uol.swp.common.lobby.message.UserJoinedLobbyMessage;
 import de.uol.swp.common.lobby.message.UserLeftLobbyMessage;
-import de.uol.swp.common.user.response.lobby.*;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
+import de.uol.swp.common.user.response.lobby.AllThisLobbyUsersResponse;
+import de.uol.swp.common.user.response.lobby.LobbyCreatedSuccessfulResponse;
+import de.uol.swp.common.user.response.lobby.LobbyJoinedSuccessfulResponse;
+import de.uol.swp.common.user.response.lobby.LobbyLeftSuccessfulResponse;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -27,10 +30,10 @@ import javafx.stage.Modality;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Optional;
 
 /**
  * Manages the lobby menu
@@ -63,6 +66,19 @@ public class LobbyPresenter extends AbstractPresenter {
 
     private Button btnNo;
 
+    private boolean isLobbyOwner = false;
+
+    private String gameFieldVariant = "Standard";
+
+    @FXML
+    private ToggleGroup gameFieldToggleButtons;
+
+    @FXML
+    private RadioButton standardGameField;
+    @FXML
+    private RadioButton randomGameField;
+
+
     @FXML
     public TextField lobbyChatInput;
 
@@ -90,6 +106,15 @@ public class LobbyPresenter extends AbstractPresenter {
     @Inject
     private GameService gameService;
 
+    @FXML
+    public void onStandardGameField() {
+        gameFieldVariant = "Standard";
+    }
+
+    @FXML
+    public void onRandomGameField() {
+        gameFieldVariant = "Random";
+    }
 
     /**
      * Method called when the StartGame button is pressed
@@ -103,7 +128,7 @@ public class LobbyPresenter extends AbstractPresenter {
     @FXML
     public void onStartGame(ActionEvent event) {
         LOG.debug("StartGame Button pressed");
-        lobbyService.startGame(this.currentLobby, (UserDTO) this.joinedLobbyUser);
+        lobbyService.startGame(this.currentLobby, (UserDTO) this.joinedLobbyUser, gameFieldVariant);
         gameAlreadyExistsLabel.setVisible(false);
         notLobbyOwnerLabel.setVisible(false);
         notEnoughPlayersLabel.setVisible(false);
@@ -119,6 +144,7 @@ public class LobbyPresenter extends AbstractPresenter {
             throw new LobbyPresenterException("Der jetzige User ist nicht vorhanden");
         }
     }
+
 
     /**
      * Method called when the send Message button is pressed
@@ -163,11 +189,35 @@ public class LobbyPresenter extends AbstractPresenter {
     }
 
     /**
+     * Sets the clickability of the lobbys options-buttons.
+     * <p>
+     * If a User joins a lobby, hes automatically denied to klick any options-buttons regarding game-settings like wich
+     * game-field to chose and so on. When the User has created the lobby, hes automatically enabled to change
+     * game-settings. If the Lobbyowner leaves, the variable "isLobbyOwner" gets updated on every client and after that
+     * this method is called again.
+     * </p>
+     *
+     * @author Pieter Vogt
+     * @since 2021-03-21
+     */
+
+    public void setGameOptionsButtonsVisibility() {
+        if (isLobbyOwner) {
+            randomGameField.setDisable(false);
+            standardGameField.setDisable(false);
+        } else {
+            standardGameField.setDisable(true);
+            randomGameField.setDisable(true);
+        }
+    }
+
+
+    /**
      * The Method invoked by createdSuccessful()
      * <p>
      * If the currentLobby is null, meaning this is an empty LobbyPresenter that is ready to be used for a new lobby tab,
      * the parameters of this LobbyPresenter are updated to the User and Lobby given by the lcsr Response.
-     * An update of the Users in the currentLobby is also requested.
+     * An update of the Users in the currentLobby is also done.
      *
      * @param lcsr the LobbyCreatedSuccessfulResponse given by the original subscriber method.
      * @author Alexander Losse, Marc Hermes
@@ -178,10 +228,13 @@ public class LobbyPresenter extends AbstractPresenter {
         if (this.currentLobby == null) {
             LOG.debug("Requesting update of User list in lobby because lobby was created.");
             this.joinedLobbyUser = lcsr.getUser();
+            ArrayList<UserDTO> onlyLobbyOwner = new ArrayList<UserDTO>();
+            onlyLobbyOwner.add((UserDTO) joinedLobbyUser);
+            updateLobbyUsersList(onlyLobbyOwner);
             this.currentLobby = lcsr.getName();
             this.lobbyChatInput.setText("");
             lobbyChatArea.deleteText(0, lobbyChatArea.getLength());
-            lobbyService.retrieveAllThisLobbyUsers(lcsr.getName());
+            isLobbyOwner = true;
             Platform.runLater(this::setupButtonsAndAlerts);
         }
     }
@@ -204,12 +257,12 @@ public class LobbyPresenter extends AbstractPresenter {
     /**
      * The Method invoked by userJoinedSuccessful()
      * <p>
-     * If the currentLobby is null, meaning this is an empty LobbyPresenter that is ready to be used for a new lobby tab,
-     * the parameters of this LobbyPresenter are updated to the User and Lobby given by the ljsr Response.
-     * An update of the Users in the currentLobby is also requested.
-     * Furthermore the method setupButtonsAndAlerts is called to create the buttons and the alert for the
-     * pop-up Alert that shows up when the User is asked whether he is ready to start the game or not.
-     *
+     * If the currentLobby is null, meaning this is an empty LobbyPresenter that is ready to be used for a new lobby
+     * tab, the parameters of this LobbyPresenter are updated to the User and Lobby given by the ljsr Response. An
+     * update of the Users in the currentLobby is also requested. Furthermore the method setupButtonsAndAlerts is called
+     * to create the buttons and the alert for the pop-up Alert that shows up when the User is asked whether he is ready
+     * to start the game or not.
+     * <p>
      * enhanced by Marc Hermes - 2021-02-08
      *
      * @param ljsr the LobbyJoinedSuccessfulResponse given by the original subscriber method.
@@ -225,6 +278,7 @@ public class LobbyPresenter extends AbstractPresenter {
             this.lobbyChatInput.setText("");
             lobbyChatArea.deleteText(0, lobbyChatArea.getLength());
             lobbyService.retrieveAllThisLobbyUsers(ljsr.getName());
+            isLobbyOwner = false;
             Platform.runLater(this::setupButtonsAndAlerts);
         }
     }
@@ -232,13 +286,11 @@ public class LobbyPresenter extends AbstractPresenter {
     /**
      * The method invoked when the Lobby Presenter is first used: when a lobby is joined/created.
      * <p>
-     * The Alert asking the user whether he is ready to start the game or not aswell as its corresponding
-     * buttons buttonTypeYes/No are created.
-     * Also 2 more hidden buttons are created whose ActionEvents are linked to the buttonTypeYes/No buttons
-     * of the Alert.
-     * When either of those buttons is pressed onBtnYes/NoClicked will be called.
-     * The initial Modality of the Alert is also changed so that the Main Window can still be used even when the
-     * Alert is shown.
+     * The Alert asking the user whether he is ready to start the game or not aswell as its corresponding buttons
+     * buttonTypeYes/No are created. Also 2 more hidden buttons are created whose ActionEvents are linked to the
+     * buttonTypeYes/No buttons of the Alert. When either of those buttons is pressed onBtnYes/NoClicked will be called.
+     * The initial Modality of the Alert is also changed so that the Main Window can still be used even when the Alert
+     * is shown.
      *
      * @author Marc Hermes
      * @since 2021-02-08
@@ -248,24 +300,27 @@ public class LobbyPresenter extends AbstractPresenter {
         this.buttonTypeYes = new ButtonType("Yes", ButtonBar.ButtonData.YES);
         this.buttonTypeNo = new ButtonType("No", ButtonBar.ButtonData.NO);
         alert.getButtonTypes().setAll(buttonTypeYes, buttonTypeNo);
-        this.btnYes = (Button) alert.getDialogPane().lookupButton( buttonTypeYes );
-        btnYes.setOnAction( event -> {
+        this.btnYes = (Button) alert.getDialogPane().lookupButton(buttonTypeYes);
+        btnYes.setOnAction(event -> {
             onBtnYesClicked();
             event.consume();
-        } );
-        this.btnNo = (Button) alert.getDialogPane().lookupButton( buttonTypeNo );
-        btnNo.setOnAction( event -> {
+        });
+        this.btnNo = (Button) alert.getDialogPane().lookupButton(buttonTypeNo);
+        btnNo.setOnAction(event -> {
             onBtnNoClicked();
             event.consume();
-        } );
+        });
         this.alert.initModality(Modality.NONE);
+
+        setGameOptionsButtonsVisibility();
+
     }
 
     /**
      * The method invoked when the Yes Button of the Alert is pressed
      * <p>
-     * When the Button "Yes" is pressed in the Alert the Alert will be closed and the lobbyService will be called
-     * to send a PlayerReadyRequest with "true" to the Server.
+     * When the Button "Yes" is pressed in the Alert the Alert will be closed and the lobbyService will be called to
+     * send a PlayerReadyRequest with "true" to the Server.
      *
      * @author Marc Hermes
      * @since 2021-02-08
@@ -278,8 +333,8 @@ public class LobbyPresenter extends AbstractPresenter {
     /**
      * The method invoked when the No Button of the Alert is pressed
      * <p>
-     * When the Button "No" is pressed in the Alert the Alert will be closed and the lobbyService will be called
-     * to send a PlayerReadyRequest with "false" to the Server.
+     * When the Button "No" is pressed in the Alert the Alert will be closed and the lobbyService will be called to send
+     * a PlayerReadyRequest with "false" to the Server.
      *
      * @author Marc Hermes
      * @since 2021-02-08
@@ -307,9 +362,8 @@ public class LobbyPresenter extends AbstractPresenter {
     /**
      * The method invoked by userLeftSuccessful()
      * <p>
-     * If the Lobby is left, meaning this Lobby Presenter is no longer needed,
-     * this presenter will no longer be registered on the event bus and no longer
-     * be reachable for responses, messages etc.
+     * If the Lobby is left, meaning this Lobby Presenter is no longer needed, this presenter will no longer be
+     * registered on the event bus and no longer be reachable for responses, messages etc.
      *
      * @param llsr the LobbyLeftSuccessfulResponse given by the original subscriber method
      * @author Alexander Losse, Marc Hermes
@@ -345,7 +399,7 @@ public class LobbyPresenter extends AbstractPresenter {
      * <p>
      * If the currentLobby is not null, meaning this is an not an empty LobbyPresenter and the lobby name stored
      * in this LobbyPresenter equals the one in the received Message, an update of the Users in the currentLobby
-     * is requested.
+     * is done.
      *
      * @param ujlm the UserJoinedLobbyMessage given by the original subscriber method.
      * @author Alexander Losse, Marc Hermes
@@ -356,7 +410,7 @@ public class LobbyPresenter extends AbstractPresenter {
         if (this.currentLobby != null) {
             if (this.currentLobby.equals(ujlm.getName())) {
                 LOG.debug("Requesting update of User list in lobby because a User joined the lobby.");
-                lobbyService.retrieveAllThisLobbyUsers(ujlm.getName());
+                updateLobbyUsersList(ujlm.getUsers());
             }
         }
     }
@@ -381,7 +435,7 @@ public class LobbyPresenter extends AbstractPresenter {
      * <p>
      * If the currentLobby is not null, meaning this is an not an empty LobbyPresenter and the lobby name stored
      * in this LobbyPresenter equals the one in the received Message, an update of the Users in the currentLobby
-     * is requested.
+     * is done.
      *
      * @param ullm the UserLeftLobbyMessage given by the original subscriber method.
      * @author Alexander Losse, Marc Hermes
@@ -392,7 +446,11 @@ public class LobbyPresenter extends AbstractPresenter {
         if (this.currentLobby != null) {
             if (this.currentLobby.equals(ullm.getName())) {
                 LOG.debug("Requesting update of User list in lobby because a User left the lobby.");
-                lobbyService.retrieveAllThisLobbyUsers(ullm.getName());
+                updateLobbyUsersList(ullm.getUsers());
+                if (ullm.getLobbyOwner().equals(joinedLobbyUser.getUsername())) {
+                    isLobbyOwner = true;
+                    setGameOptionsButtonsVisibility();
+                }
             }
         }
     }
@@ -415,9 +473,9 @@ public class LobbyPresenter extends AbstractPresenter {
     /**
      * The Method invoked by leftSuccessful()
      * <p>
-     * If the currentLobby is not null, meaning this is an not an empty LobbyPresenter and the lobby name stored
-     * in this LobbyPresenter equals the one in the received Response, the method updateLobbyUsersList is invoked
-     * to update the List of the Users in the currentLobby in regards to the list given by the response.
+     * If the currentLobby is not null, meaning this is an not an empty LobbyPresenter and the lobby name stored in this
+     * LobbyPresenter equals the one in the received Response, the method updateLobbyUsersList is invoked to update the
+     * List of the Users in the currentLobby in regards to the list given by the response.
      *
      * @param atlur the AllThisLobbyUsersResponse given by the original subscriber method.
      * @author Alexander Losse, Marc Hermes
@@ -481,9 +539,9 @@ public class LobbyPresenter extends AbstractPresenter {
     /**
      * The Method invoked by leftSuccessful()
      * <p>
-     * If the currentLobby is not null, meaning this is an not an empty LobbyPresenter and the lobby name stored
-     * in this LobbyPresenter equals the one in the received Response, the method updateChat is invoked
-     * to update the chat of the currentLobby in regards to the input given by the response.
+     * If the currentLobby is not null, meaning this is an not an empty LobbyPresenter and the lobby name stored in this
+     * LobbyPresenter equals the one in the received Response, the method updateChat is invoked to update the chat of
+     * the currentLobby in regards to the input given by the response.
      *
      * @param rcm the ResponseChatMessage given by the original subscriber method.
      * @author Alexander Losse, Marc Hermes
@@ -528,14 +586,16 @@ public class LobbyPresenter extends AbstractPresenter {
      * @since 2021-01-23
      */
     @Subscribe
-    public void startGamePopup(StartGameMessage message) { startGamePopupLogic(message); }
+    public void startGamePopup(StartGameMessage message) {
+        startGamePopupLogic(message);
+    }
 
     /**
      * The Method invoked by startGamePopup()
      * <p>
-     * Method opens confirmation window with two options: Yes & No
-     * Which asks if each player is ready to start the game.
-     *
+     * Method opens confirmation window with two options: Yes & No Which asks if each player is ready to start the
+     * game.
+     * <p>
      * enhanced by Marc Hermes - 2021-02-08
      *
      * @param sgm the startGamePopup given by the original subscriber method.
@@ -588,7 +648,7 @@ public class LobbyPresenter extends AbstractPresenter {
             if (this.currentLobby.equals(nepm.getName())) {
                 LOG.debug("Not enough Players in Lobby to start game");
                 Platform.runLater(() ->
-                    alert.close()
+                        alert.close()
                 );
                 gameAlreadyExistsLabel.setVisible(false);
                 notLobbyOwnerLabel.setVisible(false);
@@ -686,8 +746,7 @@ public class LobbyPresenter extends AbstractPresenter {
     /**
      * The Method invoked by gameCreatedSuccessful()
      * <p>
-     * Notifies player that game is created.
-     * An update of the existing Games is also requested.
+     * Notifies player that game is created. An update of the existing Games is also requested.
      *
      * @param gcm the GameCreatedMessage given by the original subscriber method.
      * @author Kirstin Beyer, Iskander Yusupov
@@ -698,7 +757,6 @@ public class LobbyPresenter extends AbstractPresenter {
         if (this.currentLobby != null) {
             if (this.currentLobby.equals(gcm.getName())) {
                 LOG.debug("New game " + gcm.getName() + " created");
-                //gameService.retrieveAllGames();
             }
         }
     }
