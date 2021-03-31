@@ -13,13 +13,11 @@ import de.uol.swp.client.game.GameObjects.TerrainField;
 import de.uol.swp.client.game.HelperObjects.Vector;
 import de.uol.swp.common.game.GameField;
 import de.uol.swp.common.game.TerrainFieldContainer;
-import de.uol.swp.common.game.message.GameCreatedMessage;
 
 import de.uol.swp.common.chat.RequestChatMessage;
 import de.uol.swp.common.chat.ResponseChatMessage;
 
 import de.uol.swp.common.game.message.UserLeftGameMessage;
-import de.uol.swp.common.lobby.message.UserLeftLobbyMessage;
 import de.uol.swp.common.user.User;
 
 import de.uol.swp.common.user.UserDTO;
@@ -39,9 +37,7 @@ import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.net.URL;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -190,7 +186,7 @@ public class GamePresenter extends AbstractPresenter {
      */
     @FXML
     public void onRollDice(ActionEvent event) {
-        gameService.rollDiceTest(this.currentLobby, this.joinedLobbyUser);
+        gameService.rollDice(this.currentLobby, this.joinedLobbyUser);
     }
 
     @FXML

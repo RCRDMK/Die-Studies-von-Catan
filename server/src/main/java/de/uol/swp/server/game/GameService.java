@@ -173,13 +173,17 @@ public class GameService extends AbstractService {
      * Handles RollDiceRequests found on the EventBus
      * <p>
      * If a RollDiceRequest is detected on the EventBus, this method is called.
-     * It rolls the dices and sends a ResponseChatMessage containing the user who roll the dice
-     * and the result to every user in the lobby.
+     * It rolls the dices and sends a ResponseChatMessage containing the user who rolls the dice
+     * and the result is shown to every user in the game.
      *
      * @param rollDiceRequest The RollDiceRequest found on the EventBus
      * @author Kirstin, Pieter
-     * @see RollDiceRequest
+     * @see de.uol.swp.common.game.request.RollDiceRequest
+     * @see de.uol.swp.common.chat.ResponseChatMessage
      * @since 2021-01-07
+     *
+     * Enhanced by Carsten Dekker
+     * @since 2021-03-31
      */
     @Subscribe
     public void onRollDiceRequest(RollDiceRequest rollDiceRequest) {
@@ -188,15 +192,20 @@ public class GameService extends AbstractService {
         Dice dice = new Dice();
         dice.rollDice();
         String eyes = Integer.toString(dice.getEyes());
-        if (dice.getEyes() == 8 || dice.getEyes() == 11) {
-            ResponseChatMessage msg = new ResponseChatMessage("Player " + rollDiceRequest.getUser().getUsername() + " rolled an " + eyes, rollDiceRequest.getName(), "Dice", System.currentTimeMillis());
+        try {
+            String chatMessage;
+            var chatId = "game_" + rollDiceRequest.getName();
+            if (dice.getEyes() == 8 || dice.getEyes() == 11) {
+                chatMessage = "Player " + rollDiceRequest.getUser().getUsername() + " rolled an " + eyes;
+            } else {
+                chatMessage = "Player " + rollDiceRequest.getUser().getUsername() + " rolled a " + eyes;
+            }
+            ResponseChatMessage msg = new ResponseChatMessage(chatMessage, chatId, rollDiceRequest.getUser().getUsername(), System.currentTimeMillis());
             post(msg);
-        } else {
-            ResponseChatMessage msg = new ResponseChatMessage("Player " + rollDiceRequest.getUser().getUsername() + " rolled a " + eyes, rollDiceRequest.getName(), "Dice", System.currentTimeMillis());
-            post(msg);
+            LOG.debug("Posted ResponseChatMessage on eventBus");
+        } catch (Exception e) {
+            LOG.debug(e);
         }
-
-        LOG.debug("Posted ResponseChatMessage on eventBus");
     }
 
 

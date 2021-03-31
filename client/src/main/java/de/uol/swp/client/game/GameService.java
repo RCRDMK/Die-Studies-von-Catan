@@ -43,16 +43,12 @@ public class GameService {
      * @param user User who wants to roll the dice
      * @see de.uol.swp.common.game.request.RollDiceRequest
      * @author Kirstin, Pieter
-     * @see de.uol.swp.common.game.message.RollDiceRequest
      * @since 2021-01-07
      * <p>
      * Enhanced by Carsten Dekker
      * @since 2021-01-13
-     *
-     * I have changed the place of the method to the new GameService.
-     * It is a temporary method.
      */
-    public void rollDiceTest(String name, User user) {
+    public void rollDice(String name, User user) {
         RollDiceRequest rollDiceRequest = new RollDiceRequest(name, user);
         eventBus.post(rollDiceRequest);
     }
@@ -94,5 +90,4 @@ public class GameService {
         GameLeaveUserRequest leaveRequest = new GameLeaveUserRequest(game, (UserDTO) user);
         eventBus.post(leaveRequest);
     }
-
 }
