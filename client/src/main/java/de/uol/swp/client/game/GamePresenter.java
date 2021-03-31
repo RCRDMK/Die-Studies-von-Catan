@@ -4,12 +4,7 @@ import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
 import de.uol.swp.client.chat.ChatService;
-
 import de.uol.swp.client.game.GameObjects.BuildingField;
-import de.uol.swp.client.lobby.LobbyService;
-
-import de.uol.swp.common.game.message.GameCreatedMessage;
-
 import de.uol.swp.client.game.GameObjects.TerrainField;
 import de.uol.swp.client.game.HelperObjects.Vector;
 import de.uol.swp.client.lobby.LobbyService;
@@ -17,6 +12,7 @@ import de.uol.swp.common.chat.RequestChatMessage;
 import de.uol.swp.common.chat.ResponseChatMessage;
 import de.uol.swp.common.game.GameField;
 import de.uol.swp.common.game.TerrainFieldContainer;
+import de.uol.swp.common.game.message.BuyDevelopmentCardMessage;
 import de.uol.swp.common.game.message.GameCreatedMessage;
 import de.uol.swp.common.game.message.NextTurnMessage;
 import de.uol.swp.common.game.message.UserLeftGameMessage;
@@ -208,7 +204,7 @@ public class GamePresenter extends AbstractPresenter {
 
     @FXML
     public void onBuyDevelopmentCard(ActionEvent event) {
-        //TODO:...
+        gameService.buyDevelopmentCard(this.joinedLobbyUser);
     }
 
     /**
@@ -540,15 +536,15 @@ public class GamePresenter extends AbstractPresenter {
         Vector tempVec;
 
         // loop over all terrainFields (except ocean)
-        for (int i = 18; i < 37; i++){
+        for (int i = 18; i < 37; i++) {
 
             // loop over 12 positions for each terrainField, even positions j mark buildFields, odd positions j mark streetFields
             fieldloop:
-            for (int j = 0; j < 12; j++){
-                tempVec = Vector.addVector(tempArray[i].getPosition(),Vector.generalVector(cardSize()/Math.sqrt(2),315));
+            for (int j = 0; j < 12; j++) {
+                tempVec = Vector.addVector(tempArray[i].getPosition(), Vector.generalVector(cardSize() / Math.sqrt(2), 315));
 
-                if (j % 2 == 0){
-                    tempVec = Vector.addVector(tempVec,Vector.generalVector(cardSize()/Math.sqrt(3),30*j));
+                if (j % 2 == 0) {
+                    tempVec = Vector.addVector(tempVec, Vector.generalVector(cardSize() / Math.sqrt(3), 30 * j));
 
                     // check if field is already in array
                     for (int k = 0; k < l; k++) {
@@ -564,11 +560,11 @@ public class GamePresenter extends AbstractPresenter {
                     l++;
 
                 } else {
-                    tempVec = Vector.addVector(tempVec,Vector.generalVector(cardSize()*0.5,30*j));
+                    tempVec = Vector.addVector(tempVec, Vector.generalVector(cardSize() * 0.5, 30 * j));
 
                     // check if field is already in array
-                    for (int k = 0; k < m; k++){
-                        if (Math.abs(tempVec.getX() - tempStreetArray[k].getPosition().getX()) < cardSize()/100 && Math.abs(tempVec.getY() - tempStreetArray[k].getPosition().getY()) < cardSize()/100) {
+                    for (int k = 0; k < m; k++) {
+                        if (Math.abs(tempVec.getX() - tempStreetArray[k].getPosition().getX()) < cardSize() / 100 && Math.abs(tempVec.getY() - tempStreetArray[k].getPosition().getY()) < cardSize() / 100) {
                             continue fieldloop;
                         }
                     }
@@ -635,26 +631,26 @@ public class GamePresenter extends AbstractPresenter {
         GraphicsContext g = this.canvas.getGraphicsContext2D();
         Color color = Color.RED;
         g.setFill(color);
-        g.setLineWidth(cardSize()/10);
+        g.setLineWidth(cardSize() / 10);
 
         switch (building) {
             case "Street":
                 double itemSize = cardSize() / 8;
-                Vector drawPosition = Vector.addVector(position,Vector.generalVector(itemSize/Math.sqrt(2),135));
+                Vector drawPosition = Vector.addVector(position, Vector.generalVector(itemSize / Math.sqrt(2), 135));
                 double x = drawPosition.getX();
                 double y = drawPosition.getY();
                 g.fillOval(x, y, itemSize, itemSize);
                 break;
             case "Settlement":
                 itemSize = cardSize() / 4;
-                drawPosition = Vector.addVector(position,Vector.generalVector(itemSize/Math.sqrt(2),135));
+                drawPosition = Vector.addVector(position, Vector.generalVector(itemSize / Math.sqrt(2), 135));
                 x = drawPosition.getX();
                 y = drawPosition.getY();
                 g.fillOval(x, y, itemSize, itemSize);
                 break;
             case "Town":
                 itemSize = cardSize() / 3;
-                drawPosition = Vector.addVector(position,Vector.generalVector(itemSize/Math.sqrt(2),135));
+                drawPosition = Vector.addVector(position, Vector.generalVector(itemSize / Math.sqrt(2), 135));
                 x = drawPosition.getX();
                 y = drawPosition.getY();
                 g.fillOval(x, y, itemSize, itemSize);
@@ -712,5 +708,14 @@ public class GamePresenter extends AbstractPresenter {
             tfArray[i].setName(translatedFieldType);
         }
         draw();
+    }
+
+    @Subscribe
+    public void onBuyDevelopmentCardMessage(BuyDevelopmentCardMessage buyDevelopmentCardMessage) {
+        buyDevelopmentCardLogic(buyDevelopmentCardMessage.getCard());
+    }
+
+    public void buyDevelopmentCardLogic(Card card) {
+        //TODO Reaktion auf die übersandte Message. Hinzufügen zum Inventar etc.
     }
 }

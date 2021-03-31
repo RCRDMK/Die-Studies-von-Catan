@@ -31,8 +31,10 @@ public class GameSerializableTest {
                 GameSizeChangedMessage.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new NotEnoughPlayersMessage("test"),
                 NotEnoughPlayersMessage.class));
-        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new UserLeftGameMessage("test", defaultUser,new ArrayList<>()),
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new UserLeftGameMessage("test", defaultUser, new ArrayList<>()),
                 UserLeftGameMessage.class));
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new BuyDevelopmentCardMessage(),
+                BuyDevelopmentCardMessage.class));
     }
 
     @Test
@@ -49,6 +51,8 @@ public class GameSerializableTest {
                 RetrieveAllThisGameUsersRequest.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new RollDiceRequest("test", defaultUser),
                 RollDiceRequest.class));
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new BuyDevelopmentCardRequest(defaultUser),
+                BuyDevelopmentCardRequest.class));
     }
 
     @Test

@@ -373,4 +373,20 @@ public class GameService extends AbstractService {
             }
         }
     }
+
+    /**
+     * Handles BuyDevelopmentCardRequest found on the eventbus.
+     *
+     * <p></p>
+     *
+     * @param request Transports the senders UserDTO
+     * @author Marius Birk
+     * @since 2021-03-31
+     */
+    @Subscribe
+    public void onBuyDevelopmentCardRequest(BuyDevelopmentCardRequest request) {
+        //TODO: Wenn Datenhaltung vom Inventar fertig, dann implementieren.
+        de.uol.swp.common.game.message.BuyDevelopmentCardMessage response = new de.uol.swp.common.game.message.BuyDevelopmentCardMessage();
+        sendToSpecificUserInGame(gameManagement.getGame(request.getName()), response, request.getBuyer());
+    }
 }
