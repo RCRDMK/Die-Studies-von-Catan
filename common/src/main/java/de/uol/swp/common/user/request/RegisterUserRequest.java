@@ -19,6 +19,7 @@ public class RegisterUserRequest extends AbstractRequestMessage {
     /**
      * Constructor
      *
+     * @author Marco Grawunder
      * @param user the new User to create
      * @since 2019-09-02
      */
@@ -34,6 +35,7 @@ public class RegisterUserRequest extends AbstractRequestMessage {
     /**
      * Getter for the user variable
      *
+     * @author Marco Grawunder
      * @return the new user to create
      * @since 2019-09-02
      */

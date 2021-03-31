@@ -18,6 +18,7 @@ public class LogoutRequest extends AbstractRequestMessage{
 	/**
 	 * Constructor
 	 *
+	 * @author Marco Grawunder
 	 * @since 2019-08-07
 	 */
 	public LogoutRequest() {

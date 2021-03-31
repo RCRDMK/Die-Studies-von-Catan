@@ -71,6 +71,7 @@ class ServerApp {
      * Helper method to create the services the server uses and for the time being
      * the test users
      *
+     * @author Marco Grawunder
      * @param injector the google guice injector used for dependency injection
      * @since 2019-09-18
      */

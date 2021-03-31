@@ -45,6 +45,7 @@ public class LobbyService extends AbstractService {
      * Constructor
      * <p>
      *
+     * @author Marco Grawunder
      * @param lobbyManagement       The management class for creating, storing and deleting lobbies
      * @param authenticationService the user management
      * @param eventBus              the server-wide EventBus

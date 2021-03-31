@@ -17,6 +17,7 @@ public interface ServerMessage extends Message {
     /**
      * Getter for the receiver list
      *
+     * @author Marco Grawunder
      * @return List of Session objects defining the receivers
      * @since 2019-10-08
      */
@@ -25,6 +26,7 @@ public interface ServerMessage extends Message {
     /**
      * Sets the receivers of this message
      *
+     * @author Marco Grawunder
      * @param receiver List of Session objects defining the receivers
      * @since 2019-10-08
      */

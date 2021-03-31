@@ -1,16 +1,16 @@
 package de.uol.swp.common.game.cards;
 
 /**
- *  Interface für die Siegpunktkarte
+ * Interface for the victorypointcard
  *
- * Die Siegpunktkarte wird zu den Entwicklungskarten gezählt
+ * The victorypointcard is counted among the development cards
  *
  * @author Alexander Losse, Iskander Yusupov
  * @since 2020-12-16
  */
 public interface cardVictoryPoint extends cardDevelopment {
     /**
-     * Gibt die Anzahl der Siegpunkte wieder
+     * Reflects the number of victory points
      *
      * @return int
      * @author Alexander Losse, Iskander Yusupov
