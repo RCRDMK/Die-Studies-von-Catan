@@ -1,4 +1,4 @@
-package de.uol.swp.server.game.inventory;
+package de.uol.swp.server.game;
 
 import com.google.common.eventbus.EventBus;
 import de.uol.swp.common.game.Game;
