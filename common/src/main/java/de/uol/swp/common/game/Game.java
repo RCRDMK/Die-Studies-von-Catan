@@ -167,16 +167,16 @@ public interface Game extends Serializable {
      * @author Anton Nikiforov
      * @since 2021-04-01
      */
-    void setUpInventorys();
+    void setUpInventories();
 
     /**
      * Getter for the Inventory from user
      *
+     * @see de.uol.swp.common.game.inventory.Inventory
      * @return The Inventory from user
      * @author Anton Nikiforov
-     * @see de.uol.swp.common.game.inventory.Inventory
-     * @param user
      * @since 2021-04-01
+     * @param user
      */
     Inventory getInventory(User user);
 }

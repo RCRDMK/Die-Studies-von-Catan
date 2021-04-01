@@ -221,7 +221,7 @@ public class GameDTO implements Game {
      * @since 2021-04-01
      */
     @Override
-    public void setUpInventorys() {
+    public void setUpInventories() {
         if(!(userArrayList.isEmpty())) {
             if (userArrayList.size()>0) inventory1 = new Inventory(userArrayList.get(0));
             if (userArrayList.size()>1) inventory2 = new Inventory(userArrayList.get(1));
@@ -235,11 +235,11 @@ public class GameDTO implements Game {
      * <p>
      * It compares the user with the inventory user and returns the inventory from user
      *
+     * @see de.uol.swp.common.game.inventory.Inventory
      * @return The Inventory from user
      * @author Anton Nikiforov
-     * @see de.uol.swp.common.game.inventory.Inventory
-     * @param user
      * @since 2021-04-01
+     * @param user
      */
     @Override
     public Inventory getInventory(User user) {
