@@ -12,12 +12,10 @@ import de.uol.swp.common.game.message.GameCreatedMessage;
 
 import de.uol.swp.client.game.GameObjects.TerrainField;
 import de.uol.swp.client.game.HelperObjects.Vector;
-import de.uol.swp.client.lobby.LobbyService;
 import de.uol.swp.common.chat.RequestChatMessage;
 import de.uol.swp.common.chat.ResponseChatMessage;
 import de.uol.swp.common.game.GameField;
 import de.uol.swp.common.game.TerrainFieldContainer;
-import de.uol.swp.common.game.message.GameCreatedMessage;
 import de.uol.swp.common.game.message.NextTurnMessage;
 
 import de.uol.swp.common.chat.RequestChatMessage;
@@ -34,6 +32,7 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -41,7 +40,11 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
+import javafx.scene.text.Text;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -100,15 +103,14 @@ public class GamePresenter extends AbstractPresenter {
     @FXML
     private Canvas canvas = new Canvas();
 
+    @FXML
+    private AnchorPane gameAnchorPane;
+
     @Inject
     private LobbyService lobbyService;
 
     @FXML
     private ListView<String> gameUsersView;
-
-    public GamePresenter() {
-    }
-
 
     @FXML
     private Button EndTurnButton;
@@ -547,20 +549,20 @@ public class GamePresenter extends AbstractPresenter {
         Vector tempVec;
 
         // loop over all terrainFields (except ocean)
-        for (int i = 18; i < 37; i++){
+        for (int i = 18; i < 37; i++) {
 
             // loop over 12 positions for each terrainField, even positions j mark buildFields, odd positions j mark streetFields
-            fieldloop:
-            for (int j = 0; j < 12; j++){
-                tempVec = Vector.addVector(tempArray[i].getPosition(),Vector.generalVector(cardSize()/Math.sqrt(2),315));
+            fieldLoop:
+            for (int j = 0; j < 12; j++) {
+                tempVec = Vector.addVector(tempArray[i].getPosition(), Vector.generalVector(cardSize() / Math.sqrt(2), 315));
 
-                if (j % 2 == 0){
-                    tempVec = Vector.addVector(tempVec,Vector.generalVector(cardSize()/Math.sqrt(3),30*j));
+                if (j % 2 == 0) {
+                    tempVec = Vector.addVector(tempVec, Vector.generalVector(cardSize() / Math.sqrt(3), 30 * j));
 
                     // check if field is already in array
                     for (int k = 0; k < l; k++) {
                         if (Math.abs(tempVec.getX() - tempBuildArray[k].getPosition().getX()) < (cardSize() / 100) && Math.abs(tempVec.getY() - tempBuildArray[k].getPosition().getY()) < (cardSize() / 100)) {
-                            continue fieldloop;
+                            continue fieldLoop;
                         }
                     }
                     // add new BuildingField to buildArray
@@ -571,12 +573,12 @@ public class GamePresenter extends AbstractPresenter {
                     l++;
 
                 } else {
-                    tempVec = Vector.addVector(tempVec,Vector.generalVector(cardSize()*0.5,30*j));
+                    tempVec = Vector.addVector(tempVec, Vector.generalVector(cardSize() * 0.5, 30 * j));
 
                     // check if field is already in array
-                    for (int k = 0; k < m; k++){
-                        if (Math.abs(tempVec.getX() - tempStreetArray[k].getPosition().getX()) < cardSize()/100 && Math.abs(tempVec.getY() - tempStreetArray[k].getPosition().getY()) < cardSize()/100) {
-                            continue fieldloop;
+                    for (int k = 0; k < m; k++) {
+                        if (Math.abs(tempVec.getX() - tempStreetArray[k].getPosition().getX()) < cardSize() / 100 && Math.abs(tempVec.getY() - tempStreetArray[k].getPosition().getY()) < cardSize() / 100) {
+                            continue fieldLoop;
                         }
                     }
                     // add new BuildingField to streetArray
@@ -599,6 +601,8 @@ public class GamePresenter extends AbstractPresenter {
      * why the background is drawn first, etc.
      * </p>
      *
+     * enhanced by Marc Hermes 2021-03-31
+     *
      * @author Pieter Vogt
      * @since 2021-01-24
      */
@@ -613,58 +617,80 @@ public class GamePresenter extends AbstractPresenter {
 
         //Draw TerrainFields
         for (int i = tfArray.length - 1; i >= 0; i--) {
-            g.setFill(tfArray[i].determineColorOfTerrain()); //Determine draw-color of current Terrainfield.
-            g.fillOval(tfArray[i].getPosition().getX(), tfArray[i].getPosition().getY(), cardSize(), cardSize()); //Draw circle with given color at given position.
+            Vector drawPosition = Vector.subVector(tfArray[i].getPosition(), Vector.generalVector(cardSize() / Math.sqrt(2), 135));
+            Circle terrainFieldNode = new Circle(cardSize() / 2);
+            terrainFieldNode.setLayoutX(drawPosition.getX());
+            terrainFieldNode.setLayoutY(drawPosition.getY() + canvas.getLayoutY());
+            terrainFieldNode.setFill(tfArray[i].determineColorOfTerrain());
+            tfArray[i].setNode(terrainFieldNode);
+            Platform.runLater(() -> gameAnchorPane.getChildren().add(terrainFieldNode));
             if (tfArray[i].getDiceToken() != 0) {
-                g.setFill(Color.WHITE);
-                g.fillText(Integer.toString(tfArray[i].getDiceToken()), tfArray[i].getPosition().getX() + (cardSize() / 2), tfArray[i].getPosition().getY() + (cardSize() / 2));
+                Text text = new Text(drawPosition.getX(), drawPosition.getY() + canvas.getLayoutY(), Integer.toString(tfArray[i].getDiceToken()));
+                text.setFill(Color.WHITE);
+                Platform.runLater(() -> gameAnchorPane.getChildren().add(text));
             }
         }
 
         //Draw Buildings
         for (int i = 0; i < 72; i++) {
-            placeBuilding("Street", streetArray[i].getPosition());
+            initializeBuildingSpots("Street", streetArray[i]);
         }
         for (int i = 0; i < 54; i++) {
-            placeBuilding("Settlement", buildArray[i].getPosition());
+            initializeBuildingSpots("Settlement", buildArray[i]);
         }
     }
 
     /**
      * Method to draw buildings to the screen.
      * <p>
-     * TODO: add logic about building permission for all building types (e.g. street, no other settlement nearby, etc.)
+     * Creates the Spots (Circles) for the Buildings. If a Circle is clicked, it changes it's colour.
+     * <p>
+     * enhanced by Marc Hermes 2021-03-31
      *
      * @author Kirstin
      * @since 2021-03-28
      */
-    public void placeBuilding(String building, Vector position) {
+    public void initializeBuildingSpots(String building, BuildingField buildingField) {
+        EventHandler<MouseEvent> circleOnMousePressedEventHandler = t -> {
+            Circle circle = (Circle) t.getSource();
+            circle.setFill(Color.RED);
+        };
         GraphicsContext g = this.canvas.getGraphicsContext2D();
-        Color color = Color.RED;
-        g.setFill(color);
-        g.setLineWidth(cardSize()/10);
+        g.setLineWidth(cardSize() / 10);
+        double x = buildingField.getPosition().getX();
+        double y = buildingField.getPosition().getY();
 
         switch (building) {
             case "Street":
                 double itemSize = cardSize() / 8;
-                Vector drawPosition = Vector.addVector(position,Vector.generalVector(itemSize/Math.sqrt(2),135));
-                double x = drawPosition.getX();
-                double y = drawPosition.getY();
-                g.fillOval(x, y, itemSize, itemSize);
+                Circle street = new Circle();
+                street.setRadius(itemSize / 2);
+                street.setLayoutX(x);
+                street.setLayoutY(y + canvas.getLayoutY());
+                street.setFill(Color.GHOSTWHITE);
+                street.setOnMouseClicked(circleOnMousePressedEventHandler);
+                buildingField.setNode(street);
+                Platform.runLater(() -> gameAnchorPane.getChildren().add(street));
                 break;
             case "Settlement":
                 itemSize = cardSize() / 4;
-                drawPosition = Vector.addVector(position,Vector.generalVector(itemSize/Math.sqrt(2),135));
-                x = drawPosition.getX();
-                y = drawPosition.getY();
-                g.fillOval(x, y, itemSize, itemSize);
+                Circle settlement = new Circle(itemSize / 2);
+                settlement.setLayoutX(x);
+                settlement.setLayoutY(y + canvas.getLayoutY());
+                settlement.setFill(Color.GHOSTWHITE);
+                settlement.setOnMouseClicked(circleOnMousePressedEventHandler);
+                buildingField.setNode(settlement);
+                Platform.runLater(() -> gameAnchorPane.getChildren().add(settlement));
                 break;
             case "Town":
                 itemSize = cardSize() / 3;
-                drawPosition = Vector.addVector(position,Vector.generalVector(itemSize/Math.sqrt(2),135));
-                x = drawPosition.getX();
-                y = drawPosition.getY();
-                g.fillOval(x, y, itemSize, itemSize);
+                Circle town = new Circle(itemSize / 2);
+                town.setLayoutX(x);
+                town.setLayoutY(y + canvas.getLayoutY());
+                town.setFill(Color.GHOSTWHITE);
+                town.setOnMouseClicked(circleOnMousePressedEventHandler);
+                buildingField.setNode(town);
+                Platform.runLater(() -> gameAnchorPane.getChildren().add(town));
                 break;
         }
     }
