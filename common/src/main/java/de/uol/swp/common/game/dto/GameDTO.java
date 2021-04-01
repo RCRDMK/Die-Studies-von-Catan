@@ -2,6 +2,7 @@ package de.uol.swp.common.game.dto;
 
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.GameField;
+import de.uol.swp.common.game.inventory.Inventory;
 import de.uol.swp.common.user.User;
 
 import java.util.ArrayList;
@@ -16,6 +17,7 @@ import java.util.TreeSet;
  * about the Name of the game, who owns the game.
  * <p>
  * enhanced by Pieter Vogt 2021-03-26
+ * enhanced by Anton Nikiforov 2021-04-01
  *
  * @author Iskander Yusupov
  * @since 2021-01-15
@@ -32,6 +34,11 @@ public class GameDTO implements Game {
     private boolean startingTurns = true;
     private boolean countingUp = true;
     private boolean lastPlayerSecondTurn = false;
+
+    private Inventory inventory1;
+    private Inventory inventory2;
+    private Inventory inventory3;
+    private Inventory inventory4;
 
     /**
      * Constructor
@@ -181,7 +188,6 @@ public class GameDTO implements Game {
      * @author Pieter Vogt
      * @since 2021-03-30
      */
-
     @Override
     public void openingPhase() {
         //If the players are in openingphase...
@@ -205,4 +211,42 @@ public class GameDTO implements Game {
         }
     }
 
+    /**
+     * Gives the inventory 1-4 a User
+     * <p>
+     * It gives the inventory 1-4 a User from the userArrayList if
+     * its not empty and the user exists in the ArrayList
+     *
+     * @author Anton Nikiforov
+     * @since 2021-04-01
+     */
+    @Override
+    public void setUpInventorys() {
+        if(!(userArrayList.isEmpty())) {
+            if (userArrayList.size()>0) inventory1 = new Inventory(userArrayList.get(0));
+            if (userArrayList.size()>1) inventory2 = new Inventory(userArrayList.get(1));
+            if (userArrayList.size()>2) inventory3 = new Inventory(userArrayList.get(2));
+            if (userArrayList.size()>3) inventory4 = new Inventory(userArrayList.get(3));
+        }
+    }
+
+    /**
+     * Getter for the Inventory from user
+     * <p>
+     * It compares the user with the inventory user and returns the inventory from user
+     *
+     * @return The Inventory from user
+     * @author Anton Nikiforov
+     * @see de.uol.swp.common.game.inventory.Inventory
+     * @param user
+     * @since 2021-04-01
+     */
+    @Override
+    public Inventory getInventory(User user) {
+        if (user.equals(inventory1.getUser())) return inventory1;
+        if (user.equals(inventory2.getUser())) return inventory2;
+        if (user.equals(inventory3.getUser())) return inventory3;
+        if (user.equals(inventory4.getUser())) return inventory4;
+        return null;
+    }
 }

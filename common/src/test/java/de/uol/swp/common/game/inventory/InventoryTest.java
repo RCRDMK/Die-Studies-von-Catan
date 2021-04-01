@@ -1,5 +1,7 @@
 package de.uol.swp.common.game.inventory;
 
+import de.uol.swp.common.user.User;
+import de.uol.swp.common.user.UserDTO;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
@@ -13,8 +15,9 @@ import static org.junit.jupiter.api.Assertions.*;
  * @since 2021-03-08
  */
 public class InventoryTest {
+    User user = new UserDTO("test1", "", "");
 
-    Inventory inventory = new Inventory();
+    Inventory inventory = new Inventory(user);
     HashMap privateInventory = inventory.getPrivateView();
     HashMap publicInventory = inventory.getPublicView();
 
