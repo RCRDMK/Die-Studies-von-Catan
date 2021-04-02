@@ -51,7 +51,7 @@ public class GameSerializableTest {
                 RetrieveAllThisGameUsersRequest.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new RollDiceRequest("test", defaultUser),
                 RollDiceRequest.class));
-        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new BuyDevelopmentCardRequest(defaultUser),
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new BuyDevelopmentCardRequest(),
                 BuyDevelopmentCardRequest.class));
     }
 

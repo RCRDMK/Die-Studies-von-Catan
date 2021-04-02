@@ -14,6 +14,9 @@ import de.uol.swp.common.user.UserDTO;
  */
 public class BuyDevelopmentCardRequest extends AbstractGameRequest {
 
+    private UserDTO userDTO;
+    private String gameName;
+
     /**
      * Default constructor
      * <p>
@@ -33,7 +36,9 @@ public class BuyDevelopmentCardRequest extends AbstractGameRequest {
      * @author Marius Birk
      * @since 2021-03-31
      */
-    public BuyDevelopmentCardRequest(UserDTO user) {
+    public BuyDevelopmentCardRequest(UserDTO user, String gameName) {
+        this.userDTO = user;
+        this.gameName = gameName;
     }
 
     /**
@@ -58,5 +63,9 @@ public class BuyDevelopmentCardRequest extends AbstractGameRequest {
      */
     public void setBuyer(UserDTO user) {
         setUser(user);
+    }
+
+    public String getGameName() {
+        return gameName;
     }
 }

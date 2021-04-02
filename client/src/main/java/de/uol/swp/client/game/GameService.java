@@ -47,7 +47,7 @@ public class GameService {
      * It is a temporary method.
      */
 
-    public void rollDiceTest(String name, User user) {
+    public void rollDice(String name, User user) {
         RollDiceRequest rollDiceRequest = new RollDiceRequest(name, user);
         eventBus.post(rollDiceRequest);
     }
@@ -90,10 +90,8 @@ public class GameService {
         eventBus.post(leaveRequest);
     }
 
-    public void buyDevelopmentCard(User user) {
-        //Redundante Abfrage ob Karte wirklich mit entsprechenden Ressourcen gekauft werden soll
-        //Abfrage mit privatem Inventar ob vorraussetzungen für den kauf vorhanden sind
-        BuyDevelopmentCardRequest buyDevelopmentCardRequest = new BuyDevelopmentCardRequest((UserDTO) user);
+    public void buyDevelopmentCard(User user, String gameName) {
+        BuyDevelopmentCardRequest buyDevelopmentCardRequest = new BuyDevelopmentCardRequest((UserDTO) user, gameName);
         eventBus.post(buyDevelopmentCardRequest);
     }
 }

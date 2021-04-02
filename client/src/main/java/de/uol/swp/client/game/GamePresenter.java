@@ -7,6 +7,7 @@ import de.uol.swp.client.chat.ChatService;
 import de.uol.swp.client.game.GameObjects.BuildingField;
 import de.uol.swp.client.game.GameObjects.TerrainField;
 import de.uol.swp.client.game.HelperObjects.Vector;
+import de.uol.swp.client.lobby.LobbyService;
 import de.uol.swp.common.chat.RequestChatMessage;
 import de.uol.swp.common.chat.ResponseChatMessage;
 import de.uol.swp.common.game.GameField;
@@ -14,14 +15,9 @@ import de.uol.swp.common.game.TerrainFieldContainer;
 import de.uol.swp.common.game.message.BuyDevelopmentCardMessage;
 import de.uol.swp.common.game.message.GameCreatedMessage;
 import de.uol.swp.common.game.message.NextTurnMessage;
-
-import de.uol.swp.common.chat.RequestChatMessage;
-import de.uol.swp.common.chat.ResponseChatMessage;
-
 import de.uol.swp.common.game.message.UserLeftGameMessage;
 import de.uol.swp.common.game.request.EndTurnRequest;
 import de.uol.swp.common.user.User;
-
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.user.response.game.AllThisGameUsersResponse;
 import de.uol.swp.common.user.response.game.GameLeftSuccessfulResponse;
@@ -29,6 +25,7 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -43,8 +40,6 @@ import javafx.scene.shape.Circle;
 import javafx.scene.text.Text;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import java.util.List;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -213,7 +208,7 @@ public class GamePresenter extends AbstractPresenter {
 
     @FXML
     public void onBuyDevelopmentCard(ActionEvent event) {
-        gameService.buyDevelopmentCard(this.joinedLobbyUser);
+        gameService.buyDevelopmentCard(this.joinedLobbyUser, this.currentLobby);
     }
 
     /**

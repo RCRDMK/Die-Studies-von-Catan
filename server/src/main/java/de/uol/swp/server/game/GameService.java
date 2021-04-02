@@ -6,6 +6,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import de.uol.swp.common.chat.ResponseChatMessage;
 import de.uol.swp.common.game.Game;
+import de.uol.swp.common.game.inventory.Inventory;
 import de.uol.swp.common.game.message.*;
 import de.uol.swp.common.game.request.*;
 import de.uol.swp.common.game.response.AllCreatedGamesResponse;
@@ -182,7 +183,7 @@ public class GameService extends AbstractService {
      * @see de.uol.swp.common.game.request.RollDiceRequest
      * @see de.uol.swp.common.chat.ResponseChatMessage
      * @since 2021-01-07
-     *
+     * <p>
      * Enhanced by Carsten Dekker
      * @since 2021-03-31
      */
@@ -335,7 +336,7 @@ public class GameService extends AbstractService {
      * If a PlayerReadyRequest is detected on the EventBus, this method is called. Method adds ready players to the
      * PlayerReady list and counts the number of player responses in variable Player enhanced by Alexander Losse,
      * Ricardo Mook 2021-03-05
-     *
+     * <p>
      * enhanced by Marc Hermes 2021-03-25
      *
      * @param playerReadyRequest the PlayerReadyRequest found on the EventBus
@@ -399,7 +400,18 @@ public class GameService extends AbstractService {
     @Subscribe
     public void onBuyDevelopmentCardRequest(BuyDevelopmentCardRequest request) {
         //TODO: Wenn Datenhaltung vom Inventar fertig, dann implementieren.
-        de.uol.swp.common.game.message.BuyDevelopmentCardMessage response = new de.uol.swp.common.game.message.BuyDevelopmentCardMessage();
+        Optional<Game> game = gameManagement.getGame(request.getGameName());
+
+        if (game.isPresent()) {
+            Inventory inventory = game.get().getInventory(request.getBuyer());
+            if (inventory.wool.getNumber() >= 1 && inventory.ore.getNumber() >= 1 && inventory.grain.getNumber() >= 1) {
+                String devCard = game.get().getDevelopmentCardDeck().drawnCard();
+                if (devCard.equals()) //Karte wird hier bekannt, bekannte Karte wird dann dem Inventar hinzugefügt
+                // und dann in die Response gepackt und dem User entsprechend angezeigt.
+            }
+        }
+
+        BuyDevelopmentCardMessage response = new de.uol.swp.common.game.message.BuyDevelopmentCardMessage();
         sendToSpecificUserInGame(gameManagement.getGame(request.getName()), response, request.getBuyer());
     }
 }
