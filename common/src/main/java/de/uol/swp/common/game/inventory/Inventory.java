@@ -1,4 +1,6 @@
-package de.uol.swp.server.game.inventory;
+package de.uol.swp.common.game.inventory;
+
+import de.uol.swp.common.user.User;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -10,6 +12,20 @@ import java.util.Map;
  * @since 2021-02-01
  */
 public class Inventory {
+
+    private User user;
+
+    public Inventory(User user) {
+        this.user = user;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
 
     // Resource Cards
     public Card lumber = new Card();

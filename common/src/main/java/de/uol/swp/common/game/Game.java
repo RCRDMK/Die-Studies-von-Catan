@@ -1,5 +1,6 @@
 package de.uol.swp.common.game;
 
+import de.uol.swp.common.game.inventory.Inventory;
 import de.uol.swp.common.user.User;
 
 import java.io.Serializable;
@@ -78,7 +79,6 @@ public interface Game extends Serializable {
      * @author Pieter Vogt
      * @since 2021-03-26
      */
-
     ArrayList<User> getUsersList();
 
     /**
@@ -119,7 +119,6 @@ public interface Game extends Serializable {
      * <p>This is used to enable the server to adress users with indices. This was not possible with the Set-structure
      * of the Users.</p>
      */
-
     void setUpUserArrayList();
 
     /**
@@ -141,7 +140,6 @@ public interface Game extends Serializable {
      * @author Pieter Vogt
      * @since 2021-03-26
      */
-
     int getOverallTurns();
 
     /**
@@ -152,4 +150,33 @@ public interface Game extends Serializable {
      */
     void nextRound();
 
+    /**
+     * Runs the initial Turn for every player.
+     * <p>
+     * If the game has 4 players, it lets the players do their turn in the following order: 1, 2, 3, 4, 4, 3, 2, 1.
+     * </p>
+     *
+     * @author Pieter Vogt
+     * @since 2021-03-30
+     */
+    void openingPhase();
+
+    /**
+     * Gives the inventory 1-4 a User
+     *
+     * @author Anton Nikiforov
+     * @since 2021-04-01
+     */
+    void setUpInventories();
+
+    /**
+     * Getter for the Inventory from user
+     *
+     * @see de.uol.swp.common.game.inventory.Inventory
+     * @return The Inventory from user
+     * @author Anton Nikiforov
+     * @since 2021-04-01
+     * @param user
+     */
+    Inventory getInventory(User user);
 }

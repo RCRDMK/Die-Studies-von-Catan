@@ -1,7 +1,7 @@
 package de.uol.swp.client.game.GameObjects;
 
 import de.uol.swp.client.game.HelperObjects.Vector;
-import javafx.scene.paint.Color;
+import javafx.scene.Node;
 
 /**
  * This Class holds all information needed to handle the buildings, their placement and type
@@ -16,13 +16,14 @@ public class BuildingField {
     private String name; //Name of the building-type this field represents.
     private Vector position; //the absolute position in x and y on the playfield.
     private boolean used; //boolean to describe whether the buildingField is already used or not
+    private Node node;
 
 
     /**
      * Constructor
      *
-     * @author Kirstin
      * @param position
+     * @author Kirstin
      * @since 2021-03-28
      */
     public BuildingField(Vector position) {
@@ -33,8 +34,8 @@ public class BuildingField {
     /**
      * Getter for the name variable
      *
-     * @author Kirstin Beyer
      * @return String containing the name of the BuildingField
+     * @author Kirstin Beyer
      * @since 2021-03-28
      */
     public String getName() {
@@ -44,8 +45,8 @@ public class BuildingField {
     /**
      * Setter for the name variable
      *
-     * @author Kirstin Beyer
      * @param name String containing the new name of the BuildingField
+     * @author Kirstin Beyer
      * @since 2021-03-28
      */
     public void setName(String name) {
@@ -56,8 +57,8 @@ public class BuildingField {
     /**
      * Getter for the position variable
      *
-     * @author Kirstin Beyer
      * @return Vector containing the absolute position of the BuildingField
+     * @author Kirstin Beyer
      * @since 2021-03-28
      */
     public Vector getPosition() {
@@ -67,8 +68,8 @@ public class BuildingField {
     /**
      * Setter for the position variable
      *
-     * @author Kirstin Beyer
      * @param position Vector containing the new absolute position
+     * @author Kirstin Beyer
      * @since 2021-03-28
      */
     public void setPosition(Vector position) {
@@ -78,8 +79,8 @@ public class BuildingField {
     /**
      * Getter for the boolean used
      *
-     * @author Kirstin Beyer
      * @return boolean to describe whether the buildingField is already used or not
+     * @author Kirstin Beyer
      * @since 2021-03-28
      */
     public boolean isUsed() {
@@ -89,12 +90,34 @@ public class BuildingField {
     /**
      * Setter for the boolean used
      *
-     * @author Kirstin Beyer
      * @param used boolean to describe whether the buildingField is already used or not
+     * @author Kirstin Beyer
      * @since 2021-03-28
      */
     public void setUsed(boolean used) {
         this.used = used;
+    }
+
+    /**
+     * Getter for the Node object of this BuildingField
+     *
+     * @return the Node object of this BuildingField
+     * @author Marc Hermes
+     * @since 2021-03-31
+     */
+    public Node getNode() {
+        return this.node;
+    }
+
+    /**
+     * Setter for the Node object of this BuildingField
+     *
+     * @param node the Node object to set for this BuildingField
+     * @author Marc Hermes
+     * @since 2021-03-31
+     */
+    public void setNode(Node node) {
+        this.node = node;
     }
 
 }
