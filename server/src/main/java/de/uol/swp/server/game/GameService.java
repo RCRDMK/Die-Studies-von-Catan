@@ -321,6 +321,7 @@ public class GameService extends AbstractService {
                 sendToSpecificUserInGame(game, new GameCreatedMessage(game.get().getName(), (UserDTO) user, game.get().getGameField(), usersInGame), user);
             }
             game.get().setUpUserArrayList();
+            game.get().setUpInventories();
             sendToAllInGame(game.get().getName(), new NextTurnMessage(game.get().getName(), game.get().getUser(game.get().getTurn()).getUsername(), game.get().getTurn()));
         } else {
             throw new GameManagementException("Not enough Players ready!");
