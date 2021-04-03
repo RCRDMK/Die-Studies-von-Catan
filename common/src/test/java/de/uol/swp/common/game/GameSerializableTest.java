@@ -35,6 +35,8 @@ public class GameSerializableTest {
                 UserLeftGameMessage.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new BuyDevelopmentCardMessage(),
                 BuyDevelopmentCardMessage.class));
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new NotEnoughRessourcesMessage(),
+                NotEnoughRessourcesMessage.class));
     }
 
     @Test

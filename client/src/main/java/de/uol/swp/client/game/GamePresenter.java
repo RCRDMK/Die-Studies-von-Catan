@@ -735,6 +735,7 @@ public class GamePresenter extends AbstractPresenter {
         draw();
     }
 
+
     @Subscribe
     public void onBuyDevelopmentCardMessage(BuyDevelopmentCardMessage buyDevelopmentCardMessage) {
         buyDevelopmentCardLogic(buyDevelopmentCardMessage.getDevCard());
@@ -749,6 +750,18 @@ public class GamePresenter extends AbstractPresenter {
         notEnoughRessourcesMessageLogic(notEnoughRessourcesMessage);
     }
 
+    /**
+     * The method invoked by NotEnoughRessourceMessage
+     * <p>
+     * This method reacts to the NotEnoughRessourcesMessage and shows the corresponding alert window.
+     *
+     * @param notEnoughRessourcesMessage
+     * @implNote The code inside this Method has to run in the JavaFX-application thread. Therefore it is crucial not to
+     * remove the {@code Platform.runLater()}
+     * @author Marius Birk
+     * @see de.uol.swp.common.game.message.NotEnoughRessourcesMessage
+     * @since 2021-04-03
+     */
     public void notEnoughRessourcesMessageLogic(NotEnoughRessourcesMessage notEnoughRessourcesMessage) {
         Platform.runLater(() -> {
             this.alert.setTitle(notEnoughRessourcesMessage.getName());
@@ -757,8 +770,17 @@ public class GamePresenter extends AbstractPresenter {
         });
     }
 
+    /**
+     * The method invoked when the Game Presenter is first used.
+     * <p>
+     * The Alert tells the user, that he doesn't have enough ressources to buy a development card.
+     * The user can only click the showed button to close the dialog.
+     *
+     * @author Marius Birk
+     * @since 2021-04-03
+     */
     public void setupRessourceAlert() {
-        Alert alert = new Alert(Alert.AlertType.WARNING);
+        this.alert = new Alert(Alert.AlertType.WARNING);
         ButtonType buttonTypeOkay = new ButtonType("Okay", ButtonBar.ButtonData.OK_DONE);
         alert.getButtonTypes().setAll(buttonTypeOkay);
         Button btnOkay = (Button) alert.getDialogPane().lookupButton(buttonTypeOkay);

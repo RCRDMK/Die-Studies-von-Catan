@@ -90,6 +90,13 @@ public class GameService {
         eventBus.post(leaveRequest);
     }
 
+    /**
+     * Posts a request to buy a development card on the eventbus
+     *
+     * @author Marius Birk
+     * @see de.uol.swp.common.game.request.BuyDevelopmentCardRequest
+     * @since 2021-04-03
+     */
     public void buyDevelopmentCard(User user, String gameName) {
         BuyDevelopmentCardRequest buyDevelopmentCardRequest = new BuyDevelopmentCardRequest((UserDTO) user, gameName);
         eventBus.post(buyDevelopmentCardRequest);

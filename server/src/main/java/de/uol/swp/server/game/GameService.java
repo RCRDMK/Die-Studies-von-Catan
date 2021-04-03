@@ -391,11 +391,16 @@ public class GameService extends AbstractService {
     /**
      * Handles BuyDevelopmentCardRequest found on the eventbus.
      *
-     * <p></p>
+     * <p>
+     * Gets the game from the gameManagement and retrieves the inventory from the user. Then the method
+     * checks if enough ressources are available to buy a development card. If there are enough ressources, then
+     * the method gets the next development card from the development card deck and sends a message with the development card to the user.
+     * If there are not enough ressources a NoEnoughRessourcesMessage is send to the user.
+     * </p>
      *
      * @param request Transports the senders UserDTO
      * @author Marius Birk
-     * @since 2021-03-31
+     * @since 2021-04-03
      */
     @Subscribe
     public void onBuyDevelopmentCardRequest(BuyDevelopmentCardRequest request) {
@@ -417,6 +422,5 @@ public class GameService extends AbstractService {
                 sendToSpecificUserInGame(game, nerm, request.getUser());
             }
         }
-
     }
 }
