@@ -406,20 +406,22 @@ public class GameService extends AbstractService {
     public void onBuyDevelopmentCardRequest(BuyDevelopmentCardRequest request) {
         Optional<Game> game = gameManagement.getGame(request.getName());
         if (game.isPresent()) {
-            Inventory inventory = game.get().getInventory(request.getUser());
-            if (inventory.wool.getNumber() >= 1 && inventory.ore.getNumber() >= 1 && inventory.grain.getNumber() >= 1) {
-                String devCard = game.get().getDevelopmentCardDeck().drawnCard();
+            if (request.getUser().getUsername().equals(gameManagement.getGame(request.getName()).get().getUser(gameManagement.getGame(request.getName()).get().getTurn()).getUsername())) {
+                Inventory inventory = game.get().getInventory(request.getUser());
+                if (inventory.wool.getNumber() >= 1 && inventory.ore.getNumber() >= 1 && inventory.grain.getNumber() >= 1) {
+                    String devCard = game.get().getDevelopmentCardDeck().drawnCard();
 
-                inventory.wool.setNumber(inventory.wool.getNumber() - 1);
-                inventory.ore.setNumber(inventory.ore.getNumber() - 1);
-                inventory.grain.setNumber(inventory.grain.getNumber() - 1);
+                    inventory.wool.setNumber(inventory.wool.getNumber() - 1);
+                    inventory.ore.setNumber(inventory.ore.getNumber() - 1);
+                    inventory.grain.setNumber(inventory.grain.getNumber() - 1);
 
-                BuyDevelopmentCardMessage response = new BuyDevelopmentCardMessage(devCard);
-                sendToSpecificUserInGame(game, response, request.getUser());
-            } else {
-                NotEnoughRessourcesMessage nerm = new NotEnoughRessourcesMessage();
-                nerm.setName(game.get().getName());
-                sendToSpecificUserInGame(game, nerm, request.getUser());
+                    BuyDevelopmentCardMessage response = new BuyDevelopmentCardMessage(devCard);
+                    sendToSpecificUserInGame(game, response, request.getUser());
+                } else {
+                    NotEnoughRessourcesMessage nerm = new NotEnoughRessourcesMessage();
+                    nerm.setName(game.get().getName());
+                    sendToSpecificUserInGame(game, nerm, request.getUser());
+                }
             }
         }
     }
