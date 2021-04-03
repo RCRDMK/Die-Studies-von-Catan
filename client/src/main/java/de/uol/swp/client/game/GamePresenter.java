@@ -12,10 +12,7 @@ import de.uol.swp.common.chat.RequestChatMessage;
 import de.uol.swp.common.chat.ResponseChatMessage;
 import de.uol.swp.common.game.GameField;
 import de.uol.swp.common.game.TerrainFieldContainer;
-import de.uol.swp.common.game.message.BuyDevelopmentCardMessage;
-import de.uol.swp.common.game.message.GameCreatedMessage;
-import de.uol.swp.common.game.message.NextTurnMessage;
-import de.uol.swp.common.game.message.UserLeftGameMessage;
+import de.uol.swp.common.game.message.*;
 import de.uol.swp.common.game.request.EndTurnRequest;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
@@ -29,10 +26,7 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.Button;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
@@ -66,6 +60,8 @@ public class GamePresenter extends AbstractPresenter {
     private User joinedLobbyUser;
 
     private String currentLobby;
+
+    private Alert alert;
 
     private ObservableList<String> gameUsers;
 
@@ -271,6 +267,7 @@ public class GamePresenter extends AbstractPresenter {
             this.currentLobby = gcm.getName();
             updateGameUsersList(gcm.getUsers());
             initializeGameField(gcm.getGameField());
+            Platform.runLater(this::setupRessourceAlert);
         }
     }
 
@@ -591,7 +588,7 @@ public class GamePresenter extends AbstractPresenter {
      * This method draws its items from back to front, meaning backmost items need to be drawn first and so on. This is
      * why the background is drawn first, etc.
      * </p>
-     *
+     * <p>
      * enhanced by Marc Hermes 2021-03-31
      *
      * @author Pieter Vogt
@@ -740,10 +737,33 @@ public class GamePresenter extends AbstractPresenter {
 
     @Subscribe
     public void onBuyDevelopmentCardMessage(BuyDevelopmentCardMessage buyDevelopmentCardMessage) {
-        buyDevelopmentCardLogic(buyDevelopmentCardMessage.getCard());
+        buyDevelopmentCardLogic(buyDevelopmentCardMessage.getDevCard());
     }
 
-    public void buyDevelopmentCardLogic(Card card) {
-        //TODO Reaktion auf die übersandte Message. Hinzufügen zum Inventar etc.
+    public void buyDevelopmentCardLogic(String card) {
+        // TODO Reaktion des Clients kann erst richtig implementiert werden, wenn die Nutzer auch Ressourcen haben.
+    }
+
+    @Subscribe
+    public void onNotEnoughRessourcesMessages(NotEnoughRessourcesMessage notEnoughRessourcesMessage) {
+        notEnoughRessourcesMessageLogic(notEnoughRessourcesMessage);
+    }
+
+    public void notEnoughRessourcesMessageLogic(NotEnoughRessourcesMessage notEnoughRessourcesMessage) {
+        Platform.runLater(() -> {
+            this.alert.setTitle(notEnoughRessourcesMessage.getName());
+            this.alert.setHeaderText("You have not enough Ressources!");
+            this.alert.show();
+        });
+    }
+
+    public void setupRessourceAlert() {
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        ButtonType buttonTypeOkay = new ButtonType("Okay", ButtonBar.ButtonData.OK_DONE);
+        alert.getButtonTypes().setAll(buttonTypeOkay);
+        Button btnOkay = (Button) alert.getDialogPane().lookupButton(buttonTypeOkay);
+        btnOkay.setOnAction(event -> {
+            alert.close();
+        });
     }
 }

@@ -11,7 +11,7 @@ package de.uol.swp.common.game.message;
  * @since 2021-03-31
  */
 public class BuyDevelopmentCardMessage extends AbstractGameMessage {
-    //TODO Hier fehlt die private final developmentCard
+    private String devCard = null;
 
     /**
      * Default Constructor
@@ -19,8 +19,15 @@ public class BuyDevelopmentCardMessage extends AbstractGameMessage {
      * @implNote this constructor is needed for serialization
      * @since 2021-03-31
      */
+
     public BuyDevelopmentCardMessage() {
     }
 
-    //TODO Mit dem entsprechenden Konstruktor mit Karte.
+    public BuyDevelopmentCardMessage(String devCard) {
+        this.devCard = devCard;
+    }
+
+    public String getDevCard() {
+        return devCard;
+    }
 }

@@ -399,19 +399,24 @@ public class GameService extends AbstractService {
      */
     @Subscribe
     public void onBuyDevelopmentCardRequest(BuyDevelopmentCardRequest request) {
-        //TODO: Wenn Datenhaltung vom Inventar fertig, dann implementieren.
-        Optional<Game> game = gameManagement.getGame(request.getGameName());
-
+        Optional<Game> game = gameManagement.getGame(request.getName());
         if (game.isPresent()) {
-            Inventory inventory = game.get().getInventory(request.getBuyer());
+            Inventory inventory = game.get().getInventory(request.getUser());
             if (inventory.wool.getNumber() >= 1 && inventory.ore.getNumber() >= 1 && inventory.grain.getNumber() >= 1) {
                 String devCard = game.get().getDevelopmentCardDeck().drawnCard();
-                if (devCard.equals()) //Karte wird hier bekannt, bekannte Karte wird dann dem Inventar hinzugefügt
-                // und dann in die Response gepackt und dem User entsprechend angezeigt.
+
+                inventory.wool.setNumber(inventory.wool.getNumber() - 1);
+                inventory.ore.setNumber(inventory.ore.getNumber() - 1);
+                inventory.grain.setNumber(inventory.grain.getNumber() - 1);
+
+                BuyDevelopmentCardMessage response = new BuyDevelopmentCardMessage(devCard);
+                sendToSpecificUserInGame(game, response, request.getUser());
+            } else {
+                NotEnoughRessourcesMessage nerm = new NotEnoughRessourcesMessage();
+                nerm.setName(game.get().getName());
+                sendToSpecificUserInGame(game, nerm, request.getUser());
             }
         }
 
-        BuyDevelopmentCardMessage response = new de.uol.swp.common.game.message.BuyDevelopmentCardMessage();
-        sendToSpecificUserInGame(gameManagement.getGame(request.getName()), response, request.getBuyer());
     }
 }
