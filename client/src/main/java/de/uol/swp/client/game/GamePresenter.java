@@ -764,7 +764,6 @@ public class GamePresenter extends AbstractPresenter {
      */
     public void notEnoughRessourcesMessageLogic(NotEnoughRessourcesMessage notEnoughRessourcesMessage) {
         Platform.runLater(() -> {
-            this.alert.setTitle(notEnoughRessourcesMessage.getName());
             this.alert.setHeaderText("You have not enough Ressources!");
             this.alert.show();
         });

@@ -406,15 +406,14 @@ public class GameService extends AbstractService {
     public void onBuyDevelopmentCardRequest(BuyDevelopmentCardRequest request) {
         Optional<Game> game = gameManagement.getGame(request.getName());
         if (game.isPresent()) {
-            if (request.getUser().getUsername().equals(gameManagement.getGame(request.getName()).get().getUser(gameManagement.getGame(request.getName()).get().getTurn()).getUsername())) {
+            if (request.getUser().equals(gameManagement.getGame(request.getName()).get().getUser(gameManagement.getGame(request.getName()).get().getTurn()))) {
                 Inventory inventory = game.get().getInventory(request.getUser());
                 if (inventory.wool.getNumber() >= 1 && inventory.ore.getNumber() >= 1 && inventory.grain.getNumber() >= 1) {
                     String devCard = game.get().getDevelopmentCardDeck().drawnCard();
 
-                    inventory.wool.setNumber(inventory.wool.getNumber() - 1);
-                    inventory.ore.setNumber(inventory.ore.getNumber() - 1);
-                    inventory.grain.setNumber(inventory.grain.getNumber() - 1);
-
+                    inventory.wool.decNumber();
+                    inventory.ore.decNumber();
+                    inventory.grain.decNumber();
                     BuyDevelopmentCardMessage response = new BuyDevelopmentCardMessage(devCard);
                     sendToSpecificUserInGame(game, response, request.getUser());
                 } else {
