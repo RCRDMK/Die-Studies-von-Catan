@@ -63,6 +63,10 @@ public class GamePresenter extends AbstractPresenter {
 
     private Alert alert;
 
+    private ButtonType buttonTypeOkay;
+
+    private Button btnOkay;
+
     private ObservableList<String> gameUsers;
 
     //Container for TerrainFields
@@ -763,10 +767,15 @@ public class GamePresenter extends AbstractPresenter {
      * @since 2021-04-03
      */
     public void notEnoughRessourcesMessageLogic(NotEnoughRessourcesMessage notEnoughRessourcesMessage) {
-        Platform.runLater(() -> {
-            this.alert.setHeaderText("You have not enough Ressources!");
-            this.alert.show();
-        });
+        if (this.currentLobby != null) {
+            if (this.currentLobby.equals(notEnoughRessourcesMessage.getName())) {
+                Platform.runLater(() -> {
+                    this.alert.setTitle(notEnoughRessourcesMessage.getName());
+                    this.alert.setHeaderText("Yout have not enough Ressources!");
+                    this.alert.show();
+                });
+            }
+        }
     }
 
     /**
@@ -779,12 +788,13 @@ public class GamePresenter extends AbstractPresenter {
      * @since 2021-04-03
      */
     public void setupRessourceAlert() {
-        this.alert = new Alert(Alert.AlertType.WARNING);
-        ButtonType buttonTypeOkay = new ButtonType("Okay", ButtonBar.ButtonData.OK_DONE);
+        this.alert = new Alert(javafx.scene.control.Alert.AlertType.CONFIRMATION);
+        this.buttonTypeOkay = new ButtonType("Okay", ButtonBar.ButtonData.OK_DONE);
         alert.getButtonTypes().setAll(buttonTypeOkay);
-        Button btnOkay = (Button) alert.getDialogPane().lookupButton(buttonTypeOkay);
+        this.btnOkay = (Button) alert.getDialogPane().lookupButton(buttonTypeOkay);
         btnOkay.setOnAction(event -> {
             alert.close();
+            event.consume();
         });
     }
 }
