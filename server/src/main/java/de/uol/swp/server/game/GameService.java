@@ -6,6 +6,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import de.uol.swp.common.chat.ResponseChatMessage;
 import de.uol.swp.common.game.Game;
+import de.uol.swp.common.game.inventory.Inventory;
 import de.uol.swp.common.game.message.*;
 import de.uol.swp.common.game.request.*;
 import de.uol.swp.common.game.response.AllCreatedGamesResponse;
@@ -182,7 +183,7 @@ public class GameService extends AbstractService {
      * @see de.uol.swp.common.game.request.RollDiceRequest
      * @see de.uol.swp.common.chat.ResponseChatMessage
      * @since 2021-01-07
-     *
+     * <p>
      * Enhanced by Carsten Dekker
      * @since 2021-03-31
      */
@@ -335,7 +336,7 @@ public class GameService extends AbstractService {
      * If a PlayerReadyRequest is detected on the EventBus, this method is called. Method adds ready players to the
      * PlayerReady list and counts the number of player responses in variable Player enhanced by Alexander Losse,
      * Ricardo Mook 2021-03-05
-     *
+     * <p>
      * enhanced by Marc Hermes 2021-03-25
      *
      * @param playerReadyRequest the PlayerReadyRequest found on the EventBus
@@ -383,6 +384,43 @@ public class GameService extends AbstractService {
             } catch (GameManagementException e) {
                 LOG.debug(e);
                 System.out.println("Sender " + request.getUser().getUsername() + " was not player with current turn");
+            }
+        }
+    }
+
+    /**
+     * Handles BuyDevelopmentCardRequest found on the eventbus.
+     *
+     * <p>
+     * Gets the game from the gameManagement and retrieves the inventory from the user. Then the method
+     * checks if enough ressources are available to buy a development card. If there are enough ressources, then
+     * the method gets the next development card from the development card deck and sends a message with the development card to the user.
+     * If there are not enough ressources a NoEnoughRessourcesMessage is send to the user.
+     * </p>
+     *
+     * @param request Transports the senders UserDTO
+     * @author Marius Birk
+     * @since 2021-04-03
+     */
+    @Subscribe
+    public void onBuyDevelopmentCardRequest(BuyDevelopmentCardRequest request) {
+        Optional<Game> game = gameManagement.getGame(request.getName());
+        if (game.isPresent()) {
+            if (request.getUser().equals(gameManagement.getGame(request.getName()).get().getUser(gameManagement.getGame(request.getName()).get().getTurn()))) {
+                Inventory inventory = game.get().getInventory(request.getUser());
+                if (inventory.wool.getNumber() >= 1 && inventory.ore.getNumber() >= 1 && inventory.grain.getNumber() >= 1) {
+                    String devCard = game.get().getDevelopmentCardDeck().drawnCard();
+
+                    inventory.wool.decNumber();
+                    inventory.ore.decNumber();
+                    inventory.grain.decNumber();
+                    BuyDevelopmentCardMessage response = new BuyDevelopmentCardMessage(devCard);
+                    sendToSpecificUserInGame(game, response, request.getUser());
+                } else {
+                    NotEnoughRessourcesMessage nerm = new NotEnoughRessourcesMessage();
+                    nerm.setName(game.get().getName());
+                    sendToSpecificUserInGame(game, nerm, request.getUser());
+                }
             }
         }
     }

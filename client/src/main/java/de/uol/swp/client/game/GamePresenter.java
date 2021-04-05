@@ -4,27 +4,17 @@ import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
 import de.uol.swp.client.chat.ChatService;
-
 import de.uol.swp.client.game.GameObjects.BuildingField;
-import de.uol.swp.client.lobby.LobbyService;
-
-import de.uol.swp.common.game.message.GameCreatedMessage;
-
 import de.uol.swp.client.game.GameObjects.TerrainField;
 import de.uol.swp.client.game.HelperObjects.Vector;
+import de.uol.swp.client.lobby.LobbyService;
 import de.uol.swp.common.chat.RequestChatMessage;
 import de.uol.swp.common.chat.ResponseChatMessage;
 import de.uol.swp.common.game.GameField;
 import de.uol.swp.common.game.TerrainFieldContainer;
-import de.uol.swp.common.game.message.NextTurnMessage;
-
-import de.uol.swp.common.chat.RequestChatMessage;
-import de.uol.swp.common.chat.ResponseChatMessage;
-
-import de.uol.swp.common.game.message.UserLeftGameMessage;
+import de.uol.swp.common.game.message.*;
 import de.uol.swp.common.game.request.EndTurnRequest;
 import de.uol.swp.common.user.User;
-
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.user.response.game.AllThisGameUsersResponse;
 import de.uol.swp.common.user.response.game.GameLeftSuccessfulResponse;
@@ -36,10 +26,7 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.Button;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
@@ -47,8 +34,6 @@ import javafx.scene.shape.Circle;
 import javafx.scene.text.Text;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import java.util.List;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -75,6 +60,12 @@ public class GamePresenter extends AbstractPresenter {
     private User joinedLobbyUser;
 
     private String currentLobby;
+
+    private Alert alert;
+
+    private ButtonType buttonTypeOkay;
+
+    private Button btnOkay;
 
     private ObservableList<String> gameUsers;
 
@@ -217,7 +208,7 @@ public class GamePresenter extends AbstractPresenter {
 
     @FXML
     public void onBuyDevelopmentCard(ActionEvent event) {
-        //TODO:...
+        gameService.buyDevelopmentCard(this.joinedLobbyUser, this.currentLobby);
     }
 
     /**
@@ -280,6 +271,7 @@ public class GamePresenter extends AbstractPresenter {
             this.currentLobby = gcm.getName();
             updateGameUsersList(gcm.getUsers());
             initializeGameField(gcm.getGameField());
+            Platform.runLater(this::setupRessourceAlert);
         }
     }
 
@@ -600,7 +592,7 @@ public class GamePresenter extends AbstractPresenter {
      * This method draws its items from back to front, meaning backmost items need to be drawn first and so on. This is
      * why the background is drawn first, etc.
      * </p>
-     *
+     * <p>
      * enhanced by Marc Hermes 2021-03-31
      *
      * @author Pieter Vogt
@@ -745,5 +737,64 @@ public class GamePresenter extends AbstractPresenter {
             tfArray[i].setName(translatedFieldType);
         }
         draw();
+    }
+
+
+    @Subscribe
+    public void onBuyDevelopmentCardMessage(BuyDevelopmentCardMessage buyDevelopmentCardMessage) {
+        buyDevelopmentCardLogic(buyDevelopmentCardMessage.getDevCard());
+    }
+
+    public void buyDevelopmentCardLogic(String card) {
+        // TODO Reaktion des Clients kann erst richtig implementiert werden, wenn die Nutzer auch Ressourcen haben.
+    }
+
+    @Subscribe
+    public void onNotEnoughRessourcesMessages(NotEnoughRessourcesMessage notEnoughRessourcesMessage) {
+        notEnoughRessourcesMessageLogic(notEnoughRessourcesMessage);
+    }
+
+    /**
+     * The method invoked by NotEnoughRessourceMessage
+     * <p>
+     * This method reacts to the NotEnoughRessourcesMessage and shows the corresponding alert window.
+     *
+     * @param notEnoughRessourcesMessage
+     * @implNote The code inside this Method has to run in the JavaFX-application thread. Therefore it is crucial not to
+     * remove the {@code Platform.runLater()}
+     * @author Marius Birk
+     * @see de.uol.swp.common.game.message.NotEnoughRessourcesMessage
+     * @since 2021-04-03
+     */
+    public void notEnoughRessourcesMessageLogic(NotEnoughRessourcesMessage notEnoughRessourcesMessage) {
+        if (this.currentLobby != null) {
+            if (this.currentLobby.equals(notEnoughRessourcesMessage.getName())) {
+                Platform.runLater(() -> {
+                    this.alert.setTitle(notEnoughRessourcesMessage.getName());
+                    this.alert.setHeaderText("Yout have not enough Ressources!");
+                    this.alert.show();
+                });
+            }
+        }
+    }
+
+    /**
+     * The method invoked when the Game Presenter is first used.
+     * <p>
+     * The Alert tells the user, that he doesn't have enough ressources to buy a development card.
+     * The user can only click the showed button to close the dialog.
+     *
+     * @author Marius Birk
+     * @since 2021-04-03
+     */
+    public void setupRessourceAlert() {
+        this.alert = new Alert(javafx.scene.control.Alert.AlertType.CONFIRMATION);
+        this.buttonTypeOkay = new ButtonType("Okay", ButtonBar.ButtonData.OK_DONE);
+        alert.getButtonTypes().setAll(buttonTypeOkay);
+        this.btnOkay = (Button) alert.getDialogPane().lookupButton(buttonTypeOkay);
+        btnOkay.setOnAction(event -> {
+            alert.close();
+            event.consume();
+        });
     }
 }
