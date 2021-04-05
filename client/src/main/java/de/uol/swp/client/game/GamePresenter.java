@@ -4,27 +4,19 @@ import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
 import de.uol.swp.client.chat.ChatService;
-
 import de.uol.swp.client.game.GameObjects.BuildingField;
-import de.uol.swp.client.lobby.LobbyService;
-
-import de.uol.swp.common.game.message.GameCreatedMessage;
-
 import de.uol.swp.client.game.GameObjects.TerrainField;
 import de.uol.swp.client.game.HelperObjects.Vector;
+import de.uol.swp.client.lobby.LobbyService;
 import de.uol.swp.common.chat.RequestChatMessage;
 import de.uol.swp.common.chat.ResponseChatMessage;
 import de.uol.swp.common.game.GameField;
 import de.uol.swp.common.game.TerrainFieldContainer;
+import de.uol.swp.common.game.message.GameCreatedMessage;
 import de.uol.swp.common.game.message.NextTurnMessage;
-
-import de.uol.swp.common.chat.RequestChatMessage;
-import de.uol.swp.common.chat.ResponseChatMessage;
-
 import de.uol.swp.common.game.message.UserLeftGameMessage;
 import de.uol.swp.common.game.request.EndTurnRequest;
 import de.uol.swp.common.user.User;
-
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.user.response.game.AllThisGameUsersResponse;
 import de.uol.swp.common.user.response.game.GameLeftSuccessfulResponse;
@@ -47,8 +39,6 @@ import javafx.scene.shape.Circle;
 import javafx.scene.text.Text;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import java.util.List;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -148,9 +138,9 @@ public class GamePresenter extends AbstractPresenter {
      * If a ResponseChatMessage is detected on the EventBus the method onResponseChatMessageLogic is invoked.
      *
      * @param message the ResponseChatMessage object seen on the EventBus
-     * @author ?
+     * @author René Meyer
      * @see de.uol.swp.common.chat.ResponseChatMessage
-     * @since ?
+     * @since 2021-03-13
      */
     @Subscribe
     public void onResponseChatMessage(ResponseChatMessage message) {
@@ -161,11 +151,26 @@ public class GamePresenter extends AbstractPresenter {
      * Adds the ResponseChatMessage to the textArea
      *
      * @param message
+     * @author René Meyer
+     * @see de.uol.swp.common.chat.ResponseChatMessage
+     * @since 2021-03-13
      */
     private void updateChat(ResponseChatMessage message) {
         updateChatLogic(message);
     }
 
+    /**
+     * Adds the ResponseChatMessage to the textArea
+     * <p>
+     * First the message gets formatted with the readableTime.
+     * After the formatting the Message gets added to the textArea.
+     * The formatted Message contains the username, readableTime and message
+     *
+     * @param rcm the ResponseChatMessage given by the original subscriber method.
+     * @author René Meyer
+     * @see de.uol.swp.common.chat.ResponseChatMessage
+     * @since 2021-03-13
+     */
     private void updateChatLogic(ResponseChatMessage rcm) {
         var time = new SimpleDateFormat("HH:mm");
         Date resultdate = new Date((long) rcm.getTime().doubleValue());
