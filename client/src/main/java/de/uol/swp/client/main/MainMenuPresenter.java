@@ -60,7 +60,7 @@ public class MainMenuPresenter extends AbstractPresenter {
 
     private ObservableList<String> users;
 
-    private ObservableList<String> lobbies;
+    private ObservableList<LobbyDTO> lobbies;
 
     private User loggedInUser;
 
@@ -92,7 +92,7 @@ public class MainMenuPresenter extends AbstractPresenter {
     private ListView<String> usersView;
 
     @FXML
-    private ListView<String> lobbiesView;
+    private ListView<LobbyDTO> lobbiesView;
 
     /**
      * Handles successful login
@@ -450,7 +450,7 @@ onLobbyFullResponseLogic(response);
                 lobbiesView.setItems(lobbies);
             }
             lobbies.clear();
-            lobbyList.forEach(u -> lobbies.add(u.getName()));
+            lobbies.addAll(lobbyList);
             lobbiesView.setCellFactory(x -> new LobbyCell(lobbyService, loggedInUser));
         });
     }

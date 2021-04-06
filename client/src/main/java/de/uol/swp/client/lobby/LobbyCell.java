@@ -1,7 +1,9 @@
 package de.uol.swp.client.lobby;
 
+import de.uol.swp.common.lobby.dto.LobbyDTO;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
@@ -17,10 +19,12 @@ import javafx.scene.layout.Priority;
  * @since 2019-08-29
  */
 
-public class LobbyCell extends ListCell<String> {
+public class LobbyCell extends ListCell<LobbyDTO> {
     HBox hbox = new HBox();
     Label label= new Label("");
+    Label label1= new Label("");
     Pane pane = new Pane();
+    Pane pane1 = new Pane();
     Button button = new Button("join");
 
     /**
@@ -39,19 +43,21 @@ public class LobbyCell extends ListCell<String> {
     public LobbyCell(LobbyService lobbyservice, User user) {
         super();
 
-        hbox.getChildren().addAll(label, pane, button);
+        hbox.getChildren().addAll(label, pane, label1, pane1,  button);
         HBox.setHgrow(pane, Priority.ALWAYS);
+        HBox.setHgrow(pane1, Priority.ALWAYS);
         button.setOnAction(event -> lobbyservice.joinLobby(label.getText(), (UserDTO) user));
     }
 
     @Override
-    protected void updateItem(String item, boolean empty) {
+    protected void updateItem(LobbyDTO item, boolean empty) {
         super.updateItem(item, empty);
         setText(null);
         setGraphic(null);
 
         if (item != null && !empty) {
-            label.setText(item);
+            label.setText(item.getName());
+            label1.setText(item.getUsers().size() + "/4");
             setGraphic(hbox);
         }
     }
