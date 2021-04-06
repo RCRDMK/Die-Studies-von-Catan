@@ -102,6 +102,34 @@ public class Inventory {
     }
 
     /**
+     * Getter for Cards
+     * <p>
+     * It gets the right card for the entered name.
+     *
+     * @param name
+     * @return Card
+     * @author Anton Nikiforov
+     * @see de.uol.swp.common.game.inventory.Card
+     * @since 2021-04-06
+     */
+    public Card getCard(String name) {
+        switch (name) {
+            case "Lumber" : return lumber;
+            case "Brick" : return brick;
+            case "Grain" : return grain;
+            case "Wool" : return wool;
+            case "Ore" : return ore;
+
+            case "Knight" : return cardKnight;
+            case "Monopoly" : return cardMonopoly;
+            case "Road Building" : return cardRoadBuilding;
+            case "Year of Plenty" : return cardYearOfPlenty;
+
+            default : return null;
+        }
+    }
+
+    /**
      * Creates Private Inventory View
      * <p>
      * This method creates a HashMap with all the information about the Inventory
