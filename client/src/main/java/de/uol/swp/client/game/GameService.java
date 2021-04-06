@@ -34,7 +34,7 @@ public class GameService {
      * Creates a new RollDiceRequest and puts it on the Eventbus
      * <p>
      *
-     * @param name Name of the lobby where the user wants to roll the dice
+     * @param name Name of the lobby/game where the user wants to roll the dice
      * @param user User who wants to roll the dice
      * @author Kirstin, Pieter
      * @see de.uol.swp.common.game.request.RollDiceRequest
