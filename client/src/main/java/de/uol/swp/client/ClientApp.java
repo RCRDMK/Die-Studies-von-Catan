@@ -64,8 +64,8 @@ public class ClientApp extends Application implements ConnectionListener {
         List<String> args = p.getRaw();
 
         if (args.size() != 2) {
-            host = "localhost";
-            port = 8889;
+            host = "duemmer.informatik.uni-oldenburg.de";
+            port = 10500;
             System.err.println("Usage: " + ClientConnection.class.getSimpleName() + " host port");
             System.err.println("Using default port " + port + " on " + host);
         } else {

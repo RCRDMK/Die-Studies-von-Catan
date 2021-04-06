@@ -49,7 +49,7 @@ class ServerApp {
             }
         }
         if (port < 0) {
-            port = 8889;
+            port = 10500;
         }
         LOG.info("Starting Server on port " + port);
 
