@@ -2,6 +2,7 @@ package de.uol.swp.common.game.dto;
 
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.GameField;
+import de.uol.swp.common.game.inventory.DevelopmentCardDeck;
 import de.uol.swp.common.game.inventory.Inventory;
 import de.uol.swp.common.user.User;
 
@@ -34,6 +35,7 @@ public class GameDTO implements Game {
     private boolean startingTurns = true;
     private boolean countingUp = true;
     private boolean lastPlayerSecondTurn = false;
+    private DevelopmentCardDeck developmentCardDeck = new DevelopmentCardDeck();
 
     private Inventory inventory1;
     private Inventory inventory2;
@@ -45,7 +47,6 @@ public class GameDTO implements Game {
      *
      * @param name    The name the game should have
      * @param creator The user who created the game and therefore shall be the owner
-     *
      * @since 2021-01-15
      */
     public GameDTO(String name, User creator) {
@@ -222,11 +223,11 @@ public class GameDTO implements Game {
      */
     @Override
     public void setUpInventories() {
-        if(!(userArrayList.isEmpty())) {
-            if (userArrayList.size()>0) inventory1 = new Inventory(userArrayList.get(0));
-            if (userArrayList.size()>1) inventory2 = new Inventory(userArrayList.get(1));
-            if (userArrayList.size()>2) inventory3 = new Inventory(userArrayList.get(2));
-            if (userArrayList.size()>3) inventory4 = new Inventory(userArrayList.get(3));
+        if (!(userArrayList.isEmpty())) {
+            if (userArrayList.size() > 0) inventory1 = new Inventory(userArrayList.get(0));
+            if (userArrayList.size() > 1) inventory2 = new Inventory(userArrayList.get(1));
+            if (userArrayList.size() > 2) inventory3 = new Inventory(userArrayList.get(2));
+            if (userArrayList.size() > 3) inventory4 = new Inventory(userArrayList.get(3));
         }
     }
 
@@ -235,11 +236,11 @@ public class GameDTO implements Game {
      * <p>
      * It compares the user with the inventory user and returns the inventory from user
      *
-     * @see de.uol.swp.common.game.inventory.Inventory
+     * @param user
      * @return The Inventory from user
      * @author Anton Nikiforov
+     * @see de.uol.swp.common.game.inventory.Inventory
      * @since 2021-04-01
-     * @param user
      */
     @Override
     public Inventory getInventory(User user) {
@@ -248,5 +249,10 @@ public class GameDTO implements Game {
         if (user.equals(inventory3.getUser())) return inventory3;
         if (user.equals(inventory4.getUser())) return inventory4;
         return null;
+    }
+
+    @Override
+    public DevelopmentCardDeck getDevelopmentCardDeck() {
+        return developmentCardDeck;
     }
 }

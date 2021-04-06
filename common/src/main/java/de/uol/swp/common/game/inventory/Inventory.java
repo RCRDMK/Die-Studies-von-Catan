@@ -92,7 +92,7 @@ public class Inventory {
                 ore.getNumber();
     }
 
-    //This method add the Development Cards
+    //This method gets the Development Cards
     public int getDevelopmentCards() {
         return  cardVictoryPoint +
                 cardKnight.getNumber() +
