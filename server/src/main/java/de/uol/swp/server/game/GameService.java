@@ -6,6 +6,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import de.uol.swp.common.chat.ResponseChatMessage;
 import de.uol.swp.common.game.Game;
+import de.uol.swp.common.game.TerrainFieldContainer;
 import de.uol.swp.common.game.inventory.Inventory;
 import de.uol.swp.common.game.message.*;
 import de.uol.swp.common.game.request.*;
@@ -186,6 +187,9 @@ public class GameService extends AbstractService {
      * <p>
      * Enhanced by Carsten Dekker
      * @since 2021-03-31
+     * <p>
+     * Enhanced by Marius Birk & Carsten Dekker
+     * @since 2021-4-06
      */
     @Subscribe
     public void onRollDiceRequest(RollDiceRequest rollDiceRequest) {
@@ -193,14 +197,19 @@ public class GameService extends AbstractService {
 
         Dice dice = new Dice();
         dice.rollDice();
-        String eyes = Integer.toString(dice.getEyes());
+        if (dice.getEyes() == 7) {
+            //TODO Hier müsste der Räuber aktiviert werden.
+        } else {
+            distributeResources(dice.getEyes(), rollDiceRequest.getName());
+        }
+
         try {
             String chatMessage;
             var chatId = "game_" + rollDiceRequest.getName();
             if (dice.getEyes() == 8 || dice.getEyes() == 11) {
-                chatMessage = "Player " + rollDiceRequest.getUser().getUsername() + " rolled an " + eyes;
+                chatMessage = "Player " + rollDiceRequest.getUser().getUsername() + " rolled an " + dice.getEyes();
             } else {
-                chatMessage = "Player " + rollDiceRequest.getUser().getUsername() + " rolled a " + eyes;
+                chatMessage = "Player " + rollDiceRequest.getUser().getUsername() + " rolled a " + dice.getEyes();
             }
             ResponseChatMessage msg = new ResponseChatMessage(chatMessage, chatId, rollDiceRequest.getUser().getUsername(), System.currentTimeMillis());
             post(msg);
@@ -210,6 +219,66 @@ public class GameService extends AbstractService {
         }
     }
 
+    /**
+     * Handles the distribution of resources to the users
+     * <p>
+     * This method handles the distribution of the resources to the users. First the method gets the game and gets the coressponding
+     * terrainfieldcontainer. After that the method checks if the diceToken on the field is equal to the rolled amount of eyes and increases the resource of the user by one.
+     * To Do is, that not every user gets the ressource.
+     *
+     * @param eyes     Number of eyes rolled with dice
+     * @param gameName Name of the Game
+     * @author Marius Birk, Carsten Dekker
+     * @since 2021-04-06
+     */
+    public void distributeResources(int eyes, String gameName) {
+        Optional<Game> game = gameManagement.getGame(gameName);
+
+        if (game.isPresent()) {
+            //TODO Sobald eine Bank implementiert ist, müssen die Ressourcen natürlich noch bei der Bank abgezogen werden.
+            //"Ocean" = 0; "Forest" = 1; "Farmland" = 2; "Grassland" = 3; "Hillside" = 4; "Mountain" = 5; "Desert" = 6;
+            TerrainFieldContainer[] temp = game.get().getGameField().getTFCs();
+            for (TerrainFieldContainer terrainFieldContainer : temp) {
+                if (terrainFieldContainer.getDiceTokens() == eyes) {
+                    switch (terrainFieldContainer.getFieldType()) {
+                        case 1:
+                            for (User user : game.get().getUsers()) {
+                                //TODO Wenn Stadt angrenzend an Field, dann gebe User Resource, Erstmal wird an jeden Resource geben.
+                                game.get().getInventory(user).lumber.incNumber();
+                            }
+                            break;
+                        case 2:
+                            for (User user : game.get().getUsers()) {
+                                //TODO Wenn Stadt angrenzend an Field, dann gebe User Resource, Erstmal wird an jeden Resource geben
+                                game.get().getInventory(user).grain.incNumber();
+                            }
+                            break;
+                        case 3:
+                            for (User user : game.get().getUsers()) {
+                                //TODO Wenn Stadt angrenzend an Field, dann gebe User Resource, Erstmal wird an jeden Resource geben
+                                game.get().getInventory(user).wool.incNumber();
+                            }
+                            break;
+                        case 4:
+                            for (User user : game.get().getUsers()) {
+                                //TODO Wenn Stadt angrenzend an Field, dann gebe User Resource, Erstmal wird an jeden Resource geben
+                                game.get().getInventory(user).brick.incNumber();
+                            }
+                            break;
+                        case 5:
+                            for (User user : game.get().getUsers()) {
+                                //TODO Wenn Stadt angrenzend an Field, dann gebe User Ressource, Erstmal wird an jeden Ressource geben
+                                game.get().getInventory(user).ore.incNumber();
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+
+        }
+    }
 
     /**
      * Prepares a given ServerMessage to be send to all players in the lobby and posts it on the EventBus
