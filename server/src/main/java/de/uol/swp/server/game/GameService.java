@@ -198,7 +198,7 @@ public class GameService extends AbstractService {
         Dice dice = new Dice();
         dice.rollDice();
         if (dice.getEyes() == 7) {
-            moveRobber(dice);
+            moveRobber(dice, rollDiceRequest);
         } else {
             //distributeResources(dice.getEyes(), rollDiceRequest.getName());
         }
@@ -219,15 +219,40 @@ public class GameService extends AbstractService {
         }
     }
 
-    public void moveRobber(Dice dice) {
+    public void moveRobber(Dice dice, RollDiceRequest rollDiceRequest) {
 //TODO Vorerst wird der Räuber random versetzt, sobald möglich, wird eine grafische Versetzung implementiert
         do {
             dice.rollDice();
         } while (dice.getEyes() == 7);
+        Optional<Game> game = gameManagement.getGame(rollDiceRequest.getName());
+        if (game.isPresent()) {
+            TerrainFieldContainer[] temp = game.get().getGameField().getTFCs();
+            TerrainFieldContainer robber = null; //Evtl noch keine gute Idee an dieser Stelle
+            for (TerrainFieldContainer tfc : temp) {
+                if (tfc.isOccupiedByRobber()) {
+                    tfc.setOccupiedByRobber(false);
+                }
+            }
+            for (int i = 0; i < temp.length; i++) {
+                if (temp[i].getDiceTokens() == dice.getEyes()) {
+                    temp[i].setOccupiedByRobber(true);
+                    robber = temp[i];
+                    break;
+                }
+            }
+            for (User user : game.get().getUsers()) {
+                if (!user.equals(rollDiceRequest.getUser())) {
+                    for (int i = 0; i < robber.getBuildingSpots().length) {
+                        if (!robber.getBuildingSpots()[i].isStreet) {
+                            if (robber.getBuildingSpots()[i].isOccupied) {
+                                //TODO Addressierung der Gebäudeplatzierung fehlt um ausmachen wem die Stadt an diesem Buildingspot denn gehört.
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
-        TerrainFieldContainer[] temp =
-        //Spielfeld ist dann von Robber "occupied"
-        //Entsprechende Rohstoffe müssen an aktiven Spieler abgegeben werden
     }
 
     /**
