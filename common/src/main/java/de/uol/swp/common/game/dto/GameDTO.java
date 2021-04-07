@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.TreeSet;
 
+
 /**
  * Object to transfer the information of a game
  * <p>
@@ -142,7 +143,7 @@ public class GameDTO implements Game {
      */
     @Override
     public int getTurn() {
-        return overallTurns % users.size();
+        return overallTurns % userArrayList.size();
     }
 
     /**
