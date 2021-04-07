@@ -1,5 +1,6 @@
 package de.uol.swp.client.game;
 
+import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
@@ -203,7 +204,21 @@ public class GamePresenter extends AbstractPresenter {
 
     @FXML
     public void onTrade(ActionEvent event) {
-        //TODO:...
+        TextField textField = new TextField();
+        textField.setPromptText("How much?");
+        String choice[] = {"What do you want to trade?", "Lumber", "Brick", "Grain", "Wool", "Ore"};
+        ChoiceBox choiceBox = new ChoiceBox(FXCollections.observableArrayList(choice));
+        choiceBox.setValue("What do you want to trade?");
+        Button trade = new Button("Start a Trade");
+
+        int amount = Integer.parseInt(textField.getText());
+        String whatRessource = (String) choiceBox.getValue();
+        trade.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                gameService.startTrade((UserDTO) joinedLobbyUser,currentLobby, whatRessource, amount);
+            }
+        });
     }
 
     @FXML
