@@ -66,33 +66,33 @@ public class Vector {
 
     //Movement-related functions. Double d is the distance to travel.
 
-    public static Vector topRight(double d) {
-        double angle = 1 * (2 * Math.PI / 12);
+    public static Vector right(double d) {
+        double angle = 0 * (2 * Math.PI / 12);
         return new Vector(d * Math.cos(angle), d * Math.sin(angle));
     }
 
-    public static Vector top(double d) {
-        double angle = 3 * (2 * Math.PI / 12);
+    public static Vector topRight(double d) {
+        double angle = 2 * (2 * Math.PI / 12);
         return new Vector(d * Math.cos(angle), d * Math.sin(angle));
     }
 
     public static Vector topLeft(double d) {
-        double angle = 5 * (2 * Math.PI / 12);
+        double angle = 4 * (2 * Math.PI / 12);
+        return new Vector(d * Math.cos(angle), d * Math.sin(angle));
+    }
+
+    public static Vector left(double d) {
+        double angle = 6 * (2 * Math.PI / 12);
         return new Vector(d * Math.cos(angle), d * Math.sin(angle));
     }
 
     public static Vector bottomLeft(double d) {
-        double angle = 7 * (2 * Math.PI / 12);
-        return new Vector(d * Math.cos(angle), d * Math.sin(angle));
-    }
-
-    public static Vector bottom(double d) {
-        double angle = 9 * (2 * Math.PI / 12);
+        double angle = 8 * (2 * Math.PI / 12);
         return new Vector(d * Math.cos(angle), d * Math.sin(angle));
     }
 
     public static Vector bottomRight(double d) {
-        double angle = 11 * (2 * Math.PI / 12);
+        double angle = 10 * (2 * Math.PI / 12);
         return new Vector(d * Math.cos(angle), d * Math.sin(angle));
     }
 

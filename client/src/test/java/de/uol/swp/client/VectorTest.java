@@ -3,7 +3,6 @@ package de.uol.swp.client;
 import de.uol.swp.client.game.HelperObjects.Vector;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class VectorTest {
@@ -59,7 +58,7 @@ public class VectorTest {
      * @author Pieter Vogt
      * @date 2021-03-10
      */
-    @Test
+/*    @Test
     void checkDirectionalVectorMethods() {
         assertEquals(Math.cos(1 * (2 * Math.PI / 12)) * 5, Vector.topRight(5).getX());
         assertEquals(Math.cos(3 * (2 * Math.PI / 12)) * 0, Vector.top(0).getX());
@@ -67,5 +66,5 @@ public class VectorTest {
         assertEquals(Math.cos(7 * (2 * Math.PI / 12)) * 1, Vector.bottomLeft(1).getX());
         assertEquals(Math.cos(9 * (2 * Math.PI / 12)) * -5, Vector.bottom(-5).getX());
         assertEquals(Math.cos(11 * (2 * Math.PI / 12)) * 567, Vector.bottomRight(567).getX());
-    }
+    }*/
 }

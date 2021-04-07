@@ -504,40 +504,40 @@ public class GamePresenter extends AbstractPresenter {
         TerrainField f0 = new TerrainField(Vector.bottomLeft(cardSize()));
         TerrainField f1 = new TerrainField(Vector.bottomLeft(cardSize()));
         TerrainField f2 = new TerrainField(Vector.bottomLeft(cardSize()));
-        TerrainField f3 = new TerrainField(Vector.topLeft(cardSize()));
-        TerrainField f4 = new TerrainField(Vector.topLeft(cardSize()));
-        TerrainField f5 = new TerrainField(Vector.topLeft(cardSize()));
-        TerrainField f6 = new TerrainField(Vector.top((cardSize())));
-        TerrainField f7 = new TerrainField(Vector.top((cardSize())));
-        TerrainField f8 = new TerrainField(Vector.top((cardSize())));
+        TerrainField f3 = new TerrainField(Vector.left(cardSize()));
+        TerrainField f4 = new TerrainField(Vector.left(cardSize()));
+        TerrainField f5 = new TerrainField(Vector.left(cardSize()));
+        TerrainField f6 = new TerrainField(Vector.topLeft((cardSize())));
+        TerrainField f7 = new TerrainField(Vector.topLeft((cardSize())));
+        TerrainField f8 = new TerrainField(Vector.topLeft((cardSize())));
         TerrainField f9 = new TerrainField(Vector.topRight((cardSize())));
         TerrainField f10 = new TerrainField(Vector.topRight((cardSize())));
         TerrainField f11 = new TerrainField(Vector.topRight((cardSize())));
-        TerrainField f12 = new TerrainField(Vector.bottomRight((cardSize())));
-        TerrainField f13 = new TerrainField(Vector.bottomRight((cardSize())));
-        TerrainField f14 = new TerrainField(Vector.bottomRight((cardSize())));
-        TerrainField f15 = new TerrainField(Vector.bottom((cardSize())));
-        TerrainField f16 = new TerrainField(Vector.bottom((cardSize())));
+        TerrainField f12 = new TerrainField(Vector.right((cardSize())));
+        TerrainField f13 = new TerrainField(Vector.right((cardSize())));
+        TerrainField f14 = new TerrainField(Vector.right((cardSize())));
+        TerrainField f15 = new TerrainField(Vector.bottomRight(cardSize()));
+        TerrainField f16 = new TerrainField(Vector.bottomRight((cardSize())));
         TerrainField f17 = new TerrainField(Vector.bottomLeft((cardSize())));
 
         //beginning of landmasses
         TerrainField f18 = new TerrainField(Vector.bottomLeft(cardSize()));
         TerrainField f19 = new TerrainField(Vector.bottomLeft(cardSize()));
-        TerrainField f20 = new TerrainField(Vector.topLeft(cardSize()));
-        TerrainField f21 = new TerrainField(Vector.topLeft(cardSize()));
-        TerrainField f22 = new TerrainField(Vector.top(cardSize()));
-        TerrainField f23 = new TerrainField(Vector.top(cardSize()));
+        TerrainField f20 = new TerrainField(Vector.left(cardSize()));
+        TerrainField f21 = new TerrainField(Vector.left(cardSize()));
+        TerrainField f22 = new TerrainField(Vector.topLeft(cardSize()));
+        TerrainField f23 = new TerrainField(Vector.topLeft(cardSize()));
         TerrainField f24 = new TerrainField(Vector.topRight(cardSize()));
         TerrainField f25 = new TerrainField(Vector.topRight(cardSize()));
-        TerrainField f26 = new TerrainField(Vector.bottomRight(cardSize()));
-        TerrainField f27 = new TerrainField(Vector.bottomRight(cardSize()));
-        TerrainField f28 = new TerrainField(Vector.bottom(cardSize()));
+        TerrainField f26 = new TerrainField(Vector.right(cardSize()));
+        TerrainField f27 = new TerrainField(Vector.right(cardSize()));
+        TerrainField f28 = new TerrainField(Vector.bottomRight(cardSize()));
         TerrainField f29 = new TerrainField(Vector.bottomLeft(cardSize()));
         TerrainField f30 = new TerrainField(Vector.bottomLeft(cardSize()));
-        TerrainField f31 = new TerrainField(Vector.topLeft(cardSize()));
-        TerrainField f32 = new TerrainField(Vector.top(cardSize()));
+        TerrainField f31 = new TerrainField(Vector.left(cardSize()));
+        TerrainField f32 = new TerrainField(Vector.topLeft(cardSize()));
         TerrainField f33 = new TerrainField(Vector.topRight(cardSize()));
-        TerrainField f34 = new TerrainField(Vector.bottomRight(cardSize()));
+        TerrainField f34 = new TerrainField(Vector.right(cardSize()));
         TerrainField f35 = new TerrainField(Vector.bottomLeft(cardSize()));
         TerrainField f36 = new TerrainField(new Vector(0, 0));
         f36.setPosition(new Vector(((canvas.getWidth() / 2) - cardSize() / 2), ((canvas.getHeight() / 2)) - cardSize() / 2));
@@ -566,7 +566,7 @@ public class GamePresenter extends AbstractPresenter {
             for (int j = 0; j < 12; j++) {
                 tempVec = Vector.addVector(tempArray[i].getPosition(), Vector.generalVector(cardSize() / Math.sqrt(2), 315));
 
-                if (j % 2 == 0) {
+                if (j % 2 != 0) {
                     tempVec = Vector.addVector(tempVec, Vector.generalVector(cardSize() / Math.sqrt(3), 30 * j));
 
                     // check if field is already in array
