@@ -4,12 +4,11 @@ import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.GameField;
 import de.uol.swp.common.game.inventory.DevelopmentCardDeck;
 import de.uol.swp.common.game.inventory.Inventory;
+import de.uol.swp.common.game.trade.Trade;
 import de.uol.swp.common.user.User;
+import de.uol.swp.common.user.UserDTO;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 /**
  * Object to transfer the information of a game
@@ -41,6 +40,8 @@ public class GameDTO implements Game {
     private Inventory inventory2;
     private Inventory inventory3;
     private Inventory inventory4;
+
+    private HashMap<String, Trade> tradeList = new HashMap<>();
 
     /**
      * Constructor
@@ -254,5 +255,16 @@ public class GameDTO implements Game {
     @Override
     public DevelopmentCardDeck getDevelopmentCardDeck() {
         return developmentCardDeck;
+    }
+
+    @Override
+    public void addTrades(Trade trade, String tradeCode){
+
+        //UserDTO seller, String itemName, int itemCount
+
+    }
+    @Override
+    public HashMap getTradeList(){
+        return tradeList;
     }
 }

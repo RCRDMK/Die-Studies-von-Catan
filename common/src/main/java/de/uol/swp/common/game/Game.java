@@ -2,10 +2,13 @@ package de.uol.swp.common.game;
 
 import de.uol.swp.common.game.inventory.DevelopmentCardDeck;
 import de.uol.swp.common.game.inventory.Inventory;
+import de.uol.swp.common.game.trade.Trade;
 import de.uol.swp.common.user.User;
+import de.uol.swp.common.user.UserDTO;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Set;
 
 /**
@@ -182,4 +185,9 @@ public interface Game extends Serializable {
     Inventory getInventory(User user);
 
     DevelopmentCardDeck getDevelopmentCardDeck();
+
+
+
+    void addTrades(Trade trade, String tradeCode);
+    HashMap<String, Trade> getTradeList();
 }

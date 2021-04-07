@@ -815,4 +815,11 @@ public class GamePresenter extends AbstractPresenter {
             event.consume();
         });
     }
+
+    @Subscribe
+    public void onTradeOfferInformBiddersMessage(TradeOfferInformBiddersMessage toibm){
+        if(toibm.getName().equals(currentLobby)){
+            //TODO: client chooses what to do
+        }
+    }
 }

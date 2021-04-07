@@ -13,6 +13,7 @@ import de.uol.swp.common.game.request.*;
 import de.uol.swp.common.game.response.AllCreatedGamesResponse;
 import de.uol.swp.common.game.response.GameAlreadyExistsResponse;
 import de.uol.swp.common.game.response.NotLobbyOwnerResponse;
+import de.uol.swp.common.game.trade.Trade;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.message.StartGameMessage;
 import de.uol.swp.common.lobby.request.StartGameRequest;
@@ -493,4 +494,41 @@ public class GameService extends AbstractService {
             }
         }
     }
+
+
+    @Subscribe
+    public void onTradeOfferStartRequest(TradeOfferStartRequest request){
+        Optional<Game> game = gameManagement.getGame(request.getName());
+        if (game.isPresent()) {
+            Inventory inventory = game.get().getInventory(request.getUser());
+            if ((int)inventory.getPrivateView().get(request.getItem()) >= request.getItemCount()) {
+                //to find the trade later
+                String tradeCode = request.getUser() + request.getItem() + request.getItemCount();
+                game.get().addTrades(new Trade(request.getUser(), request.getItem(), request.getItemCount()), tradeCode);
+                //TODO: response bidders will be informed about offer
+                for (User user: game.get().getUsers()) {
+                    if(request.equals(user.getUsername()) == false){
+                        TradeOfferInformBiddersMessage tradeOfferInformBiddersMessage = new TradeOfferInformBiddersMessage(request.getUser(), request.getName(), tradeCode, request.getItem(), request.getItemCount());
+                        sendToSpecificUserInGame(game, tradeOfferInformBiddersMessage, user);
+                    }
+                }
+
+            } //TODO: response not enough cards inventory
+        }
+    }
+
+    @Subscribe
+    public void onTradeBidRequest(TradeBidRequest request){
+        Optional<Game> game = gameManagement.getGame(request.getName());
+        if (game.isPresent()) {
+            Inventory inventory = game.get().getInventory(request.getUser());
+            if ((int)inventory.getPrivateView().get(request.getItem()) >= request.getItemCount()) {
+                //TODO: response bid was delivered
+                game.get().getTradeList().get(request.getTradeCode()).addBid(request.getUser(), request.getItem(), request.getItemCount());
+                //TODO: if bidders = 3 inform Seller about bids
+            }
+        }
+        //TODO: response not enough cards inventory
+    }
+
 }

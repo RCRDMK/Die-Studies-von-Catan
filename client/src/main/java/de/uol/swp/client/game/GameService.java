@@ -101,4 +101,17 @@ public class GameService {
         BuyDevelopmentCardRequest buyDevelopmentCardRequest = new BuyDevelopmentCardRequest((UserDTO) user, gameName);
         eventBus.post(buyDevelopmentCardRequest);
     }
+
+
+    //item = the item to be traded, itemCount = number of items to be traded
+    public void startTrade(UserDTO user, String gameName, String item, int itemCount){
+        TradeOfferStartRequest tradeOfferStartRequest = new TradeOfferStartRequest(user, gameName, item, itemCount);
+        eventBus.post(tradeOfferStartRequest);
+    }
+
+    public void sendBid(UserDTO user, String gameName, String item, int itemCount, String tradeCode){
+        TradeBidRequest tbr = new TradeBidRequest(user, gameName, item, itemCount, tradeCode);
+        eventBus.post(tbr);
+    }
+
 }

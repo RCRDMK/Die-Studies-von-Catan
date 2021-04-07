@@ -62,7 +62,7 @@ public class UserService extends AbstractService {
      * gets posted there.
      *
      * @author Marco Grawunder
-     * @param msg The RegisterUserRequest found on the EventBus
+     * @param msg The RegisterUserRequest found on the EventBustest2
      * @see de.uol.swp.server.usermanagement.UserManagement#createUser(User)
      * @see de.uol.swp.common.user.request.RegisterUserRequest
      * @see de.uol.swp.common.user.response.RegistrationSuccessfulResponse
