@@ -139,9 +139,9 @@ public class GamePresenter extends AbstractPresenter {
      * If a ResponseChatMessage is detected on the EventBus the method onResponseChatMessageLogic is invoked.
      *
      * @param message the ResponseChatMessage object seen on the EventBus
-     * @author ?
+     * @author René Meyer
      * @see de.uol.swp.common.chat.ResponseChatMessage
-     * @since ?
+     * @since 2021-03-13
      */
     @Subscribe
     public void onResponseChatMessage(ResponseChatMessage message) {
@@ -152,11 +152,26 @@ public class GamePresenter extends AbstractPresenter {
      * Adds the ResponseChatMessage to the textArea
      *
      * @param message
+     * @author René Meyer
+     * @see de.uol.swp.common.chat.ResponseChatMessage
+     * @since 2021-03-13
      */
     private void updateChat(ResponseChatMessage message) {
         updateChatLogic(message);
     }
 
+    /**
+     * Adds the ResponseChatMessage to the textArea
+     * <p>
+     * First the message gets formatted with the readableTime.
+     * After the formatting the Message gets added to the textArea.
+     * The formatted Message contains the username, readableTime and message
+     *
+     * @param rcm the ResponseChatMessage given by the original subscriber method.
+     * @author René Meyer
+     * @see de.uol.swp.common.chat.ResponseChatMessage
+     * @since 2021-03-13
+     */
     private void updateChatLogic(ResponseChatMessage rcm) {
         var time = new SimpleDateFormat("HH:mm");
         Date resultdate = new Date((long) rcm.getTime().doubleValue());
