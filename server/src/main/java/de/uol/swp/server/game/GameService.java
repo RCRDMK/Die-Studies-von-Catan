@@ -6,6 +6,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import de.uol.swp.common.chat.ResponseChatMessage;
 import de.uol.swp.common.game.Game;
+import de.uol.swp.common.game.TerrainFieldContainer;
 import de.uol.swp.common.game.inventory.Inventory;
 import de.uol.swp.common.game.message.*;
 import de.uol.swp.common.game.request.*;
@@ -186,6 +187,9 @@ public class GameService extends AbstractService {
      * <p>
      * Enhanced by Carsten Dekker
      * @since 2021-03-31
+     * <p>
+     * Enhanced by Marius Birk & Carsten Dekker
+     * @since 2021-4-06
      */
     @Subscribe
     public void onRollDiceRequest(RollDiceRequest rollDiceRequest) {
@@ -193,14 +197,19 @@ public class GameService extends AbstractService {
 
         Dice dice = new Dice();
         dice.rollDice();
-        String eyes = Integer.toString(dice.getEyes());
+        if (dice.getEyes() == 7) {
+            moveRobber(dice);
+        } else {
+            //distributeResources(dice.getEyes(), rollDiceRequest.getName());
+        }
+
         try {
             String chatMessage;
             var chatId = "game_" + rollDiceRequest.getName();
             if (dice.getEyes() == 8 || dice.getEyes() == 11) {
-                chatMessage = "Player " + rollDiceRequest.getUser().getUsername() + " rolled an " + eyes;
+                chatMessage = "Player " + rollDiceRequest.getUser().getUsername() + " rolled an " + dice.getEyes();
             } else {
-                chatMessage = "Player " + rollDiceRequest.getUser().getUsername() + " rolled a " + eyes;
+                chatMessage = "Player " + rollDiceRequest.getUser().getUsername() + " rolled a " + dice.getEyes();
             }
             ResponseChatMessage msg = new ResponseChatMessage(chatMessage, chatId, rollDiceRequest.getUser().getUsername(), System.currentTimeMillis());
             post(msg);
@@ -210,6 +219,16 @@ public class GameService extends AbstractService {
         }
     }
 
+    public void moveRobber(Dice dice) {
+//TODO Vorerst wird der Räuber random versetzt, sobald möglich, wird eine grafische Versetzung implementiert
+        do {
+            dice.rollDice();
+        } while (dice.getEyes() == 7);
+
+        TerrainFieldContainer[] temp =
+        //Spielfeld ist dann von Robber "occupied"
+        //Entsprechende Rohstoffe müssen an aktiven Spieler abgegeben werden
+    }
 
     /**
      * Prepares a given ServerMessage to be send to all players in the lobby and posts it on the EventBus
