@@ -23,8 +23,10 @@ public class LobbyCell extends ListCell<LobbyDTO> {
     HBox hbox = new HBox();
     Label label= new Label("");
     Label label1= new Label("");
+    Label label2= new Label("");
     Pane pane = new Pane();
     Pane pane1 = new Pane();
+    Pane pane2 = new Pane();
     Button button = new Button("join");
 
     /**
@@ -43,9 +45,10 @@ public class LobbyCell extends ListCell<LobbyDTO> {
     public LobbyCell(LobbyService lobbyservice, User user) {
         super();
 
-        hbox.getChildren().addAll(label, pane, label1, pane1,  button);
+        hbox.getChildren().addAll(label, pane, label1, pane1, label2, pane2,  button);
         HBox.setHgrow(pane, Priority.ALWAYS);
         HBox.setHgrow(pane1, Priority.ALWAYS);
+        HBox.setHgrow(pane2, Priority.ALWAYS);
         button.setOnAction(event -> lobbyservice.joinLobby(label.getText(), (UserDTO) user));
     }
 
@@ -58,6 +61,7 @@ public class LobbyCell extends ListCell<LobbyDTO> {
         if (item != null && !empty) {
             label.setText(item.getName());
             label1.setText(item.getUsers().size() + "/4");
+            label2.setText(Boolean.toString(item.getGameStarted()));
             setGraphic(hbox);
         }
     }

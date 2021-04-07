@@ -69,6 +69,7 @@ public class GameService extends AbstractService {
     @Subscribe
     public void onGameLeaveUserRequest(GameLeaveUserRequest gameLeaveUserRequest) {
         Optional<Game> game = gameManagement.getGame(gameLeaveUserRequest.getName());
+        Optional<Lobby> lobby = lobbyService.getLobby(gameLeaveUserRequest.getName());
         if (game.isPresent()) {
             if (game.get().getUsers().size() == 1) {
                 if (gameLeaveUserRequest.getMessageContext().isPresent()) {
@@ -79,6 +80,7 @@ public class GameService extends AbstractService {
                 }
             } else if (game.get().getUsers() == null) {
                 gameManagement.dropGame(gameLeaveUserRequest.getName());
+                lobby.get().setGameStarted(false);
                 sendToAll(new GameDroppedMessage(gameLeaveUserRequest.getName()));
 
             } else {

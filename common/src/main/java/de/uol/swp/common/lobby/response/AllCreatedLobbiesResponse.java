@@ -56,10 +56,11 @@ public class AllCreatedLobbiesResponse extends AbstractResponseMessage {
     public AllCreatedLobbiesResponse(Collection<Lobby> lobbyCollection) {
         for (Lobby lobby : lobbyCollection) {
             LobbyDTO tempLobby = new LobbyDTO(lobby.getName(), lobby.getOwner());
-            int playerNumber = 0;
+            tempLobby.setGameStarted(lobby.getGameStarted());
+            //int playerNumber = 0;
             for (User user : lobby.getUsers()) {
-                tempLobby.joinUser(new UserDTO(Integer.toString(playerNumber), "", ""));
-                playerNumber++;
+                tempLobby.joinUser(new UserDTO(user.getUsername(), "", ""));
+                //playerNumber++;
 
             }
             this.lobbies.add(tempLobby);

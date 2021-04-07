@@ -433,7 +433,7 @@ onLobbyFullResponseLogic(response);
      * <p>
      * This method clears the entire lobby list and then adds a new list of lobbies.
      *
-     * @param lobbyList A list of UserDTO objects including all existing lobbies
+     * @param lobbyList A list of LobbyDTO objects including all existing lobbies
      *
      * @implNote The code inside this Method has to run in the JavaFX-application thread. Therefore it is crucial not to
      * remove the {@code Platform.runLater()}

@@ -136,4 +136,8 @@ public interface Lobby extends Serializable {
      * @since 2021-03-23
      */
     void setGameShouldStart(boolean value);
+
+    boolean getGameStarted();
+
+    void setGameStarted(boolean value);
 }
