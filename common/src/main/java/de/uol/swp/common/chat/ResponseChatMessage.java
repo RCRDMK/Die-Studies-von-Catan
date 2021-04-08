@@ -2,12 +2,26 @@ package de.uol.swp.common.chat;
 
 import de.uol.swp.common.message.AbstractServerMessage;
 
+/**
+ * ResponseChatMessage class
+ * <p>
+ * Contains message, chat, username, time and their Getters
+ *
+ * @author René Meyer
+ * @see AbstractServerMessage
+ * @since 2020-11-30
+ */
 public class ResponseChatMessage extends AbstractServerMessage {
     private final String message;
     private final String chat;
     private final String username;
     private final double time;
 
+    /**
+     * Constructor
+     * @author René Meyer
+     * @since 2020-11-30
+     */
     public ResponseChatMessage(String message, String chat, String username, double time) {
         this.message = message;
         this.chat = chat;
