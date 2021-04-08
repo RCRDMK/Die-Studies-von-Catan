@@ -287,12 +287,16 @@ public class GameService extends AbstractService {
         Optional<Game> game = gameManagement.getGame(rollDiceRequest.getName());
         if (game.isPresent()) {
             TerrainFieldContainer[] temp = game.get().getGameField().getTFCs();
-            TerrainFieldContainer robber = null; //Evtl noch keine gute Idee an dieser Stelle
+            TerrainFieldContainer robber = new TerrainFieldContainer(0, 0);
+
+            //Indicate the old robbers place and "deactivate" the occupiedByRobber option.
             for (TerrainFieldContainer tfc : temp) {
                 if (tfc.isOccupiedByRobber()) {
                     tfc.setOccupiedByRobber(false);
                 }
             }
+
+            //Set new field for the robber, in case there are two fields with the same diceToken, it chooses the first it reaches and occupies this.
             for (int i = 0; i < temp.length; i++) {
                 if (temp[i].getDiceTokens() == dice.getEyes()) {
                     temp[i].setOccupiedByRobber(true);
@@ -300,19 +304,54 @@ public class GameService extends AbstractService {
                     break;
                 }
             }
+
+            //Clearing out which BuildingSpot is Occupied and which is not.
             for (User user : game.get().getUsers()) {
                 if (!user.equals(rollDiceRequest.getUser())) {
-                    for (int i = 0; i < robber.getBuildingSpots().length) {
+                    for (int i = 0; i < robber.getBuildingSpots().length; i++) {
+                        System.out.println(robber.getBuildingSpots()[i]);
                         if (!robber.getBuildingSpots()[i].isStreet) {
                             if (robber.getBuildingSpots()[i].isOccupied) {
-                                //TODO Addressierung der Gebäudeplatzierung fehlt um ausmachen wem die Stadt an diesem Buildingspot denn gehört.
+                                //TODO Addressierung der Gebäudeplatzierung fehlt um auszumachen wem die Stadt an diesem Buildingspot denn gehört.
                             }
                         }
                     }
                 }
             }
-        }
+            //TODO Noch geben alle User eine Ressource, des Resscourcentyps des Feldes auf dem der Räuber steht, an den aktiven Spieler. Auch hier Änderung notwendig, wenn Addressierung abgeschlossen.
+            //"Ocean" = 0; "Forest" = 1; "Farmland" = 2; "Grassland" = 3; "Hillside" = 4; "Mountain" = 5; "Desert" = 6;
+            for (User user : game.get().getUsers()) {
+                switch (robber.getFieldType()) {
+                    case 1:
+                        game.get().getInventory(user).lumber.decNumber();
+                        game.get().getInventory(rollDiceRequest.getUser()).lumber.incNumber();
+                        LOG.debug(rollDiceRequest.getUser() + " increased his lumber by one.");
+                        LOG.debug(user.getUsername() + "decreased his lumber by one.");
+                    case 2:
+                        game.get().getInventory(user).grain.decNumber();
+                        game.get().getInventory(rollDiceRequest.getUser()).grain.incNumber();
+                        LOG.debug(rollDiceRequest.getUser() + " increased his grain by one.");
+                        LOG.debug(user.getUsername() + "decreased his grain by one.");
+                    case 3:
+                        game.get().getInventory(user).wool.decNumber();
+                        game.get().getInventory(rollDiceRequest.getUser()).wool.incNumber();
+                        LOG.debug(rollDiceRequest.getUser() + " increased his wool by one.");
+                        LOG.debug(user.getUsername() + "decreased his wool by one.");
 
+                    case 4:
+                        game.get().getInventory(user).brick.decNumber();
+                        game.get().getInventory(rollDiceRequest.getUser()).brick.incNumber();
+                        LOG.debug(rollDiceRequest.getUser() + " increased his bricks by one.");
+                        LOG.debug(user.getUsername() + "decreased his bricks by one.");
+
+                    case 5:
+                        game.get().getInventory(user).ore.decNumber();
+                        game.get().getInventory(rollDiceRequest.getUser()).ore.incNumber();
+                        LOG.debug(rollDiceRequest.getUser() + " increased his ore by one.");
+                        LOG.debug(user.getUsername() + "decreased his ore by one.");
+                }
+            }
+        }
     }
 
     /**
