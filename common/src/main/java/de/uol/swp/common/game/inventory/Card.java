@@ -39,4 +39,18 @@ public class Card {
     public void decNumber(int number) {
         this.number = Math.max(this.number - number, 0);
     }
+
+    /**
+     * Is empty test
+     * <p>
+     * It gives false if the number of the card is more the 0 and true if it's not
+     *
+     * @return Card
+     * @author Anton Nikiforov
+     * @since 2021-04-08
+     */
+    public boolean isEmpty() {
+        if (this.number > 0) return false;
+        else return true;
+    }
 }

@@ -77,14 +77,22 @@ public class Inventory {
     public void setContinuousRoad(int continuousRoad) { this.continuousRoad = Math.max(continuousRoad, 0); }
 
 
-    //Increment the Victory Point Card
+    //Increment the Victory Point Card an increase the victoryPoints by one
     public void incCardVictoryPoint() {
         this.cardVictoryPoint++;
         this.victoryPoints++;
     }
 
-    //This method add the Resource Cards
-    public int getResource() {
+    /**
+     * Summed all Resource Cards up
+     * <p>
+     * This method summed all Resource Cards together and gives their sum
+     *
+     * @return sum of the Resource Cards
+     * @author Anton Nikiforov
+     * @since 2021-02-01
+     */
+    public int sumResource() {
         return  lumber.getNumber() +
                 brick.getNumber() +
                 grain.getNumber() +
@@ -92,8 +100,16 @@ public class Inventory {
                 ore.getNumber();
     }
 
-    //This method gets the Development Cards
-    public int getDevelopmentCards() {
+    /**
+     * Summed all Development Cards up
+     * <p>
+     * This method summed all Development Cards together and gives their sum
+     *
+     * @return sum of the Development Cards
+     * @author Anton Nikiforov
+     * @since 2021-02-01
+     */
+    public int sumDevelopmentCards() {
         return  cardVictoryPoint +
                 cardKnight.getNumber() +
                 cardMonopoly.getNumber() +
@@ -106,14 +122,14 @@ public class Inventory {
      * <p>
      * It gets the right card for the entered name.
      *
-     * @param name
+     * @param cardName to get
      * @return Card
      * @author Anton Nikiforov
      * @see de.uol.swp.common.game.inventory.Card
      * @since 2021-04-06
      */
-    public Card getCard(String name) {
-        switch (name) {
+    public Card getCard(String cardName) {
+        switch (cardName) {
             case "Lumber" : return lumber;
             case "Brick" : return brick;
             case "Grain" : return grain;
@@ -179,8 +195,8 @@ public class Inventory {
 
         Map<String, Integer> publicInventory = new HashMap<>();
 
-        publicInventory.put("Resource", getResource());
-        publicInventory.put("Development Cards", getDevelopmentCards());
+        publicInventory.put("Resource", sumResource());
+        publicInventory.put("Development Cards", sumDevelopmentCards());
 
         publicInventory.put("Played Knights", playedKnights);
         publicInventory.put("Continuous Road", continuousRoad);

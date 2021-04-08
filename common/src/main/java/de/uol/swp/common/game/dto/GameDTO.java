@@ -5,6 +5,7 @@ import de.uol.swp.common.game.GameField;
 import de.uol.swp.common.game.inventory.DevelopmentCardDeck;
 import de.uol.swp.common.game.inventory.Inventory;
 import de.uol.swp.common.user.User;
+import de.uol.swp.common.user.UserDTO;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -17,8 +18,11 @@ import java.util.TreeSet;
  * This object is used to communicate the current state of games between the server and clients. It contains information
  * about the Name of the game, who owns the game.
  * <p>
- * enhanced by Pieter Vogt 2021-03-26
- * enhanced by Anton Nikiforov 2021-04-01
+ * enhanced by Pieter Vogt
+ * @since 2021-03-26
+ * <p>
+ * enhanced by Anton Nikiforov
+ * @since 2021-04-01
  *
  * @author Iskander Yusupov
  * @since 2021-01-15
@@ -36,7 +40,9 @@ public class GameDTO implements Game {
     private boolean countingUp = true;
     private boolean lastPlayerSecondTurn = false;
     private DevelopmentCardDeck developmentCardDeck = new DevelopmentCardDeck();
+    private User bank = new UserDTO("banker", "password", "rich@man.net");
 
+    private Inventory bankSafe;
     private Inventory inventory1;
     private Inventory inventory2;
     private Inventory inventory3;
@@ -213,10 +219,11 @@ public class GameDTO implements Game {
     }
 
     /**
-     * Gives the inventory 1-4 a User
+     * Gives the inventory 1-4 a User an creates the Bank
      * <p>
      * It gives the inventory 1-4 a User from the userArrayList if
-     * its not empty and the user exists in the ArrayList
+     * its not empty and the user exists in the ArrayList.
+     * Then its creates the Bank and loads them with resources
      *
      * @author Anton Nikiforov
      * @since 2021-04-01
@@ -229,6 +236,13 @@ public class GameDTO implements Game {
             if (userArrayList.size() > 2) inventory3 = new Inventory(userArrayList.get(2));
             if (userArrayList.size() > 3) inventory4 = new Inventory(userArrayList.get(3));
         }
+
+        bankSafe = new Inventory(bank);
+        bankSafe.lumber.setNumber(19);
+        bankSafe.brick.setNumber(19);
+        bankSafe.grain.setNumber(19);
+        bankSafe.wool.setNumber(19);
+        bankSafe.ore.setNumber(19);
     }
 
     /**
@@ -236,7 +250,7 @@ public class GameDTO implements Game {
      * <p>
      * It compares the user with the inventory user and returns the inventory from user
      *
-     * @param user
+     * @param user you want the inventory of
      * @return The Inventory from user
      * @author Anton Nikiforov
      * @see de.uol.swp.common.game.inventory.Inventory
@@ -248,6 +262,7 @@ public class GameDTO implements Game {
         if (user.equals(inventory2.getUser())) return inventory2;
         if (user.equals(inventory3.getUser())) return inventory3;
         if (user.equals(inventory4.getUser())) return inventory4;
+        if (user.equals(bankSafe.getUser())) return bankSafe;
         return null;
     }
 
