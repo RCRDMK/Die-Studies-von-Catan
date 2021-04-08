@@ -2,6 +2,7 @@ package de.uol.swp.common.game.dto;
 
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.GameField;
+import de.uol.swp.common.game.MapGraph;
 import de.uol.swp.common.user.User;
 
 import java.util.ArrayList;
@@ -32,6 +33,7 @@ public class GameDTO implements Game {
     private boolean startingTurns = true;
     private boolean countingUp = true;
     private boolean lastPlayerSecondTurn = false;
+    private MapGraph mapGraph = new MapGraph();
 
     /**
      * Constructor
