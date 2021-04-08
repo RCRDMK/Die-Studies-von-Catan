@@ -2,6 +2,9 @@ package de.uol.swp.server.game;
 
 import com.google.common.eventbus.EventBus;
 import de.uol.swp.common.game.Game;
+import de.uol.swp.common.game.inventory.Inventory;
+import de.uol.swp.common.game.message.PrivateInventoryChangeMessage;
+import de.uol.swp.common.game.message.PublicInventoryChangeMessage;
 import de.uol.swp.common.game.request.GameLeaveUserRequest;
 import de.uol.swp.common.game.request.RetrieveAllThisGameUsersRequest;
 import de.uol.swp.common.lobby.Lobby;
@@ -14,6 +17,7 @@ import de.uol.swp.server.usermanagement.UserManagement;
 import org.junit.jupiter.api.Test;
 
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,12 +33,14 @@ public class GameServiceTest {
     GameService gameService = new GameService(gameManagement, lobbyService, new AuthenticationService(bus, new UserManagement()), bus);
     final AuthenticationService authenticationService = new AuthenticationService(bus, userManagement);
 
-
     UserDTO userDTO = new UserDTO("Peter", "lustig", "peter.lustig@uol.de");
     UserDTO userDTO1 = new UserDTO("Carsten", "stahl", "carsten.stahl@uol.de");
     UserDTO userDTO2 = new UserDTO("Test", "lustig1", "peterlustig@uol.de");
     UserDTO userDTO3 = new UserDTO("Test2", "lustig2", "test.lustig@uol.de");
 
+    Inventory inventory = new Inventory(userDTO);
+    HashMap privateInventory = inventory.getPrivateView();
+    HashMap publicInventory = inventory.getPublicView();
     public GameServiceTest() throws SQLException {
     }
 
@@ -234,5 +240,34 @@ public class GameServiceTest {
 
         assertEquals(game.get().getInventory(userDTO).lumber.getNumber(), 1);
         assertEquals(game.get().getInventory(userDTO).grain.getNumber(), 1);
+    }
+
+    @Test
+    void updateInventoryTest() {
+        GameService gameService = new GameService(gameManagement, lobbyService, authenticationService, bus);
+        gameManagement.createGame("test", userDTO, "Standard");
+        Optional<Game> game = gameManagement.getGame("test");
+        assertTrue(game.isPresent());
+
+        game.get().joinUser(userDTO1);
+        game.get().joinUser(userDTO2);
+        game.get().joinUser(userDTO3);
+
+        game.get().setUpUserArrayList();
+        game.get().setUpInventories();
+
+        int diceEyes = 5;
+        gameService.distributeResources(diceEyes, "test");
+
+
+        gameService.updateInventory(game);
+        //TODO:tests
+
+
+
+
+
+
+
     }
 }
