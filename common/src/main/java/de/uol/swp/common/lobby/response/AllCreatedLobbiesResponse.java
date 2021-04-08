@@ -52,6 +52,9 @@ public class AllCreatedLobbiesResponse extends AbstractResponseMessage {
      *
      * @param lobbyCollection Collection of all lobbies currently existing
      * @since 2020-04-12
+     *
+     * Enhanced by Carsten Dekker and Marc Hermes
+     * @since 2021-04-08
      */
     public AllCreatedLobbiesResponse(Collection<Lobby> lobbyCollection) {
         for (Lobby lobby : lobbyCollection) {

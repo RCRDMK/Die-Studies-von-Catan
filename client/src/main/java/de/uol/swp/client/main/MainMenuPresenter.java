@@ -11,6 +11,7 @@ import de.uol.swp.client.lobby.LobbyService;
 import de.uol.swp.common.chat.RequestChatMessage;
 import de.uol.swp.common.chat.ResponseChatMessage;
 import de.uol.swp.common.game.message.GameDroppedMessage;
+import de.uol.swp.common.game.message.GameStartedMessage;
 import de.uol.swp.common.lobby.dto.LobbyDTO;
 import de.uol.swp.common.lobby.message.LobbyCreatedMessage;
 import de.uol.swp.common.lobby.message.LobbyDroppedMessage;
@@ -554,14 +555,39 @@ onLobbyFullResponseLogic(response);
         userSettingsService.retrieveUserMail(this.loggedInUser);
     }
 
+    /**
+     * Method called when a GameDroppedMessage was posted on the eventBus.
+     * <p>
+     * If a GameDroppedMessage is detected on the eventBus the retrieveAllLobbies() Method is called, resulting in the
+     * update of the list of the current lobbies for the User. Further, if LOG is set as "debug", a debug message is
+     * posted in the console.
+     *
+     * @param message the GameDroppedMessage detected on the eventBus
+     * @see de.uol.swp.common.game.message.GameDroppedMessage
+     * @author Carsten Dekker
+     * @since 2021-04-08
+     */
     @Subscribe
     public void droppedGame(GameDroppedMessage message) {
+        LOG.debug("Received GameDroppedMessage from game: " + message.getName());
         lobbyService.retrieveAllLobbies();
     }
 
+    /**
+     * Method called when a GameStartedMessage was posted on the eventBus.
+     * <p>
+     * If a GameStartedMessage is detected on the eventBus the retrieveAllLobbies() Method is called, resulting in the
+     * update of the list of the current lobbies for the User. Further, if LOG is set as "debug", a debug message is
+     * posted in the console.
+     *
+     * @param message the GameStartedMessage detected on the eventBus
+     * @see de.uol.swp.common.game.message.GameStartedMessage
+     * @author Carsten Dekker
+     * @since 2021-04-08
+     */
     @Subscribe
-    public void gameStarted() {
+    public void gameStarted(GameStartedMessage message) {
+        LOG.debug("Received GameStartedMessage from game: " + message.getLobbyName());
         lobbyService.retrieveAllLobbies();
     }
-
 }

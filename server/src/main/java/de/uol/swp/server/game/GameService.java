@@ -15,7 +15,6 @@ import de.uol.swp.common.game.response.GameAlreadyExistsResponse;
 import de.uol.swp.common.game.response.NotLobbyOwnerResponse;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.message.StartGameMessage;
-import de.uol.swp.common.lobby.request.RetrieveAllLobbiesRequest;
 import de.uol.swp.common.lobby.request.StartGameRequest;
 import de.uol.swp.common.message.MessageContext;
 import de.uol.swp.common.message.ResponseMessage;
@@ -387,11 +386,11 @@ public class GameService extends AbstractService {
             for (User user : lobby.get().getPlayersReady()) {
                 game.get().joinUser(user);
                 usersInGame.add((UserDTO) user);
-
             }
             lobby.get().setPlayersReadyToNull();
             lobby.get().setRdyResponsesReceived(0);
             lobby.get().setGameStarted(true);
+            post(new GameStartedMessage(lobby.get().getName()));
             for (User user : game.get().getUsers()) {
                 sendToSpecificUserInGame(game, new GameCreatedMessage(game.get().getName(), (UserDTO) user, game.get().getGameField(), usersInGame), user);
             }

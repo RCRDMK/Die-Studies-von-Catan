@@ -137,7 +137,21 @@ public interface Lobby extends Serializable {
      */
     void setGameShouldStart(boolean value);
 
+    /**
+     * Returns a boolean value saying whether the game of this lobby started or not
+     *
+     * @return True if the game started, false if not (users in the lobby still waiting)
+     * @author Carsten Dekker
+     * @since 2021-04-08
+     */
     boolean getGameStarted();
 
+    /**
+     * Sets the value of the gameStarted variable
+     *
+     * @param value True if the game started, false if not
+     * @author Carsten Dekker
+     * @since 2021-04-08
+     */
     void setGameStarted(boolean value);
 }
