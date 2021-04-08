@@ -13,11 +13,27 @@ import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.user.response.RetrieveUserMailResponse;
 import de.uol.swp.common.user.response.UpdateUserSuccessfulResponse;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.HBox;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import javax.swing.text.html.ImageView;
+import java.awt.*;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.lang.reflect.Array;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Arrays;
@@ -92,16 +108,17 @@ public class UserSettingsPresenter extends AbstractPresenter {
     @FXML
     private Button confirmEmailButton;
 
+    @FXML
+    private Button confirmProfilePictureButton;
+
+    @FXML
+    private ListView<String> profilePictureListView;
+
+    @FXML
+    private HBox profilePictureImageView;
+
     @Inject
     private UserSettingsService userSettingsService;
-
-    /**
-     * Default Constructor
-     *
-     * @since 2021-03-04
-     */
-    public UserSettingsPresenter() {
-    }
 
     /**
      * Method called when the Leave button is pressed.
@@ -167,6 +184,7 @@ public class UserSettingsPresenter extends AbstractPresenter {
         currentEmailField.setDisable(false);
         confirmPasswordButton.setVisible(true);
         confirmEmailButton.setVisible(false);
+        confirmProfilePictureButton.setVisible(false);
     }
 
     /**
@@ -198,6 +216,28 @@ public class UserSettingsPresenter extends AbstractPresenter {
         currentEmailField.setDisable(true);
         confirmPasswordButton.setVisible(false);
         confirmEmailButton.setVisible(true);
+        confirmProfilePictureButton.setVisible(false);
+    }
+
+    @FXML
+    void onChangeProfilePictureButtonPressed(ActionEvent event) {
+        for (Label label : Arrays.asList(currentPasswordLabel, newPasswordLabel1, newPasswordLabel2)) {
+            label.setVisible(false);
+        }
+        for (PasswordField passwordField : Arrays.asList(currentPasswordField, newPasswordField1, newPasswordField2)) {
+            passwordField.setVisible(false);
+        }
+        for (Label label : Arrays.asList(currentEmailLabel, newEmailLabel1, newEmailLabel2)) {
+            label.setVisible(false);
+        }
+        for (TextField textField : Arrays.asList(currentEmailField, newEmailField1, newEmailField2)) {
+            textField.setVisible(false);
+        }
+        currentEmailField.setDisable(true);
+        confirmPasswordButton.setVisible(false);
+        confirmEmailButton.setVisible(false);
+        confirmProfilePictureButton.setVisible(true);
+        profilePictureListView.setVisible(true);
     }
 
     /**
@@ -253,6 +293,11 @@ public class UserSettingsPresenter extends AbstractPresenter {
             newEmailField1.clear();
             newEmailField2.clear();
         }
+    }
+
+    @FXML
+    void onConfirmProfilePictureButtonPressed(ActionEvent event) {
+
     }
 
     /**
@@ -366,6 +411,26 @@ public class UserSettingsPresenter extends AbstractPresenter {
             onBtnNoClicked();
             event.consume();
         } );
+        Image image = new Image("client/src/main/resources/img/001.png");
+
+        
+        ObservableList<String> profilePictures;
+        profilePictures = FXCollections.observableArrayList();
+        profilePictureListView.setItems(profilePictures);
+        profilePictureListView.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                System.out.println("clicked on " + profilePictureListView.getSelectionModel().getSelectedItem());
+                try {
+                    showPicturePreview(profilePictureListView.getSelectionModel().getSelectedItem());
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        for(int i = 0; i <= 20; i++) {
+            profilePictures.add("picture" + i);
+        }
     }
 
     /**
@@ -396,5 +461,35 @@ public class UserSettingsPresenter extends AbstractPresenter {
     public void onBtnNoClicked() {
         alert.close();
         LOG.debug("User pressed the no button");
+    }
+
+    public void showPicturePreview(String value) throws FileNotFoundException {
+        switch (value) {
+            case "picture0":
+            case "picture1":
+            case "picture2":
+            case "picture3":
+            case "picture4":
+            case "picture5":
+            case "picture6":
+            case "picture7":
+            case "picture8":
+            case "picture9":
+            case "picture10":
+            case "picture11":
+            case "picture12":
+            case "picture13":
+            case "picture14":
+            case "picture15":
+            case "picture16":
+            case "picture17":
+            case "picture18":
+            case "picture19":
+            case "picture20":
+                break;
+            default:
+                throw new IllegalStateException("Unexpected value: " + value);
+        }
+
     }
 }

@@ -17,6 +17,7 @@ public class UserDTO implements User {
     private final String username;
     private final String password;
     private final String eMail;
+    private int profilePictureID;
 
     /**
      * Constructor
@@ -34,6 +35,7 @@ public class UserDTO implements User {
         this.username = username;
         this.password = password;
         this.eMail = eMail;
+        this.profilePictureID = 1;
     }
 
     /**
@@ -100,5 +102,13 @@ public class UserDTO implements User {
     @Override
     public int hashCode() {
         return Objects.hashCode(username);
+    }
+
+    public int getProfilePictureID() {
+        return profilePictureID;
+    }
+
+    public void setProfilePictureID(int profilePictureID) {
+        this.profilePictureID = profilePictureID;
     }
 }
