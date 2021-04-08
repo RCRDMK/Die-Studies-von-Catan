@@ -200,7 +200,7 @@ public class GameService extends AbstractService {
         if (dice.getEyes() == 7) {
             moveRobber(dice, rollDiceRequest);
         } else {
-            //distributeResources(dice.getEyes(), rollDiceRequest.getName());
+            distributeResources(dice.getEyes(), rollDiceRequest.getName());
         }
 
         try {
@@ -219,6 +219,66 @@ public class GameService extends AbstractService {
         }
     }
 
+    /**
+     * Handles the distribution of resources to the users
+     * <p>
+     * This method handles the distribution of the resources to the users. First the method gets the game and gets the coressponding
+     * terrainfieldcontainer. After that the method checks if the diceToken on the field is equal to the rolled amount of eyes and increases the resource of the user by one.
+     * To Do is, that not every user gets the ressource.
+     *
+     * @param eyes     Number of eyes rolled with dice
+     * @param gameName Name of the Game
+     * @author Marius Birk, Carsten Dekker
+     * @since 2021-04-06
+     */
+    public void distributeResources(int eyes, String gameName) {
+        Optional<Game> game = gameManagement.getGame(gameName);
+
+        if (game.isPresent()) {
+            //TODO Sobald eine Bank implementiert ist, müssen die Ressourcen natürlich noch bei der Bank abgezogen werden.
+            //"Ocean" = 0; "Forest" = 1; "Farmland" = 2; "Grassland" = 3; "Hillside" = 4; "Mountain" = 5; "Desert" = 6;
+            TerrainFieldContainer[] temp = game.get().getGameField().getTFCs();
+            for (TerrainFieldContainer terrainFieldContainer : temp) {
+                if (terrainFieldContainer.getDiceTokens() == eyes) {
+                    switch (terrainFieldContainer.getFieldType()) {
+                        case 1:
+                            for (User user : game.get().getUsers()) {
+                                //TODO Wenn Stadt angrenzend an Field, dann gebe User Resource, Erstmal wird an jeden Resource geben.
+                                game.get().getInventory(user).lumber.incNumber();
+                            }
+                            break;
+                        case 2:
+                            for (User user : game.get().getUsers()) {
+                                //TODO Wenn Stadt angrenzend an Field, dann gebe User Resource, Erstmal wird an jeden Resource geben
+                                game.get().getInventory(user).grain.incNumber();
+                            }
+                            break;
+                        case 3:
+                            for (User user : game.get().getUsers()) {
+                                //TODO Wenn Stadt angrenzend an Field, dann gebe User Resource, Erstmal wird an jeden Resource geben
+                                game.get().getInventory(user).wool.incNumber();
+                            }
+                            break;
+                        case 4:
+                            for (User user : game.get().getUsers()) {
+                                //TODO Wenn Stadt angrenzend an Field, dann gebe User Resource, Erstmal wird an jeden Resource geben
+                                game.get().getInventory(user).brick.incNumber();
+                            }
+                            break;
+                        case 5:
+                            for (User user : game.get().getUsers()) {
+                                //TODO Wenn Stadt angrenzend an Field, dann gebe User Ressource, Erstmal wird an jeden Ressource geben
+                                game.get().getInventory(user).ore.incNumber();
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+
+        }
+    }
     public void moveRobber(Dice dice, RollDiceRequest rollDiceRequest) {
 //TODO Vorerst wird der Räuber random versetzt, sobald möglich, wird eine grafische Versetzung implementiert
         do {

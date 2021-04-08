@@ -243,7 +243,9 @@ public class GamePresenter extends AbstractPresenter {
      */
     @FXML
     public void onRollDice(ActionEvent event) {
-        gameService.rollDice(this.currentLobby, this.joinedLobbyUser);
+        if (this.currentLobby != null) {
+            gameService.rollDice(this.currentLobby, this.joinedLobbyUser);
+        }
     }
 
     @FXML
@@ -313,6 +315,7 @@ public class GamePresenter extends AbstractPresenter {
      * not, it becomes unclickable.</p>
      *
      * @param response
+     * @author Pieter Vogt
      */
     @Subscribe
     public void nextPlayerTurn(NextTurnMessage response) {
