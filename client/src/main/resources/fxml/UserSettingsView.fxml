@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 
 <AnchorPane prefHeight="300.0" prefWidth="300.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.uol.swp.client.account.UserSettingsPresenter">
@@ -30,6 +31,6 @@
        <Button id="dropUserButton" layoutX="223.0" layoutY="14.0" mnemonicParsing="false" onAction="#onDropUserButtonPressed" text="DropUser" />
        <Button id="leaveButton" layoutX="234.0" layoutY="219.0" mnemonicParsing="false" onAction="#onLeaveButtonPressed" text="Close" />
       <ListView fx:id="profilePictureListView" layoutX="19.0" layoutY="50.0" prefHeight="200.0" prefWidth="200.0" visible="false" />
-      <HBox fx:id="profilePictureImageView" layoutX="301.0" layoutY="73.0" prefHeight="100.0" prefWidth="200.0" />
+      <ImageView fx:id="profilePictureImageView" fitHeight="150.0" fitWidth="200.0" layoutX="286.0" layoutY="69.0" pickOnBounds="true" preserveRatio="true" visible="false"/>
     </children>
 </AnchorPane>

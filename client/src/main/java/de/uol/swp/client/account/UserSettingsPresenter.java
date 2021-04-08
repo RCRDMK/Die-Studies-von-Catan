@@ -23,12 +23,13 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
+import javafx.scene.shape.Rectangle;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.swing.text.html.ImageView;
 import java.awt.*;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -115,10 +116,28 @@ public class UserSettingsPresenter extends AbstractPresenter {
     private ListView<String> profilePictureListView;
 
     @FXML
-    private HBox profilePictureImageView;
+    private ImageView profilePictureImageView;
 
     @Inject
     private UserSettingsService userSettingsService;
+
+    Image image1 = new Image("img/001.png");
+
+    Image image2 = new Image("img/002.png");
+
+    Image image3 = new Image("img/003.png");
+
+    Image image4 = new Image("img/004.png");
+
+    Image image5 = new Image("img/005.png");
+
+    Image image6 = new Image("img/006.png");
+
+    Image image7 = new Image("img/007.png");
+
+    Image image8 = new Image("img/008.png");
+
+    Image image9 = new Image("img/009.png");
 
     /**
      * Method called when the Leave button is pressed.
@@ -185,6 +204,8 @@ public class UserSettingsPresenter extends AbstractPresenter {
         confirmPasswordButton.setVisible(true);
         confirmEmailButton.setVisible(false);
         confirmProfilePictureButton.setVisible(false);
+        profilePictureListView.setVisible(false);
+        profilePictureImageView.setVisible(false);
     }
 
     /**
@@ -217,6 +238,8 @@ public class UserSettingsPresenter extends AbstractPresenter {
         confirmPasswordButton.setVisible(false);
         confirmEmailButton.setVisible(true);
         confirmProfilePictureButton.setVisible(false);
+        profilePictureListView.setVisible(false);
+        profilePictureImageView.setVisible(false);
     }
 
     @FXML
@@ -238,6 +261,7 @@ public class UserSettingsPresenter extends AbstractPresenter {
         confirmEmailButton.setVisible(false);
         confirmProfilePictureButton.setVisible(true);
         profilePictureListView.setVisible(true);
+        profilePictureImageView.setVisible(true);
     }
 
     /**
@@ -411,9 +435,9 @@ public class UserSettingsPresenter extends AbstractPresenter {
             onBtnNoClicked();
             event.consume();
         } );
-        Image image = new Image("client/src/main/resources/img/001.png");
-
-        
+        //Rectangle rectangle = new Rectangle();
+        profilePictureImageView.setImage(image1);
+        //profilePictureImageView.setClip(rectangle);
         ObservableList<String> profilePictures;
         profilePictures = FXCollections.observableArrayList();
         profilePictureListView.setItems(profilePictures);
@@ -422,13 +446,13 @@ public class UserSettingsPresenter extends AbstractPresenter {
             public void handle(MouseEvent event) {
                 System.out.println("clicked on " + profilePictureListView.getSelectionModel().getSelectedItem());
                 try {
-                    showPicturePreview(profilePictureListView.getSelectionModel().getSelectedItem());
+                    profilePictureImageView.setImage(showPicturePreview(profilePictureListView.getSelectionModel().getSelectedItem()));
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
                 }
             }
         });
-        for(int i = 0; i <= 20; i++) {
+        for(int i = 1; i <= 20; i++) {
             profilePictures.add("picture" + i);
         }
     }
@@ -463,30 +487,48 @@ public class UserSettingsPresenter extends AbstractPresenter {
         LOG.debug("User pressed the no button");
     }
 
-    public void showPicturePreview(String value) throws FileNotFoundException {
+    public Image showPicturePreview(String value) throws FileNotFoundException {
         switch (value) {
-            case "picture0":
             case "picture1":
+                return image1;
             case "picture2":
+                return image2;
             case "picture3":
+                return image3;
             case "picture4":
+                return image4;
             case "picture5":
+                return image5;
             case "picture6":
+                return image6;
             case "picture7":
+                return image7;
             case "picture8":
+                return image8;
             case "picture9":
+                return image9;
             case "picture10":
+                return image1;
             case "picture11":
+                return image1;
             case "picture12":
+                return image1;
             case "picture13":
+                return image1;
             case "picture14":
+                return image1;
             case "picture15":
+                return image1;
             case "picture16":
+                return image1;
             case "picture17":
+                return image1;
             case "picture18":
+                return image1;
             case "picture19":
+                return image1;
             case "picture20":
-                break;
+                return image1;
             default:
                 throw new IllegalStateException("Unexpected value: " + value);
         }
