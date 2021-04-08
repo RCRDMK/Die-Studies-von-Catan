@@ -8,7 +8,10 @@ import org.apache.logging.log4j.Logger;
 
 import javax.inject.Inject;
 import java.sql.*;
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 
 /**
@@ -114,6 +117,16 @@ public class UserManagement extends AbstractUserManagement {
     public boolean isLoggedIn(User username) {
         return loggedInUsers.containsKey(username.getUsername());
     }
+
+    /**
+     * Creates a New User
+     * <p>
+     * This method creates a new User in the Database. It throws an exception if the username is already used in
+     * the database.
+     *
+     * @return A new UserDTO with the username, password and the mail address
+     * @see java.sql.SQLException
+     */
 
     @Override
     public User createUser(User userToCreate) {

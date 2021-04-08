@@ -4,29 +4,27 @@ import com.google.common.eventbus.DeadEvent;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import de.uol.swp.client.user.UserService;
-import de.uol.swp.common.lobby.message.*;
+import de.uol.swp.common.lobby.message.UserJoinedLobbyMessage;
 import de.uol.swp.common.lobby.request.CreateLobbyRequest;
-import de.uol.swp.common.lobby.request.RetrieveAllLobbiesRequest;
+import de.uol.swp.common.lobby.request.LobbyJoinUserRequest;
 import de.uol.swp.common.lobby.request.LobbyLeaveUserRequest;
+import de.uol.swp.common.lobby.request.RetrieveAllLobbiesRequest;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
-import de.uol.swp.common.lobby.request.LobbyJoinUserRequest;
-import de.uol.swp.common.user.request.*;
+import de.uol.swp.common.user.request.LoginRequest;
 import de.uol.swp.common.user.response.lobby.LobbyCreatedSuccessfulResponse;
-import org.checkerframework.checker.units.qual.A;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.lang.reflect.Array;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * This a test of the class is used to hide the communication details
@@ -318,6 +316,10 @@ class LobbyServiceTest {
 
 
     /**
+     * Test for joinLobby()
+     * <p>
+     * This test checks if a User can join Lobby
+     *
      * @throws InterruptedException
      */
 

@@ -23,8 +23,11 @@ public class RollDiceRequest extends AbstractRequestMessage {
     /**
      * Constructor
      *
+     * @param name Time when the User tries to send the message
+     * @param user Time when the User tries to send the message
      * @since 2021-01-07
      */
+
     public RollDiceRequest(String name, User user) {
         this.name = name;
         this.user = user;

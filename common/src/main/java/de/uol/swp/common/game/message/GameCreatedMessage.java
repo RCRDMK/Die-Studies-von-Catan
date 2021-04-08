@@ -1,8 +1,7 @@
 package de.uol.swp.common.game.message;
 
-import de.uol.swp.common.user.UserDTO;
-
 import de.uol.swp.common.game.GameField;
+import de.uol.swp.common.user.UserDTO;
 
 import java.util.ArrayList;
 
@@ -20,8 +19,9 @@ public class GameCreatedMessage extends AbstractGameMessage {
 
     /**
      * Constructor
-     *
+     * <p>
      * enhanced by Alexander Losse, Ricardo Mook 2021-03-05
+     *
      * @since 2021-01-07
      */
     public GameCreatedMessage(String name, UserDTO user, GameField gameField, ArrayList<UserDTO> users) {

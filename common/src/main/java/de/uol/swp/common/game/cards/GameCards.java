@@ -13,6 +13,14 @@ public abstract class GameCards {
     private String name;
     private String owner;
 
+    /**
+     * Constructor
+     *
+     * @param id    the id from the specific card
+     * @param name  the Name of the card
+     * @param owner username of the user who owns the card
+     */
+
     public GameCards(int id, String name, String owner) {
         this.ID = id;
         this.name = name;

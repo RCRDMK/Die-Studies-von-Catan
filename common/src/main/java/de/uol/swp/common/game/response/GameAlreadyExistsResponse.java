@@ -17,6 +17,12 @@ public class GameAlreadyExistsResponse extends AbstractResponseMessage {
 
     private String lobbyName;
 
+    /**
+     * Constructor
+     *
+     * @param lobbyName Name of the Lobby
+     */
+
     public GameAlreadyExistsResponse(String lobbyName) {
         this.lobbyName = lobbyName;
     }

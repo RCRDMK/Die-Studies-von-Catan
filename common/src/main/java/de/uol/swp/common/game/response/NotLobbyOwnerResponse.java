@@ -16,6 +16,12 @@ public class NotLobbyOwnerResponse extends AbstractResponseMessage {
 
     private String lobbyName;
 
+    /**
+     * Constructor
+     *
+     * @param lobbyName Name from the Lobby
+     */
+
     public NotLobbyOwnerResponse(String lobbyName) {
         this.lobbyName = lobbyName;
     }
