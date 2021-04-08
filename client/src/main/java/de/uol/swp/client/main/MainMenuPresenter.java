@@ -14,7 +14,6 @@ import de.uol.swp.common.lobby.dto.LobbyDTO;
 import de.uol.swp.common.lobby.message.LobbyCreatedMessage;
 import de.uol.swp.common.lobby.message.LobbyDroppedMessage;
 import de.uol.swp.common.lobby.message.LobbySizeChangedMessage;
-import de.uol.swp.common.lobby.request.RetrieveAllThisLobbyUsersRequest;
 import de.uol.swp.common.lobby.response.AllCreatedLobbiesResponse;
 import de.uol.swp.common.lobby.response.AlreadyJoinedThisLobbyResponse;
 import de.uol.swp.common.lobby.response.LobbyAlreadyExistsResponse;
@@ -23,9 +22,9 @@ import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.user.message.UserLoggedInMessage;
 import de.uol.swp.common.user.message.UserLoggedOutMessage;
 import de.uol.swp.common.user.response.AllOnlineUsersResponse;
-import de.uol.swp.common.user.response.lobby.LobbyFullResponse;
-import de.uol.swp.common.user.response.lobby.JoinDeletedLobbyResponse;
 import de.uol.swp.common.user.response.LoginSuccessfulResponse;
+import de.uol.swp.common.user.response.lobby.JoinDeletedLobbyResponse;
+import de.uol.swp.common.user.response.lobby.LobbyFullResponse;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -284,9 +283,14 @@ public class MainMenuPresenter extends AbstractPresenter {
     }
 
     /**
-     * Updates the chat when a ResponseChatMessage was posted to the eventBus.
+     * Updates the chat when a ResponseChatMessage was detected on the eventBus.
+     * <p>
+     * If a ResponseChatMessage is detected on the eventbus, this method calls the updateChat method
+     * with the ResponseChatMessage as parameter
      *
-     * @param message
+     * @param message the message that is detected on the eventBus
+     * @author René Meyer
+     * @since 31-11-2020
      */
     @Subscribe
     public void onResponseChatMessage(ResponseChatMessage message) {
@@ -301,14 +305,14 @@ public class MainMenuPresenter extends AbstractPresenter {
     }
 
     /**
-     * Method called when a LobbyFullResponse was posted on the eventBus.
+     * Method called when a LobbyFullResponse was detected on the eventBus.
      * <p>
      * If a LobbyFullResponse was posted on the eventBus, this method will let the User know the lobby is full via
-     * posting a 'Can't join lobby' message to the local chat.
+     * posting a 'Can't join lobby' message to the local chat. This action will also be logged.
      *
-     * @param response
-     *
-     * @author René
+     * @param response the LobbyFullResponse that was detected on the eventBus
+     * @author René Meyer
+     * @see LobbyFullResponse
      * @since 2020-12-17
      */
     @Subscribe
@@ -349,14 +353,13 @@ onLobbyFullResponseLogic(response);
     }
 
     /**
-     * Method called when a LobbyDeletedResponse was posted on the eventBus.
+     * Method called when a JoinDeletedLobbyResponse was detected on the eventBus.
      * <p>
      * If a JoinDeletedLobbyResponse was posted on the eventBus, this method will let the User know the lobby was
-     * deleted via posting a 'Lobby deleted' message to the local chat.
+     * deleted via posting a 'Lobby deleted' message to the local chat. This action will also be logged.
      *
-     * @param response
-     *
-     * @author Sergej
+     * @param response the JoinDeletedLobbyResponse that was detected on the eventBus
+     * @author Sergej Tulnev, René Meyer
      * @since 2020-12-17
      */
     @Subscribe
@@ -418,8 +421,16 @@ onLobbyFullResponseLogic(response);
 
     /**
      * Adds the ResponseChatMessage to the textArea
+     * <p>
+     * The message is formatted before it gets added to the textArea.
+     * The formatted message contains the username, readableTime and the message.
      *
-     * @param msg
+     *
+     * @param msg the ResponseChatMessage
+     * @see SimpleDateFormat
+     * @see ResponseChatMessage
+     * @author René Meyer
+     * @since 2020-11-30
      */
     private void updateChat(ResponseChatMessage msg) {
         var time = new SimpleDateFormat("HH:mm");
@@ -498,12 +509,14 @@ onLobbyFullResponseLogic(response);
      * Method called when the send Message button is pressed
      * <p>
      * If the send Message button is pressed, this methods tries to request the chatService to send a specified message.
-     * The message is of type RequestChatMessage If this will result in an exception, go log the exception
+     * The message is of type RequestChatMessage if this will result in an exception it logs the exception.
      *
      * @param event The ActionEvent created by pressing the send Message button
      *
      * @see de.uol.swp.client.chat.ChatService
+     * @see ActionEvent
      * @since 2020-11-22
+     * @author René Meyer
      */
     @FXML
     void onSendMessage(ActionEvent event) {
