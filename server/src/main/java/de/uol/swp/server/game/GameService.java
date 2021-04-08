@@ -22,6 +22,7 @@ import de.uol.swp.common.message.ServerMessage;
 import de.uol.swp.common.user.Session;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
+import de.uol.swp.common.user.request.LogoutRequest;
 import de.uol.swp.common.user.response.game.AllThisGameUsersResponse;
 import de.uol.swp.common.user.response.game.GameLeftSuccessfulResponse;
 import de.uol.swp.server.AbstractService;
@@ -33,6 +34,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 /**
@@ -492,5 +494,55 @@ public class GameService extends AbstractService {
                 }
             }
         }
+    }
+
+    /**
+     * Handles LogoutRequests found on the EventBus
+     * <p>
+     * If a LogoutRequest is detected on the EventBus, this method is called. It
+     * gets all games from the GameManagement and loops through them.
+     * If the user is part of a game, he gets removed from it.
+     * If he is the last user in the game, the game gets dropped.
+     * Finally we log how many games the user left.
+     *
+     * @param request LogoutRequest found on the eventBus
+     * @see de.uol.swp.common.user.request.LogoutRequest
+     * @see de.uol.swp.common.game.request.GameLeaveUserRequest
+     * @see de.uol.swp.server.lobby.LobbyService
+     * @author René Meyer, Sergej Tulnev
+     * @since 2021-04-08
+     */
+    @Subscribe
+    public void onLogoutRequest(LogoutRequest request){
+        if (request.getSession().isPresent()){
+            Session session = request.getSession().get();
+            var userToLogOut = session.getUser();
+            // Could be already logged out
+            if (userToLogOut != null) {
+                var games = gameManagement.getAllGames();
+                // Create gamesCopy because of ConcurrentModificationException,
+                // so it doesn't matter when in the meantime the games Object gets modified, while we still loop through it
+                var gamesCopy = games.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+                // Loop games
+                Iterator<Map.Entry<String, Game>> it = gamesCopy.entrySet().iterator();
+                var i = 0;
+                while (it.hasNext()) {
+                    Map.Entry<String, Game> entry = it.next();
+                    Game game = entry.getValue();
+                    if(game.getUsers().contains(userToLogOut)){
+                        // leave every game the user is part of
+                        var gameLeaveUserRequest = new GameLeaveUserRequest(game.getName(), (UserDTO) userToLogOut);
+                        if(request.getMessageContext().isPresent()){
+                            gameLeaveUserRequest.setMessageContext(request.getMessageContext().get());
+                            this.onGameLeaveUserRequest(gameLeaveUserRequest);
+                        }
+                    }
+                    i++;
+                }
+                var lobbyString = i>1? " games":" game";
+                LOG.debug("Left " + i + lobbyString+" for User: " + userToLogOut.getUsername());
+            }
+        }
+
     }
 }
