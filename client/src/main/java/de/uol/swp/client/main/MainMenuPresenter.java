@@ -10,6 +10,7 @@ import de.uol.swp.client.lobby.LobbyCell;
 import de.uol.swp.client.lobby.LobbyService;
 import de.uol.swp.common.chat.RequestChatMessage;
 import de.uol.swp.common.chat.ResponseChatMessage;
+import de.uol.swp.common.game.message.GameDroppedMessage;
 import de.uol.swp.common.lobby.dto.LobbyDTO;
 import de.uol.swp.common.lobby.message.LobbyCreatedMessage;
 import de.uol.swp.common.lobby.message.LobbyDroppedMessage;
@@ -552,4 +553,15 @@ onLobbyFullResponseLogic(response);
         eventBus.post(showSetViewMessage);
         userSettingsService.retrieveUserMail(this.loggedInUser);
     }
+
+    @Subscribe
+    public void droppedGame(GameDroppedMessage message) {
+        lobbyService.retrieveAllLobbies();
+    }
+
+    @Subscribe
+    public void gameStarted() {
+        lobbyService.retrieveAllLobbies();
+    }
+
 }

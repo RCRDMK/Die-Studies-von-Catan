@@ -8,6 +8,7 @@ import de.uol.swp.client.game.GameService;
 import de.uol.swp.common.chat.RequestChatMessage;
 import de.uol.swp.common.chat.ResponseChatMessage;
 import de.uol.swp.common.game.message.GameCreatedMessage;
+import de.uol.swp.common.game.message.GameDroppedMessage;
 import de.uol.swp.common.game.message.NotEnoughPlayersMessage;
 import de.uol.swp.common.game.response.GameAlreadyExistsResponse;
 import de.uol.swp.common.game.response.NotLobbyOwnerResponse;
@@ -760,6 +761,5 @@ public class LobbyPresenter extends AbstractPresenter {
             }
         }
     }
-
 }
 

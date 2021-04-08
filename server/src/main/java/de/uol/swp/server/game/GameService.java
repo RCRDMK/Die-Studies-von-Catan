@@ -15,6 +15,7 @@ import de.uol.swp.common.game.response.GameAlreadyExistsResponse;
 import de.uol.swp.common.game.response.NotLobbyOwnerResponse;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.message.StartGameMessage;
+import de.uol.swp.common.lobby.request.RetrieveAllLobbiesRequest;
 import de.uol.swp.common.lobby.request.StartGameRequest;
 import de.uol.swp.common.message.MessageContext;
 import de.uol.swp.common.message.ResponseMessage;
@@ -77,11 +78,12 @@ public class GameService extends AbstractService {
                     Optional<MessageContext> ctx = gameLeaveUserRequest.getMessageContext();
                     sendToSpecificUser(ctx.get(), new GameLeftSuccessfulResponse(gameLeaveUserRequest.getName(), gameLeaveUserRequest.getUser()));
                     gameManagement.dropGame(gameLeaveUserRequest.getName());
+                    lobby.ifPresent(value -> value.setGameStarted(false));
                     sendToAll(new GameDroppedMessage(gameLeaveUserRequest.getName()));
                 }
             } else if (game.get().getUsers() == null) {
                 gameManagement.dropGame(gameLeaveUserRequest.getName());
-                lobby.get().setGameStarted(false);
+                lobby.ifPresent(value -> value.setGameStarted(false));
                 sendToAll(new GameDroppedMessage(gameLeaveUserRequest.getName()));
 
             } else {
@@ -389,6 +391,7 @@ public class GameService extends AbstractService {
             }
             lobby.get().setPlayersReadyToNull();
             lobby.get().setRdyResponsesReceived(0);
+            lobby.get().setGameStarted(true);
             for (User user : game.get().getUsers()) {
                 sendToSpecificUserInGame(game, new GameCreatedMessage(game.get().getName(), (UserDTO) user, game.get().getGameField(), usersInGame), user);
             }
