@@ -17,6 +17,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.sql.SQLException;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Mapping vom event bus calls to user management calls
@@ -32,6 +35,7 @@ public class UserService extends AbstractService {
     private static final Logger LOG = LogManager.getLogger(UserService.class);
 
     private final UserManagement userManagement;
+
 
     /**
      * Constructor
@@ -109,8 +113,8 @@ public class UserService extends AbstractService {
             returnMessage = new DropUserSuccessfulResponse();
         } catch (Exception e) {
             LOG.error(e);
-            returnMessage = new DropUserExceptionMessage("Cannot drop user " + dropUserRequest.getUser() +
-                    " " + e.getMessage());
+            returnMessage = new DropUserExceptionMessage("Cannot drop user " + dropUserRequest.getUser() + " " +
+                    e.getMessage());
         }
         returnMessage.setMessageContext(dropUserRequest.getMessageContext().get());
         post(returnMessage);
@@ -136,8 +140,7 @@ public class UserService extends AbstractService {
         }
         ResponseMessage returnMessage;
         try {
-            returnMessage = new RetrieveUserMailResponse(userManagement.retrieveUserMail(
-                    retrieveUserMailRequest.getUser()));
+            returnMessage = new RetrieveUserMailResponse(userManagement.retrieveUserMail(retrieveUserMailRequest.getUser()));
         } catch (Exception e) {
             LOG.error(e);
             returnMessage = new RetrieveUserMailExceptionMessage("Cannot get user information "
@@ -173,8 +176,7 @@ public class UserService extends AbstractService {
             returnMessage = new UpdateUserSuccessfulResponse();
         } catch (Exception e) {
             LOG.error(e);
-            returnMessage = new UpdateUserExceptionMessage("Cannot update user " +
-                    updateUserMailRequest.getUser() + " " +
+            returnMessage = new UpdateUserExceptionMessage("Cannot update user " + updateUserMailRequest.getUser() + " " +
                     e.getMessage());
         }
         if (updateUserMailRequest.getMessageContext().isPresent()) {
@@ -203,13 +205,11 @@ public class UserService extends AbstractService {
         }
         ResponseMessage returnMessage;
         try {
-            userManagement.updateUserPassword(updateUserPasswordRequest.getUser(),
-                    updateUserPasswordRequest.getCurrentPassword());
+            userManagement.updateUserPassword(updateUserPasswordRequest.getUser(), updateUserPasswordRequest.getCurrentPassword());
             returnMessage = new UpdateUserSuccessfulResponse();
         } catch (Exception e) {
             LOG.error(e);
-            returnMessage = new UpdateUserExceptionMessage("Cannot update user " +
-                    updateUserPasswordRequest.getUser() + " " +
+            returnMessage = new UpdateUserExceptionMessage("Cannot update user " + updateUserPasswordRequest.getUser() + " " +
                     e.getMessage());
         }
         if (updateUserPasswordRequest.getMessageContext().isPresent()) {
@@ -217,5 +217,4 @@ public class UserService extends AbstractService {
         }
         post(returnMessage);
     }
-
 }

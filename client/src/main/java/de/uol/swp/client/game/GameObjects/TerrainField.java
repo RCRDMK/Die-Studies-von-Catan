@@ -1,6 +1,7 @@
 package de.uol.swp.client.game.GameObjects;
 
 import de.uol.swp.client.game.HelperObjects.Vector;
+import javafx.scene.Node;
 import javafx.scene.paint.Color;
 
 /**
@@ -17,7 +18,7 @@ public class TerrainField {
     private int diceToken; //you need to roll this with the dice to generate the resources in this terrainfield.
     private Vector position; //the absolute postion in x and y on the playfield.
     private final Vector placementVector; //this is a relative vector that determines the direction to the card wich was placed before this one.
-
+    private Node node;
 
     /**
      * Constructor
@@ -109,11 +110,33 @@ public class TerrainField {
     }
 
     /**
+     * Getter for the Node of this TerrainField
+     *
+     * @return the Node object of this TerrainField
+     * @author Marc Hermes
+     * @since 2021-03-31
+     */
+    public Node getNode() {
+        return this.node;
+    }
+
+    /**
+     * Setter for the Node of this TerrainField
+     *
+     * @param node the Node object to be set for this TerrainField
+     * @author Marc Hermes
+     * @since 2021-03-31
+     */
+    public void setNode(Node node) {
+        this.node = node;
+    }
+
+    /**
      * determines the color to draw its host-object
      *
      * @return the color for the host-object
-     * @author pieter vogt
-     * @since 24-01-2021
+     * @author Pieter Vogt
+     * @since 2021-01-04
      */
     public Color determineColorOfTerrain() {
         Color c;

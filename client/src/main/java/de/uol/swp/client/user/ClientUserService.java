@@ -4,6 +4,7 @@ import de.uol.swp.common.user.User;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.List;
 
 /**
  * An interface for all methods of the client user service
@@ -97,4 +98,7 @@ public interface ClientUserService {
      */
     void retrieveAllUsers();
 
+    void startTimerForPing(User user);
+
+    void endTimerForPing();
 }

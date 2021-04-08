@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.text.Text?>
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="400.0" prefWidth="600.0"
             xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="de.uol.swp.client.lobby.LobbyPresenter">
+
     <children>
         <ListView fx:id="lobbyUsersView" prefHeight="200.0" prefWidth="200.0"/>
         <Button layoutX="524.0" layoutY="366.0" mnemonicParsing="false" onAction="#onStartGame" text="Start Game"/>
@@ -25,4 +27,18 @@
            visible="false"/>
     <Label fx:id="gameAlreadyExistsLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="349.0" layoutY="321.0"
            prefHeight="17.0" prefWidth="189.0" text="Game already exists" textAlignment="CENTER" visible="false"/>
+    <Text layoutX="14.0" layoutY="274.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Gamesettings"/>
+    <Text layoutX="14.0" layoutY="305.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Gamefieldtype"/>
+    <RadioButton fx:id="standardGameField" layoutX="14.0" layoutY="313.0" mnemonicParsing="false"
+                 onAction="#onStandardGameField" text="Standard">
+        <toggleGroup>
+            <ToggleGroup fx:id="gameFieldToggleButtons"/>
+        </toggleGroup>
+    </RadioButton>
+    <RadioButton fx:id="randomGameField" layoutX="14.0" layoutY="338.0" mnemonicParsing="false"
+                 onAction="#onRandomGameField" text="Random">
+        <toggleGroup>
+            <fx:reference source="gameFieldToggleButtons"/>
+        </toggleGroup>
+    </RadioButton>
 </AnchorPane>

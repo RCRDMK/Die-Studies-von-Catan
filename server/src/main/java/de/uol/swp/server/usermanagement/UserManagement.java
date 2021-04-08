@@ -1,19 +1,15 @@
 package de.uol.swp.server.usermanagement;
 
 import com.google.common.base.Strings;
-import com.mysql.cj.log.Log;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
-import de.uol.swp.server.lobby.LobbyService;
-import de.uol.swp.server.usermanagement.store.UserStore;
-import io.netty.handler.logging.LogLevel;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.checkerframework.checker.nullness.Opt;
 
 import javax.inject.Inject;
 import java.sql.*;
 import java.util.*;
+
 
 /**
  * Handles most user related issues e.g. login/logout
@@ -37,12 +33,12 @@ public class UserManagement extends AbstractUserManagement {
     private Connection connection;
     private Statement statement;
     private static final Logger LOG = LogManager.getLogger(UserManagement.class);
-    private final SortedMap<String, User> loggedInUsers = new TreeMap<>();
+    private static final SortedMap<String, User> loggedInUsers = new TreeMap<>();
+
 
     /**
      * Constructor
      *
-     * @author Marco Grawunder
      * @author Marius Birk
      * @see de.uol.swp.server.usermanagement.store.UserStore
      * @since 2019-08-05
@@ -75,7 +71,8 @@ public class UserManagement extends AbstractUserManagement {
     /**
      * Closes Connection
      * <p>
-     * This method will be closing the connection between database and server application. If the server is going to be shut down,
+     * This method will be closing the connection between database and server application.
+     * If the server is going to be shut down,
      * it will close the connection to the database.
      *
      * @author Marius Birk
@@ -151,9 +148,9 @@ public class UserManagement extends AbstractUserManagement {
      * This method updates the mail from the User in the database. It throws an exception if the user is not present in
      * the database.
      *
+     * @return A new UserDTO with the username and the mail address
      * @author Carsten Dekker
      * @see java.sql.SQLException
-     * @return A new UserDTO with the username and the mail address
      * @since 2021-03-12
      */
     @Override
@@ -195,9 +192,9 @@ public class UserManagement extends AbstractUserManagement {
      * in the database or if the password, that the user entered in the UserSettingsView, is not the same as the
      * currently used password.
      *
+     * @return A new UserDTO with the username and the mail address
      * @author Carsten Dekker
      * @see java.sql.SQLException
-     * @return A new UserDTO with the username and the mail address
      * @since 2021-03-12
      */
     @Override
@@ -214,8 +211,8 @@ public class UserManagement extends AbstractUserManagement {
             throw new UserManagementException("Username unknown!");
         }
         String newPassword = "";
-        if(resultSet.next()) {
-            if(resultSet.getString(2).equals(currentPassword)) {
+        if (resultSet.next()) {
+            if (resultSet.getString(2).equals(currentPassword)) {
                 try {
                     newPassword = firstNotNull(toUpdatePassword.getPassword(), resultSet.getString("password"));
                     String updateUserString = "update user set password=? where name=?;";
@@ -240,6 +237,7 @@ public class UserManagement extends AbstractUserManagement {
      * Deletes the user in the database.
      * <p>
      * This method drops the user from the database.
+     * If the user is still logged in, he/she will be logged out before being deleted.
      *
      * @author Carsten Dekker
      * @see java.sql.SQLException
@@ -248,6 +246,9 @@ public class UserManagement extends AbstractUserManagement {
     @Override
     public void dropUser(User userToDrop) throws SQLException {
         String selectUserString = "select name from user where name =?;";
+        if (isLoggedIn(userToDrop)) {
+            logout(userToDrop);
+        }
         try {
             PreparedStatement dropUser = connection.prepareStatement(selectUserString);
             dropUser.setString(1, userToDrop.getUsername());
@@ -324,9 +325,9 @@ public class UserManagement extends AbstractUserManagement {
      * This method selects the mail from the User and creates a new UserDTO with the mail and an empty password.
      * The UserDTO gets returned to the UserService.
      *
+     * @return A new UserDTO with the username and the mail address
      * @author Carsten Dekker
      * @see java.sql.SQLException
-     * @return A new UserDTO with the username and the mail address
      * @since 2021-03-12
      */
     @Override
@@ -338,7 +339,7 @@ public class UserManagement extends AbstractUserManagement {
             preparedStatement = connection.prepareStatement(selectMail);
             preparedStatement.setString(1, toGetInformation.getUsername());
             resultSet = preparedStatement.executeQuery();
-        } catch (Exception e){
+        } catch (Exception e) {
             LOG.debug(e);
             throw new UserManagementException("Username unknown");
         }

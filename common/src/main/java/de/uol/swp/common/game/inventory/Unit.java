@@ -1,4 +1,4 @@
-package de.uol.swp.server.game.inventory;
+package de.uol.swp.common.game.inventory;
 
 /**
  * Class for the units in the game

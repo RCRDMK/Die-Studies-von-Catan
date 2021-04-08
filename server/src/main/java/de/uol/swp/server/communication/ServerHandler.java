@@ -102,8 +102,7 @@ public class ServerHandler implements ServerHandlerDelegate {
     private void onServerException(ServerExceptionMessage msg) {
         Optional<MessageContext> ctx = getCtx(msg);
         LOG.error(msg.getException());
-        ctx.ifPresent(channelHandlerContext -> sendToClient(channelHandlerContext, new ExceptionMessage(
-                msg.getException().getMessage())));
+        ctx.ifPresent(channelHandlerContext -> sendToClient(channelHandlerContext, new ExceptionMessage(msg.getException().getMessage())));
     }
 
     /**
@@ -242,8 +241,7 @@ public class ServerHandler implements ServerHandlerDelegate {
         msg.setSession(null);
         msg.setMessageContext(null);
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Send " + msg + " to " + (msg.getReceiver().isEmpty() || msg.getReceiver() ==
-                    null ? "all" : msg.getReceiver()));
+            LOG.debug("Send " + msg + " to " + (msg.getReceiver().isEmpty() || msg.getReceiver() == null ? "all" : msg.getReceiver()));
         }
         sendMessage(msg);
     }

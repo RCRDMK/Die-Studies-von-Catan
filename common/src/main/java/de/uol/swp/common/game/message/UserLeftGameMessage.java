@@ -16,7 +16,7 @@ import java.util.List;
  */
 public class UserLeftGameMessage extends AbstractGameMessage {
 
-    final private ArrayList<UserDTO> users = new ArrayList<>();
+    private ArrayList<UserDTO> users = new ArrayList<>();
 
     /**
      * Default constructor
@@ -38,8 +38,10 @@ public class UserLeftGameMessage extends AbstractGameMessage {
      * @author Iskander Yusupov
      * @since 2021-01-15
      */
-    public UserLeftGameMessage(String gameName, UserDTO user) {
+    public UserLeftGameMessage(String gameName, UserDTO user, ArrayList<UserDTO> users) {
+
         super(gameName, user);
+        this.users=users;
     }
 
     public List<UserDTO> getUsers() {

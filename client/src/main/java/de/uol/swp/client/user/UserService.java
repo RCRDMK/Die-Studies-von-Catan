@@ -2,6 +2,7 @@ package de.uol.swp.client.user;
 
 import com.google.common.eventbus.EventBus;
 import com.google.inject.Inject;
+import de.uol.swp.client.ClientApp;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.user.request.*;
@@ -13,6 +14,8 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import org.apache.commons.codec.binary.Hex;
 
@@ -29,10 +32,12 @@ public class UserService implements ClientUserService {
 
     private static final Logger LOG = LogManager.getLogger(UserService.class);
     private final EventBus bus;
+    private static Timer timer = new Timer();
 
     /**
      * Constructor
      *
+     * @author Marco Grawunder
      * @param bus The  EventBus set in ClientModule
      * @author Marco Grawunder
      * @see de.uol.swp.client.di.ClientModule
@@ -48,6 +53,7 @@ public class UserService implements ClientUserService {
     /**
      * Posts a login request to the EventBus
      *
+     * @author Marco Grawunder
      * @param username the name of the user
      * @param password the password of the user
      * @author Marco Grawunder
@@ -168,5 +174,53 @@ public class UserService implements ClientUserService {
         SecretKey key = secretKeyFactory.generateSecret(spec);
 
         return key.getEncoded();
+    }
+
+    /**
+     * Method to send a Ping
+     * <p>
+     * This method sends a request for a Ping Message.
+     *
+     * @param user from which the ping message is released
+     * @author Philip Nitsche
+     * @since 2021-01-22
+     */
+
+    public void sendPing(User user) {
+        PingRequest pr = new PingRequest(user, System.currentTimeMillis());
+        bus.post(pr);
+    }
+
+    /**
+     * Method to send a Ping
+     * <p>
+     * This method starts a Timer for a Ping Message.
+     *
+     * @param user from which the ping message is released
+     * @author Philip Nitsche
+     * @since 2021-01-22
+     */
+    @Override
+    public void startTimerForPing(User user) {
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                sendPing(user);
+            }
+        }, 30000, 30000);
+    }
+
+    /**
+     * Method to send a Ping
+     * <p>
+     * This method stops the Timer for a Ping Message.
+     *
+     * @param
+     * @author Philip Nitsche
+     * @since 2021-01-22
+     */
+    @Override
+    public void endTimerForPing() {
+        timer.cancel();
     }
 }

@@ -1,9 +1,9 @@
 package de.uol.swp.common.game.cards;
 
 /**
- * Interface für die Ritterkarte
+ * Interface for the knightcard
  * <p>
- * Die Ritterkarte wird zu den Entwicklungskarten gezählt
+ * The knight card is counted among the developmentcards.
  *
  * @author Alexander Losse, Iskander Yusupov
  * @since 2020-12-16

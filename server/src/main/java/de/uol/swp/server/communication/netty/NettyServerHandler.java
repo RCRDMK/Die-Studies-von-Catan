@@ -28,6 +28,7 @@ class NettyServerHandler implements ChannelInboundHandler {
     /**
      * Constructor
      *
+     * @author Marco Grawunder
      * @param delegate handler who handles all communication
      * @author Marco Grawunder
      * @see de.uol.swp.server.communication.ServerHandler

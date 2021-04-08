@@ -20,6 +20,7 @@ public class ClientAuthorizedMessage extends AbstractServerInternalMessage {
     /**
      * Constructor
      *
+     * @author Marco Grawunder
      * @param user user whose client authorized successfully
      * @author Marco Grawunder
      * @see de.uol.swp.common.user.User
@@ -33,6 +34,7 @@ public class ClientAuthorizedMessage extends AbstractServerInternalMessage {
     /**
      * Getter for the user attribute
      *
+     * @author Marco Grawunder
      * @return the user whose client authorized successfully
      * @author Marco Grawunder
      * @see de.uol.swp.common.user.User

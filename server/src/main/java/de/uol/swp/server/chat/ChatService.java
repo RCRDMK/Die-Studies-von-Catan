@@ -30,7 +30,8 @@ public class ChatService extends AbstractService {
      * Constructor
      *
      * @param bus the EvenBus used throughout the server
-     * @author Marco Grawunder
+     * @author Marco Grawunder, René Meyer
+     * @see EventBus
      * @since 2019-10-08
      */
     @Inject
@@ -39,12 +40,15 @@ public class ChatService extends AbstractService {
     }
 
     /**
-     * Handles RequestChatMessages found on the EventBus
+     * Handles RequestChatMessages detected on the EventBus
+     * <p>
      * If a RequestChatMessage is detected on the EventBus, this method is called.
      * It will store the received Message in the chatList HashMap and post a ResponseChatMessage on the EventBus
      *
      * @param message The RequestChatMessage found on the EventBus
-     * @author Marco Grawunder
+     * @author Marco Grawunder, René Meyer
+     * @see RequestChatMessage
+     * @since 2020-11-30
      */
     @Subscribe
     private void onRequestChatMessage(RequestChatMessage message) {

@@ -1,15 +1,18 @@
 package de.uol.swp.common.game;
 
+import de.uol.swp.common.game.inventory.DevelopmentCardDeck;
+import de.uol.swp.common.game.inventory.Inventory;
 import de.uol.swp.common.user.User;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Set;
 
 /**
  * Interface to unify game objects
  * <p>
- * This is an Interface to allow for multiple types of game objects since it is
- * possible that not every client has to have every information of the game.
+ * This is an Interface to allow for multiple types of game objects since it is possible that not every client has to
+ * have every information of the game.
  *
  * @author Iskander Yusupov
  * @see de.uol.swp.common.game.dto.GameDTO
@@ -65,6 +68,27 @@ public interface Game extends Serializable {
      */
     Set<User> getUsers();
 
+    /**
+     * Getter for the games users in a List.
+     *
+     * <p>Returns the users in the game as a list so we can look for users at certain indices.</p>
+     *
+     * @return List of Users
+     * @author Pieter Vogt
+     * @since 2021-03-26
+     */
+    ArrayList<User> getUsersList();
+
+    /**
+     * Getter for a single user.
+     *
+     * <p>This getter returns a single User specified by an index.</p>
+     *
+     * @return A User object
+     * @author Pieter Vogt
+     * @since 2021-03-26
+     */
+    User getUser(int index);
 
     /**
      * Getter for the GameField of this game
@@ -86,4 +110,72 @@ public interface Game extends Serializable {
      */
     void setGameField(GameField gameField);
 
+    /**
+     * Sets up the Arraylist containing the users.
+     *
+     * <p>This is used to enable the server to adress users with indices. This was not possible with the Set-structure
+     * of the Users.</p>
+     */
+    void setUpUserArrayList();
+
+    /**
+     * Returns a number, indicating whos turn it is.
+     *
+     * <p>The number represents the index inside the playersList, pointing to a certain Player.</p>
+     *
+     * @author Pieter Vogt
+     * @since 2021-03-26
+     */
+    int getTurn();
+
+    /**
+     * Returns the number of total turns played so far.
+     *
+     * <p>This can be used for the summaryscreen at the end of a game.</p>
+     *
+     * @return Number of overall turns played so far
+     * @author Pieter Vogt
+     * @since 2021-03-26
+     */
+    int getOverallTurns();
+
+    /**
+     * Increments the round number to the next player.
+     *
+     * @author Pieter Vogt
+     * @since 2021-03-26
+     */
+    void nextRound();
+
+    /**
+     * Runs the initial Turn for every player.
+     * <p>
+     * If the game has 4 players, it lets the players do their turn in the following order: 1, 2, 3, 4, 4, 3, 2, 1.
+     * </p>
+     *
+     * @author Pieter Vogt
+     * @since 2021-03-30
+     */
+    void openingPhase();
+
+    /**
+     * Gives the inventory 1-4 a User
+     *
+     * @author Anton Nikiforov
+     * @since 2021-04-01
+     */
+    void setUpInventories();
+
+    /**
+     * Getter for the Inventory from user
+     *
+     * @param user
+     * @return The Inventory from user
+     * @author Anton Nikiforov
+     * @see de.uol.swp.common.game.inventory.Inventory
+     * @since 2021-04-01
+     */
+    Inventory getInventory(User user);
+
+    DevelopmentCardDeck getDevelopmentCardDeck();
 }

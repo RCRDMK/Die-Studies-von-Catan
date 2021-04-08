@@ -16,6 +16,7 @@ public interface MessageContext extends Serializable {
     /**
      * Send a ResponseMessage
      *
+     * @author Marco Grawunder
      * @param message The message that should be sent
      * @author Marco Grawunder
      * @since 2019-11-20
@@ -25,6 +26,7 @@ public interface MessageContext extends Serializable {
     /**
      * Send a ServerMessage
      *
+     * @author Marco Grawunder
      * @param message The server message that should be sent
      * @author Marco Grawunder
      * @since 2019-11-20

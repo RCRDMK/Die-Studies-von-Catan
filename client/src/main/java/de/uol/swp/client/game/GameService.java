@@ -3,12 +3,7 @@ package de.uol.swp.client.game;
 
 import com.google.common.eventbus.EventBus;
 import com.google.inject.Inject;
-import de.uol.swp.common.game.request.GameLeaveUserRequest;
-import de.uol.swp.common.game.request.RetrieveAllGamesRequest;
-import de.uol.swp.common.game.request.RetrieveAllThisGameUsersRequest;
-import de.uol.swp.common.lobby.request.RetrieveAllLobbiesRequest;
-import de.uol.swp.common.lobby.request.RetrieveAllThisLobbyUsersRequest;
-import de.uol.swp.common.game.request.RollDiceRequest;
+import de.uol.swp.common.game.request.*;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import org.apache.logging.log4j.LogManager;
@@ -39,7 +34,7 @@ public class GameService {
      * Creates a new RollDiceRequest and puts it on the Eventbus
      * <p>
      *
-     * @param name Name of the lobby where the user wants to roll the dice
+     * @param name Name of the lobby/game where the user wants to roll the dice
      * @param user User who wants to roll the dice
      * @author Kirstin, Pieter
      * @see de.uol.swp.common.game.request.RollDiceRequest
@@ -51,7 +46,8 @@ public class GameService {
      * I have changed the place of the method to the new GameService.
      * It is a temporary method.
      */
-    public void rollDiceTest(String name, User user) {
+
+    public void rollDice(String name, User user) {
         RollDiceRequest rollDiceRequest = new RollDiceRequest(name, user);
         eventBus.post(rollDiceRequest);
     }
@@ -94,4 +90,15 @@ public class GameService {
         eventBus.post(leaveRequest);
     }
 
+    /**
+     * Posts a request to buy a development card on the eventbus
+     *
+     * @author Marius Birk
+     * @see de.uol.swp.common.game.request.BuyDevelopmentCardRequest
+     * @since 2021-04-03
+     */
+    public void buyDevelopmentCard(User user, String gameName) {
+        BuyDevelopmentCardRequest buyDevelopmentCardRequest = new BuyDevelopmentCardRequest((UserDTO) user, gameName);
+        eventBus.post(buyDevelopmentCardRequest);
+    }
 }

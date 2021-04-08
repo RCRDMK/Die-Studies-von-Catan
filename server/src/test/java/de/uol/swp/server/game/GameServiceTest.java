@@ -1,4 +1,4 @@
-package de.uol.swp.server.game.inventory;
+package de.uol.swp.server.game;
 
 import com.google.common.eventbus.EventBus;
 import de.uol.swp.common.game.Game;
@@ -7,8 +7,6 @@ import de.uol.swp.common.game.request.RetrieveAllThisGameUsersRequest;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.user.Session;
 import de.uol.swp.common.user.UserDTO;
-import de.uol.swp.server.game.GameManagement;
-import de.uol.swp.server.game.GameService;
 import de.uol.swp.server.lobby.LobbyManagement;
 import de.uol.swp.server.lobby.LobbyService;
 import de.uol.swp.server.usermanagement.AuthenticationService;
@@ -37,9 +35,6 @@ public class GameServiceTest {
     UserDTO userDTO2 = new UserDTO("Test", "lustig1", "peterlustig@uol.de");
     UserDTO userDTO3 = new UserDTO("Test2", "lustig2", "test.lustig@uol.de");
 
-
-    Object event;
-
     public GameServiceTest() throws SQLException {
     }
 
@@ -67,7 +62,7 @@ public class GameServiceTest {
         lobby.get().joinUser(userDTO1);
         List<Session> lobbyUsers = authenticationService.getSessions(lobby.get().getUsers());
         GameService gameService = new GameService(gameManagement, lobbyService, authenticationService, bus);
-        gameManagement.createGame(lobby.get().getName(), lobby.get().getOwner());
+        gameManagement.createGame(lobby.get().getName(), lobby.get().getOwner(), "Standard");
         Optional<Game> game = gameManagement.getGame(lobby.get().getName());
         RetrieveAllThisGameUsersRequest retrieveAllThisGameUsersRequest = new RetrieveAllThisGameUsersRequest(lobby.get().getName());
         assertSame(gameManagement.getGame(lobby.get().getName()).get().getName(), retrieveAllThisGameUsersRequest.getName());
@@ -102,7 +97,7 @@ public class GameServiceTest {
         lobby.get().joinUser(userDTO2);
         List<Session> lobbyUsers = authenticationService.getSessions(lobby.get().getUsers());
         GameService gameService = new GameService(gameManagement, lobbyService, authenticationService, bus);
-        gameManagement.createGame(lobby.get().getName(), lobby.get().getOwner());
+        gameManagement.createGame(lobby.get().getName(), lobby.get().getOwner(), "Standard");
         Optional<Game> game = gameManagement.getGame(lobby.get().getName());
         assertTrue(game.isPresent());
         RetrieveAllThisGameUsersRequest retrieveAllThisGameUsersRequest = new RetrieveAllThisGameUsersRequest(lobby.get().getName());
@@ -139,7 +134,7 @@ public class GameServiceTest {
         lobby.get().joinUser(userDTO3);
         List<Session> lobbyUsers = authenticationService.getSessions(lobby.get().getUsers());
         GameService gameService = new GameService(gameManagement, lobbyService, authenticationService, bus);
-        gameManagement.createGame(lobby.get().getName(), lobby.get().getOwner());
+        gameManagement.createGame(lobby.get().getName(), lobby.get().getOwner(), "Standard");
         Optional<Game> game = gameManagement.getGame(lobby.get().getName());
         assertTrue(game.isPresent());
         RetrieveAllThisGameUsersRequest retrieveAllThisGameUsersRequest = new RetrieveAllThisGameUsersRequest(lobby.get().getName());
@@ -183,7 +178,7 @@ public class GameServiceTest {
         lobby.get().joinUser(userDTO3);
         List<Session> lobbyUsers = authenticationService.getSessions(lobby.get().getUsers());
         GameService gameService = new GameService(gameManagement, lobbyService, authenticationService, bus);
-        gameManagement.createGame(lobby.get().getName(), lobby.get().getOwner());
+        gameManagement.createGame(lobby.get().getName(), lobby.get().getOwner(), "Standard");
         Optional<Game> game = gameManagement.getGame(lobby.get().getName());
         assertTrue(game.isPresent());
         RetrieveAllThisGameUsersRequest retrieveAllThisGameUsersRequest = new RetrieveAllThisGameUsersRequest(lobby.get().getName());
@@ -207,5 +202,37 @@ public class GameServiceTest {
         for (Session session : gameUsers) {
             assertTrue(userDTO == (session.getUser()) && userDTO1 != (session.getUser()) && userDTO2 == (session.getUser()) && userDTO3 != (session.getUser()));
         }
+    }
+
+    /**
+     * This test checks if the distributeResource method works as intendet.
+     * <p>
+     * We create a new gameService and we create a new game. After that we assert that, the game is present and we join some user to the game.
+     * We setup the inventories and the UserArrayList. We assume that we rolled a 5 and give that to our method.
+     * To check if it works fine, we assert that it incremented with one.
+     *
+     * @author Marius Birk, Carsten Dekker
+     * @since 2021-04-06
+     */
+    @Test
+    void onDistributeResourcesTest() {
+        GameService gameService1 = new GameService(gameManagement, lobbyService, authenticationService, bus);
+
+        gameManagement.createGame("test", userDTO, "Standard");
+        Optional<Game> game = gameManagement.getGame("test");
+        assertTrue(game.isPresent());
+
+        game.get().joinUser(userDTO1);
+        game.get().joinUser(userDTO2);
+        game.get().joinUser(userDTO3);
+
+        game.get().setUpUserArrayList();
+        game.get().setUpInventories();
+
+        int diceEyes = 5;
+        gameService1.distributeResources(diceEyes, "test");
+
+        assertEquals(game.get().getInventory(userDTO).lumber.getNumber(), 1);
+        assertEquals(game.get().getInventory(userDTO).grain.getNumber(), 1);
     }
 }

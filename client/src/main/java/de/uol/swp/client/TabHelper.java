@@ -97,7 +97,7 @@ public class TabHelper {
      * @param tab the Tab to be added to the inherent tabPane
      * @return true when successfully added, false when not
      * @author Alexander Losse, Marc Hermes
-     * @since 21-01-20
+     * @since 2021-01-20
      */
     public boolean addTab(Tab tab) {
         return this.tabPane.getTabs().add(tab);
@@ -110,7 +110,7 @@ public class TabHelper {
      * @param text the text of the Tab to be found in the tabsMap
      * @return the Tab corresponding to the text found in the tabsMap
      * @author Alexander Losse, Marc Hermes
-     * @since 21-01-20
+     * @since 2021-01-20
      */
     public Tab getTabByText(String text) {
         return tabsMap.get(text);
@@ -123,7 +123,7 @@ public class TabHelper {
      * @param text the text of the Tab to be removed from the inherent tabPane
      * @return true when successfully removed, false when not
      * @author Alexander Losse, Marc Hermes
-     * @since 21-01-20
+     * @since 2021-01-20
      */
     public boolean removeTab(String text) {
         return this.tabPane.getTabs().remove(getTabByText(text));

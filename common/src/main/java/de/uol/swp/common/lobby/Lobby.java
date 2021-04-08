@@ -5,18 +5,18 @@ import de.uol.swp.common.user.User;
 import java.io.Serializable;
 import java.util.Set;
 
+
 /**
  * Interface to unify lobby objects
  * <p>
- * This is an Interface to allow for multiple types of lobby objects since it is
- * possible that not every client has to have every information of the lobby.
+ * This is an Interface to allow for multiple types of lobby objects since it is possible that not every client has to
+ * have every information of the lobby.
  * <p>
  * Enhanced by Carsten Dekker and Marius Birk
  *
  * @author Marco Grawunder
  * @see de.uol.swp.common.lobby.dto.LobbyDTO
- * @since 2020-12-04
- * Now the Lobby class extends Serializable
+ * @since 2020-12-04 Now the Lobby class extends Serializable
  * @since 2019-10-08
  */
 public interface Lobby extends Serializable {
@@ -85,6 +85,8 @@ public interface Lobby extends Serializable {
      */
     Set<User> getUsers();
 
+    void setGameFieldVariant(String s);
+
     /**
      * Getter for all user in this lobby which are ready to start the game
      *
@@ -95,5 +97,51 @@ public interface Lobby extends Serializable {
 
     Set<User> getPlayersReady();
 
+    String getGameFieldVariant();
+
     void setPlayersReadyToNull();
+
+    /**
+     * Increases the amount of the received ready-responses of this lobby by 1.
+     *
+     * @author Marc Hermes
+     * @since 2021-03-23
+     */
+    void incrementRdyResponsesReceived();
+
+    /**
+     * Returns the amount ready-responses received for this lobby
+     *
+     * @return an int Value representing the amount of ready-responses received
+     * @author Marc Hermes
+     * @since 2021-03-23
+     */
+    int getRdyResponsesReceived();
+
+    /**
+     * Sets the ready-responses for this lobby to a certain value, usually 0.
+     *
+     * @param responsesReceived the ready-responses received in this lobby
+     * @author Marc Hermes
+     * @since 2021-03-23
+     */
+    void setRdyResponsesReceived(int responsesReceived);
+
+    /**
+     * Returns a boolean value saying whether the game of this lobby should start or not.
+     *
+     * @return True if the game is supposed to start, false if not (when the game has already started)
+     * @author Marc Hermes
+     * @since 2021-03-23
+     */
+    boolean getGameShouldStart();
+
+    /**
+     * Sets the value of the gameShouldStart variable
+     *
+     * @param value True if the game should start, false if not
+     * @author Marc Hermes
+     * @since 2021-03-23
+     */
+    void setGameShouldStart(boolean value);
 }

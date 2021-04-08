@@ -47,6 +47,7 @@ public class Server {
     /**
      * Start a new server on given port
      *
+     * @author Marco Grawunder
      * @param port port number the server shall be reachable on
      * @throws Exception server failed to start e.g. because the port is already in use
      * @author Marco Grawunder

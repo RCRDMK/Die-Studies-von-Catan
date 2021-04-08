@@ -19,6 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author René, Anton, Sergej
+ * @see ChatService
  * @since 2020-11-26
  */
 
@@ -88,6 +89,7 @@ public class ChatServiceTest {
      * @throws InterruptedException
      * @author Marco Grawunder
      * @since 2020-12-16
+     * @author René Meyer
      */
     @Test
     @DisplayName("Sends a normal Message")

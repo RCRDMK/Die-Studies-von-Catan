@@ -13,8 +13,7 @@
             prefWidth="93.0" text="CreateLobby"/>
     <Label fx:id="lobbyNameInvalid" layoutX="350" layoutY="195" text="invalid character for Lobby Name!"
            visible="false"/>
-    <Label fx:id="lobbyAlreadyExistsLabel" layoutX="350" layoutY="195" text="lobby already exists!"
-           visible="false"/>
+    <Label fx:id="lobbyAlreadyExistsLabel" layoutX="350" layoutY="195" text="lobby already exists!" visible="false"/>
     <Button layoutX="546.0" layoutY="374.0" mnemonicParsing="false" onAction="#onLogout" text="Logout"
             GridPane.columnIndex="1" GridPane.rowIndex="3"/>
     <TextArea fx:id="textArea" editable="false" layoutY="164.0" prefHeight="191.0" prefWidth="284.0"

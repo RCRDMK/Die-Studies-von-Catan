@@ -10,9 +10,14 @@ import org.apache.logging.log4j.Logger;
 import javax.inject.Inject;
 
 /**
- * Classes that manages chats
+ * Service Class that manages all chats
+ * <p>
+ * The ChatService class contains the sendMessage(RequestChatMessage) method.
  *
  * @author René, Anton, Sergej
+ * @see RequestChatMessage
+ * @see EventBus
+ * @see ResponseEmptyChatMessage
  * @since 2020-11-22
  */
 @SuppressWarnings("UnstableApiUsage")
@@ -24,9 +29,13 @@ public class ChatService {
 
     /**
      * Constructor
+     * <p>
+     * Constructor for the ChatService
      *
      * @param eventBus The EventBus set in ClientModule
+     * @author René, Anton, Sergej
      * @see de.uol.swp.client.di.ClientModule
+     * @see EventBus
      * @since 2020-11-22
      */
     @Inject
@@ -36,11 +45,17 @@ public class ChatService {
     }
 
     /**
+     * Sends the message the user wants to send to the server
+     * <p>
      * Posts a RequestChatMessage message on the EventBus and logs this action
      * Posts a ResponseEmptyChatMessage message if the message is Empty
      * checks whether a message has been sent in the last second and then does not send any more out.
      *
-     * @param message Message the user wants to send to the server
+     * @param message RequestChatMessage that the user wants to send to the server
+     * @author René, Sergej, Anton
+     * @see RequestChatMessage
+     * @see ResponseEmptyChatMessage
+     * @since 2020-11-22
      */
 
     public void sendMessage(RequestChatMessage message) {

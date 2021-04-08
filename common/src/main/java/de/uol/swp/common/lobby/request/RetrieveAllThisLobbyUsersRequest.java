@@ -14,7 +14,6 @@ import de.uol.swp.common.user.response.lobby.AllThisLobbyUsersResponse;
  */
 
 public class RetrieveAllThisLobbyUsersRequest extends AbstractLobbyRequest {
-    private String name;
 
     /**
      * Default constructor
@@ -37,14 +36,6 @@ public class RetrieveAllThisLobbyUsersRequest extends AbstractLobbyRequest {
      */
     public RetrieveAllThisLobbyUsersRequest(String lobbyName) {
         this.name = lobbyName;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
 }

@@ -1,4 +1,4 @@
-package de.uol.swp.server.game.inventory;
+package de.uol.swp.common.game.inventory;
 
 import java.util.Collections;
 import java.util.Stack;

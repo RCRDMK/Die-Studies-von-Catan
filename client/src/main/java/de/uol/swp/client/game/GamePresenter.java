@@ -4,16 +4,16 @@ import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
 import de.uol.swp.client.chat.ChatService;
-import de.uol.swp.client.lobby.LobbyService;
-import de.uol.swp.common.game.message.GameCreatedMessage;
+import de.uol.swp.client.game.GameObjects.BuildingField;
 import de.uol.swp.client.game.GameObjects.TerrainField;
 import de.uol.swp.client.game.HelperObjects.Vector;
-import de.uol.swp.common.game.GameField;
-import de.uol.swp.common.game.TerrainFieldContainer;
+import de.uol.swp.client.lobby.LobbyService;
 import de.uol.swp.common.chat.RequestChatMessage;
 import de.uol.swp.common.chat.ResponseChatMessage;
-import de.uol.swp.common.game.message.UserLeftGameMessage;
-import de.uol.swp.common.lobby.message.UserLeftLobbyMessage;
+import de.uol.swp.common.game.GameField;
+import de.uol.swp.common.game.TerrainFieldContainer;
+import de.uol.swp.common.game.message.*;
+import de.uol.swp.common.game.request.EndTurnRequest;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.user.response.game.AllThisGameUsersResponse;
@@ -22,27 +22,29 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
+import javafx.scene.text.Text;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.net.URL;
-import java.util.List;
-import java.util.ResourceBundle;
-
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Manages the GameView
  * <p>
  * Class was build exactly like LobbyPresenter.
+ * <p>
+ * enhanced by Pieter Vogt 2021-03-26
  *
  * @author Carsten Dekker
  * @see de.uol.swp.client.AbstractPresenter
@@ -59,10 +61,23 @@ public class GamePresenter extends AbstractPresenter {
 
     private String currentLobby;
 
+    private Alert alert;
+
+    private ButtonType buttonTypeOkay;
+
+    private Button btnOkay;
+
     private ObservableList<String> gameUsers;
 
     //Container for TerrainFields
     private TerrainField[] tfArray;
+
+    //Container for BuildingFields
+    private BuildingField[] buildArray;
+
+    //Container for StreetFields
+    private BuildingField[] streetArray;
+
 
     @Inject
     private GameService gameService;
@@ -79,12 +94,17 @@ public class GamePresenter extends AbstractPresenter {
     @FXML
     private Canvas canvas = new Canvas();
 
+    @FXML
+    private AnchorPane gameAnchorPane;
+
     @Inject
     private LobbyService lobbyService;
 
     @FXML
     private ListView<String> gameUsersView;
 
+    @FXML
+    private Button EndTurnButton;
 
     /**
      * Method called when the send Message button is pressed
@@ -120,9 +140,9 @@ public class GamePresenter extends AbstractPresenter {
      * If a ResponseChatMessage is detected on the EventBus the method onResponseChatMessageLogic is invoked.
      *
      * @param message the ResponseChatMessage object seen on the EventBus
-     * @author ?
+     * @author René Meyer
      * @see de.uol.swp.common.chat.ResponseChatMessage
-     * @since ?
+     * @since 2021-03-13
      */
     @Subscribe
     public void onResponseChatMessage(ResponseChatMessage message) {
@@ -130,11 +150,42 @@ public class GamePresenter extends AbstractPresenter {
     }
 
     /**
+     * Adds the ResponseChatMessage to the textArea
+     *
+     * @param message
+     * @author René Meyer
+     * @see de.uol.swp.common.chat.ResponseChatMessage
+     * @since 2021-03-13
+     */
+    private void updateChat(ResponseChatMessage message) {
+        updateChatLogic(message);
+    }
+
+    /**
+     * Adds the ResponseChatMessage to the textArea
+     * <p>
+     * First the message gets formatted with the readableTime.
+     * After the formatting the Message gets added to the textArea.
+     * The formatted Message contains the username, readableTime and message
+     *
+     * @param rcm the ResponseChatMessage given by the original subscriber method.
+     * @author René Meyer
+     * @see de.uol.swp.common.chat.ResponseChatMessage
+     * @since 2021-03-13
+     */
+    private void updateChatLogic(ResponseChatMessage rcm) {
+        var time = new SimpleDateFormat("HH:mm");
+        Date resultdate = new Date((long) rcm.getTime().doubleValue());
+        var readableTime = time.format(resultdate);
+        gameChatArea.insertText(gameChatArea.getLength(), readableTime + " " + rcm.getUsername() + ": " + rcm.getMessage() + "\n");
+    }
+
+    /**
      * The Method invoked by onResponseChatMessage()
      * <p>
-     * If the currentLobby is not null, meaning this is an not an empty LobbyPresenter and the lobby name stored
-     * in this LobbyPresenter equals the one in the received Response, the method updateChat is invoked
-     * to update the chat of the currentLobby in regards to the input given by the response.
+     * If the currentLobby is not null, meaning this is an not an empty LobbyPresenter and the lobby name stored in this
+     * LobbyPresenter equals the one in the received Response, the method updateChat is invoked to update the chat of
+     * the currentLobby in regards to the input given by the response.
      *
      * @param rcm the ResponseChatMessage given by the original subscriber method.
      * @author Alexander Losse, Marc Hermes
@@ -149,43 +200,6 @@ public class GamePresenter extends AbstractPresenter {
                 updateChat(rcm);
             }
         }
-    }
-
-    /**
-     * Adds the ResponseChatMessage to the textArea
-     *
-     * @param message
-     */
-    private void updateChat(ResponseChatMessage message) {
-        updateChatLogic(message);
-    }
-
-    private void updateChatLogic(ResponseChatMessage rcm) {
-        var time = new SimpleDateFormat("HH:mm");
-        Date resultdate = new Date((long) rcm.getTime().doubleValue());
-        var readableTime = time.format(resultdate);
-        gameChatArea.insertText(gameChatArea.getLength(), readableTime + " " + rcm.getUsername() + ": "
-                + rcm.getMessage() + "\n");
-    }
-
-    /**
-     * Method called when the RollDice button is pressed
-     * <p>
-     * If the RollDice button is pressed, this methods tries to request the GameService to send a RollDiceRequest.
-     *
-     * @param event The ActionEvent created by pressing the Roll Dice button
-     * @author Kirstin, Pieter
-     * @see de.uol.swp.client.game.GameService
-     * @since 2021-01-07
-     * <p>
-     * Enhanced by Carsten Dekker
-     * @since 2021-01-13
-     * <p>
-     * I have changed the place of the method to the new GamePresenter.
-     */
-    @FXML
-    public void onRollDice(ActionEvent event) {
-        gameService.rollDiceTest(this.currentLobby, this.joinedLobbyUser);
     }
 
     @FXML
@@ -210,7 +224,34 @@ public class GamePresenter extends AbstractPresenter {
 
     @FXML
     public void onBuyDevelopmentCard(ActionEvent event) {
-        //TODO:...
+        gameService.buyDevelopmentCard(this.joinedLobbyUser, this.currentLobby);
+    }
+
+    /**
+     * Method called when the RollDice button is pressed
+     * <p>
+     * If the RollDice button is pressed, this methods tries to request the GameService to send a RollDiceRequest.
+     *
+     * @param event The ActionEvent created by pressing the Roll Dice button
+     * @author Kirstin, Pieter
+     * @see de.uol.swp.client.game.GameService
+     * @since 2021-01-07
+     * <p>
+     * Enhanced by Carsten Dekker
+     * @since 2021-01-13
+     * <p>
+     * I have changed the place of the method to the new GamePresenter.
+     */
+    @FXML
+    public void onRollDice(ActionEvent event) {
+        if (this.currentLobby != null) {
+            gameService.rollDice(this.currentLobby, this.joinedLobbyUser);
+        }
+    }
+
+    @FXML
+    public void onEndTurn(ActionEvent event) {
+        eventBus.post(new EndTurnRequest(this.currentLobby, (UserDTO) this.joinedLobbyUser));
     }
 
     /**
@@ -232,8 +273,8 @@ public class GamePresenter extends AbstractPresenter {
      * The Method invoked by gameStartedSuccessful()
      * <p>
      * If the currentLobby is null, meaning this is an empty GamePresenter that is ready to be used for a new game tab,
-     * the parameters of this GamePresenter are updated to the User and Lobby given by the gcm Message.
-     * An update of the Users in the currentLobby is also requested.
+     * the parameters of this GamePresenter are updated to the User and Lobby given by the gcm Message. An update of the
+     * Users in the currentLobby is also requested.
      *
      * @param gcm the GameCreatedMessage given by the original subscriber method.
      * @author Alexander Losse, Ricardo Mook
@@ -246,8 +287,9 @@ public class GamePresenter extends AbstractPresenter {
             LOG.debug("Requesting update of User list in game scene because game scene was created.");
             this.joinedLobbyUser = gcm.getUser();
             this.currentLobby = gcm.getName();
-            gameService.retrieveAllThisGameUsers(gcm.getName());
+            updateGameUsersList(gcm.getUsers());
             initializeGameField(gcm.getGameField());
+            Platform.runLater(this::setupRessourceAlert);
         }
     }
 
@@ -267,11 +309,29 @@ public class GamePresenter extends AbstractPresenter {
     }
 
     /**
+     * Changes the clickability of the button for ending your turn.
+     *
+     * <p>This method checks, if the the games name equals the name of the game in the message. If so, and if you are
+     * the player with the current turn (transported in message), your button for ending your turn gets clickable. If
+     * not, it becomes unclickable.</p>
+     *
+     * @param response
+     * @author Pieter Vogt
+     */
+    @Subscribe
+    public void nextPlayerTurn(NextTurnMessage response) {
+        if (response.getGameName().equals(currentLobby)) {
+            if (response.getPlayerWithCurrentTurn().equals(joinedLobbyUser.getUsername())) {
+                EndTurnButton.setDisable(false);
+            } else EndTurnButton.setDisable(true);
+        }
+    }
+
+    /**
      * The method invoked by gameLeftSuccessful()
      * <p>
-     * If the Game is left, meaning this Game Presenter is no longer needed,
-     * this presenter will no longer be registered on the event bus and no longer
-     * be reachable for responses, messages etc.
+     * If the Game is left, meaning this Game Presenter is no longer needed, this presenter will no longer be registered
+     * on the event bus and no longer be reachable for responses, messages etc.
      *
      * @param glsr the GameLeftSuccessfulResponse given by the original subscriber method
      * @author Marc Hermes
@@ -281,7 +341,6 @@ public class GamePresenter extends AbstractPresenter {
     public void gameLeftSuccessfulLogic(GameLeftSuccessfulResponse glsr) {
         if (this.currentLobby != null) {
             if (this.currentLobby.equals(glsr.getName())) {
-
                 this.currentLobby = null;
                 clearEventBus();
             }
@@ -292,9 +351,8 @@ public class GamePresenter extends AbstractPresenter {
     /**
      * Method called when the leaveGame Button is pressed
      * <p>
-     * If the leaveGameButton is pressed,
-     * the method tries to call the GameService method leaveGame
-     * It throws a GamePresenterException if joinedLobbyUser and currentLobby are not initialised
+     * If the leaveGameButton is pressed, the method tries to call the GameService method leaveGame It throws a
+     * GamePresenterException if joinedLobbyUser and currentLobby are not initialised
      *
      * @param event
      * @author Ricardo Mook, Alexander Losse
@@ -332,9 +390,9 @@ public class GamePresenter extends AbstractPresenter {
     /**
      * The Method invoked by otherUserLeftSuccessful()
      * <p>
-     * If the currentLobby is not null, meaning this is an not an empty GamePresenter and the game/lobby name stored
-     * in this GamePresenter equals the one in the received Message, an update of the Users in the currentLobby(current game)
-     * is requested.
+     * If the currentLobby is not null, meaning this is an not an empty GamePresenter and the game/lobby name stored in
+     * this GamePresenter equals the one in the received Message, an update of the Users in the currentLobby(current
+     * game) is requested.
      *
      * @param ulgm the UserLeftGameMessage given by the original subscriber method.
      * @author Iskander Yusupov
@@ -358,9 +416,9 @@ public class GamePresenter extends AbstractPresenter {
     /**
      * The Method invoked by gameUserList()
      * <p>
-     * If the currentLobby is not null, meaning this is an not an empty LobbyPresenter and the lobby name stored
-     * in this GamePresenter equals the one in the received Response, the method updateGameUsersList is invoked
-     * to update the List of the Users in the currentLobby in regards to the list given by the response.
+     * If the currentLobby is not null, meaning this is an not an empty LobbyPresenter and the lobby name stored in this
+     * GamePresenter equals the one in the received Response, the method updateGameUsersList is invoked to update the
+     * List of the Users in the currentLobby in regards to the list given by the response.
      *
      * @param atgur the AllThisLobbyUsersResponse given by the original subscriber method.
      * @author Iskander Yusupov
@@ -424,22 +482,25 @@ public class GamePresenter extends AbstractPresenter {
     }
 
     /**
-     * Method for generating an array of terrainFields
+     * Method for generating an array of terrainFields, buildFields and streetFields
      * that have the correct relative and absolute positions to one another
      * <p>
      * enhanced by Marc Hermes - 2021-03-13
+     * enhanced by Kirstin Beyer - 2021-03-28
      *
-     * @return Array with TerrainFields having the correct positions.
-     * @author Pieter Vogt
+     * @return Object containing array with TerrainFields, array with BuildingFields (for streets), array with BuildingFields (for buildings) having the correct positions.
+     * @author Pieter Vogt, Kirstin Beyer
      * @see <a href="https://confluence.swl.informatik.uni-oldenburg.de/display/SWP2020J/SpecCatan_1004+Spielfeld">Specification
      * 1004</a>
      * @since 2021-01-24
      */
-    public TerrainField[] getCorrectPositionsOfFields() {
+    public Object[] getCorrectPositionsOfFields() {
+
+        //TerrainFields
 
         TerrainField[] tempArray;
 
-        //Array of cards get generated in same order as "spielfeld"-finespec in confluence. TODO: This should probably get done by the server in future. Think of this as a test-method wich can be migrated to server later.
+        //Array of cards get generated in same order as "spielfeld"-finespec in confluence.
 
         //beginning of oceans
         TerrainField f0 = new TerrainField(Vector.bottomLeft(cardSize()));
@@ -481,15 +542,68 @@ public class GamePresenter extends AbstractPresenter {
         TerrainField f34 = new TerrainField(Vector.bottomRight(cardSize()));
         TerrainField f35 = new TerrainField(Vector.bottomLeft(cardSize()));
         TerrainField f36 = new TerrainField(new Vector(0, 0));
-        f36.setPosition(new Vector(((canvas.getWidth() / 2) - cardSize() / 2), ((canvas.getHeight() / 2))
-                - cardSize() / 2));
+        f36.setPosition(new Vector(((canvas.getWidth() / 2) - cardSize() / 2), ((canvas.getHeight() / 2)) - cardSize() / 2));
 
         tempArray = new TerrainField[]{f0, f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, f15, f16, f17, f18, f19, f20, f21, f22, f23, f24, f25, f26, f27, f28, f29, f30, f31, f32, f33, f34, f35, f36};
 
         for (int i = tempArray.length - 2; i >= 0; i--) { // TempArray.length - 2 because the desert-field (upmost "card") was already positioned, so we dont need to handle it again (index out of bounds when whe try to add tempArray[i+1]...)
             tempArray[i].setPosition(Vector.addVector(tempArray[i + 1].getPosition(), tempArray[i].getPlacementVector())); //Add position of last terrainfield and current placement-vector to determine position.
         }
-        return tempArray;
+
+
+        //BuildingFields
+
+        BuildingField[] tempStreetArray = new BuildingField[72];
+        BuildingField[] tempBuildArray = new BuildingField[54];
+
+        int l = 0;
+        int m = 0;
+        Vector tempVec;
+
+        // loop over all terrainFields (except ocean)
+        for (int i = 18; i < 37; i++) {
+
+            // loop over 12 positions for each terrainField, even positions j mark buildFields, odd positions j mark streetFields
+            fieldLoop:
+            for (int j = 0; j < 12; j++) {
+                tempVec = Vector.addVector(tempArray[i].getPosition(), Vector.generalVector(cardSize() / Math.sqrt(2), 315));
+
+                if (j % 2 == 0) {
+                    tempVec = Vector.addVector(tempVec, Vector.generalVector(cardSize() / Math.sqrt(3), 30 * j));
+
+                    // check if field is already in array
+                    for (int k = 0; k < l; k++) {
+                        if (Math.abs(tempVec.getX() - tempBuildArray[k].getPosition().getX()) < (cardSize() / 100) && Math.abs(tempVec.getY() - tempBuildArray[k].getPosition().getY()) < (cardSize() / 100)) {
+                            continue fieldLoop;
+                        }
+                    }
+                    // add new BuildingField to buildArray
+                    BuildingField b = new BuildingField(tempVec);
+                    b.setName("Settlement");
+                    b.setUsed(false);
+                    tempBuildArray[l] = b;
+                    l++;
+
+                } else {
+                    tempVec = Vector.addVector(tempVec, Vector.generalVector(cardSize() * 0.5, 30 * j));
+
+                    // check if field is already in array
+                    for (int k = 0; k < m; k++) {
+                        if (Math.abs(tempVec.getX() - tempStreetArray[k].getPosition().getX()) < cardSize() / 100 && Math.abs(tempVec.getY() - tempStreetArray[k].getPosition().getY()) < cardSize() / 100) {
+                            continue fieldLoop;
+                        }
+                    }
+                    // add new BuildingField to streetArray
+                    BuildingField s = new BuildingField(tempVec);
+                    s.setName("Street");
+                    s.setUsed(false);
+                    tempStreetArray[m] = s;
+                    m++;
+                }
+            }
+        }
+
+        return new Object[]{tempArray, tempStreetArray, tempBuildArray};
     }
 
     /**
@@ -498,6 +612,8 @@ public class GamePresenter extends AbstractPresenter {
      * This method draws its items from back to front, meaning backmost items need to be drawn first and so on. This is
      * why the background is drawn first, etc.
      * </p>
+     * <p>
+     * enhanced by Marc Hermes 2021-03-31
      *
      * @author Pieter Vogt
      * @since 2021-01-24
@@ -513,20 +629,91 @@ public class GamePresenter extends AbstractPresenter {
 
         //Draw TerrainFields
         for (int i = tfArray.length - 1; i >= 0; i--) {
-            g.setFill(tfArray[i].determineColorOfTerrain()); //Determine draw-color of current Terrainfield.
-            g.fillOval(tfArray[i].getPosition().getX(), tfArray[i].getPosition().getY(), cardSize(), cardSize()); //Draw circle with given color at given position TODO: This - in combination with the Vector.vector-methods - SHOULD be already scaling with canvassize. If and when a scalable Canvas gets implemented, this should be checked.
+            Vector drawPosition = Vector.subVector(tfArray[i].getPosition(), Vector.generalVector(cardSize() / Math.sqrt(2), 135));
+            Circle terrainFieldNode = new Circle(cardSize() / 2);
+            terrainFieldNode.setLayoutX(drawPosition.getX());
+            terrainFieldNode.setLayoutY(drawPosition.getY() + canvas.getLayoutY());
+            terrainFieldNode.setFill(tfArray[i].determineColorOfTerrain());
+            tfArray[i].setNode(terrainFieldNode);
+            Platform.runLater(() -> gameAnchorPane.getChildren().add(terrainFieldNode));
+            if (tfArray[i].getDiceToken() != 0) {
+                Text text = new Text(drawPosition.getX(), drawPosition.getY() + canvas.getLayoutY(), Integer.toString(tfArray[i].getDiceToken()));
+                text.setFill(Color.WHITE);
+                Platform.runLater(() -> gameAnchorPane.getChildren().add(text));
+            }
+        }
+
+        //Draw Buildings
+        for (int i = 0; i < 72; i++) {
+            initializeBuildingSpots("Street", streetArray[i]);
+        }
+        for (int i = 0; i < 54; i++) {
+            initializeBuildingSpots("Settlement", buildArray[i]);
+        }
+    }
+
+    /**
+     * Method to draw buildings to the screen.
+     * <p>
+     * Creates the Spots (Circles) for the Buildings. If a Circle is clicked, it changes it's colour.
+     * <p>
+     * enhanced by Marc Hermes 2021-03-31
+     *
+     * @author Kirstin
+     * @since 2021-03-28
+     */
+    public void initializeBuildingSpots(String building, BuildingField buildingField) {
+        EventHandler<MouseEvent> circleOnMousePressedEventHandler = t -> {
+            Circle circle = (Circle) t.getSource();
+            circle.setFill(Color.RED);
+        };
+        GraphicsContext g = this.canvas.getGraphicsContext2D();
+        g.setLineWidth(cardSize() / 10);
+        double x = buildingField.getPosition().getX();
+        double y = buildingField.getPosition().getY();
+
+        switch (building) {
+            case "Street":
+                double itemSize = cardSize() / 8;
+                Circle street = new Circle();
+                street.setRadius(itemSize / 2);
+                street.setLayoutX(x);
+                street.setLayoutY(y + canvas.getLayoutY());
+                street.setFill(Color.GHOSTWHITE);
+                street.setOnMouseClicked(circleOnMousePressedEventHandler);
+                buildingField.setNode(street);
+                Platform.runLater(() -> gameAnchorPane.getChildren().add(street));
+                break;
+            case "Settlement":
+                itemSize = cardSize() / 4;
+                Circle settlement = new Circle(itemSize / 2);
+                settlement.setLayoutX(x);
+                settlement.setLayoutY(y + canvas.getLayoutY());
+                settlement.setFill(Color.GHOSTWHITE);
+                settlement.setOnMouseClicked(circleOnMousePressedEventHandler);
+                buildingField.setNode(settlement);
+                Platform.runLater(() -> gameAnchorPane.getChildren().add(settlement));
+                break;
+            case "Town":
+                itemSize = cardSize() / 3;
+                Circle town = new Circle(itemSize / 2);
+                town.setLayoutX(x);
+                town.setLayoutY(y + canvas.getLayoutY());
+                town.setFill(Color.GHOSTWHITE);
+                town.setOnMouseClicked(circleOnMousePressedEventHandler);
+                buildingField.setNode(town);
+                Platform.runLater(() -> gameAnchorPane.getChildren().add(town));
+                break;
         }
     }
 
     /**
      * Method to initialize the GameField of this GamePresenter of this client
      * <p>
-     * First creates the tfArray, then iterates over the terrainFieldContainers of the gameField
-     * to get the diceTokens values and copies them to the tfArray of this GamePresenter.
-     * Then the values of the fieldTypes are checked and translated into the correct String names
-     * of the tfArray TerrainFields.
+     * First creates the tfArray, then iterates over the terrainFieldContainers of the gameField to get the diceTokens
+     * values and copies them to the tfArray of this GamePresenter. Then the values of the fieldTypes are checked and
+     * translated into the correct String names of the tfArray TerrainFields.
      *
-     * @param gameField the gameField given by the Server
      * @param gameField the gameField given by the Server
      * @author Marc Hermes
      * @see de.uol.swp.common.game.GameField
@@ -534,7 +721,11 @@ public class GamePresenter extends AbstractPresenter {
      * @see de.uol.swp.common.game.TerrainFieldContainer
      */
     public void initializeGameField(GameField gameField) {
-        tfArray = getCorrectPositionsOfFields();
+        Object[] obj = getCorrectPositionsOfFields();
+        tfArray = (TerrainField[]) obj[0];
+        streetArray = (BuildingField[]) obj[1];
+        buildArray = (BuildingField[]) obj[2];
+
         TerrainFieldContainer[] terrainFieldContainers = gameField.getTFCs();
         for (int i = 0; i < terrainFieldContainers.length; i++) {
             tfArray[i].setDiceToken(terrainFieldContainers[i].getDiceTokens());
@@ -566,5 +757,64 @@ public class GamePresenter extends AbstractPresenter {
             tfArray[i].setName(translatedFieldType);
         }
         draw();
+    }
+
+
+    @Subscribe
+    public void onBuyDevelopmentCardMessage(BuyDevelopmentCardMessage buyDevelopmentCardMessage) {
+        buyDevelopmentCardLogic(buyDevelopmentCardMessage.getDevCard());
+    }
+
+    public void buyDevelopmentCardLogic(String card) {
+        // TODO Reaktion des Clients kann erst richtig implementiert werden, wenn die Nutzer auch Ressourcen haben.
+    }
+
+    @Subscribe
+    public void onNotEnoughRessourcesMessages(NotEnoughRessourcesMessage notEnoughRessourcesMessage) {
+        notEnoughRessourcesMessageLogic(notEnoughRessourcesMessage);
+    }
+
+    /**
+     * The method invoked by NotEnoughRessourceMessage
+     * <p>
+     * This method reacts to the NotEnoughRessourcesMessage and shows the corresponding alert window.
+     *
+     * @param notEnoughRessourcesMessage
+     * @implNote The code inside this Method has to run in the JavaFX-application thread. Therefore it is crucial not to
+     * remove the {@code Platform.runLater()}
+     * @author Marius Birk
+     * @see de.uol.swp.common.game.message.NotEnoughRessourcesMessage
+     * @since 2021-04-03
+     */
+    public void notEnoughRessourcesMessageLogic(NotEnoughRessourcesMessage notEnoughRessourcesMessage) {
+        if (this.currentLobby != null) {
+            if (this.currentLobby.equals(notEnoughRessourcesMessage.getName())) {
+                Platform.runLater(() -> {
+                    this.alert.setTitle(notEnoughRessourcesMessage.getName());
+                    this.alert.setHeaderText("Yout have not enough Ressources!");
+                    this.alert.show();
+                });
+            }
+        }
+    }
+
+    /**
+     * The method invoked when the Game Presenter is first used.
+     * <p>
+     * The Alert tells the user, that he doesn't have enough ressources to buy a development card.
+     * The user can only click the showed button to close the dialog.
+     *
+     * @author Marius Birk
+     * @since 2021-04-03
+     */
+    public void setupRessourceAlert() {
+        this.alert = new Alert(javafx.scene.control.Alert.AlertType.CONFIRMATION);
+        this.buttonTypeOkay = new ButtonType("Okay", ButtonBar.ButtonData.OK_DONE);
+        alert.getButtonTypes().setAll(buttonTypeOkay);
+        this.btnOkay = (Button) alert.getDialogPane().lookupButton(buttonTypeOkay);
+        btnOkay.setOnAction(event -> {
+            alert.close();
+            event.consume();
+        });
     }
 }

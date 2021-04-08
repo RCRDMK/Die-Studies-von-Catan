@@ -14,6 +14,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 
+import java.util.ArrayList;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -91,8 +93,10 @@ class LobbyPresenterTest {
         lobbyService.createNewLobby("testLobby", userDTO);
         LobbyCreatedSuccessfulResponse message2 = new LobbyCreatedSuccessfulResponse(userDTO);
         lobbyService.joinLobby("testLobby", userDTO1);
+        ArrayList<UserDTO> users = new ArrayList<>();
+        users.add(userDTO);
         //Jetzt verlässt der userDTO1 die Lobby.
-        UserLeftLobbyMessage message3 = new UserLeftLobbyMessage("testLobby", userDTO1);
+        UserLeftLobbyMessage message3 = new UserLeftLobbyMessage("testLobby", userDTO1, users, userDTO.getUsername());
         lobbyService.retrieveAllThisLobbyUsers(message2.getName());
         assertTrue(event instanceof RetrieveAllThisLobbyUsersRequest);
     }
@@ -117,7 +121,9 @@ class LobbyPresenterTest {
         lobbyService.createNewLobby("testLobby", userDTO);
         LobbyCreatedSuccessfulResponse message2 = new LobbyCreatedSuccessfulResponse(userDTO);
         lobbyService.joinLobby("testLobby", userDTO1);
-        UserJoinedLobbyMessage message3 = new UserJoinedLobbyMessage("testLobby", userDTO1);
+        ArrayList<UserDTO> users = new ArrayList<>();
+        users.add((UserDTO) userDTO1);
+        UserJoinedLobbyMessage message3 = new UserJoinedLobbyMessage("testLobby", userDTO1, users);
         lobbyService.retrieveAllThisLobbyUsers(message2.getName());
         assertTrue(event instanceof RetrieveAllThisLobbyUsersRequest);
     }

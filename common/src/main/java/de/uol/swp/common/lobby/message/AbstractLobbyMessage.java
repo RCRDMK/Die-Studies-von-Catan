@@ -69,6 +69,7 @@ public class AbstractLobbyMessage extends AbstractServerMessage {
      *
      * @return User responsible for the creation of this message
      * @author Marco Grawunder
+     * @author Marco Grawunder
      * @since 2019-10-08
      */
     public User getUser() {

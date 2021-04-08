@@ -9,6 +9,7 @@ import de.uol.swp.client.di.ClientModule;
 import de.uol.swp.client.user.ClientUserService;
 import de.uol.swp.common.game.message.GameCreatedMessage;
 import de.uol.swp.common.game.message.GameDroppedMessage;
+import de.uol.swp.client.user.UserService;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.exception.RegistrationExceptionMessage;
 import de.uol.swp.common.user.exception.UpdateUserExceptionMessage;
@@ -25,6 +26,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * The application class of the client
@@ -41,19 +44,15 @@ import java.util.List;
 public class ClientApp extends Application implements ConnectionListener {
 
     private static final Logger LOG = LogManager.getLogger(ClientApp.class);
-
     private String host;
     private int port;
-
     private ClientUserService userService;
-
     private User user;
-
     private ClientConnection clientConnection;
-
     private EventBus eventBus;
-
     private SceneManager sceneManager;
+    private long lastPingResponse;
+    private static Timer timer = new Timer();
 
     // -----------------------------------------------------
     // Java FX Methods
@@ -144,17 +143,21 @@ public class ClientApp extends Application implements ConnectionListener {
      * this clients user to the user found in the object. If the loglevel is set
      * to DEBUG or higher "user logged in successfully " and the username of the
      * logged in user are written to the log.
+     * It also starts a timer for the ping message and a sperate timer for the client to check if he has a timeout.
      *
      * @param message The LoginSuccessfulResponse object detected on the EventBus
-     * @author Marco Grawunder
+     * @author Marco Grawunder, Philip
      * @see de.uol.swp.client.SceneManager
-     * @since 2017-03-17
+     * @since 2021-01-21
      */
     @Subscribe
     public void userLoggedIn(LoginSuccessfulResponse message) {
         LOG.debug("user logged in successfully " + message.getUser().getUsername());
         this.user = message.getUser();
         sceneManager.showMainScreen(user);
+        userService.startTimerForPing(message.getUser());
+        lastPingResponse = System.currentTimeMillis();
+        checkForTimeout();
     }
 
     /**
@@ -174,10 +177,25 @@ public class ClientApp extends Application implements ConnectionListener {
         this.user = response.getUser();
     }
 
+    /**
+     * Handles successful logout
+     * <p>
+     * If an LogoutSuccessfulResponse object is detected on the EventBus this
+     * method is called. It tells the SceneManager to show the LoginScree.
+     * It also ends the timer for the ping message and the sperate timer for the client to check if he has a timeout.
+     *
+     * @param message The LogoutSuccessfulResponse object detected on the EventBus
+     * @author Philip
+     * @see de.uol.swp.client.SceneManager
+     * @since 2021-01-21
+     */
+
     @Subscribe
     public void userLoggedOut(LogoutRequest message) {
         LOG.debug("user logged out ");
         sceneManager.showLoginScreen();
+        userService.endTimerForPing();
+        timer.cancel();
     }
 
     /**
@@ -334,9 +352,8 @@ public class ClientApp extends Application implements ConnectionListener {
      * If the loglevel is set to DEBUG or higher "UpdateUser error " and the
      * error message are written to the log.
      *
-     * @author Carsten Dekker
-     *
      * @param message The UpdateUserExceptionMessage object detected on the EventBus
+     * @author Carsten Dekker
      * @see de.uol.swp.client.SceneManager
      * @since 2021-03-04
      */
@@ -372,8 +389,8 @@ public class ClientApp extends Application implements ConnectionListener {
      * method is called. If the loglevel is set to INFO or higher "Update user Successful."
      * is written to the log.
      *
-     * @author Carsten Dekker
      * @param response The UpdateUserSuccessfulResponse object detected on the EventBus
+     * @author Carsten Dekker
      * @since 2021-03-04
      */
     @Subscribe
@@ -388,8 +405,8 @@ public class ClientApp extends Application implements ConnectionListener {
      * method is called. If the loglevel is set to INFO or higher "Drop user was successful."
      * is written to the log.
      *
-     * @author Carsten Dekker
      * @param response The DropUserSuccessfulResponse object detected on the EventBus
+     * @author Carsten Dekker
      * @since 2021-03-14
      */
     @Subscribe
@@ -413,6 +430,20 @@ public class ClientApp extends Application implements ConnectionListener {
         LOG.error("DeadEvent detected " + deadEvent);
     }
 
+    /**
+     * Handles the Ping Response Messages
+     * <p>
+     * Gets the latest Time form the Ping Response
+     *
+     * @author Philip, Marc
+     * @since 2021-01-22
+     */
+
+    @Subscribe
+    private void onPingResponse(PingResponse message) {
+        lastPingResponse = message.getTime();
+    }
+
     @Override
     public void exceptionOccurred(String e) {
         sceneManager.showServerError(e);
@@ -432,5 +463,42 @@ public class ClientApp extends Application implements ConnectionListener {
     public static void main(String[] args) {
         launch(args);
     }
+
+    /**
+     * Shows the login screen
+     * <p>
+     * If a user had a timeout this method is called to show the login screen.
+     *
+     * @author Philip, Marc
+     * @since 2021-01-22
+     */
+
+    private void checkoutTimeout() {
+        sceneManager.showLoginScreen();
+        userService.endTimerForPing();
+        timer.cancel();
+    }
+
+    /**
+     * Handles a Timer to check for a Timeout
+     * <p>
+     * Checks if the user has received a ping response in the last 120 seconds.
+     * If not checkoutTimeout will be called.
+     *
+     * @author Philip, Marc
+     * @since 2021-01-22
+     */
+
+    private void checkForTimeout() {
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                if ((System.currentTimeMillis() - lastPingResponse) >= 120000) {
+                    checkoutTimeout();
+                }
+            }
+        }, 60000, 60000);
+    }
+
 
 }

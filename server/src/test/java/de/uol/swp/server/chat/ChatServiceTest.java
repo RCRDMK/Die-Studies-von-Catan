@@ -17,7 +17,12 @@ import java.util.concurrent.TimeUnit;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
+ * Class for the ChatService Test
+ * <p>
+ * Contains sendRequestChatMessageTest and onResponseChatMessageTest
+ *
  * @author René, Anton, Sergej
+ * @see ChatService
  * @since 2020-11-22
  */
 
@@ -78,12 +83,13 @@ public class ChatServiceTest {
      * on the eventbus. Then it tests the ResponseChatMessage object.
      * So this test covers the full Client-Server Communication for a sent Chatmessage
      *
+     * @author René Meyer, Sergej Tulnev
      * @since 2020-12-10
      */
     @Test
     void sendRequestChatMessageTest() {
-        RequestChatMessage message = new RequestChatMessage("testMessage", "testLobby",
-                defaultUser.getUsername(), System.currentTimeMillis());
+        RequestChatMessage message = new RequestChatMessage("testMessage", "testLobby", defaultUser.getUsername(),
+                System.currentTimeMillis());
         bus.post(message);
     }
 

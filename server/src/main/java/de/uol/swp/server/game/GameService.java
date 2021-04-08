@@ -6,9 +6,10 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import de.uol.swp.common.chat.ResponseChatMessage;
 import de.uol.swp.common.game.Game;
+import de.uol.swp.common.game.TerrainFieldContainer;
+import de.uol.swp.common.game.inventory.Inventory;
 import de.uol.swp.common.game.message.*;
 import de.uol.swp.common.game.request.*;
-import de.uol.swp.common.game.request.RollDiceRequest;
 import de.uol.swp.common.game.response.AllCreatedGamesResponse;
 import de.uol.swp.common.game.response.GameAlreadyExistsResponse;
 import de.uol.swp.common.game.response.NotLobbyOwnerResponse;
@@ -48,14 +49,12 @@ public class GameService extends AbstractService {
     private final LobbyService lobbyService;
     private final AuthenticationService authenticationService;
     private static final Logger LOG = LogManager.getLogger(GameService.class);
-    private int Players;
 
     /**
      * Constructor
      * <p>
      *
-     * @param gameManagement        The management class for creating, storing and deleting
-     *                              games
+     * @param gameManagement        The management class for creating, storing and deleting games
      * @param authenticationService the user management
      * @param eventBus              the server-wide EventBus
      * @since 2021-01-07
@@ -90,7 +89,9 @@ public class GameService extends AbstractService {
                 }
                 game.get().leaveUser(gameLeaveUserRequest.getUser());
                 sendToAll(new GameSizeChangedMessage(gameLeaveUserRequest.getName()));
-                sendToAllInGame(gameLeaveUserRequest.getName(), new UserLeftGameMessage(gameLeaveUserRequest.getName(), gameLeaveUserRequest.getUser()));
+                ArrayList<UserDTO> usersInGame = new ArrayList<>();
+                for (User user : game.get().getUsers()) usersInGame.add((UserDTO) user);
+                sendToAllInGame(gameLeaveUserRequest.getName(), new UserLeftGameMessage(gameLeaveUserRequest.getName(), gameLeaveUserRequest.getUser(), usersInGame));
             }
         } else {
             throw new GameManagementException("Game unknown!");
@@ -100,8 +101,8 @@ public class GameService extends AbstractService {
     /**
      * Handles RetrieveAllThisGameUsersRequests found on the EventBus
      * <p>
-     * If a RetrieveAllThisGameUsersRequests is detected on the EventBus, this method is called.
-     * It prepares the sending of a AllThisGameUsersResponse for a specific user that sent the initial request.
+     * If a RetrieveAllThisGameUsersRequests is detected on the EventBus, this method is called. It prepares the sending
+     * of a AllThisGameUsersResponse for a specific user that sent the initial request.
      *
      * @param retrieveAllThisGameUsersRequest The RetrieveAllThisGameUsersRequest found on the EventBus
      * @author Iskander Yusupov
@@ -172,14 +173,23 @@ public class GameService extends AbstractService {
     /**
      * Handles RollDiceRequests found on the EventBus
      * <p>
+     * If a RollDiceRequest is detected on the EventBus, this method is called. It rolls the dices and sends a
+     * ResponseChatMessage containing the user who roll the dice and the result to every user in the lobby.
      * If a RollDiceRequest is detected on the EventBus, this method is called.
-     * It rolls the dices and sends a ResponseChatMessage containing the user who roll the dice
-     * and the result to every user in the lobby.
+     * It rolls the dices and sends a ResponseChatMessage containing the user who rolls the dice
+     * and the result is shown to every user in the game.
      *
      * @param rollDiceRequest The RollDiceRequest found on the EventBus
      * @author Kirstin, Pieter
-     * @see RollDiceRequest
+     * @see de.uol.swp.common.game.request.RollDiceRequest
+     * @see de.uol.swp.common.chat.ResponseChatMessage
      * @since 2021-01-07
+     * <p>
+     * Enhanced by Carsten Dekker
+     * @since 2021-03-31
+     * <p>
+     * Enhanced by Marius Birk & Carsten Dekker
+     * @since 2021-4-06
      */
     @Subscribe
     public void onRollDiceRequest(RollDiceRequest rollDiceRequest) {
@@ -187,22 +197,91 @@ public class GameService extends AbstractService {
 
         Dice dice = new Dice();
         dice.rollDice();
-        String eyes = Integer.toString(dice.getEyes());
-        if (dice.getEyes() == 8 || dice.getEyes() == 11) {
-            ResponseChatMessage msg = new ResponseChatMessage("Player " + rollDiceRequest.getUser().getUsername() + " rolled an " + eyes, rollDiceRequest.getName(), "Dice", System.currentTimeMillis());
-            post(msg);
+        if (dice.getEyes() == 7) {
+            //TODO Hier müsste der Räuber aktiviert werden.
         } else {
-            ResponseChatMessage msg = new ResponseChatMessage("Player " + rollDiceRequest.getUser().getUsername() + " rolled a " + eyes, rollDiceRequest.getName(), "Dice", System.currentTimeMillis());
-            post(msg);
+            distributeResources(dice.getEyes(), rollDiceRequest.getName());
         }
 
-        LOG.debug("Posted ResponseChatMessage on eventBus");
+        try {
+            String chatMessage;
+            var chatId = "game_" + rollDiceRequest.getName();
+            if (dice.getEyes() == 8 || dice.getEyes() == 11) {
+                chatMessage = "Player " + rollDiceRequest.getUser().getUsername() + " rolled an " + dice.getEyes();
+            } else {
+                chatMessage = "Player " + rollDiceRequest.getUser().getUsername() + " rolled a " + dice.getEyes();
+            }
+            ResponseChatMessage msg = new ResponseChatMessage(chatMessage, chatId, rollDiceRequest.getUser().getUsername(), System.currentTimeMillis());
+            post(msg);
+            LOG.debug("Posted ResponseChatMessage on eventBus");
+        } catch (Exception e) {
+            LOG.debug(e);
+        }
     }
 
+    /**
+     * Handles the distribution of resources to the users
+     * <p>
+     * This method handles the distribution of the resources to the users. First the method gets the game and gets the coressponding
+     * terrainfieldcontainer. After that the method checks if the diceToken on the field is equal to the rolled amount of eyes and increases the resource of the user by one.
+     * To Do is, that not every user gets the ressource.
+     *
+     * @param eyes     Number of eyes rolled with dice
+     * @param gameName Name of the Game
+     * @author Marius Birk, Carsten Dekker
+     * @since 2021-04-06
+     */
+    public void distributeResources(int eyes, String gameName) {
+        Optional<Game> game = gameManagement.getGame(gameName);
+
+        if (game.isPresent()) {
+            //TODO Sobald eine Bank implementiert ist, müssen die Ressourcen natürlich noch bei der Bank abgezogen werden.
+            //"Ocean" = 0; "Forest" = 1; "Farmland" = 2; "Grassland" = 3; "Hillside" = 4; "Mountain" = 5; "Desert" = 6;
+            TerrainFieldContainer[] temp = game.get().getGameField().getTFCs();
+            for (TerrainFieldContainer terrainFieldContainer : temp) {
+                if (terrainFieldContainer.getDiceTokens() == eyes) {
+                    switch (terrainFieldContainer.getFieldType()) {
+                        case 1:
+                            for (User user : game.get().getUsers()) {
+                                //TODO Wenn Stadt angrenzend an Field, dann gebe User Resource, Erstmal wird an jeden Resource geben.
+                                game.get().getInventory(user).lumber.incNumber();
+                            }
+                            break;
+                        case 2:
+                            for (User user : game.get().getUsers()) {
+                                //TODO Wenn Stadt angrenzend an Field, dann gebe User Resource, Erstmal wird an jeden Resource geben
+                                game.get().getInventory(user).grain.incNumber();
+                            }
+                            break;
+                        case 3:
+                            for (User user : game.get().getUsers()) {
+                                //TODO Wenn Stadt angrenzend an Field, dann gebe User Resource, Erstmal wird an jeden Resource geben
+                                game.get().getInventory(user).wool.incNumber();
+                            }
+                            break;
+                        case 4:
+                            for (User user : game.get().getUsers()) {
+                                //TODO Wenn Stadt angrenzend an Field, dann gebe User Resource, Erstmal wird an jeden Resource geben
+                                game.get().getInventory(user).brick.incNumber();
+                            }
+                            break;
+                        case 5:
+                            for (User user : game.get().getUsers()) {
+                                //TODO Wenn Stadt angrenzend an Field, dann gebe User Ressource, Erstmal wird an jeden Ressource geben
+                                game.get().getInventory(user).ore.incNumber();
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+
+        }
+    }
 
     /**
-     * Prepares a given ServerMessage to be send to all players in the lobby and
-     * posts it on the EventBus
+     * Prepares a given ServerMessage to be send to all players in the lobby and posts it on the EventBus
      * <p>
      *
      * @param lobbyName Name of the lobby the players are in
@@ -224,14 +303,15 @@ public class GameService extends AbstractService {
     /**
      * Handles StartGameRequest found on the EventBus
      * <p>
-     * If a StartGameRequest is detected on the EventBus, this method is called.
-     * If the number of players in the lobby is more than 1, Method creates StartGameRequest with name of the lobby and user,
-     * which will be sent to all players in the lobby.
-     * It starts a timer and tries to start the game afterwards. If no game was created a NotEnoughPlayersResponse is sent to
-     * all users that are ready to start the game.
-     * Else Method creates NotLobbyOwnerResponse, NotEnoughPlayersResponse or GameAlreadyExistsResponse and sends it to a specific user that sent the initial request.
+     * If a StartGameRequest is detected on the EventBus, this method is called. If the number of players in the lobby
+     * is more than 1, Method creates StartGameRequest with name of the lobby and user, which will be sent to all
+     * players in the lobby. It starts a timer and tries to start the game afterwards. If no game was created a
+     * NotEnoughPlayersResponse is sent to all users that are ready to start the game. Else Method creates
+     * NotLobbyOwnerResponse, NotEnoughPlayersResponse or GameAlreadyExistsResponse and sends it to a specific user that
+     * sent the initial request.
      * <p>
      * enhanced by Alexander Losse, Ricardo Mook 2021-03-05
+     * enhanced by Marc Hermes 2021-03-25
      *
      * @param startGameRequest the StartGameRequest found on the EventBus
      * @author Kirstin Beyer, Iskander Yusupov
@@ -241,22 +321,32 @@ public class GameService extends AbstractService {
     @Subscribe
     public void onStartGameRequest(StartGameRequest startGameRequest) {
         Optional<Lobby> lobby = lobbyService.getLobby(startGameRequest.getName());
-        if (gameManagement.getGame(lobby.get().getName()).isEmpty() && lobby.get().getUsers().size() > 1 && startGameRequest.getUser().toString().equals(lobby.get().getOwner().toString())) {
+        Set<User> usersInLobby = lobby.get().getUsers();
+        if (gameManagement.getGame(lobby.get().getName()).isEmpty() && usersInLobby.size() > 1 && startGameRequest.getUser().getUsername().equals(lobby.get().getOwner().getUsername())) {
             lobby.get().setPlayersReadyToNull();
-            Players = 0;
+            lobby.get().setGameFieldVariant(startGameRequest.getGameFieldVariant());
+            lobby.get().setGameShouldStart(true);
             sendToAllInLobby(startGameRequest.getName(), new StartGameMessage(startGameRequest.getName(), startGameRequest.getUser()));
             int seconds = 60;
             Timer timer = new Timer();
             class RemindTask extends TimerTask {
                 public void run() {
-                    if (gameManagement.getGame(lobby.get().getName()).isEmpty() && Players != lobby.get().getUsers().size()) {
-                        Players = lobby.get().getUsers().size();
+                    Set<User> users = new TreeSet<>(usersInLobby);
+                    if (lobby.get().getPlayersReady().size() != 0) {
+                        users.removeAll(lobby.get().getPlayersReady());
+                    } else {
+                        users.clear();
+                    }
+                    if (lobby.get().getPlayersReady().size() > 1 && gameManagement.getGame(lobby.get().getName()).isEmpty()) {
                         try {
-                            startGame(lobby);
+                            startGame(lobby, lobby.get().getGameFieldVariant());
+                            // TODO: sollte wahrscheinlich keine notenoughplayersmessage sein, sondern "You missed the game start"
+                            sendToListOfUsers(users, lobby.get().getName(), new NotEnoughPlayersMessage(lobby.get().getName()));
                         } catch (GameManagementException e) {
                             LOG.debug(e);
-                            sendToListOfUsers(lobby.get().getUsers(), lobby.get().getName(), new NotEnoughPlayersMessage(lobby.get().getName()));
                         }
+                    } else if (lobby.get().getPlayersReady().size() < 2 && lobby.get().getGameShouldStart()) {
+                        sendToListOfUsers(users, lobby.get().getName(), new NotEnoughPlayersMessage(lobby.get().getName()));
                     }
                     timer.cancel();
                 }
@@ -274,35 +364,49 @@ public class GameService extends AbstractService {
     /**
      * Method to create and start a game
      * <p>
-     * A new game is created if at least 2 players are to start the game and if not already a game exists.
-     * All players ready are joined to the game and a GameCreatedMessage is send to all players in the game.
+     * A new game is created if at least 2 players are to start the game and if not already a game exists. All players
+     * ready are joined to the game and a GameCreatedMessage is send to all players in the game.
      * <p>
-     * enhanced by Alexander Losse, Ricardo Mook 2021-03-05
+     * enhanced by Alexander Losse, Ricardo Mook 2021-03-05 enhanced by Pieter Vogt 2021-03-26
+     * enhanced by Marc Hermes 2021-03-25
      *
      * @param lobby lobby that wants to start a game
      * @author Kirstin Beyer, Iskander Yusupov
      * @since 2021-01-24
      */
 
-    public void startGame(Optional<Lobby> lobby) {
+    public void startGame(Optional<Lobby> lobby, String gameFieldVariant) {
         if (lobby.get().getPlayersReady().size() > 1) {
-            gameManagement.createGame(lobby.get().getName(), lobby.get().getOwner());
+            gameManagement.createGame(lobby.get().getName(), lobby.get().getOwner(), gameFieldVariant);
             Optional<Game> game = gameManagement.getGame(lobby.get().getName());
+            ArrayList<UserDTO> usersInGame = new ArrayList<>();
             for (User user : lobby.get().getPlayersReady()) {
                 game.get().joinUser(user);
-                sendToSpecificUserInGame(game, new GameCreatedMessage(game.get().getName(), (UserDTO) user, game.get().getGameField()), user);
+                usersInGame.add((UserDTO) user);
+
             }
+            lobby.get().setPlayersReadyToNull();
+            lobby.get().setRdyResponsesReceived(0);
+            for (User user : game.get().getUsers()) {
+                sendToSpecificUserInGame(game, new GameCreatedMessage(game.get().getName(), (UserDTO) user, game.get().getGameField(), usersInGame), user);
+            }
+            game.get().setUpUserArrayList();
+            game.get().setUpInventories();
+            sendToAllInGame(game.get().getName(), new NextTurnMessage(game.get().getName(), game.get().getUser(game.get().getTurn()).getUsername(), game.get().getTurn()));
         } else {
             throw new GameManagementException("Not enough Players ready!");
         }
+        lobby.get().setGameShouldStart(false);
     }
 
     /**
      * Handles PlayerReadyRequest found on the EventBus
      * <p>
-     * If a PlayerReadyRequest is detected on the EventBus, this method is called.
-     * Method adds ready players to the PlayerReady list and counts the number of player responses in variable Player
-     * enhanced by Alexander Losse, Ricardo Mook 2021-03-05
+     * If a PlayerReadyRequest is detected on the EventBus, this method is called. Method adds ready players to the
+     * PlayerReady list and counts the number of player responses in variable Player enhanced by Alexander Losse,
+     * Ricardo Mook 2021-03-05
+     * <p>
+     * enhanced by Marc Hermes 2021-03-25
      *
      * @param playerReadyRequest the PlayerReadyRequest found on the EventBus
      * @author Kirstin Beyer, Iskander Yusupov
@@ -313,14 +417,14 @@ public class GameService extends AbstractService {
     public void onPlayerReadyRequest(PlayerReadyRequest playerReadyRequest) {
         Optional<Lobby> lobby = lobbyService.getLobby(playerReadyRequest.getName());
         if (playerReadyRequest.getBoolean()) {
-            Players += 1;
+            lobby.get().incrementRdyResponsesReceived();
             lobby.get().joinPlayerReady(playerReadyRequest.getUser());
         } else if (!playerReadyRequest.getBoolean()) {
-            Players += 1;
+            lobby.get().incrementRdyResponsesReceived();
         }
-        if (Players == lobby.get().getUsers().size() && gameManagement.getGame(lobby.get().getName()).isEmpty()) {
+        if (lobby.get().getRdyResponsesReceived() == lobby.get().getUsers().size() && gameManagement.getGame(lobby.get().getName()).isEmpty()) {
             try {
-                startGame(lobby);
+                startGame(lobby, lobby.get().getGameFieldVariant());
             } catch (GameManagementException e) {
                 LOG.debug(e);
                 sendToListOfUsers(lobby.get().getPlayersReady(), lobby.get().getName(), new NotEnoughPlayersMessage(lobby.get().getName()));
@@ -328,4 +432,65 @@ public class GameService extends AbstractService {
         }
     }
 
+    /**
+     * Handles EndTurnRequests found on the eventbus.
+     *
+     * <p>If an EndTurnRequest is found on the eventbus, this method checks if the sender is the player with the
+     * current turn. If so, the method calls the nextRound method to increment the turncount. After that, the method
+     * sends a NextTurnMessage to all participants of the current game, telling them in wich turn they are now, in wich
+     * game and whos turn is up now.</p>
+     *
+     * @param request Transports the games name and the senders UserDTO.
+     * @author Pieter Vogt
+     * @since 2021-03-26
+     */
+    @Subscribe
+    public void onEndTurnRequest(EndTurnRequest request) {
+        if (request.getUser().getUsername().equals(gameManagement.getGame(request.getName()).get().getUser(gameManagement.getGame(request.getName()).get().getTurn()).getUsername())) {
+            try {
+                gameManagement.getGame(request.getName()).get().nextRound();
+                sendToAllInGame(gameManagement.getGame(request.getName()).get().getName(), new NextTurnMessage(gameManagement.getGame(request.getName()).get().getName(), gameManagement.getGame(request.getName()).get().getUser(gameManagement.getGame(request.getName()).get().getTurn()).getUsername(), gameManagement.getGame(request.getName()).get().getTurn()));
+            } catch (GameManagementException e) {
+                LOG.debug(e);
+                System.out.println("Sender " + request.getUser().getUsername() + " was not player with current turn");
+            }
+        }
+    }
+
+    /**
+     * Handles BuyDevelopmentCardRequest found on the eventbus.
+     *
+     * <p>
+     * Gets the game from the gameManagement and retrieves the inventory from the user. Then the method
+     * checks if enough ressources are available to buy a development card. If there are enough ressources, then
+     * the method gets the next development card from the development card deck and sends a message with the development card to the user.
+     * If there are not enough ressources a NoEnoughRessourcesMessage is send to the user.
+     * </p>
+     *
+     * @param request Transports the senders UserDTO
+     * @author Marius Birk
+     * @since 2021-04-03
+     */
+    @Subscribe
+    public void onBuyDevelopmentCardRequest(BuyDevelopmentCardRequest request) {
+        Optional<Game> game = gameManagement.getGame(request.getName());
+        if (game.isPresent()) {
+            if (request.getUser().equals(gameManagement.getGame(request.getName()).get().getUser(gameManagement.getGame(request.getName()).get().getTurn()))) {
+                Inventory inventory = game.get().getInventory(request.getUser());
+                if (inventory.wool.getNumber() >= 1 && inventory.ore.getNumber() >= 1 && inventory.grain.getNumber() >= 1) {
+                    String devCard = game.get().getDevelopmentCardDeck().drawnCard();
+
+                    inventory.wool.decNumber();
+                    inventory.ore.decNumber();
+                    inventory.grain.decNumber();
+                    BuyDevelopmentCardMessage response = new BuyDevelopmentCardMessage(devCard);
+                    sendToSpecificUserInGame(game, response, request.getUser());
+                } else {
+                    NotEnoughRessourcesMessage nerm = new NotEnoughRessourcesMessage();
+                    nerm.setName(game.get().getName());
+                    sendToSpecificUserInGame(game, nerm, request.getUser());
+                }
+            }
+        }
+    }
 }

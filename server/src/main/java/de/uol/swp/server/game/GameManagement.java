@@ -1,9 +1,9 @@
 package de.uol.swp.server.game;
 
 
+import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.GameField;
 import de.uol.swp.common.game.dto.GameDTO;
-import de.uol.swp.common.game.Game;
 import de.uol.swp.common.user.User;
 
 import java.util.HashMap;
@@ -27,9 +27,10 @@ public class GameManagement extends AbstractGameManagement {
     /**
      * Creates a new game and adds it to the list
      * <p>
-     * A new GameField is created and stored in the GameDTO object
+     * A new GameField is created and stored in the GameDTO object. Also, the round gets set to 0, so the first player
+     * can make his first turn.
      * <p>
-     * enhanced by Pieter Vogt, Marc Hermes - 2021-03-13
+     * enhanced by Pieter Vogt, Marc Hermes - 2021-03-13 enhanced by Pieter Vogt, 2021-03-26
      *
      * @param name  the name of the game to create
      * @param owner the user who wants to create a game
@@ -39,9 +40,9 @@ public class GameManagement extends AbstractGameManagement {
      * @since 2021-01-15
      */
     @Override
-    public void createGame(String name, User owner) {
+    public void createGame(String name, User owner, String gameFieldVariant) {
         GameDTO game = new GameDTO(name, owner);
-        game.setGameField(new GameField());
+        game.setGameField(new GameField(gameFieldVariant));
         games.put(name, game);
     }
 
