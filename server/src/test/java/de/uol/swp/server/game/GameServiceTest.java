@@ -239,4 +239,27 @@ public class GameServiceTest {
         assertEquals(game.get().getInventory(userDTO).lumber.getNumber(), 1);
         assertEquals(game.get().getInventory(userDTO).grain.getNumber(), 1);
     }
+
+    @Test
+    void updateInventoryTest() {
+        GameService gameService = new GameService(gameManagement, lobbyService, authenticationService, bus);
+        gameManagement.createGame("test", userDTO, "Standard");
+        Optional<Game> game = gameManagement.getGame("test");
+        assertTrue(game.isPresent());
+
+        game.get().joinUser(userDTO1);
+        game.get().joinUser(userDTO2);
+        game.get().joinUser(userDTO3);
+
+        game.get().setUpUserArrayList();
+        game.get().setUpInventories();
+
+        int diceEyes = 5;
+        gameService.distributeResources(diceEyes, "test");
+
+
+        gameService.updateInventory(game);
+        //TODO:tests
+
+    }
 }

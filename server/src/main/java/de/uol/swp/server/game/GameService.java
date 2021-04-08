@@ -493,4 +493,29 @@ public class GameService extends AbstractService {
             }
         }
     }
+
+    /**
+     * Method to update private and public inventories in a game
+     * <p>
+     * If game exists, method sends two types of messages with updated information about inventories.
+     * PrivateInventoryChangeMessage is send to specific player in the game.
+     * PublicInventoryChangeMessage is send to all players in the game.
+     * <p>
+     *
+     * @param game game that wants to update private and public inventories
+     * @author Iskander Yusupov, Anton Nikiforov
+     * @since 2021-04-08
+     */
+    public void updateInventory(Optional<Game> game) {
+        if (game.isPresent()) {
+            for (User user : game.get().getUsers()) {
+                HashMap privateInventory = game.get().getInventory(user).getPrivateView();
+                HashMap publicInventory = game.get().getInventory(user).getPublicView();
+                PrivateInventoryChangeMessage privateInventoryChangeMessage = new PrivateInventoryChangeMessage(privateInventory);
+                sendToSpecificUserInGame(game, privateInventoryChangeMessage, user);
+                PublicInventoryChangeMessage publicInventoryChangeMessage = new PublicInventoryChangeMessage(publicInventory, user);
+                sendToAllInGame(game.get().getName(), publicInventoryChangeMessage);
+            }
+        }
+    }
 }

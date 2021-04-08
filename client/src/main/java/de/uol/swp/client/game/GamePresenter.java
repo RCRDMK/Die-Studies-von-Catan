@@ -816,5 +816,15 @@ public class GamePresenter extends AbstractPresenter {
         });
     }
 
+    @Subscribe
+    public void onPrivateInventoryChangeMessage(PrivateInventoryChangeMessage privateInventoryChangeMessage) {
+        //TODO: Darstellung der Veränderung des Inventars
+    }
+
+    @Subscribe
+    public void onPublicInventoryChangeMessage(PublicInventoryChangeMessage publicInventoryChangeMessage) {
+        //TODO: Darstellung der Veränderung des Inventars
+    }
+
 
 }
