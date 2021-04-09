@@ -40,7 +40,7 @@ public class GameDTO implements Game {
     private boolean countingUp = true;
     private boolean lastPlayerSecondTurn = false;
     private DevelopmentCardDeck developmentCardDeck = new DevelopmentCardDeck();
-    private User bank = new UserDTO("banker", "password", "rich@man.net");
+    private User bank = new UserDTO("Banker", "password", "rich@man.net");
 
     private Inventory bankSafe;
     private Inventory inventory1;
@@ -219,7 +219,7 @@ public class GameDTO implements Game {
     }
 
     /**
-     * Gives the inventory 1-4 a User an creates the Bank
+     * Gives the inventory 1-4 a User and creates the Bank
      * <p>
      * It gives the inventory 1-4 a User from the userArrayList if
      * its not empty and the user exists in the ArrayList.
@@ -264,6 +264,11 @@ public class GameDTO implements Game {
         if (user.equals(inventory4.getUser())) return inventory4;
         if (user.equals(bankSafe.getUser())) return bankSafe;
         return null;
+    }
+
+    @Override
+    public Inventory getBank() {
+        return bankSafe;
     }
 
     @Override

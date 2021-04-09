@@ -15,42 +15,28 @@ public class Card {
         return number;
     }
 
-    //Setter
+    //Setter (nicht kleiner als 0 und nicht größer als 19)
     public void setNumber(int number) {
-        this.number = Math.max(number, 0);
+        this.number = Math.min(Math.max(number, 0), 19);
     }
 
-    //Incrementer
+    //Incrementer (nicht mehr als 19)
     public void incNumber() {
-        this.number++;
+        if (this.number < 19) this.number++;
     }
 
-    //Incrementer with number
+    //Incrementer with number (nicht mehr als 19)
     public void incNumber(int number) {
-        this.number += number;
+        this.number = Math.min(this.number + number, 19);
     }
 
-    //Decrementer
+    //Decrementer (nicht weniger als 0)
     public void decNumber() {
         if (this.number > 0) this.number--;
     }
 
-    //Decrementer with number
+    //Decrementer with number (nicht weniger als 0)
     public void decNumber(int number) {
         this.number = Math.max(this.number - number, 0);
-    }
-
-    /**
-     * Is empty test
-     * <p>
-     * It gives false if the number of the card is more the 0 and true if it's not
-     *
-     * @return Card
-     * @author Anton Nikiforov
-     * @since 2021-04-08
-     */
-    public boolean isEmpty() {
-        if (this.number > 0) return false;
-        else return true;
     }
 }

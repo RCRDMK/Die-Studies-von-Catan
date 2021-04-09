@@ -235,7 +235,6 @@ public class GameService extends AbstractService {
         Optional<Game> game = gameManagement.getGame(gameName);
 
         if (game.isPresent()) {
-            //TODO Sobald eine Bank implementiert ist, müssen die Ressourcen natürlich noch bei der Bank abgezogen werden.
             //"Ocean" = 0; "Forest" = 1; "Farmland" = 2; "Grassland" = 3; "Hillside" = 4; "Mountain" = 5; "Desert" = 6;
             TerrainFieldContainer[] temp = game.get().getGameField().getTFCs();
             for (TerrainFieldContainer terrainFieldContainer : temp) {
@@ -244,31 +243,31 @@ public class GameService extends AbstractService {
                         case 1:
                             for (User user : game.get().getUsers()) {
                                 //TODO Wenn Stadt angrenzend an Field, dann gebe User Resource, Erstmal wird an jeden Resource geben.
-                                game.get().getInventory(user).lumber.incNumber();
+                                giveResource(game, user, "lumber", 1);
                             }
                             break;
                         case 2:
                             for (User user : game.get().getUsers()) {
                                 //TODO Wenn Stadt angrenzend an Field, dann gebe User Resource, Erstmal wird an jeden Resource geben
-                                game.get().getInventory(user).grain.incNumber();
+                                giveResource(game, user, "grain", 1);
                             }
                             break;
                         case 3:
                             for (User user : game.get().getUsers()) {
                                 //TODO Wenn Stadt angrenzend an Field, dann gebe User Resource, Erstmal wird an jeden Resource geben
-                                game.get().getInventory(user).wool.incNumber();
+                                giveResource(game, user, "wool", 1);
                             }
                             break;
                         case 4:
                             for (User user : game.get().getUsers()) {
                                 //TODO Wenn Stadt angrenzend an Field, dann gebe User Resource, Erstmal wird an jeden Resource geben
-                                game.get().getInventory(user).brick.incNumber();
+                                giveResource(game, user, "brick", 1);
                             }
                             break;
                         case 5:
                             for (User user : game.get().getUsers()) {
                                 //TODO Wenn Stadt angrenzend an Field, dann gebe User Ressource, Erstmal wird an jeden Ressource geben
-                                game.get().getInventory(user).ore.incNumber();
+                                giveResource(game, user, "ore", 1);
                             }
                             break;
                         default:
@@ -277,6 +276,56 @@ public class GameService extends AbstractService {
                 }
             }
 
+        }
+    }
+
+    /**
+     * Gives the given User the entered Resource from the bank
+     * <p>
+     *
+     * @param game where we are
+     * @param user who wants the resource
+     * @param resourceTyp he wants
+     * @param amount of the resource
+     * @author Anton Nikiforov
+     * @see de.uol.swp.common.game.inventory
+     * @see de.uol.swp.common.message.ServerMessage
+     * @since 2012-04-09
+     */
+    public void giveResource(Optional<Game> game, User user, String resourceTyp, int amount) {
+        if (game.isPresent()) {
+            Inventory bank = game.get().getBank();
+            for (int i = amount; i > 0; i--) {
+                if (bank.getCard(resourceTyp).getNumber() > 0) {
+                    bank.getCard(resourceTyp).decNumber();
+                    game.get().getInventory(user).getCard(resourceTyp).incNumber();
+                }
+                else ;//TODO: Ein message senden wenn die Bank leer ist
+            }
+        }
+    }
+
+    /**
+     * Takes the entered Resource from given User
+     *<p>
+     *
+     * @param game where we are
+     * @param user who wants to give the resource
+     * @param resourceTyp he wants to give
+     * @param amount of the resource
+     * @author Anton Nikiforov
+     * @see de.uol.swp.common.game.inventory
+     * @since 2012-04-09
+     */
+    public void takeResource(Optional<Game> game, User user, String resourceTyp, int amount) {
+        if (game.isPresent()) {
+            Inventory bank = game.get().getBank();
+            for (int i = amount; i > 0; i--) {
+                if (game.get().getInventory(user).getCard(resourceTyp).getNumber() > 0) {
+                    game.get().getInventory(user).getCard(resourceTyp).decNumber();
+                    bank.getCard(resourceTyp).incNumber();
+                }
+            }
         }
     }
 
@@ -478,11 +527,10 @@ public class GameService extends AbstractService {
             if (request.getUser().equals(gameManagement.getGame(request.getName()).get().getUser(gameManagement.getGame(request.getName()).get().getTurn()))) {
                 Inventory inventory = game.get().getInventory(request.getUser());
                 if (inventory.wool.getNumber() >= 1 && inventory.ore.getNumber() >= 1 && inventory.grain.getNumber() >= 1) {
-                    String devCard = game.get().getDevelopmentCardDeck().drawnCard();
-
-                    inventory.wool.decNumber();
-                    inventory.ore.decNumber();
-                    inventory.grain.decNumber();
+                    String devCard = game.get().getDevelopmentCardDeck().drawCard();
+                    takeResource(game, request.getUser(), "wool", 1);
+                    takeResource(game, request.getUser(), "ore", 1);
+                    takeResource(game, request.getUser(), "grain", 1);
                     BuyDevelopmentCardMessage response = new BuyDevelopmentCardMessage(devCard);
                     sendToSpecificUserInGame(game, response, request.getUser());
                 } else {

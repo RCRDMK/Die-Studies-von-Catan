@@ -77,7 +77,7 @@ public class Inventory {
     public void setContinuousRoad(int continuousRoad) { this.continuousRoad = Math.max(continuousRoad, 0); }
 
 
-    //Increment the Victory Point Card an increase the victoryPoints by one
+    //Increment the Victory Point Card and increase the victoryPoints by one
     public void incCardVictoryPoint() {
         this.cardVictoryPoint++;
         this.victoryPoints++;

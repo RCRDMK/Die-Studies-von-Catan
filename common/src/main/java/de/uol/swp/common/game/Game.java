@@ -181,5 +181,7 @@ public interface Game extends Serializable {
      */
     Inventory getInventory(User user);
 
+    Inventory getBank();
+
     DevelopmentCardDeck getDevelopmentCardDeck();
 }
