@@ -25,7 +25,9 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Rectangle;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -116,7 +118,8 @@ public class UserSettingsPresenter extends AbstractPresenter {
     private ListView<String> profilePictureListView;
 
     @FXML
-    private ImageView profilePictureImageView;
+    private Rectangle profilePictureRectangle;
+
 
     @Inject
     private UserSettingsService userSettingsService;
@@ -205,7 +208,7 @@ public class UserSettingsPresenter extends AbstractPresenter {
         confirmEmailButton.setVisible(false);
         confirmProfilePictureButton.setVisible(false);
         profilePictureListView.setVisible(false);
-        profilePictureImageView.setVisible(false);
+        profilePictureRectangle.setVisible(false);
     }
 
     /**
@@ -239,7 +242,7 @@ public class UserSettingsPresenter extends AbstractPresenter {
         confirmEmailButton.setVisible(true);
         confirmProfilePictureButton.setVisible(false);
         profilePictureListView.setVisible(false);
-        profilePictureImageView.setVisible(false);
+        profilePictureRectangle.setVisible(false);
     }
 
     @FXML
@@ -261,7 +264,7 @@ public class UserSettingsPresenter extends AbstractPresenter {
         confirmEmailButton.setVisible(false);
         confirmProfilePictureButton.setVisible(true);
         profilePictureListView.setVisible(true);
-        profilePictureImageView.setVisible(true);
+        profilePictureRectangle.setVisible(true);
     }
 
     /**
@@ -435,9 +438,8 @@ public class UserSettingsPresenter extends AbstractPresenter {
             onBtnNoClicked();
             event.consume();
         } );
-        //Rectangle rectangle = new Rectangle();
-        profilePictureImageView.setImage(image1);
-        //profilePictureImageView.setClip(rectangle);
+
+        profilePictureRectangle.setFill(new ImagePattern(image1));
         ObservableList<String> profilePictures;
         profilePictures = FXCollections.observableArrayList();
         profilePictureListView.setItems(profilePictures);
@@ -446,7 +448,7 @@ public class UserSettingsPresenter extends AbstractPresenter {
             public void handle(MouseEvent event) {
                 System.out.println("clicked on " + profilePictureListView.getSelectionModel().getSelectedItem());
                 try {
-                    profilePictureImageView.setImage(showPicturePreview(profilePictureListView.getSelectionModel().getSelectedItem()));
+                    profilePictureRectangle.setFill(new ImagePattern(showPicturePreview(profilePictureListView.getSelectionModel().getSelectedItem())));
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
                 }
