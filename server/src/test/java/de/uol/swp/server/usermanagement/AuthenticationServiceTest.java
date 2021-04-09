@@ -256,14 +256,12 @@ class AuthenticationServiceTest {
     @DisplayName("X Button exit")
     void exitViaXButtonTest() throws SQLException, InterruptedException {
         // Login User and check session
-        LoginRequest loginRequest = new LoginRequest(user.getUsername(), user.getPassword());
-        bus.post(loginRequest);
+        loginUser(user);
         Optional<Session> sessionUser = authService.getSession(user);
         assertTrue(sessionUser.isPresent());
 
         // Login User2 and check session
-        loginRequest = new LoginRequest(user2.getUsername(), user2.getPassword());
-        bus.post(loginRequest);
+        loginUser(user2);
         Optional<Session> sessionUser2 = authService.getSession(user2);
         assertTrue(sessionUser2.isPresent());
 
