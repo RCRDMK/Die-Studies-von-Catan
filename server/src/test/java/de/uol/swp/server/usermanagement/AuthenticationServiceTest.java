@@ -20,10 +20,7 @@ import de.uol.swp.server.message.ClientAuthorizedMessage;
 import de.uol.swp.server.message.ServerExceptionMessage;
 import de.uol.swp.server.usermanagement.store.MainMemoryBasedUserStore;
 import de.uol.swp.server.usermanagement.store.UserStore;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import javax.security.auth.login.LoginException;
 import java.sql.SQLException;
@@ -68,6 +65,17 @@ class AuthenticationServiceTest {
     @AfterEach
     void deregisterBus() {
         bus.unregister(this);
+    }
+
+    @BeforeEach
+    void testPreparation() throws SQLException {
+        if(userManagement.retrieveAllUsers().contains(user)) {
+            userManagement.dropUser(user);
+        } else if (userManagement.retrieveAllUsers().contains(user2)) {
+            userManagement.dropUser(user2);
+        } else if (userManagement.retrieveAllUsers().contains(user3)) {
+            userManagement.dropUser(user3);
+        }
     }
 
     @Test
