@@ -243,31 +243,31 @@ public class GameService extends AbstractService {
                         case 1:
                             for (User user : game.get().getUsers()) {
                                 //TODO Wenn Stadt angrenzend an Field, dann gebe User Resource, Erstmal wird an jeden Resource geben.
-                                giveResource(game, user, "lumber", 1);
+                                giveResource(game, user, "Lumber", 1);
                             }
                             break;
                         case 2:
                             for (User user : game.get().getUsers()) {
                                 //TODO Wenn Stadt angrenzend an Field, dann gebe User Resource, Erstmal wird an jeden Resource geben
-                                giveResource(game, user, "grain", 1);
+                                giveResource(game, user, "Grain", 1);
                             }
                             break;
                         case 3:
                             for (User user : game.get().getUsers()) {
                                 //TODO Wenn Stadt angrenzend an Field, dann gebe User Resource, Erstmal wird an jeden Resource geben
-                                giveResource(game, user, "wool", 1);
+                                giveResource(game, user, "Wool", 1);
                             }
                             break;
                         case 4:
                             for (User user : game.get().getUsers()) {
                                 //TODO Wenn Stadt angrenzend an Field, dann gebe User Resource, Erstmal wird an jeden Resource geben
-                                giveResource(game, user, "brick", 1);
+                                giveResource(game, user, "Brick", 1);
                             }
                             break;
                         case 5:
                             for (User user : game.get().getUsers()) {
                                 //TODO Wenn Stadt angrenzend an Field, dann gebe User Ressource, Erstmal wird an jeden Ressource geben
-                                giveResource(game, user, "ore", 1);
+                                giveResource(game, user, "Ore", 1);
                             }
                             break;
                         default:
@@ -528,9 +528,9 @@ public class GameService extends AbstractService {
                 Inventory inventory = game.get().getInventory(request.getUser());
                 if (inventory.wool.getNumber() >= 1 && inventory.ore.getNumber() >= 1 && inventory.grain.getNumber() >= 1) {
                     String devCard = game.get().getDevelopmentCardDeck().getDrawnCard();
-                    takeResource(game, request.getUser(), "wool", 1);
-                    takeResource(game, request.getUser(), "ore", 1);
-                    takeResource(game, request.getUser(), "grain", 1);
+                    takeResource(game, request.getUser(), "Wool", 1);
+                    takeResource(game, request.getUser(), "Ore", 1);
+                    takeResource(game, request.getUser(), "Grain", 1);
                     BuyDevelopmentCardMessage response = new BuyDevelopmentCardMessage(devCard);
                     sendToSpecificUserInGame(game, response, request.getUser());
                 } else {
