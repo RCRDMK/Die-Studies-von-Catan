@@ -34,7 +34,7 @@ public class DevelopmentCardDeck {
      *
      * @return
      */
-    public String drawCard() {
+    public String getDrawnCard() {
         if (deck.size()>0) return deck.pop();
         else return null;
     }

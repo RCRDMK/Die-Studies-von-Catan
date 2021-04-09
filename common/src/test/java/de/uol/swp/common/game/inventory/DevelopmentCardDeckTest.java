@@ -22,14 +22,14 @@ public class DevelopmentCardDeckTest {
     void onDrawnCardTest() {
         DevelopmentCardDeck developmentCardDeck = new DevelopmentCardDeck();
         for (int i=0; i<25; i++) {
-            String result = developmentCardDeck.drawCard();
+            String result = developmentCardDeck.getDrawnCard();
             assertTrue(result.equals("Victory Point") ||
                     result.equals("Knight") ||
                     result.equals("Monopoly") ||
                     result.equals("Road Building") ||
                     result.equals("Year of Plenty"));
         }
-        assertNull(developmentCardDeck.drawCard());
+        assertNull(developmentCardDeck.getDrawnCard());
     }
 
 }
