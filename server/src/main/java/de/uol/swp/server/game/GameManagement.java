@@ -43,7 +43,6 @@ public class GameManagement extends AbstractGameManagement {
     @Override
     public void createGame(String name, User owner,String gameFieldVariant) {
         GameDTO game = new GameDTO(name, owner);
-        System.out.println(gameFieldVariant);
         game.setGameField(new GameField(gameFieldVariant));
         games.put(name, game);
     }
