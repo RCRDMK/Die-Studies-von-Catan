@@ -28,6 +28,7 @@ public class LobbyDTO implements Lobby {
     private int rdyResponsesReceived = 0;
     private boolean gameShouldStart = false;
     private String gameFieldVariant;
+    private boolean gameStarted = false;
 
 
     /**
@@ -134,6 +135,16 @@ public class LobbyDTO implements Lobby {
     @Override
     public void setGameFieldVariant(String gfv) {
         this.gameFieldVariant = gfv;
+    }
+
+    @Override
+    public boolean getGameStarted() {
+        return this.gameStarted;
+    }
+
+    @Override
+    public void setGameStarted(boolean value) {
+        this.gameStarted = value;
     }
 
 }

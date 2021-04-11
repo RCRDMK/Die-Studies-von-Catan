@@ -113,6 +113,7 @@ public class GamePresenter extends AbstractPresenter {
      * The message is of type RequestChatMessage If this will result in an exception, go log the exception
      *
      * @param event The ActionEvent created by pressing the send Message button
+     *
      * @author René, Sergej
      * @see de.uol.swp.client.chat.ChatService
      * @since 2021-03-08
@@ -139,6 +140,7 @@ public class GamePresenter extends AbstractPresenter {
      * If a ResponseChatMessage is detected on the EventBus the method onResponseChatMessageLogic is invoked.
      *
      * @param message the ResponseChatMessage object seen on the EventBus
+     *
      * @author René Meyer
      * @see de.uol.swp.common.chat.ResponseChatMessage
      * @since 2021-03-13
@@ -152,6 +154,7 @@ public class GamePresenter extends AbstractPresenter {
      * Adds the ResponseChatMessage to the textArea
      *
      * @param message
+     *
      * @author René Meyer
      * @see de.uol.swp.common.chat.ResponseChatMessage
      * @since 2021-03-13
@@ -163,11 +166,11 @@ public class GamePresenter extends AbstractPresenter {
     /**
      * Adds the ResponseChatMessage to the textArea
      * <p>
-     * First the message gets formatted with the readableTime.
-     * After the formatting the Message gets added to the textArea.
-     * The formatted Message contains the username, readableTime and message
+     * First the message gets formatted with the readableTime. After the formatting the Message gets added to the
+     * textArea. The formatted Message contains the username, readableTime and message
      *
      * @param rcm the ResponseChatMessage given by the original subscriber method.
+     *
      * @author René Meyer
      * @see de.uol.swp.common.chat.ResponseChatMessage
      * @since 2021-03-13
@@ -187,6 +190,7 @@ public class GamePresenter extends AbstractPresenter {
      * the currentLobby in regards to the input given by the response.
      *
      * @param rcm the ResponseChatMessage given by the original subscriber method.
+     *
      * @author Alexander Losse, Marc Hermes
      * @see de.uol.swp.common.chat.ResponseChatMessage
      * @since 2021-01-20
@@ -232,6 +236,7 @@ public class GamePresenter extends AbstractPresenter {
      * If the RollDice button is pressed, this methods tries to request the GameService to send a RollDiceRequest.
      *
      * @param event The ActionEvent created by pressing the Roll Dice button
+     *
      * @author Kirstin, Pieter
      * @see de.uol.swp.client.game.GameService
      * @since 2021-01-07
@@ -259,6 +264,7 @@ public class GamePresenter extends AbstractPresenter {
      * If a GameCreatedMessage is detected on the EventBus this method invokes gameStartedSuccessfulLogic.
      *
      * @param message the GameCreatedMessage object seen on the EventBus
+     *
      * @author Ricardo Mook, Alexander Losse
      * @see de.uol.swp.common.game.message.GameCreatedMessage
      * @since 2021-03-05
@@ -276,6 +282,7 @@ public class GamePresenter extends AbstractPresenter {
      * Users in the currentLobby is also requested.
      *
      * @param gcm the GameCreatedMessage given by the original subscriber method.
+     *
      * @author Alexander Losse, Ricardo Mook
      * @see GameCreatedMessage
      * @see de.uol.swp.common.game.GameField
@@ -298,6 +305,7 @@ public class GamePresenter extends AbstractPresenter {
      * If a GameLeftSuccessfulResponse is detected on the EventBus the method gameLeftSuccessfulLogic is invoked.
      *
      * @param glsr the GameLeftSuccessfulResponse object seen on the EventBus
+     *
      * @author Marc Hermes
      * @see de.uol.swp.common.user.response.game.GameLeftSuccessfulResponse
      * @since 2021-03-15
@@ -315,6 +323,7 @@ public class GamePresenter extends AbstractPresenter {
      * not, it becomes unclickable.</p>
      *
      * @param response
+     *
      * @author Pieter Vogt
      */
     @Subscribe
@@ -333,6 +342,7 @@ public class GamePresenter extends AbstractPresenter {
      * on the event bus and no longer be reachable for responses, messages etc.
      *
      * @param glsr the GameLeftSuccessfulResponse given by the original subscriber method
+     *
      * @author Marc Hermes
      * @see de.uol.swp.common.user.response.game.GameLeftSuccessfulResponse
      * @since 2021-03-15
@@ -353,6 +363,7 @@ public class GamePresenter extends AbstractPresenter {
      * GamePresenterException if joinedLobbyUser and currentLobby are not initialised
      *
      * @param event
+     *
      * @author Ricardo Mook, Alexander Losse
      * @see de.uol.swp.client.game.GameService
      * @see de.uol.swp.client.game.GamePresenterException
@@ -376,6 +387,7 @@ public class GamePresenter extends AbstractPresenter {
      * If a UserLeftGameMessage is detected on the EventBus the method otherUserLeftSuccessfulLogic is invoked.
      *
      * @param message the UserLeftGameMessage object seen on the EventBus
+     *
      * @author Iskander Yusupov
      * @see de.uol.swp.common.game.message.UserLeftGameMessage
      * @since 2021-03-17
@@ -393,6 +405,7 @@ public class GamePresenter extends AbstractPresenter {
      * game) is requested.
      *
      * @param ulgm the UserLeftGameMessage given by the original subscriber method.
+     *
      * @author Iskander Yusupov
      * @see de.uol.swp.common.game.message.UserLeftGameMessage
      * @since 2021-03-17
@@ -419,6 +432,7 @@ public class GamePresenter extends AbstractPresenter {
      * List of the Users in the currentLobby in regards to the list given by the response.
      *
      * @param atgur the AllThisLobbyUsersResponse given by the original subscriber method.
+     *
      * @author Iskander Yusupov
      * @see de.uol.swp.common.user.response.game.AllThisGameUsersResponse
      * @since 2021-03-14
@@ -440,6 +454,7 @@ public class GamePresenter extends AbstractPresenter {
      * user list. If there ist no user list this creates one.
      *
      * @param gameUserList A list of UserDTO objects including all currently logged in users
+     *
      * @implNote The code inside this Method has to run in the JavaFX-application thread. Therefore it is crucial not to
      * remove the {@code Platform.runLater()}
      * @author Iskander Yusupov , @design Marc Hermes, Ricardo Mook
@@ -480,13 +495,13 @@ public class GamePresenter extends AbstractPresenter {
     }
 
     /**
-     * Method for generating an array of terrainFields, buildFields and streetFields
-     * that have the correct relative and absolute positions to one another
+     * Method for generating an array of terrainFields, buildFields and streetFields that have the correct relative and
+     * absolute positions to one another
      * <p>
-     * enhanced by Marc Hermes - 2021-03-13
-     * enhanced by Kirstin Beyer - 2021-03-28
+     * enhanced by Marc Hermes - 2021-03-13 enhanced by Kirstin Beyer - 2021-03-28 enhanced by Pieter Vogt 2021-04-07
      *
-     * @return Object containing array with TerrainFields, array with BuildingFields (for streets), array with BuildingFields (for buildings) having the correct positions.
+     * @return Object containing array with TerrainFields, array with BuildingFields (for streets), array with
+     * BuildingFields (for buildings) having the correct positions.
      * @author Pieter Vogt, Kirstin Beyer
      * @see <a href="https://confluence.swl.informatik.uni-oldenburg.de/display/SWP2020J/SpecCatan_1004+Spielfeld">Specification
      * 1004</a>
@@ -504,40 +519,40 @@ public class GamePresenter extends AbstractPresenter {
         TerrainField f0 = new TerrainField(Vector.bottomLeft(cardSize()));
         TerrainField f1 = new TerrainField(Vector.bottomLeft(cardSize()));
         TerrainField f2 = new TerrainField(Vector.bottomLeft(cardSize()));
-        TerrainField f3 = new TerrainField(Vector.topLeft(cardSize()));
-        TerrainField f4 = new TerrainField(Vector.topLeft(cardSize()));
-        TerrainField f5 = new TerrainField(Vector.topLeft(cardSize()));
-        TerrainField f6 = new TerrainField(Vector.top((cardSize())));
-        TerrainField f7 = new TerrainField(Vector.top((cardSize())));
-        TerrainField f8 = new TerrainField(Vector.top((cardSize())));
+        TerrainField f3 = new TerrainField(Vector.left(cardSize()));
+        TerrainField f4 = new TerrainField(Vector.left(cardSize()));
+        TerrainField f5 = new TerrainField(Vector.left(cardSize()));
+        TerrainField f6 = new TerrainField(Vector.topLeft((cardSize())));
+        TerrainField f7 = new TerrainField(Vector.topLeft((cardSize())));
+        TerrainField f8 = new TerrainField(Vector.topLeft((cardSize())));
         TerrainField f9 = new TerrainField(Vector.topRight((cardSize())));
         TerrainField f10 = new TerrainField(Vector.topRight((cardSize())));
         TerrainField f11 = new TerrainField(Vector.topRight((cardSize())));
-        TerrainField f12 = new TerrainField(Vector.bottomRight((cardSize())));
-        TerrainField f13 = new TerrainField(Vector.bottomRight((cardSize())));
-        TerrainField f14 = new TerrainField(Vector.bottomRight((cardSize())));
-        TerrainField f15 = new TerrainField(Vector.bottom((cardSize())));
-        TerrainField f16 = new TerrainField(Vector.bottom((cardSize())));
+        TerrainField f12 = new TerrainField(Vector.right((cardSize())));
+        TerrainField f13 = new TerrainField(Vector.right((cardSize())));
+        TerrainField f14 = new TerrainField(Vector.right((cardSize())));
+        TerrainField f15 = new TerrainField(Vector.bottomRight(cardSize()));
+        TerrainField f16 = new TerrainField(Vector.bottomRight((cardSize())));
         TerrainField f17 = new TerrainField(Vector.bottomLeft((cardSize())));
 
         //beginning of landmasses
         TerrainField f18 = new TerrainField(Vector.bottomLeft(cardSize()));
         TerrainField f19 = new TerrainField(Vector.bottomLeft(cardSize()));
-        TerrainField f20 = new TerrainField(Vector.topLeft(cardSize()));
-        TerrainField f21 = new TerrainField(Vector.topLeft(cardSize()));
-        TerrainField f22 = new TerrainField(Vector.top(cardSize()));
-        TerrainField f23 = new TerrainField(Vector.top(cardSize()));
+        TerrainField f20 = new TerrainField(Vector.left(cardSize()));
+        TerrainField f21 = new TerrainField(Vector.left(cardSize()));
+        TerrainField f22 = new TerrainField(Vector.topLeft(cardSize()));
+        TerrainField f23 = new TerrainField(Vector.topLeft(cardSize()));
         TerrainField f24 = new TerrainField(Vector.topRight(cardSize()));
         TerrainField f25 = new TerrainField(Vector.topRight(cardSize()));
-        TerrainField f26 = new TerrainField(Vector.bottomRight(cardSize()));
-        TerrainField f27 = new TerrainField(Vector.bottomRight(cardSize()));
-        TerrainField f28 = new TerrainField(Vector.bottom(cardSize()));
+        TerrainField f26 = new TerrainField(Vector.right(cardSize()));
+        TerrainField f27 = new TerrainField(Vector.right(cardSize()));
+        TerrainField f28 = new TerrainField(Vector.bottomRight(cardSize()));
         TerrainField f29 = new TerrainField(Vector.bottomLeft(cardSize()));
         TerrainField f30 = new TerrainField(Vector.bottomLeft(cardSize()));
-        TerrainField f31 = new TerrainField(Vector.topLeft(cardSize()));
-        TerrainField f32 = new TerrainField(Vector.top(cardSize()));
+        TerrainField f31 = new TerrainField(Vector.left(cardSize()));
+        TerrainField f32 = new TerrainField(Vector.topLeft(cardSize()));
         TerrainField f33 = new TerrainField(Vector.topRight(cardSize()));
-        TerrainField f34 = new TerrainField(Vector.bottomRight(cardSize()));
+        TerrainField f34 = new TerrainField(Vector.right(cardSize()));
         TerrainField f35 = new TerrainField(Vector.bottomLeft(cardSize()));
         TerrainField f36 = new TerrainField(new Vector(0, 0));
         f36.setPosition(new Vector(((canvas.getWidth() / 2) - cardSize() / 2), ((canvas.getHeight() / 2)) - cardSize() / 2));
@@ -566,7 +581,7 @@ public class GamePresenter extends AbstractPresenter {
             for (int j = 0; j < 12; j++) {
                 tempVec = Vector.addVector(tempArray[i].getPosition(), Vector.generalVector(cardSize() / Math.sqrt(2), 315));
 
-                if (j % 2 == 0) {
+                if (j % 2 != 0) {
                     tempVec = Vector.addVector(tempVec, Vector.generalVector(cardSize() / Math.sqrt(3), 30 * j));
 
                     // check if field is already in array
@@ -611,7 +626,7 @@ public class GamePresenter extends AbstractPresenter {
      * why the background is drawn first, etc.
      * </p>
      * <p>
-     * enhanced by Marc Hermes 2021-03-31
+     * enhanced by Marc Hermes 2021-03-31 enhanced by Pieter Vogt 2021-04-07
      *
      * @author Pieter Vogt
      * @since 2021-01-24
@@ -713,6 +728,7 @@ public class GamePresenter extends AbstractPresenter {
      * translated into the correct String names of the tfArray TerrainFields.
      *
      * @param gameField the gameField given by the Server
+     *
      * @author Marc Hermes
      * @see de.uol.swp.common.game.GameField
      * @see de.uol.swp.client.game.GameObjects.TerrainField
@@ -778,6 +794,7 @@ public class GamePresenter extends AbstractPresenter {
      * This method reacts to the NotEnoughRessourcesMessage and shows the corresponding alert window.
      *
      * @param notEnoughRessourcesMessage
+     *
      * @implNote The code inside this Method has to run in the JavaFX-application thread. Therefore it is crucial not to
      * remove the {@code Platform.runLater()}
      * @author Marius Birk
@@ -799,8 +816,8 @@ public class GamePresenter extends AbstractPresenter {
     /**
      * The method invoked when the Game Presenter is first used.
      * <p>
-     * The Alert tells the user, that he doesn't have enough ressources to buy a development card.
-     * The user can only click the showed button to close the dialog.
+     * The Alert tells the user, that he doesn't have enough ressources to buy a development card. The user can only
+     * click the showed button to close the dialog.
      *
      * @author Marius Birk
      * @since 2021-04-03
