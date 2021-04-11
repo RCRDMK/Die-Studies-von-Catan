@@ -10,6 +10,8 @@ import de.uol.swp.client.lobby.LobbyCell;
 import de.uol.swp.client.lobby.LobbyService;
 import de.uol.swp.common.chat.RequestChatMessage;
 import de.uol.swp.common.chat.ResponseChatMessage;
+import de.uol.swp.common.game.message.GameDroppedMessage;
+import de.uol.swp.common.game.message.GameStartedMessage;
 import de.uol.swp.common.lobby.dto.LobbyDTO;
 import de.uol.swp.common.lobby.message.LobbyCreatedMessage;
 import de.uol.swp.common.lobby.message.LobbyDroppedMessage;
@@ -59,7 +61,7 @@ public class MainMenuPresenter extends AbstractPresenter {
 
     private ObservableList<String> users;
 
-    private ObservableList<String> lobbies;
+    private ObservableList<LobbyDTO> lobbies;
 
     private User loggedInUser;
 
@@ -91,7 +93,7 @@ public class MainMenuPresenter extends AbstractPresenter {
     private ListView<String> usersView;
 
     @FXML
-    private ListView<String> lobbiesView;
+    private ListView<LobbyDTO> lobbiesView;
 
     /**
      * Handles successful login
@@ -444,7 +446,7 @@ onLobbyFullResponseLogic(response);
      * <p>
      * This method clears the entire lobby list and then adds a new list of lobbies.
      *
-     * @param lobbyList A list of UserDTO objects including all existing lobbies
+     * @param lobbyList A list of LobbyDTO objects including all existing lobbies
      *
      * @implNote The code inside this Method has to run in the JavaFX-application thread. Therefore it is crucial not to
      * remove the {@code Platform.runLater()}
@@ -461,7 +463,7 @@ onLobbyFullResponseLogic(response);
                 lobbiesView.setItems(lobbies);
             }
             lobbies.clear();
-            lobbyList.forEach(u -> lobbies.add(u.getName()));
+            lobbies.addAll(lobbyList);
             lobbiesView.setCellFactory(x -> new LobbyCell(lobbyService, loggedInUser));
         });
     }
@@ -551,5 +553,41 @@ onLobbyFullResponseLogic(response);
     private void onUserSettingsButtonPressed(ActionEvent event) {
         eventBus.post(showSetViewMessage);
         userSettingsService.retrieveUserMail(this.loggedInUser);
+    }
+
+    /**
+     * Method called when a GameDroppedMessage was posted on the eventBus.
+     * <p>
+     * If a GameDroppedMessage is detected on the eventBus the retrieveAllLobbies() Method is called, resulting in the
+     * update of the list of the current lobbies for the User. Further, if LOG is set as "debug", a debug message is
+     * posted in the console.
+     *
+     * @param message the GameDroppedMessage detected on the eventBus
+     * @see de.uol.swp.common.game.message.GameDroppedMessage
+     * @author Carsten Dekker
+     * @since 2021-04-08
+     */
+    @Subscribe
+    public void droppedGame(GameDroppedMessage message) {
+        LOG.debug("Received GameDroppedMessage from game: " + message.getName());
+        lobbyService.retrieveAllLobbies();
+    }
+
+    /**
+     * Method called when a GameStartedMessage was posted on the eventBus.
+     * <p>
+     * If a GameStartedMessage is detected on the eventBus the retrieveAllLobbies() Method is called, resulting in the
+     * update of the list of the current lobbies for the User. Further, if LOG is set as "debug", a debug message is
+     * posted in the console.
+     *
+     * @param message the GameStartedMessage detected on the eventBus
+     * @see de.uol.swp.common.game.message.GameStartedMessage
+     * @author Carsten Dekker
+     * @since 2021-04-08
+     */
+    @Subscribe
+    public void gameStarted(GameStartedMessage message) {
+        LOG.debug("Received GameStartedMessage from game: " + message.getLobbyName());
+        lobbyService.retrieveAllLobbies();
     }
 }
