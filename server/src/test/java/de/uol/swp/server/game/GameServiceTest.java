@@ -36,9 +36,6 @@ public class GameServiceTest {
     UserDTO userDTO2 = new UserDTO("Test", "lustig1", "peterlustig@uol.de");
     UserDTO userDTO3 = new UserDTO("Test2", "lustig2", "test.lustig@uol.de");
 
-    Inventory inventory = new Inventory(userDTO);
-    HashMap privateInventory = inventory.getPrivateView();
-    HashMap publicInventory = inventory.getPublicView();
     public GameServiceTest() throws SQLException {
     }
 
@@ -238,28 +235,5 @@ public class GameServiceTest {
 
         assertEquals(game.get().getInventory(userDTO).lumber.getNumber(), 1);
         assertEquals(game.get().getInventory(userDTO).grain.getNumber(), 1);
-    }
-
-    @Test
-    void updateInventoryTest() {
-        GameService gameService = new GameService(gameManagement, lobbyService, authenticationService, bus);
-        gameManagement.createGame("test", userDTO, "Standard");
-        Optional<Game> game = gameManagement.getGame("test");
-        assertTrue(game.isPresent());
-
-        game.get().joinUser(userDTO1);
-        game.get().joinUser(userDTO2);
-        game.get().joinUser(userDTO3);
-
-        game.get().setUpUserArrayList();
-        game.get().setUpInventories();
-
-        int diceEyes = 5;
-        gameService.distributeResources(diceEyes, "test");
-
-
-        gameService.updateInventory(game);
-        //TODO:tests
-
     }
 }
