@@ -70,16 +70,19 @@ public class GameService extends AbstractService {
     @Subscribe
     public void onGameLeaveUserRequest(GameLeaveUserRequest gameLeaveUserRequest) {
         Optional<Game> game = gameManagement.getGame(gameLeaveUserRequest.getName());
+        Optional<Lobby> lobby = lobbyService.getLobby(gameLeaveUserRequest.getName());
         if (game.isPresent()) {
             if (game.get().getUsers().size() == 1) {
                 if (gameLeaveUserRequest.getMessageContext().isPresent()) {
                     Optional<MessageContext> ctx = gameLeaveUserRequest.getMessageContext();
                     sendToSpecificUser(ctx.get(), new GameLeftSuccessfulResponse(gameLeaveUserRequest.getName(), gameLeaveUserRequest.getUser()));
                     gameManagement.dropGame(gameLeaveUserRequest.getName());
+                    lobby.ifPresent(value -> value.setGameStarted(false));
                     sendToAll(new GameDroppedMessage(gameLeaveUserRequest.getName()));
                 }
             } else if (game.get().getUsers() == null) {
                 gameManagement.dropGame(gameLeaveUserRequest.getName());
+                lobby.ifPresent(value -> value.setGameStarted(false));
                 sendToAll(new GameDroppedMessage(gameLeaveUserRequest.getName()));
 
             } else {
@@ -383,10 +386,11 @@ public class GameService extends AbstractService {
             for (User user : lobby.get().getPlayersReady()) {
                 game.get().joinUser(user);
                 usersInGame.add((UserDTO) user);
-
             }
             lobby.get().setPlayersReadyToNull();
             lobby.get().setRdyResponsesReceived(0);
+            lobby.get().setGameStarted(true);
+            post(new GameStartedMessage(lobby.get().getName()));
             for (User user : game.get().getUsers()) {
                 sendToSpecificUserInGame(game, new GameCreatedMessage(game.get().getName(), (UserDTO) user, game.get().getMapGraph(), usersInGame), user);
             }
