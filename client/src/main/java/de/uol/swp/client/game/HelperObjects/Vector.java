@@ -1,5 +1,7 @@
 package de.uol.swp.client.game.HelperObjects;
 
+import java.util.Collection;
+
 /**
  * This class is used for navigating in the 6-angled grid of terrain-fields.
  *
@@ -45,6 +47,17 @@ public class Vector {
      */
     public static Vector addVector(Vector v1, Vector v2) {
         return new Vector(v1.getX() + v2.getX(), v1.getY() - v2.getY());
+    }
+
+    public static Vector addVectors(Collection<String> positions) {
+        Vector returnVector = new Vector(0, 0);
+        for (String s : positions) {
+            switch (s) {
+                case "left":
+            }
+        }
+        int numberOfVectors = positions.size();
+
     }
 
     /**

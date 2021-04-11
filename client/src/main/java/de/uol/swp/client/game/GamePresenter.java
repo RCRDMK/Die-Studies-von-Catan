@@ -10,8 +10,7 @@ import de.uol.swp.client.game.HelperObjects.Vector;
 import de.uol.swp.client.lobby.LobbyService;
 import de.uol.swp.common.chat.RequestChatMessage;
 import de.uol.swp.common.chat.ResponseChatMessage;
-import de.uol.swp.common.game.GameField;
-import de.uol.swp.common.game.TerrainFieldContainer;
+import de.uol.swp.common.game.MapGraph;
 import de.uol.swp.common.game.message.GameCreatedMessage;
 import de.uol.swp.common.game.message.NextTurnMessage;
 import de.uol.swp.common.game.message.UserLeftGameMessage;
@@ -77,6 +76,7 @@ public class GamePresenter extends AbstractPresenter {
     //Container for StreetFields
     private BuildingField[] streetArray;
 
+    private MapGraph mapGraph;
 
     @Inject
     private GameService gameService;
@@ -270,7 +270,7 @@ public class GamePresenter extends AbstractPresenter {
             this.joinedLobbyUser = gcm.getUser();
             this.currentLobby = gcm.getName();
             updateGameUsersList(gcm.getUsers());
-            initializeGameField(gcm.getGameField());
+            initializeGameField(gcm.getMapGraph());
         }
     }
 
@@ -603,6 +603,18 @@ public class GamePresenter extends AbstractPresenter {
      */
     public void draw() {
 
+        GraphicsContext g = this.canvas.getGraphicsContext2D(); //This is the object that is doing the drawing and has all the graphics related methods.
+
+        //Drawing background.
+        g.setFill(Color.BLACK);
+        g.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
+
+        for (MapGraph.Hexagon h : this.mapGraph.getHexagonSet()) {
+
+        }
+
+
+        //TODO: Alt, löschen?
         //Setup
         GraphicsContext g = this.canvas.getGraphicsContext2D(); //This is the object that is doing the drawing and has all the graphics related methods.
 
@@ -703,7 +715,18 @@ public class GamePresenter extends AbstractPresenter {
      * @see de.uol.swp.client.game.GameObjects.TerrainField
      * @see de.uol.swp.common.game.TerrainFieldContainer
      */
-    public void initializeGameField(GameField gameField) {
+    public void initializeGameField(MapGraph mapGraph) {
+
+        this.mapGraph = mapGraph;
+
+
+
+
+
+
+
+
+        /*//TODO: Alt, löschen?
         Object[] obj = getCorrectPositionsOfFields();
         tfArray = (TerrainField[]) obj[0];
         streetArray = (BuildingField[]) obj[1];
@@ -738,7 +761,7 @@ public class GamePresenter extends AbstractPresenter {
                     break;
             }
             tfArray[i].setName(translatedFieldType);
-        }
+        }*/
         draw();
     }
 }

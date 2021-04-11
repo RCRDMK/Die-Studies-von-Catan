@@ -1,6 +1,6 @@
 package de.uol.swp.common.game;
 
-import de.uol.swp.common.user.exception.ListFullException;
+import de.uol.swp.common.game.exception.ListFullException;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -28,6 +28,8 @@ public class MapGraph {
     private final HashSet<BuildingNode> buildingNodeSet = new HashSet<>();
     private final HashSet<Hexagon> hexagonSet = new HashSet<>();
 
+    //CONSTRUCTOR
+
     /**
      * Creates the interconnected Grid of StreetNodes and BuildingNodes.
      *
@@ -38,17 +40,9 @@ public class MapGraph {
         initializeMapGraph(mapTypeToGenerate);
     }
 
-    //CONSTRUCTOR
-
-    //just for testing!
     public static void main(String[] args) {
-        //TODO: Hier gehts weiter
         MapGraph mapGraph = new MapGraph("");
-        System.out.println("Number of hexagons: " + mapGraph.getHexagonSet().size());
-        System.out.println("Number of buildingNodes: " + mapGraph.getBuildingNodeSet().size());
-        System.out.println("Number of streetNodes: " + mapGraph.getStreetNodeSet().size());
     }
-
     //GETTER SETTER
 
     public Set<StreetNode> getStreetNodeSet() {
@@ -72,6 +66,7 @@ public class MapGraph {
      *
      * @param mapTypeToGenerate The standard-case is to generate a MapGraph for a standard-playfield. So if you wish to
      *                          generate one, just parse "".
+     *
      * @author Pieter Vogt
      * @since 2021-04-10
      */
@@ -160,6 +155,39 @@ public class MapGraph {
 
                 middle.getHexLeft().getHexLeft().updateHexagonList();
                 middle.getHexLeft().getHexTopLeft().updateHexagonList();
+
+
+                //einfgügen der dicetoken und terraintypes
+
+                //"Ocean" = 0; "Forest" = 1; "Farmland" = 2; "Grassland" = 3; "Hillside" = 4; "Mountain" = 5; "Desert" = 6;
+
+                middle.configureTerrainTypeAndDiceToken(6, 0);
+                middle.getHexLeft().configureTerrainTypeAndDiceToken(5, 3);
+                middle.getHexBottomLeft().configureTerrainTypeAndDiceToken(1, 3);
+                middle.getHexBottomRight().configureTerrainTypeAndDiceToken(5, 6);
+                middle.getHexRight().configureTerrainTypeAndDiceToken(2, 5);
+                middle.getHexTopRight().configureTerrainTypeAndDiceToken(5, 4);
+                middle.getHexTopLeft().configureTerrainTypeAndDiceToken(4, 9);
+
+                middle.getHexLeft().getHexTopLeft().configureTerrainTypeAndDiceToken(2, 10);
+                middle.getHexLeft().getHexLeft().configureTerrainTypeAndDiceToken(4, 8);
+
+                middle.getHexBottomLeft().getHexLeft().configureTerrainTypeAndDiceToken(3, 4);
+                middle.getHexBottomLeft().getHexBottomLeft().configureTerrainTypeAndDiceToken(4, 11);
+
+                middle.getHexBottomRight().getHexBottomLeft().configureTerrainTypeAndDiceToken(3, 12);
+                middle.getHexBottomRight().getHexBottomRight().configureTerrainTypeAndDiceToken(2, 9);
+
+                middle.getHexRight().getHexBottomRight().configureTerrainTypeAndDiceToken(1, 10);
+                middle.getHexRight().getHexRight().configureTerrainTypeAndDiceToken(3, 8);
+
+                middle.getHexTopRight().getHexRight().configureTerrainTypeAndDiceToken(3, 3);
+                middle.getHexTopRight().getHexTopRight().configureTerrainTypeAndDiceToken(1, 6);
+
+                middle.getHexTopLeft().getHexTopRight().configureTerrainTypeAndDiceToken(2, 2);
+                middle.getHexTopLeft().getHexTopLeft().configureTerrainTypeAndDiceToken(1, 5);
+
+
             }
         }
     }
@@ -178,29 +206,8 @@ public class MapGraph {
      */
     public int returnPlayerWithLongestRoad() {
         //TODO:This needs to be implemented in a separate ticket some time soon.
-/*
-          First ideas:
-          Might be smart to make this work recursively like this:
-          if ( city or crossroad ) { create new RouteSegments for all unvisited StreetNodes }
-          else if ( end of road ahead ) { add RouteSegment to all Source-Segments and return value }
-          else ( no crossroad ahead ) { add StreetNode to RouteSegment }
-
-          Implement like this:
-          fetch every settlement of a player.
-          Create a RouteSegment for every StreetNode connected to a city.
-          go outwards for 1 StreetNode at a time.
-          if RouteSegment reaches city or crossroad, create new RouteSegment for each outgoing-, not marked as visited StreetNode.
-          if Streetnode was used by RouteSegment n, mark StreetNode as visited by n.
-          (could be possible for a StreetNode to be part of a longer Route than RouteSegment n.)
-          do not use StreetNodes marked as visited by RouteSegment n again, for n in the future.
-          if no unused, reachable StreetNode exists, stop and summarize Route.
-          if all branches stopped, compare branch-lengths and return highest value.
-
-          Until implemented, will return the number of the beast. -piet
-         */
-        return 666;
+        return 666; //nonsense-value
     }
-
 
     /**
      * Enables direct, encapsulated (blackbox-like) access to every StreetNode.
@@ -209,6 +216,7 @@ public class MapGraph {
      *
      * @param hexagon        The list of relative vectors in String-form to reach the desired hexagon.
      * @param positionOfNode The relative position of the desired node relative to the argument-hexagon.
+     *
      * @return A StreetNode at a position, determined by the parsed arguments.
      * @author Pieter Vogt
      * @since 2021-04-09
@@ -244,6 +252,7 @@ public class MapGraph {
      *
      * @param hexagon        The List of relative vectors in String-form to reach the desired hexagon.
      * @param positionOfNode The relative position of the desired node relative to the argument-hexagon.
+     *
      * @return A BuildingNode at a position, determined by the parsed arguments.
      * @author Pieter Vogt
      * @since 2021-04-09
@@ -273,20 +282,6 @@ public class MapGraph {
     }
 
     //NESTED CLASSES
-
-    public class HexNode {
-
-        //FIELDS
-
-        List<String> path = new ArrayList<>(); //IMPORTANT! If fiddled with in the future: This must never become any sort of Set,because we need to be able to store duplicates!
-
-
-        //CONSTRUCTOR
-
-        //GETTER SETTER
-
-        //METHODS
-    }
 
     /**
      * Holds all the data needed to represent streets and the interactions made with them.
@@ -390,47 +385,6 @@ public class MapGraph {
     }
 
     /**
-     * Helper-Class for traversing the MapGraph recursively.
-     * <p>Used for traversing the MapGraph and counting lengths and noting Member-StreetNodes of trade-routes while
-     * calculating longest trade-routes. Think of it as "straight line" of roads between either a settlement or a
-     * crossroad. A trade-route that crosses multiple crossroads and/or settlements is made up of consecutive
-     * RouteSegments.</p>
-     *
-     * @author Pieter Vogt
-     * @see <a href=>https://confluence.swl.informatik.uni-oldenburg.de/pages/editpage.action?pageId=263979012</a>
-     * @since 2021-04-02
-     */
-    //TODO: This was meant to be a helperclass for finding the longest traderoute. This needs to be implemented in a separate ticket some time soon.
-/*    private class RouteSegment {
-
-        //Fields
-        private final List<StreetNode> StreetNodesVisited = new ArrayList<>();
-        private final int identifier;
-
-        //Constructor
-        public RouteSegment(StreetNode streetNode, int identifier) {
-            this.StreetNodesVisited.add(streetNode);
-            this.identifier = identifier;
-        }
-
-        //GETTER SETTER
-
-        public List<StreetNode> getStreetNodesVisited() {
-            return StreetNodesVisited;
-        }
-
-        public int getIdentifier() {
-            return identifier;
-        }
-
-        //METHODS
-
-        public void addStreetNode(StreetNode streetNode) {
-            this.StreetNodesVisited.add(streetNode);
-        }
-    }*/
-
-    /**
      * Represents the logical structure of one hexagonal cardboard-piece to build the Playfield of.
      * <p>This class represents the logic of the pathfinding- and the building-system. It houses the pointers to the
      * building-spots and is aware of its neighbour-hexagonals. With this, we are able to send specific commands to
@@ -440,12 +394,13 @@ public class MapGraph {
      * @author Pieter Vogt
      * @since 2021-04-09
      */
-    private class Hexagon {
+    public class Hexagon {
 
         //FIELDS
 
         private final List<String> selfPosition = new ArrayList<>(); //IMPORTANT! If fiddled with in the future: This must never become any sort of Set,because we need to be able to store duplicates!
-
+        private int diceToken;
+        private int terrainType;
         private Hexagon hexTopLeft;
         private Hexagon hexTopRight;
         private Hexagon hexLeft;
@@ -473,18 +428,53 @@ public class MapGraph {
 
         //CONSTRUCTOR
 
+        /**
+         * Constructor for the first Hexagon.
+         * <p>This Constructor does not parse any argument about ancestor-Hexagons. Therefore it can only be used for
+         * the first Hexagon to be placed.</p>
+         *
+         * @param position The directional vector from the ancestor-Hexagon to this one.
+         *
+         * @author Pieter Vogt
+         * @since 2021-04-10
+         */
         public Hexagon(String position) {
             selfPosition.add(position);
             hexagonSet.add(this);
         }
 
+        /**
+         * Constructor for all but the first Hexagon.
+         * <p>This Constructor parses the information about where the ancestor-Hexagon is located, relative to the
+         * first Hexagon. Therefore it must be used for all but the first Hexagon to be placed, because every Hexagon
+         * but the first has an ancestor.</p>
+         *
+         * @param position     The directional vector from the ancestor-Hexagon to this one.
+         * @param positionList The List of positional vectors that describes the position of the ancestor-Hexagon.
+         *
+         * @author Pieter Vogt
+         * @since 2021-04-10
+         */
         public Hexagon(String position, List<String> positionList) {
-            selfPosition.addAll(positionList); //Adopting positional vectors of ancestor-Hexagons.
-            selfPosition.add(position); //Adds its own positional vector to the list.
-            hexagonSet.add(this); //Adds itself to the list of Hexagons inside the MapGraph.
+            this.selfPosition.addAll(positionList);
+            this.selfPosition.add(position);
+            hexagonSet.add(this);
         }
 
         //GETTER SETTER
+
+        public int getDiceToken() {
+            return diceToken;
+        }
+
+        public int getTerrainType() {
+            return terrainType;
+        }
+
+        public void configureTerrainTypeAndDiceToken(int terrainType, int diceToken) {
+            this.terrainType = terrainType;
+            this.diceToken = diceToken;
+        }
 
         public StreetNode getStreetLeft() {
             return streetLeft;
@@ -726,7 +716,6 @@ public class MapGraph {
         public void generateNodes() {
             //First checking streetnodes...
             if (this.streetTopLeft == null && hexTopLeft != null) {
-                System.out.println("nice");
                 if (hexTopLeft.getStreetBottomRight() == null) {
                     this.streetTopLeft = new StreetNode();
                 } else {
@@ -734,12 +723,10 @@ public class MapGraph {
                 }
             } else {
                 this.streetTopLeft = new StreetNode();
-                System.out.println("gotta do this Street 1.");
             }
 
 
             if (this.streetTopRight == null && hexTopRight != null) {
-                System.out.println("nice");
 
                 if (hexTopRight.getStreetBottomLeft() == null) {
                     this.streetTopRight = new StreetNode();
@@ -748,12 +735,10 @@ public class MapGraph {
                 }
             } else {
                 this.streetTopRight = new StreetNode();
-                System.out.println("gotta do this Street 2.");
             }
 
 
             if (streetLeft == null && hexLeft != null) {
-                System.out.println("nice");
 
                 if (hexLeft.getStreetRight() == null) {
                     this.streetLeft = new StreetNode();
@@ -762,12 +747,10 @@ public class MapGraph {
                 }
             } else {
                 this.streetLeft = new StreetNode();
-                System.out.println("gotta do this Street 3.");
             }
 
 
             if (streetRight == null && hexRight != null) {
-                System.out.println("nice");
 
                 if (hexRight.getStreetLeft() == null) {
                     this.streetRight = new StreetNode();
@@ -776,12 +759,10 @@ public class MapGraph {
                 }
             } else {
                 this.streetRight = new StreetNode();
-                System.out.println("gotta do this Street 4.");
             }
 
 
             if (streetBottomLeft == null && hexBottomLeft != null) {
-                System.out.println("nice");
 
                 if (hexBottomLeft.getStreetTopRight() == null) {
                     this.streetBottomLeft = new StreetNode();
@@ -790,12 +771,10 @@ public class MapGraph {
                 }
             } else {
                 this.streetBottomLeft = new StreetNode();
-                System.out.println("gotta do this Street 5.");
             }
 
 
             if (streetBottomRight == null && hexBottomRight != null) {
-                System.out.println("nice");
 
                 if (hexBottomRight.getStreetTopLeft() == null) {
                     this.streetBottomRight = new StreetNode();
@@ -804,13 +783,11 @@ public class MapGraph {
                 }
             } else {
                 this.streetBottomRight = new StreetNode();
-                System.out.println("gotta do this Street 6.");
             }
 
 
             //... then checking BuildingNodes.
             if (buildingTop == null && (hexTopLeft != null || hexTopRight != null)) {
-                System.out.println("good");
                 if (hexTopLeft != null && hexTopRight == null) {
                     if (hexTopLeft.getBuildingBottomRight() == null) {
                         this.buildingTop = new BuildingNode();
@@ -830,18 +807,15 @@ public class MapGraph {
                         this.buildingTop = hexTopRight.getBuildingBottomLeft();
                     } else {
                         this.buildingTop = new BuildingNode();
-                        System.out.println("gotta do this building TOP.");
                     }
                 }
             } else {
                 this.buildingTop = new BuildingNode();
-                System.out.println("gotta do this building TOP.");
             }
 
 
             //Für buildingTopLeft, vergl. mit hexLeft und hexTopLeft
             if (buildingTopLeft == null && (hexLeft != null || hexTopLeft != null)) {
-                System.out.println("good");
                 if (hexLeft != null && hexTopLeft == null) {
                     if (hexLeft.getBuildingTopRight() == null) {
                         this.buildingTopLeft = new BuildingNode();
@@ -861,17 +835,14 @@ public class MapGraph {
                         this.buildingTopLeft = hexTopLeft.getBuildingBottom();
                     } else {
                         this.buildingTopLeft = new BuildingNode();
-                        System.out.println("gotta do this building TOPLEFT.");
                     }
                 }
             } else {
                 this.buildingTopLeft = new BuildingNode();
-                System.out.println("gotta do this building TOPLEFT.");
             }
 
             //Für buildingTopRight, vergl. mit hexRight und hexTopRight
             if (buildingTopRight == null && (hexRight != null || hexTopRight != null)) {
-                System.out.println("good");
                 if (hexRight != null && hexTopRight == null) {
                     if (hexRight.getBuildingTopLeft() == null) {
                         this.buildingTopRight = new BuildingNode();
@@ -891,17 +862,14 @@ public class MapGraph {
                         this.buildingTopRight = hexTopRight.getBuildingBottom();
                     } else {
                         this.buildingTopRight = new BuildingNode();
-                        System.out.println("gotta do this building TOPRIGHT.");
                     }
                 }
             } else {
                 this.buildingTopRight = new BuildingNode();
-                System.out.println("gotta do this building TOPRIGHT.");
             }
 
             //Für buildingBottom, vergl. mit hexBottomLeft und hexBottomRight
             if (buildingBottom == null && (hexBottomLeft != null || hexBottomRight != null)) {
-                System.out.println("good");
                 if (hexBottomLeft != null && hexBottomRight == null) {
                     if (hexBottomLeft.getBuildingTopRight() == null) {
                         this.buildingBottom = new BuildingNode();
@@ -921,17 +889,14 @@ public class MapGraph {
                         this.buildingBottom = hexBottomRight.getBuildingTopLeft();
                     } else {
                         this.buildingBottom = new BuildingNode();
-                        System.out.println("gotta do this building BOTTOM.");
                     }
                 }
             } else {
                 this.buildingBottom = new BuildingNode();
-                System.out.println("gotta do this building BOTTOM.");
             }
 
             //Für buildingBottomLeft, vergl. mit hexLeft und hexBottomLeft
             if (buildingBottomLeft == null && (hexLeft != null || hexBottomLeft != null)) {
-                System.out.println("good");
                 if (hexLeft != null && hexBottomLeft == null) {
                     if (hexLeft.getBuildingBottomRight() == null) {
                         this.buildingBottomLeft = new BuildingNode();
@@ -951,17 +916,14 @@ public class MapGraph {
                         this.buildingBottomLeft = hexBottomLeft.getBuildingTop();
                     } else {
                         this.buildingBottomLeft = new BuildingNode();
-                        System.out.println("gotta do this building BOTTOMLEFT.");
                     }
                 }
             } else {
                 this.buildingBottomLeft = new BuildingNode();
-                System.out.println("gotta do this building BOTTOMLEFT.");
             }
 
             //Für buildingBottomRight, vergl. mit hexBottomRight und hexRight
             if (buildingBottomRight == null && (hexBottomRight != null || hexRight != null)) {
-                System.out.println("good");
                 if (hexBottomRight != null && hexRight == null) {
                     if (hexBottomRight.getBuildingTop() == null) {
                         this.buildingBottomRight = new BuildingNode();
@@ -981,12 +943,10 @@ public class MapGraph {
                         this.buildingBottomRight = hexRight.getBuildingBottomLeft();
                     } else {
                         this.buildingBottomRight = new BuildingNode();
-                        System.out.println("gotta do this building BOTTOMRIGHT.");
                     }
                 }
             } else {
                 this.buildingBottomRight = new BuildingNode();
-                System.out.println("gotta do this building BOTTOMRIGHT.");
             }
 
             updateNodeLists();
@@ -1035,14 +995,12 @@ public class MapGraph {
          */
         public void expand() {
             //If needed, generate - then dock other Hexagons to the corresponding sides of the method.
-
-
-            dockBottomLeft();
             dockLeft();
-            dockRight();
-            dockTopLeft();
-            dockTopRight();
+            dockBottomLeft();
             dockBottomRight();
+            dockRight();
+            dockTopRight();
+            dockTopLeft();
             updateHexagonList();
         }
 
@@ -1059,66 +1017,54 @@ public class MapGraph {
             if (hexTopLeft != null) {
                 if (hexLeft != null) {
                     hexTopLeft.setHexBottomLeft(hexLeft);
-                    //  hexTopLeft.dockBottomLeft();
                 }
                 if (hexTopRight != null) {
                     hexTopLeft.setHexRight(hexTopRight);
-                    // hexTopLeft.dockRight();
                 }
             }
 
             if (hexLeft != null) {
                 if (hexTopLeft != null) {
                     hexLeft.setHexTopRight(hexTopLeft);
-                    // hexLeft.dockTopRight();
                 }
                 if (hexBottomLeft != null) {
                     hexLeft.setHexBottomRight(hexBottomLeft);
-                    //  hexLeft.dockBottomRight();
                 }
             }
 
             if (hexBottomLeft != null) {
                 if (hexLeft != null) {
                     hexBottomLeft.setHexTopLeft(hexLeft);
-                    //  hexBottomLeft.dockTopLeft();
                 }
                 if (hexBottomRight != null) {
                     hexBottomLeft.setHexRight(hexBottomRight);
-                    // hexBottomLeft.dockRight();
                 }
             }
 
             if (hexBottomRight != null) {
                 if (hexBottomLeft != null) {
                     hexBottomRight.setHexLeft(hexBottomLeft);
-                    //  hexBottomRight.dockLeft();
                 }
                 if (hexRight != null) {
                     hexBottomRight.setHexTopRight(hexRight);
-                    // hexBottomRight.dockTopRight();
                 }
             }
 
             if (hexRight != null) {
                 if (hexBottomRight != null) {
                     hexRight.setHexBottomLeft(hexBottomRight);
-                    //  hexRight.dockBottomLeft();
                 }
                 if (hexTopRight != null) {
                     hexRight.setHexTopLeft(hexTopRight);
-                    //  hexRight.dockTopLeft();
                 }
             }
 
             if (hexTopRight != null) {
                 if (hexRight != null) {
                     hexTopRight.setHexBottomRight(hexRight);
-                    // hexTopRight.dockBottomRight();
                 }
                 if (hexTopLeft != null) {
                     hexTopRight.setHexLeft(hexTopLeft);
-                    // hexTopRight.dockLeft();
                 }
             }
         }
@@ -1202,15 +1148,8 @@ public class MapGraph {
             if (hexRight == null) {
                 this.hexRight = new Hexagon("right", selfPosition);
                 hexRight.setHexLeft(this);
-                //hexagonSet.add(this);
-
             }
-
-            //    hexRight.setStreetLeft(streetRight);
-            //    hexRight.setBuildingTopLeft(buildingTopRight);
-            //    hexRight.setBuildingBottomLeft(buildingBottomRight);
         }
-
 
         /**
          * Docks calling hexagon to its left Hexagon. If the left Hexagon is still null, the method generates a new one
@@ -1223,13 +1162,7 @@ public class MapGraph {
             if (hexLeft == null) {
                 this.hexLeft = new Hexagon("left", selfPosition);
                 hexLeft.setHexRight(this);
-                //hexagonSet.add(this);
-
             }
-
-            //    hexLeft.setStreetRight(streetLeft);
-            //    hexLeft.setBuildingTopRight(buildingTopLeft);
-            //    hexLeft.setBuildingBottomRight(buildingBottomLeft);
         }
 
         /**
@@ -1243,13 +1176,7 @@ public class MapGraph {
             if (hexTopRight == null) {
                 this.hexTopRight = new Hexagon("topRight", selfPosition);
                 hexTopRight.setHexBottomLeft(this);
-                //hexagonSet.add(this);
-
             }
-
-            //   hexTopRight.setBuildingBottomLeft(buildingTop);
-            //   hexTopRight.setBuildingBottom(buildingTopRight);
-            //   hexTopRight.setStreetBottomLeft(streetTopRight);
         }
 
         /**
@@ -1263,13 +1190,7 @@ public class MapGraph {
             if (hexBottomRight == null) {
                 this.hexBottomRight = new Hexagon("bottomRight", selfPosition);
                 hexBottomRight.setHexTopLeft(this);
-                //hexagonSet.add(this);
-
             }
-
-            //    hexBottomRight.setBuildingTop(buildingBottomRight);
-            //    hexBottomRight.setBuildingTopLeft(buildingBottom);
-            //    hexBottomRight.setStreetTopLeft(streetBottomRight);
         }
 
         /**
@@ -1283,13 +1204,7 @@ public class MapGraph {
             if (hexTopLeft == null) {
                 this.hexTopLeft = new Hexagon("topLeft", selfPosition);
                 hexTopLeft.setHexBottomRight(this);
-                //hexagonSet.add(this);
-
             }
-
-            //    hexTopLeft.setBuildingBottom(buildingTopLeft);
-            //    hexTopLeft.setBuildingBottomRight(buildingTop);
-            //    hexTopLeft.setStreetBottomRight(streetTopLeft);
         }
 
         /**
@@ -1303,12 +1218,7 @@ public class MapGraph {
             if (hexBottomLeft == null) {
                 this.hexBottomLeft = new Hexagon("bottomLeft", selfPosition);
                 hexBottomLeft.setHexTopRight(this);
-                //hexagonSet.add(this);
             }
-
-            //   hexBottomLeft.setBuildingTop(buildingBottomLeft);
-            //   hexBottomLeft.setBuildingTopRight(buildingBottom);
-            //   hexBottomLeft.setStreetTopRight(streetBottomLeft);
         }
     }
 }

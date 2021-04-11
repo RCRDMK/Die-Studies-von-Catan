@@ -388,7 +388,7 @@ public class GameService extends AbstractService {
             lobby.get().setPlayersReadyToNull();
             lobby.get().setRdyResponsesReceived(0);
             for (User user : game.get().getUsers()) {
-                sendToSpecificUserInGame(game, new GameCreatedMessage(game.get().getName(), (UserDTO) user, game.get().getGameField(), usersInGame), user);
+                sendToSpecificUserInGame(game, new GameCreatedMessage(game.get().getName(), (UserDTO) user, game.get().getMapGraph(), usersInGame), user);
             }
             game.get().setUpUserArrayList();
             game.get().setUpInventories();

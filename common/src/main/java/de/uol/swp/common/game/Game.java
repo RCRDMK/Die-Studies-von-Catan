@@ -174,12 +174,34 @@ public interface Game extends Serializable {
      * Getter for the Inventory from user
      *
      * @param user
+     *
      * @return The Inventory from user
      * @author Anton Nikiforov
      * @see de.uol.swp.common.game.inventory.Inventory
      * @since 2021-04-01
      */
     Inventory getInventory(User user);
+
+    /**
+     * Returns the MapGraph object.
+     *
+     * @return The logical graph with all Nodes, Hexagons and connections between them.
+     * @author Pieter Vogt
+     * @see MapGraph
+     * @since 2021-04-11
+     */
+    MapGraph getMapGraph();
+
+    /**
+     * Puts the parsed MapGraph into the DTO.
+     *
+     * @param mapGraph
+     *
+     * @author Pieter Vogt
+     * @see MapGraph
+     * @since 2021-04-11
+     */
+    void setMapGraph(MapGraph mapGraph);
 
     DevelopmentCardDeck getDevelopmentCardDeck();
 }

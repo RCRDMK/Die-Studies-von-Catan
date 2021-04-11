@@ -3,6 +3,7 @@ package de.uol.swp.server.game;
 
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.GameField;
+import de.uol.swp.common.game.MapGraph;
 import de.uol.swp.common.game.dto.GameDTO;
 import de.uol.swp.common.user.User;
 
@@ -43,7 +44,10 @@ public class GameManagement extends AbstractGameManagement {
     @Override
     public void createGame(String name, User owner,String gameFieldVariant) {
         GameDTO game = new GameDTO(name, owner);
-        game.setGameField(new GameField(gameFieldVariant));
+        game.setMapGraph(new MapGraph(gameFieldVariant));
+
+
+        game.setGameField(new GameField(gameFieldVariant)); //TODO: löschen
         games.put(name, game);
     }
 
