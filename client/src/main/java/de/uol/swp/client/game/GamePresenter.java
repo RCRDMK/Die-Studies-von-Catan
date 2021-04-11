@@ -11,9 +11,7 @@ import de.uol.swp.client.lobby.LobbyService;
 import de.uol.swp.common.chat.RequestChatMessage;
 import de.uol.swp.common.chat.ResponseChatMessage;
 import de.uol.swp.common.game.MapGraph;
-import de.uol.swp.common.game.message.GameCreatedMessage;
-import de.uol.swp.common.game.message.NextTurnMessage;
-import de.uol.swp.common.game.message.UserLeftGameMessage;
+import de.uol.swp.common.game.message.*;
 import de.uol.swp.common.game.request.EndTurnRequest;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
@@ -27,10 +25,7 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.Button;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
@@ -60,36 +55,27 @@ public class GamePresenter extends AbstractPresenter {
     public static final String fxml = "/fxml/GameView.fxml";
 
     private static final Logger LOG = LogManager.getLogger(GamePresenter.class);
-
-    private User joinedLobbyUser;
-
-    private String currentLobby;
-
-    private ObservableList<String> gameUsers;
-
-    //Container for TerrainFields
-    private TerrainField[] tfArray;
-
-    //Container for BuildingFields
-    private BuildingField[] buildArray;
-
-    //Container for StreetFields
-    private BuildingField[] streetArray;
-
-    private MapGraph mapGraph;
-
-    @Inject
-    private GameService gameService;
-
-    @Inject
-    private ChatService chatService;
-
     @FXML
     public TextField gameChatInput;
-
     @FXML
     public TextArea gameChatArea;
-
+    private User joinedLobbyUser;
+    private String currentLobby;
+    private Alert alert;
+    private ButtonType buttonTypeOkay;
+    private Button btnOkay;
+    private ObservableList<String> gameUsers;
+    //Container for TerrainFields
+    private TerrainField[] tfArray;
+    //Container for BuildingFields
+    private BuildingField[] buildArray;
+    //Container for StreetFields
+    private BuildingField[] streetArray;
+    private MapGraph mapGraph;
+    @Inject
+    private GameService gameService;
+    @Inject
+    private ChatService chatService;
     @FXML
     private Canvas canvas = new Canvas();
 
@@ -226,7 +212,7 @@ public class GamePresenter extends AbstractPresenter {
 
     @FXML
     public void onBuyDevelopmentCard(ActionEvent event) {
-        //TODO:...
+        gameService.buyDevelopmentCard(this.joinedLobbyUser, this.currentLobby);
     }
 
     /**
@@ -247,7 +233,9 @@ public class GamePresenter extends AbstractPresenter {
      */
     @FXML
     public void onRollDice(ActionEvent event) {
-        gameService.rollDice(this.currentLobby, this.joinedLobbyUser);
+        if (this.currentLobby != null) {
+            gameService.rollDice(this.currentLobby, this.joinedLobbyUser);
+        }
     }
 
     @FXML
@@ -292,6 +280,7 @@ public class GamePresenter extends AbstractPresenter {
             this.currentLobby = gcm.getName();
             updateGameUsersList(gcm.getUsers());
             initializeGameField(gcm.getMapGraph());
+            Platform.runLater(this::setupRessourceAlert);
         }
     }
 
@@ -619,14 +608,51 @@ public class GamePresenter extends AbstractPresenter {
         return new Object[]{tempArray, tempStreetArray, tempBuildArray};
     }
 
+
+    /**
+     * determines the color to draw its host-object
+     *
+     * @return the color for the host-object
+     * @author Pieter Vogt
+     * @since 2021-01-04
+     */
+    public Color determineColorOfTerrain(MapGraph.Hexagon h) {
+        Color c;
+        //"Ocean" = 0; "Forest" = 1; "Farmland" = 2; "Grassland" = 3; "Hillside" = 4; "Mountain" = 5; "Desert" = 6;
+        switch (h.getTerrainType()) {
+            case 1:
+                c = Color.OLIVEDRAB;
+                break;
+            case 2:
+                c = Color.GOLDENROD;
+                break;
+            case 3:
+                c = Color.LAWNGREEN;
+                break;
+            case 4:
+                c = Color.LIGHTCORAL;
+                break;
+            case 5:
+                c = Color.GREY;
+                break;
+            case 0:
+                c = Color.DODGERBLUE;
+                break;
+            default:
+                c = Color.BLANCHEDALMOND;
+                break;
+        }
+        return c;
+    }
+
     /**
      * The method that actually draws graphical objects to the screen.
      * <p>
      * This method draws its items from back to front, meaning backmost items need to be drawn first and so on. This is
      * why the background is drawn first, etc.
      * </p>
-     *
-     * enhanced by Marc Hermes 2021-03-31
+     * <p>
+     * enhanced by Marc Hermes 2021-03-31 enhanced by Pieter Vogt 2021-04-07
      *
      * @author Pieter Vogt
      * @since 2021-01-24
@@ -640,10 +666,32 @@ public class GamePresenter extends AbstractPresenter {
         g.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
 
         for (MapGraph.Hexagon h : this.mapGraph.getHexagonSet()) {
-
+            //The 2. Vector in this is the standard-vector. TODO:hier eventuell doch den general vector nutzen?!
+            Vector drawVector = Vector.addVector(Vector.convertStringListToVector(h.getSelfPosition(), cardSize()), new Vector(canvas.getWidth() / 2, canvas.getHeight() / 2));
+            Circle circle = new Circle(cardSize() / 2);
+            circle.setLayoutX(drawVector.getX());
+            circle.setLayoutY(drawVector.getY() + canvas.getLayoutY());
+            circle.setFill(determineColorOfTerrain(h));
+            Platform.runLater(() -> gameAnchorPane.getChildren().add(circle));
+            if (h.getDiceToken() != 0) {
+                Text text = new Text(drawVector.getX(), drawVector.getY() + canvas.getLayoutY(), Integer.toString(h.getDiceToken()));
+                text.setFill(Color.WHITE);
+                Platform.runLater(() -> gameAnchorPane.getChildren().add(text));
+            }
         }
 
+        //Draw buildings
+        for (MapGraph.MapGraphNode m : mapGraph.getBuildingNodeSet()) {
+            //Correct draw-positions are calculated.
+            initializeNodeSpot(m);
+        }
+        //Draw streets
+        for (MapGraph.MapGraphNode m : mapGraph.getStreetNodeSet()) {
+            //Correct draw-positions are calculated.
+            initializeNodeSpot(m);
+        }
 
+/*
         //TODO: Alt, löschen?
         //Setup
         GraphicsContext g = this.canvas.getGraphicsContext2D(); //This is the object that is doing the drawing and has all the graphics related methods.
@@ -674,7 +722,7 @@ public class GamePresenter extends AbstractPresenter {
         }
         for (int i = 0; i < 54; i++) {
             initializeBuildingSpots("Settlement", buildArray[i]);
-        }
+        }*/
     }
 
     /**
@@ -687,17 +735,45 @@ public class GamePresenter extends AbstractPresenter {
      * @author Kirstin
      * @since 2021-03-28
      */
-    public void initializeBuildingSpots(String building, BuildingField buildingField) {
+    public void initializeNodeSpot(MapGraph.MapGraphNode mapGraphNode) {
+
         EventHandler<MouseEvent> circleOnMousePressedEventHandler = t -> {
             Circle circle = (Circle) t.getSource();
             circle.setFill(Color.RED);
         };
         GraphicsContext g = this.canvas.getGraphicsContext2D();
         g.setLineWidth(cardSize() / 10);
-        double x = buildingField.getPosition().getX();
-        double y = buildingField.getPosition().getY();
+        if (mapGraphNode.getClass().equals(MapGraph.BuildingNode.class)) {
+            MapGraph.BuildingNode buildingNode = (MapGraph.BuildingNode) mapGraphNode;
+            Vector parentVector = Vector.convertStringListToVector(buildingNode.getParent().getSelfPosition(), cardSize());
+            Vector selfVector = Vector.getVectorFromMapGraphNode(buildingNode, cardSize());
+            Vector targetVector = Vector.addVector(parentVector, selfVector);
+            double itemSize = cardSize() / 8;
+            Circle street = new Circle();
+            street.setRadius(itemSize / 2);
+            street.setLayoutX(targetVector.getX());
+            street.setLayoutY(targetVector.getY() + canvas.getLayoutY());
+            street.setFill(Color.GHOSTWHITE);
+            street.setOnMouseClicked(circleOnMousePressedEventHandler);
+            Platform.runLater(() -> gameAnchorPane.getChildren().add(street));
+        }
+        if (mapGraphNode.getClass().equals(MapGraph.StreetNode.class)) {
+            MapGraph.StreetNode streetNode = (MapGraph.StreetNode) mapGraphNode;
+            Vector parentVector = Vector.convertStringListToVector(streetNode.getParent().getSelfPosition(), cardSize());
+            Vector selfVector = Vector.getVectorFromMapGraphNode(streetNode, cardSize());
+            Vector targetVector = Vector.addVector(parentVector, selfVector);
+            double itemSize = cardSize() / 8;
+            Circle street = new Circle();
+            street.setRadius(itemSize / 2);
+            street.setLayoutX(targetVector.getX());
+            street.setLayoutY(targetVector.getY() + canvas.getLayoutY());
+            street.setFill(Color.GHOSTWHITE);
+            street.setOnMouseClicked(circleOnMousePressedEventHandler);
+            Platform.runLater(() -> gameAnchorPane.getChildren().add(street));
+        }
 
-        switch (building) {
+
+        /*switch (building) {
             case "Street":
                 double itemSize = cardSize() / 8;
                 Circle street = new Circle();
@@ -728,9 +804,48 @@ public class GamePresenter extends AbstractPresenter {
                 town.setOnMouseClicked(circleOnMousePressedEventHandler);
                 buildingField.setNode(town);
                 Platform.runLater(() -> gameAnchorPane.getChildren().add(town));
-                break;
-        }
+                break;*/
     }
+
+
+
+        /*for (int j = 0; j < 12; j++) {
+                tempVec = Vector.addVector(tempArray[i].getPosition(), Vector.generalVector(cardSize() / Math.sqrt(2), 315));
+
+                if (j % 2 != 0) {
+                    tempVec = Vector.addVector(tempVec, Vector.generalVector(cardSize() / Math.sqrt(3), 30 * j));
+
+                    // check if field is already in array
+                    for (int k = 0; k < l; k++) {
+                        if (Math.abs(tempVec.getX() - tempBuildArray[k].getPosition().getX()) < (cardSize() / 100) && Math.abs(tempVec.getY() - tempBuildArray[k].getPosition().getY()) < (cardSize() / 100)) {
+                            continue fieldLoop;
+                        }
+                    }
+                    // add new BuildingField to buildArray
+                    BuildingField b = new BuildingField(tempVec);
+                    b.setName("Settlement");
+                    b.setUsed(false);
+                    tempBuildArray[l] = b;
+                    l++;
+
+                } else {
+                    tempVec = Vector.addVector(tempVec, Vector.generalVector(cardSize() * 0.5, 30 * j));
+
+                    // check if field is already in array
+                    for (int k = 0; k < m; k++) {
+                        if (Math.abs(tempVec.getX() - tempStreetArray[k].getPosition().getX()) < cardSize() / 100 && Math.abs(tempVec.getY() - tempStreetArray[k].getPosition().getY()) < cardSize() / 100) {
+                            continue fieldLoop;
+                        }
+                    }
+                    // add new BuildingField to streetArray
+                    BuildingField s = new BuildingField(tempVec);
+                    s.setName("Street");
+                    s.setUsed(false);
+                    tempStreetArray[m] = s;
+                    m++;
+                }
+            }*/
+
 
     /**
      * Method to initialize the GameField of this GamePresenter of this client
@@ -739,7 +854,7 @@ public class GamePresenter extends AbstractPresenter {
      * values and copies them to the tfArray of this GamePresenter. Then the values of the fieldTypes are checked and
      * translated into the correct String names of the tfArray TerrainFields.
      *
-     * @param gameField the gameField given by the Server
+     * @param mapGraph the MapGraph created by the Server
      *
      * @author Marc Hermes
      * @see de.uol.swp.common.game.GameField

@@ -2,6 +2,7 @@ package de.uol.swp.common.game;
 
 import de.uol.swp.common.game.exception.ListFullException;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -22,7 +23,7 @@ import java.util.Set;
  * @author Pieter Vogt
  * @since 2021-04-02
  */
-public class MapGraph {
+public class MapGraph implements Serializable {
     //FIELDS
     private final HashSet<StreetNode> streetNodeSet = new HashSet<>();
     private final HashSet<BuildingNode> buildingNodeSet = new HashSet<>();
@@ -283,6 +284,10 @@ public class MapGraph {
 
     //NESTED CLASSES
 
+    public abstract class MapGraphNode implements Serializable {
+
+    }
+
     /**
      * Holds all the data needed to represent streets and the interactions made with them.
      *
@@ -290,17 +295,20 @@ public class MapGraph {
      * @see <a href=>https://confluence.swl.informatik.uni-oldenburg.de/pages/editpage.action?pageId=263979012</a>
      * @since 2021-04-02
      */
-    private class StreetNode {
+    public class StreetNode extends MapGraphNode {
 
         //FIELDS
 
+        private String positionToParent;
         private final HashSet<BuildingNode> connectedBuildingNodes = new HashSet<>();
         private int occupiedByPlayer;
+        private Hexagon parent;
 
         //CONSTRUCTOR
 
-        public StreetNode() {
-
+        public StreetNode(String position, Hexagon h) {
+            this.positionToParent = position;
+            this.parent = h;
         }
 
         //GETTER SETTER
@@ -324,6 +332,18 @@ public class MapGraph {
                 } else throw new ListFullException("This StreetNode already has 2 BuildingNodes connected to it.");
             }
         }
+
+        public Hexagon getParent() {
+            return parent;
+        }
+
+        public void setParent(Hexagon parent) {
+            this.parent = parent;
+        }
+
+        public String getPositionToParent() {
+            return positionToParent;
+        }
     }
 
     /**
@@ -333,14 +353,15 @@ public class MapGraph {
      * @see <a href=>https://confluence.swl.informatik.uni-oldenburg.de/pages/editpage.action?pageId=263979012</a>
      * @since 2021-04-02
      */
-    private class BuildingNode {
+    public class BuildingNode extends MapGraphNode {
 
         //FIELDS
 
+        private String positionToParent;
         private final HashSet<StreetNode> connectedStreetNodes = new HashSet<>();
         private int typeOfHarbor;
         private int occupiedByPlayer;
-
+        private Hexagon parent;
         //CONSTRUCTOR
 
         /**
@@ -350,7 +371,10 @@ public class MapGraph {
          * 0 = no harbor, 1 = 2:1 Sheep, 2 = 2:1 Clay, 3 = 2:1 Wood, 4 = 2:1 Grain, 5 = 2:1 Ore, 6 = 3:1 Any
          * </p>
          */
-        public BuildingNode() {
+        public BuildingNode(String position, Hexagon h) {
+            this.positionToParent = position;
+            this.parent = h;
+
         }
 
         //GETTER SETTER
@@ -382,6 +406,18 @@ public class MapGraph {
                 } else throw new ListFullException("This BuildingNode already has 3 StreetNodes connected to it.");
             }
         }
+
+        public Hexagon getParent() {
+            return parent;
+        }
+
+        public void setParent(Hexagon parent) {
+            this.parent = parent;
+        }
+
+        public String getPositionToParent() {
+            return positionToParent;
+        }
     }
 
     /**
@@ -394,7 +430,7 @@ public class MapGraph {
      * @author Pieter Vogt
      * @since 2021-04-09
      */
-    public class Hexagon {
+    public class Hexagon implements Serializable {
 
         //FIELDS
 
@@ -717,72 +753,72 @@ public class MapGraph {
             //First checking streetnodes...
             if (this.streetTopLeft == null && hexTopLeft != null) {
                 if (hexTopLeft.getStreetBottomRight() == null) {
-                    this.streetTopLeft = new StreetNode();
+                    this.streetTopLeft = new StreetNode("topLeft", this);
                 } else {
                     this.streetTopLeft = hexTopLeft.getStreetBottomRight();
                 }
             } else {
-                this.streetTopLeft = new StreetNode();
+                this.streetTopLeft = new StreetNode("topLeft", this);
             }
 
 
             if (this.streetTopRight == null && hexTopRight != null) {
 
                 if (hexTopRight.getStreetBottomLeft() == null) {
-                    this.streetTopRight = new StreetNode();
+                    this.streetTopRight = new StreetNode("topRight", this);
                 } else {
                     this.streetTopRight = hexTopRight.getStreetBottomLeft();
                 }
             } else {
-                this.streetTopRight = new StreetNode();
+                this.streetTopRight = new StreetNode("topRight", this);
             }
 
 
             if (streetLeft == null && hexLeft != null) {
 
                 if (hexLeft.getStreetRight() == null) {
-                    this.streetLeft = new StreetNode();
+                    this.streetLeft = new StreetNode("left", this);
                 } else {
                     this.streetLeft = hexLeft.getStreetRight();
                 }
             } else {
-                this.streetLeft = new StreetNode();
+                this.streetLeft = new StreetNode("left", this);
             }
 
 
             if (streetRight == null && hexRight != null) {
 
                 if (hexRight.getStreetLeft() == null) {
-                    this.streetRight = new StreetNode();
+                    this.streetRight = new StreetNode("right", this);
                 } else {
                     this.streetRight = hexRight.getStreetLeft();
                 }
             } else {
-                this.streetRight = new StreetNode();
+                this.streetRight = new StreetNode("right", this);
             }
 
 
             if (streetBottomLeft == null && hexBottomLeft != null) {
 
                 if (hexBottomLeft.getStreetTopRight() == null) {
-                    this.streetBottomLeft = new StreetNode();
+                    this.streetBottomLeft = new StreetNode("bottomLeft", this);
                 } else {
                     this.streetBottomLeft = hexBottomLeft.getStreetTopRight();
                 }
             } else {
-                this.streetBottomLeft = new StreetNode();
+                this.streetBottomLeft = new StreetNode("bottomLeft", this);
             }
 
 
             if (streetBottomRight == null && hexBottomRight != null) {
 
                 if (hexBottomRight.getStreetTopLeft() == null) {
-                    this.streetBottomRight = new StreetNode();
+                    this.streetBottomRight = new StreetNode("bottomRight", this);
                 } else {
                     this.streetBottomRight = hexBottomRight.getStreetTopLeft();
                 }
             } else {
-                this.streetBottomRight = new StreetNode();
+                this.streetBottomRight = new StreetNode("bottomRight", this);
             }
 
 
@@ -790,13 +826,13 @@ public class MapGraph {
             if (buildingTop == null && (hexTopLeft != null || hexTopRight != null)) {
                 if (hexTopLeft != null && hexTopRight == null) {
                     if (hexTopLeft.getBuildingBottomRight() == null) {
-                        this.buildingTop = new BuildingNode();
+                        this.buildingTop = new BuildingNode("top", this);
                     } else {
                         this.buildingTop = hexTopLeft.getBuildingBottomRight();
                     }
                 } else if (hexTopLeft == null && hexTopRight != null) {
                     if (hexTopRight.getBuildingBottomLeft() == null) {
-                        this.buildingTop = new BuildingNode();
+                        this.buildingTop = new BuildingNode("top", this);
                     } else {
                         this.buildingTop = hexTopRight.getBuildingBottomLeft();
                     }
@@ -806,11 +842,11 @@ public class MapGraph {
                     } else if (hexTopRight.getBuildingBottomLeft() != null) {
                         this.buildingTop = hexTopRight.getBuildingBottomLeft();
                     } else {
-                        this.buildingTop = new BuildingNode();
+                        this.buildingTop = new BuildingNode("top", this);
                     }
                 }
             } else {
-                this.buildingTop = new BuildingNode();
+                this.buildingTop = new BuildingNode("top", this);
             }
 
 
@@ -818,13 +854,13 @@ public class MapGraph {
             if (buildingTopLeft == null && (hexLeft != null || hexTopLeft != null)) {
                 if (hexLeft != null && hexTopLeft == null) {
                     if (hexLeft.getBuildingTopRight() == null) {
-                        this.buildingTopLeft = new BuildingNode();
+                        this.buildingTopLeft = new BuildingNode("topLeft", this);
                     } else {
                         this.buildingTopLeft = hexLeft.getBuildingTopRight();
                     }
                 } else if (hexLeft == null && hexTopLeft != null) {
                     if (hexTopLeft.getBuildingBottom() == null) {
-                        this.buildingTopLeft = new BuildingNode();
+                        this.buildingTopLeft = new BuildingNode("topLeft", this);
                     } else {
                         this.buildingTopLeft = hexTopLeft.getBuildingBottom();
                     }
@@ -834,24 +870,24 @@ public class MapGraph {
                     } else if (hexTopLeft.getBuildingBottom() != null) {
                         this.buildingTopLeft = hexTopLeft.getBuildingBottom();
                     } else {
-                        this.buildingTopLeft = new BuildingNode();
+                        this.buildingTopLeft = new BuildingNode("topLeft", this);
                     }
                 }
             } else {
-                this.buildingTopLeft = new BuildingNode();
+                this.buildingTopLeft = new BuildingNode("topLeft", this);
             }
 
             //Für buildingTopRight, vergl. mit hexRight und hexTopRight
             if (buildingTopRight == null && (hexRight != null || hexTopRight != null)) {
                 if (hexRight != null && hexTopRight == null) {
                     if (hexRight.getBuildingTopLeft() == null) {
-                        this.buildingTopRight = new BuildingNode();
+                        this.buildingTopRight = new BuildingNode("topRight", this);
                     } else {
                         this.buildingTopRight = hexRight.getBuildingTopLeft();
                     }
                 } else if (hexRight == null && hexTopRight != null) {
                     if (hexTopRight.getBuildingBottom() == null) {
-                        this.buildingTopRight = new BuildingNode();
+                        this.buildingTopRight = new BuildingNode("topRight", this);
                     } else {
                         this.buildingTopRight = hexTopRight.getBuildingBottom();
                     }
@@ -861,24 +897,24 @@ public class MapGraph {
                     } else if (hexTopRight.getBuildingBottom() != null) {
                         this.buildingTopRight = hexTopRight.getBuildingBottom();
                     } else {
-                        this.buildingTopRight = new BuildingNode();
+                        this.buildingTopRight = new BuildingNode("topRight", this);
                     }
                 }
             } else {
-                this.buildingTopRight = new BuildingNode();
+                this.buildingTopRight = new BuildingNode("topRight", this);
             }
 
             //Für buildingBottom, vergl. mit hexBottomLeft und hexBottomRight
             if (buildingBottom == null && (hexBottomLeft != null || hexBottomRight != null)) {
                 if (hexBottomLeft != null && hexBottomRight == null) {
                     if (hexBottomLeft.getBuildingTopRight() == null) {
-                        this.buildingBottom = new BuildingNode();
+                        this.buildingBottom = new BuildingNode("bottom", this);
                     } else {
                         this.buildingBottom = hexBottomLeft.getBuildingTopRight();
                     }
                 } else if (hexBottomLeft == null && hexBottomRight != null) {
                     if (hexBottomRight.getBuildingTopLeft() == null) {
-                        this.buildingBottom = new BuildingNode();
+                        this.buildingBottom = new BuildingNode("bottom", this);
                     } else {
                         this.buildingBottom = hexBottomRight.getBuildingTopLeft();
                     }
@@ -888,24 +924,24 @@ public class MapGraph {
                     } else if (hexBottomRight.getBuildingTopLeft() != null) {
                         this.buildingBottom = hexBottomRight.getBuildingTopLeft();
                     } else {
-                        this.buildingBottom = new BuildingNode();
+                        this.buildingBottom = new BuildingNode("bottom", this);
                     }
                 }
             } else {
-                this.buildingBottom = new BuildingNode();
+                this.buildingBottom = new BuildingNode("bottom", this);
             }
 
             //Für buildingBottomLeft, vergl. mit hexLeft und hexBottomLeft
             if (buildingBottomLeft == null && (hexLeft != null || hexBottomLeft != null)) {
                 if (hexLeft != null && hexBottomLeft == null) {
                     if (hexLeft.getBuildingBottomRight() == null) {
-                        this.buildingBottomLeft = new BuildingNode();
+                        this.buildingBottomLeft = new BuildingNode("bottomLeft", this);
                     } else {
                         this.buildingBottomLeft = hexLeft.getBuildingBottomRight();
                     }
                 } else if (hexLeft == null && hexBottomLeft != null) {
                     if (hexBottomLeft.getBuildingTop() == null) {
-                        this.buildingBottomLeft = new BuildingNode();
+                        this.buildingBottomLeft = new BuildingNode("bottomLeft", this);
                     } else {
                         this.buildingBottomLeft = hexBottomLeft.getBuildingTop();
                     }
@@ -915,24 +951,24 @@ public class MapGraph {
                     } else if (hexBottomLeft.getBuildingTop() != null) {
                         this.buildingBottomLeft = hexBottomLeft.getBuildingTop();
                     } else {
-                        this.buildingBottomLeft = new BuildingNode();
+                        this.buildingBottomLeft = new BuildingNode("bottomLeft", this);
                     }
                 }
             } else {
-                this.buildingBottomLeft = new BuildingNode();
+                this.buildingBottomLeft = new BuildingNode("bottomLeft", this);
             }
 
             //Für buildingBottomRight, vergl. mit hexBottomRight und hexRight
             if (buildingBottomRight == null && (hexBottomRight != null || hexRight != null)) {
                 if (hexBottomRight != null && hexRight == null) {
                     if (hexBottomRight.getBuildingTop() == null) {
-                        this.buildingBottomRight = new BuildingNode();
+                        this.buildingBottomRight = new BuildingNode("bottomRight", this);
                     } else {
                         this.buildingBottomRight = hexBottomRight.getBuildingTop();
                     }
                 } else if (hexBottomRight == null && hexRight != null) {
                     if (hexRight.getBuildingBottomLeft() == null) {
-                        this.buildingBottomRight = new BuildingNode();
+                        this.buildingBottomRight = new BuildingNode("bottomRight", this);
                     } else {
                         this.buildingBottomRight = hexRight.getBuildingBottomLeft();
                     }
@@ -942,11 +978,11 @@ public class MapGraph {
                     } else if (hexRight.getBuildingBottomLeft() != null) {
                         this.buildingBottomRight = hexRight.getBuildingBottomLeft();
                     } else {
-                        this.buildingBottomRight = new BuildingNode();
+                        this.buildingBottomRight = new BuildingNode("bottomRight", this);
                     }
                 }
             } else {
-                this.buildingBottomRight = new BuildingNode();
+                this.buildingBottomRight = new BuildingNode("bottomRight", this);
             }
 
             updateNodeLists();
@@ -955,19 +991,19 @@ public class MapGraph {
         }
 
         public void generateNodesMiddle() {
-            this.streetTopLeft = new StreetNode();
-            this.streetBottomLeft = new StreetNode();
-            this.streetTopRight = new StreetNode();
-            this.streetLeft = new StreetNode();
-            this.streetRight = new StreetNode();
-            this.streetBottomRight = new StreetNode();
+            this.streetTopLeft = new StreetNode("topLeft", this);
+            this.streetBottomLeft = new StreetNode("bottomLeft", this);
+            this.streetTopRight = new StreetNode("topRight", this);
+            this.streetLeft = new StreetNode("left", this);
+            this.streetRight = new StreetNode("right", this);
+            this.streetBottomRight = new StreetNode("bottomRight", this);
 
-            this.buildingTopLeft = new BuildingNode();
-            this.buildingTopRight = new BuildingNode();
-            this.buildingBottomLeft = new BuildingNode();
-            this.buildingBottomRight = new BuildingNode();
-            this.buildingTop = new BuildingNode();
-            this.buildingBottom = new BuildingNode();
+            this.buildingTopLeft = new BuildingNode("topLeft", this);
+            this.buildingTopRight = new BuildingNode("topRight", this);
+            this.buildingBottomLeft = new BuildingNode("bottomLeft", this);
+            this.buildingBottomRight = new BuildingNode("mottomRight", this);
+            this.buildingTop = new BuildingNode("top", this);
+            this.buildingBottom = new BuildingNode("bottom", this);
 
             updateNodeLists();
             streetNodeSet.addAll(streetNodes);
@@ -1134,6 +1170,7 @@ public class MapGraph {
                 h.interconnectOwnNodes();
             }
         }
+
 
         //DOCKER-METHODS
 

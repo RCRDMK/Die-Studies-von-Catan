@@ -27,7 +27,6 @@ public class GameDTO implements Game {
 
     private final String name;
     private final Set<User> users = new TreeSet<>();
-    private User owner;
     private final int turn = 0; //this points to the index of the user who now makes his turn.
     private GameField gameField;
     private MapGraph mapGraph;
