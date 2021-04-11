@@ -72,7 +72,6 @@ public class MapGraph {
      *
      * @param mapTypeToGenerate The standard-case is to generate a MapGraph for a standard-playfield. So if you wish to
      *                          generate one, just parse "".
-     *
      * @author Pieter Vogt
      * @since 2021-04-10
      */
@@ -87,59 +86,82 @@ public class MapGraph {
                 //Generating the first Hexagon in the middle.
                 Hexagon middle = new Hexagon("middle");
 
-                middle.generateNodes();
+                middle.generateNodesMiddle();
                 middle.expand();
                 middle.interconnectOwnNodes();
                 middle.interconnectNeighbourHexagons();
-                // middle.generateNeighbourNodes();
 
                 middle.getHexTopLeft().expand();
                 middle.getHexTopLeft().interconnectNeighbourHexagons();
-                //   middle.getHexTopLeft().interconnectOwnNodes();
 
                 middle.getHexTopRight().expand();
                 middle.getHexTopRight().interconnectNeighbourHexagons();
-                //  middle.getHexTopRight().interconnectOwnNodes();
 
                 middle.getHexLeft().expand();
                 middle.getHexLeft().interconnectNeighbourHexagons();
-                // middle.getHexLeft().interconnectOwnNodes();
 
                 middle.getHexRight().expand();
                 middle.getHexRight().interconnectNeighbourHexagons();
-                //  middle.getHexRight().interconnectOwnNodes();
 
                 middle.getHexBottomLeft().expand();
                 middle.getHexBottomLeft().interconnectNeighbourHexagons();
-                // middle.getHexBottomLeft().interconnectOwnNodes();
 
                 middle.getHexBottomRight().expand();
                 middle.getHexBottomRight().interconnectNeighbourHexagons();
-                //  middle.getHexBottomRight().interconnectOwnNodes();
 
 
-                /*middle.getHexTopLeft().generateNeighbourNodes();
-                middle.getHexTopRight().generateNeighbourNodes();
-                middle.getHexLeft().generateNeighbourNodes();
-                middle.getHexRight().generateNeighbourNodes();
-                middle.getHexBottomLeft().generateNeighbourNodes();
-                middle.getHexBottomRight().generateNeighbourNodes();
+                middle.getHexTopLeft().generateNodes();
+                middle.getHexTopRight().generateNodes();
+                middle.getHexLeft().generateNodes();
+                middle.getHexRight().generateNodes();
+                middle.getHexBottomLeft().generateNodes();
+                middle.getHexBottomRight().generateNodes();
+
+                middle.getHexTopLeft().getHexTopLeft().generateNodes();
+                middle.getHexTopLeft().getHexTopRight().generateNodes();
+
+                middle.getHexTopRight().getHexTopRight().generateNodes();
+                middle.getHexTopRight().getHexRight().generateNodes();
+
+                middle.getHexRight().getHexRight().generateNodes();
+                middle.getHexRight().getHexBottomRight().generateNodes();
+
+                middle.getHexBottomRight().getHexBottomRight().generateNodes();
+                middle.getHexBottomRight().getHexBottomLeft().generateNodes();
+
+                middle.getHexBottomLeft().getHexBottomLeft().generateNodes();
+                middle.getHexBottomLeft().getHexLeft().generateNodes();
+
+                middle.getHexLeft().getHexLeft().generateNodes();
+                middle.getHexLeft().getHexTopLeft().generateNodes();
+
 
                 middle.getHexTopLeft().interconnectNeighbourNodes();
                 middle.getHexTopRight().interconnectNeighbourNodes();
                 middle.getHexLeft().interconnectNeighbourNodes();
                 middle.getHexRight().interconnectNeighbourNodes();
                 middle.getHexBottomLeft().interconnectNeighbourNodes();
-                middle.getHexBottomRight().interconnectNeighbourNodes();*/
+                middle.getHexBottomRight().interconnectNeighbourNodes();
 
+                middle.getHexTopLeft().getHexTopLeft().updateHexagonList();
+                middle.getHexTopLeft().getHexTopRight().updateHexagonList();
+
+                middle.getHexTopRight().getHexTopRight().updateHexagonList();
+                middle.getHexTopRight().getHexRight().updateHexagonList();
+
+                middle.getHexRight().getHexRight().updateHexagonList();
+                middle.getHexRight().getHexBottomRight().updateHexagonList();
+
+                middle.getHexBottomRight().getHexBottomRight().updateHexagonList();
+                middle.getHexBottomRight().getHexBottomLeft().updateHexagonList();
+
+                middle.getHexBottomLeft().getHexBottomLeft().updateHexagonList();
+                middle.getHexBottomLeft().getHexLeft().updateHexagonList();
+
+                middle.getHexLeft().getHexLeft().updateHexagonList();
+                middle.getHexLeft().getHexTopLeft().updateHexagonList();
             }
         }
-        //updating the lists of the MapGraph with the newly generated objects.
-        for (Hexagon h : hexagonSet) {
-            buildingNodeSet.addAll(h.getBuildingNodes());
-            streetNodeSet.addAll(h.getStreetNodes());
-        }
-
     }
 
     /**
@@ -187,7 +209,6 @@ public class MapGraph {
      *
      * @param hexagon        The list of relative vectors in String-form to reach the desired hexagon.
      * @param positionOfNode The relative position of the desired node relative to the argument-hexagon.
-     *
      * @return A StreetNode at a position, determined by the parsed arguments.
      * @author Pieter Vogt
      * @since 2021-04-09
@@ -223,7 +244,6 @@ public class MapGraph {
      *
      * @param hexagon        The List of relative vectors in String-form to reach the desired hexagon.
      * @param positionOfNode The relative position of the desired node relative to the argument-hexagon.
-     *
      * @return A BuildingNode at a position, determined by the parsed arguments.
      * @author Pieter Vogt
      * @since 2021-04-09
@@ -670,12 +690,25 @@ public class MapGraph {
          * @since 2021-04-08
          */
         public void updateHexagonList() {
-            hexagons.add(hexTopLeft);
-            hexagons.add(hexTopRight);
-            hexagons.add(hexRight);
-            hexagons.add(hexLeft);
-            hexagons.add(hexBottomLeft);
-            hexagons.add(hexBottomRight);
+            if (hexTopLeft != null) {
+                hexagons.add(hexTopLeft);
+            }
+
+            if (hexTopRight != null) {
+                hexagons.add(hexTopRight);
+            }
+            if (hexRight != null) {
+                hexagons.add(hexRight);
+            }
+            if (hexLeft != null) {
+                hexagons.add(hexLeft);
+            }
+            if (hexBottomLeft != null) {
+                hexagons.add(hexBottomLeft);
+            }
+            if (hexBottomRight != null) {
+                hexagons.add(hexBottomRight);
+            }
             hexagonSet.addAll(hexagons);
         }
 
@@ -693,124 +726,288 @@ public class MapGraph {
         public void generateNodes() {
             //First checking streetnodes...
             if (this.streetTopLeft == null && hexTopLeft != null) {
+                System.out.println("nice");
                 if (hexTopLeft.getStreetBottomRight() == null) {
                     this.streetTopLeft = new StreetNode();
                 } else {
                     this.streetTopLeft = hexTopLeft.getStreetBottomRight();
                 }
-            } else this.streetTopLeft = new StreetNode();
+            } else {
+                this.streetTopLeft = new StreetNode();
+                System.out.println("gotta do this Street 1.");
+            }
 
 
             if (this.streetTopRight == null && hexTopRight != null) {
+                System.out.println("nice");
+
                 if (hexTopRight.getStreetBottomLeft() == null) {
                     this.streetTopRight = new StreetNode();
                 } else {
                     this.streetTopRight = hexTopRight.getStreetBottomLeft();
                 }
-            } else this.streetTopRight = new StreetNode();
+            } else {
+                this.streetTopRight = new StreetNode();
+                System.out.println("gotta do this Street 2.");
+            }
 
 
             if (streetLeft == null && hexLeft != null) {
+                System.out.println("nice");
+
                 if (hexLeft.getStreetRight() == null) {
                     this.streetLeft = new StreetNode();
                 } else {
                     this.streetLeft = hexLeft.getStreetRight();
                 }
-            } else this.streetLeft = new StreetNode();
+            } else {
+                this.streetLeft = new StreetNode();
+                System.out.println("gotta do this Street 3.");
+            }
 
 
             if (streetRight == null && hexRight != null) {
+                System.out.println("nice");
+
                 if (hexRight.getStreetLeft() == null) {
                     this.streetRight = new StreetNode();
                 } else {
                     this.streetRight = hexRight.getStreetLeft();
                 }
-            } else this.streetRight = new StreetNode();
+            } else {
+                this.streetRight = new StreetNode();
+                System.out.println("gotta do this Street 4.");
+            }
 
 
             if (streetBottomLeft == null && hexBottomLeft != null) {
+                System.out.println("nice");
+
                 if (hexBottomLeft.getStreetTopRight() == null) {
                     this.streetBottomLeft = new StreetNode();
                 } else {
                     this.streetBottomLeft = hexBottomLeft.getStreetTopRight();
                 }
-            } else this.streetBottomLeft = new StreetNode();
+            } else {
+                this.streetBottomLeft = new StreetNode();
+                System.out.println("gotta do this Street 5.");
+            }
 
 
             if (streetBottomRight == null && hexBottomRight != null) {
+                System.out.println("nice");
+
                 if (hexBottomRight.getStreetTopLeft() == null) {
                     this.streetBottomRight = new StreetNode();
                 } else {
                     this.streetBottomRight = hexBottomRight.getStreetTopLeft();
                 }
-            } else this.streetBottomRight = new StreetNode();
+            } else {
+                this.streetBottomRight = new StreetNode();
+                System.out.println("gotta do this Street 6.");
+            }
 
 
             //... then checking BuildingNodes.
-            if (buildingTop == null && hexTopLeft != null && hexTopRight != null) {
-                if (hexTopLeft.getBuildingBottomRight() == null && hexTopRight.getBuildingBottomLeft() == null) {
-                    this.buildingTop = new BuildingNode();
-                } else if (hexTopLeft.getBuildingBottomRight() == null) {
-                    buildingTop = hexTopRight.getBuildingBottomLeft();
-                } else {
-                    buildingTop = hexTopLeft.getBuildingBottomRight();
+            if (buildingTop == null && (hexTopLeft != null || hexTopRight != null)) {
+                System.out.println("good");
+                if (hexTopLeft != null && hexTopRight == null) {
+                    if (hexTopLeft.getBuildingBottomRight() == null) {
+                        this.buildingTop = new BuildingNode();
+                    } else {
+                        this.buildingTop = hexTopLeft.getBuildingBottomRight();
+                    }
+                } else if (hexTopLeft == null && hexTopRight != null) {
+                    if (hexTopRight.getBuildingBottomLeft() == null) {
+                        this.buildingTop = new BuildingNode();
+                    } else {
+                        this.buildingTop = hexTopRight.getBuildingBottomLeft();
+                    }
+                } else if (hexTopLeft != null) {
+                    if (hexTopLeft.getBuildingBottomRight() != null) {
+                        this.buildingTop = hexTopLeft.getBuildingBottomRight();
+                    } else if (hexTopRight.getBuildingBottomLeft() != null) {
+                        this.buildingTop = hexTopRight.getBuildingBottomLeft();
+                    } else {
+                        this.buildingTop = new BuildingNode();
+                        System.out.println("gotta do this building TOP.");
+                    }
                 }
-            } else this.buildingTop = new BuildingNode();
+            } else {
+                this.buildingTop = new BuildingNode();
+                System.out.println("gotta do this building TOP.");
+            }
 
 
-            if (buildingTopLeft == null && hexLeft != null && hexTopLeft != null) {
-                if (hexLeft.getBuildingTopRight() == null && hexTopLeft.getBuildingBottom() == null) {
-                    this.buildingTopLeft = new BuildingNode();
-                } else if (hexLeft.getBuildingTopRight() == null) {
-                    buildingTopLeft = hexTopLeft.getBuildingBottom();
-                } else {
-                    buildingTopLeft = hexTopLeft.getBuildingBottom();
+            //Für buildingTopLeft, vergl. mit hexLeft und hexTopLeft
+            if (buildingTopLeft == null && (hexLeft != null || hexTopLeft != null)) {
+                System.out.println("good");
+                if (hexLeft != null && hexTopLeft == null) {
+                    if (hexLeft.getBuildingTopRight() == null) {
+                        this.buildingTopLeft = new BuildingNode();
+                    } else {
+                        this.buildingTopLeft = hexLeft.getBuildingTopRight();
+                    }
+                } else if (hexLeft == null && hexTopLeft != null) {
+                    if (hexTopLeft.getBuildingBottom() == null) {
+                        this.buildingTopLeft = new BuildingNode();
+                    } else {
+                        this.buildingTopLeft = hexTopLeft.getBuildingBottom();
+                    }
+                } else if (hexLeft != null) {
+                    if (hexLeft.getBuildingTopRight() != null) {
+                        this.buildingTopLeft = hexLeft.getBuildingTopRight();
+                    } else if (hexTopLeft.getBuildingBottom() != null) {
+                        this.buildingTopLeft = hexTopLeft.getBuildingBottom();
+                    } else {
+                        this.buildingTopLeft = new BuildingNode();
+                        System.out.println("gotta do this building TOPLEFT.");
+                    }
                 }
-            } else this.buildingTopLeft = new BuildingNode();
+            } else {
+                this.buildingTopLeft = new BuildingNode();
+                System.out.println("gotta do this building TOPLEFT.");
+            }
 
-
-            if (buildingTopRight == null && hexRight != null && hexTopRight != null) {
-                if (hexRight.getBuildingTopLeft() == null && hexTopRight.getBuildingBottom() == null) {
-                    this.buildingTopRight = new BuildingNode();
-                } else if (hexRight.getBuildingTopLeft() == null) {
-                    buildingTopRight = hexTopRight.getBuildingBottom();
-                } else {
-                    buildingTopRight = hexRight.getBuildingTopLeft();
+            //Für buildingTopRight, vergl. mit hexRight und hexTopRight
+            if (buildingTopRight == null && (hexRight != null || hexTopRight != null)) {
+                System.out.println("good");
+                if (hexRight != null && hexTopRight == null) {
+                    if (hexRight.getBuildingTopLeft() == null) {
+                        this.buildingTopRight = new BuildingNode();
+                    } else {
+                        this.buildingTopRight = hexRight.getBuildingTopLeft();
+                    }
+                } else if (hexRight == null && hexTopRight != null) {
+                    if (hexTopRight.getBuildingBottom() == null) {
+                        this.buildingTopRight = new BuildingNode();
+                    } else {
+                        this.buildingTopRight = hexTopRight.getBuildingBottom();
+                    }
+                } else if (hexRight != null) {
+                    if (hexRight.getBuildingTopLeft() != null) {
+                        this.buildingTopRight = hexRight.getBuildingTopLeft();
+                    } else if (hexTopRight.getBuildingBottom() != null) {
+                        this.buildingTopRight = hexTopRight.getBuildingBottom();
+                    } else {
+                        this.buildingTopRight = new BuildingNode();
+                        System.out.println("gotta do this building TOPRIGHT.");
+                    }
                 }
-            } else this.buildingTopRight = new BuildingNode();
+            } else {
+                this.buildingTopRight = new BuildingNode();
+                System.out.println("gotta do this building TOPRIGHT.");
+            }
 
-
-            if (buildingBottom == null && hexBottomLeft != null && hexBottomRight != null) {
-                if (hexBottomLeft.getBuildingTopLeft() == null && hexBottomRight.getBuildingTopRight() == null) {
-                    this.buildingBottom = new BuildingNode();
-                } else if (hexBottomLeft.getBuildingTopLeft() == null) {
-                    buildingBottom = hexBottomRight.getBuildingTopRight();
-                } else {
-                    buildingBottom = hexBottomLeft.getBuildingTopLeft();
+            //Für buildingBottom, vergl. mit hexBottomLeft und hexBottomRight
+            if (buildingBottom == null && (hexBottomLeft != null || hexBottomRight != null)) {
+                System.out.println("good");
+                if (hexBottomLeft != null && hexBottomRight == null) {
+                    if (hexBottomLeft.getBuildingTopRight() == null) {
+                        this.buildingBottom = new BuildingNode();
+                    } else {
+                        this.buildingBottom = hexBottomLeft.getBuildingTopRight();
+                    }
+                } else if (hexBottomLeft == null && hexBottomRight != null) {
+                    if (hexBottomRight.getBuildingTopLeft() == null) {
+                        this.buildingBottom = new BuildingNode();
+                    } else {
+                        this.buildingBottom = hexBottomRight.getBuildingTopLeft();
+                    }
+                } else if (hexBottomLeft != null) {
+                    if (hexBottomLeft.getBuildingTopRight() != null) {
+                        this.buildingBottom = hexBottomLeft.getBuildingTopRight();
+                    } else if (hexBottomRight.getBuildingTopLeft() != null) {
+                        this.buildingBottom = hexBottomRight.getBuildingTopLeft();
+                    } else {
+                        this.buildingBottom = new BuildingNode();
+                        System.out.println("gotta do this building BOTTOM.");
+                    }
                 }
-            } else this.buildingBottom = new BuildingNode();
+            } else {
+                this.buildingBottom = new BuildingNode();
+                System.out.println("gotta do this building BOTTOM.");
+            }
 
-
-            if (buildingBottomLeft == null && hexLeft != null && hexBottomLeft != null) {
-                if (hexLeft.getBuildingBottomRight() == null && hexBottomLeft.getBuildingTop() == null) {
-                    this.buildingBottomLeft = new BuildingNode();
-                } else if (hexLeft.getBuildingBottomRight() == null) {
-                    buildingBottomLeft = hexBottomLeft.getBuildingTop();
-                } else {
-                    buildingBottomLeft = hexLeft.getBuildingBottomRight();
+            //Für buildingBottomLeft, vergl. mit hexLeft und hexBottomLeft
+            if (buildingBottomLeft == null && (hexLeft != null || hexBottomLeft != null)) {
+                System.out.println("good");
+                if (hexLeft != null && hexBottomLeft == null) {
+                    if (hexLeft.getBuildingBottomRight() == null) {
+                        this.buildingBottomLeft = new BuildingNode();
+                    } else {
+                        this.buildingBottomLeft = hexLeft.getBuildingBottomRight();
+                    }
+                } else if (hexLeft == null && hexBottomLeft != null) {
+                    if (hexBottomLeft.getBuildingTop() == null) {
+                        this.buildingBottomLeft = new BuildingNode();
+                    } else {
+                        this.buildingBottomLeft = hexBottomLeft.getBuildingTop();
+                    }
+                } else if (hexLeft != null) {
+                    if (hexLeft.getBuildingBottomRight() != null) {
+                        this.buildingBottomLeft = hexLeft.getBuildingBottomRight();
+                    } else if (hexBottomLeft.getBuildingTop() != null) {
+                        this.buildingBottomLeft = hexBottomLeft.getBuildingTop();
+                    } else {
+                        this.buildingBottomLeft = new BuildingNode();
+                        System.out.println("gotta do this building BOTTOMLEFT.");
+                    }
                 }
-            } else this.buildingBottomLeft = new BuildingNode();
+            } else {
+                this.buildingBottomLeft = new BuildingNode();
+                System.out.println("gotta do this building BOTTOMLEFT.");
+            }
 
-
-            if (buildingBottomRight == null && hexBottomRight != null && hexRight != null) {
-                if (hexBottomRight.getBuildingTop() == null && hexRight.getBuildingBottomLeft() == null) {
-                    this.buildingBottomRight = new BuildingNode();
-                } else if (hexBottomRight.getBuildingTop() == null) {
-                    buildingBottomRight = hexRight.getBuildingBottomLeft();
-                } else {
-                    buildingBottomRight = hexBottomRight.getBuildingTop();
+            //Für buildingBottomRight, vergl. mit hexBottomRight und hexRight
+            if (buildingBottomRight == null && (hexBottomRight != null || hexRight != null)) {
+                System.out.println("good");
+                if (hexBottomRight != null && hexRight == null) {
+                    if (hexBottomRight.getBuildingTop() == null) {
+                        this.buildingBottomRight = new BuildingNode();
+                    } else {
+                        this.buildingBottomRight = hexBottomRight.getBuildingTop();
+                    }
+                } else if (hexBottomRight == null && hexRight != null) {
+                    if (hexRight.getBuildingBottomLeft() == null) {
+                        this.buildingBottomRight = new BuildingNode();
+                    } else {
+                        this.buildingBottomRight = hexRight.getBuildingBottomLeft();
+                    }
+                } else if (hexBottomRight != null) {
+                    if (hexBottomRight.getBuildingTop() != null) {
+                        this.buildingBottomRight = hexBottomRight.getBuildingTop();
+                    } else if (hexRight.getBuildingBottomLeft() != null) {
+                        this.buildingBottomRight = hexRight.getBuildingBottomLeft();
+                    } else {
+                        this.buildingBottomRight = new BuildingNode();
+                        System.out.println("gotta do this building BOTTOMRIGHT.");
+                    }
                 }
-            } else this.buildingBottomRight = new BuildingNode();
+            } else {
+                this.buildingBottomRight = new BuildingNode();
+                System.out.println("gotta do this building BOTTOMRIGHT.");
+            }
+
+            updateNodeLists();
+            streetNodeSet.addAll(streetNodes);
+            buildingNodeSet.addAll(buildingNodes);
+        }
+
+        public void generateNodesMiddle() {
+            this.streetTopLeft = new StreetNode();
+            this.streetBottomLeft = new StreetNode();
+            this.streetTopRight = new StreetNode();
+            this.streetLeft = new StreetNode();
+            this.streetRight = new StreetNode();
+            this.streetBottomRight = new StreetNode();
+
+            this.buildingTopLeft = new BuildingNode();
+            this.buildingTopRight = new BuildingNode();
+            this.buildingBottomLeft = new BuildingNode();
+            this.buildingBottomRight = new BuildingNode();
+            this.buildingTop = new BuildingNode();
+            this.buildingBottom = new BuildingNode();
 
             updateNodeLists();
             streetNodeSet.addAll(streetNodes);
@@ -860,63 +1057,69 @@ public class MapGraph {
          */
         private void interconnectNeighbourHexagons() {
             if (hexTopLeft != null) {
-
-                hexTopLeft.setHexBottomLeft(hexLeft);
-                //  hexTopLeft.dockBottomLeft();
-
-                hexTopLeft.setHexRight(hexTopRight);
-                // hexTopLeft.dockRight();
-
+                if (hexLeft != null) {
+                    hexTopLeft.setHexBottomLeft(hexLeft);
+                    //  hexTopLeft.dockBottomLeft();
+                }
+                if (hexTopRight != null) {
+                    hexTopLeft.setHexRight(hexTopRight);
+                    // hexTopLeft.dockRight();
+                }
             }
 
             if (hexLeft != null) {
-
-                hexLeft.setHexTopRight(hexTopLeft);
-                // hexLeft.dockTopRight();
-
-                hexLeft.setHexBottomRight(hexBottomLeft);
-                //  hexLeft.dockBottomRight();
-
+                if (hexTopLeft != null) {
+                    hexLeft.setHexTopRight(hexTopLeft);
+                    // hexLeft.dockTopRight();
+                }
+                if (hexBottomLeft != null) {
+                    hexLeft.setHexBottomRight(hexBottomLeft);
+                    //  hexLeft.dockBottomRight();
+                }
             }
 
             if (hexBottomLeft != null) {
-
-                hexBottomLeft.setHexTopLeft(hexLeft);
-                //  hexBottomLeft.dockTopLeft();
-
-                hexBottomLeft.setHexRight(hexBottomRight);
-                // hexBottomLeft.dockRight();
-
+                if (hexLeft != null) {
+                    hexBottomLeft.setHexTopLeft(hexLeft);
+                    //  hexBottomLeft.dockTopLeft();
+                }
+                if (hexBottomRight != null) {
+                    hexBottomLeft.setHexRight(hexBottomRight);
+                    // hexBottomLeft.dockRight();
+                }
             }
 
             if (hexBottomRight != null) {
-
-                hexBottomRight.setHexLeft(hexBottomLeft);
-                //  hexBottomRight.dockLeft();
-
-                hexBottomRight.setHexTopRight(hexRight);
-                // hexBottomRight.dockTopRight();
-
+                if (hexBottomLeft != null) {
+                    hexBottomRight.setHexLeft(hexBottomLeft);
+                    //  hexBottomRight.dockLeft();
+                }
+                if (hexRight != null) {
+                    hexBottomRight.setHexTopRight(hexRight);
+                    // hexBottomRight.dockTopRight();
+                }
             }
 
             if (hexRight != null) {
-
-                hexRight.setHexBottomLeft(hexBottomRight);
-                //  hexRight.dockBottomLeft();
-
-                hexRight.setHexTopLeft(hexTopRight);
-                //  hexRight.dockTopLeft();
-
+                if (hexBottomRight != null) {
+                    hexRight.setHexBottomLeft(hexBottomRight);
+                    //  hexRight.dockBottomLeft();
+                }
+                if (hexTopRight != null) {
+                    hexRight.setHexTopLeft(hexTopRight);
+                    //  hexRight.dockTopLeft();
+                }
             }
 
             if (hexTopRight != null) {
-
-                hexTopRight.setHexBottomRight(hexRight);
-                // hexTopRight.dockBottomRight();
-
-                hexTopRight.setHexLeft(hexTopLeft);
-                // hexTopRight.dockLeft();
-
+                if (hexRight != null) {
+                    hexTopRight.setHexBottomRight(hexRight);
+                    // hexTopRight.dockBottomRight();
+                }
+                if (hexTopLeft != null) {
+                    hexTopRight.setHexLeft(hexTopLeft);
+                    // hexTopRight.dockLeft();
+                }
             }
         }
 
@@ -999,7 +1202,7 @@ public class MapGraph {
             if (hexRight == null) {
                 this.hexRight = new Hexagon("right", selfPosition);
                 hexRight.setHexLeft(this);
-                hexagonSet.add(this);
+                //hexagonSet.add(this);
 
             }
 
@@ -1020,7 +1223,7 @@ public class MapGraph {
             if (hexLeft == null) {
                 this.hexLeft = new Hexagon("left", selfPosition);
                 hexLeft.setHexRight(this);
-                hexagonSet.add(this);
+                //hexagonSet.add(this);
 
             }
 
@@ -1040,7 +1243,7 @@ public class MapGraph {
             if (hexTopRight == null) {
                 this.hexTopRight = new Hexagon("topRight", selfPosition);
                 hexTopRight.setHexBottomLeft(this);
-                hexagonSet.add(this);
+                //hexagonSet.add(this);
 
             }
 
@@ -1060,7 +1263,7 @@ public class MapGraph {
             if (hexBottomRight == null) {
                 this.hexBottomRight = new Hexagon("bottomRight", selfPosition);
                 hexBottomRight.setHexTopLeft(this);
-                hexagonSet.add(this);
+                //hexagonSet.add(this);
 
             }
 
@@ -1080,7 +1283,7 @@ public class MapGraph {
             if (hexTopLeft == null) {
                 this.hexTopLeft = new Hexagon("topLeft", selfPosition);
                 hexTopLeft.setHexBottomRight(this);
-                hexagonSet.add(this);
+                //hexagonSet.add(this);
 
             }
 
@@ -1100,7 +1303,7 @@ public class MapGraph {
             if (hexBottomLeft == null) {
                 this.hexBottomLeft = new Hexagon("bottomLeft", selfPosition);
                 hexBottomLeft.setHexTopRight(this);
-                hexagonSet.add(this);
+                //hexagonSet.add(this);
             }
 
             //   hexBottomLeft.setBuildingTop(buildingBottomLeft);
