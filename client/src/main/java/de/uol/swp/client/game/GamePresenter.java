@@ -55,27 +55,40 @@ public class GamePresenter extends AbstractPresenter {
     public static final String fxml = "/fxml/GameView.fxml";
 
     private static final Logger LOG = LogManager.getLogger(GamePresenter.class);
-    @FXML
-    public TextField gameChatInput;
-    @FXML
-    public TextArea gameChatArea;
+
     private User joinedLobbyUser;
+
     private String currentLobby;
+
     private Alert alert;
+
     private ButtonType buttonTypeOkay;
+
     private Button btnOkay;
+
     private ObservableList<String> gameUsers;
+
     //Container for TerrainFields
     private TerrainField[] tfArray;
+
     //Container for BuildingFields
     private BuildingField[] buildArray;
+
     //Container for StreetFields
     private BuildingField[] streetArray;
     private MapGraph mapGraph;
     @Inject
     private GameService gameService;
+
     @Inject
     private ChatService chatService;
+
+    @FXML
+    public TextField gameChatInput;
+
+    @FXML
+    public TextArea gameChatArea;
+
     @FXML
     private Canvas canvas = new Canvas();
 
@@ -128,7 +141,7 @@ public class GamePresenter extends AbstractPresenter {
      *
      * @author René Meyer
      * @see de.uol.swp.common.chat.ResponseChatMessage
-     * @since ?
+     * @since 2021-03-13
      */
     @Subscribe
     public void onResponseChatMessage(ResponseChatMessage message) {
@@ -316,11 +329,7 @@ public class GamePresenter extends AbstractPresenter {
         if (response.getGameName().equals(currentLobby)) {
             if (response.getPlayerWithCurrentTurn().equals(joinedLobbyUser.getUsername())) {
                 EndTurnButton.setDisable(false);
-
-
             } else EndTurnButton.setDisable(true);
-
-
         }
     }
 
@@ -658,7 +667,7 @@ public class GamePresenter extends AbstractPresenter {
      * @since 2021-01-24
      */
     public void draw() {
-
+        System.out.println("Drawmethode wird aufgerufen");
         GraphicsContext g = this.canvas.getGraphicsContext2D(); //This is the object that is doing the drawing and has all the graphics related methods.
 
         //Drawing background.
@@ -667,7 +676,7 @@ public class GamePresenter extends AbstractPresenter {
 
         for (MapGraph.Hexagon h : this.mapGraph.getHexagonSet()) {
             //The 2. Vector in this is the standard-vector. TODO:hier eventuell doch den general vector nutzen?!
-            Vector drawVector = Vector.addVector(Vector.convertStringListToVector(h.getSelfPosition(), cardSize()), new Vector(canvas.getWidth() / 2, canvas.getHeight() / 2));
+            Vector drawVector = Vector.subVector(Vector.convertStringListToVector(h.getSelfPosition(), cardSize()), Vector.generalVector(cardSize() / Math.sqrt(2), 135));
             Circle circle = new Circle(cardSize() / 2);
             circle.setLayoutX(drawVector.getX());
             circle.setLayoutY(drawVector.getY() + canvas.getLayoutY());
@@ -681,11 +690,14 @@ public class GamePresenter extends AbstractPresenter {
         }
 
         //Draw buildings
+
+        System.out.println("BuildingNodes werden initialisiert");
         for (MapGraph.MapGraphNode m : mapGraph.getBuildingNodeSet()) {
             //Correct draw-positions are calculated.
             initializeNodeSpot(m);
         }
         //Draw streets
+        System.out.println("StreetNodes werden initialisiert");
         for (MapGraph.MapGraphNode m : mapGraph.getStreetNodeSet()) {
             //Correct draw-positions are calculated.
             initializeNodeSpot(m);

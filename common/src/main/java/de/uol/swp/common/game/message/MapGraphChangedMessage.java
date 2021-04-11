@@ -9,7 +9,7 @@ import de.uol.swp.common.game.MapGraph;
  * @see MapGraph
  * @since 2021-04-11
  */
-public class MapGraphMessage {
+public class MapGraphChangedMessage {
 
     //FIELDS
 
@@ -18,7 +18,7 @@ public class MapGraphMessage {
 
     //CONSTRUCTOR
 
-    public MapGraphMessage(String gameName, MapGraph mapGraph) {
+    public MapGraphChangedMessage(String gameName, MapGraph mapGraph) {
         this.gameName = gameName;
         this.mapGraph = mapGraph;
     }

@@ -187,8 +187,8 @@ public class Vector {
     }
 
     // method to generate any vector with length d and angle angle_deg in degree
-    public static Vector generalVector(double d, double radiant) {
-        double angle = radiant * (2 * Math.PI / 12);
+    public static Vector generalVector(double d, double angle_deg) {
+        double angle = angle_deg / 360 * 2 * Math.PI;
         return new Vector(d * Math.cos(angle), d * Math.sin(angle));
     }
 
