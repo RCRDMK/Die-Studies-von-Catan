@@ -5,7 +5,7 @@ import de.uol.swp.common.game.MapGraph;
 import java.util.Collection;
 
 /**
- * This class is used for navigating in the 6-angled grid of terrain-fields.
+ * This class is used for navigating in the 12-angled grid of terrain-fields.
  * <p></p>
  * enhanced by Pieter Vogt 2021-04-07
  *
@@ -25,7 +25,7 @@ public class Vector {
     }
 
     public static Vector getVectorFromMapGraphNode(MapGraph.MapGraphNode node, double d, Vector zeroVector) {
-        Vector returnVector = new Vector(0,0);
+        Vector returnVector = new Vector(0, 0);
         if (node.getClass().equals(MapGraph.BuildingNode.class)) {
             MapGraph.BuildingNode buildingNode = (MapGraph.BuildingNode) node;
             double angle;
@@ -37,65 +37,56 @@ public class Vector {
 
                 case "topRight":
                     angle = 1 * (2 * Math.PI / 12);
-                    //returnVector = new Vector(distance * Math.cos(angle), distance * Math.sin(angle));
-                    returnVector = Vector.addVector(returnVector, Vector.generalVector(d / Math.sqrt(3), 30 * 9));
+                    returnVector = new Vector(distance * Math.cos(angle), distance * Math.sin(angle));
                     break;
                 case "top":
                     angle = 3 * (2 * Math.PI / 12);
-                    //returnVector = new Vector(distance * Math.cos(angle), distance * Math.sin(angle));
-                    returnVector = Vector.addVector(returnVector, Vector.generalVector(d / Math.sqrt(3), 30 * 7));
+                    returnVector = new Vector(distance * Math.cos(angle), distance * Math.sin(angle));
                     break;
                 case "topLeft":
                     angle = 5 * (2 * Math.PI / 12);
-                    //returnVector = new Vector(distance * Math.cos(angle), distance * Math.sin(angle));
-                    returnVector = Vector.addVector(returnVector, Vector.generalVector(d / Math.sqrt(3), 30 * 5));
+                    returnVector = new Vector(distance * Math.cos(angle), distance * Math.sin(angle));
                     break;
                 case "bottomLeft":
                     angle = 7 * (2 * Math.PI / 12);
-                    //returnVector = new Vector(distance * Math.cos(angle), distance * Math.sin(angle));
-                    returnVector = Vector.addVector(returnVector, Vector.generalVector(d / Math.sqrt(3), 30 * 3));
-
+                    returnVector = new Vector(distance * Math.cos(angle), distance * Math.sin(angle));
                     break;
                 case "bottom":
                     angle = 9 * (2 * Math.PI / 12);
-                    //returnVector = new Vector(distance * Math.cos(angle), distance * Math.sin(angle));
-                    returnVector = Vector.addVector(returnVector, Vector.generalVector(d / Math.sqrt(3), 30 * 1));
-
+                    returnVector = new Vector(distance * Math.cos(angle), distance * Math.sin(angle));
                     break;
                 case "bottomRight":
                     angle = 11 * (2 * Math.PI / 12);
-                    //returnVector = new Vector(distance * Math.cos(angle), distance * Math.sin(angle));
-                    returnVector = Vector.addVector(returnVector, Vector.generalVector(d / Math.sqrt(3), 30 * 11));
-
+                    returnVector = new Vector(distance * Math.cos(angle), distance * Math.sin(angle));
                     break;
             }
         } else {
             MapGraph.StreetNode streetNode = (MapGraph.StreetNode) node;
             double angle;
-            d = d*0.5;
+            d = d * 0.5;
             switch (streetNode.getPositionToParent()) {
                 case "right":
-                    angle = 2 * (2 * Math.PI / 12);
+                    angle = 0 * (2 * Math.PI / 12);
                     returnVector = new Vector(d * Math.cos(angle), d * Math.sin(angle));
                     break;
                 case "topRight":
-                    angle = 4 * (2 * Math.PI / 12);
+                    angle = 2 * (2 * Math.PI / 12);
                     returnVector = new Vector(d * Math.cos(angle), d * Math.sin(angle));
                     break;
                 case "topLeft":
-                    angle = 6 * (2 * Math.PI / 12);
+                    angle = 4 * (2 * Math.PI / 12);
                     returnVector = new Vector(d * Math.cos(angle), d * Math.sin(angle));
                     break;
                 case "left":
-                    angle = 8 * (2 * Math.PI / 12);
+                    angle = 6 * (2 * Math.PI / 12);
                     returnVector = new Vector(d * Math.cos(angle), d * Math.sin(angle));
                     break;
                 case "bottomLeft":
-                    angle = 10 * (2 * Math.PI / 12);
+                    angle = 8 * (2 * Math.PI / 12);
                     returnVector = new Vector(d * Math.cos(angle), d * Math.sin(angle));
                     break;
                 case "bottomRight":
-                    angle = 0 * (2 * Math.PI / 12);
+                    angle = 10 * (2 * Math.PI / 12);
                     returnVector = new Vector(d * Math.cos(angle), d * Math.sin(angle));
                     break;
             }
@@ -115,7 +106,6 @@ public class Vector {
      *
      * @param v1 Vector
      * @param v2 Vector
-     *
      * @return Vector as addition result
      * @author Pieter Vogt
      * @since 2021-01-24
@@ -131,22 +121,22 @@ public class Vector {
         for (String s : positions) {
             switch (s) {
                 case "left":
-                    returnVector = Vector.addVector(returnVector, Vector.bottomLeft(d));
-                    break;
-                case "topLeft":
                     returnVector = Vector.addVector(returnVector, Vector.left(d));
                     break;
-                case "right":
-                    returnVector = Vector.addVector(returnVector, Vector.topRight(d));
-                    break;
-                case "topRight":
+                case "topLeft":
                     returnVector = Vector.addVector(returnVector, Vector.topLeft(d));
                     break;
+                case "right":
+                    returnVector = Vector.addVector(returnVector, Vector.right(d));
+                    break;
+                case "topRight":
+                    returnVector = Vector.addVector(returnVector, Vector.topRight(d));
+                    break;
                 case "bottomLeft":
-                    returnVector = Vector.addVector(returnVector, Vector.bottomRight(d));
+                    returnVector = Vector.addVector(returnVector, Vector.bottomLeft(d));
                     break;
                 case "bottomRight":
-                    returnVector = Vector.addVector(returnVector, Vector.right(d));
+                    returnVector = Vector.addVector(returnVector, Vector.bottomRight(d));
                     break;
                 default:
                     break;
@@ -169,7 +159,6 @@ public class Vector {
      *
      * @param v1 Vector
      * @param v2 Vector
-     *
      * @return Vector as subtraction result
      * @author Pieter Vogt
      * @since 2021-01-24

@@ -170,23 +170,23 @@ public class MapGraph implements Serializable {
                 middle.getHexTopRight().configureTerrainTypeAndDiceToken(2, 5);
                 middle.getHexTopLeft().configureTerrainTypeAndDiceToken(5, 4);
 
-                middle.getHexLeft().getHexTopLeft().configureTerrainTypeAndDiceToken(2, 10);
-                middle.getHexLeft().getHexLeft().configureTerrainTypeAndDiceToken(4, 8);
+                middle.getHexLeft().getHexTopLeft().configureTerrainTypeAndDiceToken(2, 2);
+                middle.getHexLeft().getHexLeft().configureTerrainTypeAndDiceToken(1, 5);
 
-                middle.getHexBottomLeft().getHexLeft().configureTerrainTypeAndDiceToken(3, 4);
-                middle.getHexBottomLeft().getHexBottomLeft().configureTerrainTypeAndDiceToken(4, 11);
+                middle.getHexBottomLeft().getHexLeft().configureTerrainTypeAndDiceToken(2, 10);
+                middle.getHexBottomLeft().getHexBottomLeft().configureTerrainTypeAndDiceToken(4, 8);
 
-                middle.getHexBottomRight().getHexBottomLeft().configureTerrainTypeAndDiceToken(3, 12);
-                middle.getHexBottomRight().getHexBottomRight().configureTerrainTypeAndDiceToken(2, 9);
+                middle.getHexBottomRight().getHexBottomLeft().configureTerrainTypeAndDiceToken(3, 4);
+                middle.getHexBottomRight().getHexBottomRight().configureTerrainTypeAndDiceToken(4, 11);
 
-                middle.getHexRight().getHexBottomRight().configureTerrainTypeAndDiceToken(1, 10);
-                middle.getHexRight().getHexRight().configureTerrainTypeAndDiceToken(3, 8);
+                middle.getHexRight().getHexBottomRight().configureTerrainTypeAndDiceToken(3, 12);
+                middle.getHexRight().getHexRight().configureTerrainTypeAndDiceToken(2, 9);
 
-                middle.getHexTopRight().getHexRight().configureTerrainTypeAndDiceToken(3, 3);
-                middle.getHexTopRight().getHexTopRight().configureTerrainTypeAndDiceToken(1, 6);
+                middle.getHexTopRight().getHexRight().configureTerrainTypeAndDiceToken(1, 10);
+                middle.getHexTopRight().getHexTopRight().configureTerrainTypeAndDiceToken(3, 8);
 
-                middle.getHexTopLeft().getHexTopRight().configureTerrainTypeAndDiceToken(2, 2);
-                middle.getHexTopLeft().getHexTopLeft().configureTerrainTypeAndDiceToken(1, 5);
+                middle.getHexTopLeft().getHexTopRight().configureTerrainTypeAndDiceToken(3, 3);
+                middle.getHexTopLeft().getHexTopLeft().configureTerrainTypeAndDiceToken(1, 6);
 
 
             }

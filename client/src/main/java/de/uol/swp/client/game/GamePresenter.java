@@ -68,15 +68,8 @@ public class GamePresenter extends AbstractPresenter {
 
     private ObservableList<String> gameUsers;
 
-    //Container for TerrainFields
-    private TerrainField[] tfArray;
-
-    //Container for BuildingFields
-    private BuildingField[] buildArray;
-
-    //Container for StreetFields
-    private BuildingField[] streetArray;
     private MapGraph mapGraph;
+
     @Inject
     private GameService gameService;
 
@@ -94,9 +87,6 @@ public class GamePresenter extends AbstractPresenter {
 
     @FXML
     private AnchorPane gameAnchorPane;
-
-    @Inject
-    private LobbyService lobbyService;
 
     @FXML
     private ListView<String> gameUsersView;
@@ -676,7 +666,13 @@ public class GamePresenter extends AbstractPresenter {
 
         for (MapGraph.Hexagon h : this.mapGraph.getHexagonSet()) {
             //The 2. Vector in this is the standard-vector. TODO:hier eventuell doch den general vector nutzen?!
-            Vector drawVector = Vector.subVector(Vector.convertStringListToVector(h.getSelfPosition(), cardSize(), new Vector(((canvas.getWidth() / 2) - cardSize() / 2), ((canvas.getHeight() / 2)) - cardSize() / 2)), Vector.generalVector(cardSize() / Math.sqrt(2), 135));
+            //Vector drawVector = Vector.subVector(Vector.convertStringListToVector(h.getSelfPosition(), cardSize(), new Vector(((canvas.getWidth() / 2) - cardSize() / 2), ((canvas.getHeight() / 2)) - cardSize() / 2)), Vector.generalVector(cardSize() / Math.sqrt(2), 135));
+            //Vector drawVector = Vector.convertStringListToVector(h.getSelfPosition(), cardSize(), new Vector(((canvas.getWidth() / 2) + cardSize()/2), ((canvas.getHeight() / 2)) + cardSize() /2));
+            //Vector drawVector = new Vector(canvas.getWidth()/2,canvas.getHeight()/2);
+
+            Vector canvasVector = new Vector((canvas.getWidth() /2  + canvas.getLayoutX()), canvas.getHeight() / 2 + canvas.getLayoutY());
+            Vector drawVector = Vector.convertStringListToVector(h.getSelfPosition(), cardSize(), canvasVector);
+
             Circle circle = new Circle(cardSize() / 2);
             System.out.println(h.getSelfPosition());
             System.out.println(h.getStreetNodes());
@@ -684,13 +680,13 @@ public class GamePresenter extends AbstractPresenter {
 
             circle.setLayoutX(drawVector.getX());
             System.out.println(circle.getLayoutX());
-            circle.setLayoutY(drawVector.getY() + canvas.getLayoutY());
+            circle.setLayoutY(drawVector.getY());
             System.out.println(circle.getLayoutY());
 
             circle.setFill(determineColorOfTerrain(h));
             Platform.runLater(() -> gameAnchorPane.getChildren().add(circle));
             if (h.getDiceToken() != 0) {
-                Text text = new Text(drawVector.getX(), drawVector.getY() + canvas.getLayoutY(), Integer.toString(h.getDiceToken()));
+                Text text = new Text(drawVector.getX(), drawVector.getY(), Integer.toString(h.getDiceToken()));
                 text.setFill(Color.WHITE);
                 Platform.runLater(() -> gameAnchorPane.getChildren().add(text));
             }
