@@ -7,6 +7,13 @@ import de.uol.swp.common.user.UserDTO;
 
 import java.util.*;
 
+
+/*
+Es sollte wahrscheinlich eine Klasse SQLDBBasedUserStore angelegt werden, analog zu dieser,
+um dann beim UserManagement zwischen MainMemoryBasedUserStore und SQLDBBasedUserStore auswählen zu können (modular)
+- Marc
+
+ */
 /**
  * This is a user store.
  *

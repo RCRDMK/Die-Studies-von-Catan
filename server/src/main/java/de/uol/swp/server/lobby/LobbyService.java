@@ -137,6 +137,10 @@ public class LobbyService extends AbstractService {
             lobby.get().joinUser(lobbyJoinUserRequest.getUser());
             ArrayList<UserDTO> usersInLobby = new ArrayList<>();
             for (User user : lobby.get().getUsers()) usersInLobby.add(UserDTO.createWithoutPassword(user));
+            //Hier wird in der UserJoinedLobbyMessage die komplette UserDTO des gejointen Users übergeben (Inklusive Passwort!)
+            // stattdessen lieber wieder UserDTO.createWithoutPassword(user)...
+            // das passiert auch an anderen Stellen (glaub ich)
+            // - Marc
             sendToAllInLobby(lobbyJoinUserRequest.getName(), new UserJoinedLobbyMessage(lobbyJoinUserRequest.getName(), lobbyJoinUserRequest.getUser(), usersInLobby));
             sendToSpecificUser(lobbyJoinUserRequest.getMessageContext().get(), new LobbyJoinedSuccessfulResponse(lobbyJoinUserRequest.getName(), lobbyJoinUserRequest.getUser()));
             sendToAll(new LobbySizeChangedMessage(lobbyJoinUserRequest.getName()));
