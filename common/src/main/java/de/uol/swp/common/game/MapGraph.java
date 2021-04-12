@@ -163,12 +163,12 @@ public class MapGraph implements Serializable {
                 //"Ocean" = 0; "Forest" = 1; "Farmland" = 2; "Grassland" = 3; "Hillside" = 4; "Mountain" = 5; "Desert" = 6;
 
                 middle.configureTerrainTypeAndDiceToken(6, 0);
-                middle.getHexLeft().configureTerrainTypeAndDiceToken(5, 3);
-                middle.getHexBottomLeft().configureTerrainTypeAndDiceToken(1, 3);
-                middle.getHexBottomRight().configureTerrainTypeAndDiceToken(5, 6);
-                middle.getHexRight().configureTerrainTypeAndDiceToken(2, 5);
-                middle.getHexTopRight().configureTerrainTypeAndDiceToken(5, 4);
-                middle.getHexTopLeft().configureTerrainTypeAndDiceToken(4, 9);
+                middle.getHexLeft().configureTerrainTypeAndDiceToken(4, 9);
+                middle.getHexBottomLeft().configureTerrainTypeAndDiceToken(5, 11);
+                middle.getHexBottomRight().configureTerrainTypeAndDiceToken(1, 3);
+                middle.getHexRight().configureTerrainTypeAndDiceToken(5, 6);
+                middle.getHexTopRight().configureTerrainTypeAndDiceToken(2, 5);
+                middle.getHexTopLeft().configureTerrainTypeAndDiceToken(5, 4);
 
                 middle.getHexLeft().getHexTopLeft().configureTerrainTypeAndDiceToken(2, 10);
                 middle.getHexLeft().getHexLeft().configureTerrainTypeAndDiceToken(4, 8);
@@ -1001,7 +1001,7 @@ public class MapGraph implements Serializable {
             this.buildingTopLeft = new BuildingNode("topLeft", this);
             this.buildingTopRight = new BuildingNode("topRight", this);
             this.buildingBottomLeft = new BuildingNode("bottomLeft", this);
-            this.buildingBottomRight = new BuildingNode("mottomRight", this);
+            this.buildingBottomRight = new BuildingNode("bottomRight", this);
             this.buildingTop = new BuildingNode("top", this);
             this.buildingBottom = new BuildingNode("bottom", this);
 

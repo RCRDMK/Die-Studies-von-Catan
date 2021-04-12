@@ -90,7 +90,7 @@ public class GamePresenter extends AbstractPresenter {
     public TextArea gameChatArea;
 
     @FXML
-    private Canvas canvas = new Canvas();
+    private Canvas canvas;
 
     @FXML
     private AnchorPane gameAnchorPane;
@@ -676,10 +676,17 @@ public class GamePresenter extends AbstractPresenter {
 
         for (MapGraph.Hexagon h : this.mapGraph.getHexagonSet()) {
             //The 2. Vector in this is the standard-vector. TODO:hier eventuell doch den general vector nutzen?!
-            Vector drawVector = Vector.subVector(Vector.convertStringListToVector(h.getSelfPosition(), cardSize()), Vector.generalVector(cardSize() / Math.sqrt(2), 135));
+            Vector drawVector = Vector.subVector(Vector.convertStringListToVector(h.getSelfPosition(), cardSize(), new Vector(((canvas.getWidth() / 2) - cardSize() / 2), ((canvas.getHeight() / 2)) - cardSize() / 2)), Vector.generalVector(cardSize() / Math.sqrt(2), 135));
             Circle circle = new Circle(cardSize() / 2);
+            System.out.println(h.getSelfPosition());
+            System.out.println(h.getStreetNodes());
+
+
             circle.setLayoutX(drawVector.getX());
+            System.out.println(circle.getLayoutX());
             circle.setLayoutY(drawVector.getY() + canvas.getLayoutY());
+            System.out.println(circle.getLayoutY());
+
             circle.setFill(determineColorOfTerrain(h));
             Platform.runLater(() -> gameAnchorPane.getChildren().add(circle));
             if (h.getDiceToken() != 0) {
@@ -688,7 +695,7 @@ public class GamePresenter extends AbstractPresenter {
                 Platform.runLater(() -> gameAnchorPane.getChildren().add(text));
             }
         }
-
+        System.out.println(canvas.getLayoutX() + "   " + canvas.getLayoutY());
         //Draw buildings
 
         System.out.println("BuildingNodes werden initialisiert");
@@ -757,28 +764,42 @@ public class GamePresenter extends AbstractPresenter {
         g.setLineWidth(cardSize() / 10);
         if (mapGraphNode.getClass().equals(MapGraph.BuildingNode.class)) {
             MapGraph.BuildingNode buildingNode = (MapGraph.BuildingNode) mapGraphNode;
-            Vector parentVector = Vector.convertStringListToVector(buildingNode.getParent().getSelfPosition(), cardSize());
-            Vector selfVector = Vector.getVectorFromMapGraphNode(buildingNode, cardSize());
+            System.out.println("Guck hier " + buildingNode.getPositionToParent() + "  " + buildingNode.getParent().getSelfPosition());
+
+            Vector parentVector = Vector.subVector(Vector.convertStringListToVector(buildingNode.getParent().getSelfPosition(), cardSize(), new Vector(((canvas.getWidth() / 2) - cardSize() / 2), ((canvas.getHeight() / 2)) - cardSize() / 2)), Vector.generalVector(cardSize() / Math.sqrt(2), 135));
+            //Vector parentVector = Vector.convertStringListToVector(buildingNode.getParent().getSelfPosition(), cardSize(), new Vector(((canvas.getWidth() / 2) - cardSize() / 2), ((canvas.getHeight() / 2)) - cardSize() / 2));
+            Vector selfVector = Vector.getVectorFromMapGraphNode(buildingNode, cardSize(),new Vector(((canvas.getWidth() / 2) - cardSize() / 2), ((canvas.getHeight() / 2)) - cardSize() / 2) );
             Vector targetVector = Vector.addVector(parentVector, selfVector);
-            double itemSize = cardSize() / 8;
+            System.out.println("Parent Vector: " + parentVector.getX() + " " + parentVector.getY());
+            System.out.println("Self Vector: " + selfVector.getX() + " " + selfVector.getY());
+            System.out.println("Target Vector: " + targetVector.getX() + " " + targetVector.getY());
+
+            double itemSize = cardSize() / 4;
             Circle street = new Circle();
             street.setRadius(itemSize / 2);
             street.setLayoutX(targetVector.getX());
             street.setLayoutY(targetVector.getY() + canvas.getLayoutY());
+            System.out.println("Nodes Building " + street.getLayoutX() + " " + street.getLayoutY());
             street.setFill(Color.GHOSTWHITE);
             street.setOnMouseClicked(circleOnMousePressedEventHandler);
             Platform.runLater(() -> gameAnchorPane.getChildren().add(street));
+
         }
         if (mapGraphNode.getClass().equals(MapGraph.StreetNode.class)) {
             MapGraph.StreetNode streetNode = (MapGraph.StreetNode) mapGraphNode;
-            Vector parentVector = Vector.convertStringListToVector(streetNode.getParent().getSelfPosition(), cardSize());
-            Vector selfVector = Vector.getVectorFromMapGraphNode(streetNode, cardSize());
+            //tempVec = Vector.addVector(tempVec, Vector.generalVector(cardSize() * 0.5, 30 * j));
+
+            Vector parentVector = Vector.subVector(Vector.convertStringListToVector(streetNode.getParent().getSelfPosition(), cardSize(), new Vector(((canvas.getWidth() / 2) - cardSize() / 2), ((canvas.getHeight() / 2)) - cardSize() / 2)), Vector.generalVector(cardSize() / Math.sqrt(2), 135));
+            //Vector parentVector = Vector.convertStringListToVector(streetNode.getParent().getSelfPosition(), cardSize(), new Vector(((canvas.getWidth() / 2) - cardSize() / 2), ((canvas.getHeight() / 2)) - cardSize() / 2));
+            Vector selfVector = Vector.getVectorFromMapGraphNode(streetNode, cardSize(),new Vector(((canvas.getWidth() / 2) - cardSize() / 2), ((canvas.getHeight() / 2)) - cardSize() / 2) );
             Vector targetVector = Vector.addVector(parentVector, selfVector);
+            //Vector.generalVector(cardSize() / Math.sqrt(2), 315);
             double itemSize = cardSize() / 8;
             Circle street = new Circle();
             street.setRadius(itemSize / 2);
             street.setLayoutX(targetVector.getX());
             street.setLayoutY(targetVector.getY() + canvas.getLayoutY());
+            //System.out.println("Nodes Street " + street.getLayoutX() + " " + street.getLayoutY());
             street.setFill(Color.GHOSTWHITE);
             street.setOnMouseClicked(circleOnMousePressedEventHandler);
             Platform.runLater(() -> gameAnchorPane.getChildren().add(street));
@@ -921,6 +942,8 @@ public class GamePresenter extends AbstractPresenter {
             tfArray[i].setName(translatedFieldType);
         }*/
         draw();
+        //gameAnchorPane.setDisable(true);
+        //.setDisable(false);
     }
 
 
