@@ -47,7 +47,7 @@ public class GameService {
      * It is a temporary method.
      */
 
-    public void rollDice(String name, User user) {
+    public void rollDice(String name, UserDTO user) {
         RollDiceRequest rollDiceRequest = new RollDiceRequest(name, user);
         eventBus.post(rollDiceRequest);
     }

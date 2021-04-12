@@ -11,7 +11,8 @@ import java.util.Random;
 
 public class Dice {
 
-    private int eyes = 0;
+    private int diceEyes1 = 0;
+    private int diceEyes2 = 0;
 
     public void rollDice(){
         Random r1 = new Random();
@@ -20,11 +21,15 @@ public class Dice {
         Random r2 = new Random();
         int dice2 = 1 + r2.nextInt(6);
 
-        eyes = dice1 + dice2;
+        diceEyes1 = dice1;
+        diceEyes2 = dice2;
     }
 
-    public int getEyes() {
-        return eyes;
+    public int getDiceEyes1() {
+        return diceEyes1;
     }
 
+    public int getDiceEyes2() {
+        return diceEyes2;
+    }
 }

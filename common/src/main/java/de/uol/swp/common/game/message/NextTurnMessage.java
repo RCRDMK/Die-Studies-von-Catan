@@ -6,11 +6,13 @@ public class NextTurnMessage extends AbstractServerMessage {
     private int turn;
     private String gameName;
     private String playerWithCurrentTurn;
+    private boolean isInStartingTurn;
 
-    public NextTurnMessage(String gameName, String playerWithCurrentTurn, int turn) {
+    public NextTurnMessage(String gameName, String playerWithCurrentTurn, int turn, boolean isInStartingTurn) {
         this.turn = turn;
         this.gameName = gameName;
         this.playerWithCurrentTurn = playerWithCurrentTurn;
+        this.isInStartingTurn = isInStartingTurn;
     }
 
     public String getGameName() {
@@ -25,4 +27,7 @@ public class NextTurnMessage extends AbstractServerMessage {
         return playerWithCurrentTurn;
     }
 
+    public boolean isInStartingTurn() {
+        return isInStartingTurn;
+    }
 }

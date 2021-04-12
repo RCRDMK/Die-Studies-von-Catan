@@ -2,6 +2,7 @@ package de.uol.swp.common.game.request;
 
 import de.uol.swp.common.message.AbstractRequestMessage;
 import de.uol.swp.common.user.User;
+import de.uol.swp.common.user.UserDTO;
 
 
 /**
@@ -13,26 +14,17 @@ import de.uol.swp.common.user.User;
  * @since 2021-01-07
  */
 
-public class RollDiceRequest extends AbstractRequestMessage{
-
-    private final String name;
-    private final User user;
-
+public class RollDiceRequest extends AbstractGameRequest{
 
     /**
      * Constructor
      * @since 2021-01-07
      */
-    public RollDiceRequest(String name, User user) {
-        this.name = name;
-        this.user = user;
+    public RollDiceRequest() {
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public User getUser() {
-        return user;
+    public RollDiceRequest(String gameName, UserDTO user) {
+        setUser(user);
+        setName(gameName);
     }
 }

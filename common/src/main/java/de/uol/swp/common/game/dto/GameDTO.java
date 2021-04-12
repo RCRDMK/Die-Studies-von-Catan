@@ -255,4 +255,9 @@ public class GameDTO implements Game {
     public DevelopmentCardDeck getDevelopmentCardDeck() {
         return developmentCardDeck;
     }
+
+    @Override
+    public boolean isStartingTurns() {
+        return startingTurns;
+    }
 }

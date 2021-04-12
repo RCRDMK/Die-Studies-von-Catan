@@ -18,6 +18,8 @@ import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.user.response.game.AllThisGameUsersResponse;
 import de.uol.swp.common.user.response.game.GameLeftSuccessfulResponse;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -27,15 +29,21 @@ import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Circle;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
+import javafx.util.Duration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -105,6 +113,35 @@ public class GamePresenter extends AbstractPresenter {
 
     @FXML
     private Button EndTurnButton;
+
+    @FXML
+    private Button rollDiceButton;
+
+    @FXML
+    private GridPane playerOneDiceView;
+
+    @FXML
+    private GridPane playerTwoDiceView;
+
+    @FXML
+    private GridPane playerThreeDiceView;
+
+    @FXML
+    private GridPane playerFourDiceView;
+
+    Image dicePictureOne = new Image("img/dice/dice_1.png");
+
+    Image dicePictureTwo = new Image("img/dice/dice_2.png");
+
+    Image dicePictureThree = new Image("img/dice/dice_3.png");
+
+    Image dicePictureFour = new Image("img/dice/dice_4.png");
+
+    Image dicePictureFive = new Image("img/dice/dice_5.png");
+
+    Image dicePictureSix = new Image("img/dice/dice_6.png");
+
+    private ArrayList<Image> diceImages;
 
     /**
      * Method called when the send Message button is pressed
@@ -249,7 +286,7 @@ public class GamePresenter extends AbstractPresenter {
     @FXML
     public void onRollDice(ActionEvent event) {
         if (this.currentLobby != null) {
-            gameService.rollDice(this.currentLobby, this.joinedLobbyUser);
+            gameService.rollDice(this.currentLobby, (UserDTO) this.joinedLobbyUser);
         }
     }
 
@@ -296,6 +333,7 @@ public class GamePresenter extends AbstractPresenter {
             updateGameUsersList(gcm.getUsers());
             initializeGameField(gcm.getGameField());
             Platform.runLater(this::setupRessourceAlert);
+            Platform.runLater(this::setupDicesAtGameStart);
         }
     }
 
@@ -331,7 +369,30 @@ public class GamePresenter extends AbstractPresenter {
         if (response.getGameName().equals(currentLobby)) {
             if (response.getPlayerWithCurrentTurn().equals(joinedLobbyUser.getUsername())) {
                 EndTurnButton.setDisable(false);
-            } else EndTurnButton.setDisable(true);
+                rollDiceButton.setDisable(false);
+            } else {
+                EndTurnButton.setDisable(true);
+                rollDiceButton.setDisable(true);
+            }
+            if (!response.isInStartingTurn()) {
+                if (response.getTurn() == 0) {
+                    passTheDice(playerOneDiceView);
+                    playerOneDiceView.setVisible(true);
+                    playerFourDiceView.setVisible(false);
+                } else if (response.getTurn() == 1) {
+                    passTheDice(playerTwoDiceView);
+                    playerOneDiceView.setVisible(false);
+                    playerTwoDiceView.setVisible(true);
+                } else if (response.getTurn() == 2) {
+                    passTheDice(playerThreeDiceView);
+                    playerTwoDiceView.setVisible(false);
+                    playerThreeDiceView.setVisible(true);
+                } else if (response.getTurn() == 3) {
+                    passTheDice(playerFourDiceView);
+                    playerThreeDiceView.setVisible(false);
+                    playerFourDiceView.setVisible(true);
+                }
+            }
         }
     }
 
@@ -831,5 +892,57 @@ public class GamePresenter extends AbstractPresenter {
             alert.close();
             event.consume();
         });
+    }
+
+    public void setupDicesAtGameStart() {
+        Rectangle rectanglePlayerOne1 = new Rectangle();
+        rectanglePlayerOne1.setHeight(100);
+        rectanglePlayerOne1.setWidth(100);
+        rectanglePlayerOne1.setFill(new ImagePattern(dicePictureOne));
+        Rectangle rectanglePlayerOne2 = new Rectangle();
+        rectanglePlayerOne2.setHeight(100);
+        rectanglePlayerOne2.setWidth(100);
+        rectanglePlayerOne2.setFill(new ImagePattern(dicePictureOne));
+        playerOneDiceView.add(rectanglePlayerOne1, 0, 0);
+        playerOneDiceView.add(rectanglePlayerOne2, 1,0);
+        diceImages.add(dicePictureOne);
+        diceImages.add(dicePictureTwo);
+        diceImages.add(dicePictureThree);
+        diceImages.add(dicePictureFour);
+        diceImages.add(dicePictureFive);
+        diceImages.add(dicePictureSix);
+    }
+
+    public void passTheDice(GridPane gridPane) {
+        Platform.runLater(() -> {
+            Rectangle rectangle1 = new Rectangle();
+            rectangle1.setHeight(100);
+            rectangle1.setWidth(100);
+            rectangle1.setFill(new ImagePattern(dicePictureOne));
+            gridPane.add(rectangle1, 0, 0);
+            Rectangle rectangle2 = new Rectangle();
+            rectangle2.setHeight(100);
+            rectangle2.setWidth(100);
+            rectangle2.setFill(new ImagePattern(dicePictureOne));
+            gridPane.add(rectangle2, 1, 0);
+        });
+    }
+
+    @Subscribe
+    public void onRollDiceResultMessage(RollDiceResultMessage message) {
+        if (message.getTurn() == 0) {
+            shuffleTheDice(playerOneDiceView, message.getDiceEyes1(), message.getDiceEyes2());
+        } else if (message.getTurn() == 1) {
+            shuffleTheDice(playerTwoDiceView, message.getDiceEyes1(), message.getDiceEyes2());
+        } else if (message.getTurn() == 2) {
+            shuffleTheDice(playerThreeDiceView, message.getDiceEyes1(), message.getDiceEyes2());
+        } else if (message.getTurn() == 3) {
+            shuffleTheDice(playerFourDiceView, message.getDiceEyes1(), message.getDiceEyes2());
+        }
+    }
+
+    public void shuffleTheDice(GridPane gridPane, int diceEyes1, int diceEyes2) {
+
+
     }
 }

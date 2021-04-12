@@ -182,4 +182,6 @@ public interface Game extends Serializable {
     Inventory getInventory(User user);
 
     DevelopmentCardDeck getDevelopmentCardDeck();
+
+    boolean isStartingTurns();
 }

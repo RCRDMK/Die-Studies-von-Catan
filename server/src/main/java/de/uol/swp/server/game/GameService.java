@@ -184,8 +184,8 @@ public class GameService extends AbstractService {
      *
      * @param rollDiceRequest The RollDiceRequest found on the EventBus
      * @author Kirstin, Pieter
-     * @see de.uol.swp.common.game.request.RollDiceRequest
-     * @see de.uol.swp.common.chat.ResponseChatMessage
+     * @see RollDiceRequest
+     * @see ResponseChatMessage
      * @since 2021-01-07
      * <p>
      * Enhanced by Carsten Dekker
@@ -200,25 +200,37 @@ public class GameService extends AbstractService {
 
         Dice dice = new Dice();
         dice.rollDice();
-        if (dice.getEyes() == 7) {
+        int addedEyes = dice.getDiceEyes1() + dice.getDiceEyes2();
+        if (addedEyes == 7) {
             //TODO Hier müsste der Räuber aktiviert werden.
         } else {
-            distributeResources(dice.getEyes(), rollDiceRequest.getName());
+            distributeResources(addedEyes, rollDiceRequest.getName());
         }
 
         try {
             String chatMessage;
             var chatId = "game_" + rollDiceRequest.getName();
-            if (dice.getEyes() == 8 || dice.getEyes() == 11) {
-                chatMessage = "Player " + rollDiceRequest.getUser().getUsername() + " rolled an " + dice.getEyes();
+            if (addedEyes == 8 || addedEyes == 11) {
+                chatMessage = "Player " + rollDiceRequest.getUser().getUsername() + " rolled an " + addedEyes;
             } else {
-                chatMessage = "Player " + rollDiceRequest.getUser().getUsername() + " rolled a " + dice.getEyes();
+                chatMessage = "Player " + rollDiceRequest.getUser().getUsername() + " rolled a " + addedEyes;
             }
             ResponseChatMessage msg = new ResponseChatMessage(chatMessage, chatId, rollDiceRequest.getUser().getUsername(), System.currentTimeMillis());
             post(msg);
             LOG.debug("Posted ResponseChatMessage on eventBus");
         } catch (Exception e) {
             LOG.debug(e);
+        }
+        Optional<Game> game = gameManagement.getGame(rollDiceRequest.getName());
+        if(game.isPresent()) {
+            if (rollDiceRequest.getUser().equals(gameManagement.getGame(rollDiceRequest.getName()).get().getUser(gameManagement.getGame(rollDiceRequest.getName()).get().getTurn()))) {
+                try {
+                    RollDiceResultMessage result = new RollDiceResultMessage(dice.getDiceEyes1(), dice.getDiceEyes2(), gameManagement.getGame(rollDiceRequest.getName()).get().getTurn());
+                    sendToAllInGame(game.get().getName(), result);
+                } catch (Exception e) {
+                    LOG.debug(e);
+                }
+            }
         }
     }
 
@@ -396,7 +408,7 @@ public class GameService extends AbstractService {
             }
             game.get().setUpUserArrayList();
             game.get().setUpInventories();
-            sendToAllInGame(game.get().getName(), new NextTurnMessage(game.get().getName(), game.get().getUser(game.get().getTurn()).getUsername(), game.get().getTurn()));
+            sendToAllInGame(game.get().getName(), new NextTurnMessage(game.get().getName(), game.get().getUser(game.get().getTurn()).getUsername(), game.get().getTurn(), game.get().isStartingTurns()));
         } else {
             throw new GameManagementException("Not enough Players ready!");
         }
@@ -453,7 +465,7 @@ public class GameService extends AbstractService {
         if (request.getUser().getUsername().equals(gameManagement.getGame(request.getName()).get().getUser(gameManagement.getGame(request.getName()).get().getTurn()).getUsername())) {
             try {
                 gameManagement.getGame(request.getName()).get().nextRound();
-                sendToAllInGame(gameManagement.getGame(request.getName()).get().getName(), new NextTurnMessage(gameManagement.getGame(request.getName()).get().getName(), gameManagement.getGame(request.getName()).get().getUser(gameManagement.getGame(request.getName()).get().getTurn()).getUsername(), gameManagement.getGame(request.getName()).get().getTurn()));
+                sendToAllInGame(gameManagement.getGame(request.getName()).get().getName(), new NextTurnMessage(gameManagement.getGame(request.getName()).get().getName(), gameManagement.getGame(request.getName()).get().getUser(gameManagement.getGame(request.getName()).get().getTurn()).getUsername(), gameManagement.getGame(request.getName()).get().getTurn(), gameManagement.getGame(request.getName()).get().isStartingTurns()));
             } catch (GameManagementException e) {
                 LOG.debug(e);
                 System.out.println("Sender " + request.getUser().getUsername() + " was not player with current turn");
