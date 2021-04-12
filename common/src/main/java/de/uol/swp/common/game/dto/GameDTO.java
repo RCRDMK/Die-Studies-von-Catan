@@ -26,12 +26,12 @@ import java.util.TreeSet;
 public class GameDTO implements Game {
 
     private final String name;
-    private User owner;
     private final Set<User> users = new TreeSet<>();
+    private final int turn = 0; //this points to the index of the user who now makes his turn.
     private GameField gameField;
     private int overallTurns = 0; //This just counts +1 every time a player ends his turn. (good for Summaryscreen for example)
-    private int turn = 0; //this points to the index of the user who now makes his turn.
-    private ArrayList<User> userArrayList = new ArrayList<User>();
+    private final ArrayList<User> userArrayList = new ArrayList<User>();
+    private User owner;
     private boolean startingTurns = true;
     private boolean countingUp = true;
     private boolean lastPlayerSecondTurn = false;

@@ -767,6 +767,5 @@ public class LobbyPresenter extends AbstractPresenter {
             }
         }
     }
-
 }
 

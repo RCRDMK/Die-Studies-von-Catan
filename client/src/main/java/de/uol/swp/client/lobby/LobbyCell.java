@@ -1,5 +1,6 @@
 package de.uol.swp.client.lobby;
 
+import de.uol.swp.common.lobby.dto.LobbyDTO;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import javafx.scene.control.Button;
@@ -10,48 +11,77 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 
 /**
- * Creates LobbyCells to populate the ListView fxml-element for the Lobbybrowser
+ * Creates LobbyCells to populate the ListView fxml-element for the lobbyBrowser
+ * <p>
  *
  * @author Pieter Vogt
  * @see de.uol.swp.client.AbstractPresenter
  * @since 2019-08-29
+ * <p>
+ * Enhanced by Carsten Dekker
+ * @since 2021-04-08
  */
 
-public class LobbyCell extends ListCell<String> {
+public class LobbyCell extends ListCell<LobbyDTO> {
     HBox hbox = new HBox();
-    Label label = new Label("");
+    Label lobbyName = new Label("");
+    Label userCount = new Label("");
+    Label lobbyStatus = new Label("");
     Pane pane = new Pane();
+    Pane pane1 = new Pane();
+    Pane pane2 = new Pane();
     Button button = new Button("join");
 
     /**
      * Constructor for the Cells
      * <p>
      * If the Constructor is invoked, the Cell-Element is created and the Button is linked to the Lobby it belongs to.
-     * Therefore we commit the lobbyservice and the userDTO from the invoking MainMenuPresenter so the constructor knows
-     * what to link the button to. The Lobbyservice serves as a donor for the Lobby to join into.
+     * It shows the lobbyName, the amount of user in the lobby and the status of the lobby.
+     * Therefore we commit the lobbyService and the userDTO from the invoking MainMenuPresenter so the constructor knows
+     * what to link the button to. The lobbyService serves as a donor for the Lobby to join into.
      *
-     * @param
+     * @param lobbyService The lobbyService
+     * @param user         The loggedIn user
      * @author Pieter Vogt
      * @see de.uol.swp.client.lobby.LobbyService
      * @see de.uol.swp.client.main.MainMenuPresenter
      * @since 2020-12-27
+     * <p>
+     * Enhanced by Carsten Dekker
+     * @since 2021-04-08
      */
-    public LobbyCell(LobbyService lobbyservice, User user) {
+    public LobbyCell(LobbyService lobbyService, User user) {
         super();
 
-        hbox.getChildren().addAll(label, pane, button);
+        hbox.getChildren().addAll(lobbyName, pane, userCount, pane1, lobbyStatus, pane2, button);
         HBox.setHgrow(pane, Priority.ALWAYS);
-        button.setOnAction(event -> lobbyservice.joinLobby(label.getText(), (UserDTO) user));
+        HBox.setHgrow(pane1, Priority.ALWAYS);
+        HBox.setHgrow(pane2, Priority.ALWAYS);
+        button.setOnAction(event -> lobbyService.joinLobby(lobbyName.getText(), (UserDTO) user));
     }
 
     @Override
-    protected void updateItem(String item, boolean empty) {
+    protected void updateItem(LobbyDTO item, boolean empty) {
         super.updateItem(item, empty);
         setText(null);
         setGraphic(null);
 
         if (item != null && !empty) {
-            label.setText(item);
+            lobbyName.setText(item.getName());
+            if (item.getUsers().size() == 4) {
+                userCount.setText("full");
+                button.setDisable(true);
+            } else {
+                userCount.setText(item.getUsers().size() + "/4");
+                button.setDisable(false);
+            }
+            if (item.getGameStarted()) {
+                lobbyStatus.setText("started");
+                button.setDisable(true);
+            } else {
+                lobbyStatus.setText("waiting");
+                button.setDisable(false);
+            }
             setGraphic(hbox);
         }
     }

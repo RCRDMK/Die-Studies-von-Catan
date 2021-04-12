@@ -3,11 +3,14 @@ package de.uol.swp.common.lobby.response;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.dto.LobbyDTO;
 import de.uol.swp.common.message.AbstractResponseMessage;
+import de.uol.swp.common.user.User;
+import de.uol.swp.common.user.UserDTO;
 
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Response message for the RetrieveAllLobbiesRequest
@@ -49,10 +52,19 @@ public class AllCreatedLobbiesResponse extends AbstractResponseMessage {
      *
      * @param lobbyCollection Collection of all lobbies currently existing
      * @since 2020-04-12
+     *
+     * Enhanced by Carsten Dekker and Marc Hermes
+     * @since 2021-04-08
      */
     public AllCreatedLobbiesResponse(Collection<Lobby> lobbyCollection) {
         for (Lobby lobby : lobbyCollection) {
-            this.lobbies.add(new LobbyDTO(lobby.getName(), lobby.getOwner()));
+            LobbyDTO tempLobby = new LobbyDTO(lobby.getName(), lobby.getOwner());
+            tempLobby.setGameStarted(lobby.getGameStarted());
+            for (User user : lobby.getUsers()) {
+                tempLobby.joinUser(new UserDTO(user.getUsername(), "", ""));
+
+            }
+            this.lobbies.add(tempLobby);
         }
     }
 
