@@ -11,7 +11,7 @@ import java.util.Objects;
  * @author Carsten Dekker
  * @since 2021-03-12
  */
-public class RetrieveUserMailRequest extends AbstractRequestMessage {
+public class RetrieveUserInformationRequest extends AbstractRequestMessage {
     final private User toGetMail;
 
     /**
@@ -22,7 +22,7 @@ public class RetrieveUserMailRequest extends AbstractRequestMessage {
      * @author Carsten Dekker
      * @since 2021-03-12
      */
-    public RetrieveUserMailRequest(User user){
+    public RetrieveUserInformationRequest(User user){
         this.toGetMail = user;
     }
 
@@ -41,7 +41,7 @@ public class RetrieveUserMailRequest extends AbstractRequestMessage {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        RetrieveUserMailRequest that = (RetrieveUserMailRequest) o;
+        RetrieveUserInformationRequest that = (RetrieveUserInformationRequest) o;
         return Objects.equals(toGetMail, that.toGetMail);
     }
 

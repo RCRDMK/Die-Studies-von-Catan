@@ -2,7 +2,7 @@ package de.uol.swp.common.user.response;
 
 import de.uol.swp.common.message.AbstractResponseMessage;
 import de.uol.swp.common.user.User;
-import de.uol.swp.common.user.request.RetrieveUserMailRequest;
+import de.uol.swp.common.user.request.RetrieveUserInformationRequest;
 
 import java.util.Objects;
 
@@ -15,15 +15,15 @@ import java.util.Objects;
  *
  * @author Carsten Dekker
  * @see de.uol.swp.common.message.AbstractResponseMessage
- * @see de.uol.swp.common.user.request.RetrieveUserMailRequest
+ * @see RetrieveUserInformationRequest
  * @see de.uol.swp.common.user.User
  * @since 2021-03-12
  */
-public class RetrieveUserMailResponse extends AbstractResponseMessage {
+public class RetrieveUserInformationResponse extends AbstractResponseMessage {
 
     private final User toMail;
 
-    public RetrieveUserMailResponse(User user) {
+    public RetrieveUserInformationResponse(User user) {
         this.toMail = user;
     }
 
@@ -35,7 +35,7 @@ public class RetrieveUserMailResponse extends AbstractResponseMessage {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        RetrieveUserMailResponse that = (RetrieveUserMailResponse) o;
+        RetrieveUserInformationResponse that = (RetrieveUserInformationResponse) o;
         return Objects.equals(toMail, that.toMail);
     }
 

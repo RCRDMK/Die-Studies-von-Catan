@@ -119,5 +119,5 @@ public interface ServerUserService {
      * @return user information
      * @since 2021-03-11
      */
-    User retrieveUserMail(User user) throws SQLException;
+    User retrieveUserInformation(User user) throws SQLException;
 }

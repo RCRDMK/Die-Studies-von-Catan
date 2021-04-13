@@ -234,6 +234,42 @@ public class UserManagement extends AbstractUserManagement {
         return new UserDTO(toUpdatePassword.getUsername(), newPassword, toUpdatePassword.getEMail());
     }
 
+    @Override
+    public User updateUserPicture(User toUpdatePicture) throws SQLException {
+        ResultSet resultSet;
+        PreparedStatement updateUserPicture;
+        try {
+            String getUser = "select * from userData where name=?;";
+            updateUserPicture = connection.prepareStatement(getUser);
+            updateUserPicture.setString(1, toUpdatePicture.getUsername());
+            resultSet = updateUserPicture.executeQuery();
+        } catch (SQLException e) {
+            LOG.debug(e);
+            throw new UserManagementException("Username unknown!");
+        }
+        int newPictureID = 1;
+        if (resultSet.next()) {
+            try {
+                newPictureID = resultSet.getInt("pictureID");
+                String updateUserString = "update userData set pictureID=? where name=?;";
+                updateUserPicture = connection.prepareStatement(updateUserString);
+                updateUserPicture.setInt(1, toUpdatePicture.getProfilePictureID());
+                updateUserPicture.setString(2, toUpdatePicture.getUsername());
+                updateUserPicture.executeUpdate();
+            } catch (SQLException e) {
+                LOG.debug(e);
+                throw new UserManagementException("Username unknown!");
+            }
+        } else {
+            throw new UserManagementException("Username unknown!");
+        }
+        UserDTO userDTO = new UserDTO(toUpdatePicture.getUsername(), toUpdatePicture.getPassword(), toUpdatePicture.getEMail());
+        userDTO.setProfilePictureID(newPictureID);
+        return userDTO;
+    }
+
+
+
     /**
      * Deletes the user in the database.
      * <p>
@@ -332,11 +368,11 @@ public class UserManagement extends AbstractUserManagement {
      * @since 2021-03-12
      */
     @Override
-    public User retrieveUserMail(User toGetInformation) throws SQLException {
+    public User retrieveUserInformation(User toGetInformation) throws SQLException {
         ResultSet resultSet;
         PreparedStatement preparedStatement;
         try {
-            String selectMail = "select mail from userData where name = ? ;";
+            String selectMail = "select mail, pictureID from userData where name = ? ;";
             preparedStatement = connection.prepareStatement(selectMail);
             preparedStatement.setString(1, toGetInformation.getUsername());
             resultSet = preparedStatement.executeQuery();
@@ -345,7 +381,9 @@ public class UserManagement extends AbstractUserManagement {
             throw new UserManagementException("Username unknown");
         }
         if (resultSet.next()) {
-            return new UserDTO(toGetInformation.getUsername(), "", resultSet.getString(1));
+            UserDTO userDTO = new UserDTO(toGetInformation.getUsername(), "", resultSet.getString(1));
+            userDTO.setProfilePictureID(resultSet.getInt(2));
+            return userDTO;
         } else {
             return null;
         }

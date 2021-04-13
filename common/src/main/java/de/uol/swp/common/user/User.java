@@ -50,4 +50,8 @@ public interface User extends Serializable, Comparable<User> {
      * @since 2019-08-05
      */
     User getWithoutPassword();
+
+    int getProfilePictureID();
+
+    void setProfilePictureID(int profilePictureID);
 }

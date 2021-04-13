@@ -8,7 +8,7 @@ import de.uol.swp.common.message.ResponseMessage;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.exception.DropUserExceptionMessage;
 import de.uol.swp.common.user.exception.RegistrationExceptionMessage;
-import de.uol.swp.common.user.exception.RetrieveUserMailExceptionMessage;
+import de.uol.swp.common.user.exception.RetrieveUserInformationExceptionMessage;
 import de.uol.swp.common.user.exception.UpdateUserExceptionMessage;
 import de.uol.swp.common.user.request.*;
 import de.uol.swp.common.user.response.*;
@@ -17,9 +17,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.sql.SQLException;
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 /**
  * Mapping vom event bus calls to user management calls
@@ -129,27 +126,32 @@ public class UserService extends AbstractService {
      * gets posted there.
      *
      * @author Carsten Dekker
-     * @param retrieveUserMailRequest The RetrieveUserMailRequest found on the EventBus
-     * @see de.uol.swp.common.user.request.RetrieveUserMailRequest
+     * @param retrieveUserInformationRequest The RetrieveUserMailRequest found on the EventBus
+     * @see RetrieveUserInformationRequest
      * @since 2021-03-12
      */
     @Subscribe
-    private void onRetrieveUserMail(RetrieveUserMailRequest retrieveUserMailRequest) {
+    private void onRetrieveUserInformation(RetrieveUserInformationRequest retrieveUserInformationRequest) {
         if (LOG.isDebugEnabled()){
-            LOG.debug("Got a new retrieveUserMail request with " + retrieveUserMailRequest.getUser());
+            LOG.debug("Got a new retrieveUserMail request with " + retrieveUserInformationRequest.getUser());
         }
         ResponseMessage returnMessage;
         try {
-            returnMessage = new RetrieveUserMailResponse(userManagement.retrieveUserMail(retrieveUserMailRequest.getUser()));
+            returnMessage = new RetrieveUserInformationResponse(userManagement.retrieveUserInformation(retrieveUserInformationRequest.getUser()));
         } catch (Exception e) {
             LOG.error(e);
-            returnMessage = new RetrieveUserMailExceptionMessage("Cannot get user information "
-                    + retrieveUserMailRequest.getUser() + " " + e.getMessage());
+            returnMessage = new RetrieveUserInformationExceptionMessage("Cannot get user information "
+                    + retrieveUserInformationRequest.getUser() + " " + e.getMessage());
         }
-        if (retrieveUserMailRequest.getMessageContext().isPresent()) {
-            returnMessage.setMessageContext(retrieveUserMailRequest.getMessageContext().get());
+        if (retrieveUserInformationRequest.getMessageContext().isPresent()) {
+            returnMessage.setMessageContext(retrieveUserInformationRequest.getMessageContext().get());
         }
         post(returnMessage);
+    }
+
+    @Subscribe
+    private void onUpdateUserPicture() {
+
     }
 
     /**

@@ -103,10 +103,12 @@ public class UserDTO implements User {
         return Objects.hashCode(username);
     }
 
+    @Override
     public int getProfilePictureID() {
         return profilePictureID;
     }
 
+    @Override
     public void setProfilePictureID(int profilePictureID) {
         this.profilePictureID = profilePictureID;
     }

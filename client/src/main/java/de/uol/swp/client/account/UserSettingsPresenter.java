@@ -4,14 +4,13 @@ import com.google.common.base.Strings;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
-import de.uol.swp.client.account.event.ChangeToCertainSizeEvent;
 import de.uol.swp.client.account.event.LeaveUserSettingsEvent;
 import de.uol.swp.client.account.event.ShowUserSettingsViewEvent;
 import de.uol.swp.client.account.event.UserSettingsErrorEvent;
 import de.uol.swp.client.auth.events.ShowLoginViewEvent;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
-import de.uol.swp.common.user.response.RetrieveUserMailResponse;
+import de.uol.swp.common.user.response.RetrieveUserInformationResponse;
 import de.uol.swp.common.user.response.UpdateUserSuccessfulResponse;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -23,7 +22,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Rectangle;
@@ -322,11 +320,11 @@ public class UserSettingsPresenter extends AbstractPresenter {
      *
      * @param response the RetrieveUserMailResponse object seen on the EventBus
      * @author Carsten Dekker
-     * @see de.uol.swp.common.user.response.RetrieveUserMailResponse
+     * @see RetrieveUserInformationResponse
      * @since 2021-03-18
      */
     @Subscribe
-    public void onRetrieveUserMailResponse(RetrieveUserMailResponse response) {
+    public void onRetrieveUserMailResponse(RetrieveUserInformationResponse response) {
         retrieveUserMailResponseLogic(response);
     }
 
@@ -339,13 +337,14 @@ public class UserSettingsPresenter extends AbstractPresenter {
      *
      * @param response the UpdateUserSuccessfulResponse given by the original subscriber method.
      * @author Carsten Dekker
-     * @see de.uol.swp.common.user.response.RetrieveUserMailResponse
+     * @see RetrieveUserInformationResponse
      * @since 2021-03-18
      */
-    public void retrieveUserMailResponseLogic(RetrieveUserMailResponse response) {
+    public void retrieveUserMailResponseLogic(RetrieveUserInformationResponse response) {
         LOG.debug("User mail received " + response.getUser().getUsername() + response.getUser().getEMail());
         this.loggedInUser = response.getUser();
         currentEmailField.setText(response.getUser().getEMail());
+        selectedPictureID = response.getUser().getProfilePictureID();
     }
 
     /**
@@ -433,7 +432,6 @@ public class UserSettingsPresenter extends AbstractPresenter {
             imagePattern = new ImagePattern(image);
             profilePicturePatterns.add(imagePattern);
         }
-        profilePictureRectangle.setFill(profilePicturePatterns.get(0));
         int counter = 0;
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
@@ -454,7 +452,7 @@ public class UserSettingsPresenter extends AbstractPresenter {
                         profilePictureRectangle.setFill(rectangle.getFill());
                         for (int i = 0; i < profilePicturePatterns.size(); i++) {
                             if (profilePicturePatterns.get(i).equals(rectangle.getFill())) {
-                                selectedPictureID = i;
+                                selectedPictureID = i + 1;
                                 pictureLocked = true;
                             }
                         }
@@ -471,8 +469,7 @@ public class UserSettingsPresenter extends AbstractPresenter {
                 pictureLocked = false;
             }
         });
-
-
+        profilePictureRectangle.setFill(profilePicturePatterns.get(selectedPictureID - 1));
     }
 
     /**
