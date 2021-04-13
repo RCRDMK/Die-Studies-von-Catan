@@ -35,7 +35,6 @@ public class UserDTO implements User {
         this.username = username;
         this.password = password;
         this.eMail = eMail;
-        this.profilePictureID = 1;
     }
 
     /**

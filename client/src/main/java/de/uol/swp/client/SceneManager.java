@@ -5,6 +5,7 @@ import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.assistedinject.Assisted;
+import de.uol.swp.client.account.event.ChangeToCertainSizeEvent;
 import de.uol.swp.client.account.event.ShowUserSettingsViewEvent;
 import de.uol.swp.client.account.event.LeaveUserSettingsEvent;
 import de.uol.swp.client.account.UserSettingsPresenter;
@@ -239,6 +240,14 @@ public class SceneManager {
             userSettingsScene.getStylesheets().add(styleSheet);
         }
     }
+
+    /*
+    @Subscribe
+    public void onChangeToCertainSizeEvent(ChangeToCertainSizeEvent event) {
+       primaryStage.setWidth(event.getWidth());
+       primaryStage.setHeight(event.getHeight());
+    }
+     */
 
 
     /**

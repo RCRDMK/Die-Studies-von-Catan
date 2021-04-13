@@ -87,7 +87,7 @@ public class UserManagement extends AbstractUserManagement {
     @Override
     public User login(String username, String password) throws SQLException {
         if (!password.isEmpty() || !password.isBlank() || password == null) {
-            String login = "select name, mail from user where name=? and password=?;";
+            String login = "select name, mail from userData where name=? and password=?;";
             ResultSet resultSet = null;
             try {
                 PreparedStatement loginUser = connection.prepareStatement(login);
@@ -118,7 +118,7 @@ public class UserManagement extends AbstractUserManagement {
 
     @Override
     public User createUser(User userToCreate) {
-        String getUsername = "select name from user where name = ?;";
+        String getUsername = "select name from userData where name = ?;";
         ResultSet resultSet;
         try {
             PreparedStatement userName = connection.prepareStatement(getUsername);
@@ -126,7 +126,7 @@ public class UserManagement extends AbstractUserManagement {
             resultSet = userName.executeQuery();
 
             if (!resultSet.next()) {
-                String insertUser = "insert into user(name, password, mail) values (?,?,?);";
+                String insertUser = "insert into userData(name, password, mail) values (?,?,?);";
                 userName = connection.prepareStatement(insertUser);
                 userName.setString(1, userToCreate.getUsername());
                 userName.setString(2, userToCreate.getPassword());
@@ -159,7 +159,7 @@ public class UserManagement extends AbstractUserManagement {
         ResultSet resultSet;
         PreparedStatement updateUserMail;
         try {
-            String getUser = "select * from user where name=?;";
+            String getUser = "select * from userData where name=?;";
             updateUserMail = connection.prepareStatement(getUser);
             updateUserMail.setString(1, toUpdateMail.getUsername());
             resultSet = updateUserMail.executeQuery();
@@ -171,7 +171,7 @@ public class UserManagement extends AbstractUserManagement {
         if (resultSet.next()) {
             try {
                 newEMail = firstNotNull(toUpdateMail.getEMail(), resultSet.getString("mail"));
-                String updateUserString = "update user set mail=? where name=?;";
+                String updateUserString = "update userData set mail=? where name=?;";
                 updateUserMail = connection.prepareStatement(updateUserString);
                 updateUserMail.setString(1, toUpdateMail.getEMail());
                 updateUserMail.setString(2, toUpdateMail.getUsername());
@@ -203,7 +203,7 @@ public class UserManagement extends AbstractUserManagement {
         ResultSet resultSet;
         PreparedStatement updateUserPassword;
         try {
-            String getUser = "select * from user where name=?;";
+            String getUser = "select * from userData where name=?;";
             updateUserPassword = connection.prepareStatement(getUser);
             updateUserPassword.setString(1, toUpdatePassword.getUsername());
             resultSet = updateUserPassword.executeQuery();
@@ -216,7 +216,7 @@ public class UserManagement extends AbstractUserManagement {
             if (resultSet.getString(2).equals(currentPassword)) {
                 try {
                     newPassword = firstNotNull(toUpdatePassword.getPassword(), resultSet.getString("password"));
-                    String updateUserString = "update user set password=? where name=?;";
+                    String updateUserString = "update userData set password=? where name=?;";
                     updateUserPassword = connection.prepareStatement(updateUserString);
                     updateUserPassword.setString(1, toUpdatePassword.getPassword());
                     updateUserPassword.setString(2, toUpdatePassword.getUsername());
@@ -246,7 +246,7 @@ public class UserManagement extends AbstractUserManagement {
      */
     @Override
     public void dropUser(User userToDrop) throws SQLException {
-        String selectUserString = "select name from user where name =?;";
+        String selectUserString = "select name from userData where name =?;";
         if (isLoggedIn(userToDrop)) {
             logout(userToDrop);
         }
@@ -257,7 +257,7 @@ public class UserManagement extends AbstractUserManagement {
             if (!resultSet.next()) {
                 throw new UserManagementException("Username unknown!");
             } else {
-                dropUser = connection.prepareStatement("delete from user where name=?;");
+                dropUser = connection.prepareStatement("delete from userData where name=?;");
                 dropUser.setString(1, userToDrop.getUsername());
                 dropUser.executeUpdate();
             }
@@ -307,7 +307,7 @@ public class UserManagement extends AbstractUserManagement {
         ResultSet resultSet;
         PreparedStatement preparedStatement;
         try {
-            String selectAllUsers = "select * from user;";
+            String selectAllUsers = "select * from userData;";
             preparedStatement = connection.prepareStatement(selectAllUsers);
             resultSet = preparedStatement.executeQuery();
         } catch (Exception e) {
@@ -336,7 +336,7 @@ public class UserManagement extends AbstractUserManagement {
         ResultSet resultSet;
         PreparedStatement preparedStatement;
         try {
-            String selectMail = "select mail from user where name = ? ;";
+            String selectMail = "select mail from userData where name = ? ;";
             preparedStatement = connection.prepareStatement(selectMail);
             preparedStatement.setString(1, toGetInformation.getUsername());
             resultSet = preparedStatement.executeQuery();
