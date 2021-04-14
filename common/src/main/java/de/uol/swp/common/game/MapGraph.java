@@ -286,6 +286,38 @@ public class MapGraph implements Serializable {
 
     public abstract class MapGraphNode implements Serializable {
 
+        //Fields
+
+        private String positionToParent;
+        private int occupiedByPlayer;
+        private Hexagon parent;
+
+        //Getter Setter
+
+
+        public String getPositionToParent() {
+            return positionToParent;
+        }
+
+        public void setPositionToParent(String positionToParent) {
+            this.positionToParent = positionToParent;
+        }
+
+        public int getOccupiedByPlayer() {
+            return occupiedByPlayer;
+        }
+
+        public void setOccupiedByPlayer(int occupiedByPlayer) {
+            this.occupiedByPlayer = occupiedByPlayer;
+        }
+
+        public Hexagon getParent() {
+            return parent;
+        }
+
+        public void setParent(Hexagon parent) {
+            this.parent = parent;
+        }
     }
 
     /**
@@ -299,8 +331,8 @@ public class MapGraph implements Serializable {
 
         //FIELDS
 
-        private String positionToParent;
         private final HashSet<BuildingNode> connectedBuildingNodes = new HashSet<>();
+        private String positionToParent;
         private int occupiedByPlayer;
         private Hexagon parent;
 
@@ -317,7 +349,7 @@ public class MapGraph implements Serializable {
             return occupiedByPlayer;
         }
 
-        public void setOccupiedByPlayer(int occupiedByPlayer) {
+        public void buildRoad(int occupiedByPlayer) {
             this.occupiedByPlayer = occupiedByPlayer;
         }
 
@@ -357,11 +389,12 @@ public class MapGraph implements Serializable {
 
         //FIELDS
 
-        private String positionToParent;
         private final HashSet<StreetNode> connectedStreetNodes = new HashSet<>();
+        private String positionToParent;
         private int typeOfHarbor;
         private int occupiedByPlayer;
         private Hexagon parent;
+        private int sizeOfSettlement = 0;
         //CONSTRUCTOR
 
         /**
@@ -417,6 +450,16 @@ public class MapGraph implements Serializable {
 
         public String getPositionToParent() {
             return positionToParent;
+        }
+
+        public int getSizeOfSettlement() {
+            return sizeOfSettlement;
+        }
+
+        public void buildOrEnlargeSettlement() {
+            if (sizeOfSettlement < 2) {
+                this.sizeOfSettlement++;
+            } else return;
         }
     }
 

@@ -24,7 +24,7 @@ public class Vector {
         this.y = y;
     }
 
-    public static Vector getVectorFromMapGraphNode(MapGraph.MapGraphNode node, double d, Vector zeroVector) {
+    public static Vector getVectorFromMapGraphNode(MapGraph.MapGraphNode node, double d) {
         Vector returnVector = new Vector(0, 0);
         if (node.getClass().equals(MapGraph.BuildingNode.class)) {
             MapGraph.BuildingNode buildingNode = (MapGraph.BuildingNode) node;
@@ -94,30 +94,28 @@ public class Vector {
         return returnVector;
     }
 
-    /**
-     * Adds 2 Vectors in JavaFX coordinate-system.
-     * <p>
-     * Because the JavaFX coordinate-system has its origin in the upper left corner and increments only into positive
-     * space, the addition of two vectors needs to subtract the y-values. The reason is, that - although the x-axis in
-     * JavaFX behaves like the x-axis of a normal cartesian system - the y-axis doesnt. The values of the y axis
-     * actually go up when you go down in screen-direction. To compensate for that, i changed the add- and substract-
-     * methods for vectors in the game.
-     * </p>
-     *
-     * @param v1 Vector
-     * @param v2 Vector
-     * @return Vector as addition result
-     * @author Pieter Vogt
-     * @since 2021-01-24
-     */
-    public static Vector addVector(Vector v1, Vector v2) {
-        return new Vector(v1.getX() + v2.getX(), v1.getY() - v2.getY());
-    }
 
     //constructor
 
-    public static Vector convertStringListToVector(Collection<String> positions, double d, Vector zeroVector) {
-        Vector returnVector = zeroVector;
+    /**
+     * Creates a Vector from a list of Strings.
+     * <p>This can only be parsed a Collection of Strings from a Hexagon because this already considers the cardSize of
+     * the hexagons. </p>
+     *
+     * @param positions    The Collection of Strings that describe the relational position of different objects to one
+     *                     another.
+     * @param d            the distance traveled from one object to the next.
+     * @param sourceVector The start of the resulting vector. Usually the center of the canvas, but can be something
+     *                     else.
+     *
+     * @return Vector that sums up all vectors from the list plus the sourceVector.
+     * @author Pieter Vogt
+     * @see de.uol.swp.common.game.MapGraph.Hexagon
+     * @since 2021-04-12
+     */
+
+    public static Vector convertStringListToVector(Collection<String> positions, double d, Vector sourceVector) {
+        Vector returnVector = sourceVector;
         for (String s : positions) {
             switch (s) {
                 case "left":
@@ -159,6 +157,7 @@ public class Vector {
      *
      * @param v1 Vector
      * @param v2 Vector
+     *
      * @return Vector as subtraction result
      * @author Pieter Vogt
      * @since 2021-01-24
@@ -166,6 +165,29 @@ public class Vector {
     public static Vector subVector(Vector v1, Vector v2) {
         return new Vector(v1.getX() - v2.getX(), v1.getY() + v2.getY());
     }
+
+    /**
+     * Adds 2 Vectors in JavaFX coordinate-system.
+     * <p>
+     * Because the JavaFX coordinate-system has its origin in the upper left corner and increments only into positive
+     * space, the addition of two vectors needs to subtract the y-values. The reason is, that - although the x-axis in
+     * JavaFX behaves like the x-axis of a normal cartesian system - the y-axis doesnt. The values of the y axis
+     * actually go up when you go down in screen-direction. To compensate for that, i changed the add- and substract-
+     * methods for vectors in the game.
+     * </p>
+     *
+     * @param v1 Vector
+     * @param v2 Vector
+     *
+     * @return Vector as addition result
+     * @author Pieter Vogt
+     * @since 2021-01-24
+     */
+    public static Vector addVector(Vector v1, Vector v2) {
+        return new Vector(v1.getX() + v2.getX(), v1.getY() - v2.getY());
+    }
+
+    //Movement-related functions. Double d is the distance to travel.
 
     public static Vector right(double d) {
         double angle = 0 * (2 * Math.PI / 12);
@@ -176,8 +198,6 @@ public class Vector {
         double angle = 2 * (2 * Math.PI / 12);
         return new Vector(d * Math.cos(angle), d * Math.sin(angle));
     }
-
-    //Movement-related functions. Double d is the distance to travel.
 
     public static Vector topLeft(double d) {
         double angle = 4 * (2 * Math.PI / 12);
@@ -199,7 +219,7 @@ public class Vector {
         return new Vector(d * Math.cos(angle), d * Math.sin(angle));
     }
 
-    // method to generate any vector with length d and angle angle_deg in degree
+    // TODO: Eventuell in RAD umwandeln oder weg (Wird noch genutzt)
     public static Vector generalVector(double d, double angle_deg) {
         double angle = angle_deg / 360 * 2 * Math.PI;
         return new Vector(d * Math.cos(angle), d * Math.sin(angle));

@@ -3,6 +3,8 @@ package de.uol.swp.client.game;
 
 import com.google.common.eventbus.EventBus;
 import com.google.inject.Inject;
+import de.uol.swp.common.game.MapGraph;
+import de.uol.swp.common.game.message.ConstructionMessage;
 import de.uol.swp.common.game.request.*;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
@@ -36,6 +38,7 @@ public class GameService {
      *
      * @param name Name of the lobby/game where the user wants to roll the dice
      * @param user User who wants to roll the dice
+     *
      * @author Kirstin, Pieter
      * @see de.uol.swp.common.game.request.RollDiceRequest
      * @since 2021-01-07
@@ -43,8 +46,7 @@ public class GameService {
      * Enhanced by Carsten Dekker
      * @since 2021-01-13
      * <p>
-     * I have changed the place of the method to the new GameService.
-     * It is a temporary method.
+     * I have changed the place of the method to the new GameService. It is a temporary method.
      */
 
     public void rollDice(String name, User user) {
@@ -69,6 +71,7 @@ public class GameService {
      * <p>
      *
      * @param gameName Name of the game of which the User list was requested
+     *
      * @author Iskander Yusupov
      * @see de.uol.swp.common.game.request.RetrieveAllThisGameUsersRequest
      * @since 2020-03-14
@@ -100,5 +103,20 @@ public class GameService {
     public void buyDevelopmentCard(User user, String gameName) {
         BuyDevelopmentCardRequest buyDevelopmentCardRequest = new BuyDevelopmentCardRequest((UserDTO) user, gameName);
         eventBus.post(buyDevelopmentCardRequest);
+    }
+
+    /**
+     * Sends the request to build a building.
+     * <p>Because there is always just one option of what one can build on any kind of Node, we dont need to include
+     * the
+     * type of building that is desired.</p>
+     *
+     * @author Pieter Vogt
+     * @see de.uol.swp.common.game.MapGraph
+     * @since 2021-04-14
+     */
+    public void constructBuilding(UserDTO user, String gameName, MapGraph.MapGraphNode node) {
+        ConstructionMessage request = new ConstructionMessage(user, gameName, node);
+        eventBus.post(request);
     }
 }

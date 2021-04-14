@@ -4,10 +4,9 @@ import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
 import de.uol.swp.client.chat.ChatService;
-import de.uol.swp.client.game.GameObjects.BuildingField;
-import de.uol.swp.client.game.GameObjects.TerrainField;
+import de.uol.swp.client.game.HelperObjects.HexagonContainer;
+import de.uol.swp.client.game.HelperObjects.MapGraphNodeContainer;
 import de.uol.swp.client.game.HelperObjects.Vector;
-import de.uol.swp.client.lobby.LobbyService;
 import de.uol.swp.common.chat.RequestChatMessage;
 import de.uol.swp.common.chat.ResponseChatMessage;
 import de.uol.swp.common.game.MapGraph;
@@ -35,6 +34,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -55,33 +55,22 @@ public class GamePresenter extends AbstractPresenter {
     public static final String fxml = "/fxml/GameView.fxml";
 
     private static final Logger LOG = LogManager.getLogger(GamePresenter.class);
-
-    private User joinedLobbyUser;
-
-    private String currentLobby;
-
-    private Alert alert;
-
-    private ButtonType buttonTypeOkay;
-
-    private Button btnOkay;
-
-    private ObservableList<String> gameUsers;
-
-    private MapGraph mapGraph;
-
-    @Inject
-    private GameService gameService;
-
-    @Inject
-    private ChatService chatService;
-
     @FXML
     public TextField gameChatInput;
-
     @FXML
     public TextArea gameChatArea;
-
+    private User joinedLobbyUser;
+    private String currentLobby;
+    private Alert alert;
+    private ButtonType buttonTypeOkay;
+    private Button btnOkay;
+    private ObservableList<String> gameUsers;
+    private ArrayList<HexagonContainer> hexagonContainers = new ArrayList<>();
+    private ArrayList<MapGraphNodeContainer> mapGraphNodeContainers = new ArrayList<>();
+    @Inject
+    private GameService gameService;
+    @Inject
+    private ChatService chatService;
     @FXML
     private Canvas canvas;
 
@@ -282,7 +271,7 @@ public class GamePresenter extends AbstractPresenter {
             this.joinedLobbyUser = gcm.getUser();
             this.currentLobby = gcm.getName();
             updateGameUsersList(gcm.getUsers());
-            initializeGameField(gcm.getMapGraph());
+            initializeMatch(gcm.getMapGraph());
             Platform.runLater(this::setupRessourceAlert);
         }
     }
@@ -483,133 +472,7 @@ public class GamePresenter extends AbstractPresenter {
     }
 
     /**
-     * Method for generating an array of terrainFields, buildFields and streetFields that have the correct relative and
-     * absolute positions to one another
-     * <p>
-     * enhanced by Marc Hermes - 2021-03-13 enhanced by Kirstin Beyer - 2021-03-28 enhanced by Pieter Vogt 2021-04-07
-     *
-     * @return Object containing array with TerrainFields, array with BuildingFields (for streets), array with
-     * BuildingFields (for buildings) having the correct positions.
-     * @author Pieter Vogt, Kirstin Beyer
-     * @see <a href="https://confluence.swl.informatik.uni-oldenburg.de/display/SWP2020J/SpecCatan_1004+Spielfeld">Specification
-     * 1004</a>
-     * @since 2021-01-24
-     */
-    public Object[] getCorrectPositionsOfFields() {
-
-        //TerrainFields
-
-        TerrainField[] tempArray;
-
-        //Array of cards get generated in same order as "spielfeld"-finespec in confluence.
-
-        //beginning of oceans
-        TerrainField f0 = new TerrainField(Vector.bottomLeft(cardSize()));
-        TerrainField f1 = new TerrainField(Vector.bottomLeft(cardSize()));
-        TerrainField f2 = new TerrainField(Vector.bottomLeft(cardSize()));
-        TerrainField f3 = new TerrainField(Vector.left(cardSize()));
-        TerrainField f4 = new TerrainField(Vector.left(cardSize()));
-        TerrainField f5 = new TerrainField(Vector.left(cardSize()));
-        TerrainField f6 = new TerrainField(Vector.topLeft((cardSize())));
-        TerrainField f7 = new TerrainField(Vector.topLeft((cardSize())));
-        TerrainField f8 = new TerrainField(Vector.topLeft((cardSize())));
-        TerrainField f9 = new TerrainField(Vector.topRight((cardSize())));
-        TerrainField f10 = new TerrainField(Vector.topRight((cardSize())));
-        TerrainField f11 = new TerrainField(Vector.topRight((cardSize())));
-        TerrainField f12 = new TerrainField(Vector.right((cardSize())));
-        TerrainField f13 = new TerrainField(Vector.right((cardSize())));
-        TerrainField f14 = new TerrainField(Vector.right((cardSize())));
-        TerrainField f15 = new TerrainField(Vector.bottomRight(cardSize()));
-        TerrainField f16 = new TerrainField(Vector.bottomRight((cardSize())));
-        TerrainField f17 = new TerrainField(Vector.bottomLeft((cardSize())));
-
-        //beginning of landmasses
-        TerrainField f18 = new TerrainField(Vector.bottomLeft(cardSize()));
-        TerrainField f19 = new TerrainField(Vector.bottomLeft(cardSize()));
-        TerrainField f20 = new TerrainField(Vector.left(cardSize()));
-        TerrainField f21 = new TerrainField(Vector.left(cardSize()));
-        TerrainField f22 = new TerrainField(Vector.topLeft(cardSize()));
-        TerrainField f23 = new TerrainField(Vector.topLeft(cardSize()));
-        TerrainField f24 = new TerrainField(Vector.topRight(cardSize()));
-        TerrainField f25 = new TerrainField(Vector.topRight(cardSize()));
-        TerrainField f26 = new TerrainField(Vector.right(cardSize()));
-        TerrainField f27 = new TerrainField(Vector.right(cardSize()));
-        TerrainField f28 = new TerrainField(Vector.bottomRight(cardSize()));
-        TerrainField f29 = new TerrainField(Vector.bottomLeft(cardSize()));
-        TerrainField f30 = new TerrainField(Vector.bottomLeft(cardSize()));
-        TerrainField f31 = new TerrainField(Vector.left(cardSize()));
-        TerrainField f32 = new TerrainField(Vector.topLeft(cardSize()));
-        TerrainField f33 = new TerrainField(Vector.topRight(cardSize()));
-        TerrainField f34 = new TerrainField(Vector.right(cardSize()));
-        TerrainField f35 = new TerrainField(Vector.bottomLeft(cardSize()));
-        TerrainField f36 = new TerrainField(new Vector(0, 0));
-        f36.setPosition(new Vector(((canvas.getWidth() / 2) - cardSize() / 2), ((canvas.getHeight() / 2)) - cardSize() / 2));
-
-        tempArray = new TerrainField[]{f0, f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, f15, f16, f17, f18, f19, f20, f21, f22, f23, f24, f25, f26, f27, f28, f29, f30, f31, f32, f33, f34, f35, f36};
-
-        for (int i = tempArray.length - 2; i >= 0; i--) { // TempArray.length - 2 because the desert-field (upmost "card") was already positioned, so we dont need to handle it again (index out of bounds when whe try to add tempArray[i+1]...)
-            tempArray[i].setPosition(Vector.addVector(tempArray[i + 1].getPosition(), tempArray[i].getPlacementVector())); //Add position of last terrainfield and current placement-vector to determine position.
-        }
-
-
-        //BuildingFields
-
-        BuildingField[] tempStreetArray = new BuildingField[72];
-        BuildingField[] tempBuildArray = new BuildingField[54];
-
-        int l = 0;
-        int m = 0;
-        Vector tempVec;
-
-        // loop over all terrainFields (except ocean)
-        for (int i = 18; i < 37; i++) {
-
-            // loop over 12 positions for each terrainField, even positions j mark buildFields, odd positions j mark streetFields
-            fieldLoop:
-            for (int j = 0; j < 12; j++) {
-                tempVec = Vector.addVector(tempArray[i].getPosition(), Vector.generalVector(cardSize() / Math.sqrt(2), 315));
-
-                if (j % 2 != 0) {
-                    tempVec = Vector.addVector(tempVec, Vector.generalVector(cardSize() / Math.sqrt(3), 30 * j));
-
-                    // check if field is already in array
-                    for (int k = 0; k < l; k++) {
-                        if (Math.abs(tempVec.getX() - tempBuildArray[k].getPosition().getX()) < (cardSize() / 100) && Math.abs(tempVec.getY() - tempBuildArray[k].getPosition().getY()) < (cardSize() / 100)) {
-                            continue fieldLoop;
-                        }
-                    }
-                    // add new BuildingField to buildArray
-                    BuildingField b = new BuildingField(tempVec);
-                    b.setName("Settlement");
-                    b.setUsed(false);
-                    tempBuildArray[l] = b;
-                    l++;
-
-                } else {
-                    tempVec = Vector.addVector(tempVec, Vector.generalVector(cardSize() * 0.5, 30 * j));
-
-                    // check if field is already in array
-                    for (int k = 0; k < m; k++) {
-                        if (Math.abs(tempVec.getX() - tempStreetArray[k].getPosition().getX()) < cardSize() / 100 && Math.abs(tempVec.getY() - tempStreetArray[k].getPosition().getY()) < cardSize() / 100) {
-                            continue fieldLoop;
-                        }
-                    }
-                    // add new BuildingField to streetArray
-                    BuildingField s = new BuildingField(tempVec);
-                    s.setName("Street");
-                    s.setUsed(false);
-                    tempStreetArray[m] = s;
-                    m++;
-                }
-            }
-        }
-
-        return new Object[]{tempArray, tempStreetArray, tempBuildArray};
-    }
-
-
-    /**
-     * determines the color to draw its host-object
+     * Determines the color to draw its host-object.
      *
      * @return the color for the host-object
      * @author Pieter Vogt
@@ -657,54 +520,78 @@ public class GamePresenter extends AbstractPresenter {
      * @since 2021-01-24
      */
     public void draw() {
-        System.out.println("Drawmethode wird aufgerufen");
+
+        Vector centerOfCanvasVector = new Vector((canvas.getWidth() / 2 + canvas.getLayoutX()), canvas.getHeight() / 2 + canvas.getLayoutY());
         GraphicsContext g = this.canvas.getGraphicsContext2D(); //This is the object that is doing the drawing and has all the graphics related methods.
 
         //Drawing background.
+
         g.setFill(Color.BLACK);
         g.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
 
-        for (MapGraph.Hexagon h : this.mapGraph.getHexagonSet()) {
-            //The 2. Vector in this is the standard-vector. TODO:hier eventuell doch den general vector nutzen?!
-            //Vector drawVector = Vector.subVector(Vector.convertStringListToVector(h.getSelfPosition(), cardSize(), new Vector(((canvas.getWidth() / 2) - cardSize() / 2), ((canvas.getHeight() / 2)) - cardSize() / 2)), Vector.generalVector(cardSize() / Math.sqrt(2), 135));
-            //Vector drawVector = Vector.convertStringListToVector(h.getSelfPosition(), cardSize(), new Vector(((canvas.getWidth() / 2) + cardSize()/2), ((canvas.getHeight() / 2)) + cardSize() /2));
-            //Vector drawVector = new Vector(canvas.getWidth()/2,canvas.getHeight()/2);
+        //Drawing hexagons
 
-            Vector canvasVector = new Vector((canvas.getWidth() /2  + canvas.getLayoutX()), canvas.getHeight() / 2 + canvas.getLayoutY());
-            Vector drawVector = Vector.convertStringListToVector(h.getSelfPosition(), cardSize(), canvasVector);
+        for (HexagonContainer hexagonContainer : this.hexagonContainers) {
 
-            Circle circle = new Circle(cardSize() / 2);
-            System.out.println(h.getSelfPosition());
-            System.out.println(h.getStreetNodes());
+            Vector placementVector = Vector.convertStringListToVector(hexagonContainer.getHexagon().getSelfPosition(), cardSize(), centerOfCanvasVector);
 
+            hexagonContainer.getCircle().setLayoutX(placementVector.getX());
+            hexagonContainer.getCircle().setLayoutY(placementVector.getY());
+            hexagonContainer.getCircle().setFill(determineColorOfTerrain(hexagonContainer.getHexagon()));
 
-            circle.setLayoutX(drawVector.getX());
-            System.out.println(circle.getLayoutX());
-            circle.setLayoutY(drawVector.getY());
-            System.out.println(circle.getLayoutY());
-
-            circle.setFill(determineColorOfTerrain(h));
-            Platform.runLater(() -> gameAnchorPane.getChildren().add(circle));
-            if (h.getDiceToken() != 0) {
-                Text text = new Text(drawVector.getX(), drawVector.getY(), Integer.toString(h.getDiceToken()));
+            Platform.runLater(() -> gameAnchorPane.getChildren().add(hexagonContainer.getCircle()));
+            if (hexagonContainer.getHexagon().getDiceToken() != 0) {
+                Text text = new Text(placementVector.getX(), placementVector.getY(), Integer.toString(hexagonContainer.getHexagon().getDiceToken()));
                 text.setFill(Color.WHITE);
                 Platform.runLater(() -> gameAnchorPane.getChildren().add(text));
             }
         }
-        System.out.println(canvas.getLayoutX() + "   " + canvas.getLayoutY());
+
         //Draw buildings
 
-        System.out.println("BuildingNodes werden initialisiert");
-        for (MapGraph.MapGraphNode m : mapGraph.getBuildingNodeSet()) {
-            //Correct draw-positions are calculated.
-            initializeNodeSpot(m);
+        for (MapGraphNodeContainer mapGraphNodeContainer : mapGraphNodeContainers) {
+
+            if (mapGraphNodeContainer.getMapGraphNode() instanceof MapGraph.BuildingNode) {
+                double itemSize = cardSize() / 10;
+                MapGraph.BuildingNode buildingNode = (MapGraph.BuildingNode) mapGraphNodeContainer.getMapGraphNode();
+
+                Vector parentVector = Vector.convertStringListToVector(buildingNode.getParent().getSelfPosition(), cardSize(), centerOfCanvasVector);
+                //  Vector parentVector = Vector.subVector(Vector.convertStringListToVector(buildingNode.getParent().getSelfPosition(), cardSize(), new Vector(((canvas.getWidth() / 2) - cardSize() / 2), ((canvas.getHeight() / 2)) - cardSize() / 2)), Vector.generalVector(cardSize() / Math.sqrt(2), 135));
+
+                Vector selfVector = Vector.getVectorFromMapGraphNode(buildingNode, cardSize());
+                Vector drawVector = Vector.addVector(parentVector, selfVector);
+
+                Circle circle = new Circle();
+                circle.setRadius(itemSize);
+                circle.setLayoutX(drawVector.getX());
+                circle.setLayoutY(drawVector.getY() + canvas.getLayoutY());
+                circle.setFill(Color.GHOSTWHITE);
+                Platform.runLater(() -> gameAnchorPane.getChildren().add(circle));
+
+            }
+            if (mapGraphNodeContainer.getMapGraphNode() instanceof MapGraph.StreetNode) {
+                double itemSize = cardSize() / 15;
+
+                MapGraph.StreetNode streetNode = (MapGraph.StreetNode) mapGraphNodeContainer.getMapGraphNode();
+
+                Vector parentVector = Vector.convertStringListToVector(streetNode.getParent().getSelfPosition(), cardSize(), centerOfCanvasVector);
+
+                Vector selfVector = Vector.getVectorFromMapGraphNode(streetNode, cardSize());
+                Vector drawVector = Vector.addVector(parentVector, selfVector);
+
+                Circle circle = new Circle();
+                circle.setRadius(itemSize);
+                circle.setLayoutX(drawVector.getX());
+                circle.setLayoutY(drawVector.getY() + canvas.getLayoutY());
+                circle.setFill(Color.GHOSTWHITE);
+                Platform.runLater(() -> gameAnchorPane.getChildren().add(circle));
+            }
         }
-        //Draw streets
-        System.out.println("StreetNodes werden initialisiert");
-        for (MapGraph.MapGraphNode m : mapGraph.getStreetNodeSet()) {
-            //Correct draw-positions are calculated.
-            initializeNodeSpot(m);
-        }
+
+
+        //TODO: Die Nodes generieren momentan an der falschen stelle. Ausserdem sind die Nodes wohl noch nicht klickbar. Prüfen ob handler, nachrichtenversand und verarbeitung der nachricht vernünftig funktionieren.
+
+
 
 /*
         //TODO: Alt, löschen?
@@ -750,131 +637,24 @@ public class GamePresenter extends AbstractPresenter {
      * @author Kirstin
      * @since 2021-03-28
      */
-    public void initializeNodeSpot(MapGraph.MapGraphNode mapGraphNode) {
+    public void initializeNodeSpots(Object o) {
 
-        EventHandler<MouseEvent> circleOnMousePressedEventHandler = t -> {
-            Circle circle = (Circle) t.getSource();
-            circle.setFill(Color.RED);
-        };
-        GraphicsContext g = this.canvas.getGraphicsContext2D();
-        g.setLineWidth(cardSize() / 10);
-        if (mapGraphNode.getClass().equals(MapGraph.BuildingNode.class)) {
-            MapGraph.BuildingNode buildingNode = (MapGraph.BuildingNode) mapGraphNode;
-            System.out.println("Guck hier " + buildingNode.getPositionToParent() + "  " + buildingNode.getParent().getSelfPosition());
-
-            Vector parentVector = Vector.subVector(Vector.convertStringListToVector(buildingNode.getParent().getSelfPosition(), cardSize(), new Vector(((canvas.getWidth() / 2) - cardSize() / 2), ((canvas.getHeight() / 2)) - cardSize() / 2)), Vector.generalVector(cardSize() / Math.sqrt(2), 135));
-            //Vector parentVector = Vector.convertStringListToVector(buildingNode.getParent().getSelfPosition(), cardSize(), new Vector(((canvas.getWidth() / 2) - cardSize() / 2), ((canvas.getHeight() / 2)) - cardSize() / 2));
-            Vector selfVector = Vector.getVectorFromMapGraphNode(buildingNode, cardSize(),new Vector(((canvas.getWidth() / 2) - cardSize() / 2), ((canvas.getHeight() / 2)) - cardSize() / 2) );
-            Vector targetVector = Vector.addVector(parentVector, selfVector);
-            System.out.println("Parent Vector: " + parentVector.getX() + " " + parentVector.getY());
-            System.out.println("Self Vector: " + selfVector.getX() + " " + selfVector.getY());
-            System.out.println("Target Vector: " + targetVector.getX() + " " + targetVector.getY());
-
-            double itemSize = cardSize() / 4;
-            Circle street = new Circle();
-            street.setRadius(itemSize / 2);
-            street.setLayoutX(targetVector.getX());
-            street.setLayoutY(targetVector.getY() + canvas.getLayoutY());
-            System.out.println("Nodes Building " + street.getLayoutX() + " " + street.getLayoutY());
-            street.setFill(Color.GHOSTWHITE);
-            street.setOnMouseClicked(circleOnMousePressedEventHandler);
-            Platform.runLater(() -> gameAnchorPane.getChildren().add(street));
-
-        }
-        if (mapGraphNode.getClass().equals(MapGraph.StreetNode.class)) {
-            MapGraph.StreetNode streetNode = (MapGraph.StreetNode) mapGraphNode;
-            //tempVec = Vector.addVector(tempVec, Vector.generalVector(cardSize() * 0.5, 30 * j));
-
-            Vector parentVector = Vector.subVector(Vector.convertStringListToVector(streetNode.getParent().getSelfPosition(), cardSize(), new Vector(((canvas.getWidth() / 2) - cardSize() / 2), ((canvas.getHeight() / 2)) - cardSize() / 2)), Vector.generalVector(cardSize() / Math.sqrt(2), 135));
-            //Vector parentVector = Vector.convertStringListToVector(streetNode.getParent().getSelfPosition(), cardSize(), new Vector(((canvas.getWidth() / 2) - cardSize() / 2), ((canvas.getHeight() / 2)) - cardSize() / 2));
-            Vector selfVector = Vector.getVectorFromMapGraphNode(streetNode, cardSize(),new Vector(((canvas.getWidth() / 2) - cardSize() / 2), ((canvas.getHeight() / 2)) - cardSize() / 2) );
-            Vector targetVector = Vector.addVector(parentVector, selfVector);
-            //Vector.generalVector(cardSize() / Math.sqrt(2), 315);
-            double itemSize = cardSize() / 8;
-            Circle street = new Circle();
-            street.setRadius(itemSize / 2);
-            street.setLayoutX(targetVector.getX());
-            street.setLayoutY(targetVector.getY() + canvas.getLayoutY());
-            //System.out.println("Nodes Street " + street.getLayoutX() + " " + street.getLayoutY());
-            street.setFill(Color.GHOSTWHITE);
-            street.setOnMouseClicked(circleOnMousePressedEventHandler);
-            Platform.runLater(() -> gameAnchorPane.getChildren().add(street));
-        }
-
-
-        /*switch (building) {
-            case "Street":
-                double itemSize = cardSize() / 8;
-                Circle street = new Circle();
-                street.setRadius(itemSize / 2);
-                street.setLayoutX(x);
-                street.setLayoutY(y + canvas.getLayoutY());
-                street.setFill(Color.GHOSTWHITE);
-                street.setOnMouseClicked(circleOnMousePressedEventHandler);
-                buildingField.setNode(street);
-                Platform.runLater(() -> gameAnchorPane.getChildren().add(street));
-                break;
-            case "Settlement":
-                itemSize = cardSize() / 4;
-                Circle settlement = new Circle(itemSize / 2);
-                settlement.setLayoutX(x);
-                settlement.setLayoutY(y + canvas.getLayoutY());
-                settlement.setFill(Color.GHOSTWHITE);
-                settlement.setOnMouseClicked(circleOnMousePressedEventHandler);
-                buildingField.setNode(settlement);
-                Platform.runLater(() -> gameAnchorPane.getChildren().add(settlement));
-                break;
-            case "Town":
-                itemSize = cardSize() / 3;
-                Circle town = new Circle(itemSize / 2);
-                town.setLayoutX(x);
-                town.setLayoutY(y + canvas.getLayoutY());
-                town.setFill(Color.GHOSTWHITE);
-                town.setOnMouseClicked(circleOnMousePressedEventHandler);
-                buildingField.setNode(town);
-                Platform.runLater(() -> gameAnchorPane.getChildren().add(town));
-                break;*/
-    }
-
-
-
-        /*for (int j = 0; j < 12; j++) {
-                tempVec = Vector.addVector(tempArray[i].getPosition(), Vector.generalVector(cardSize() / Math.sqrt(2), 315));
-
-                if (j % 2 != 0) {
-                    tempVec = Vector.addVector(tempVec, Vector.generalVector(cardSize() / Math.sqrt(3), 30 * j));
-
-                    // check if field is already in array
-                    for (int k = 0; k < l; k++) {
-                        if (Math.abs(tempVec.getX() - tempBuildArray[k].getPosition().getX()) < (cardSize() / 100) && Math.abs(tempVec.getY() - tempBuildArray[k].getPosition().getY()) < (cardSize() / 100)) {
-                            continue fieldLoop;
-                        }
+        EventHandler<MouseEvent> clickOnCircleHandler = new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent mouseEvent) {
+                for (MapGraphNodeContainer container : mapGraphNodeContainers) {
+                    if (mouseEvent.getSource() == container.getCircle()) {
+                        UserDTO user = new UserDTO(joinedLobbyUser.getUsername(), joinedLobbyUser.getPassword(), joinedLobbyUser.getEMail()); //Still sent with password because tight deadline. TODO: Change responsible Interface in future, to send Users without Passwords.
+                        gameService.constructBuilding(user, currentLobby, container.getMapGraphNode());
                     }
-                    // add new BuildingField to buildArray
-                    BuildingField b = new BuildingField(tempVec);
-                    b.setName("Settlement");
-                    b.setUsed(false);
-                    tempBuildArray[l] = b;
-                    l++;
-
-                } else {
-                    tempVec = Vector.addVector(tempVec, Vector.generalVector(cardSize() * 0.5, 30 * j));
-
-                    // check if field is already in array
-                    for (int k = 0; k < m; k++) {
-                        if (Math.abs(tempVec.getX() - tempStreetArray[k].getPosition().getX()) < cardSize() / 100 && Math.abs(tempVec.getY() - tempStreetArray[k].getPosition().getY()) < cardSize() / 100) {
-                            continue fieldLoop;
-                        }
-                    }
-                    // add new BuildingField to streetArray
-                    BuildingField s = new BuildingField(tempVec);
-                    s.setName("Street");
-                    s.setUsed(false);
-                    tempStreetArray[m] = s;
-                    m++;
                 }
-            }*/
+            }
+        };
 
+        for (MapGraphNodeContainer container : mapGraphNodeContainers) {
+            container.getCircle().setOnMouseClicked(clickOnCircleHandler);
+        }
+    }
 
     /**
      * Method to initialize the GameField of this GamePresenter of this client
@@ -890,56 +670,36 @@ public class GamePresenter extends AbstractPresenter {
      * @see de.uol.swp.client.game.GameObjects.TerrainField
      * @see de.uol.swp.common.game.TerrainFieldContainer
      */
-    public void initializeGameField(MapGraph mapGraph) {
+    public void initializeMatch(MapGraph mapGraph) {
 
-        this.mapGraph = mapGraph;
+        //Setting up the HexagonContainers
+        System.out.println("Setting up " + mapGraph.getHexagonSet().size() + " HexagonContainers...");
 
+        for (MapGraph.Hexagon hexagon : mapGraph.getHexagonSet()) {
+            Circle circle = new Circle(cardSize() / 2);
+            HexagonContainer hexagonContainer = new HexagonContainer(hexagon, circle);
+            this.hexagonContainers.add(hexagonContainer);
+        }
 
+        //Setting up the BuildingNodeContainers
+        System.out.println("Setting up " + mapGraph.getBuildingNodeSet().size() + " BuildingNodeContainers...");
 
+        for (MapGraph.MapGraphNode mapGraphNode : mapGraph.getBuildingNodeSet()) {
+            Circle circle = new Circle(cardSize() / 6);
+            MapGraphNodeContainer mapGraphNodeContainer = new MapGraphNodeContainer(circle, mapGraphNode);
+            this.mapGraphNodeContainers.add(mapGraphNodeContainer);
+        }
 
+        //Setting up the StreetNodeContainers
+        System.out.println("Setting up " + mapGraph.getStreetNodeSet().size() + " StreetNodeContainers...");
 
+        for (MapGraph.MapGraphNode mapGraphNode : mapGraph.getStreetNodeSet()) {
+            Circle circle = new Circle(cardSize() / 8);
+            MapGraphNodeContainer mapGraphNodeContainer = new MapGraphNodeContainer(circle, mapGraphNode);
+            this.mapGraphNodeContainers.add(mapGraphNodeContainer);
+        }
 
-
-
-        /*//TODO: Alt, löschen?
-        Object[] obj = getCorrectPositionsOfFields();
-        tfArray = (TerrainField[]) obj[0];
-        streetArray = (BuildingField[]) obj[1];
-        buildArray = (BuildingField[]) obj[2];
-
-        TerrainFieldContainer[] terrainFieldContainers = gameField.getTFCs();
-        for (int i = 0; i < terrainFieldContainers.length; i++) {
-            tfArray[i].setDiceToken(terrainFieldContainers[i].getDiceTokens());
-            int fieldType = terrainFieldContainers[i].getFieldType();
-            String translatedFieldType;
-            switch (fieldType) {
-                case 0:
-                    translatedFieldType = "Ocean";
-                    break;
-                case 1:
-                    translatedFieldType = "Forest";
-                    break;
-                case 2:
-                    translatedFieldType = "Farmland";
-                    break;
-                case 3:
-                    translatedFieldType = "Grassland";
-                    break;
-                case 4:
-                    translatedFieldType = "Hillside";
-                    break;
-                case 5:
-                    translatedFieldType = "Mountain";
-                    break;
-                default:
-                    translatedFieldType = "Desert";
-                    break;
-            }
-            tfArray[i].setName(translatedFieldType);
-        }*/
         draw();
-        //gameAnchorPane.setDisable(true);
-        //.setDisable(false);
     }
 
 
