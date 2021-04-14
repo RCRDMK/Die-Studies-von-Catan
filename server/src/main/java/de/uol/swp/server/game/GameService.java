@@ -198,6 +198,8 @@ public class GameService extends AbstractService {
         Dice dice = new Dice();
         dice.rollDice();
         if (dice.getEyes() == 7) {
+            //TODO Methode zum auswählen der Rohstoffkarten und der Abgabe an die Bank
+            tooMuchCards(rollDiceRequest);
             moveRobber(dice, rollDiceRequest);
         } else {
             distributeResources(dice.getEyes(), rollDiceRequest.getName());
@@ -216,6 +218,36 @@ public class GameService extends AbstractService {
             LOG.debug("Posted ResponseChatMessage on eventBus");
         } catch (Exception e) {
             LOG.debug(e);
+        }
+    }
+
+    /**
+     * Handles the case if the user has too much cards in the inventory.
+     * <p>
+     * This method is called, when the robber is invoked. It checks for every user if there are more than seven
+     * cards in the inventory. In that case a TooMuchResourceCardsMessage is send to the specific user.
+     * The method also checks if the user has an uneven number of resources in the inventory.
+     * In the case, that the number of resources in the inventory is uneven, we round down the number of cards the user has to choose.
+     *
+     * @param rollDiceRequest
+     * @author Marius Birk
+     * @since 2021-04-14
+     */
+    public void tooMuchCards(RollDiceRequest rollDiceRequest) {
+        Optional<Game> game = gameManagement.getGame(rollDiceRequest.getName());
+
+        if (game.isPresent()) {
+            for (User user : game.get().getUsers()) {
+                if (game.get().getInventory(user).getResource() >= 7) {
+                    if (game.get().getInventory(user).getResource() % 2 != 0) {
+                        TooMuchResourceCardsMessage tooMuchResourceCardsMessage = new TooMuchResourceCardsMessage(game.get().getName(), (UserDTO) user, ((game.get().getInventory(user).getResource() - 1) / 2));
+                        sendToSpecificUserInGame(game, tooMuchResourceCardsMessage, user);
+                    } else {
+                        TooMuchResourceCardsMessage tooMuchResourceCardsMessage = new TooMuchResourceCardsMessage(game.get().getName(), (UserDTO) user, (game.get().getInventory(user).getResource() / 2));
+                        sendToSpecificUserInGame(game, tooMuchResourceCardsMessage, user);
+                    }
+                }
+            }
         }
     }
 
@@ -243,30 +275,45 @@ public class GameService extends AbstractService {
                     switch (terrainFieldContainer.getFieldType()) {
                         case 1:
                             for (User user : game.get().getUsers()) {
+                                if (user.getUsername().equals("bank")) {
+                                    game.get().getInventory(user).lumber.decNumber();
+                                }
                                 //TODO Wenn Stadt angrenzend an Field, dann gebe User Resource, Erstmal wird an jeden Resource geben.
                                 game.get().getInventory(user).lumber.incNumber();
                             }
                             break;
                         case 2:
                             for (User user : game.get().getUsers()) {
+                                if (user.getUsername().equals("bank")) {
+                                    game.get().getInventory(user).grain.decNumber();
+                                }
                                 //TODO Wenn Stadt angrenzend an Field, dann gebe User Resource, Erstmal wird an jeden Resource geben
                                 game.get().getInventory(user).grain.incNumber();
                             }
                             break;
                         case 3:
                             for (User user : game.get().getUsers()) {
+                                if (user.getUsername().equals("bank")) {
+                                    game.get().getInventory(user).wool.decNumber();
+                                }
                                 //TODO Wenn Stadt angrenzend an Field, dann gebe User Resource, Erstmal wird an jeden Resource geben
                                 game.get().getInventory(user).wool.incNumber();
                             }
                             break;
                         case 4:
                             for (User user : game.get().getUsers()) {
+                                if (user.getUsername().equals("bank")) {
+                                    game.get().getInventory(user).brick.decNumber();
+                                }
                                 //TODO Wenn Stadt angrenzend an Field, dann gebe User Resource, Erstmal wird an jeden Resource geben
                                 game.get().getInventory(user).brick.incNumber();
                             }
                             break;
                         case 5:
                             for (User user : game.get().getUsers()) {
+                                if (user.getUsername().equals("bank")) {
+                                    game.get().getInventory(user).ore.decNumber();
+                                }
                                 //TODO Wenn Stadt angrenzend an Field, dann gebe User Ressource, Erstmal wird an jeden Ressource geben
                                 game.get().getInventory(user).ore.incNumber();
                             }
@@ -279,6 +326,7 @@ public class GameService extends AbstractService {
 
         }
     }
+
     public void moveRobber(Dice dice, RollDiceRequest rollDiceRequest) {
 //TODO Vorerst wird der Räuber random versetzt, sobald möglich, wird eine grafische Versetzung implementiert
         do {
@@ -323,9 +371,9 @@ public class GameService extends AbstractService {
             for (User user : game.get().getUsers()) {
                 switch (robber.getFieldType()) {
                     case 1:
-                        game.get().getInventory(user).lumber.decNumber();
                         game.get().getInventory(rollDiceRequest.getUser()).lumber.incNumber();
                         LOG.debug(rollDiceRequest.getUser() + " increased his lumber by one.");
+                        game.get().getInventory(user).lumber.decNumber();
                         LOG.debug(user.getUsername() + "decreased his lumber by one.");
                     case 2:
                         game.get().getInventory(user).grain.decNumber();
