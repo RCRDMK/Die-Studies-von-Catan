@@ -21,7 +21,7 @@ public class DevelopmentCardDeckTest {
     @Test
     void onDrawnCardTest() {
         DevelopmentCardDeck developmentCardDeck = new DevelopmentCardDeck();
-        for (int i=0; i<25; i++) {
+        for (int i = 0; i < 25; i++) {
             String result = developmentCardDeck.drawnCard();
             assertTrue(result.equals("Victory Point") ||
                     result.equals("Knight") ||

@@ -59,16 +59,16 @@ public class GamePresenterTest {
      * @since 2021-03-05
      */
     @Test
-    void onLeaveGame(){
+    void onLeaveGame() {
         LobbyService lobbyService = new LobbyService(bus);
         CreateLobbyRequest message = new CreateLobbyRequest("testLobby", userDTO);
         lobbyService.createNewLobby("testLobby", userDTO);
         LobbyCreatedSuccessfulResponse message2 = new LobbyCreatedSuccessfulResponse(userDTO);
         lobbyService.joinLobby("testLobby", userDTO1);
         GameService gameService = new GameService(bus);
-        GameCreatedMessage gMessage = new GameCreatedMessage("Testgame",userDTO, new GameField("Standard"), new ArrayList<>());
-        GameLeaveUserRequest request = new GameLeaveUserRequest("Testgame",userDTO);
-        gameService.leaveGame("Testgame",userDTO);
+        GameCreatedMessage gMessage = new GameCreatedMessage("Testgame", userDTO, new GameField("Standard"), new ArrayList<>());
+        GameLeaveUserRequest request = new GameLeaveUserRequest("Testgame", userDTO);
+        gameService.leaveGame("Testgame", userDTO);
         assertTrue(event instanceof GameLeaveUserRequest);
     }
 }

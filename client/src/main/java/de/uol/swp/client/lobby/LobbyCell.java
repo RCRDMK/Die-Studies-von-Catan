@@ -13,6 +13,7 @@ import javafx.scene.layout.Priority;
 /**
  * Creates LobbyCells to populate the ListView fxml-element for the lobbyBrowser
  * <p>
+ *
  * @author Pieter Vogt
  * @see de.uol.swp.client.AbstractPresenter
  * @since 2019-08-29
@@ -40,7 +41,7 @@ public class LobbyCell extends ListCell<LobbyDTO> {
      * what to link the button to. The lobbyService serves as a donor for the Lobby to join into.
      *
      * @param lobbyService The lobbyService
-     * @param user The loggedIn user
+     * @param user         The loggedIn user
      * @author Pieter Vogt
      * @see de.uol.swp.client.lobby.LobbyService
      * @see de.uol.swp.client.main.MainMenuPresenter
@@ -52,7 +53,7 @@ public class LobbyCell extends ListCell<LobbyDTO> {
     public LobbyCell(LobbyService lobbyService, User user) {
         super();
 
-        hbox.getChildren().addAll(lobbyName, pane, userCount, pane1, lobbyStatus, pane2,  button);
+        hbox.getChildren().addAll(lobbyName, pane, userCount, pane1, lobbyStatus, pane2, button);
         HBox.setHgrow(pane, Priority.ALWAYS);
         HBox.setHgrow(pane1, Priority.ALWAYS);
         HBox.setHgrow(pane2, Priority.ALWAYS);

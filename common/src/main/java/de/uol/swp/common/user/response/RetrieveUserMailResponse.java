@@ -2,7 +2,6 @@ package de.uol.swp.common.user.response;
 
 import de.uol.swp.common.message.AbstractResponseMessage;
 import de.uol.swp.common.user.User;
-import de.uol.swp.common.user.request.RetrieveUserMailRequest;
 
 import java.util.Objects;
 
@@ -22,6 +21,12 @@ import java.util.Objects;
 public class RetrieveUserMailResponse extends AbstractResponseMessage {
 
     private final User toMail;
+
+    /**
+     * Constructor
+     *
+     * @param user User who gets the mail
+     */
 
     public RetrieveUserMailResponse(User user) {
         this.toMail = user;

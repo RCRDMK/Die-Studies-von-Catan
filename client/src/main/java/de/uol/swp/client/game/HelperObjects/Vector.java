@@ -44,7 +44,6 @@ public class Vector {
      *
      * @param v1 Vector
      * @param v2 Vector
-     *
      * @return Vector as addition result
      * @author Pieter Vogt
      * @since 2021-01-24
@@ -65,7 +64,6 @@ public class Vector {
      *
      * @param v1 Vector
      * @param v2 Vector
-     *
      * @return Vector as subtraction result
      * @author Pieter Vogt
      * @since 2021-01-24

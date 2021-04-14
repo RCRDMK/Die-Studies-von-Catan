@@ -15,41 +15,44 @@ import java.util.Objects;
  */
 public class UserLoggedInMessage extends AbstractServerMessage {
 
-	private static final long serialVersionUID = -2071886836547126480L;
-	private String username;
+    private static final long serialVersionUID = -2071886836547126480L;
+    private String username;
 
-	/**
-	 * Default constructor
-	 * <p>
-	 * @implNote Do not use for valid login since no username gets set
-	 * @implNote this constructor is needed for serialization
-	 * @author Marco Grawunder
-	 * @since 2017-03-17
-	 */
-	public UserLoggedInMessage(){
-	}
+    /**
+     * Default constructor
+     * <p>
+     *
+     * @implNote Do not use for valid login since no username gets set
+     * @implNote this constructor is needed for serialization
+     * @author Marco Grawunder
+     * @since 2017-03-17
+     */
+    public UserLoggedInMessage() {
+    }
 
-	/**
-	 * Constructor
-	 * <p>
-	 * @param username the username of the newly logged in user
-	 * @author Marco Grawunder
-	 * @since 2017-03-17
-	 */
-	public UserLoggedInMessage(String username){
-		this.username = username;
-	}
+    /**
+     * Constructor
+     * <p>
+     *
+     * @param username the username of the newly logged in user
+     * @author Marco Grawunder
+     * @since 2017-03-17
+     */
+    public UserLoggedInMessage(String username) {
+        this.username = username;
+    }
 
-	/**
-	 * Getter for the username
-	 *<p>
-	 * @return String containing the username
-	 * @author Marco Grawunder
-	 * @since 2017-03-17
-	 */
-	public String getUsername() {
-		return username;
-	}
+    /**
+     * Getter for the username
+     * <p>
+     *
+     * @return String containing the username
+     * @author Marco Grawunder
+     * @since 2017-03-17
+     */
+    public String getUsername() {
+        return username;
+    }
 
     @Override
     public boolean equals(Object o) {

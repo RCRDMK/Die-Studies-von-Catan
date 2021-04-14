@@ -40,9 +40,9 @@ public class UserService extends AbstractService {
     /**
      * Constructor
      *
-     * @author Marco Grawunder
      * @param eventBus       the EventBus used throughout the entire server (injected)
      * @param userManagement object of the UserManagement to use
+     * @author Marco Grawunder
      * @see de.uol.swp.server.usermanagement.UserManagement
      * @since 2019-08-05
      */
@@ -61,8 +61,8 @@ public class UserService extends AbstractService {
      * RegistrationSuccessfulResponse is posted on the EventBus otherwise a RegistrationExceptionMessage
      * gets posted there.
      *
-     * @author Marco Grawunder
      * @param msg The RegisterUserRequest found on the EventBus
+     * @author Marco Grawunder
      * @see de.uol.swp.server.usermanagement.UserManagement#createUser(User)
      * @see de.uol.swp.common.user.request.RegisterUserRequest
      * @see de.uol.swp.common.user.response.RegistrationSuccessfulResponse
@@ -128,14 +128,14 @@ public class UserService extends AbstractService {
      * RetrieveUserInformationResponse is posted on the EventBus otherwise a RetrieveUserMailExceptionMessage
      * gets posted there.
      *
-     * @author Carsten Dekker
      * @param retrieveUserMailRequest The RetrieveUserMailRequest found on the EventBus
+     * @author Carsten Dekker
      * @see de.uol.swp.common.user.request.RetrieveUserMailRequest
      * @since 2021-03-12
      */
     @Subscribe
     private void onRetrieveUserMail(RetrieveUserMailRequest retrieveUserMailRequest) {
-        if (LOG.isDebugEnabled()){
+        if (LOG.isDebugEnabled()) {
             LOG.debug("Got a new retrieveUserMail request with " + retrieveUserMailRequest.getUser());
         }
         ResponseMessage returnMessage;
@@ -160,14 +160,14 @@ public class UserService extends AbstractService {
      * UpdateUserSuccessfulResponse is posted on the EventBus otherwise a UpdateUserExceptionMessage
      * gets posted there.
      *
-     * @author Carsten Dekker
      * @param updateUserMailRequest The UpdateUserRequest found on the EventBus
+     * @author Carsten Dekker
      * @see de.uol.swp.common.user.request.UpdateUserMailRequest
      * @since 2021-03-14
      */
     @Subscribe
     private void onUpdateUserMailRequest(UpdateUserMailRequest updateUserMailRequest) {
-        if (LOG.isDebugEnabled()){
+        if (LOG.isDebugEnabled()) {
             LOG.debug("Got a new updateUserMail request with " + updateUserMailRequest.getUser());
         }
         ResponseMessage returnMessage;
@@ -193,14 +193,14 @@ public class UserService extends AbstractService {
      * UpdateUserSuccessfulResponse is posted on the EventBus otherwise a UpdateUserExceptionMessage
      * gets posted there.
      *
-     * @author Carsten Dekker
      * @param updateUserPasswordRequest The UpdateUserRequest found on the EventBus
+     * @author Carsten Dekker
      * @see de.uol.swp.common.user.request.UpdateUserPasswordRequest
      * @since 2021-03-14
      */
     @Subscribe
     private void onUpdateUserPasswordRequest(UpdateUserPasswordRequest updateUserPasswordRequest) {
-        if (LOG.isDebugEnabled()){
+        if (LOG.isDebugEnabled()) {
             LOG.debug("Got a new updateUserPassword request with " + updateUserPasswordRequest.getUser());
         }
         ResponseMessage returnMessage;

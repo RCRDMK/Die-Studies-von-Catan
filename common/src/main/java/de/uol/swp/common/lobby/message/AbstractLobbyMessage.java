@@ -9,9 +9,9 @@ import java.util.Objects;
 /**
  * Base class of all lobby messages. Basic handling of lobby data.
  *
+ * @author Marco Grawunder
  * @see de.uol.swp.common.user.User
  * @see de.uol.swp.common.message.AbstractServerMessage
- * @author Marco Grawunder
  * @since 2019-10-08
  */
 public class AbstractLobbyMessage extends AbstractServerMessage {
@@ -31,9 +31,10 @@ public class AbstractLobbyMessage extends AbstractServerMessage {
 
     /**
      * Constructor
-     *  @author Marco Grawunder
+     *
      * @param name name of the lobby
      * @param user user responsible for the creation of this message
+     * @author Marco Grawunder
      * @since 2019-10-08
      */
     public AbstractLobbyMessage(String name, UserDTO user) {
@@ -44,8 +45,8 @@ public class AbstractLobbyMessage extends AbstractServerMessage {
     /**
      * Getter for the name variable
      *
-     * @author Marco Grawunder
      * @return String containing the lobby's name
+     * @author Marco Grawunder
      * @since 2019-10-08
      */
     public String getName() {
@@ -55,8 +56,8 @@ public class AbstractLobbyMessage extends AbstractServerMessage {
     /**
      * Setter for the name variable
      *
+     * @param name String containing the lobby's name
      * @author Marco Grawunder
-     * @param name  String containing the lobby's name
      * @since 2019-10-08
      */
     public void setName(String name) {
@@ -66,18 +67,20 @@ public class AbstractLobbyMessage extends AbstractServerMessage {
     /**
      * Getter for the user variable
      *
-     * @author Marco Grawunder
      * @return User responsible for the creation of this message
+     * @author Marco Grawunder
+     * @author Marco Grawunder
      * @since 2019-10-08
      */
     public User getUser() {
         return user;
     }
+
     /**
      * Setter for the user variable
      *
+     * @param user User responsible for the creation of this message
      * @author Marco Grawunder
-     * @param user  User responsible for the creation of this message
      * @since 2019-10-08
      */
     public void setUser(UserDTO user) {
