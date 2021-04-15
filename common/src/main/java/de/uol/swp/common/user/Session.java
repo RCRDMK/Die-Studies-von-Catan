@@ -2,7 +2,7 @@ package de.uol.swp.common.user;
 
 /**
  * Interface for different kinds of user objects.
- *
+ * <p>
  * This interface is for unifying different kinds of user objects throughout the
  * project. With this being the base project it is currently only used for the UUIDSession
  * objects within the server.
@@ -17,6 +17,7 @@ public interface Session {
      *
      * @author Marco Grawunder
      * @return ID of the session as String
+     * @author Marco Grawunder
      * @since 2019-08-05
      */
     String getSessionId();
@@ -26,6 +27,7 @@ public interface Session {
      *
      * @author Marco Grawunder
      * @return the user of the session as object implementing user
+     * @author Marco Grawunder
      * @see de.uol.swp.common.user.User
      * @since 2019-08-13
      */

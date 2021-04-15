@@ -28,11 +28,12 @@ public class AllOnlineUsersResponse extends AbstractResponseMessage {
     /**
      * Default Constructor
      * <p>
+     *
      * @implNote this constructor is needed for serialization
      * @author Marco Grawunder
      * @since 2019-08-13
      */
-    public AllOnlineUsersResponse(){
+    public AllOnlineUsersResponse() {
         // needed for serialization
     }
 
@@ -57,6 +58,7 @@ public class AllOnlineUsersResponse extends AbstractResponseMessage {
     /**
      * Getter for the list of users currently logged in
      * <p>
+     *
      * @return list of users currently logged in
      * @author Marco Grawunder
      * @since 2019-08-13

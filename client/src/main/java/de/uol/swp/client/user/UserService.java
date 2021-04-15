@@ -2,10 +2,10 @@ package de.uol.swp.client.user;
 
 import com.google.common.eventbus.EventBus;
 import com.google.inject.Inject;
-import de.uol.swp.client.ClientApp;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.user.request.*;
+import org.apache.commons.codec.binary.Hex;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -16,8 +16,6 @@ import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Timer;
 import java.util.TimerTask;
-
-import org.apache.commons.codec.binary.Hex;
 
 /**
  * This class is used to hide the communication details
@@ -39,6 +37,7 @@ public class UserService implements ClientUserService {
      *
      * @author Marco Grawunder
      * @param bus The  EventBus set in ClientModule
+     * @author Marco Grawunder
      * @see de.uol.swp.client.di.ClientModule
      * @since 2017-03-17
      */
@@ -55,6 +54,7 @@ public class UserService implements ClientUserService {
      * @author Marco Grawunder
      * @param username the name of the user
      * @param password the password of the user
+     * @author Marco Grawunder
      * @since 2017-03-17
      */
     @Override
@@ -64,12 +64,24 @@ public class UserService implements ClientUserService {
         bus.post(msg);
     }
 
+    /**
+     * Posts a logout request to the EventBus
+     *
+     * @param username the name of the user
+     */
 
     @Override
     public void logout(User username) {
         LogoutRequest msg = new LogoutRequest();
         bus.post(msg);
     }
+
+    /**
+     * Posts a create user request to the EventBus
+     *
+     * @param user the name of the user
+     */
+
 
     @Override
     public void createUser(User user) throws InvalidKeySpecException, NoSuchAlgorithmException {

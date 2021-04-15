@@ -134,6 +134,13 @@ public class LobbyPresenter extends AbstractPresenter {
         notEnoughPlayersLabel.setVisible(false);
     }
 
+    /**
+     * Method called when the LeaveLobby button is pressed
+     *
+     * @param event The ActionEvent created by pressing the LeaveLobby button
+     * @see de.uol.swp.client.lobby.LobbyService
+     */
+
     @FXML
     public void onLeaveLobby(ActionEvent event) {
         if (this.currentLobby != null && this.joinedLobbyUser != null) {
@@ -760,6 +767,5 @@ public class LobbyPresenter extends AbstractPresenter {
             }
         }
     }
-
 }
 

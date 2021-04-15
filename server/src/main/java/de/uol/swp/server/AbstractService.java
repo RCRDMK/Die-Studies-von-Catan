@@ -26,6 +26,7 @@ public class AbstractService {
      *
      * @author Marco Grawunder
      * @param bus the EvenBus used throughout the server
+     * @author Marco Grawunder
      * @since 2019-10-08
      */
     public AbstractService(EventBus bus) {
@@ -38,6 +39,7 @@ public class AbstractService {
      *
      * @author Marco Grawunder
      * @param message the message to post
+     * @author Marco Grawunder
      * @see de.uol.swp.common.message.Message
      * @since 2019-10-08
      */
@@ -51,6 +53,7 @@ public class AbstractService {
      *
      * @author Marco Grawunder
      * @param message the message to be send to every user
+     * @author Marco Grawunder
      * @see de.uol.swp.common.message.ServerMessage
      * @since 2019-10-08
      */

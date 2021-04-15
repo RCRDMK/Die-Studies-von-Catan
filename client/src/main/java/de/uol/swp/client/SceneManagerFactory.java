@@ -17,6 +17,7 @@ public interface SceneManagerFactory {
      * @author Marco Grawunder
      * @param primaryStage The primary stage used by the javafx application
      * @return The SceneManger used inside the client
+     * @author Marco Grawunder
      * @see de.uol.swp.client.SceneManager
      * @since 2019-09-19
      */

@@ -2,7 +2,6 @@ package de.uol.swp.server.di;
 
 import com.google.common.eventbus.EventBus;
 import com.google.inject.AbstractModule;
-import de.uol.swp.server.usermanagement.store.UserStore;
 
 /**
  * Module that provides classes needed by the Server.

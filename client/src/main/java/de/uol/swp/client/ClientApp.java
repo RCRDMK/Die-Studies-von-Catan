@@ -333,8 +333,8 @@ public class ClientApp extends Application implements ConnectionListener {
      * If the loglevel is set to DEBUG or higher "Registration error " and the
      * error message are written to the log.
      *
-     * @author Marco Grawunder
      * @param message The RegistrationExceptionMessage object detected on the EventBus
+     * @author Marco Grawunder
      * @see de.uol.swp.client.SceneManager
      * @since 2019-09-02
      */
@@ -371,8 +371,8 @@ public class ClientApp extends Application implements ConnectionListener {
      * the loglevel is set to INFO or higher "Registration Successful." is written
      * to the log.
      *
-     * @author Marco Grawunder
      * @param message The RegistrationSuccessfulResponse object detected on the EventBus
+     * @author Marco Grawunder
      * @see de.uol.swp.client.SceneManager
      * @since 2019-09-02
      */
@@ -421,8 +421,8 @@ public class ClientApp extends Application implements ConnectionListener {
      * It writes "DeadEvent detected " and the error message of the detected DeadEvent
      * object to the log, if the loglevel is set to ERROR or higher.
      *
-     * @author Marco Grawunder
      * @param deadEvent The DeadEvent object found on the EventBus
+     * @author Marco Grawunder
      * @since 2019-08-07
      */
     @Subscribe
@@ -456,8 +456,8 @@ public class ClientApp extends Application implements ConnectionListener {
     /**
      * Default startup method for javafx applications
      *
-     * @author Marco Grawunder
      * @param args Any arguments given when starting the application
+     * @author Marco Grawunder
      * @since 2017-03-17
      */
     public static void main(String[] args) {

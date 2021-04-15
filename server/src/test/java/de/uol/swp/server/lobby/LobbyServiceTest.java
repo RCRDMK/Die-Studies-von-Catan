@@ -19,8 +19,6 @@ import de.uol.swp.common.user.response.lobby.LobbyFullResponse;
 import de.uol.swp.common.user.response.lobby.JoinDeletedLobbyResponse;
 import de.uol.swp.server.usermanagement.AuthenticationService;
 import de.uol.swp.server.usermanagement.UserManagement;
-import de.uol.swp.server.usermanagement.store.MainMemoryBasedUserStore;
-import de.uol.swp.server.usermanagement.store.UserStore;
 import org.junit.jupiter.api.*;
 
 import java.sql.SQLException;
@@ -40,7 +38,8 @@ import static org.junit.jupiter.api.Assertions.*;
 public class LobbyServiceTest {
     final EventBus bus = new EventBus();
     LobbyManagement lobbyManagement = new LobbyManagement();
-    LobbyService lobbyService = new LobbyService(lobbyManagement, new AuthenticationService(bus, new UserManagement()), bus);
+    LobbyService lobbyService = new LobbyService(lobbyManagement, new AuthenticationService(bus, new UserManagement()),
+            bus);
     final UserManagement userManagement = new UserManagement();
     final AuthenticationService authenticationService = new AuthenticationService(bus, userManagement);
 
@@ -60,6 +59,7 @@ public class LobbyServiceTest {
      * to its event and its event is printed to the console output.
      *
      * @param e The DeadEvent detected on the EventBus
+     * @author Marco Grawunder
      * @since 2019-10-10
      */
     @Subscribe
@@ -75,6 +75,7 @@ public class LobbyServiceTest {
      * This method resets the variable event to null and registers the object of
      * this class to the EventBus.
      *
+     * @author Marco Grawunder
      * @since 2019-10-10
      */
     @BeforeEach
@@ -88,6 +89,7 @@ public class LobbyServiceTest {
      * <p>
      * This method only unregisters the object of this class from the EventBus.
      *
+     * @author Marco Grawunder
      * @since 2019-10-10
      */
     @AfterEach
@@ -99,8 +101,8 @@ public class LobbyServiceTest {
      * This test shows that two Lobbies with same name can't be created.
      * There are two different users, who wants to create a lobby, but with the same name.
      *
-     * @since 2020-12-02
      * @author Marius Birk, Carsten Dekker
+     * @since 2020-12-02
      */
     @Test
     @DisplayName("Zwei Lobbies, gleicher Name")
@@ -116,8 +118,9 @@ public class LobbyServiceTest {
         /** We except the first assertNotNull to be true.*/
         assertNotNull(lobbyManagement.getLobby(lobbyName).get());
 
-        /** We expect the next line to success. We try to create a new lobby with the same name as the first one. But we dont want a new lobby, so it throws an exception. */
-        Assertions.assertThrows(IllegalArgumentException.class, ()->lobbyManagement.createLobby(lobbyName, userDTO1));
+        /** We expect the next line to success. We try to create a new lobby with the same name as the first one.
+         * But we dont want a new lobby, so it throws an exception. */
+        Assertions.assertThrows(IllegalArgumentException.class, () -> lobbyManagement.createLobby(lobbyName, userDTO1));
     }
 
     /**
@@ -206,12 +209,12 @@ public class LobbyServiceTest {
         MessageContext ctx = new MessageContext() {
             @Override
             public void writeAndFlush(ResponseMessage message) {
-            bus.post(message);
+                bus.post(message);
             }
 
             @Override
             public void writeAndFlush(ServerMessage message) {
-            bus.post(message);
+                bus.post(message);
             }
         };
 
@@ -227,7 +230,6 @@ public class LobbyServiceTest {
 
     /**
      * This test checks if a User want´s join a deleted lobby.
-     *
      *
      * @author Sergej
      */
@@ -257,13 +259,13 @@ public class LobbyServiceTest {
 
     /**
      * This test checks if lobbies can be created with a certain name and
-     *
+     * <p>
      * whether a lobby that is referenced by the RetrieveAllThisLobbyUsersRequest
-     *
+     * <p>
      * is also the same as the lobby itself.
-     *
+     * <p>
      * The lobby that was created by the User userDTO is also joined by userDTO1 and it is checked whether the
-     *
+     * <p>
      * lobby has references to the session of the users that joined the lobby.
      *
      * @author Marc Hermes
@@ -275,14 +277,16 @@ public class LobbyServiceTest {
 
         LobbyService lobbyService = new LobbyService(lobbyManagement, authenticationService, bus);
         lobbyManagement.createLobby("testLobby", userDTO);
-        RetrieveAllThisLobbyUsersRequest retrieveAllThisLobbyUsersRequest = new RetrieveAllThisLobbyUsersRequest("testLobby");
+        RetrieveAllThisLobbyUsersRequest retrieveAllThisLobbyUsersRequest = new RetrieveAllThisLobbyUsersRequest(
+                "testLobby");
         Optional<Lobby> lobby = lobbyManagement.getLobby("testLobby");
-        assertSame(lobbyManagement.getLobby("testLobby").get().getName(), retrieveAllThisLobbyUsersRequest.getName());
+        assertSame(lobbyManagement.getLobby("testLobby").get().getName(),
+                retrieveAllThisLobbyUsersRequest.getName());
         assertTrue(lobby.isPresent());
         lobby.get().joinUser(userDTO1);
         List<Session> lobbyUsers = authenticationService.getSessions(lobby.get().getUsers());
-        for(Session session :lobbyUsers) {
-            assertTrue(userDTO==(session.getUser()) || userDTO1==(session.getUser()));
+        for (Session session : lobbyUsers) {
+            assertTrue(userDTO == (session.getUser()) || userDTO1 == (session.getUser()));
         }
 
     }
