@@ -68,6 +68,8 @@ public class GamePresenter extends AbstractPresenter {
 
     private Button btnOkay;
 
+    private TradePopUp popup;
+
     private ObservableList<String> gameUsers;
 
     //Container for TerrainFields
@@ -204,23 +206,24 @@ public class GamePresenter extends AbstractPresenter {
         }
     }
 
+    /**
+     * This method is called when the Trade button is pressed
+     * <p>
+     *  When the user presses the trade button a popup window appears. Within it the user can select which ressources
+     *  he wants to trade and which amount of it. With a click on the Start a Trade button the startTrade method from the
+     *  Gameservice on the client side gets called.
+     *
+     * @author Alexander Losse, Ricardo Mook
+     * @since 2021-04-07
+     */
     @FXML
     public void onTrade(ActionEvent event) {
-        TextField textField = new TextField();
-        textField.setPromptText("How much?");
-        String choice[] = {"What do you want to trade?", "Lumber", "Brick", "Grain", "Wool", "Ore"};
-        ChoiceBox choiceBox = new ChoiceBox(FXCollections.observableArrayList(choice));
-        choiceBox.setValue("What do you want to trade?");
-        Button trade = new Button("Start a Trade");
+        popup.sellerTradePopup(joinedLobbyUser, currentLobby);
+    }
 
-        int amount = Integer.parseInt(textField.getText());
-        String whatRessource = (String) choiceBox.getValue();
-        trade.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                gameService.startTrade((UserDTO) joinedLobbyUser,currentLobby, whatRessource, amount);
-            }
-        });
+    @Subscribe
+    public void onTradeRegistered(TradeOfferInformBiddersMessage toibm){
+        popup.bidderTradePopup(joinedLobbyUser, currentLobby);
     }
 
     @FXML
