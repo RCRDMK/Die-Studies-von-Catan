@@ -19,6 +19,7 @@ public class ServerExceptionMessage extends AbstractServerInternalMessage {
      *
      * @author Marco Grawunder
      * @param e the Exception that is the reason for the creation of this
+     * @author Marco Grawunder
      * @since 2019-08-07
      */
     public ServerExceptionMessage(Exception e) {
@@ -31,6 +32,7 @@ public class ServerExceptionMessage extends AbstractServerInternalMessage {
      *
      * @author Marco Grawunder
      * @return Exception passed in the constructor
+     * @author Marco Grawunder
      * @since 2019-08-07
      */
     public Exception getException() {

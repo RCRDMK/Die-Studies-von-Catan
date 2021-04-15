@@ -32,6 +32,7 @@ public class AbstractGameRequest extends AbstractRequestMessage {
      *
      * @param name name of the game
      * @param user user responsible for the creation of this message
+     * @author Marco Grawunder
      * @since 2019-10-08
      */
     public AbstractGameRequest(String name, UserDTO user) {
@@ -83,7 +84,8 @@ public class AbstractGameRequest extends AbstractRequestMessage {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        de.uol.swp.common.game.request.AbstractGameRequest that = (de.uol.swp.common.game.request.AbstractGameRequest) o;
+        de.uol.swp.common.game.request.AbstractGameRequest that =
+                (de.uol.swp.common.game.request.AbstractGameRequest) o;
         return Objects.equals(name, that.name) &&
                 Objects.equals(user, that.user);
     }

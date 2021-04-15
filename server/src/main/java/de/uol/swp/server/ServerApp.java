@@ -2,8 +2,6 @@ package de.uol.swp.server;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import de.uol.swp.common.game.cards.GameCards;
-import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.server.chat.ChatService;
 import de.uol.swp.server.communication.ServerHandler;
 import de.uol.swp.server.communication.netty.NettyServerHandler;
@@ -12,13 +10,10 @@ import de.uol.swp.server.di.ServerModule;
 import de.uol.swp.server.game.GameService;
 import de.uol.swp.server.lobby.LobbyService;
 import de.uol.swp.server.usermanagement.AuthenticationService;
-import de.uol.swp.server.usermanagement.UserManagement;
 import de.uol.swp.server.usermanagement.UserService;
 import io.netty.channel.ChannelHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import java.sql.SQLException;
 
 /**
  * This class handles the startup of the server, as well as, the creation of default
@@ -71,8 +66,8 @@ class ServerApp {
      * Helper method to create the services the server uses and for the time being
      * the test users
      *
-     * @author Marco Grawunder
      * @param injector the google guice injector used for dependency injection
+     * @author Marco Grawunder
      * @since 2019-09-18
      */
     private static void createServices(Injector injector) {

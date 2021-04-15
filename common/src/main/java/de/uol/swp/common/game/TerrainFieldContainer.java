@@ -17,9 +17,9 @@ public class TerrainFieldContainer implements Serializable {
     /**
      * Constructor
      *
-     * @author Pieter Vogt, Marc Hermes
-     * @param fieldType the int value representing a certain fieldType
+     * @param fieldType  the int value representing a certain fieldType
      * @param diceTokens the int value representing the amount of diceTokens on this TerrainField
+     * @author Pieter Vogt, Marc Hermes
      * @since 2021-03-13
      */
     public TerrainFieldContainer(int fieldType, int diceTokens) {
@@ -30,8 +30,8 @@ public class TerrainFieldContainer implements Serializable {
     /**
      * Getter for the fieldType variable
      *
-     * @author Pieter Vogt, Marc Hermes
      * @return int value representation of the fieldType
+     * @author Pieter Vogt, Marc Hermes
      * @since 2021-03-13
      */
     public int getFieldType() {
@@ -41,8 +41,8 @@ public class TerrainFieldContainer implements Serializable {
     /**
      * Setter for the fieldType variable
      *
-     * @author Pieter Vogt, Marc Hermes
      * @param fieldType value of the new fieldType
+     * @author Pieter Vogt, Marc Hermes
      * @since 2021-03-13
      */
     public void setFieldType(int fieldType) {
@@ -52,8 +52,8 @@ public class TerrainFieldContainer implements Serializable {
     /**
      * Getter for the diceTokens variable
      *
-     * @author Pieter Vogt, Marc Hermes
      * @return int value of the amount of diceTokens
+     * @author Pieter Vogt, Marc Hermes
      * @since 2021-03-13
      */
     public int getDiceTokens() {
@@ -63,8 +63,8 @@ public class TerrainFieldContainer implements Serializable {
     /**
      * Setter for the diceTokens variable
      *
-     * @author Pieter Vogt, Marc Hermes
      * @param diceTokens value of the new diceTokens
+     * @author Pieter Vogt, Marc Hermes
      * @since 2021-03-13
      */
     public void setDiceTokens(int diceTokens) {

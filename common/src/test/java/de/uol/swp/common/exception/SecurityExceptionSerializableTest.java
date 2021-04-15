@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 public class SecurityExceptionSerializableTest {
 
     @Test
-    void testSecurityExceptionSerializable(){
+    void testSecurityExceptionSerializable() {
         assertFalse(SerializationTestHelper.checkSerializableAndDeserializable(new SecurityException("test"),
                 SecurityException.class));
 

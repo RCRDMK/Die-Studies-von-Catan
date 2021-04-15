@@ -18,10 +18,10 @@ public interface UserStore {
     /**
      * Find a user by username and password
      *
-     * @author Marco Grawunder
      * @param username username of the user to find
      * @param password password of the user to find
      * @return The User without password information, if found
+     * @author Marco Grawunder
      * @since 2019-08-13
      */
     Optional<User> findUser(String username, String password) throws SQLException;
@@ -29,9 +29,9 @@ public interface UserStore {
     /**
      * Find a user only by name
      *
-     * @author Marco Grawunder
      * @param username username of the user to find
      * @return The User without password information, if found
+     * @author Marco Grawunder
      * @since 2019-08-13
      */
     Optional<User> findUser(String username) throws SQLException;
@@ -39,11 +39,11 @@ public interface UserStore {
     /**
      * Create a new user
      *
-     * @author Marco Grawunder
      * @param username username of the new user
      * @param password password the user wants to use
-     * @param eMail email address of the new user
+     * @param eMail    email address of the new user
      * @return The User without password information
+     * @author Marco Grawunder
      * @since 2019-08-13
      */
     User createUser(String username, String password, String eMail) throws SQLException;
@@ -51,11 +51,11 @@ public interface UserStore {
     /**
      * Update user. Update only given fields. Username cannot be changed
      *
-     * @author Marco Grawunder
      * @param username username of the user to be modified
      * @param password new password
-     * @param eMail new email address
+     * @param eMail    new email address
      * @return The User without password information
+     * @author Marco Grawunder
      * @since 2019-08-13
      */
     User updateUser(String username, String password, String eMail) throws SQLException;
@@ -63,8 +63,8 @@ public interface UserStore {
     /**
      * Remove user from store
      *
-     * @author Marco Grawunder
      * @param username the username of the user to remove
+     * @author Marco Grawunder
      * @since 2019-10-10
      */
     void removeUser(String username) throws SQLException;
@@ -73,8 +73,8 @@ public interface UserStore {
     /**
      * Retrieves the list of all users.
      *
-     * @author Marco Grawunder
      * @return A list of all users without password information
+     * @author Marco Grawunder
      * @since 2019-08-13
      */
     List<User> getAllUsers() throws SQLException;

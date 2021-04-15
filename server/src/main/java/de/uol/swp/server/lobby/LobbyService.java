@@ -45,10 +45,10 @@ public class LobbyService extends AbstractService {
      * Constructor
      * <p>
      *
-     * @author Marco Grawunder
      * @param lobbyManagement       The management class for creating, storing and deleting lobbies
      * @param authenticationService the user management
      * @param eventBus              the server-wide EventBus
+     * @author Marco Grawunder
      * @since 2019-10-08
      */
     @Inject
@@ -157,7 +157,7 @@ public class LobbyService extends AbstractService {
      * UserLeftLobbyMessage to every user in the lobby.
      * <p>
      * If a lobby was deleted, this methode will return a JoinDeletedLobbyResponse to the user who requested to join the lobby
-     *
+     * <p>
      * enhanced by Marc Hermes 2021-03-25
      *
      * @param lobbyLeaveUserRequest The LobbyJoinUserRequest found on the EventBus

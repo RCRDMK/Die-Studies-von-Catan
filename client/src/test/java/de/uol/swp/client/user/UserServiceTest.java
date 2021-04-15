@@ -6,13 +6,9 @@ import com.google.common.eventbus.Subscribe;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.user.request.*;
-import de.uol.swp.common.user.response.DropUserSuccessfulResponse;
-import org.checkerframework.checker.fenum.qual.AwtAlphaCompositingRule;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.opentest4j.AssertionFailedError;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
@@ -27,7 +23,6 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Marco Grawunder
  * @see de.uol.swp.client.user.UserService
  * @since 2019-10-10
- *
  */
 @SuppressWarnings("UnstableApiUsage")
 class UserServiceTest {
@@ -40,11 +35,12 @@ class UserServiceTest {
 
     /**
      * Handles DeadEvents detected on the EventBus
-     *
+     * <p>
      * If a DeadEvent is detected the event variable of this class gets updated
      * to its event and its event is printed to the console output.
      *
      * @param e The DeadEvent detected on the EventBus
+     * @author Marco Grawunder
      * @since 2019-10-10
      */
     @Subscribe
@@ -56,10 +52,11 @@ class UserServiceTest {
 
     /**
      * Helper method run before each test case
-     *
+     * <p>
      * This method resets the variable event to null and registers the object of
      * this class to the EventBus.
      *
+     * @author Marco Grawunder
      * @since 2019-10-10
      */
     @BeforeEach
@@ -70,9 +67,10 @@ class UserServiceTest {
 
     /**
      * Helper method run after each test case
-     *
+     * <p>
      * This method only unregisters the object of this class from the EventBus.
      *
+     * @author Marco Grawunder
      * @since 2019-10-10
      */
     @AfterEach
@@ -82,11 +80,12 @@ class UserServiceTest {
 
     /**
      * Subroutine used for tests that need a logged in user
-     *
+     * <p>
      * This subroutine creates a new UserService object registered to the EventBus
      * of this test class and class the objects login method for the default user.
      *
      * @throws InterruptedException thrown by lock.await()
+     * @author Marco Grawunder
      * @since 2019-10-10
      */
     private void loginUser() throws InterruptedException, InvalidKeySpecException, NoSuchAlgorithmException {
@@ -97,13 +96,14 @@ class UserServiceTest {
 
     /**
      * Test for the login method
-     *
+     * <p>
      * This test first calls the loginUser subroutine. Afterwards it checks if a
      * LoginRequest object got posted to the EventBus and if its content is the
      * default users information.
      * The test fails if any of the checks fail.
      *
      * @throws InterruptedException thrown by loginUser()
+     * @author Marco Grawunder
      * @since 2019-10-10
      */
     @Test
@@ -120,7 +120,7 @@ class UserServiceTest {
 
     /**
      * Test for the logout method
-     *
+     * <p>
      * This test first calls the loginUser subroutine. Afterwards it creates a new
      * UserService object registered to the EventBus of this test class. It then
      * calls the logout function of the object using the defaultUser as parameter
@@ -130,6 +130,7 @@ class UserServiceTest {
      * says that no authorization is needed
      *
      * @throws InterruptedException thrown by loginUser() and lock.await()
+     * @author Marco Grawunder
      * @since 2019-10-10
      */
     @Test
@@ -151,7 +152,7 @@ class UserServiceTest {
 
     /**
      * Test for the createUser routine
-     *
+     * <p>
      * This Test creates a new UserService object registered to the EventBus of
      * this test class. It then calls the createUser function of the object using
      * the defaultUser as parameter and waits for it to post an updateUserRequest
@@ -162,6 +163,7 @@ class UserServiceTest {
      * If any of these checks fail or the method takes to long, this test is unsuccessful.
      *
      * @throws InterruptedException thrown by lock.await()
+     * @author Marco Grawunder
      * @since 2019-10-10
      */
     @Test
@@ -184,7 +186,7 @@ class UserServiceTest {
 
     /**
      * Test for the updateUser routine
-     *
+     * <p>
      * This Test creates a new UserService object registered to the EventBus of
      * this test class. It then calls the updateUser function of the object using
      * the defaultUser as parameter and waits for it to post an updateUserRequest
@@ -195,6 +197,7 @@ class UserServiceTest {
      * If any of these checks fail or the method takes to long, this test is unsuccessful.
      *
      * @throws InterruptedException thrown by lock.await()
+     * @author Marco Grawunder
      * @since 2019-10-10
 
     @Test
@@ -216,18 +219,18 @@ class UserServiceTest {
     */
     /**
      * Test for the dropUser routine
-     *
+     * <p>
      * This test case has to be implemented after the respective dropUser method
      * has been implemented
      *
+     * @author Marco Grawunder
      * @since 2019-10-10
-     *
+     * <p>
      * Enhanced the test method
-     *
+     * <p>
      * This test method creates an instance of userService and uses the dropUser method.
      * We expect an event instanceof DropUserRequest. There is also an event instanceof
      * LogoutRequest.
-     *
      * @author Marius Birk und Carsten Dekker
      * @since 2020-12-15
      */
@@ -245,13 +248,14 @@ class UserServiceTest {
 
     /**
      * Test for the retrieveAllUsers routine
-     *
+     * <p>
      * This Test creates a new UserService object registered to the EventBus of
      * this test class. It then calls the retrieveAllUsers function of the object
      * and waits for it to post a retrieveAllUsersRequest object on the EventBus.
      * If this happens within one second, the test is successful.
      *
      * @throws InterruptedException thrown by lock.await()
+     * @author Marco Grawunder
      * @since 2019-10-10
      */
     @Test
@@ -268,13 +272,15 @@ class UserServiceTest {
     void convertStringToHashTest() throws InvalidKeySpecException, NoSuchAlgorithmException {
         UserService userService = new UserService(bus);
 
-        assertEquals(userService.convertStringToHash("test"), userService.convertStringToHash(defaultUser.getPassword()));
+        assertEquals(userService.convertStringToHash("test"),
+                userService.convertStringToHash(defaultUser.getPassword()));
     }
 
     @Test
     void failedConvertStringToHashTest() throws InvalidKeySpecException, NoSuchAlgorithmException {
         UserService userService = new UserService(bus);
 
-        assertNotEquals(userService.convertStringToHash("Test"), userService.convertStringToHash(defaultUser.getPassword()));
+        assertNotEquals(userService.convertStringToHash("Test"),
+                userService.convertStringToHash(defaultUser.getPassword()));
     }
 }
