@@ -13,6 +13,8 @@ import de.uol.swp.common.game.request.*;
 import de.uol.swp.common.game.response.AllCreatedGamesResponse;
 import de.uol.swp.common.game.response.GameAlreadyExistsResponse;
 import de.uol.swp.common.game.response.NotLobbyOwnerResponse;
+import de.uol.swp.common.game.trade.Trade;
+import de.uol.swp.common.game.trade.TradeItem;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.message.StartGameMessage;
 import de.uol.swp.common.lobby.request.StartGameRequest;
@@ -520,37 +522,120 @@ public class GameService extends AbstractService {
     }
 
 
+    /**
+     * either initiates a new trade or adds a bid to an existing trade
+     *
+     * the method checks if the user has enough items in his inventory
+     *  if check not successful the methods sends an error message to the user
+     *  if successful the method checks if the String tradeCode already exists
+     *  if the tradeCode does not exists, the methods initiates a new trade. The user who send the TradeItemRequest becomes the seller
+     *      the method sends TradeOfferInformBiddersMessage to the other users in the game, informing about them new trade
+     *  if the tradeCOde does exists, the method adds a new bidder to the specified trade
+     *      if all users, who are not the seller) have send their bid, the method informs the seller about the the offers(TradeInformSellerAboutBidsMessage)
+     *
+     *
+     * @see TradeItem
+     * @see Trade
+     * @see TradeItemRequest
+     * @see TradeOfferInformBiddersMessage
+     * @see TradeInformSellerAboutBidsMessage
+     *
+     * @param request TradeItemRequest
+     *
+     * @author Alexander Losse, Ricardo Mook
+     * @since 2021-04-11
+     *
+     */
     @Subscribe
-    public void onTradeOfferStartRequest(TradeOfferStartRequest request){
+    public void onTradeItemRequest(TradeItemRequest request) {
         Optional<Game> game = gameManagement.getGame(request.getName());
         if (game.isPresent()) {
-            Inventory inventory = game.get().getInventory(request.getUser());
-            if ((int)inventory.getPrivateView().get(request.getItem()) >= request.getItemCount()) {
-                //to find the trade later
-                String tradeCode = request.getUser() + request.getItem() + request.getItemCount();
-                game.get().addTrades(new Trade(request.getUser(), request.getItem(), request.getItemCount()), tradeCode);
-                //TODO: response bidders will be informed about offer
-                for (User user: game.get().getUsers()) {
-                    if(request.equals(user.getUsername()) == false){
-                        TradeOfferInformBiddersMessage tradeOfferInformBiddersMessage = new TradeOfferInformBiddersMessage(request.getUser(), request.getName(), tradeCode, request.getItem(), request.getItemCount());
-                        sendToSpecificUserInGame(game, tradeOfferInformBiddersMessage, user);
+            boolean numberOfCardsCorrect = true;
+            //check enough Items
+            for (TradeItem tradeItem : request.getTradeItems()) {
+                boolean notEnoughInInventoryCheck = tradeItem.getCount() > (int) game.get().getInventory(request.getUser()).getPrivateView().get(tradeItem.getName());
+                if (tradeItem.getCount() < 1 || notEnoughInInventoryCheck == true) {
+                    numberOfCardsCorrect = false;
+                    break;
+                }
+            }
+            if (numberOfCardsCorrect == true) {
+                String tradeCode = request.getTradeCode();
+
+                //add new Trade if tradeCode not yet in use
+                if (!game.get().getTradeList().containsKey(tradeCode)) {
+                    game.get().addTrades(new Trade(request.getUser(), request.getTradeItems()), tradeCode);
+                    for (User user : game.get().getUsers()) {
+                        if (!request.getUser().equals(user)) {
+                            TradeOfferInformBiddersMessage tradeOfferInformBiddersMessage = new TradeOfferInformBiddersMessage(request.getUser(), request.getName(), tradeCode, request.getTradeItems());
+                            sendToSpecificUserInGame(game, tradeOfferInformBiddersMessage, user);
+                        }
+                    }
+                }
+                //add bid to existing trade
+                else {
+                    //TODO: response bid was delivered
+                    Trade trade = game.get().getTradeList().get(request.getTradeCode());
+                    trade.addBid(request.getUser(), request.getTradeItems());
+                    //If all users have send a bid/empty bid, inform the seller about the bids
+                    if (trade.getBids().size() == game.get().getUsers().size() - 1) {
+                        TradeInformSellerAboutBidsMessage tisabm = new TradeInformSellerAboutBidsMessage(trade.getSeller(), request.getName(), tradeCode, trade.getBidders(), trade.getBids());
+                        sendToSpecificUserInGame(game, tisabm, trade.getSeller());
                     }
                 }
 
-            } //TODO: response not enough cards inventory
+            } else {
+                //TODO: Send Error if trade<0 or not enough items in inventory, GamePresenter has to subscribe for it
+              TradeCardErrorMessage tcem = new TradeCardErrorMessage();
+              sendToSpecificUserInGame(game, tcem, request.getUser());
+            }
         }
     }
 
+    /**
+     * finalises the trade
+     *
+     * the method creates TradeSuccessfulMessage
+     * if a bid was accepted by the seller, the method trades the items and adds the chosen bidder to the TradeSuccessfulMessage
+     * if the bids were rejected, changes nothing at the TradeSuccessfulMessage
+     * the TradeSuccessfulMessage is send
+     * the specified trade is removed from the game
+     *
+     *
+     * @param request TradeChoiceRequest containing the choice the seller made
+     * @author Alexander Losse, Ricardo Mook
+     * @since 2021-04-13
+     */
     @Subscribe
-    public void onTradeBidRequest(TradeBidRequest request){
+    public void onTradeChoiceRequest(TradeChoiceRequest request) {
         Optional<Game> game = gameManagement.getGame(request.getName());
         if (game.isPresent()) {
-            Inventory inventory = game.get().getInventory(request.getUser());
-            if ((int)inventory.getPrivateView().get(request.getItem()) >= request.getItemCount()) {
-                //TODO: response bid was delivered
-                game.get().getTradeList().get(request.getTradeCode()).addBid(request.getUser(), request.getItem(), request.getItemCount());
-                //TODO: if bidders = 3 inform Seller about bids
+            Trade trade = game.get().getTradeList().get(request.getTradeCode());
+            ArrayList<TradeItem> soldItems = trade.getSellingItems();
+
+            TradeSuccessfulMessage tsm = new TradeSuccessfulMessage(trade.getSeller(), request.getName(), soldItems);
+
+            if (request.getTradeAccepted() == true) {
+                Inventory inventorySeller = game.get().getInventory(trade.getSeller());
+                Inventory inventoryBidder = game.get().getInventory(request.getUser());
+
+                for (TradeItem soldItem : trade.getSellingItems()) {
+                    //inventorySeller remove sold Item
+                    inventorySeller.decCard(soldItem.getName(), soldItem.getCount());
+                    // inventoryBidder add sold Item
+                    inventoryBidder.incCard(soldItem.getName(), soldItem.getCount());
+                }
+                for (TradeItem bidItem : trade.getBids().get(request.getUser())) {
+                    //inventorySeller add bid Item
+                    inventorySeller.incCard(bidItem.getName(), bidItem.getCount());
+                    //inventoryBidder remove bid Item
+                    inventoryBidder.decCard(bidItem.getName(), bidItem.getCount());
+                }
+                tsm.addSuccessfulBidder(request.getUser(), trade.getBids().get(request.getUser()));
             }
+
+            sendToAllInGame(request.getName(), tsm);
+            game.get().removeTrade(request.getTradeCode());
         }
         //TODO: response not enough cards inventory
     }

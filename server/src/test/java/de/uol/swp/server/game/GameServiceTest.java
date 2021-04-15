@@ -2,9 +2,13 @@ package de.uol.swp.server.game;
 
 import com.google.common.eventbus.EventBus;
 import de.uol.swp.common.game.Game;
+import de.uol.swp.common.game.message.TradeCardErrorMessage;
+import de.uol.swp.common.game.message.TradeOfferInformBiddersMessage;
 import de.uol.swp.common.game.inventory.Inventory;
 import de.uol.swp.common.game.request.GameLeaveUserRequest;
 import de.uol.swp.common.game.request.RetrieveAllThisGameUsersRequest;
+import de.uol.swp.common.game.request.TradeItemRequest;
+import de.uol.swp.common.game.trade.TradeItem;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.user.Session;
 import de.uol.swp.common.user.UserDTO;
@@ -15,6 +19,7 @@ import de.uol.swp.server.usermanagement.UserManagement;
 import org.junit.jupiter.api.Test;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
@@ -31,10 +36,19 @@ public class GameServiceTest {
     GameService gameService = new GameService(gameManagement, lobbyService, new AuthenticationService(bus, new UserManagement()), bus);
     final AuthenticationService authenticationService = new AuthenticationService(bus, userManagement);
 
+
     UserDTO userDTO = new UserDTO("Peter", "lustig", "peter.lustig@uol.de");
     UserDTO userDTO1 = new UserDTO("Carsten", "stahl", "carsten.stahl@uol.de");
     UserDTO userDTO2 = new UserDTO("Test", "lustig1", "peterlustig@uol.de");
     UserDTO userDTO3 = new UserDTO("Test2", "lustig2", "test.lustig@uol.de");
+
+
+    Object event;
+    @Subscribe
+    void handle(DeadEvent e) {
+        this.event = e.getEvent();
+
+    }
 
     public GameServiceTest() throws SQLException {
     }
@@ -206,7 +220,7 @@ public class GameServiceTest {
     }
 
     /**
-     * This test checks if the distributeResource method works as intendet.
+     * This test checks if the distributeResource method works as intended.
      * <p>
      * We create a new gameService and we create a new game. After that we assert that, the game is present and we join some user to the game.
      * We setup the inventories and the UserArrayList. We assume that we rolled a 5 and give that to our method.
@@ -236,4 +250,52 @@ public class GameServiceTest {
         assertEquals(game.get().getInventory(userDTO).lumber.getNumber(), 1);
         assertEquals(game.get().getInventory(userDTO).grain.getNumber(), 1);
     }
+/*
+    @Test
+    void onTradeItemRequestTest(){
+
+        GameService gameServiceTIRT = new GameService(gameManagement, lobbyService, authenticationService, bus);
+
+        gameManagement.createGame("test", userDTO, "Standard");
+        Optional<Game> game = gameManagement.getGame("test");
+        assertTrue(game.isPresent());
+
+        game.get().joinUser(userDTO1);
+        game.get().joinUser(userDTO2);
+        game.get().joinUser(userDTO3);
+
+        game.get().setUpUserArrayList();
+        game.get().setUpInventories();
+
+        //fill Inventory
+        game.get().getInventory(userDTO).lumber.setNumber(0);
+        game.get().getInventory(userDTO).incCard("Lumber", 10);
+        game.get().getInventory(userDTO).ore.setNumber(0);
+        game.get().getInventory(userDTO).incCard("Ore", 10);
+        game.get().getInventory(userDTO1).ore.setNumber(0);
+        game.get().getInventory(userDTO1).incCard("Ore", 10);
+        game.get().getInventory(userDTO2).grain.setNumber(0);
+        game.get().getInventory(userDTO2).incCard("grain", 10);
+        game.get().getInventory(userDTO3).wool.setNumber(0);
+        game.get().getInventory(userDTO3).incCard("Wool", 10);
+
+        //create TradeItems to be sold
+        //
+        TradeItem sellerItem1 = new TradeItem("Lumber", 5);
+        TradeItem sellerItem2 = new TradeItem("Ore", 10);
+        ArrayList<TradeItem> sellerItems= new ArrayList<TradeItem>();
+        sellerItems.add(sellerItem1);
+        sellerItems.add(sellerItem2);
+
+        TradeItemRequest sellerItemRequest = new TradeItemRequest(userDTO, game.get().getName(),sellerItems, "seller1acv");
+        gameServiceTIRT.onTradeItemRequest(sellerItemRequest);
+        assertTrue(event instanceof TradeOfferInformBiddersMessage);
+    }
+
+    @Test
+    void oonTradeChoiceRequestTest(){
+
+    }
+*/
 }
+

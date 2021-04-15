@@ -258,14 +258,40 @@ public class GameDTO implements Game {
         return developmentCardDeck;
     }
 
+    /**
+     * adds a Trade to the game
+     *
+     * @see Trade
+     * @param trade Trade to be added
+     * @param tradeCode String used to identify trade
+     * @author Alecander Losse, Ricardo Mook
+     * @since 2021-04-13
+     */
     @Override
     public void addTrades(Trade trade, String tradeCode){
-
-        //UserDTO seller, String itemName, int itemCount
-
+        tradeList.put(tradeCode,trade);
     }
+    /**
+     * getter for the HashMap containing the Trades
+     *
+     * @return HashMap<String, Trade>
+     * @author Alecander Losse, Ricardo Mook
+     * @since 2021-04-13
+     */
     @Override
     public HashMap getTradeList(){
         return tradeList;
+    }
+
+    /**
+     * removes a trade from the game
+     *
+     * @param tradeCode String used to identify trade
+     * @author Alecander Losse, Ricardo Mook
+     * @since 2021-04-13
+     */
+    @Override
+    public void removeTrade(String tradeCode){
+        tradeList.remove(tradeCode);
     }
 }

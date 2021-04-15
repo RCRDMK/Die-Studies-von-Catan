@@ -35,6 +35,7 @@ public interface Game extends Serializable {
      * Changes the owner of the game
      *
      * @param user The user who should be the new owner
+     *
      * @since 2021-01-15
      */
     void updateOwner(User user);
@@ -51,6 +52,7 @@ public interface Game extends Serializable {
      * Adds a new user to the game
      *
      * @param user The new user to add to the game
+     *
      * @since 2021-01-25
      */
     void joinUser(User user);
@@ -59,6 +61,7 @@ public interface Game extends Serializable {
      * Removes an user from the game
      *
      * @param user The user to remove from the game
+     *
      * @since 2021-01-15
      */
     void leaveUser(User user);
@@ -107,6 +110,7 @@ public interface Game extends Serializable {
      * Setter for the GameField of this game
      *
      * @param gameField the GameField to be set as the gameField of this Game
+     *
      * @author Pieter Vogt, Marc Hermes
      * @see de.uol.swp.common.game.GameField
      * @since 2021-03-13
@@ -183,7 +187,33 @@ public interface Game extends Serializable {
     DevelopmentCardDeck getDevelopmentCardDeck();
 
 
-
+    /**
+     * adds a Trade to the game
+     *
+     * @see Trade
+     * @param trade Trade to be added
+     * @param tradeCode String used to identify trade
+     * @author Alecander Losse, Ricardo Mook
+     * @since 2021-04-13
+     */
     void addTrades(Trade trade, String tradeCode);
+
+    /**
+     * getter for the HashMap containing the Trades
+     *
+     * @return HashMap<String, Trade>
+     * @author Alecander Losse, Ricardo Mook
+     * @since 2021-04-13
+     */
     HashMap<String, Trade> getTradeList();
+
+    /**
+     * removes a trade from the game
+     *
+     * @param tradeCode String used to identify trade
+     * @author Alecander Losse, Ricardo Mook
+     * @since 2021-04-13
+     */
+    void removeTrade(String tradeCode);
+
 }

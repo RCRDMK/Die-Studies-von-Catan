@@ -859,10 +859,34 @@ public class GamePresenter extends AbstractPresenter {
 
 
 
+
+
+
+    //informiert die Spieler die auf das Angebot bieten sollen
     @Subscribe
     public void onTradeOfferInformBiddersMessage(TradeOfferInformBiddersMessage toibm){
         if(toibm.getName().equals(currentLobby)){
             //TODO: client chooses what to do
+        }
+    }
+
+    //informiert den Verkäufer über die Gebote.
+    @Subscribe
+    public void onTradeInformSellerAboutBidsMessage(TradeInformSellerAboutBidsMessage tisabm){
+            if(tisabm.getName().equals(currentLobby)){
+                //TODO: client chooses which bid to accept
+            }
+    }
+
+    @Subscribe
+    public void onTradeSuccessfulMessage(TradeSuccessfulMessage tsm){
+        if(tsm.getName().equals((currentLobby))){
+            if(tsm.isTradeSuccessful() == true){
+                //TODO: Show which trade was successful
+            }else{
+                //TODO: Show no trade successful
+            }
+            //TODO: Close tradewindow
         }
     }
 }

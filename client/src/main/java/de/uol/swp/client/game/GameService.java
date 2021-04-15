@@ -4,10 +4,14 @@ package de.uol.swp.client.game;
 import com.google.common.eventbus.EventBus;
 import com.google.inject.Inject;
 import de.uol.swp.common.game.request.*;
+import de.uol.swp.common.game.trade.TradeItem;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.util.ArrayList;
+import java.util.UUID;
 
 /**
  * Class that manages games
@@ -103,15 +107,24 @@ public class GameService {
     }
 
 
-    //item = the item to be traded, itemCount = number of items to be traded
-    public void startTrade(UserDTO user, String gameName, String item, int itemCount){
-        TradeOfferStartRequest tradeOfferStartRequest = new TradeOfferStartRequest(user, gameName, item, itemCount);
-        eventBus.post(tradeOfferStartRequest);
+
+
+
+    public void sendBidItem(UserDTO bidder, String gameName, ArrayList<TradeItem> bidItems, String tradeCode){
+        TradeItemRequest tir = new TradeItemRequest(bidder, gameName, bidItems, tradeCode);
+        eventBus.post(tir);
     }
 
-    public void sendBid(UserDTO user, String gameName, String item, int itemCount, String tradeCode){
-        TradeBidRequest tbr = new TradeBidRequest(user, gameName, item, itemCount, tradeCode);
-        eventBus.post(tbr);
+    //starts the trade
+    public void sendSellingItem(UserDTO bidder, String gameName, ArrayList<TradeItem> bidItems){
+        String tradeCode = bidder.getUsername() +  UUID.randomUUID().toString();
+        TradeItemRequest tir = new TradeItemRequest(bidder, gameName, bidItems, tradeCode);
+        eventBus.post(tir);
+    }
+    public void sendTradeChoice(UserDTO tradePartner,Boolean tradeAccepted, String gameName, String tradeCode){
+        //TODO: if all offers are declined: tradeAccepted = false( server checks for it),
+        TradeChoiceRequest tcr = new TradeChoiceRequest(tradePartner, tradeAccepted, gameName, tradeCode);
+                eventBus.post(tcr);
     }
 
 }
