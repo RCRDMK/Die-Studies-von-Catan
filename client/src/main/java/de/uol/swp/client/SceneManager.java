@@ -236,7 +236,7 @@ public class SceneManager {
     private void initUserSettingsView() {
         if (userSettingsScene == null) {
             Parent rootPane = initPresenter(UserSettingsPresenter.fxml);
-            userSettingsScene = new Scene(rootPane, 400, 300);
+            userSettingsScene = new Scene(rootPane, 800, 500);
             userSettingsScene.getStylesheets().add(styleSheet);
         }
     }

@@ -123,8 +123,6 @@ public class UserSettingsPresenter extends AbstractPresenter {
 
     private boolean pictureLocked;
 
-    private final ArrayList<Image> profilePictures = new ArrayList<>();
-
     private final ArrayList<ImagePattern> profilePicturePatterns = new ArrayList<>();
 
     /**
@@ -230,6 +228,16 @@ public class UserSettingsPresenter extends AbstractPresenter {
         leaveButton.setLayoutY(219);
     }
 
+    /**
+     * Method called when the changePicture MenuItem is pressed
+     * <p>
+     * If the changePicture is pressed, this method sets all the not needed labels, text fields and confirm buttons to
+     * visible = false. It also sets the needed elements to visible = true.
+     *
+     * @param event The ActionEvent created by pressing the changePicture MenuItem
+     * @author Carsten Dekker
+     * @since 2021-04-15
+     */
     @FXML
     void onChangeProfilePictureButtonPressed(ActionEvent event) {
         for (Label label : Arrays.asList(currentPasswordLabel, newPasswordLabel1, newPasswordLabel2)) {
@@ -307,9 +315,21 @@ public class UserSettingsPresenter extends AbstractPresenter {
         }
     }
 
+    /**
+     * Method called when the confirm profilePicture button is pressed
+     * <p>
+     * If the confirm profilePicture button is pressed, this method checks, if the user clicked on a different
+     * picture. If the picture is the same, the method creates an error event. After the confirm button was successful
+     * pressed this method calls the userService.
+     *
+     * @author Carsten Dekker
+     * @param event The ActionEvent created by pressing the confirm profile picture button
+     * @see de.uol.swp.client.user.UserService
+     * @since 2021-04-15
+     */
     @FXML
     void onConfirmProfilePictureButtonPressed(ActionEvent event) {
-
+        userService.updateUserProfilePicture(new UserDTO(loggedInUser.getUsername(), "", "", selectedPictureID));
     }
 
     /**
@@ -341,10 +361,15 @@ public class UserSettingsPresenter extends AbstractPresenter {
      * @since 2021-03-18
      */
     public void retrieveUserMailResponseLogic(RetrieveUserInformationResponse response) {
-        LOG.debug("User mail received " + response.getUser().getUsername() + response.getUser().getEMail());
+        LOG.debug("User information received " + response.getUser().getUsername() + response.getUser().getEMail(), response.getUser().getProfilePictureID());
         this.loggedInUser = response.getUser();
         currentEmailField.setText(response.getUser().getEMail());
         selectedPictureID = response.getUser().getProfilePictureID();
+        Platform.runLater(this::setNewPicture);
+    }
+
+    public void setNewPicture() {
+        profilePictureRectangle.setFill(profilePicturePatterns.get(selectedPictureID - 1));
     }
 
     /**
@@ -401,13 +426,18 @@ public class UserSettingsPresenter extends AbstractPresenter {
     /**
      * The method invoked when the UserSettingsPresenter is first used.
      * <p>
-     * The Alert asking the user whether he wants to delete his account or not as well as its corresponding
-     * buttons buttonTypeYes/No are created.
-     * Also 2 more hidden buttons are created whose ActionEvents are linked to the buttonTypeYes/No buttons
-     * of the Alert.
+     * The Alert, asking the user, whether he wants to delete his account or not, as well as its corresponding
+     * buttons buttonTypeYes/No, are created.
+     * 2 more hidden buttons are created whose ActionEvents are linked to the buttonTypeYes/No buttons
+     * of the Alert. A preview of available pictures is created in a 8x8 gridPane filled with rectangles. Every
+     * rectangle has two eventHandlers. One is an onMouseClicked MouseEvent and the other is an onMouseEntered
+     * MouseEvent. The profilePictureRectangle gets filled with the currently used profilePicture.
      *
      * @author Carsten Dekker and Marc Hermes
      * @since 2021-03-18
+     *
+     * Enhanced by Carsten Dekker und Marc Hermes
+     * @since 2021-04-15
      */
     public void setupButtonsAndAlerts() {
         this.alert = new Alert(Alert.AlertType.CONFIRMATION);
@@ -427,7 +457,6 @@ public class UserSettingsPresenter extends AbstractPresenter {
         for (int i = 1; i <= 64; i++) {
             Image image;
             image = new Image("img/profilePictures/" + i + ".png");
-            profilePictures.add(image);
             ImagePattern imagePattern;
             imagePattern = new ImagePattern(image);
             profilePicturePatterns.add(imagePattern);
@@ -501,6 +530,7 @@ public class UserSettingsPresenter extends AbstractPresenter {
         alert.close();
         LOG.debug("User pressed the no button");
     }
+
     /*
     public void changeSize(double width, double height) {
         ChangeToCertainSizeEvent ctcse = new ChangeToCertainSizeEvent(width, height);

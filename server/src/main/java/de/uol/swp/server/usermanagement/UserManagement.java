@@ -87,7 +87,7 @@ public class UserManagement extends AbstractUserManagement {
     @Override
     public User login(String username, String password) throws SQLException {
         if (!password.isEmpty() || !password.isBlank() || password == null) {
-            String login = "select name, mail from userData where name=? and password=?;";
+            String login = "select name, mail, pictureID from userData where name=? and password=?;";
             ResultSet resultSet = null;
             try {
                 PreparedStatement loginUser = connection.prepareStatement(login);
@@ -99,7 +99,7 @@ public class UserManagement extends AbstractUserManagement {
                 e.printStackTrace();
             }
             if (resultSet.next()) {
-                User user = new UserDTO(username, password, resultSet.getString(2));
+                User user = new UserDTO(username, password, resultSet.getString(2), resultSet.getInt(3));
                 this.loggedInUsers.put(username, user);
                 return user;
             } else {
@@ -234,6 +234,18 @@ public class UserManagement extends AbstractUserManagement {
         return new UserDTO(toUpdatePassword.getUsername(), newPassword, toUpdatePassword.getEMail());
     }
 
+    /**
+     * Updates the users pictureID
+     * <p>
+     * This method updates the pictureID from the user in the database. It shows an exception, if the user is not
+     * present in the database.
+     *
+     * @author Carsten Dekker
+     * @param toUpdatePicture the new user object that contains the new profilePictureID
+     * @return A new UserDTO with the username and the profile pictureID
+     * @see java.sql.SQLException
+     * @since 2021-04-15
+     */
     @Override
     public User updateUserPicture(User toUpdatePicture) throws SQLException {
         ResultSet resultSet;
@@ -263,12 +275,8 @@ public class UserManagement extends AbstractUserManagement {
         } else {
             throw new UserManagementException("Username unknown!");
         }
-        UserDTO userDTO = new UserDTO(toUpdatePicture.getUsername(), toUpdatePicture.getPassword(), toUpdatePicture.getEMail());
-        userDTO.setProfilePictureID(newPictureID);
-        return userDTO;
+        return new UserDTO(toUpdatePicture.getUsername(), toUpdatePicture.getPassword(), toUpdatePicture.getEMail(), toUpdatePicture.getProfilePictureID());
     }
-
-
 
     /**
      * Deletes the user in the database.
@@ -357,12 +365,12 @@ public class UserManagement extends AbstractUserManagement {
     }
 
     /**
-     * Selects the Mail from the database.
+     * Selects the Mail and the profilePictureId from the database.
      * <p>
-     * This method selects the mail from the User and creates a new UserDTO with the mail and an empty password.
-     * The UserDTO gets returned to the UserService.
+     * This method selects the mail and the profilePictureID from the User and creates a new UserDTO with the information
+     * and an empty password. The UserDTO gets returned to the UserService.
      *
-     * @return A new UserDTO with the username and the mail address
+     * @return A new UserDTO with the username, the mail address and the profilePictureID
      * @author Carsten Dekker
      * @see java.sql.SQLException
      * @since 2021-03-12
@@ -380,11 +388,9 @@ public class UserManagement extends AbstractUserManagement {
             LOG.debug(e);
             throw new UserManagementException("Username unknown");
         }
-        if (resultSet.next()) {
-            UserDTO userDTO = new UserDTO(toGetInformation.getUsername(), "", resultSet.getString(1));
-            userDTO.setProfilePictureID(resultSet.getInt(2));
-            return userDTO;
-        } else {
+        if (resultSet.next())
+            return new UserDTO(toGetInformation.getUsername(), "", resultSet.getString(1), resultSet.getInt(2));
+        else {
             return null;
         }
     }

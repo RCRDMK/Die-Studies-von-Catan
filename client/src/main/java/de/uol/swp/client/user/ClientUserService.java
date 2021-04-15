@@ -67,7 +67,7 @@ public interface ClientUserService {
      *
      * Updates the User specified by the User object.
      *
-     *
+     * @author Carsten Dekker
      * @implNote the User Object has to contain a unique identifier in order to
      * 			 update the correct user
      * @param user the user object containing all infos to
@@ -82,6 +82,7 @@ public interface ClientUserService {
      *
      * Updates the User specified by the User object.
      *
+     * @author Carsten Dekker
      * @implNote the User Object has to contain a unique identifier in order to
      * 			 update the correct user
      * @param user the user object containing all infos to
@@ -92,13 +93,30 @@ public interface ClientUserService {
     void updateUserMail(User user);
 
     /**
+     * Update the profilePicture from a user
+     *
+     * Updates the user specified by the User object
+     *
+     * @author Carsten Dekker
+     * @implNote the User Object has to contain a unique identifier in order to
+     * update the correct user
+     * @param user the user object containing all infos to
+     * update, if some values are not set, (e.g. password is "")
+     * these fields are not updated
+     * @since 2021-04-15
+     */
+    void updateUserProfilePicture(User user);
+
+    /**
      * Retrieve the list of all current logged in users
      *
      * @since 2017-03-17
      */
     void retrieveAllUsers();
 
+    //TODO es fehlt JavaDoc
     void startTimerForPing(User user);
 
+    //TODO es fehlt JavaDoc
     void endTimerForPing();
 }

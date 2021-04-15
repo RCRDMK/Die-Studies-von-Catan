@@ -38,6 +38,26 @@ public class UserDTO implements User {
     }
 
     /**
+     * Overloaded Constructor
+     * <p>
+     * @author Carsten Dekker
+     * @param username username of the user
+     * @param password password of the user
+     * @param eMail email address of the user
+     * @param pictureID pictureID of the chosen profilePicture
+     * @since 2021-04-15
+     */
+    public UserDTO(String username, String password, String eMail, int pictureID) {
+        assert Objects.nonNull(username);
+        assert Objects.nonNull(password);
+        assert Objects.nonNull(eMail);
+        this.username = username;
+        this.password = password;
+        this.eMail = eMail;
+        this.profilePictureID = pictureID;
+    }
+
+    /**
      * Copy constructor
      *
      * @author Marco Grawunder

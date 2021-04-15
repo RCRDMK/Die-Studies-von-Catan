@@ -133,12 +133,31 @@ public class UserService implements ClientUserService {
         bus.post(request);
     }
 
+    /**
+     * Method to update the profilePicture of the user
+     * <p>
+     * This method sends a request to update the profilePicture of the currently
+     * logged in user. The request is of the type UpdateUserProfilePictureRequest.
+     *
+     * @author Carsten Dekker
+     * @param user the user to update
+     * @see de.uol.swp.common.user.request.UpdateUserProfilePictureRequest
+     * @since 2021-04-15
+     */
+    @Override
+    public void updateUserProfilePicture(User user) {
+        UpdateUserProfilePictureRequest uuppr = new UpdateUserProfilePictureRequest(user);
+        bus.post(uuppr);
+    }
+
+
     @Override
     public void retrieveAllUsers() {
         RetrieveAllOnlineUsersRequest cmd = new RetrieveAllOnlineUsersRequest();
         bus.post(cmd);
     }
 
+    // TODO JavaDoc unvollständig
     /**
      * Method to return a hashed password. It creates a char array out of the original password and hands this over to the
      * hashPassword method.
@@ -154,6 +173,7 @@ public class UserService implements ClientUserService {
         return Hex.encodeHexString(hashPassword(password.toCharArray()));
     }
 
+    // TODO JavaDoc unvollständig
     /**
      * This method creates an byte array of the given Password. With help of the salt key and the keyfactory,
      * it creates a hashed password in form of a secretkey.
@@ -208,6 +228,7 @@ public class UserService implements ClientUserService {
         }, 30000, 30000);
     }
 
+    // TODO JavaDoc unvollständig
     /**
      * Method to send a Ping
      * <p>

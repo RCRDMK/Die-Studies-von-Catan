@@ -27,15 +27,20 @@ import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Circle;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -78,6 +83,9 @@ public class GamePresenter extends AbstractPresenter {
     //Container for StreetFields
     private BuildingField[] streetArray;
 
+    private ArrayList<ImagePattern>  profilePicturePatterns = new ArrayList<>();
+
+    private ArrayList<Rectangle> rectangles = new ArrayList<>();
 
     @Inject
     private GameService gameService;
@@ -105,6 +113,18 @@ public class GamePresenter extends AbstractPresenter {
 
     @FXML
     private Button EndTurnButton;
+
+    @FXML
+    private Pane picturePlayerView1;
+
+    @FXML
+    private Pane picturePlayerView2;
+
+    @FXML
+    private Pane picturePlayerView3;
+
+    @FXML
+    private Pane picturePlayerView4;
 
     /**
      * Method called when the send Message button is pressed
@@ -288,8 +308,32 @@ public class GamePresenter extends AbstractPresenter {
             this.currentLobby = gcm.getName();
             updateGameUsersList(gcm.getUsers());
             initializeGameField(gcm.getGameField());
-            Platform.runLater(this::setupRessourceAlert);
+            for (int i = 1; i <= 64; i++) {
+                Image image;
+                image = new Image("img/profilePictures/" + i + ".png");
+                ImagePattern imagePattern;
+                imagePattern = new ImagePattern(image);
+                profilePicturePatterns.add(imagePattern);
+            }
+            Platform.runLater(()->{
+                setupPlayerPictures(gcm.getUsers());
+                setupRessourceAlert();
+            });
         }
+    }
+
+    public void setupPlayerPictures(ArrayList<UserDTO> list) {
+        for (UserDTO userDTO : list) {
+            Rectangle rectangle = new Rectangle(50, 50);
+            rectangle.setFill(profilePicturePatterns.get(userDTO.getProfilePictureID() - 1));
+            rectangles.add(rectangle);
+        }
+        picturePlayerView1.getChildren().add(rectangles.get(0));
+        picturePlayerView2.getChildren().add(rectangles.get(1));
+        if (rectangles.size() > 2)
+        picturePlayerView3.getChildren().add(rectangles.get(2));
+        if (rectangles.size() > 3)
+        picturePlayerView4.getChildren().add(rectangles.get(3));
     }
 
     /**

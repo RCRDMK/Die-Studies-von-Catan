@@ -149,10 +149,50 @@ public class UserService extends AbstractService {
         post(returnMessage);
     }
 
-    @Subscribe
-    private void onUpdateUserPicture() {
-
+    public User retrieveUserInformation(User user) {
+        try {
+            return userManagement.retrieveUserInformation(user);
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+        return user;
     }
+
+
+    /**
+     * Handles UpdateUserProfilePictureRequest found on the eventBus
+     * <p>
+     * If an UpdateUserProfilePictureRequest is detected on zhe eventBus, this method is called.
+     * It tries to update the users profilePictureID via the UserManagement. If this succeeds a
+     * UpdateUserSuccessfulResponse is posted on the EventBus otherwise a UpdateUserExceptionMessage
+     * gets posted there.
+     *
+     * @author Carsten Dekker
+     * @param uuppr the UpdateUserProfilePictureRequest found on the eventBus
+     * @see de.uol.swp.common.user.request.UpdateUserProfilePictureRequest
+     * @since 2021.04.15
+     */
+    @Subscribe
+    private void onUpdateUserPictureRequest(UpdateUserProfilePictureRequest uuppr) {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Got a new updateUserPictureRequest with " + uuppr.getUser());
+            ResponseMessage returnMessage;
+            try {
+                userManagement.updateUserPicture(uuppr.getUser());
+                returnMessage = new UpdateUserSuccessfulResponse();
+            } catch (Exception e) {
+                LOG.error(e);
+                returnMessage = new UpdateUserExceptionMessage("Cannot update user " + uuppr.getUser() + " " +
+                        e.getMessage());
+            }
+            if (uuppr.getMessageContext().isPresent()) {
+                returnMessage.setMessageContext(uuppr.getMessageContext().get());
+            }
+            post(returnMessage);
+        }
+    }
+
+
 
     /**
      * Handles UpdateUserMailRequest found on the EventBus

@@ -76,7 +76,7 @@ public interface ServerUserService {
      * <p>
      * Updates the User specified by the User object.
      *
-     * @author Marco Grawunder
+     * @author Carsten Dekker
      * @param user the user object containing all infos to
      *             update, if some values are not set, (e.g. password is "")
      *             these fields are not updated
@@ -89,10 +89,10 @@ public interface ServerUserService {
 
     /**
      * Update a user
-     *
+     * <p>
      * Updates the User specified by the User object.
      *
-     * @author Marco Grawunder
+     * @author Carsten Dekker
      * @implNote the User Object has to contain a unique identifier in order to
      * 			 update the correct user
      * @param user the user object containing all infos to
@@ -102,6 +102,20 @@ public interface ServerUserService {
      * @since 2019-09-02
      */
     User updateUserPassword(User user, String password) throws SQLException;
+
+    /**
+     * Update a user
+     * <p>
+     * Updates the User specified by the User object.
+     *
+     * @author Carsten Dekker
+     * @implNote the User Object has to contain a unique identifier in order to
+     * update the correct user
+     * @param user the user object containing all infos to update
+     * @return the updated user object
+     * @since 2021-04-15
+     */
+    User updateUserPicture(User user) throws SQLException;
 
     /**
      * Retrieve the list of all current logged in users

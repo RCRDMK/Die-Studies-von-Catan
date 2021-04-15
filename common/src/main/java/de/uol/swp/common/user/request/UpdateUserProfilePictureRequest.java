@@ -5,6 +5,13 @@ import de.uol.swp.common.user.User;
 
 import java.util.Objects;
 
+/**
+ * Request to update a user profile picture
+ * <p>
+ * @see de.uol.swp.common.user.User
+ * @author Carsten Dekker
+ * @since 2021-04-15
+ */
 public class UpdateUserProfilePictureRequest extends AbstractRequestMessage {
 
     final private User toUpdatePicture;
@@ -14,7 +21,7 @@ public class UpdateUserProfilePictureRequest extends AbstractRequestMessage {
      * <p>
      * @param user the user object that shall be updated
      * @author Carsten Dekker
-     * @since 2021-03-12
+     * @since 2021-04-15
      */
     public UpdateUserProfilePictureRequest(User user){
         this.toUpdatePicture = user;
@@ -25,7 +32,7 @@ public class UpdateUserProfilePictureRequest extends AbstractRequestMessage {
      * <p>
      * @return the updated user object
      * @author Carsten Dekker
-     * @since 2021-03-12
+     * @since 2021-04-15
      */
     public User getUser() {
         return toUpdatePicture;
