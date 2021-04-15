@@ -3,13 +3,14 @@ package de.uol.swp.client.game;
 
 import com.google.common.eventbus.EventBus;
 import com.google.inject.Inject;
-import de.uol.swp.common.game.MapGraph;
 import de.uol.swp.common.game.message.ConstructionMessage;
 import de.uol.swp.common.game.request.*;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.util.UUID;
 
 /**
  * Class that manages games
@@ -108,15 +109,14 @@ public class GameService {
     /**
      * Sends the request to build a building.
      * <p>Because there is always just one option of what one can build on any kind of Node, we dont need to include
-     * the
-     * type of building that is desired.</p>
+     * the type of building that is desired.</p>
      *
      * @author Pieter Vogt
      * @see de.uol.swp.common.game.MapGraph
      * @since 2021-04-14
      */
-    public void constructBuilding(UserDTO user, String gameName, MapGraph.MapGraphNode node) {
-        ConstructionMessage request = new ConstructionMessage(user, gameName, node);
-        eventBus.post(request);
+    public void constructBuilding(UserDTO user, String gameName, UUID uuid, String typeOfNode) {
+        ConstructionMessage message = new ConstructionMessage(user, gameName, uuid, typeOfNode);
+        eventBus.post(message);
     }
 }

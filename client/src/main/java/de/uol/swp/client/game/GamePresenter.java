@@ -556,22 +556,21 @@ public class GamePresenter extends AbstractPresenter {
                 MapGraph.BuildingNode buildingNode = (MapGraph.BuildingNode) mapGraphNodeContainer.getMapGraphNode();
 
                 Vector parentVector = Vector.convertStringListToVector(buildingNode.getParent().getSelfPosition(), cardSize(), centerOfCanvasVector);
-                //  Vector parentVector = Vector.subVector(Vector.convertStringListToVector(buildingNode.getParent().getSelfPosition(), cardSize(), new Vector(((canvas.getWidth() / 2) - cardSize() / 2), ((canvas.getHeight() / 2)) - cardSize() / 2)), Vector.generalVector(cardSize() / Math.sqrt(2), 135));
 
                 Vector selfVector = Vector.getVectorFromMapGraphNode(buildingNode, cardSize());
                 Vector drawVector = Vector.addVector(parentVector, selfVector);
 
-                Circle circle = new Circle();
+                Circle circle = mapGraphNodeContainer.getCircle();
                 circle.setRadius(itemSize);
                 circle.setLayoutX(drawVector.getX());
-                circle.setLayoutY(drawVector.getY() + canvas.getLayoutY());
-                circle.setFill(Color.GHOSTWHITE);
+                circle.setLayoutY(drawVector.getY());
+
+                circle.setFill(determinePlayerColorByIndex(mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer()));
+
                 Platform.runLater(() -> gameAnchorPane.getChildren().add(circle));
 
-            }
-            if (mapGraphNodeContainer.getMapGraphNode() instanceof MapGraph.StreetNode) {
+            } else {
                 double itemSize = cardSize() / 15;
-
                 MapGraph.StreetNode streetNode = (MapGraph.StreetNode) mapGraphNodeContainer.getMapGraphNode();
 
                 Vector parentVector = Vector.convertStringListToVector(streetNode.getParent().getSelfPosition(), cardSize(), centerOfCanvasVector);
@@ -579,52 +578,38 @@ public class GamePresenter extends AbstractPresenter {
                 Vector selfVector = Vector.getVectorFromMapGraphNode(streetNode, cardSize());
                 Vector drawVector = Vector.addVector(parentVector, selfVector);
 
-                Circle circle = new Circle();
+                Circle circle = mapGraphNodeContainer.getCircle();
                 circle.setRadius(itemSize);
                 circle.setLayoutX(drawVector.getX());
-                circle.setLayoutY(drawVector.getY() + canvas.getLayoutY());
-                circle.setFill(Color.GHOSTWHITE);
+                circle.setLayoutY(drawVector.getY());
+
+                circle.setFill(determinePlayerColorByIndex(mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer()));
+
                 Platform.runLater(() -> gameAnchorPane.getChildren().add(circle));
             }
         }
+    }
 
+    /**
+     * Determine the right color for a drawn, player-owned object.
+     *
+     * @return Correct Color for a player-owned Object.
+     * @author Pieter Vogt
+     * @since 2021-04-15
+     */
 
-        //TODO: Die Nodes generieren momentan an der falschen stelle. Ausserdem sind die Nodes wohl noch nicht klickbar. Prüfen ob handler, nachrichtenversand und verarbeitung der nachricht vernünftig funktionieren.
-
-
-
-/*
-        //TODO: Alt, löschen?
-        //Setup
-        GraphicsContext g = this.canvas.getGraphicsContext2D(); //This is the object that is doing the drawing and has all the graphics related methods.
-
-        //Paint black background
-        g.setFill(Color.BLACK);
-        g.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
-
-        //Draw TerrainFields
-        for (int i = tfArray.length - 1; i >= 0; i--) {
-            Vector drawPosition = Vector.subVector(tfArray[i].getPosition(), Vector.generalVector(cardSize() / Math.sqrt(2), 135));
-            Circle terrainFieldNode = new Circle(cardSize() / 2);
-            terrainFieldNode.setLayoutX(drawPosition.getX());
-            terrainFieldNode.setLayoutY(drawPosition.getY() + canvas.getLayoutY());
-            terrainFieldNode.setFill(tfArray[i].determineColorOfTerrain());
-            tfArray[i].setNode(terrainFieldNode);
-            Platform.runLater(() -> gameAnchorPane.getChildren().add(terrainFieldNode));
-            if (tfArray[i].getDiceToken() != 0) {
-                Text text = new Text(drawPosition.getX(), drawPosition.getY() + canvas.getLayoutY(), Integer.toString(tfArray[i].getDiceToken()));
-                text.setFill(Color.WHITE);
-                Platform.runLater(() -> gameAnchorPane.getChildren().add(text));
-            }
+    public Color determinePlayerColorByIndex(int playerIndex) {
+        switch (playerIndex) {
+            case 0:
+                return Color.color(1.0, 0.4, 0.4);
+            case 1:
+                return Color.color(0.4, 0.5, 1.0);
+            case 2:
+                return Color.color(1.0, 1.0, 0.4);
+            case 3:
+                return Color.color(0.5, 1.0, 0.4);
         }
-
-        //Draw Buildings
-        for (int i = 0; i < 72; i++) {
-            initializeBuildingSpots("Street", streetArray[i]);
-        }
-        for (int i = 0; i < 54; i++) {
-            initializeBuildingSpots("Settlement", buildArray[i]);
-        }*/
+        return Color.color(0.5, 0.5, 0.5);
     }
 
     /**
@@ -643,9 +628,15 @@ public class GamePresenter extends AbstractPresenter {
             @Override
             public void handle(MouseEvent mouseEvent) {
                 for (MapGraphNodeContainer container : mapGraphNodeContainers) {
-                    if (mouseEvent.getSource() == container.getCircle()) {
+                    if (mouseEvent.getSource().equals(container.getCircle())) {
+                        String typeOfNode;
+                        if (container.getMapGraphNode() instanceof MapGraph.BuildingNode) {
+                            typeOfNode = "BuildingNode";
+                        } else {
+                            typeOfNode = "StreetNode";
+                        }
                         UserDTO user = new UserDTO(joinedLobbyUser.getUsername(), joinedLobbyUser.getPassword(), joinedLobbyUser.getEMail()); //Still sent with password because tight deadline. TODO: Change responsible Interface in future, to send Users without Passwords.
-                        gameService.constructBuilding(user, currentLobby, container.getMapGraphNode());
+                        gameService.constructBuilding(user, currentLobby, container.getMapGraphNode().getUuid(), typeOfNode);
                     }
                 }
             }
@@ -673,35 +664,33 @@ public class GamePresenter extends AbstractPresenter {
     public void initializeMatch(MapGraph mapGraph) {
 
         //Setting up the HexagonContainers
-        System.out.println("Setting up " + mapGraph.getHexagonSet().size() + " HexagonContainers...");
+        System.out.println("Setting up " + mapGraph.getHexagonHashSet().size() + " HexagonContainers...");
 
-        for (MapGraph.Hexagon hexagon : mapGraph.getHexagonSet()) {
+        for (MapGraph.Hexagon hexagon : mapGraph.getHexagonHashSet()) {
             Circle circle = new Circle(cardSize() / 2);
             HexagonContainer hexagonContainer = new HexagonContainer(hexagon, circle);
             this.hexagonContainers.add(hexagonContainer);
         }
 
         //Setting up the BuildingNodeContainers
-        System.out.println("Setting up " + mapGraph.getBuildingNodeSet().size() + " BuildingNodeContainers...");
+        System.out.println("Setting up " + mapGraph.getBuildingNodeHashSet().size() + " BuildingNodeContainers...");
 
-        for (MapGraph.MapGraphNode mapGraphNode : mapGraph.getBuildingNodeSet()) {
-            Circle circle = new Circle(cardSize() / 6);
-            MapGraphNodeContainer mapGraphNodeContainer = new MapGraphNodeContainer(circle, mapGraphNode);
+        for (MapGraph.MapGraphNode mapGraphNode : mapGraph.getBuildingNodeHashSet()) {
+            MapGraphNodeContainer mapGraphNodeContainer = new MapGraphNodeContainer(new Circle(cardSize() / 6), mapGraphNode);
             this.mapGraphNodeContainers.add(mapGraphNodeContainer);
+            initializeNodeSpots(mapGraphNodeContainer);
         }
 
         //Setting up the StreetNodeContainers
-        System.out.println("Setting up " + mapGraph.getStreetNodeSet().size() + " StreetNodeContainers...");
+        System.out.println("Setting up " + mapGraph.getStreetNodeHashSet().size() + " StreetNodeContainers...");
 
-        for (MapGraph.MapGraphNode mapGraphNode : mapGraph.getStreetNodeSet()) {
-            Circle circle = new Circle(cardSize() / 8);
-            MapGraphNodeContainer mapGraphNodeContainer = new MapGraphNodeContainer(circle, mapGraphNode);
+        for (MapGraph.MapGraphNode mapGraphNode : mapGraph.getStreetNodeHashSet()) {
+            MapGraphNodeContainer mapGraphNodeContainer = new MapGraphNodeContainer(new Circle(cardSize() / 8), mapGraphNode);
             this.mapGraphNodeContainers.add(mapGraphNodeContainer);
+            initializeNodeSpots(mapGraphNodeContainer);
         }
-
         draw();
     }
-
 
     @Subscribe
     public void onBuyDevelopmentCardMessage(BuyDevelopmentCardMessage buyDevelopmentCardMessage) {
@@ -760,5 +749,49 @@ public class GamePresenter extends AbstractPresenter {
             alert.close();
             event.consume();
         });
+    }
+
+    /**
+     * Updates the corresponding Node in the list of MapGraphNodes to represent the changes from the message.
+     *
+     * @param message The data about the changed properties of the MapGraph
+     *
+     * @author Pieter Vogt
+     * @since 2021-04-15
+     */
+    @Subscribe
+    public void onSuccessfulConstructionMessage(SuccessfulConstructionMessage message) {
+
+        if (message.getTypeOfNode().equals("BuildingNode")) {
+            for (MapGraphNodeContainer mapGraphNodeContainer : mapGraphNodeContainers) {
+                if (mapGraphNodeContainer.getMapGraphNode().getUuid() == message.getUuid()) {
+                    MapGraph.BuildingNode buildingNode = (MapGraph.BuildingNode) mapGraphNodeContainer.getMapGraphNode();
+                    buildingNode.buildOrDevelopSettlement(message.getPlayerIndex());
+                }
+            }
+
+
+        } else {
+            for (MapGraphNodeContainer mapGraphNodeContainer : mapGraphNodeContainers) {
+                if (mapGraphNodeContainer.getMapGraphNode().getUuid() == message.getUuid()) {
+                    MapGraph.StreetNode streetNode = (MapGraph.StreetNode) mapGraphNodeContainer.getMapGraphNode();
+                    streetNode.buildRoad(message.getPlayerIndex());
+                }
+            }
+        }
+
+
+        /* for (MapGraphNodeContainer mapGraphNodeContainer : mapGraphNodeContainers) {
+            if () {
+                if (mapGraphNodeContainer.getMapGraphNode() instanceof MapGraph.BuildingNode) {
+                    MapGraph.BuildingNode buildingNode = (MapGraph.BuildingNode) mapGraphNodeContainer.getMapGraphNode();
+                    buildingNode.buildOrDevelopSettlement(message.getPlayerIndex());
+                } else {
+                    MapGraph.StreetNode streetNode = (MapGraph.StreetNode) mapGraphNodeContainer.getMapGraphNode();
+                    streetNode.buildRoad(message.getPlayerIndex());
+                }
+            }
+        }*/
+        draw();
     }
 }

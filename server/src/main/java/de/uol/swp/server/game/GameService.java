@@ -135,25 +135,25 @@ public class GameService extends AbstractService {
         for (int i = 0; i < game.get().getUsersList().size(); i++) {
             if (game.get().getUsersList().get(i).equals(message.getUser())) {
                 playerIndex = i;
+                break;
             }
         }
 
         try {
-            if (message.getNode() instanceof MapGraph.BuildingNode) { //If the node from the message is a building node...
-                for (MapGraph.MapGraphNode mapGraphNode : game.get().getMapGraph().getBuildingNodeSet()) {
-                    if (mapGraphNode.equals(message.getNode())) { // ... and if the node in the message is a node in the MapGraph BuildingNodeSet...
-                        MapGraph.BuildingNode buildingNode = (MapGraph.BuildingNode) message.getNode();
-                        buildingNode.buildOrEnlargeSettlement();
+            if (message.getTypeOfNode().equals("BuildingNode")) { //If the node from the message is a building node...
+                for (MapGraph.BuildingNode buildingNode : game.get().getMapGraph().getBuildingNodeHashSet()) {
+                    if (message.getUuid() == buildingNode.getUuid()) { // ... and if the node in the message is a node in the MapGraph BuildingNodeSet...
+                        if (buildingNode.buildOrDevelopSettlement(playerIndex)) {
+                            sendToAllInGame(game.get().getName(), new SuccessfulConstructionMessage(playerIndex, message.getUuid(), "BuildingNode"));
+                        }
                     }
                 }
-            }
-
-
-            if (message.getNode() instanceof MapGraph.StreetNode) {
-                for (MapGraph.MapGraphNode mapGraphNode : game.get().getMapGraph().getStreetNodeSet()) {
-                    if (mapGraphNode.equals((MapGraph.StreetNode) message.getNode())) {
-                        MapGraph.StreetNode streetNode = (MapGraph.StreetNode) message.getNode();
-                        streetNode.buildRoad(playerIndex);
+            } else {
+                for (MapGraph.StreetNode streetNode : game.get().getMapGraph().getStreetNodeHashSet()) {
+                    if (message.getUuid() == streetNode.getUuid()) {
+                        if (streetNode.buildRoad(playerIndex)) {
+                            sendToAllInGame(message.getGame(), new SuccessfulConstructionMessage(playerIndex, message.getUuid(), "StreetNode"));
+                        }
                     }
                 }
             }
@@ -161,7 +161,7 @@ public class GameService extends AbstractService {
 
         } catch (GameManagementException e) {
             LOG.debug(e);
-            System.out.println("Player " + message.getUser() + " tried to build at" + message.getNode() + " but it did not work.");
+            System.out.println("Player " + message.getUser() + " tried to build at node with UUID: " + message.getUuid() + " but it did not work.");
         }
     }
 

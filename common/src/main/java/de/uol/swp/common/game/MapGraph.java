@@ -6,7 +6,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+import java.util.UUID;
 
 /**
  * Manages the logic behind the playfield.
@@ -24,10 +24,13 @@ import java.util.Set;
  * @since 2021-04-02
  */
 public class MapGraph implements Serializable {
+
     //FIELDS
-    private final HashSet<StreetNode> streetNodeSet = new HashSet<>();
-    private final HashSet<BuildingNode> buildingNodeSet = new HashSet<>();
-    private final HashSet<Hexagon> hexagonSet = new HashSet<>();
+
+    private final HashSet<StreetNode> streetNodeHashSet = new HashSet<>();
+    private final HashSet<BuildingNode> buildingNodeHashSet = new HashSet<>();
+    private final HashSet<Hexagon> hexagonHashSet = new HashSet<>();
+
 
     //CONSTRUCTOR
 
@@ -46,17 +49,18 @@ public class MapGraph implements Serializable {
     }
     //GETTER SETTER
 
-    public Set<StreetNode> getStreetNodeSet() {
-        return streetNodeSet;
+    public HashSet<StreetNode> getStreetNodeHashSet() {
+        return streetNodeHashSet;
     }
 
-    public Set<BuildingNode> getBuildingNodeSet() {
-        return buildingNodeSet;
+    public HashSet<BuildingNode> getBuildingNodeHashSet() {
+        return buildingNodeHashSet;
     }
 
-    public Set<Hexagon> getHexagonSet() {
-        return hexagonSet;
+    public HashSet<Hexagon> getHexagonHashSet() {
+        return hexagonHashSet;
     }
+
 
     //METHODS
 
@@ -157,7 +161,6 @@ public class MapGraph implements Serializable {
                 middle.getHexLeft().getHexLeft().updateHexagonList();
                 middle.getHexLeft().getHexTopLeft().updateHexagonList();
 
-
                 //einfgügen der dicetoken und terraintypes
 
                 //"Ocean" = 0; "Forest" = 1; "Farmland" = 2; "Grassland" = 3; "Hillside" = 4; "Mountain" = 5; "Desert" = 6;
@@ -187,8 +190,6 @@ public class MapGraph implements Serializable {
 
                 middle.getHexTopLeft().getHexTopRight().configureTerrainTypeAndDiceToken(3, 3);
                 middle.getHexTopLeft().getHexTopLeft().configureTerrainTypeAndDiceToken(1, 6);
-
-
             }
         }
     }
@@ -223,7 +224,7 @@ public class MapGraph implements Serializable {
      * @since 2021-04-09
      */
     public StreetNode accessStreetNode(ArrayList<String> hexagon, String positionOfNode) {
-        for (Hexagon h : hexagonSet) {
+        for (Hexagon h : hexagonHashSet) {
             if (h.getSelfPosition().equals(hexagon)) { //If the argument List of Strings matches the List of Strings of a given hexagon, we found the right object.
                 switch (positionOfNode) {
                     case "topLeft":
@@ -259,7 +260,7 @@ public class MapGraph implements Serializable {
      * @since 2021-04-09
      */
     public BuildingNode accessBuildingNode(ArrayList<String> hexagon, String positionOfNode) {
-        for (Hexagon h : hexagonSet) {
+        for (Hexagon h : hexagonHashSet) {
             if (h.getSelfPosition().equals(hexagon)) { //If the argument List of Strings matches the List of Strings of a given hexagon, we found the right object.
                 switch (positionOfNode) {
                     case "topLeft":
@@ -288,35 +289,36 @@ public class MapGraph implements Serializable {
 
         //Fields
 
+        private final UUID uuid;
         private String positionToParent;
         private int occupiedByPlayer;
         private Hexagon parent;
 
+        //Constructors
+
+        public MapGraphNode(String positionToParent, Hexagon parent) {
+            this.positionToParent = positionToParent;
+            this.parent = parent;
+            this.uuid = UUID.randomUUID();
+        }
+
         //Getter Setter
 
 
-        public String getPositionToParent() {
-            return positionToParent;
+        public UUID getUuid() {
+            return uuid;
         }
 
-        public void setPositionToParent(String positionToParent) {
-            this.positionToParent = positionToParent;
+        public String getPositionToParent() {
+            return positionToParent;
         }
 
         public int getOccupiedByPlayer() {
             return occupiedByPlayer;
         }
 
-        public void setOccupiedByPlayer(int occupiedByPlayer) {
-            this.occupiedByPlayer = occupiedByPlayer;
-        }
-
         public Hexagon getParent() {
             return parent;
-        }
-
-        public void setParent(Hexagon parent) {
-            this.parent = parent;
         }
     }
 
@@ -332,25 +334,24 @@ public class MapGraph implements Serializable {
         //FIELDS
 
         private final HashSet<BuildingNode> connectedBuildingNodes = new HashSet<>();
+
+        private final UUID uuid;
+
         private String positionToParent;
-        private int occupiedByPlayer;
+        private int occupiedByPlayer = 666;
         private Hexagon parent;
 
         //CONSTRUCTOR
 
         public StreetNode(String position, Hexagon h) {
-            this.positionToParent = position;
-            this.parent = h;
+            super(position, h);
+            this.uuid = UUID.randomUUID();
         }
 
         //GETTER SETTER
 
         public int getOccupiedByPlayer() {
             return occupiedByPlayer;
-        }
-
-        public void buildRoad(int occupiedByPlayer) {
-            this.occupiedByPlayer = occupiedByPlayer;
         }
 
         public HashSet<BuildingNode> getConnectedBuildingNodes() {
@@ -376,6 +377,28 @@ public class MapGraph implements Serializable {
         public String getPositionToParent() {
             return positionToParent;
         }
+
+        public UUID getUuid() {
+            return uuid;
+        }
+
+        //METHODS
+
+        /**
+         * Builds a road for player with parsed index.
+         *
+         * @param playerIndex Index of the player who wants to build a road
+         *
+         * @return True if construction was successful, false if not.
+         * @author Pieter Vogt
+         * @since 2021-04-15
+         */
+        public Boolean buildRoad(int playerIndex) {
+            if (this.occupiedByPlayer == 666) {
+                this.occupiedByPlayer = playerIndex;
+                return true;
+            } else return false;
+        }
     }
 
     /**
@@ -390,9 +413,11 @@ public class MapGraph implements Serializable {
         //FIELDS
 
         private final HashSet<StreetNode> connectedStreetNodes = new HashSet<>();
+
+        private final UUID uuid;
         private String positionToParent;
         private int typeOfHarbor;
-        private int occupiedByPlayer;
+        private int occupiedByPlayer = 666;
         private Hexagon parent;
         private int sizeOfSettlement = 0;
         //CONSTRUCTOR
@@ -405,9 +430,8 @@ public class MapGraph implements Serializable {
          * </p>
          */
         public BuildingNode(String position, Hexagon h) {
-            this.positionToParent = position;
-            this.parent = h;
-
+            super(position, h);
+            this.uuid = UUID.randomUUID();
         }
 
         //GETTER SETTER
@@ -418,10 +442,6 @@ public class MapGraph implements Serializable {
 
         public int getOccupiedByPlayer() {
             return occupiedByPlayer;
-        }
-
-        public void setOccupiedByPlayer(int occupiedByPlayer) {
-            this.occupiedByPlayer = occupiedByPlayer;
         }
 
         public int getTypeOfHarbor() {
@@ -456,10 +476,25 @@ public class MapGraph implements Serializable {
             return sizeOfSettlement;
         }
 
-        public void buildOrEnlargeSettlement() {
-            if (sizeOfSettlement < 2) {
-                this.sizeOfSettlement++;
-            } else return;
+
+        //METHODS
+
+        /**
+         * Builds or upgrades a settlement for player with parsed index.
+         *
+         * @param playerIndex Index of the player who wants to build or upgrade a building.
+         *
+         * @return True if construction was successful, false if not.
+         * @author Pieter Vogt
+         * @since 2021-04-15
+         */
+        public Boolean buildOrDevelopSettlement(int playerIndex) {
+            if (occupiedByPlayer == 666 || occupiedByPlayer == playerIndex) {
+                if (sizeOfSettlement < 2) {
+                    sizeOfSettlement++;
+                    return true;
+                } else return false;
+            } else return false;
         }
     }
 
@@ -478,6 +513,9 @@ public class MapGraph implements Serializable {
         //FIELDS
 
         private final List<String> selfPosition = new ArrayList<>(); //IMPORTANT! If fiddled with in the future: This must never become any sort of Set,because we need to be able to store duplicates!
+
+        private final UUID uuid;
+
         private int diceToken;
         private int terrainType;
         private Hexagon hexTopLeft;
@@ -519,7 +557,8 @@ public class MapGraph implements Serializable {
          */
         public Hexagon(String position) {
             selfPosition.add(position);
-            hexagonSet.add(this);
+            this.uuid = UUID.randomUUID();
+            hexagonHashSet.add(this);
         }
 
         /**
@@ -537,7 +576,8 @@ public class MapGraph implements Serializable {
         public Hexagon(String position, List<String> positionList) {
             this.selfPosition.addAll(positionList);
             this.selfPosition.add(position);
-            hexagonSet.add(this);
+            this.uuid = UUID.randomUUID();
+            hexagonHashSet.add(this);
         }
 
         //GETTER SETTER
@@ -727,6 +767,10 @@ public class MapGraph implements Serializable {
             return selfPosition;
         }
 
+        public UUID getUuid() {
+            return uuid;
+        }
+
         // METHODS
 
         /**
@@ -778,7 +822,6 @@ public class MapGraph implements Serializable {
             if (hexBottomRight != null) {
                 hexagons.add(hexBottomRight);
             }
-            hexagonSet.addAll(hexagons);
         }
 
         /**
@@ -1028,9 +1071,8 @@ public class MapGraph implements Serializable {
                 this.buildingBottomRight = new BuildingNode("bottomRight", this);
             }
 
-            updateNodeLists();
-            streetNodeSet.addAll(streetNodes);
-            buildingNodeSet.addAll(buildingNodes);
+            updateAllLists();
+
         }
 
         public void generateNodesMiddle() {
@@ -1048,9 +1090,16 @@ public class MapGraph implements Serializable {
             this.buildingTop = new BuildingNode("top", this);
             this.buildingBottom = new BuildingNode("bottom", this);
 
+            updateAllLists();
+        }
+
+        private void updateAllLists() {
+            //Updating lists inside the calling Hexagon.
             updateNodeLists();
-            streetNodeSet.addAll(streetNodes);
-            buildingNodeSet.addAll(buildingNodes);
+
+            //Updating Sets of the MapGraph.
+            streetNodeHashSet.addAll(streetNodes);
+            buildingNodeHashSet.addAll(buildingNodes);
         }
 
         /**
