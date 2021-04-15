@@ -38,14 +38,13 @@ public class ChatServiceTest {
     final EventBus bus = new EventBus();
     final UserManagement userManagement = new UserManagement();
     final AuthenticationService authenticationService = new AuthenticationService(bus, userManagement);
-    final ChatService chatService = new ChatService(cheatService, bus);
     GameManagement gameManagement = new GameManagement();
     LobbyManagement lobbyManagement = new LobbyManagement();
     LobbyService lobbyService = new LobbyService(lobbyManagement, new AuthenticationService(bus, new UserManagement()), bus);
     GameService gameService = new GameService(gameManagement, lobbyService, new AuthenticationService(bus, new UserManagement()), bus);
-    final CheatService cheatService = new CheatService(gameService, bus);
     final User defaultUser = new UserDTO("Marco", "test", "marco@test.de");
-
+    final CheatService cheatService = new CheatService(gameService, bus);
+    final ChatService chatService = new ChatService(cheatService, bus);
     final CountDownLatch lock = new CountDownLatch(1);
     Object event;
 
