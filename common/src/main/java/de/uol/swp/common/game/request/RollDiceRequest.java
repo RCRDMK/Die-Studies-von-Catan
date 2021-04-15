@@ -18,19 +18,24 @@ public class RollDiceRequest extends AbstractRequestMessage {
 
     private final String name;
     private final User user;
-
+    private final int cheatEyes;
 
     /**
      * Constructor
      *
-     * @param name Time when the User tries to send the message
-     * @param user Time when the User tries to send the message
+     * @param name Lobby - Gamename
+     * @param user User who is sending the RollDiceRequest
      * @since 2021-01-07
      */
 
-    public RollDiceRequest(String name, User user) {
+    public RollDiceRequest(String name, User user, int... cheatEyes) {
         this.name = name;
         this.user = user;
+        this.cheatEyes = (cheatEyes.length >= 1) ? cheatEyes[0] : 0;
+    }
+
+    public int getCheatEyes() {
+        return cheatEyes;
     }
 
     public String getName() {

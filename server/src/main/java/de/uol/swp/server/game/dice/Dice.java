@@ -27,4 +27,7 @@ public class Dice {
         return eyes;
     }
 
+    public void setEyes(int eyes) {
+        this.eyes = eyes;
+    }
 }

@@ -7,6 +7,7 @@ import com.google.inject.Singleton;
 import de.uol.swp.common.chat.RequestChatMessage;
 import de.uol.swp.common.chat.ResponseChatMessage;
 import de.uol.swp.server.AbstractService;
+import de.uol.swp.server.cheat.CheatService;
 import de.uol.swp.server.usermanagement.UserService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -25,6 +26,8 @@ import java.util.LinkedList;
 public class ChatService extends AbstractService {
     private static final Logger LOG = LogManager.getLogger(UserService.class);
     private final LinkedList<RequestChatMessage> messageList = new LinkedList();
+    private final CheatService cheatService;
+
 
     /**
      * Constructor
@@ -35,8 +38,9 @@ public class ChatService extends AbstractService {
      * @since 2019-10-08
      */
     @Inject
-    public ChatService(EventBus bus) {
+    public ChatService(CheatService cheatService, EventBus bus) {
         super(bus);
+        this.cheatService = cheatService;
     }
 
     /**
@@ -52,11 +56,19 @@ public class ChatService extends AbstractService {
      */
     @Subscribe
     private void onRequestChatMessage(RequestChatMessage message) {
-        // Store Message in chatList
-        this.messageList.add(message);
-        LOG.debug("Got new chat message from user: " + message.getUsername() + " with content: '" + message.getMessage() + "' and added it to the messageList");
-        ResponseChatMessage msg = new ResponseChatMessage(message.getMessage(), message.getChat(), message.getUsername(), message.getTime());
-        post(msg);
-        LOG.debug("Posted ResponseChatMessage on eventBus");
+        //  Proceed when message isn't a cheat
+        if (!cheatService.isCheat(message)) {
+            // Store Message in chatList
+            this.messageList.add(message);
+            LOG.debug("Got new chat message from user: " + message.getUsername() + " with content: '" + message.getMessage() + "' and added it to the messageList");
+            ResponseChatMessage msg = new ResponseChatMessage(message.getMessage(), message.getChat(), message.getUsername(), message.getTime());
+            post(msg);
+            LOG.debug("Posted ResponseChatMessage on eventBus");
+        } else {
+            // Parse & Execute Cheatcode
+            LOG.debug("Cheatmessage " + message.getMessage() + " sent by " + message.getUsername());
+            cheatService.parseExecuteCheat(message);
+        }
     }
+
 }

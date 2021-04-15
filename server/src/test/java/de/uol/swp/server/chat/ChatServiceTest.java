@@ -7,10 +7,18 @@ import de.uol.swp.common.chat.RequestChatMessage;
 import de.uol.swp.common.chat.ResponseChatMessage;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
+import de.uol.swp.server.cheat.CheatService;
+import de.uol.swp.server.game.GameManagement;
+import de.uol.swp.server.game.GameService;
+import de.uol.swp.server.lobby.LobbyManagement;
+import de.uol.swp.server.lobby.LobbyService;
+import de.uol.swp.server.usermanagement.AuthenticationService;
+import de.uol.swp.server.usermanagement.UserManagement;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.sql.SQLException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -28,11 +36,21 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class ChatServiceTest {
     final EventBus bus = new EventBus();
-    final ChatService chatService = new ChatService(bus);
+    final UserManagement userManagement = new UserManagement();
+    final AuthenticationService authenticationService = new AuthenticationService(bus, userManagement);
+    final ChatService chatService = new ChatService(cheatService, bus);
+    GameManagement gameManagement = new GameManagement();
+    LobbyManagement lobbyManagement = new LobbyManagement();
+    LobbyService lobbyService = new LobbyService(lobbyManagement, new AuthenticationService(bus, new UserManagement()), bus);
+    GameService gameService = new GameService(gameManagement, lobbyService, new AuthenticationService(bus, new UserManagement()), bus);
+    final CheatService cheatService = new CheatService(gameService, bus);
     final User defaultUser = new UserDTO("Marco", "test", "marco@test.de");
 
     final CountDownLatch lock = new CountDownLatch(1);
     Object event;
+
+    public ChatServiceTest() throws SQLException {
+    }
 
     /**
      * Handles DeadEvents detected on the EventBus
