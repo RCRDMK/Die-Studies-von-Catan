@@ -2,6 +2,7 @@ package de.uol.swp.server.game;
 
 import com.google.common.eventbus.EventBus;
 import de.uol.swp.common.game.Game;
+import de.uol.swp.common.game.inventory.Inventory;
 import de.uol.swp.common.game.request.GameLeaveUserRequest;
 import de.uol.swp.common.game.request.RetrieveAllThisGameUsersRequest;
 import de.uol.swp.common.lobby.Lobby;
@@ -14,6 +15,7 @@ import de.uol.swp.server.usermanagement.UserManagement;
 import org.junit.jupiter.api.Test;
 
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,7 +30,6 @@ public class GameServiceTest {
     LobbyService lobbyService = new LobbyService(lobbyManagement, new AuthenticationService(bus, new UserManagement()), bus);
     GameService gameService = new GameService(gameManagement, lobbyService, new AuthenticationService(bus, new UserManagement()), bus);
     final AuthenticationService authenticationService = new AuthenticationService(bus, userManagement);
-
 
     UserDTO userDTO = new UserDTO("Peter", "lustig", "peter.lustig@uol.de");
     UserDTO userDTO1 = new UserDTO("Carsten", "stahl", "carsten.stahl@uol.de");
