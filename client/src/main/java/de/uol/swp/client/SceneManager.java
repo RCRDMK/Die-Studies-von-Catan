@@ -12,6 +12,9 @@ import de.uol.swp.client.account.event.UserSettingsErrorEvent;
 import de.uol.swp.client.auth.LoginPresenter;
 import de.uol.swp.client.auth.events.ShowLoginViewEvent;
 import de.uol.swp.client.game.GamePresenter;
+import de.uol.swp.client.game.event.ShowBidderTradeViewEvent;
+import de.uol.swp.client.game.event.ShowSellerTradeViewEvent;
+import de.uol.swp.client.game.TradePresenter;
 import de.uol.swp.client.lobby.LobbyPresenter;
 import de.uol.swp.client.main.MainMenuPresenter;
 import de.uol.swp.client.register.RegistrationPresenter;
@@ -46,6 +49,7 @@ public class SceneManager {
     static final String styleSheet = "css/swp.css";
 
     final private Stage primaryStage;
+    final private Stage secondaryStage;
     private Scene loginScene;
     private String lastTitle;
     private Scene registrationScene;
@@ -54,6 +58,8 @@ public class SceneManager {
     private Scene currentScene = null;
     private Scene lobbyScene;
     private Scene gameScene;
+    private Scene sellerTradeScene;
+    private Scene bidderTradeScene;
     private Tab mainMenuTab;
     private VBox vBox;
     private Scene tabScene;
@@ -64,12 +70,16 @@ public class SceneManager {
     private TabHelper tabHelper;
     private Scene userSettingsScene;
 
+
+
     @Inject
     public SceneManager(EventBus eventBus, Injector injected, @Assisted Stage primaryStage) {
         eventBus.register(this);
         this.primaryStage = primaryStage;
         this.injector = injected;
         initViews();
+        this.secondaryStage = new Stage();
+
     }
 
     /**
@@ -90,6 +100,8 @@ public class SceneManager {
         initMainView();
         initRegistrationView();
         initUserSettingsView();
+        initSellerTradeView();
+        initBidderTradeView();
         nextLobbyScene = initLobbyView();
         nextGameScene = initGameView();
     }
@@ -223,6 +235,20 @@ public class SceneManager {
         return gameScene;
     }
 
+    private Scene initSellerTradeView(){
+       Parent rootPane = initPresenter(TradePresenter.sellerFxml);
+       sellerTradeScene = new Scene(rootPane, 600, 400);
+        sellerTradeScene.getStylesheets().add(styleSheet);
+        return sellerTradeScene;
+    }
+
+    private Scene initBidderTradeView(){
+        Parent rootPane = initPresenter(TradePresenter.bidderFxml);
+        bidderTradeScene = new Scene(rootPane, 600, 400);
+        bidderTradeScene.getStylesheets().add(styleSheet);
+        return bidderTradeScene;
+    }
+
     /**
      * Initializes the userSettings view
      * <p>
@@ -325,6 +351,17 @@ public class SceneManager {
     @Subscribe
     public void onShowUserSettingsViewEvent(ShowUserSettingsViewEvent event) {
         showUserSettingsScreen();
+    }
+    @Subscribe
+    public void onShowSellerTradeViewEvent(ShowSellerTradeViewEvent event){
+        secondaryStage.setScene(sellerTradeScene);
+        secondaryStage.show();
+    }
+    //TODO JavaDoc
+    @Subscribe
+    public void onShowBidderTradeViewEvent(ShowBidderTradeViewEvent event){
+        secondaryStage.setScene(bidderTradeScene);
+        secondaryStage.show();
     }
 
     /**
@@ -521,6 +558,10 @@ public class SceneManager {
      */
     public void showUserSettingsScreen() {
         showScene(userSettingsScene, "UserSettings");
+    }
+
+    public void showTradeScreen(){
+        showScene(sellerTradeScene, "tradescene");
     }
 
     /**

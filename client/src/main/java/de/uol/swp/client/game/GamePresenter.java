@@ -1,6 +1,5 @@
 package de.uol.swp.client.game;
 
-import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
@@ -8,6 +7,8 @@ import de.uol.swp.client.chat.ChatService;
 import de.uol.swp.client.game.GameObjects.BuildingField;
 import de.uol.swp.client.game.GameObjects.TerrainField;
 import de.uol.swp.client.game.HelperObjects.Vector;
+import de.uol.swp.client.game.event.ShowBidderTradeViewEvent;
+import de.uol.swp.client.game.event.ShowSellerTradeViewEvent;
 import de.uol.swp.client.lobby.LobbyService;
 import de.uol.swp.common.chat.RequestChatMessage;
 import de.uol.swp.common.chat.ResponseChatMessage;
@@ -58,6 +59,10 @@ public class GamePresenter extends AbstractPresenter {
 
     private static final Logger LOG = LogManager.getLogger(GamePresenter.class);
 
+    private static final ShowSellerTradeViewEvent showTradeViewEvent = new ShowSellerTradeViewEvent();
+
+    private static final ShowBidderTradeViewEvent showBidderViewEvent = new ShowBidderTradeViewEvent();
+
     private User joinedLobbyUser;
 
     private String currentLobby;
@@ -67,8 +72,6 @@ public class GamePresenter extends AbstractPresenter {
     private ButtonType buttonTypeOkay;
 
     private Button btnOkay;
-
-    private TradePopUp popup;
 
     private ObservableList<String> gameUsers;
 
@@ -80,7 +83,6 @@ public class GamePresenter extends AbstractPresenter {
 
     //Container for StreetFields
     private BuildingField[] streetArray;
-
 
     @Inject
     private GameService gameService;
@@ -108,6 +110,8 @@ public class GamePresenter extends AbstractPresenter {
 
     @FXML
     private Button EndTurnButton;
+
+
 
     /**
      * Method called when the send Message button is pressed
@@ -218,12 +222,12 @@ public class GamePresenter extends AbstractPresenter {
      */
     @FXML
     public void onTrade(ActionEvent event) {
-        popup.sellerTradePopup(joinedLobbyUser, currentLobby);
+        eventBus.post(showTradeViewEvent);
     }
 
-    @Subscribe
+    @Subscribe //TODO JavaDoc
     public void onTradeRegistered(TradeOfferInformBiddersMessage toibm){
-        popup.bidderTradePopup(joinedLobbyUser, currentLobby);
+        eventBus.post(showBidderViewEvent);
     }
 
     @FXML

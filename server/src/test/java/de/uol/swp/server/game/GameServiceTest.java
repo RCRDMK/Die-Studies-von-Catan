@@ -1,6 +1,8 @@
 package de.uol.swp.server.game;
 
+import com.google.common.eventbus.DeadEvent;
 import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.message.TradeCardErrorMessage;
 import de.uol.swp.common.game.message.TradeOfferInformBiddersMessage;
