@@ -6,7 +6,8 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.text.Text?>
-<AnchorPane xmlns:fx="http://javafx.com/fxml/1" fx:id="gameAnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="400.0"
+<AnchorPane xmlns:fx="http://javafx.com/fxml/1" fx:id="gameAnchorPane" maxHeight="-Infinity" maxWidth="-Infinity"
+            prefHeight="400.0"
             prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1"
             fx:controller="de.uol.swp.client.game.GamePresenter">
     <children>
@@ -36,9 +37,11 @@
                 <Button mnemonicParsing="false" onAction="#onLeaveGame" text="Leave Game"/>
             </items>
         </ToolBar>
-        <Canvas fx:id="canvas" height="370.0" layoutY="30.0" width="370" />
-        <Button layoutX="534.0" layoutY="345.0" mnemonicParsing="false" onAction="#onSendMessage" prefHeight="25.0" prefWidth="59.0" text="Send" />
-        <TextField fx:id="gameChatInput" layoutX="370.0" layoutY="345.0" onAction="#onSendMessage" prefHeight="25.0" prefWidth="161.0" promptText="Send Message.." />
-      <Canvas id="inventory" fx:id="inventory" height="104.0" layoutX="370.0" layoutY="120.0" width="224.0" />
+        <Canvas fx:id="canvas" height="370.0" layoutY="30.0" width="370"/>
+        <Button layoutX="534.0" layoutY="345.0" mnemonicParsing="false" onAction="#onSendMessage" prefHeight="25.0"
+                prefWidth="59.0" text="Send"/>
+        <TextField fx:id="gameChatInput" layoutX="370.0" layoutY="345.0" onAction="#onSendMessage" prefHeight="25.0"
+                   prefWidth="161.0" promptText="Send Message.."/>
+        <Canvas id="inventory" fx:id="inventory" height="104.0" layoutX="370.0" layoutY="120.0" width="224.0"/>
     </children>
 </AnchorPane>

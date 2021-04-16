@@ -38,8 +38,10 @@ public class LobbyService {
 
     /**
      * Posts a request to create a lobby on the EventBus.
-     * Returns a boolean. If the Request is posted on the eventbus it returns true. Is the String name blank or empty it returns false.
-     * If the name is null, the exception is caught and posted on the bus. Therefore we return also false, cause no lobby was created.
+     * Returns a boolean. If the Request is posted on the eventbus it returns true.
+     * Is the String name blank or empty it returns false.
+     * If the name is null, the exception is caught and posted on the bus.
+     * Therefore we return also false, cause no lobby was created.
      *
      * @param name Name chosen for the new lobby
      * @param user User who wants to create the new lobby
@@ -65,6 +67,16 @@ public class LobbyService {
         LobbyJoinUserRequest joinUserRequest = new LobbyJoinUserRequest(name, user);
         eventBus.post(joinUserRequest);
     }
+
+    /**
+     * Posts a request to leave a specified lobby on the EventBus
+     *
+     * @param name Name of the lobby the user wants to leave
+     * @param user User who wants to leave the lobby
+     * @author ?
+     * @see de.uol.swp.common.lobby.request.LobbyLeaveUserRequest
+     * @since ?
+     */
 
     public void leaveLobby(String name, UserDTO user) {
         LobbyLeaveUserRequest leaveUserRequest = new LobbyLeaveUserRequest(name, user);

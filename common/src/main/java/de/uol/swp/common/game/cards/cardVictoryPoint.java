@@ -2,7 +2,7 @@ package de.uol.swp.common.game.cards;
 
 /**
  * Interface for the victorypointcard
- *
+ * <p>
  * The victorypointcard is counted among the development cards
  *
  * @author Alexander Losse, Iskander Yusupov

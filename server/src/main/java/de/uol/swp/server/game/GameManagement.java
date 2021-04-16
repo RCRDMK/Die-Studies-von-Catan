@@ -34,14 +34,13 @@ public class GameManagement extends AbstractGameManagement {
      *
      * @param name  the name of the game to create
      * @param owner the user who wants to create a game
-     *
      * @author Iskander Yusupov
      * @see de.uol.swp.common.user.User
      * @see de.uol.swp.common.game.GameField
      * @since 2021-01-15
      */
     @Override
-    public void createGame(String name, User owner,String gameFieldVariant) {
+    public void createGame(String name, User owner, String gameFieldVariant) {
         GameDTO game = new GameDTO(name, owner);
         game.setGameField(new GameField(gameFieldVariant));
         games.put(name, game);

@@ -87,8 +87,9 @@ public class ChatServiceTest {
      * @since 2020-12-10
      */
     @Test
-    void sendRequestChatMessageTest(){
-        RequestChatMessage message = new RequestChatMessage("testMessage", "testLobby", defaultUser.getUsername(), System.currentTimeMillis());
+    void sendRequestChatMessageTest() {
+        RequestChatMessage message = new RequestChatMessage("testMessage", "testLobby", defaultUser.getUsername(),
+                System.currentTimeMillis());
         bus.post(message);
     }
 
@@ -97,7 +98,8 @@ public class ChatServiceTest {
         lock.await(1000, TimeUnit.MILLISECONDS);
         assertNotNull(message);
 
-        ResponseChatMessage response = new ResponseChatMessage(message.getMessage(),message.getChat(),message.getUsername(),message.getTime());
+        ResponseChatMessage response = new ResponseChatMessage(message.getMessage(), message.getChat(),
+                message.getUsername(), message.getTime());
         assertEquals(response.getMessage(), "testMessage");
         assertEquals(response.getChat(), "testLobby");
         assertEquals(response.getUsername(), defaultUser.getUsername());
@@ -106,7 +108,7 @@ public class ChatServiceTest {
     }
 
     @Subscribe
-    void onResponseChatMessageTest(ResponseChatMessage message) throws InterruptedException{
+    void onResponseChatMessageTest(ResponseChatMessage message) throws InterruptedException {
         lock.await(1000, TimeUnit.MILLISECONDS);
         assertNotNull(message);
 
