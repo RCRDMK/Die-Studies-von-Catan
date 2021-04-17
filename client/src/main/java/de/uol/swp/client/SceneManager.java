@@ -15,6 +15,7 @@ import de.uol.swp.client.game.GamePresenter;
 import de.uol.swp.client.game.event.ShowBidderTradeViewEvent;
 import de.uol.swp.client.game.event.ShowSellerTradeViewEvent;
 import de.uol.swp.client.game.TradePresenter;
+import de.uol.swp.client.game.event.TradeEndedMessage;
 import de.uol.swp.client.lobby.LobbyPresenter;
 import de.uol.swp.client.main.MainMenuPresenter;
 import de.uol.swp.client.register.RegistrationPresenter;
@@ -363,6 +364,10 @@ public class SceneManager {
         secondaryStage.setScene(bidderTradeScene);
         secondaryStage.show();
     }
+@Subscribe
+public void onTradeEnded(TradeEndedMessage message){
+        secondaryStage.close();
+}
 
     /**
      * Handles LeaveUserSettingsEvent detected on the EventBus

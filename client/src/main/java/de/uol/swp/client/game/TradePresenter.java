@@ -2,6 +2,7 @@ package de.uol.swp.client.game;
 
 import com.google.common.eventbus.Subscribe;
 import de.uol.swp.client.AbstractPresenter;
+import de.uol.swp.client.game.event.TradeEndedMessage;
 import de.uol.swp.common.game.message.TradeInformSellerAboutBidsMessage;
 import de.uol.swp.common.game.message.TradeSuccessfulMessage;
 import de.uol.swp.common.game.request.TradeItemRequest;
@@ -12,6 +13,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 
 import java.util.ArrayList;
@@ -34,11 +36,16 @@ public class TradePresenter extends AbstractPresenter {//TODO JavaDoc
      public static final String sellerFxml = "/fxml/SellerTradeView.fxml";
      public static final String bidderFxml = "/fxml/SellerTradeView.fxml";
 
+     //TODO JavaDoc und Aufräumen
+
      //important for the switch cases
         int switchCount = 2;
         UserDTO user;
         String lobby;
         String tradeCode;
+
+     private TradeEndedMessage tem;
+
 
      @FXML
      public TextField amountInput;
@@ -176,7 +183,7 @@ public class TradePresenter extends AbstractPresenter {//TODO JavaDoc
 
             @FXML
             public void onAddPressed(ActionEvent event){
-                switch (switchCount) {//add another textfield and dropdown menu to send different ressources in one trade
+                /*switch (switchCount) {//add another textfield and dropdown menu to send different ressources in one trade
                     case 2:
                         secondChoice.setVisible(true);
                         secondInput.setVisible(true);
@@ -199,7 +206,9 @@ public class TradePresenter extends AbstractPresenter {//TODO JavaDoc
                         fifthInput.setVisible(true);
                         add.setDisable(true);
                         break;
-                }
+                }*/
+eventBus.post(new TradeEndedMessage());
+resetTradeUiElements();
             }
 
 
@@ -384,7 +393,34 @@ public class TradePresenter extends AbstractPresenter {//TODO JavaDoc
             }
         }
 
+     private void resetTradeUiElements() {
 
+         bidder1.setVisible(false);
+         bidder2.setVisible(false);
+         bidder3.setVisible(false);
+         noOffer.setVisible(false);
+         amountInput.setText("");
+         secondInput.setVisible(false);
+         secondInput.setText("");
+         thirdInput.setVisible(false);
+         thirdInput.setText("");
+         fourthInput.setVisible(false);
+         fourthInput.setText("");
+         fifthInput.setVisible(false);
+         fifthInput.setText("");
+
+         ressourceChoice.setValue("What do you want to trade?");
+         secondChoice.setValue("What do you want to trade?");
+         secondChoice.setVisible(false);
+         thirdChoice.setValue("What do you want to trade?");
+         thirdChoice.setVisible(false);
+         fourthChoice.setValue("What do you want to trade?");
+         fourthChoice.setVisible(false);
+         fifthChoice.setValue("What do you want to trade?");
+         fifthChoice.setVisible(false);
+         hide.setDisable(true);
+
+     }
  }
  
 
