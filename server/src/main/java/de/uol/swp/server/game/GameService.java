@@ -181,12 +181,17 @@ public class GameService extends AbstractService {
      * If a RollDiceRequest is detected on the EventBus, this method is called.
      * It rolls the dices and sends a ResponseChatMessage containing the user who rolls the dice
      * and the result is shown to every user in the game.
+     * If the cheatEyes > 0 this method overrides the rolled Dice with the provided integer.
+     * This is necessary for the roll cheat.
      *
      * @param rollDiceRequest The RollDiceRequest found on the EventBus
      * @author Kirstin, Pieter
      * @see de.uol.swp.common.game.request.RollDiceRequest
      * @see de.uol.swp.common.chat.ResponseChatMessage
      * @since 2021-01-07
+     * <p>
+     * enhanced by René Meyer, Sergej Tulnev
+     * @since 2021-04-17
      * <p>
      * Enhanced by Carsten Dekker
      * @since 2021-03-31
@@ -201,7 +206,8 @@ public class GameService extends AbstractService {
         Dice dice = new Dice();
         dice.rollDice();
 
-        // Check if cheatEyes number is provided in rollDiceRequest, if so set Eyes manually on dice, else ignore
+        // Check if cheatEyes number is provided in rollDiceRequest, if so -> set Eyes manually on dice
+        // for the roll cheat, else ignore and use rolledDice
         if (rollDiceRequest.getCheatEyes() > 0) {
             dice.setEyes(rollDiceRequest.getCheatEyes());
         }

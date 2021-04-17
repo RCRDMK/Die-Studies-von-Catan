@@ -13,6 +13,15 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 
+/**
+ * Service that handles all cheats.
+ * <p>
+ * It also has a function to detect a chatmessage as cheat.
+ *
+ * @author René Meyer, Sergej Tulnev
+ * @see AbstractService
+ * @since 2021-04-17
+ */
 @SuppressWarnings("UnstableApiUsage")
 @Singleton
 public class CheatService extends AbstractService {
@@ -21,39 +30,80 @@ public class CheatService extends AbstractService {
     private final ArrayList<String> cheatList = new CheatList().get();
     private final GameService gameService;
 
+    /**
+     * Constructor for CheatService
+     * <p>
+     * @author René Meyer, Sergej Tulnev
+     * @since 2021-04-17
+     * @param gameService
+     * @param bus eventbus
+     */
     @Inject
     public CheatService(GameService gameService, EventBus bus) {
         super(bus);
         this.gameService = gameService;
     }
 
+    /**
+     * Function that parses and executes the cheat
+     * <p>
+     * Check for different cheats and execute.
+     * @author René Meyer, Sergej Tulnev
+     * @since 2021-04-17
+     * @param cheatMessage
+     */
     public void parseExecuteCheat(RequestChatMessage cheatMessage) {
-        // parse Cheats and execute
+        // parse CheatPrefix
+        var cheatMessageSplit = cheatMessage.getMessage().split("\\s");
         var cheatPrefix = cheatMessage.getMessage().split("\\s")[0];
-        if (cheatPrefix.equals("roll")) {
-            var cheatArgument = cheatMessage.getMessage().split("\\s")[1];
+
+        // Cheatcode "rollx"
+        // Usage: roll [int] [string]
+        //   e.g. roll 2 testGameName
+
+        // Check that roll cheatMessage has correct 3 arguments
+        if (cheatPrefix.equals("roll") && cheatMessageSplit.length == 3) {
+            var cheatEyesArgument = cheatMessage.getMessage().split("\\s")[1];
+            var gameNameArgument = cheatMessage.getMessage().split("\\s")[2];
             if (cheatMessage.getSession().isPresent()) {
                 var session = cheatMessage.getSession().get();
                 var user = session.getUser();
-                //@ToDo: Get lobby name for rollDiceRequest oder harcoded Game name??
-                var rollDiceRequest = new RollDiceRequest("test", user, Integer.parseInt(cheatArgument));
+                var rollDiceRequest = new RollDiceRequest(gameNameArgument, user, Integer.parseInt(cheatEyesArgument));
                 gameService.onRollDiceRequest(rollDiceRequest);
             }
         }
+        // Cheatcode "endgame"
+        // Cheatcode "givememoney"
+        // Cheatcode "givemecardx"
+        // Cheatcode "letmebuild"
+        // Cheatcode "moveburglar"
+        //@TODO: other cheats
     }
 
-
+    /**
+     * Checks if the chatmessage is a cheat.
+     * <p>
+     * Parses the chatmessage and checks the prefix before the space.
+     * If the prefix is equal to an existing cheatcommand in the cheatList return true
+     * else false.
+     * If the cheatcommand is without argument return false
+     *
+     * @author René Meyer, Sergej Tulnev
+     * @since 2021-04-17
+     * @param cheatMessage chatMessage
+     * @return true or false
+     */
     public boolean isCheat(RequestChatMessage cheatMessage) {
         for (String cheatCode : cheatList) {
-            var cheatPrefix = cheatMessage.getMessage().split("\\s")[0];
-            if (cheatPrefix.equals(cheatCode)) {
-                try {
+            try {
+                var cheatPrefix = cheatMessage.getMessage().split("\\s")[0];
+                if (cheatPrefix.equals(cheatCode)) {
                     var cheatArgument = cheatMessage.getMessage().split("\\s")[1];
                     return true;
-                } catch (ArrayIndexOutOfBoundsException e) {
-                    LOG.debug("Cheatcode invalid, argument missing");
-                    return false;
                 }
+            } catch (ArrayIndexOutOfBoundsException e) {
+                LOG.debug("Cheatcode invalid, argument missing");
+                return false;
             }
         }
         return false;
