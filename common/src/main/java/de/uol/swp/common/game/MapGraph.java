@@ -289,21 +289,14 @@ public class MapGraph implements Serializable {
 
         //Fields
 
-        private final UUID uuid;
+        private final UUID uuid = UUID.randomUUID();
         private String positionToParent;
-        private int occupiedByPlayer;
+        private int occupiedByPlayer = 666;
         private Hexagon parent;
 
         //Constructors
 
-        public MapGraphNode(String positionToParent, Hexagon parent) {
-            this.positionToParent = positionToParent;
-            this.parent = parent;
-            this.uuid = UUID.randomUUID();
-        }
-
         //Getter Setter
-
 
         public UUID getUuid() {
             return uuid;
@@ -343,9 +336,10 @@ public class MapGraph implements Serializable {
 
         //CONSTRUCTOR
 
-        public StreetNode(String position, Hexagon h) {
-            super(position, h);
-            this.uuid = UUID.randomUUID();
+        public StreetNode(String position, Hexagon h, UUID uuid) {
+            this.positionToParent = position;
+            this.parent = h;
+            this.uuid = uuid;
         }
 
         //GETTER SETTER
@@ -429,9 +423,10 @@ public class MapGraph implements Serializable {
          * 0 = no harbor, 1 = 2:1 Sheep, 2 = 2:1 Clay, 3 = 2:1 Wood, 4 = 2:1 Grain, 5 = 2:1 Ore, 6 = 3:1 Any
          * </p>
          */
-        public BuildingNode(String position, Hexagon h) {
-            super(position, h);
-            this.uuid = UUID.randomUUID();
+        public BuildingNode(String position, Hexagon h, UUID uuid) {
+            this.positionToParent = position;
+            this.parent = h;
+            this.uuid = uuid;
         }
 
         //GETTER SETTER
@@ -476,6 +471,9 @@ public class MapGraph implements Serializable {
             return sizeOfSettlement;
         }
 
+        public void setOccupiedByPlayer(int occupiedByPlayer) {
+            this.occupiedByPlayer = occupiedByPlayer;
+        }
 
         //METHODS
 
@@ -492,6 +490,7 @@ public class MapGraph implements Serializable {
             if (occupiedByPlayer == 666 || occupiedByPlayer == playerIndex) {
                 if (sizeOfSettlement < 2) {
                     sizeOfSettlement++;
+                    this.occupiedByPlayer = playerIndex;
                     return true;
                 } else return false;
             } else return false;
@@ -514,7 +513,7 @@ public class MapGraph implements Serializable {
 
         private final List<String> selfPosition = new ArrayList<>(); //IMPORTANT! If fiddled with in the future: This must never become any sort of Set,because we need to be able to store duplicates!
 
-        private final UUID uuid;
+        private final UUID uuid = UUID.randomUUID();
 
         private int diceToken;
         private int terrainType;
@@ -557,7 +556,6 @@ public class MapGraph implements Serializable {
          */
         public Hexagon(String position) {
             selfPosition.add(position);
-            this.uuid = UUID.randomUUID();
             hexagonHashSet.add(this);
         }
 
@@ -576,7 +574,6 @@ public class MapGraph implements Serializable {
         public Hexagon(String position, List<String> positionList) {
             this.selfPosition.addAll(positionList);
             this.selfPosition.add(position);
-            this.uuid = UUID.randomUUID();
             hexagonHashSet.add(this);
         }
 
@@ -839,72 +836,72 @@ public class MapGraph implements Serializable {
             //First checking streetnodes...
             if (this.streetTopLeft == null && hexTopLeft != null) {
                 if (hexTopLeft.getStreetBottomRight() == null) {
-                    this.streetTopLeft = new StreetNode("topLeft", this);
+                    this.streetTopLeft = new StreetNode("topLeft", this, UUID.randomUUID());
                 } else {
                     this.streetTopLeft = hexTopLeft.getStreetBottomRight();
                 }
             } else {
-                this.streetTopLeft = new StreetNode("topLeft", this);
+                this.streetTopLeft = new StreetNode("topLeft", this, UUID.randomUUID());
             }
 
 
             if (this.streetTopRight == null && hexTopRight != null) {
 
                 if (hexTopRight.getStreetBottomLeft() == null) {
-                    this.streetTopRight = new StreetNode("topRight", this);
+                    this.streetTopRight = new StreetNode("topRight", this, UUID.randomUUID());
                 } else {
                     this.streetTopRight = hexTopRight.getStreetBottomLeft();
                 }
             } else {
-                this.streetTopRight = new StreetNode("topRight", this);
+                this.streetTopRight = new StreetNode("topRight", this, UUID.randomUUID());
             }
 
 
             if (streetLeft == null && hexLeft != null) {
 
                 if (hexLeft.getStreetRight() == null) {
-                    this.streetLeft = new StreetNode("left", this);
+                    this.streetLeft = new StreetNode("left", this, UUID.randomUUID());
                 } else {
                     this.streetLeft = hexLeft.getStreetRight();
                 }
             } else {
-                this.streetLeft = new StreetNode("left", this);
+                this.streetLeft = new StreetNode("left", this, UUID.randomUUID());
             }
 
 
             if (streetRight == null && hexRight != null) {
 
                 if (hexRight.getStreetLeft() == null) {
-                    this.streetRight = new StreetNode("right", this);
+                    this.streetRight = new StreetNode("right", this, UUID.randomUUID());
                 } else {
                     this.streetRight = hexRight.getStreetLeft();
                 }
             } else {
-                this.streetRight = new StreetNode("right", this);
+                this.streetRight = new StreetNode("right", this, UUID.randomUUID());
             }
 
 
             if (streetBottomLeft == null && hexBottomLeft != null) {
 
                 if (hexBottomLeft.getStreetTopRight() == null) {
-                    this.streetBottomLeft = new StreetNode("bottomLeft", this);
+                    this.streetBottomLeft = new StreetNode("bottomLeft", this, UUID.randomUUID());
                 } else {
                     this.streetBottomLeft = hexBottomLeft.getStreetTopRight();
                 }
             } else {
-                this.streetBottomLeft = new StreetNode("bottomLeft", this);
+                this.streetBottomLeft = new StreetNode("bottomLeft", this, UUID.randomUUID());
             }
 
 
             if (streetBottomRight == null && hexBottomRight != null) {
 
                 if (hexBottomRight.getStreetTopLeft() == null) {
-                    this.streetBottomRight = new StreetNode("bottomRight", this);
+                    this.streetBottomRight = new StreetNode("bottomRight", this, UUID.randomUUID());
                 } else {
                     this.streetBottomRight = hexBottomRight.getStreetTopLeft();
                 }
             } else {
-                this.streetBottomRight = new StreetNode("bottomRight", this);
+                this.streetBottomRight = new StreetNode("bottomRight", this, UUID.randomUUID());
             }
 
 
@@ -912,13 +909,13 @@ public class MapGraph implements Serializable {
             if (buildingTop == null && (hexTopLeft != null || hexTopRight != null)) {
                 if (hexTopLeft != null && hexTopRight == null) {
                     if (hexTopLeft.getBuildingBottomRight() == null) {
-                        this.buildingTop = new BuildingNode("top", this);
+                        this.buildingTop = new BuildingNode("top", this, UUID.randomUUID());
                     } else {
                         this.buildingTop = hexTopLeft.getBuildingBottomRight();
                     }
                 } else if (hexTopLeft == null && hexTopRight != null) {
                     if (hexTopRight.getBuildingBottomLeft() == null) {
-                        this.buildingTop = new BuildingNode("top", this);
+                        this.buildingTop = new BuildingNode("top", this, UUID.randomUUID());
                     } else {
                         this.buildingTop = hexTopRight.getBuildingBottomLeft();
                     }
@@ -928,11 +925,11 @@ public class MapGraph implements Serializable {
                     } else if (hexTopRight.getBuildingBottomLeft() != null) {
                         this.buildingTop = hexTopRight.getBuildingBottomLeft();
                     } else {
-                        this.buildingTop = new BuildingNode("top", this);
+                        this.buildingTop = new BuildingNode("top", this, UUID.randomUUID());
                     }
                 }
             } else {
-                this.buildingTop = new BuildingNode("top", this);
+                this.buildingTop = new BuildingNode("top", this, UUID.randomUUID());
             }
 
 
@@ -940,13 +937,13 @@ public class MapGraph implements Serializable {
             if (buildingTopLeft == null && (hexLeft != null || hexTopLeft != null)) {
                 if (hexLeft != null && hexTopLeft == null) {
                     if (hexLeft.getBuildingTopRight() == null) {
-                        this.buildingTopLeft = new BuildingNode("topLeft", this);
+                        this.buildingTopLeft = new BuildingNode("topLeft", this, UUID.randomUUID());
                     } else {
                         this.buildingTopLeft = hexLeft.getBuildingTopRight();
                     }
                 } else if (hexLeft == null && hexTopLeft != null) {
                     if (hexTopLeft.getBuildingBottom() == null) {
-                        this.buildingTopLeft = new BuildingNode("topLeft", this);
+                        this.buildingTopLeft = new BuildingNode("topLeft", this, UUID.randomUUID());
                     } else {
                         this.buildingTopLeft = hexTopLeft.getBuildingBottom();
                     }
@@ -956,24 +953,24 @@ public class MapGraph implements Serializable {
                     } else if (hexTopLeft.getBuildingBottom() != null) {
                         this.buildingTopLeft = hexTopLeft.getBuildingBottom();
                     } else {
-                        this.buildingTopLeft = new BuildingNode("topLeft", this);
+                        this.buildingTopLeft = new BuildingNode("topLeft", this, UUID.randomUUID());
                     }
                 }
             } else {
-                this.buildingTopLeft = new BuildingNode("topLeft", this);
+                this.buildingTopLeft = new BuildingNode("topLeft", this, UUID.randomUUID());
             }
 
             //Für buildingTopRight, vergl. mit hexRight und hexTopRight
             if (buildingTopRight == null && (hexRight != null || hexTopRight != null)) {
                 if (hexRight != null && hexTopRight == null) {
                     if (hexRight.getBuildingTopLeft() == null) {
-                        this.buildingTopRight = new BuildingNode("topRight", this);
+                        this.buildingTopRight = new BuildingNode("topRight", this, UUID.randomUUID());
                     } else {
                         this.buildingTopRight = hexRight.getBuildingTopLeft();
                     }
                 } else if (hexRight == null && hexTopRight != null) {
                     if (hexTopRight.getBuildingBottom() == null) {
-                        this.buildingTopRight = new BuildingNode("topRight", this);
+                        this.buildingTopRight = new BuildingNode("topRight", this, UUID.randomUUID());
                     } else {
                         this.buildingTopRight = hexTopRight.getBuildingBottom();
                     }
@@ -983,24 +980,24 @@ public class MapGraph implements Serializable {
                     } else if (hexTopRight.getBuildingBottom() != null) {
                         this.buildingTopRight = hexTopRight.getBuildingBottom();
                     } else {
-                        this.buildingTopRight = new BuildingNode("topRight", this);
+                        this.buildingTopRight = new BuildingNode("topRight", this, UUID.randomUUID());
                     }
                 }
             } else {
-                this.buildingTopRight = new BuildingNode("topRight", this);
+                this.buildingTopRight = new BuildingNode("topRight", this, UUID.randomUUID());
             }
 
             //Für buildingBottom, vergl. mit hexBottomLeft und hexBottomRight
             if (buildingBottom == null && (hexBottomLeft != null || hexBottomRight != null)) {
                 if (hexBottomLeft != null && hexBottomRight == null) {
                     if (hexBottomLeft.getBuildingTopRight() == null) {
-                        this.buildingBottom = new BuildingNode("bottom", this);
+                        this.buildingBottom = new BuildingNode("bottom", this, UUID.randomUUID());
                     } else {
                         this.buildingBottom = hexBottomLeft.getBuildingTopRight();
                     }
                 } else if (hexBottomLeft == null && hexBottomRight != null) {
                     if (hexBottomRight.getBuildingTopLeft() == null) {
-                        this.buildingBottom = new BuildingNode("bottom", this);
+                        this.buildingBottom = new BuildingNode("bottom", this, UUID.randomUUID());
                     } else {
                         this.buildingBottom = hexBottomRight.getBuildingTopLeft();
                     }
@@ -1010,24 +1007,24 @@ public class MapGraph implements Serializable {
                     } else if (hexBottomRight.getBuildingTopLeft() != null) {
                         this.buildingBottom = hexBottomRight.getBuildingTopLeft();
                     } else {
-                        this.buildingBottom = new BuildingNode("bottom", this);
+                        this.buildingBottom = new BuildingNode("bottom", this, UUID.randomUUID());
                     }
                 }
             } else {
-                this.buildingBottom = new BuildingNode("bottom", this);
+                this.buildingBottom = new BuildingNode("bottom", this, UUID.randomUUID());
             }
 
             //Für buildingBottomLeft, vergl. mit hexLeft und hexBottomLeft
             if (buildingBottomLeft == null && (hexLeft != null || hexBottomLeft != null)) {
                 if (hexLeft != null && hexBottomLeft == null) {
                     if (hexLeft.getBuildingBottomRight() == null) {
-                        this.buildingBottomLeft = new BuildingNode("bottomLeft", this);
+                        this.buildingBottomLeft = new BuildingNode("bottomLeft", this, UUID.randomUUID());
                     } else {
                         this.buildingBottomLeft = hexLeft.getBuildingBottomRight();
                     }
                 } else if (hexLeft == null && hexBottomLeft != null) {
                     if (hexBottomLeft.getBuildingTop() == null) {
-                        this.buildingBottomLeft = new BuildingNode("bottomLeft", this);
+                        this.buildingBottomLeft = new BuildingNode("bottomLeft", this, UUID.randomUUID());
                     } else {
                         this.buildingBottomLeft = hexBottomLeft.getBuildingTop();
                     }
@@ -1037,24 +1034,24 @@ public class MapGraph implements Serializable {
                     } else if (hexBottomLeft.getBuildingTop() != null) {
                         this.buildingBottomLeft = hexBottomLeft.getBuildingTop();
                     } else {
-                        this.buildingBottomLeft = new BuildingNode("bottomLeft", this);
+                        this.buildingBottomLeft = new BuildingNode("bottomLeft", this, UUID.randomUUID());
                     }
                 }
             } else {
-                this.buildingBottomLeft = new BuildingNode("bottomLeft", this);
+                this.buildingBottomLeft = new BuildingNode("bottomLeft", this, UUID.randomUUID());
             }
 
             //Für buildingBottomRight, vergl. mit hexBottomRight und hexRight
             if (buildingBottomRight == null && (hexBottomRight != null || hexRight != null)) {
                 if (hexBottomRight != null && hexRight == null) {
                     if (hexBottomRight.getBuildingTop() == null) {
-                        this.buildingBottomRight = new BuildingNode("bottomRight", this);
+                        this.buildingBottomRight = new BuildingNode("bottomRight", this, UUID.randomUUID());
                     } else {
                         this.buildingBottomRight = hexBottomRight.getBuildingTop();
                     }
                 } else if (hexBottomRight == null && hexRight != null) {
                     if (hexRight.getBuildingBottomLeft() == null) {
-                        this.buildingBottomRight = new BuildingNode("bottomRight", this);
+                        this.buildingBottomRight = new BuildingNode("bottomRight", this, UUID.randomUUID());
                     } else {
                         this.buildingBottomRight = hexRight.getBuildingBottomLeft();
                     }
@@ -1064,11 +1061,11 @@ public class MapGraph implements Serializable {
                     } else if (hexRight.getBuildingBottomLeft() != null) {
                         this.buildingBottomRight = hexRight.getBuildingBottomLeft();
                     } else {
-                        this.buildingBottomRight = new BuildingNode("bottomRight", this);
+                        this.buildingBottomRight = new BuildingNode("bottomRight", this, UUID.randomUUID());
                     }
                 }
             } else {
-                this.buildingBottomRight = new BuildingNode("bottomRight", this);
+                this.buildingBottomRight = new BuildingNode("bottomRight", this, UUID.randomUUID());
             }
 
             updateAllLists();
@@ -1076,19 +1073,19 @@ public class MapGraph implements Serializable {
         }
 
         public void generateNodesMiddle() {
-            this.streetTopLeft = new StreetNode("topLeft", this);
-            this.streetBottomLeft = new StreetNode("bottomLeft", this);
-            this.streetTopRight = new StreetNode("topRight", this);
-            this.streetLeft = new StreetNode("left", this);
-            this.streetRight = new StreetNode("right", this);
-            this.streetBottomRight = new StreetNode("bottomRight", this);
+            this.streetTopLeft = new StreetNode("topLeft", this, UUID.randomUUID());
+            this.streetBottomLeft = new StreetNode("bottomLeft", this, UUID.randomUUID());
+            this.streetTopRight = new StreetNode("topRight", this, UUID.randomUUID());
+            this.streetLeft = new StreetNode("left", this, UUID.randomUUID());
+            this.streetRight = new StreetNode("right", this, UUID.randomUUID());
+            this.streetBottomRight = new StreetNode("bottomRight", this, UUID.randomUUID());
 
-            this.buildingTopLeft = new BuildingNode("topLeft", this);
-            this.buildingTopRight = new BuildingNode("topRight", this);
-            this.buildingBottomLeft = new BuildingNode("bottomLeft", this);
-            this.buildingBottomRight = new BuildingNode("bottomRight", this);
-            this.buildingTop = new BuildingNode("top", this);
-            this.buildingBottom = new BuildingNode("bottom", this);
+            this.buildingTopLeft = new BuildingNode("topLeft", this, UUID.randomUUID());
+            this.buildingTopRight = new BuildingNode("topRight", this, UUID.randomUUID());
+            this.buildingBottomLeft = new BuildingNode("bottomLeft", this, UUID.randomUUID());
+            this.buildingBottomRight = new BuildingNode("bottomRight", this, UUID.randomUUID());
+            this.buildingTop = new BuildingNode("top", this, UUID.randomUUID());
+            this.buildingBottom = new BuildingNode("bottom", this, UUID.randomUUID());
 
             updateAllLists();
         }

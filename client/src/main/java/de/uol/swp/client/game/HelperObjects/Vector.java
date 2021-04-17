@@ -137,6 +137,7 @@ public class Vector {
                     returnVector = Vector.addVector(returnVector, Vector.bottomRight(d));
                     break;
                 default:
+                    returnVector = Vector.addVector(returnVector, new Vector(0.0, 0.0));
                     break;
             }
         }

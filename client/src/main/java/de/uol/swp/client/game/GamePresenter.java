@@ -67,6 +67,7 @@ public class GamePresenter extends AbstractPresenter {
     private ObservableList<String> gameUsers;
     private ArrayList<HexagonContainer> hexagonContainers = new ArrayList<>();
     private ArrayList<MapGraphNodeContainer> mapGraphNodeContainers = new ArrayList<>();
+    private Boolean itsMyTurn = false;
     @Inject
     private GameService gameService;
     @Inject
@@ -307,8 +308,12 @@ public class GamePresenter extends AbstractPresenter {
     public void nextPlayerTurn(NextTurnMessage response) {
         if (response.getGameName().equals(currentLobby)) {
             if (response.getPlayerWithCurrentTurn().equals(joinedLobbyUser.getUsername())) {
+                itsMyTurn = true;
                 EndTurnButton.setDisable(false);
-            } else EndTurnButton.setDisable(true);
+            } else {
+                itsMyTurn = false;
+                EndTurnButton.setDisable(true);
+            }
         }
     }
 
@@ -539,7 +544,6 @@ public class GamePresenter extends AbstractPresenter {
             hexagonContainer.getCircle().setLayoutY(placementVector.getY());
             hexagonContainer.getCircle().setFill(determineColorOfTerrain(hexagonContainer.getHexagon()));
 
-            Platform.runLater(() -> gameAnchorPane.getChildren().add(hexagonContainer.getCircle()));
             if (hexagonContainer.getHexagon().getDiceToken() != 0) {
                 Text text = new Text(placementVector.getX(), placementVector.getY(), Integer.toString(hexagonContainer.getHexagon().getDiceToken()));
                 text.setFill(Color.WHITE);
@@ -556,18 +560,17 @@ public class GamePresenter extends AbstractPresenter {
                 MapGraph.BuildingNode buildingNode = (MapGraph.BuildingNode) mapGraphNodeContainer.getMapGraphNode();
 
                 Vector parentVector = Vector.convertStringListToVector(buildingNode.getParent().getSelfPosition(), cardSize(), centerOfCanvasVector);
-
                 Vector selfVector = Vector.getVectorFromMapGraphNode(buildingNode, cardSize());
                 Vector drawVector = Vector.addVector(parentVector, selfVector);
 
                 Circle circle = mapGraphNodeContainer.getCircle();
                 circle.setRadius(itemSize);
                 circle.setLayoutX(drawVector.getX());
+
                 circle.setLayoutY(drawVector.getY());
 
-                circle.setFill(determinePlayerColorByIndex(mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer()));
+                mapGraphNodeContainer.getCircle().setFill(determinePlayerColorByIndex(mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer()));
 
-                Platform.runLater(() -> gameAnchorPane.getChildren().add(circle));
 
             } else {
                 double itemSize = cardSize() / 15;
@@ -584,8 +587,6 @@ public class GamePresenter extends AbstractPresenter {
                 circle.setLayoutY(drawVector.getY());
 
                 circle.setFill(determinePlayerColorByIndex(mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer()));
-
-                Platform.runLater(() -> gameAnchorPane.getChildren().add(circle));
             }
         }
     }
@@ -628,7 +629,7 @@ public class GamePresenter extends AbstractPresenter {
             @Override
             public void handle(MouseEvent mouseEvent) {
                 for (MapGraphNodeContainer container : mapGraphNodeContainers) {
-                    if (mouseEvent.getSource().equals(container.getCircle())) {
+                    if (mouseEvent.getSource().equals(container.getCircle()) && itsMyTurn == true) {
                         String typeOfNode;
                         if (container.getMapGraphNode() instanceof MapGraph.BuildingNode) {
                             typeOfNode = "BuildingNode";
@@ -670,24 +671,30 @@ public class GamePresenter extends AbstractPresenter {
             Circle circle = new Circle(cardSize() / 2);
             HexagonContainer hexagonContainer = new HexagonContainer(hexagon, circle);
             this.hexagonContainers.add(hexagonContainer);
+            Platform.runLater(() -> gameAnchorPane.getChildren().add(hexagonContainer.getCircle()));
+
         }
 
         //Setting up the BuildingNodeContainers
         System.out.println("Setting up " + mapGraph.getBuildingNodeHashSet().size() + " BuildingNodeContainers...");
 
-        for (MapGraph.MapGraphNode mapGraphNode : mapGraph.getBuildingNodeHashSet()) {
-            MapGraphNodeContainer mapGraphNodeContainer = new MapGraphNodeContainer(new Circle(cardSize() / 6), mapGraphNode);
+        for (MapGraph.BuildingNode buildingNode : mapGraph.getBuildingNodeHashSet()) {
+            MapGraphNodeContainer mapGraphNodeContainer = new MapGraphNodeContainer(new Circle(cardSize() / 6), buildingNode);
             this.mapGraphNodeContainers.add(mapGraphNodeContainer);
             initializeNodeSpots(mapGraphNodeContainer);
+            Platform.runLater(() -> gameAnchorPane.getChildren().add(mapGraphNodeContainer.getCircle()));
+
         }
 
         //Setting up the StreetNodeContainers
         System.out.println("Setting up " + mapGraph.getStreetNodeHashSet().size() + " StreetNodeContainers...");
 
-        for (MapGraph.MapGraphNode mapGraphNode : mapGraph.getStreetNodeHashSet()) {
-            MapGraphNodeContainer mapGraphNodeContainer = new MapGraphNodeContainer(new Circle(cardSize() / 8), mapGraphNode);
+        for (MapGraph.StreetNode streetNode : mapGraph.getStreetNodeHashSet()) {
+            MapGraphNodeContainer mapGraphNodeContainer = new MapGraphNodeContainer(new Circle(cardSize() / 8), streetNode);
             this.mapGraphNodeContainers.add(mapGraphNodeContainer);
             initializeNodeSpots(mapGraphNodeContainer);
+            Platform.runLater(() -> gameAnchorPane.getChildren().add(mapGraphNodeContainer.getCircle()));
+
         }
         draw();
     }
@@ -764,34 +771,24 @@ public class GamePresenter extends AbstractPresenter {
 
         if (message.getTypeOfNode().equals("BuildingNode")) {
             for (MapGraphNodeContainer mapGraphNodeContainer : mapGraphNodeContainers) {
-                if (mapGraphNodeContainer.getMapGraphNode().getUuid() == message.getUuid()) {
+                if (mapGraphNodeContainer.getMapGraphNode().getUuid().equals(message.getUuid())) {
                     MapGraph.BuildingNode buildingNode = (MapGraph.BuildingNode) mapGraphNodeContainer.getMapGraphNode();
                     buildingNode.buildOrDevelopSettlement(message.getPlayerIndex());
+                    draw();
+                    break;
                 }
             }
 
 
         } else {
             for (MapGraphNodeContainer mapGraphNodeContainer : mapGraphNodeContainers) {
-                if (mapGraphNodeContainer.getMapGraphNode().getUuid() == message.getUuid()) {
+                if (mapGraphNodeContainer.getMapGraphNode().getUuid().equals(message.getUuid())) {
                     MapGraph.StreetNode streetNode = (MapGraph.StreetNode) mapGraphNodeContainer.getMapGraphNode();
                     streetNode.buildRoad(message.getPlayerIndex());
+                    draw();
+                    break;
                 }
             }
         }
-
-
-        /* for (MapGraphNodeContainer mapGraphNodeContainer : mapGraphNodeContainers) {
-            if () {
-                if (mapGraphNodeContainer.getMapGraphNode() instanceof MapGraph.BuildingNode) {
-                    MapGraph.BuildingNode buildingNode = (MapGraph.BuildingNode) mapGraphNodeContainer.getMapGraphNode();
-                    buildingNode.buildOrDevelopSettlement(message.getPlayerIndex());
-                } else {
-                    MapGraph.StreetNode streetNode = (MapGraph.StreetNode) mapGraphNodeContainer.getMapGraphNode();
-                    streetNode.buildRoad(message.getPlayerIndex());
-                }
-            }
-        }*/
-        draw();
     }
 }
