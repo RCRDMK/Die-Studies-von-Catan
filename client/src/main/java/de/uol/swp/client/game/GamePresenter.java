@@ -674,7 +674,6 @@ public class GamePresenter extends AbstractPresenter {
             HexagonContainer hexagonContainer = new HexagonContainer(hexagon, circle);
             this.hexagonContainers.add(hexagonContainer);
             Platform.runLater(() -> gameAnchorPane.getChildren().add(hexagonContainer.getCircle()));
-
         }
 
         //Setting up the BuildingNodeContainers
@@ -685,7 +684,6 @@ public class GamePresenter extends AbstractPresenter {
             this.mapGraphNodeContainers.add(mapGraphNodeContainer);
             initializeNodeSpots(mapGraphNodeContainer);
             Platform.runLater(() -> gameAnchorPane.getChildren().add(mapGraphNodeContainer.getCircle()));
-
         }
 
         //Setting up the StreetNodeContainers
@@ -696,7 +694,6 @@ public class GamePresenter extends AbstractPresenter {
             this.mapGraphNodeContainers.add(mapGraphNodeContainer);
             initializeNodeSpots(mapGraphNodeContainer);
             Platform.runLater(() -> gameAnchorPane.getChildren().add(mapGraphNodeContainer.getCircle()));
-
         }
         draw();
     }
