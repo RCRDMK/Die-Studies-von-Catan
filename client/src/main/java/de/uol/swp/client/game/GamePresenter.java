@@ -103,7 +103,8 @@ public class GamePresenter extends AbstractPresenter {
             // ChatID = game_lobbyname so we have seperate lobby and game chat separated by id
             var chatId = "game_" + currentLobby;
             if (!chatMessage.isEmpty()) {
-                RequestChatMessage message = new RequestChatMessage(chatMessage, chatId, joinedLobbyUser.getUsername(), System.currentTimeMillis());
+                RequestChatMessage message = new RequestChatMessage(chatMessage, chatId, joinedLobbyUser.getUsername(),
+                        System.currentTimeMillis());
                 chatService.sendMessage(message);
             }
             this.gameChatInput.setText("");
@@ -337,6 +338,7 @@ public class GamePresenter extends AbstractPresenter {
             }
         }
     }
+
 
     /**
      * Method called when the leaveGame Button is pressed
@@ -791,4 +793,16 @@ public class GamePresenter extends AbstractPresenter {
             }
         }
     }
+
+    @Subscribe
+    public void onPrivateInventoryChangeMessage(PrivateInventoryChangeMessage privateInventoryChangeMessage) {
+        //TODO: Darstellung der Veränderung des Inventars
+    }
+
+    @Subscribe
+    public void onPublicInventoryChangeMessage(PublicInventoryChangeMessage publicInventoryChangeMessage) {
+        //TODO: Darstellung der Veränderung des Inventars
+    }
+
+
 }

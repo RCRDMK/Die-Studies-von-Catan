@@ -1,14 +1,10 @@
 package de.uol.swp.server.usermanagement;
 
 import com.google.common.eventbus.EventBus;
-import com.google.common.eventbus.Subscribe;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.user.request.DropUserRequest;
-import de.uol.swp.common.user.request.LoginRequest;
 import de.uol.swp.common.user.request.RegisterUserRequest;
-import de.uol.swp.common.user.response.DropUserSuccessfulResponse;
-import de.uol.swp.server.usermanagement.store.MainMemoryBasedUserStore;
 import org.junit.jupiter.api.Test;
 
 import java.sql.SQLException;

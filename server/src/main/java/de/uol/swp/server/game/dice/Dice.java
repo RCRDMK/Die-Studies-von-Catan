@@ -13,7 +13,7 @@ public class Dice {
 
     private int eyes = 0;
 
-    public void rollDice(){
+    public void rollDice() {
         Random r1 = new Random();
         int dice1 = 1 + r1.nextInt(6);
 

@@ -19,7 +19,7 @@ public class GameSerializableTest {
     private static final ArrayList<Game> defaultCollection = new ArrayList<>();
 
     @Test
-    void testGameMessagesSerializable(){
+    void testGameMessagesSerializable() {
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new AbstractGameMessage(defaultUser.getUsername(), defaultUser),
                 AbstractGameMessage.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new GameCreatedMessage("test", defaultUser, new MapGraph(""), new ArrayList<>()),
@@ -39,7 +39,7 @@ public class GameSerializableTest {
     }
 
     @Test
-    void testGameRequestSerializable(){
+    void testGameRequestSerializable() {
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new AbstractGameRequest(defaultUser.getUsername(), defaultUser),
                 AbstractGameRequest.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new CreateGameRequest("test", defaultUser),
@@ -57,11 +57,11 @@ public class GameSerializableTest {
     }
 
     @Test
-    void testGameResponseSerializable(){
+    void testGameResponseSerializable() {
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new AllCreatedGamesResponse(defaultCollection),
                 AllCreatedGamesResponse.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new GameAlreadyExistsResponse("test"),
-               GameAlreadyExistsResponse.class));
+                GameAlreadyExistsResponse.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new NotLobbyOwnerResponse("test"),
                 NotLobbyOwnerResponse.class));
     }

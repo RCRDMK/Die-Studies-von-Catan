@@ -59,7 +59,7 @@ public class GamePresenterTest {
      * @since 2021-03-05
      */
     @Test
-    void onLeaveGame(){
+    void onLeaveGame() {
         LobbyService lobbyService = new LobbyService(bus);
         CreateLobbyRequest message = new CreateLobbyRequest("testLobby", userDTO);
         lobbyService.createNewLobby("testLobby", userDTO);

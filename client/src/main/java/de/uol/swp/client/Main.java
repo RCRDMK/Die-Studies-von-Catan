@@ -13,6 +13,7 @@ public class Main {
      *
      * @author Marco Grawunder
      * @param args Any arguments given when starting the application
+     * @author Marco Grawunder
      * @since 2019-09-05
      */
     public static void main(String[] args) {
