@@ -74,10 +74,13 @@ public class CheatService extends AbstractService {
         }
         // Cheatcode "endgame"
         // Cheatcode "givememoney"
+        //@Todo: give me x resource cards, warte auf Pieters Ticket, da terrainFieldContainer entfernt wurde?
         // Cheatcode "givemecardx"
+        //@Todo: give me the resource card X, warte auf Pieters Ticket, da terrainFieldContainer entfernt wurde?
         // Cheatcode "letmebuild"
-        // Cheatcode "moveburglar"
-        //@TODO: other cheats
+        //@Todo: let me free build
+        // Cheatcode "moverobber"
+        //@TODO: move the robber
     }
 
     /**
