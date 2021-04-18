@@ -1,6 +1,7 @@
 package de.uol.swp.common.game.dto;
 
 import de.uol.swp.common.game.Game;
+import de.uol.swp.common.game.GameField;
 import de.uol.swp.common.game.MapGraph;
 import de.uol.swp.common.game.inventory.DevelopmentCardDeck;
 import de.uol.swp.common.game.inventory.Inventory;
@@ -255,5 +256,11 @@ public class GameDTO implements Game {
     @Override
     public void setMapGraph(MapGraph mapGraph) {
         this.mapGraph = mapGraph;
+    }
+
+    //TODO: This method needs to be deleted as soon as the dependencies to the obsolete classes are fixed!!!
+    @Override
+    public GameField getGameField() {
+        return null;
     }
 }

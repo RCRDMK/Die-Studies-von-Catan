@@ -180,4 +180,7 @@ public interface Game extends Serializable {
     void setMapGraph(MapGraph mapGraph);
 
     DevelopmentCardDeck getDevelopmentCardDeck();
+
+    //TODO: this Methods need to be removed after all dependencies on the 3 obsolete classes had been resolved!!!
+    GameField getGameField();
 }

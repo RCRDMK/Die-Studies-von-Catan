@@ -7,6 +7,7 @@ import com.google.inject.Singleton;
 import de.uol.swp.common.chat.ResponseChatMessage;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.MapGraph;
+import de.uol.swp.common.game.TerrainFieldContainer;
 import de.uol.swp.common.game.inventory.Inventory;
 import de.uol.swp.common.game.message.*;
 import de.uol.swp.common.game.request.*;
@@ -292,7 +293,7 @@ public class GameService extends AbstractService {
     public void distributeResources(int eyes, String gameName) {
         Optional<Game> game = gameManagement.getGame(gameName);
 
-        /*if (game.isPresent()) {
+        if (game.isPresent()) {
             //TODO Sobald eine Bank implementiert ist, müssen die Ressourcen natürlich noch bei der Bank abgezogen werden.
             //"Ocean" = 0; "Forest" = 1; "Farmland" = 2; "Grassland" = 3; "Hillside" = 4; "Mountain" = 5; "Desert" = 6;
             TerrainFieldContainer[] temp = game.get().getGameField().getTFCs();
@@ -335,7 +336,7 @@ public class GameService extends AbstractService {
                 }
             }
 
-        }*/
+        }
     }
 
     /**
