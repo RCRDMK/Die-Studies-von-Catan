@@ -5,9 +5,9 @@ import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.assistedinject.Assisted;
-import de.uol.swp.client.account.event.ShowUserSettingsViewEvent;
-import de.uol.swp.client.account.event.LeaveUserSettingsEvent;
 import de.uol.swp.client.account.UserSettingsPresenter;
+import de.uol.swp.client.account.event.LeaveUserSettingsEvent;
+import de.uol.swp.client.account.event.ShowUserSettingsViewEvent;
 import de.uol.swp.client.account.event.UserSettingsErrorEvent;
 import de.uol.swp.client.auth.LoginPresenter;
 import de.uol.swp.client.auth.events.ShowLoginViewEvent;
@@ -63,6 +63,8 @@ public class SceneManager {
     private TabPane tabPane = new TabPane();
     private TabHelper tabHelper;
     private Scene userSettingsScene;
+    private Scene summaryScene;
+
 
     @Inject
     public SceneManager(EventBus eventBus, Injector injected, @Assisted Stage primaryStage) {
