@@ -548,6 +548,7 @@ public class GameService extends AbstractService {
      */
     @Subscribe
     public void onTradeItemRequest(TradeItemRequest request) {
+        System.out.println("Got message " +  request.getUser().getUsername());
         Optional<Game> game = gameManagement.getGame(request.getName());
         if (game.isPresent()) {
             boolean numberOfCardsCorrect = true;
@@ -565,10 +566,14 @@ public class GameService extends AbstractService {
                 //add new Trade if tradeCode not yet in use
                 if (!game.get().getTradeList().containsKey(tradeCode)) {
                     game.get().addTrades(new Trade(request.getUser(), request.getTradeItems()), tradeCode);
+
+                    System.out.println("added Trade "+ tradeCode + " by User: " + request.getUser().getUsername() + " items: " + request.getTradeItems());
+
                     for (User user : game.get().getUsers()) {
                         if (!request.getUser().equals(user)) {
                             TradeOfferInformBiddersMessage tradeOfferInformBiddersMessage = new TradeOfferInformBiddersMessage(request.getUser(), request.getName(), tradeCode, request.getTradeItems());
                             sendToSpecificUserInGame(game, tradeOfferInformBiddersMessage, user);
+                            System.out.println("Send TradeOfferInformBiddersMessage to " +  user.getUsername());
                         }
                     }
                 }
@@ -577,15 +582,20 @@ public class GameService extends AbstractService {
                     //TODO: response bid was delivered
                     Trade trade = game.get().getTradeList().get(request.getTradeCode());
                     trade.addBid(request.getUser(), request.getTradeItems());
+                    System.out.println("added bid to "+ tradeCode + " by User: " + request.getUser().getUsername() + " items: " + request.getTradeItems());
                     //If all users have send a bid/empty bid, inform the seller about the bids
                     if (trade.getBids().size() == game.get().getUsers().size() - 1) {
                         TradeInformSellerAboutBidsMessage tisabm = new TradeInformSellerAboutBidsMessage(trade.getSeller(), request.getName(), tradeCode, trade.getBidders(), trade.getBids());
                         sendToSpecificUserInGame(game, tisabm, trade.getSeller());
+                        System.out.println("Send TradeInformSellerAboutBidsMessage to " +  trade.getSeller().getUsername());
                     }
                 }
 
             } else {
                 //TODO: Send Error if trade<0 or not enough items in inventory, GamePresenter has to subscribe for it
+
+                System.out.println("Nicht genug im Inventar");
+
               TradeCardErrorMessage tcem = new TradeCardErrorMessage();
               sendToSpecificUserInGame(game, tcem, request.getUser());
             }
@@ -613,7 +623,7 @@ public class GameService extends AbstractService {
             Trade trade = game.get().getTradeList().get(request.getTradeCode());
             ArrayList<TradeItem> soldItems = trade.getSellingItems();
 
-            TradeSuccessfulMessage tsm = new TradeSuccessfulMessage(trade.getSeller(), request.getName(), soldItems);
+            TradeSuccessfulMessage tsm = new TradeSuccessfulMessage(trade.getSeller(), request.getName(), soldItems, request.getTradeCode());
 
             if (request.getTradeAccepted() == true) {
                 Inventory inventorySeller = game.get().getInventory(trade.getSeller());
@@ -637,7 +647,5 @@ public class GameService extends AbstractService {
             sendToAllInGame(request.getName(), tsm);
             game.get().removeTrade(request.getTradeCode());
         }
-        //TODO: response not enough cards inventory
     }
-
 }

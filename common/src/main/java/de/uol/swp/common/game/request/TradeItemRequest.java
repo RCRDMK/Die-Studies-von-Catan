@@ -26,7 +26,7 @@ public class TradeItemRequest extends AbstractGameRequest{
      * @since 2021-04-11
      */
     public TradeItemRequest(UserDTO user, String gameName, ArrayList<TradeItem> tradeItems, String tradeCode){
-        this.user = new UserDTO(user.getUsername(),"","");
+        this.user = user; //new UserDTO(user.getUsername(),"","");
         this.name = gameName;
         this.tradeItems = tradeItems;
         this.tradeCode = tradeCode;

@@ -17,6 +17,7 @@ public class TradeSuccessfulMessage extends AbstractGameMessage{
     private boolean tradeSuccessful;
     private UserDTO bidder;
     private ArrayList<TradeItem> bidItems;
+    private String tradeCode;
 
     /**
      * the constructor
@@ -30,11 +31,12 @@ public class TradeSuccessfulMessage extends AbstractGameMessage{
      * @author Alexander Losse, Ricardo Mook
      * @since 2021-04-11
      */
-    public TradeSuccessfulMessage(UserDTO seller, String gameName, ArrayList<TradeItem> soldItems){
-        this.user = new UserDTO(seller.getUsername(),"","");
+    public TradeSuccessfulMessage(UserDTO seller, String gameName, ArrayList<TradeItem> soldItems, String tradeCode){
+        this.user = seller;//new UserDTO(seller.getUsername(),"","");
         this.name = gameName;
         this.soldItems = soldItems;
         tradeSuccessful = false;
+        this.tradeCode = tradeCode;
     }
 
     /**
@@ -106,5 +108,9 @@ public class TradeSuccessfulMessage extends AbstractGameMessage{
      */
     public ArrayList<TradeItem> getBidItems() {
         return bidItems;
+    }
+
+    public String getTradeCode() {
+        return tradeCode;
     }
 }

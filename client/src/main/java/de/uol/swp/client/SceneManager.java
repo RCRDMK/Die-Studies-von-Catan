@@ -270,6 +270,7 @@ public class SceneManager {
     }
 
 
+
     /**
      * Handles ShowRegistrationViewEvent detected on the EventBus
      * <p>

@@ -11,7 +11,7 @@ public class TradeCardErrorMessage extends  AbstractGameMessage{
 
     }
     public TradeCardErrorMessage(UserDTO user, String gameName, String tradeCode, String itemName, int itemCount, int itemRealCount){
-        this.user = new UserDTO(user.getUsername(),"","");
+        this.user = user; // new UserDTO(user.getUsername(),"","");
         this.name = gameName;
         this.itemCount = itemCount;
         this.itemRealCount = itemRealCount;

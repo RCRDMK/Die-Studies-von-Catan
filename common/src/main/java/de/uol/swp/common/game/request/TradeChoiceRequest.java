@@ -25,7 +25,7 @@ public class TradeChoiceRequest extends  AbstractGameRequest{
      * @since 2021-04-11
      */
     public TradeChoiceRequest(UserDTO tradePartner,Boolean tradeAccepted, String gameName, String tradeCode){
-        this.user = new UserDTO(tradePartner.getUsername(), "","");
+        this.user = tradePartner;// new UserDTO(tradePartner.getUsername(), "","");
         this.name = gameName;
         this.tradeCode = tradeCode;
         this.tradeAccepted = tradeAccepted;

@@ -32,7 +32,7 @@ public class TradeOfferInformBiddersMessage extends AbstractGameMessage{
      * @since 2021-04-11
      */
     public TradeOfferInformBiddersMessage(UserDTO seller, String gameName, String tradeCode, ArrayList<TradeItem> sellingItems){
-        this.user = new UserDTO(seller.getUsername(),"","");
+        this.user = seller;//new UserDTO(seller.getUsername(),"","");
         this.name = gameName;
         this.tradeCode = tradeCode;
         this.sellingItems = sellingItems;
