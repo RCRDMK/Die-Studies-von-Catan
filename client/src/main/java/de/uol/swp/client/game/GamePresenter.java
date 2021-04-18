@@ -844,6 +844,4 @@ public class GamePresenter extends AbstractPresenter {
     public void onPublicInventoryChangeMessage(PublicInventoryChangeMessage publicInventoryChangeMessage) {
         //TODO: Darstellung der Veränderung des Inventars
     }
-
-
 }

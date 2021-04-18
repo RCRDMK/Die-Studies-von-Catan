@@ -12,12 +12,14 @@ import de.uol.swp.client.account.event.UserSettingsErrorEvent;
 import de.uol.swp.client.auth.LoginPresenter;
 import de.uol.swp.client.auth.events.ShowLoginViewEvent;
 import de.uol.swp.client.game.GamePresenter;
+import de.uol.swp.client.game.SummaryPresenter;
 import de.uol.swp.client.lobby.LobbyPresenter;
 import de.uol.swp.client.main.MainMenuPresenter;
 import de.uol.swp.client.register.RegistrationPresenter;
 import de.uol.swp.client.register.event.RegistrationCanceledEvent;
 import de.uol.swp.client.register.event.RegistrationErrorEvent;
 import de.uol.swp.client.register.event.ShowRegistrationViewEvent;
+import de.uol.swp.common.game.message.GameFinishedMessage;
 import de.uol.swp.common.user.User;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -92,6 +94,7 @@ public class SceneManager {
         initMainView();
         initRegistrationView();
         initUserSettingsView();
+        summaryScene = initSummaryView();
         nextLobbyScene = initLobbyView();
         nextGameScene = initGameView();
     }
@@ -225,6 +228,26 @@ public class SceneManager {
         return gameScene;
     }
 
+
+    /**
+     * Initializes the SummaryView
+     * <p>
+     * If the SummaryScene is null it gets set to a new scene containing the
+     * a pane showing the Summary view as specified by the SummaryView
+     * FXML file
+     *
+     * @return summaryScene
+     * @author René Meyer, Sergej Tulnev
+     * @see de.uol.swp.client.game.GamePresenter
+     * @since 2021-04-18
+     */
+    private Scene initSummaryView() {
+        Parent rootPane = initPresenter(SummaryPresenter.fxml);
+        summaryScene = new Scene(rootPane, 800, 600);
+        summaryScene.getStylesheets().add(styleSheet);
+        return summaryScene;
+    }
+
     /**
      * Initializes the userSettings view
      * <p>
@@ -278,6 +301,23 @@ public class SceneManager {
         showLoginScreen();
     }
 
+    /**
+     * Handles GameFinishedMessage detected on the EventBus
+     * <p>
+     * If a GameFinishedMessage is detected on the EventBus, this method gets
+     * called. It calls a method to add a Summary tab and removes the gameTab
+     *
+     * @param message ShowSummaryEvent that contains the GameName
+     * @author René Meyer, Sergej Tulnev
+     * @see GameFinishedMessage
+     * @since 2021-04-18
+     */
+    @Subscribe
+    public void onFinishedGameMessage(GameFinishedMessage message) {
+        var gameName = message.GetGameName();
+        removeGameTab(gameName);
+        showSummaryScreen(gameName);
+    }
 
     /**
      * Handles RegistrationCanceledEvent detected on the EventBus
@@ -500,6 +540,20 @@ public class SceneManager {
     }
 
     /**
+     * Shows the summary screen
+     * <p>
+     * Switches the current Scene to the SummaryScene and sets the title of
+     * the window to the gamename.
+     *
+     * @param gameName name of the game
+     * @author René Meyer, Sergej Tulnev
+     * @since 2021-04-18
+     */
+    public void showSummaryScreen(String gameName) {
+        newSummaryTab(gameName);
+    }
+
+    /**
      * Shows the lobby screen
      * <p>
      * This method invokes the newLobbyTab() method resulting in the creation of a new lobby tab
@@ -599,6 +653,29 @@ public class SceneManager {
             tabHelper.getTabPane().getSelectionModel().select(gameTab);
         });
         nextGameScene = initGameView();
+    }
+
+    /**
+     * Creates a new summary tab
+     * <p>
+     * When this method is invoked a new summary tab with a specific name is created.
+     * The content of the new summary tab is set to the root of the summaryScene
+     * The game tab is then added to the TabPane.
+     * Also the new Tab is shown immediately
+     *
+     * @param gamename the name of the game for which a tab is created
+     * @author René Meyer, Sergej Tulnev
+     * @since 2021-04-18
+     */
+    public void newSummaryTab(String gamename) {
+        Tab summaryTab = new Tab("Summary of Game " + gamename);
+        summaryTab.setContent(summaryScene.getRoot());
+        summaryTab.setClosable(false);
+        Platform.runLater(() -> {
+            tabHelper.addTab(summaryTab);
+            tabHelper.getTabPane().getSelectionModel().select(summaryTab);
+        });
+        summaryScene = initSummaryView();
     }
 
     /**
