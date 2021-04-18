@@ -15,13 +15,13 @@ import de.uol.swp.client.game.GamePresenter;
 import de.uol.swp.client.game.event.ShowBidderTradeViewEvent;
 import de.uol.swp.client.game.event.ShowSellerTradeViewEvent;
 import de.uol.swp.client.game.TradePresenter;
-import de.uol.swp.client.game.event.TradeEndedMessage;
 import de.uol.swp.client.lobby.LobbyPresenter;
 import de.uol.swp.client.main.MainMenuPresenter;
 import de.uol.swp.client.register.RegistrationPresenter;
 import de.uol.swp.client.register.event.RegistrationCanceledEvent;
 import de.uol.swp.client.register.event.RegistrationErrorEvent;
 import de.uol.swp.client.register.event.ShowRegistrationViewEvent;
+import de.uol.swp.common.game.message.TradeEndedMessage;
 import de.uol.swp.common.user.User;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -66,6 +66,8 @@ public class SceneManager {
     private Scene tabScene;
     private Scene nextLobbyScene;
     private Scene nextGameScene;
+    private Scene nextSellerTradeScene;
+    private Scene nextBidderTradeScene;
     private final Injector injector;
     private TabPane tabPane = new TabPane();
     private TabHelper tabHelper;
@@ -105,6 +107,8 @@ public class SceneManager {
         initBidderTradeView();
         nextLobbyScene = initLobbyView();
         nextGameScene = initGameView();
+        nextSellerTradeScene = initSellerTradeView();
+        nextBidderTradeScene = initBidderTradeView();
     }
 
     /**
@@ -354,17 +358,7 @@ public class SceneManager {
     public void onShowUserSettingsViewEvent(ShowUserSettingsViewEvent event) {
         showUserSettingsScreen();
     }
-    @Subscribe
-    public void onShowSellerTradeViewEvent(ShowSellerTradeViewEvent event){
-        secondaryStage.setScene(sellerTradeScene);
-        secondaryStage.show();
-    }
-    //TODO JavaDoc
-    @Subscribe
-    public void onShowBidderTradeViewEvent(ShowBidderTradeViewEvent event){
-        secondaryStage.setScene(bidderTradeScene);
-        secondaryStage.show();
-    }
+
 
     /**
      * Handles LeaveUserSettingsEvent detected on the EventBus
@@ -562,8 +556,12 @@ public class SceneManager {
         showScene(userSettingsScene, "UserSettings");
     }
 
-    public void showTradeScreen(){
-        showScene(sellerTradeScene, "tradescene");
+    public void showSellerTradeScreen(User currentUser, String lobbyname, String tradeCode){
+        newSellerTradeTab(currentUser, lobbyname, tradeCode);
+    }
+
+    public void showBidderTradeScreen(User currentUser, String lobbyname, String tradeCode){
+        newBidderTradeTab(currentUser, lobbyname, tradeCode);
     }
 
     /**
@@ -642,6 +640,28 @@ public class SceneManager {
         nextGameScene = initGameView();
     }
 
+    private void newSellerTradeTab(User currentUser, String gameName, String tradeCode){
+        Tab sellerTradeTab = new Tab("Trade " + tradeCode);
+        sellerTradeTab.setContent(nextSellerTradeScene.getRoot());
+        sellerTradeTab.setClosable(false);
+        Platform.runLater(() -> {
+            tabHelper.addTab(sellerTradeTab);
+            tabHelper.getTabPane().getSelectionModel().select(sellerTradeTab);
+        });
+nextSellerTradeScene = initSellerTradeView();
+    }
+
+    private void newBidderTradeTab(User currentUser, String gameName, String tradeCode){
+        Tab bidderTradeTab = new Tab("Trade " + tradeCode);
+        bidderTradeTab.setContent(nextBidderTradeScene.getRoot());
+        bidderTradeTab.setClosable(false);
+        Platform.runLater(() -> {
+            tabHelper.addTab(bidderTradeTab);
+            tabHelper.getTabPane().getSelectionModel().select(bidderTradeTab);
+        });
+        nextBidderTradeScene = initBidderTradeView();
+    }
+
     /**
      * Removes an old game tab
      * <p>
@@ -657,6 +677,13 @@ public class SceneManager {
     public void removeGameTab(String gamename) {
         Platform.runLater(() -> {
             tabHelper.removeTab("Game " + gamename);
+        });
+    }
+
+@Subscribe
+    public void removeTradeTab(TradeEndedMessage tem){
+        Platform.runLater(() -> {
+            tabHelper.removeTab("Trade " + tem.getTradeCode());
         });
     }
 

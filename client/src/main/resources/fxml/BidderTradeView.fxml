@@ -87,5 +87,7 @@
 <Button fx:id="hide" text="Hide" layoutX="400.0" layoutY="112.0" mnemonicParsing="false" disable="true" onAction="#onHidePressed"/>
 
 
-<TextField fx:id="sellerBid" layoutX="230.0" layoutY="202.0" editable="false"/>
+<TextField fx:id="sellerBid" layoutX="230.0" layoutY="202.0" editable="false" visible="false"/>
+
+    <TextArea fx:id="bids" layoutX="230.0" layoutY="252.0" editable="false" maxWidth="250.0" maxHeight="75.0"/>
 </AnchorPane>

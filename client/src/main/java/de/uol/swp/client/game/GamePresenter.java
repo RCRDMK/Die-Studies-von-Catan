@@ -40,6 +40,7 @@ import org.apache.logging.log4j.Logger;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Manages the GameView
@@ -59,10 +60,6 @@ public class GamePresenter extends AbstractPresenter {
 
     private static final Logger LOG = LogManager.getLogger(GamePresenter.class);
 
-    private static final ShowSellerTradeViewEvent showTradeViewEvent = new ShowSellerTradeViewEvent();
-
-    private static final ShowBidderTradeViewEvent showBidderViewEvent = new ShowBidderTradeViewEvent();
-
     private User joinedLobbyUser;
 
     private String currentLobby;
@@ -74,6 +71,8 @@ public class GamePresenter extends AbstractPresenter {
     private Button btnOkay;
 
     private ObservableList<String> gameUsers;
+
+    private TradeStartedMessage tradeStartedMessage;
 
     //Container for TerrainFields
     private TerrainField[] tfArray;
@@ -221,14 +220,15 @@ public class GamePresenter extends AbstractPresenter {
      * @since 2021-04-07
      */
     @FXML
-    public void onTrade(ActionEvent event) {
-        eventBus.post(showTradeViewEvent);
+    public void onTrade(ActionEvent event) {//TODO TradeCode schon hier generieren
+        String tradeCode = this.joinedLobbyUser +  UUID.randomUUID().toString();
+        eventBus.post(new TradeStartedMessage((UserDTO)this.joinedLobbyUser, this.currentLobby, tradeCode));
     }
 
-    @Subscribe //TODO JavaDoc
+   /* @Subscribe //TODO JavaDoc
     public void onTradeRegistered(TradeOfferInformBiddersMessage toibm){
         eventBus.post(showBidderViewEvent);
-    }
+    }*/
 
     @FXML
     public void onBuildStreet(ActionEvent event) {

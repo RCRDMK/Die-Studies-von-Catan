@@ -1,9 +1,12 @@
 package de.uol.swp.client.game;
 
 import com.google.common.eventbus.Subscribe;
+import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
-import de.uol.swp.client.game.event.TradeEndedMessage;
+import de.uol.swp.client.SceneManager;
+import de.uol.swp.common.game.message.TradeEndedMessage;
 import de.uol.swp.common.game.message.TradeInformSellerAboutBidsMessage;
+import de.uol.swp.common.game.message.TradeStartedMessage;
 import de.uol.swp.common.game.message.TradeSuccessfulMessage;
 import de.uol.swp.common.game.request.TradeItemRequest;
 import de.uol.swp.common.game.trade.TradeItem;
@@ -18,6 +21,7 @@ import javafx.util.StringConverter;
 import javafx.util.converter.NumberStringConverter;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.UUID;
 
  /**
@@ -41,11 +45,12 @@ public class TradePresenter extends AbstractPresenter {//TODO JavaDoc
 
      //important for the switch cases
         int switchCount = 2;
+
+
+
         UserDTO user;
         String lobby;
         String tradeCode;
-
-     private TradeEndedMessage tem;
 
 
      @FXML
@@ -64,22 +69,25 @@ public class TradePresenter extends AbstractPresenter {//TODO JavaDoc
      public TextField fifthInput;
 
      @FXML
-     public ChoiceBox ressourceChoice;
+     public ChoiceBox<String> ressourceChoice;
 
      @FXML
-     public ChoiceBox secondChoice;
+     public ChoiceBox<String> secondChoice;
 
      @FXML
-     public ChoiceBox thirdChoice;
+     public ChoiceBox<String> thirdChoice;
 
      @FXML
-     public ChoiceBox fourthChoice;
+     public ChoiceBox<String> fourthChoice;
 
      @FXML
-     public ChoiceBox fifthChoice;
+     public ChoiceBox<String> fifthChoice;
 
      @FXML
      public Button trade;
+
+     @FXML
+     public Button offer;
 
      @FXML
      public Button add;
@@ -123,7 +131,6 @@ public class TradePresenter extends AbstractPresenter {//TODO JavaDoc
         ArrayList<TradeItem> tradeItems = new ArrayList();
 
 
-
         /**
          * This method is responsible for the correct setup of the UI elements
          *
@@ -131,27 +138,30 @@ public class TradePresenter extends AbstractPresenter {//TODO JavaDoc
          * @since 2021-04-09
          */
 
+
+
         @FXML
         public void onTradePressed(ActionEvent event) {//If the amount textfield has a number from 1 -500 in it and
             // "What do you want to trade?" is not selected, it will create a new tradeitem and add it to the Arraylist
             if (hasNumber(amountInput.getText()) == true && !ressourceChoice.getValue().toString().equals("What do you want to trade?")) {
-                whatRessource = ressourceChoice.toString();
+                StringConverter sc = new NumberStringConverter();
+                whatRessource = ressourceChoice.getValue();
                 amount = Integer.parseInt(amountInput.getText());
                 tradeItems.add(new TradeItem(whatRessource, amount));
                 if (secondChoice.isVisible() == true && hasNumber(amountInput.getText()) == true && !secondChoice.getValue().toString().equals("What do you want to trade?")) {
-                    whatSecondRessource = secondChoice.toString();
+                    whatSecondRessource = secondChoice.getValue();
                     secondAmount = Integer.parseInt(secondInput.getText());
                     tradeItems.add(new TradeItem(whatSecondRessource, secondAmount));
                     if (thirdChoice.isVisible() == true && hasNumber(amountInput.getText()) == true && !thirdChoice.getValue().toString().equals("What do you want to trade?")) {
-                        whatThirdRessource = thirdChoice.toString();
+                        whatThirdRessource = thirdChoice.getValue();
                         thirdAmount = Integer.parseInt(thirdInput.getText());
                         tradeItems.add(new TradeItem(whatThirdRessource, thirdAmount));
                         if (fourthChoice.isVisible() == true && hasNumber(amountInput.getText()) == true && !fourthChoice.getValue().toString().equals("What do you want to trade?")) {
-                            whatFourthRessource = fourthChoice.toString();
+                            whatFourthRessource = fourthChoice.getValue();
                             fourthAmount = Integer.parseInt(fourthInput.getText());
                             tradeItems.add(new TradeItem(whatFourthRessource, fourthAmount));
                             if (fifthChoice.isVisible() == true && hasNumber(amountInput.getText()) == true && !fifthChoice.getValue().toString().equals("What do you want to trade?")) {
-                                whatFifthRessource = fifthChoice.toString();
+                                whatFifthRessource = fifthChoice.getValue();
                                 fifthAmount = Integer.parseInt(fifthInput.getText());
                                 tradeItems.add(new TradeItem(whatFifthRessource, fifthAmount));
                             }
@@ -184,7 +194,7 @@ public class TradePresenter extends AbstractPresenter {//TODO JavaDoc
 
             @FXML
             public void onAddPressed(ActionEvent event){
-                /*switch (switchCount) {//add another textfield and dropdown menu to send different ressources in one trade
+                switch (switchCount) {//add another textfield and dropdown menu to send different ressources in one trade
                     case 2:
                         secondChoice.setVisible(true);
                         secondInput.setVisible(true);
@@ -207,9 +217,9 @@ public class TradePresenter extends AbstractPresenter {//TODO JavaDoc
                         fifthInput.setVisible(true);
                         add.setDisable(true);
                         break;
-                }*/
+                }
 
-resetTradeUiElements();
+
             }
 
 
@@ -244,22 +254,26 @@ resetTradeUiElements();
 
            @FXML
            public void onBidder1Pressed(ActionEvent event){
-
+eventBus.post(new TradeEndedMessage(tradeCode));
+resetTradeUiElements();
            }
 
      @FXML
      public void onBidder2Pressed(ActionEvent event){
-
+         eventBus.post(new TradeEndedMessage(tradeCode));
+         resetTradeUiElements();
      }
 
      @FXML
      public void onBidder3Pressed(ActionEvent event){
-
+         eventBus.post(new TradeEndedMessage(tradeCode));
+         resetTradeUiElements();
      }
 
      @FXML
      public void onNoOfferPressed(ActionEvent event){
-
+         eventBus.post(new TradeEndedMessage(tradeCode));
+         resetTradeUiElements();
      }
 
         /**
@@ -276,6 +290,13 @@ resetTradeUiElements();
 
             tradeCode = user.getUsername() +  UUID.randomUUID().toString();
 
+        }
+
+        @Subscribe
+        void setTradeCode(TradeStartedMessage tsm){
+           user= tsm.getUser();
+           lobby=tsm.getLobby();
+           tradeCode = tsm.getTradeCode();
         }
 
         @Subscribe
@@ -327,7 +348,8 @@ resetTradeUiElements();
          */
         @Subscribe
         private void updateForSeller(TradeItemRequest tir) {
-            sellerBid.setText("Your offer: " + tir.getTradeItems().toString());
+
+            //sellerBid.setText("Your offer: " + tir.getTradeItems().toString());
             trade.setDisable(true);
             add.setDisable(true);
         }
@@ -356,6 +378,7 @@ resetTradeUiElements();
                     @Override
                     public void handle(ActionEvent event) {
                         bidGotAccepted.hide();
+                        eventBus.post(new TradeEndedMessage(tradeCode));
 
                     }
                 });
@@ -372,6 +395,7 @@ resetTradeUiElements();
                     @Override
                     public void handle(ActionEvent event) {
                         bidGotDenied.hide();
+                        eventBus.post(new TradeEndedMessage(tradeCode));
 
                     }
                 });

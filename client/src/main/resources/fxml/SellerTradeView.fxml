@@ -87,7 +87,7 @@
         <Button fx:id="bidder3" layoutX="33.0" layoutY="290.0" mnemonicParsing="false" visible="false" onAction="#onBidder3Pressed"/>
         <Button fx:id="noOffer" layoutX="33.0" layoutY="330.0" mnemonicParsing="false" visible="false" onAction="#onNoOfferPressed"/>
 
-        <TextField fx:id="sellerBid" layoutX="230.0" layoutY="202.0" editable="false"/>
+        <TextField fx:id="sellerBid" layoutX="230.0" layoutY="202.0" editable="false" visible="false"/>
 
         <TextArea fx:id="bids" layoutX="230.0" layoutY="252.0" editable="false" maxWidth="250.0" maxHeight="75.0"/>
 
