@@ -7,7 +7,6 @@ import com.google.inject.Singleton;
 import de.uol.swp.common.chat.ResponseChatMessage;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.MapGraph;
-import de.uol.swp.common.game.TerrainFieldContainer;
 import de.uol.swp.common.game.inventory.Inventory;
 import de.uol.swp.common.game.message.*;
 import de.uol.swp.common.game.request.*;
@@ -129,6 +128,14 @@ public class GameService extends AbstractService {
         }
     }
 
+    /**
+     * Handles incoming build requests.
+     *
+     * @param message
+     *
+     * @author Pieter Vogt
+     * @since 2021-04-15
+     */
     @Subscribe
     public void onConstructionMessage(ConstructionMessage message) {
         LOG.debug("Recieved new ConstructionMessage from user " + message.getUser());
@@ -186,7 +193,6 @@ public class GameService extends AbstractService {
         message.setReceiver(authenticationService.getSessions(receiver));
         post(message);
     }
-
 
     public void sendToSpecificUser(MessageContext ctx, ResponseMessage message) {
         ctx.writeAndFlush(message);
@@ -286,7 +292,7 @@ public class GameService extends AbstractService {
     public void distributeResources(int eyes, String gameName) {
         Optional<Game> game = gameManagement.getGame(gameName);
 
-        if (game.isPresent()) {
+        /*if (game.isPresent()) {
             //TODO Sobald eine Bank implementiert ist, müssen die Ressourcen natürlich noch bei der Bank abgezogen werden.
             //"Ocean" = 0; "Forest" = 1; "Farmland" = 2; "Grassland" = 3; "Hillside" = 4; "Mountain" = 5; "Desert" = 6;
             TerrainFieldContainer[] temp = game.get().getGameField().getTFCs();
@@ -329,7 +335,7 @@ public class GameService extends AbstractService {
                 }
             }
 
-        }
+        }*/
     }
 
     /**
@@ -556,11 +562,12 @@ public class GameService extends AbstractService {
      * Method to update private and public inventories in a game
      * <p>
      * If game exists, method sends two types of messages with updated information about inventories.
-     * PrivateInventoryChangeMessage is send to specific player in the game.
-     * PublicInventoryChangeMessage is send to all players in the game.
+     * PrivateInventoryChangeMessage is send to specific player in the game. PublicInventoryChangeMessage is send to all
+     * players in the game.
      * <p>
      *
      * @param game game that wants to update private and public inventories
+     *
      * @author Iskander Yusupov, Anton Nikiforov
      * @since 2021-04-08
      */
@@ -580,22 +587,21 @@ public class GameService extends AbstractService {
     /**
      * Handles LogoutRequests found on the EventBus
      * <p>
-     * If a LogoutRequest is detected on the EventBus, this method is called. It
-     * gets all games from the GameManagement and loops through them.
-     * If the user is part of a game, he gets removed from it.
-     * If he is the last user in the game, the game gets dropped.
-     * Finally we log how many games the user left.
+     * If a LogoutRequest is detected on the EventBus, this method is called. It gets all games from the GameManagement
+     * and loops through them. If the user is part of a game, he gets removed from it. If he is the last user in the
+     * game, the game gets dropped. Finally we log how many games the user left.
      *
      * @param request LogoutRequest found on the eventBus
+     *
+     * @author René Meyer, Sergej Tulnev
      * @see de.uol.swp.common.user.request.LogoutRequest
      * @see de.uol.swp.common.game.request.GameLeaveUserRequest
      * @see de.uol.swp.server.lobby.LobbyService
-     * @author René Meyer, Sergej Tulnev
      * @since 2021-04-08
      */
     @Subscribe
-    public void onLogoutRequest(LogoutRequest request){
-        if (request.getSession().isPresent()){
+    public void onLogoutRequest(LogoutRequest request) {
+        if (request.getSession().isPresent()) {
             Session session = request.getSession().get();
             var userToLogOut = session.getUser();
             // Could be already logged out
@@ -610,18 +616,18 @@ public class GameService extends AbstractService {
                 while (it.hasNext()) {
                     Map.Entry<String, Game> entry = it.next();
                     Game game = entry.getValue();
-                    if(game.getUsers().contains(userToLogOut)){
+                    if (game.getUsers().contains(userToLogOut)) {
                         // leave every game the user is part of
                         var gameLeaveUserRequest = new GameLeaveUserRequest(game.getName(), (UserDTO) userToLogOut);
-                        if(request.getMessageContext().isPresent()){
+                        if (request.getMessageContext().isPresent()) {
                             gameLeaveUserRequest.setMessageContext(request.getMessageContext().get());
                             this.onGameLeaveUserRequest(gameLeaveUserRequest);
                         }
                     }
                     i++;
                 }
-                var lobbyString = i>1? " games":" game";
-                LOG.debug("Left " + i + lobbyString+" for User: " + userToLogOut.getUsername());
+                var lobbyString = i > 1 ? " games" : " game";
+                LOG.debug("Left " + i + lobbyString + " for User: " + userToLogOut.getUsername());
             }
         }
 

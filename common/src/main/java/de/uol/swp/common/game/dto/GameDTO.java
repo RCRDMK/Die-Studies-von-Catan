@@ -1,7 +1,6 @@
 package de.uol.swp.common.game.dto;
 
 import de.uol.swp.common.game.Game;
-import de.uol.swp.common.game.GameField;
 import de.uol.swp.common.game.MapGraph;
 import de.uol.swp.common.game.inventory.DevelopmentCardDeck;
 import de.uol.swp.common.game.inventory.Inventory;
@@ -28,7 +27,6 @@ public class GameDTO implements Game {
     private final String name;
     private final Set<User> users = new TreeSet<>();
     private final int turn = 0; //this points to the index of the user who now makes his turn.
-    private GameField gameField;
     private MapGraph mapGraph;
     private int overallTurns = 0; //This just counts +1 every time a player ends his turn. (good for Summaryscreen for example)
     private final ArrayList<User> userArrayList = new ArrayList<User>();
@@ -117,16 +115,6 @@ public class GameDTO implements Game {
     @Override
     public User getUser(int index) {
         return userArrayList.get(index);
-    }
-
-    @Override
-    public GameField getGameField() {
-        return gameField;
-    }
-
-    @Override
-    public void setGameField(GameField gameField) {
-        this.gameField = gameField;
     }
 
     @Override

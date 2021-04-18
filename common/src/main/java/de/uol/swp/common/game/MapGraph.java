@@ -10,14 +10,9 @@ import java.util.UUID;
 
 /**
  * Manages the logic behind the playfield.
- * <p>This Class holds and processes the data about the buildable playfield. It can return the longest road, and
+ * <p>This Class holds and processes the data about the playfield. It can return the longest road, and
  * potentially the most settlements, the player with the most cities, overall number of buildings built, length of
- * combined roads and so on (especially interesting for endscreen, maybe?). This class should be read as the following:
- * Every attempt to find the longest Traderoute will be called a Route. A Route is made out of distinct RouteSegments.
- * RouteSegments are stretches of road that are not interrupted by crossroads or settlements. Every little piece of road
- * inside a RouteSegment will be called a StreetNode and every possible or build settlement will be called a
- * BuildingNode. So StreetNodes form RouteSegments, and RouteSegments form Routes. The Longest Route will be called the
- * Longest TradeRoute.
+ * combined roads and so on (especially interesting for endscreen, maybe?).
  * </p>
  *
  * @author Pieter Vogt
@@ -25,14 +20,9 @@ import java.util.UUID;
  */
 public class MapGraph implements Serializable {
 
-    //FIELDS
-
     private final HashSet<StreetNode> streetNodeHashSet = new HashSet<>();
     private final HashSet<BuildingNode> buildingNodeHashSet = new HashSet<>();
     private final HashSet<Hexagon> hexagonHashSet = new HashSet<>();
-
-
-    //CONSTRUCTOR
 
     /**
      * Creates the interconnected Grid of StreetNodes and BuildingNodes.
@@ -43,11 +33,6 @@ public class MapGraph implements Serializable {
     public MapGraph(String mapTypeToGenerate) {
         initializeMapGraph(mapTypeToGenerate);
     }
-
-    public static void main(String[] args) {
-        MapGraph mapGraph = new MapGraph("");
-    }
-    //GETTER SETTER
 
     public HashSet<StreetNode> getStreetNodeHashSet() {
         return streetNodeHashSet;
@@ -60,9 +45,6 @@ public class MapGraph implements Serializable {
     public HashSet<Hexagon> getHexagonHashSet() {
         return hexagonHashSet;
     }
-
-
-    //METHODS
 
     /**
      * Initializes MapGraph
@@ -212,79 +194,13 @@ public class MapGraph implements Serializable {
     }
 
     /**
-     * Enables direct, encapsulated (blackbox-like) access to every StreetNode.
-     * <p>This is used to directly access a StreetNode to e.g. build a road. This will return null if the StreetNode
-     * you are looking for does not exist.</p>
+     * Represents a buildable Node of the MapGraph.
+     * <p>This class gives us the ability to put StreetNodes and BuildingNodes into the same List by putting in
+     * MapGraphNodes.</p>
      *
-     * @param hexagon        The list of relative vectors in String-form to reach the desired hexagon.
-     * @param positionOfNode The relative position of the desired node relative to the argument-hexagon.
-     *
-     * @return A StreetNode at a position, determined by the parsed arguments.
      * @author Pieter Vogt
-     * @since 2021-04-09
+     * @since 2021-04-15
      */
-    public StreetNode accessStreetNode(ArrayList<String> hexagon, String positionOfNode) {
-        for (Hexagon h : hexagonHashSet) {
-            if (h.getSelfPosition().equals(hexagon)) { //If the argument List of Strings matches the List of Strings of a given hexagon, we found the right object.
-                switch (positionOfNode) {
-                    case "topLeft":
-                        return h.getStreetTopLeft();
-                    case "topRight":
-                        return h.getStreetTopRight();
-                    case "left":
-                        return h.getStreetLeft();
-                    case "right":
-                        return h.getStreetRight();
-                    case "bottomLeft":
-                        return h.getStreetBottomLeft();
-                    case "bottomRight":
-                        return h.getStreetBottomRight();
-                    default:
-                        return null;
-                }
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Enables direct, encapsulated (blackbox-like) access to every BuildingNode.
-     * <p>This is used to directly access a BuildingNode to e.g. build a road. This will return null if the
-     * BuildingNode you are looking for does not exist. </p>
-     *
-     * @param hexagon        The List of relative vectors in String-form to reach the desired hexagon.
-     * @param positionOfNode The relative position of the desired node relative to the argument-hexagon.
-     *
-     * @return A BuildingNode at a position, determined by the parsed arguments.
-     * @author Pieter Vogt
-     * @since 2021-04-09
-     */
-    public BuildingNode accessBuildingNode(ArrayList<String> hexagon, String positionOfNode) {
-        for (Hexagon h : hexagonHashSet) {
-            if (h.getSelfPosition().equals(hexagon)) { //If the argument List of Strings matches the List of Strings of a given hexagon, we found the right object.
-                switch (positionOfNode) {
-                    case "topLeft":
-                        return h.getBuildingTopLeft();
-                    case "topRight":
-                        return h.getBuildingTopRight();
-                    case "top":
-                        return h.getBuildingTop();
-                    case "bottom":
-                        return h.getBuildingBottom();
-                    case "bottomLeft":
-                        return h.getBuildingBottomLeft();
-                    case "bottomRight":
-                        return h.getBuildingBottomRight();
-                    default:
-                        return null;
-                }
-            }
-        }
-        return null;
-    }
-
-    //NESTED CLASSES
-
     public abstract class MapGraphNode implements Serializable {
 
         //Fields
@@ -316,7 +232,7 @@ public class MapGraph implements Serializable {
     }
 
     /**
-     * Holds all the data needed to represent streets and the interactions made with them.
+     * Holds all the data needed to represent places to build streets on, and the interactions made with them.
      *
      * @author Pieter Vogt
      * @see <a href=>https://confluence.swl.informatik.uni-oldenburg.de/pages/editpage.action?pageId=263979012</a>
@@ -396,7 +312,7 @@ public class MapGraph implements Serializable {
     }
 
     /**
-     * Holds all the data needed to represent Buildingspots and the interactions made with them.
+     * Holds all the data needed to represent places to build buildings on, and the interactions made with them.
      *
      * @author Pieter Vogt
      * @see <a href=>https://confluence.swl.informatik.uni-oldenburg.de/pages/editpage.action?pageId=263979012</a>
@@ -439,6 +355,10 @@ public class MapGraph implements Serializable {
             return occupiedByPlayer;
         }
 
+        public void setOccupiedByPlayer(int occupiedByPlayer) {
+            this.occupiedByPlayer = occupiedByPlayer;
+        }
+
         public int getTypeOfHarbor() {
             return typeOfHarbor;
         }
@@ -471,10 +391,6 @@ public class MapGraph implements Serializable {
             return sizeOfSettlement;
         }
 
-        public void setOccupiedByPlayer(int occupiedByPlayer) {
-            this.occupiedByPlayer = occupiedByPlayer;
-        }
-
         //METHODS
 
         /**
@@ -501,8 +417,8 @@ public class MapGraph implements Serializable {
      * Represents the logical structure of one hexagonal cardboard-piece to build the Playfield of.
      * <p>This class represents the logic of the pathfinding- and the building-system. It houses the pointers to the
      * building-spots and is aware of its neighbour-hexagonals. With this, we are able to send specific commands to
-     * specific places of the playfield. In the future it may hold all the data representing a TerrainField, not just
-     * the logical aspect.</p>
+     * specific places of the playfield. Furthermore this has superseded the GameField-class and now also represents the
+     * type of Terrain and the diceToken.</p>
      *
      * @author Pieter Vogt
      * @since 2021-04-09
@@ -1348,11 +1264,3 @@ public class MapGraph implements Serializable {
         }
     }
 }
-
-
-/*        public void dock(Hexagon h1, Hexagon h2, String position, ArrayList<String> selfPosition){
-            if(h1==null){
-                h2 = new Hexagon(position,selfPosition);
-                h1.set
-            }
-        }*/

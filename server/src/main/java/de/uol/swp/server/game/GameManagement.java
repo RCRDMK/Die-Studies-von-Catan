@@ -20,7 +20,6 @@ import java.util.Optional;
  * @see de.uol.swp.server.game.AbstractGameManagement
  * @since 2021-01-15
  */
-
 public class GameManagement extends AbstractGameManagement {
     private final Map<String, Game> games = new HashMap<>();
 

@@ -461,7 +461,6 @@ public class GamePresenter extends AbstractPresenter {
         });
     }
 
-
     /**
      * This method holds the size of the terrainFields in pixels.
      * <p>
@@ -472,7 +471,6 @@ public class GamePresenter extends AbstractPresenter {
      * @author Pieter Vogt
      * @since 2021-01-24
      */
-
     public double cardSize() {
         double d = Math.min(canvas.getHeight(), canvas.getWidth()); //Determine minimum pixels in height and length of the canvas (we dont want the playfield to scale out of canvas, so we orient at the smaller axis)
         return d / 8; // Divide by 8 because the playfield is 7 cards wide and add 1/2 card each side for margin so the cards dont touch the boundaries of the canvas.
@@ -600,7 +598,6 @@ public class GamePresenter extends AbstractPresenter {
      * @author Pieter Vogt
      * @since 2021-04-15
      */
-
     public Color determinePlayerColorByIndex(int playerIndex) {
         switch (playerIndex) {
             case 0:
@@ -767,7 +764,6 @@ public class GamePresenter extends AbstractPresenter {
      */
     @Subscribe
     public void onSuccessfulConstructionMessage(SuccessfulConstructionMessage message) {
-
         if (message.getTypeOfNode().equals("BuildingNode")) {
             for (MapGraphNodeContainer mapGraphNodeContainer : mapGraphNodeContainers) {
                 if (mapGraphNodeContainer.getMapGraphNode().getUuid().equals(message.getUuid())) {
@@ -777,8 +773,6 @@ public class GamePresenter extends AbstractPresenter {
                     break;
                 }
             }
-
-
         } else {
             for (MapGraphNodeContainer mapGraphNodeContainer : mapGraphNodeContainers) {
                 if (mapGraphNodeContainer.getMapGraphNode().getUuid().equals(message.getUuid())) {
@@ -800,6 +794,4 @@ public class GamePresenter extends AbstractPresenter {
     public void onPublicInventoryChangeMessage(PublicInventoryChangeMessage publicInventoryChangeMessage) {
         //TODO: Darstellung der Veränderung des Inventars
     }
-
-
 }

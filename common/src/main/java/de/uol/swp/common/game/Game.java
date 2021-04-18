@@ -91,26 +91,6 @@ public interface Game extends Serializable {
     User getUser(int index);
 
     /**
-     * Getter for the GameField of this game
-     *
-     * @return The GameField of this game
-     * @author Pieter Vogt, Marc Hermes
-     * @see de.uol.swp.common.game.GameField
-     * @since 2021-03-13
-     */
-    GameField getGameField();
-
-    /**
-     * Setter for the GameField of this game
-     *
-     * @param gameField the GameField to be set as the gameField of this Game
-     * @author Pieter Vogt, Marc Hermes
-     * @see de.uol.swp.common.game.GameField
-     * @since 2021-03-13
-     */
-    void setGameField(GameField gameField);
-
-    /**
      * Sets up the Arraylist containing the users.
      *
      * <p>This is used to enable the server to adress users with indices. This was not possible with the Set-structure

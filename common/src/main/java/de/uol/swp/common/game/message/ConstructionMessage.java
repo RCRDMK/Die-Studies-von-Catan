@@ -13,14 +13,10 @@ import java.util.UUID;
  */
 public class ConstructionMessage extends AbstractGameRequest {
 
-    //Fields
-
     UserDTO user;
     String game;
     UUID uuid;
     String typeOfNode;
-
-    //Constructor
 
     /**
      * Constructor for creating a new ConstructionMessage.
@@ -38,8 +34,6 @@ public class ConstructionMessage extends AbstractGameRequest {
         this.uuid = uuid;
         this.typeOfNode = typeOfNode;
     }
-
-    //Getter Setter
 
     @Override
     public UserDTO getUser() {

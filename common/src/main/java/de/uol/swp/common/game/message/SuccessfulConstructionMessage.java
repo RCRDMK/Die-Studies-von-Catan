@@ -2,24 +2,23 @@ package de.uol.swp.common.game.message;
 
 import java.util.UUID;
 
+/**
+ * Delivers the information of a successful construction, where it happened and by wich player it was conducted.
+ *
+ * @author Pieter Vogt
+ * @since 2021-04-15
+ */
 public class SuccessfulConstructionMessage extends AbstractGameMessage {
-
-    //Fields
 
     int playerIndex;
     UUID uuid;
     String typeOfNode;
-
-    //Constructor
 
     public SuccessfulConstructionMessage(int playerIndex, UUID uuid, String typeOfNode) {
         this.playerIndex = playerIndex;
         this.uuid = uuid;
         this.typeOfNode = typeOfNode;
     }
-
-    //Getter Setter
-
 
     public int getPlayerIndex() {
         return playerIndex;

@@ -11,19 +11,13 @@ import de.uol.swp.common.game.MapGraph;
  */
 public class MapGraphChangedMessage {
 
-    //FIELDS
-
     private MapGraph mapGraph;
     private String gameName;
-
-    //CONSTRUCTOR
 
     public MapGraphChangedMessage(String gameName, MapGraph mapGraph) {
         this.gameName = gameName;
         this.mapGraph = mapGraph;
     }
-
-    // GETTER SETTER
 
     public MapGraph getMapGraph() {
         return mapGraph;

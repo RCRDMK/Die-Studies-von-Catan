@@ -13,17 +13,24 @@ import java.util.Collection;
  * @since 2021-01-24
  */
 public class Vector {
-    //attributes
+
     private final double x;
     private final double y;
-
-    //getter
 
     public Vector(double x, double y) {
         this.x = x;
         this.y = y;
     }
 
+    /**
+     * Returns a vector depending on a parsed MapGraphNode and distance (CardSize).
+     * <p>This method is used to place Nodes.</p>
+     *
+     * @param node
+     * @param d
+     *
+     * @return
+     */
     public static Vector getVectorFromMapGraphNode(MapGraph.MapGraphNode node, double d) {
         Vector returnVector = new Vector(0, 0);
         if (node.getClass().equals(MapGraph.BuildingNode.class)) {
@@ -94,9 +101,6 @@ public class Vector {
         return returnVector;
     }
 
-
-    //constructor
-
     /**
      * Creates a Vector from a list of Strings.
      * <p>This can only be parsed a Collection of Strings from a Hexagon because this already considers the cardSize of
@@ -144,8 +148,6 @@ public class Vector {
         return returnVector;
     }
 
-    //Vector-math-functions
-
     /**
      * Subtracts 2 Vectors in JavaFX-Coordinate System
      * <p>
@@ -188,8 +190,6 @@ public class Vector {
         return new Vector(v1.getX() + v2.getX(), v1.getY() - v2.getY());
     }
 
-    //Movement-related functions. Double d is the distance to travel.
-
     public static Vector right(double d) {
         double angle = 0 * (2 * Math.PI / 12);
         return new Vector(d * Math.cos(angle), d * Math.sin(angle));
@@ -220,12 +220,6 @@ public class Vector {
         return new Vector(d * Math.cos(angle), d * Math.sin(angle));
     }
 
-    // TODO: Eventuell in RAD umwandeln oder weg (Wird noch genutzt)
-    public static Vector generalVector(double d, double angle_deg) {
-        double angle = angle_deg / 360 * 2 * Math.PI;
-        return new Vector(d * Math.cos(angle), d * Math.sin(angle));
-    }
-
     public double getX() {
         return x;
     }
@@ -233,4 +227,6 @@ public class Vector {
     public double getY() {
         return y;
     }
+
+
 }

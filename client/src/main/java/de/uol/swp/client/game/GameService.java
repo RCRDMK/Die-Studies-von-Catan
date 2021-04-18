@@ -49,7 +49,6 @@ public class GameService {
      * <p>
      * I have changed the place of the method to the new GameService. It is a temporary method.
      */
-
     public void rollDice(String name, User user) {
         RollDiceRequest rollDiceRequest = new RollDiceRequest(name, user);
         eventBus.post(rollDiceRequest);
