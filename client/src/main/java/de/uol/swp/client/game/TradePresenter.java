@@ -207,7 +207,7 @@ public class TradePresenter extends AbstractPresenter {//TODO JavaDoc
                         add.setDisable(true);
                         break;
                 }*/
-eventBus.post(new TradeEndedMessage());
+
 resetTradeUiElements();
             }
 

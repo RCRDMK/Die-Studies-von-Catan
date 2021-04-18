@@ -364,10 +364,6 @@ public class SceneManager {
         secondaryStage.setScene(bidderTradeScene);
         secondaryStage.show();
     }
-@Subscribe
-public void onTradeEnded(TradeEndedMessage message){
-        secondaryStage.close();
-}
 
     /**
      * Handles LeaveUserSettingsEvent detected on the EventBus
