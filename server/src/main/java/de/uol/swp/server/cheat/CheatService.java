@@ -4,7 +4,9 @@ import com.google.common.eventbus.EventBus;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import de.uol.swp.common.chat.RequestChatMessage;
+import de.uol.swp.common.game.request.EndTurnRequest;
 import de.uol.swp.common.game.request.RollDiceRequest;
+import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.server.AbstractService;
 import de.uol.swp.server.game.GameService;
 import de.uol.swp.server.usermanagement.UserService;
@@ -73,6 +75,28 @@ public class CheatService extends AbstractService {
             }
         }
         // Cheatcode "endgame"
+        // Usage: endgame [string]
+        //   e.g. endgame testGameName
+
+        // Check that endgame cheatMessage has correct 2 arguments
+        if (cheatPrefix.equals("endgame") && cheatMessageSplit.length == 2) {
+            var cheatGameName = cheatMessage.getMessage().split("\\s")[1];
+            if (cheatMessage.getSession().isPresent()) {
+                var session = cheatMessage.getSession().get();
+                var user = session.getUser();
+                var game = gameService.getGameManagement().getGame(cheatGameName);
+                if (game.isPresent()) {
+                    var inventory = game.get().getInventory(user);
+                    // Set User Victory Points to 10
+                    inventory.setVictoryPoints(10);
+                    // End Turn to trigger the Win
+                    var endTurnRequest = new EndTurnRequest(cheatGameName, (UserDTO) user);
+                    gameService.onEndTurnRequest(endTurnRequest);
+                } else {
+                    LOG.debug("Game not present!");
+                }
+            }
+        }
         // @TODO: Endgame Scene still missing
         // Cheatcode "givememoney"
         //@Todo: give me x resource cards, warte auf Pieters Ticket, da terrainFieldContainer entfernt wurde?

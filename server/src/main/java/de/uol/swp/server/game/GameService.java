@@ -534,4 +534,13 @@ public class GameService extends AbstractService {
             }
         }
     }
+
+    /**
+     * Returns the gameManagement
+     *
+     * @return
+     */
+    public GameManagement getGameManagement() {
+        return this.gameManagement;
+    }
 }
