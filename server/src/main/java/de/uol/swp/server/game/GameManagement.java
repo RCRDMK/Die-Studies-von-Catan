@@ -2,7 +2,7 @@ package de.uol.swp.server.game;
 
 
 import de.uol.swp.common.game.Game;
-import de.uol.swp.common.game.GameField;
+import de.uol.swp.common.game.MapGraph;
 import de.uol.swp.common.game.dto.GameDTO;
 import de.uol.swp.common.user.User;
 
@@ -20,7 +20,6 @@ import java.util.Optional;
  * @see de.uol.swp.server.game.AbstractGameManagement
  * @since 2021-01-15
  */
-
 public class GameManagement extends AbstractGameManagement {
     private final Map<String, Game> games = new HashMap<>();
 
@@ -42,7 +41,7 @@ public class GameManagement extends AbstractGameManagement {
     @Override
     public void createGame(String name, User owner, String gameFieldVariant) {
         GameDTO game = new GameDTO(name, owner);
-        game.setGameField(new GameField(gameFieldVariant));
+        game.setMapGraph(new MapGraph(gameFieldVariant));
         games.put(name, game);
     }
 

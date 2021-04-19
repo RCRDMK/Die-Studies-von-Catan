@@ -91,26 +91,6 @@ public interface Game extends Serializable {
     User getUser(int index);
 
     /**
-     * Getter for the GameField of this game
-     *
-     * @return The GameField of this game
-     * @author Pieter Vogt, Marc Hermes
-     * @see de.uol.swp.common.game.GameField
-     * @since 2021-03-13
-     */
-    GameField getGameField();
-
-    /**
-     * Setter for the GameField of this game
-     *
-     * @param gameField the GameField to be set as the gameField of this Game
-     * @author Pieter Vogt, Marc Hermes
-     * @see de.uol.swp.common.game.GameField
-     * @since 2021-03-13
-     */
-    void setGameField(GameField gameField);
-
-    /**
      * Sets up the Arraylist containing the users.
      *
      * <p>This is used to enable the server to adress users with indices. This was not possible with the Set-structure
@@ -170,6 +150,7 @@ public interface Game extends Serializable {
      * Getter for the Inventory from user
      *
      * @param user
+     *
      * @return The Inventory from user
      * @author Anton Nikiforov
      * @see de.uol.swp.common.game.inventory.Inventory
@@ -177,5 +158,29 @@ public interface Game extends Serializable {
      */
     Inventory getInventory(User user);
 
+    /**
+     * Returns the MapGraph object.
+     *
+     * @return The logical graph with all Nodes, Hexagons and connections between them.
+     * @author Pieter Vogt
+     * @see MapGraph
+     * @since 2021-04-11
+     */
+    MapGraph getMapGraph();
+
+    /**
+     * Puts the parsed MapGraph into the DTO.
+     *
+     * @param mapGraph
+     *
+     * @author Pieter Vogt
+     * @see MapGraph
+     * @since 2021-04-11
+     */
+    void setMapGraph(MapGraph mapGraph);
+
     DevelopmentCardDeck getDevelopmentCardDeck();
+
+    //TODO: this Methods need to be removed after all dependencies on the 3 obsolete classes had been resolved!!!
+    GameField getGameField();
 }
