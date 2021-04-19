@@ -22,13 +22,18 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Circle;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -84,6 +89,44 @@ public class GamePresenter extends AbstractPresenter {
     @FXML
     private Button EndTurnButton;
 
+    @FXML
+    private GridPane chooseResource;
+
+    @FXML
+    private Button lumberUp;
+
+    @FXML
+    private Button lumberDown;
+
+    @FXML
+    private Button grainUp;
+
+    @FXML
+    private Button grainDown;
+
+    @FXML
+    private Button woolUp;
+
+    @FXML
+    private Button woolDown;
+
+    @FXML
+    private Button oreUp;
+
+    @FXML
+    private Button oreDown;
+
+    @FXML
+    private Button brickUp;
+
+    @FXML
+    private Button brickDown;
+
+    @FXML
+    void onIncResource(ActionEvent event) {
+
+    }
+
     /**
      * Method called when the send Message button is pressed
      * <p>
@@ -91,7 +134,6 @@ public class GamePresenter extends AbstractPresenter {
      * The message is of type RequestChatMessage If this will result in an exception, go log the exception
      *
      * @param event The ActionEvent created by pressing the send Message button
-     *
      * @author René, Sergej
      * @see de.uol.swp.client.chat.ChatService
      * @since 2021-03-08
@@ -119,7 +161,6 @@ public class GamePresenter extends AbstractPresenter {
      * If a ResponseChatMessage is detected on the EventBus the method onResponseChatMessageLogic is invoked.
      *
      * @param message the ResponseChatMessage object seen on the EventBus
-     *
      * @author René Meyer
      * @see de.uol.swp.common.chat.ResponseChatMessage
      * @since 2021-03-13
@@ -133,7 +174,6 @@ public class GamePresenter extends AbstractPresenter {
      * Adds the ResponseChatMessage to the textArea
      *
      * @param message
-     *
      * @author René Meyer
      * @see de.uol.swp.common.chat.ResponseChatMessage
      * @since 2021-03-13
@@ -149,7 +189,6 @@ public class GamePresenter extends AbstractPresenter {
      * textArea. The formatted Message contains the username, readableTime and message
      *
      * @param rcm the ResponseChatMessage given by the original subscriber method.
-     *
      * @author René Meyer
      * @see de.uol.swp.common.chat.ResponseChatMessage
      * @since 2021-03-13
@@ -169,7 +208,6 @@ public class GamePresenter extends AbstractPresenter {
      * the currentLobby in regards to the input given by the response.
      *
      * @param rcm the ResponseChatMessage given by the original subscriber method.
-     *
      * @author Alexander Losse, Marc Hermes
      * @see de.uol.swp.common.chat.ResponseChatMessage
      * @since 2021-01-20
@@ -215,7 +253,6 @@ public class GamePresenter extends AbstractPresenter {
      * If the RollDice button is pressed, this methods tries to request the GameService to send a RollDiceRequest.
      *
      * @param event The ActionEvent created by pressing the Roll Dice button
-     *
      * @author Kirstin, Pieter
      * @see de.uol.swp.client.game.GameService
      * @since 2021-01-07
@@ -243,7 +280,6 @@ public class GamePresenter extends AbstractPresenter {
      * If a GameCreatedMessage is detected on the EventBus this method invokes gameStartedSuccessfulLogic.
      *
      * @param message the GameCreatedMessage object seen on the EventBus
-     *
      * @author Ricardo Mook, Alexander Losse
      * @see de.uol.swp.common.game.message.GameCreatedMessage
      * @since 2021-03-05
@@ -261,7 +297,6 @@ public class GamePresenter extends AbstractPresenter {
      * Users in the currentLobby is also requested.
      *
      * @param gcm the GameCreatedMessage given by the original subscriber method.
-     *
      * @author Alexander Losse, Ricardo Mook
      * @see GameCreatedMessage
      * @see de.uol.swp.common.game.GameField
@@ -274,7 +309,90 @@ public class GamePresenter extends AbstractPresenter {
             this.currentLobby = gcm.getName();
             updateGameUsersList(gcm.getUsers());
             initializeMatch(gcm.getMapGraph());
-            Platform.runLater(this::setupRessourceAlert);
+            Platform.runLater(() -> {
+                setupRessourceAlert();
+                initializeRobberResourceMenu();
+            });
+        }
+    }
+
+    /**
+     * This method initializes the menu where the player has to choose, which resource he wants to give to the player,
+     * that moved the robber.
+     * <p>
+     * The method initializes an array of 5 rectangles and fills it with the pictures of the resources. After that,
+     * it creates 10 buttons and sets some icons, to indicate the buttons.
+     * If this is complete, the method puts the buttons and rectangles into a gridpane that is shown besides the chat.
+     * After this initialization the pane gets invisible and will only be shown by the MoveRobberResponse.
+     *
+     * @author Marius Birk
+     * @see de.uol.swp.common.game.response.MoveRobberResponse
+     * @since 2021-04-19
+     */
+    public void initializeRobberResourceMenu() {
+        Rectangle[] resources = new Rectangle[5];
+        resources[0] = new Rectangle(30, 30);
+        resources[1] = new Rectangle(30, 30);
+        resources[2] = new Rectangle(30, 30);
+        resources[3] = new Rectangle(30, 30);
+        resources[4] = new Rectangle(30, 30);
+
+        resources[0].setFill(new ImagePattern(new Image("textures/originals/RES_Holz.png")));
+        resources[1].setFill(new ImagePattern(new Image("textures/originals/RES_Getreide.png")));
+        resources[2].setFill(new ImagePattern(new Image("textures/originals/RES_Wolle.png")));
+        resources[3].setFill(new ImagePattern(new Image("textures/originals/RES_Lehm.png")));
+        resources[4].setFill(new ImagePattern(new Image("textures/originals/RES_Erz.png")));
+
+        Button[] choose = new Button[10];
+        for (int i = 0; i < choose.length; i++) {
+            choose[i] = new Button();
+            if (i < 4) {
+                Rectangle imageView = new Rectangle(30, 30);
+                imageView.setFill(new ImagePattern(new Image("img/icons/arrow_up.png")));
+                choose[i].setGraphic(imageView);
+            }
+            if (i >= 5) {
+                Rectangle imageView = new Rectangle(30, 30);
+                imageView.setFill(new ImagePattern(new Image("img/icons/arrow_down.png")));
+                choose[i].setGraphic(imageView);
+            }
+        }
+        for (int i = 0; i < 4; i++) {
+            chooseResource.add(choose[i], i, 0);
+            chooseResource.add(choose[5 + i], i, 2);
+            chooseResource.add(resources[i], i, 1);
+        }
+        chooseResource.setVgap(40);
+        chooseResource.setHgap(30);
+
+        hideRobberResourceMenu();
+    }
+
+    /**
+     * This method shows the initialized gridpane.
+     * <p>
+     * This method shows the initialized gridpane, if the user does received a MoveRobberResponse.
+     *
+     * @author Marius Birk
+     * @since 2021-04-19
+     */
+    public void showRobberResourceMenu() {
+        for (Node node : chooseResource.getChildren()) {
+            node.setVisible(true);
+        }
+    }
+
+    /**
+     * This method hides the initialized gridpane.
+     * <p>
+     * This method hides the initialized gridpane, if the user doesn't received a MoveRobberResponse.
+     *
+     * @author Marius Birk
+     * @since 2021-04-19
+     */
+    public void hideRobberResourceMenu() {
+        for (Node node : chooseResource.getChildren()) {
+            node.setVisible(false);
         }
     }
 
@@ -284,7 +402,6 @@ public class GamePresenter extends AbstractPresenter {
      * If a GameLeftSuccessfulResponse is detected on the EventBus the method gameLeftSuccessfulLogic is invoked.
      *
      * @param glsr the GameLeftSuccessfulResponse object seen on the EventBus
-     *
      * @author Marc Hermes
      * @see de.uol.swp.common.user.response.game.GameLeftSuccessfulResponse
      * @since 2021-03-15
@@ -302,7 +419,6 @@ public class GamePresenter extends AbstractPresenter {
      * not, it becomes unclickable.</p>
      *
      * @param response
-     *
      * @author Pieter Vogt
      */
     @Subscribe
@@ -325,7 +441,6 @@ public class GamePresenter extends AbstractPresenter {
      * on the event bus and no longer be reachable for responses, messages etc.
      *
      * @param glsr the GameLeftSuccessfulResponse given by the original subscriber method
-     *
      * @author Marc Hermes
      * @see de.uol.swp.common.user.response.game.GameLeftSuccessfulResponse
      * @since 2021-03-15
@@ -347,7 +462,6 @@ public class GamePresenter extends AbstractPresenter {
      * GamePresenterException if joinedLobbyUser and currentLobby are not initialised
      *
      * @param event
-     *
      * @author Ricardo Mook, Alexander Losse
      * @see de.uol.swp.client.game.GameService
      * @see de.uol.swp.client.game.GamePresenterException
@@ -371,7 +485,6 @@ public class GamePresenter extends AbstractPresenter {
      * If a UserLeftGameMessage is detected on the EventBus the method otherUserLeftSuccessfulLogic is invoked.
      *
      * @param message the UserLeftGameMessage object seen on the EventBus
-     *
      * @author Iskander Yusupov
      * @see de.uol.swp.common.game.message.UserLeftGameMessage
      * @since 2021-03-17
@@ -389,7 +502,6 @@ public class GamePresenter extends AbstractPresenter {
      * game) is requested.
      *
      * @param ulgm the UserLeftGameMessage given by the original subscriber method.
-     *
      * @author Iskander Yusupov
      * @see de.uol.swp.common.game.message.UserLeftGameMessage
      * @since 2021-03-17
@@ -416,7 +528,6 @@ public class GamePresenter extends AbstractPresenter {
      * List of the Users in the currentLobby in regards to the list given by the response.
      *
      * @param atgur the AllThisLobbyUsersResponse given by the original subscriber method.
-     *
      * @author Iskander Yusupov
      * @see de.uol.swp.common.user.response.game.AllThisGameUsersResponse
      * @since 2021-03-14
@@ -438,7 +549,6 @@ public class GamePresenter extends AbstractPresenter {
      * user list. If there ist no user list this creates one.
      *
      * @param gameUserList A list of UserDTO objects including all currently logged in users
-     *
      * @implNote The code inside this Method has to run in the JavaFX-application thread. Therefore it is crucial not to
      * remove the {@code Platform.runLater()}
      * @author Iskander Yusupov , @design Marc Hermes, Ricardo Mook
@@ -608,8 +718,9 @@ public class GamePresenter extends AbstractPresenter {
                 return Color.color(1.0, 1.0, 0.4);
             case 3:
                 return Color.color(0.5, 1.0, 0.4);
+            default:
+                return Color.color(0, 0, 0);
         }
-        return Color.color(0.5, 0.5, 0.5);
     }
 
     /**
@@ -655,7 +766,6 @@ public class GamePresenter extends AbstractPresenter {
      * translated into the correct String names of the tfArray TerrainFields.
      *
      * @param mapGraph the MapGraph created by the Server
-     *
      * @author Marc Hermes
      * @see de.uol.swp.common.game.GameField
      * @see de.uol.swp.client.game.GameObjects.TerrainField
@@ -715,7 +825,6 @@ public class GamePresenter extends AbstractPresenter {
      * This method reacts to the NotEnoughRessourcesMessage and shows the corresponding alert window.
      *
      * @param notEnoughRessourcesMessage
-     *
      * @implNote The code inside this Method has to run in the JavaFX-application thread. Therefore it is crucial not to
      * remove the {@code Platform.runLater()}
      * @author Marius Birk
@@ -727,7 +836,7 @@ public class GamePresenter extends AbstractPresenter {
             if (this.currentLobby.equals(notEnoughRessourcesMessage.getName())) {
                 Platform.runLater(() -> {
                     this.alert.setTitle(notEnoughRessourcesMessage.getName());
-                    this.alert.setHeaderText("Yout have not enough Ressources!");
+                    this.alert.setHeaderText("You have not enough Ressources!");
                     this.alert.show();
                 });
             }
@@ -758,7 +867,6 @@ public class GamePresenter extends AbstractPresenter {
      * Updates the corresponding Node in the list of MapGraphNodes to represent the changes from the message.
      *
      * @param message The data about the changed properties of the MapGraph
-     *
      * @author Pieter Vogt
      * @since 2021-04-15
      */
@@ -793,5 +901,13 @@ public class GamePresenter extends AbstractPresenter {
     @Subscribe
     public void onPublicInventoryChangeMessage(PublicInventoryChangeMessage publicInventoryChangeMessage) {
         //TODO: Darstellung der Veränderung des Inventars
+    }
+
+
+    @Subscribe
+    public void onTooMuchRessourceCardsMessage(TooMuchResourceCardsMessage tooMuchResourceCardsMessage) {
+        //show alert
+
+        //send Message with ressources to discard and to add to bank
     }
 }

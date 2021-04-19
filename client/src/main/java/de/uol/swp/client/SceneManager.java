@@ -5,9 +5,9 @@ import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.assistedinject.Assisted;
-import de.uol.swp.client.account.event.ShowUserSettingsViewEvent;
-import de.uol.swp.client.account.event.LeaveUserSettingsEvent;
 import de.uol.swp.client.account.UserSettingsPresenter;
+import de.uol.swp.client.account.event.LeaveUserSettingsEvent;
+import de.uol.swp.client.account.event.ShowUserSettingsViewEvent;
 import de.uol.swp.client.account.event.UserSettingsErrorEvent;
 import de.uol.swp.client.auth.LoginPresenter;
 import de.uol.swp.client.auth.events.ShowLoginViewEvent;
@@ -230,8 +230,8 @@ public class SceneManager {
      * a pane showing the userSettings view as specified by the UserSettingsView
      * FXML file.
      *
-     * @see UserSettingsPresenter
      * @author Carsten Dekker
+     * @see UserSettingsPresenter
      * @since 2021-03-04
      */
     private void initUserSettingsView() {
@@ -318,8 +318,8 @@ public class SceneManager {
      * called. It calls a method to switch the current screen to the showUserSettings screen.
      *
      * @param event The ShowUserSettingsViewEvent detected on the EventBus
-     * @see de.uol.swp.client.account.event.ShowUserSettingsViewEvent
      * @author Carsten Dekker
+     * @see de.uol.swp.client.account.event.ShowUserSettingsViewEvent
      * @since 2021-04-03
      */
     @Subscribe
@@ -334,8 +334,8 @@ public class SceneManager {
      * called. It calls a method to show the screen shown before userSettings.
      *
      * @param event The LeaveUserSettingsEvent detected on the EventBus
-     * @see de.uol.swp.client.account.event.LeaveUserSettingsEvent
      * @author Carsten Dekker
+     * @see de.uol.swp.client.account.event.LeaveUserSettingsEvent
      * @since 2021-03-04
      */
     @Subscribe
@@ -350,8 +350,8 @@ public class SceneManager {
      * called. It shows the error message of the event in a error alert.
      *
      * @param event The UserSettingsErrorEvent detected on the EventBus
-     * @see de.uol.swp.client.account.event.UserSettingsErrorEvent
      * @author Carsten Dekker
+     * @see de.uol.swp.client.account.event.UserSettingsErrorEvent
      * @since 2021-03-06
      */
     @Subscribe
@@ -516,6 +516,7 @@ public class SceneManager {
      * <p>
      * Switches the current Scene to the userSettingsScene and sets the title of
      * the window to "UserSettings"
+     *
      * @author Carsten Dekker
      * @since 2021-04-03
      */
