@@ -23,6 +23,7 @@ public class MapGraph implements Serializable {
     private final HashSet<StreetNode> streetNodeHashSet = new HashSet<>();
     private final HashSet<BuildingNode> buildingNodeHashSet = new HashSet<>();
     private final HashSet<Hexagon> hexagonHashSet = new HashSet<>();
+    private final LongestStreetPathCalculator longestStreetPathCalculator;
 
     /**
      * Creates the interconnected Grid of StreetNodes and BuildingNodes.
@@ -32,6 +33,7 @@ public class MapGraph implements Serializable {
      */
     public MapGraph(String mapTypeToGenerate) {
         initializeMapGraph(mapTypeToGenerate);
+        this.longestStreetPathCalculator = new LongestStreetPathCalculator(streetNodeHashSet);
     }
 
     public HashSet<StreetNode> getStreetNodeHashSet() {
@@ -44,6 +46,10 @@ public class MapGraph implements Serializable {
 
     public HashSet<Hexagon> getHexagonHashSet() {
         return hexagonHashSet;
+    }
+
+    public LongestStreetPathCalculator getLongestStreetPathCalculator() {
+        return longestStreetPathCalculator;
     }
 
     /**
@@ -118,12 +124,16 @@ public class MapGraph implements Serializable {
                 middle.getHexLeft().getHexTopLeft().generateNodes();
 
 
+                for (Hexagon hexagon : hexagonHashSet) {
+                    hexagon.interconnectOwnNodes();
+                }
+                /*
                 middle.getHexTopLeft().interconnectNeighbourNodes();
                 middle.getHexTopRight().interconnectNeighbourNodes();
                 middle.getHexLeft().interconnectNeighbourNodes();
                 middle.getHexRight().interconnectNeighbourNodes();
                 middle.getHexBottomLeft().interconnectNeighbourNodes();
-                middle.getHexBottomRight().interconnectNeighbourNodes();
+                middle.getHexBottomRight().interconnectNeighbourNodes();*/
 
                 middle.getHexTopLeft().getHexTopLeft().updateHexagonList();
                 middle.getHexTopLeft().getHexTopRight().updateHexagonList();
@@ -306,6 +316,8 @@ public class MapGraph implements Serializable {
         public Boolean buildRoad(int playerIndex) {
             if (this.occupiedByPlayer == 666) {
                 this.occupiedByPlayer = playerIndex;
+                longestStreetPathCalculator.updateMatrixWithNewStreet(this.getUuid(), playerIndex);
+                longestStreetPathCalculator.printAdjacencyMatrix(playerIndex);
                 return true;
             } else return false;
         }
