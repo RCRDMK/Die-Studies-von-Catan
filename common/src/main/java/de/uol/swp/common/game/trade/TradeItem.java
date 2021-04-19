@@ -1,12 +1,14 @@
 package de.uol.swp.common.game.trade;
 
+import java.io.Serializable;
+
 /**
  *This class is used to save information about an item to be traded
  *
  * @author Alexander Losse, Ricardo Mook
  * @since 2021-04-07
  */
-public class TradeItem {
+public class TradeItem implements Serializable {
     //name of the item e.g. "Lumber"
     private String name;
     private int count;

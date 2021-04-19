@@ -47,10 +47,12 @@ public class TradePresenter extends AbstractPresenter {//TODO JavaDoc
         int switchCount = 2;
 
 
+    @Inject
+    GameService gameService;
 
-        UserDTO user;
-        String lobby;
-        String tradeCode;
+    UserDTO user;
+    String lobby;
+    String tradeCode;
 
 
      @FXML

@@ -116,8 +116,8 @@ public class GameService {
     }
 
     //starts the trade
-    public void sendSellingItem(UserDTO bidder, String gameName, ArrayList<TradeItem> bidItems){
-        String tradeCode = bidder.getUsername() +  UUID.randomUUID().toString();
+    public void sendSellingItem(UserDTO bidder, String gameName, ArrayList<TradeItem> bidItems,String tradeCode){
+        //String tradeCode = bidder.getUsername() +  UUID.randomUUID().toString();
         TradeItemRequest tir = new TradeItemRequest(bidder, gameName, bidItems, tradeCode);
         eventBus.post(tir);
     }
