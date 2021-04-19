@@ -2,6 +2,7 @@ package de.uol.swp.common.game.dto;
 
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.GameField;
+import de.uol.swp.common.game.MapGraph;
 import de.uol.swp.common.game.inventory.DevelopmentCardDeck;
 import de.uol.swp.common.game.inventory.Inventory;
 import de.uol.swp.common.user.User;
@@ -18,11 +19,7 @@ import java.util.TreeSet;
  * This object is used to communicate the current state of games between the server and clients. It contains information
  * about the Name of the game, who owns the game.
  * <p>
- * enhanced by Pieter Vogt
- * @since 2021-03-26
- * <p>
- * enhanced by Anton Nikiforov
- * @since 2021-04-01
+ * enhanced by Pieter Vogt 2021-03-26 enhanced by Anton Nikiforov 2021-04-01
  *
  * @author Iskander Yusupov
  * @since 2021-01-15
@@ -30,12 +27,12 @@ import java.util.TreeSet;
 public class GameDTO implements Game {
 
     private final String name;
-    private User owner;
     private final Set<User> users = new TreeSet<>();
-    private GameField gameField;
+    private final int turn = 0; //this points to the index of the user who now makes his turn.
+    private MapGraph mapGraph;
     private int overallTurns = 0; //This just counts +1 every time a player ends his turn. (good for Summaryscreen for example)
-    private int turn = 0; //this points to the index of the user who now makes his turn.
-    private ArrayList<User> userArrayList = new ArrayList<User>();
+    private final ArrayList<User> userArrayList = new ArrayList<User>();
+    private User owner;
     private boolean startingTurns = true;
     private boolean countingUp = true;
     private boolean lastPlayerSecondTurn = false;
@@ -53,6 +50,7 @@ public class GameDTO implements Game {
      *
      * @param name    The name the game should have
      * @param creator The user who created the game and therefore shall be the owner
+     *
      * @since 2021-01-15
      */
     public GameDTO(String name, User creator) {
@@ -87,7 +85,8 @@ public class GameDTO implements Game {
     @Override
     public void updateOwner(User user) {
         if (!this.users.contains(user)) {
-            throw new IllegalArgumentException("User " + user.getUsername() + "not found. Owner must be member of game!");
+            throw new IllegalArgumentException("User " + user.getUsername() +
+                    "not found. Owner must be member of game!");
         }
         this.owner = user;
     }
@@ -120,16 +119,6 @@ public class GameDTO implements Game {
     @Override
     public User getUser(int index) {
         return userArrayList.get(index);
-    }
-
-    @Override
-    public GameField getGameField() {
-        return gameField;
-    }
-
-    @Override
-    public void setGameField(GameField gameField) {
-        this.gameField = gameField;
     }
 
     @Override
@@ -251,6 +240,7 @@ public class GameDTO implements Game {
      * It compares the user with the inventory user and returns the inventory from user
      *
      * @param user you want the inventory of
+     *
      * @return The Inventory from user
      * @author Anton Nikiforov
      * @see de.uol.swp.common.game.inventory.Inventory
@@ -274,5 +264,21 @@ public class GameDTO implements Game {
     @Override
     public DevelopmentCardDeck getDevelopmentCardDeck() {
         return developmentCardDeck;
+    }
+
+    @Override
+    public MapGraph getMapGraph() {
+        return mapGraph;
+    }
+
+    @Override
+    public void setMapGraph(MapGraph mapGraph) {
+        this.mapGraph = mapGraph;
+    }
+
+    //TODO: This method needs to be deleted as soon as the dependencies to the obsolete classes are fixed!!!
+    @Override
+    public GameField getGameField() {
+        return null;
     }
 }

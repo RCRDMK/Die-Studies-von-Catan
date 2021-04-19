@@ -53,7 +53,8 @@ public class GameCreatedSuccessfulResponse extends AbstractResponseMessage {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        de.uol.swp.common.user.response.game.GameCreatedSuccessfulResponse that = (de.uol.swp.common.user.response.game.GameCreatedSuccessfulResponse) o;
+        de.uol.swp.common.user.response.game.GameCreatedSuccessfulResponse that =
+                (de.uol.swp.common.user.response.game.GameCreatedSuccessfulResponse) o;
         return Objects.equals(user, that.user);
     }
 

@@ -17,6 +17,7 @@ public abstract class AbstractUserStore implements UserStore {
     /**
      * Calculates the hash for a given String
      *
+     * @author Marco Grawunder
      * @implSpec the hash method used is sha256
      * @param toHash the String to calculate the hash for
      * @return String containing the calculated hash

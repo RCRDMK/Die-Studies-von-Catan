@@ -25,6 +25,7 @@ public interface Lobby extends Serializable {
      * Getter for the lobby's name
      *
      * @return A String containing the name of the lobby
+     * @author Marco Grawunder
      * @since 2019-10-08
      */
     String getName();
@@ -33,6 +34,7 @@ public interface Lobby extends Serializable {
      * Changes the owner of the lobby
      *
      * @param user The user who should be the new owner
+     * @author Marco Grawunder
      * @since 2019-10-08
      */
     void updateOwner(User user);
@@ -41,6 +43,7 @@ public interface Lobby extends Serializable {
      * Getter for the current owner of the lobby
      *
      * @return A User object containing the owner of the lobby
+     * @author Marco Grawunder
      * @since 2019-10-08
      */
     User getOwner();
@@ -49,6 +52,7 @@ public interface Lobby extends Serializable {
      * Adds a new user to the lobby
      *
      * @param user The new user to add to the lobby
+     * @author Marco Grawunder
      * @since 2019-10-08
      */
     void joinUser(User user);
@@ -57,6 +61,7 @@ public interface Lobby extends Serializable {
      * Adds a new user to the "ready to start the game" players list
      *
      * @param user The new user that is ready to start
+     * @author Marco Grawunder
      * @since 2021-01-24
      */
 
@@ -66,6 +71,7 @@ public interface Lobby extends Serializable {
      * Removes an user from the lobby
      *
      * @param user The user to remove from the lobby
+     * @author Marco Grawunder
      * @since 2019-10-08
      */
     void leaveUser(User user);
@@ -74,6 +80,7 @@ public interface Lobby extends Serializable {
      * Getter for all users in the lobby
      *
      * @return A Set containing all user in this lobby
+     * @author Marco Grawunder
      * @since 2019-10-08
      */
     Set<User> getUsers();
@@ -84,6 +91,7 @@ public interface Lobby extends Serializable {
      * Getter for all user in this lobby which are ready to start the game
      *
      * @return A Set containing all user in this lobby which are ready to start the game
+     * @author Marco Grawunder
      * @since 2021-01-24
      */
 
@@ -136,4 +144,22 @@ public interface Lobby extends Serializable {
      * @since 2021-03-23
      */
     void setGameShouldStart(boolean value);
+
+    /**
+     * Returns a boolean value saying whether the game of this lobby started or not
+     *
+     * @return True if the game started, false if not (users in the lobby still waiting)
+     * @author Carsten Dekker
+     * @since 2021-04-08
+     */
+    boolean getGameStarted();
+
+    /**
+     * Sets the value of the gameStarted variable
+     *
+     * @param value True if the game started, false if not
+     * @author Carsten Dekker
+     * @since 2021-04-08
+     */
+    void setGameStarted(boolean value);
 }

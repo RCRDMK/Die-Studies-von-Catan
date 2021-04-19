@@ -17,10 +17,10 @@ public interface ServerUserService {
     /**
      * Login with username and password
      *
-     * @author Marco Grawunder
      * @param username the name of the user
      * @param password the password of the user
      * @return a new user object
+     * @author Marco Grawunder
      * @since 2017-03-17
      */
     User login(String username, String password) throws SQLException;
@@ -29,9 +29,9 @@ public interface ServerUserService {
     /**
      * Test, if given user is logged in
      *
-     * @author Marco Grawunder
      * @param user the user to check for
      * @return true if the User is logged in
+     * @author Marco Grawunder
      * @since 2019-09-04
      */
     boolean isLoggedIn(User user);
@@ -49,9 +49,9 @@ public interface ServerUserService {
     /**
      * Create a new persistent user
      *
-     * @author Marco Grawunder
      * @param user The user to create
      * @return the new created user
+     * @author Marco Grawunder
      * @implNote the User Object has to contain a unique identifier in order to
      * remove the correct user
      * @since 2019-09-02
@@ -63,8 +63,8 @@ public interface ServerUserService {
      * <p>
      * Remove the User specified by the User object.
      *
-     * @author Marco Grawunder
      * @param user The user to remove
+     * @author Marco Grawunder
      * @implNote the User Object has to contain a unique identifier in order to
      * remove the correct user
      * @since 2019-10-10
@@ -76,11 +76,11 @@ public interface ServerUserService {
      * <p>
      * Updates the User specified by the User object.
      *
-     * @author Marco Grawunder
      * @param user the user object containing all infos to
      *             update, if some values are not set, (e.g. password is "")
      *             these fields are not updated
      * @return the updated user object
+     * @author Marco Grawunder
      * @implNote the User Object has to contain a unique identifier in order to
      * update the correct user
      * @since 2019-09-02
@@ -89,16 +89,16 @@ public interface ServerUserService {
 
     /**
      * Update a user
-     *
+     * <p>
      * Updates the User specified by the User object.
      *
-     * @author Marco Grawunder
-     * @implNote the User Object has to contain a unique identifier in order to
-     * 			 update the correct user
      * @param user the user object containing all infos to
      *             update, if some values are not set, (e.g. password is "")
      *             these fields are not updated
      * @return the updated user object
+     * @author Marco Grawunder
+     * @implNote the User Object has to contain a unique identifier in order to
+     * update the correct user
      * @since 2019-09-02
      */
     User updateUserPassword(User user, String password) throws SQLException;
@@ -106,8 +106,8 @@ public interface ServerUserService {
     /**
      * Retrieve the list of all current logged in users
      *
-     * @author Marco Grawunder
      * @return a list of users
+     * @author Marco Grawunder
      * @since 2017-03-17
      */
     List<User> retrieveAllUsers() throws SQLException;
@@ -115,8 +115,8 @@ public interface ServerUserService {
     /**
      * Retrieve the user information of the currently logged in user
      *
-     * @author Carsten Dekker
      * @return user information
+     * @author Carsten Dekker
      * @since 2021-03-11
      */
     User retrieveUserMail(User user) throws SQLException;

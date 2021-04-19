@@ -48,9 +48,10 @@ class UserMessageSerializableTest {
                 RegistrationExceptionMessage.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new LoginSuccessfulResponse(defaultUser),
                 LoginSuccessfulResponse.class));
-        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new LoginRequest("name", "pass"),
-                LoginRequest.class));
-        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new LogoutRequest(), LogoutRequest.class));
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new LoginRequest("name",
+                "pass"), LoginRequest.class));
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new LogoutRequest(),
+                LogoutRequest.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new RegisterUserRequest(defaultUser),
                 RegisterUserRequest.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new RetrieveAllOnlineUsersRequest(),
@@ -61,14 +62,14 @@ class UserMessageSerializableTest {
                 AllOnlineUsersResponse.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new AllThisLobbyUsersResponse(),
                 AllThisLobbyUsersResponse.class));
-        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new LobbyCreatedSuccessfulResponse(defaultUser),
-                LobbyCreatedSuccessfulResponse.class));
-        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new LobbyJoinedSuccessfulResponse(defaultUser),
-                LobbyJoinedSuccessfulResponse.class));
-        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new LobbyLeftSuccessfulResponse(defaultUser),
-                LobbyLeftSuccessfulResponse.class));
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new LobbyCreatedSuccessfulResponse(
+                defaultUser), LobbyCreatedSuccessfulResponse.class));
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new LobbyJoinedSuccessfulResponse(
+                defaultUser), LobbyJoinedSuccessfulResponse.class));
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new LobbyLeftSuccessfulResponse(
+                defaultUser), LobbyLeftSuccessfulResponse.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new RegistrationSuccessfulResponse(),
-               RegistrationSuccessfulResponse.class));
+                RegistrationSuccessfulResponse.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new DropUserExceptionMessage("Error"),
                 DropUserExceptionMessage.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new DropUserSuccessfulResponse(),

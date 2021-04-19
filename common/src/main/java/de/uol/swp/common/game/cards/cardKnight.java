@@ -2,7 +2,7 @@ package de.uol.swp.common.game.cards;
 
 /**
  * Interface for the knightcard
- *
+ * <p>
  * The knight card is counted among the developmentcards.
  *
  * @author Alexander Losse, Iskander Yusupov

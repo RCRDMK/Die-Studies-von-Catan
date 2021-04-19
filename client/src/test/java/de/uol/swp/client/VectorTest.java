@@ -55,17 +55,19 @@ public class VectorTest {
      * The directional methods in combination with a double value are used to determine the vector that needs to be
      * added to a position in order to move (from that position) in a certain direction for a given distance.
      * </p>
+     * <p>
+     * enhanced by Pieter Vogt
      *
      * @author Pieter Vogt
-     * @date 2021-03-10
+     * @since 2021-03-10
      */
     @Test
     void checkDirectionalVectorMethods() {
-        assertEquals(Math.cos(1 * (2 * Math.PI / 12)) * 5, Vector.topRight(5).getX());
-        assertEquals(Math.cos(3 * (2 * Math.PI / 12)) * 0, Vector.top(0).getX());
-        assertEquals(Math.cos(5 * (2 * Math.PI / 12)) * 32, Vector.topLeft(32).getX());
-        assertEquals(Math.cos(7 * (2 * Math.PI / 12)) * 1, Vector.bottomLeft(1).getX());
-        assertEquals(Math.cos(9 * (2 * Math.PI / 12)) * -5, Vector.bottom(-5).getX());
-        assertEquals(Math.cos(11 * (2 * Math.PI / 12)) * 567, Vector.bottomRight(567).getX());
+        assertEquals(Math.cos(0 * (2 * Math.PI / 12)) * 5, Vector.right(5).getX());
+        assertEquals(Math.cos(2 * (2 * Math.PI / 12)) * 0, Vector.topRight(0).getX());
+        assertEquals(Math.cos(4 * (2 * Math.PI / 12)) * 32, Vector.topLeft(32).getX());
+        assertEquals(Math.cos(6 * (2 * Math.PI / 12)) * 1, Vector.left(1).getX());
+        assertEquals(Math.cos(8 * (2 * Math.PI / 12)) * -5, Vector.bottomLeft(-5).getX());
+        assertEquals(Math.cos(10 * (2 * Math.PI / 12)) * 567, Vector.bottomRight(567).getX());
     }
 }
