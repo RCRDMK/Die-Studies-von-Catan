@@ -83,7 +83,7 @@ public class GamePresenter extends AbstractPresenter {
     //Container for StreetFields
     private BuildingField[] streetArray;
 
-    private ArrayList<ImagePattern>  profilePicturePatterns = new ArrayList<>();
+    private ArrayList<ImagePattern> profilePicturePatterns = new ArrayList<>();
 
     private ArrayList<Rectangle> rectangles = new ArrayList<>();
 
@@ -268,6 +268,7 @@ public class GamePresenter extends AbstractPresenter {
         }
     }
 
+    //TODO JavaDoc fehlt
     @FXML
     public void onEndTurn(ActionEvent event) {
         eventBus.post(new EndTurnRequest(this.currentLobby, (UserDTO) this.joinedLobbyUser));
@@ -315,13 +316,19 @@ public class GamePresenter extends AbstractPresenter {
                 imagePattern = new ImagePattern(image);
                 profilePicturePatterns.add(imagePattern);
             }
-            Platform.runLater(()->{
+            Platform.runLater(() -> {
                 setupPlayerPictures(gcm.getUsers());
                 setupRessourceAlert();
             });
         }
     }
 
+    /**
+     * Method
+     *
+     * @param list
+     * @author Carsten Dekker
+     */
     public void setupPlayerPictures(ArrayList<UserDTO> list) {
         for (UserDTO userDTO : list) {
             Rectangle rectangle = new Rectangle(50, 50);
@@ -331,9 +338,9 @@ public class GamePresenter extends AbstractPresenter {
         picturePlayerView1.getChildren().add(rectangles.get(0));
         picturePlayerView2.getChildren().add(rectangles.get(1));
         if (rectangles.size() > 2)
-        picturePlayerView3.getChildren().add(rectangles.get(2));
+            picturePlayerView3.getChildren().add(rectangles.get(2));
         if (rectangles.size() > 3)
-        picturePlayerView4.getChildren().add(rectangles.get(3));
+            picturePlayerView4.getChildren().add(rectangles.get(3));
     }
 
     /**

@@ -40,8 +40,8 @@ class UserManagementTest {
     void loginUserWrongPassword() throws SQLException {
 
         management.buildConnection();
-        User userToLogIn = new UserDTO("test", "33eda9895af9f99456b85c2381bfc49543531e92517e3b7c67e86310874dd3a0e08b0dae5d3103ddabcf1794d3833c52659c35c2980f71ce6705bf967a96d856", "");
-        User secondUser = new UserDTO("test1", "47b7d407c2e2f3aff0e21aa16802006ba1793fd47b2d3cacee7cf7360e751bff7b7d0c7946b42b97a5306c6708ab006d0d81ef41a0c9f94537a2846327c51236", "");
+        User userToLogIn = new UserDTO("test", "47b7d407c2e2f3aff0e21aa16802006ba1793fd47b2d3cacee7cf7360e751bff7b7d0c7946b42b97a5306c6708ab006d0d81ef41a0c9f94537a2846327c51236", "");
+        User secondUser = new UserDTO("test1", "33eda9895af9f99456b85c2381bfc49543531e92517e3b7c67e86310874dd3a0e08b0dae5d3103ddabcf1794d3833c52659c35c2980f71ce6705bf967a96d856", "");
 
         assertThrows(SecurityException.class, () -> management.login(userToLogIn.getUsername(), secondUser.getPassword()));
 
@@ -113,7 +113,7 @@ class UserManagementTest {
 
     }
 
-    /*
+
     @Test
     void updateUserPassword_NotLoggedIn() throws SQLException {
         management.buildConnection();
@@ -122,12 +122,12 @@ class UserManagementTest {
         User updatedUser = new UserDTO(userToUpdate.getUsername(), "0835ae0b1f8bcb3508e09990403eea4200e294be58224fb0c97ea652cd59fcd97219815a27564680a72ee28b614adcc2843df4c7dcc3f64cf721dea5189db475", "irgendwas@irgendwo.de");
 
         assertFalse(management.isLoggedIn(userToUpdate));
-        management.updateUserPassword(updatedUser, "33eda9895af9f99456b85c2381bfc49543531e92517e3b7c67e86310874dd3a0e08b0dae5d3103ddabcf1794d3833c52659c35c2980f71ce6705bf967a96d856");
+        management.updateUserPassword(updatedUser, "0835ae0b1f8bcb3508e09990403eea4200e294be58224fb0c97ea652cd59fcd97219815a27564680a72ee28b614adcc2843df4c7dcc3f64cf721dea5189db475");
 
         management.login(updatedUser.getUsername(), updatedUser.getPassword());
         assertTrue(management.isLoggedIn(updatedUser));
     }
-     */
+
 
     @Test
     void updateUser_Mail() throws SQLException {
@@ -141,6 +141,12 @@ class UserManagementTest {
         User user = management.login(updatedUser.getUsername(), updatedUser.getPassword());
         assertTrue(management.isLoggedIn(updatedUser));
         assertEquals(user.getEMail(), updatedUser.getEMail());
+    }
+
+    @Test
+    void updateUser_Picture() throws SQLException {
+        management.buildConnection();
+
     }
 
     @Test
