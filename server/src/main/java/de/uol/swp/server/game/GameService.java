@@ -592,7 +592,7 @@ public class GameService extends AbstractService {
             if (request.getUser().equals(gameManagement.getGame(request.getName()).get().getUser(gameManagement.getGame(request.getName()).get().getTurn()))) {
                 Inventory inventory = game.get().getInventory(request.getUser());
                 if (inventory.wool.getNumber() >= 1 && inventory.ore.getNumber() >= 1 && inventory.grain.getNumber() >= 1) {
-                    String devCard = game.get().getDevelopmentCardDeck().getDrawnCard();
+                    String devCard = game.get().getDevelopmentCardDeck().drawnCard();
                     takeResource(game, request.getUser(), "Wool", 1);
                     takeResource(game, request.getUser(), "Ore", 1);
                     takeResource(game, request.getUser(), "Grain", 1);
