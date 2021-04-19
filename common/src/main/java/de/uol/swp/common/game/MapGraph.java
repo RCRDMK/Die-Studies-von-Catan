@@ -76,7 +76,7 @@ public class MapGraph implements Serializable {
 
                 middle.generateNodesMiddle();
                 middle.expand();
-                middle.interconnectOwnNodes();
+                //middle.interconnectOwnNodes();
                 middle.interconnectNeighbourHexagons();
 
                 middle.getHexTopLeft().expand();
