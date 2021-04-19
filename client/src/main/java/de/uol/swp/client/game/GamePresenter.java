@@ -225,11 +225,6 @@ public class GamePresenter extends AbstractPresenter {
         eventBus.post(new TradeStartedMessage((UserDTO)this.joinedLobbyUser, this.currentLobby, tradeCode));
     }
 
-   /* @Subscribe //TODO JavaDoc
-    public void onTradeRegistered(TradeOfferInformBiddersMessage toibm){
-        eventBus.post(showBidderViewEvent);
-    }*/
-
     @FXML
     public void onBuildStreet(ActionEvent event) {
         //TODO:...

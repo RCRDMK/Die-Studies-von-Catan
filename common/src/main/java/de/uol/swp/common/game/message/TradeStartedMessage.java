@@ -1,8 +1,9 @@
 package de.uol.swp.common.game.message;
 
+import de.uol.swp.common.game.request.AbstractGameRequest;
 import de.uol.swp.common.user.UserDTO;
 
-public class TradeStartedMessage {
+public class TradeStartedMessage extends AbstractGameRequest {
     private UserDTO user;
     private String lobby;
     private String tradeCode;
