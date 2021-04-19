@@ -77,4 +77,15 @@ public class LongestStreetPathCalculator implements Serializable {
             System.out.println("\n");
         }
     }
+
+    public void toArrayMatrix(int playerIndex) {
+        ArrayList<ArrayList<ConnectionClassIntegerWithUUID>> playerMatrix = adjacencyMatrixForAllPlayers.get(playerIndex);
+        int size = playerMatrix.size();
+        ConnectionClassIntegerWithUUID[][] matrix = new ConnectionClassIntegerWithUUID[size][size];
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                matrix[i][j] = playerMatrix.get(i).get(j);
+            }
+        }
+    }
 }
