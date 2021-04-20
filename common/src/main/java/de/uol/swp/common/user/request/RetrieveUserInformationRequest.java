@@ -5,14 +5,14 @@ import de.uol.swp.common.user.User;
 import java.util.Objects;
 
 /**
- * Request to get the mail from the user
+ * Request to get the user information
  * <p>
  * @see de.uol.swp.common.user.User
  * @author Carsten Dekker
  * @since 2021-03-12
  */
 public class RetrieveUserInformationRequest extends AbstractRequestMessage {
-    final private User toGetMail;
+    final private User toGetInformation;
 
     /**
      * Constructor
@@ -23,7 +23,7 @@ public class RetrieveUserInformationRequest extends AbstractRequestMessage {
      * @since 2021-03-12
      */
     public RetrieveUserInformationRequest(User user){
-        this.toGetMail = user;
+        this.toGetInformation = user;
     }
 
     /**
@@ -34,7 +34,7 @@ public class RetrieveUserInformationRequest extends AbstractRequestMessage {
      * @since 2021-03-12
      */
     public User getUser() {
-        return toGetMail;
+        return toGetInformation;
     }
 
     @Override
@@ -42,11 +42,11 @@ public class RetrieveUserInformationRequest extends AbstractRequestMessage {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         RetrieveUserInformationRequest that = (RetrieveUserInformationRequest) o;
-        return Objects.equals(toGetMail, that.toGetMail);
+        return Objects.equals(toGetInformation, that.toGetInformation);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(toGetMail);
+        return Objects.hash(toGetInformation);
     }
 }

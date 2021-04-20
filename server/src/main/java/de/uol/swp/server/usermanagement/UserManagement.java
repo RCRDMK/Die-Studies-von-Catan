@@ -86,7 +86,7 @@ public class UserManagement extends AbstractUserManagement {
 
     @Override
     public User login(String username, String password) throws SQLException {
-        if (!password.isEmpty() || !password.isBlank() || password == null) {
+        if (!password.isEmpty() && !password.isBlank()) {
             String login = "select name, mail, pictureID from userData where name=? and password=?;";
             ResultSet resultSet = null;
             try {

@@ -24,12 +24,13 @@ class UserManagementTest {
         management.login(userToLogIn.getUsername(), userToLogIn.getPassword());
 
         assertTrue(management.isLoggedIn(userToLogIn));
+        management.logout(userToLogIn);
     }
 
     @Test
     void loginUserEmptyPassword() throws SQLException {
         management.buildConnection();
-        User userToLogIn = new UserDTO("test", "33eda9895af9f99456b85c2381bfc49543531e92517e3b7c67e86310874dd3a0e08b0dae5d3103ddabcf1794d3833c52659c35c2980f71ce6705bf967a96d856", "");
+        User userToLogIn = new UserDTO("test7", "964291138ad4074a7dd9284ac4d0586896cc3d082b354bb24aba00186c57e6be9e020d21bfbb5e147d5ec67fa0142c5971c3afeb7ba092b9079509e232a37776", "");
 
         assertThrows(SecurityException.class, () -> management.login(userToLogIn.getUsername(), ""));
 
@@ -40,7 +41,7 @@ class UserManagementTest {
     void loginUserWrongPassword() throws SQLException {
 
         management.buildConnection();
-        User userToLogIn = new UserDTO("test", "47b7d407c2e2f3aff0e21aa16802006ba1793fd47b2d3cacee7cf7360e751bff7b7d0c7946b42b97a5306c6708ab006d0d81ef41a0c9f94537a2846327c51236", "");
+        User userToLogIn = new UserDTO("test8", "98f6523d467b31d8564e7d10b1dad5ff0f60deae71f7afb4896493e77e11e6c00970f27e11547f3b824f2f0ea2c0a0053b297375a32f255c2e5114a7f5b61371", "");
         User secondUser = new UserDTO("test1", "33eda9895af9f99456b85c2381bfc49543531e92517e3b7c67e86310874dd3a0e08b0dae5d3103ddabcf1794d3833c52659c35c2980f71ce6705bf967a96d856", "");
 
         assertThrows(SecurityException.class, () -> management.login(userToLogIn.getUsername(), secondUser.getPassword()));
@@ -141,12 +142,21 @@ class UserManagementTest {
         User user = management.login(updatedUser.getUsername(), updatedUser.getPassword());
         assertTrue(management.isLoggedIn(updatedUser));
         assertEquals(user.getEMail(), updatedUser.getEMail());
+        management.logout(updatedUser);
     }
 
     @Test
     void updateUser_Picture() throws SQLException {
         management.buildConnection();
+        User userToUpdate = new UserDTO("test2", "33eda9895af9f99456b85c2381bfc49543531e92517e3b7c67e86310874dd3a0e08b0dae5d3103ddabcf1794d3833c52659c35c2980f71ce6705bf967a96d856", "", 1);
+        User updatedUser = new UserDTO(userToUpdate.getUsername(), "994dac907995937160371992ecbdf9b34242db0abb3943807b5baa6be0c6908f72ea87b7dadd2bce6cf700c8dfb7d57b0566f544af8c30336a15d5f732d85613", "", 2);
 
+        management.updateUserPicture(updatedUser);
+
+        User user = management.login(updatedUser.getUsername(), updatedUser.getPassword());
+        assertTrue(management.isLoggedIn(updatedUser));
+        assertEquals(user.getProfilePictureID(), updatedUser.getProfilePictureID());
+        management.logout(updatedUser);
     }
 
     @Test
@@ -169,7 +179,7 @@ class UserManagementTest {
         assertTrue(management.isLoggedIn(updatedUser));
 
         management.updateUserPassword(userToUpdate, "0835ae0b1f8bcb3508e09990403eea4200e294be58224fb0c97ea652cd59fcd97219815a27564680a72ee28b614adcc2843df4c7dcc3f64cf721dea5189db475");
-
+        management.logout(userToUpdate);
     }
 
     @Test

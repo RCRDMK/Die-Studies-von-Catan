@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class UserMessageSerializableTest {
 
-    private static final User defaultUser = new UserDTO("marco", "marco", "marco@grawunder.de");
+    private static final User defaultUser = new UserDTO("marco", "marco", "marco@grawunder.de", 1);
 
     private static final int SIZE = 10;
     private static final List<String> users = new ArrayList<>();
@@ -87,5 +87,7 @@ class UserMessageSerializableTest {
                 UpdateUserMailRequest.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new UpdateUserPasswordRequest(defaultUser, "marco"),
                 UpdateUserPasswordRequest.class));
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new UpdateUserProfilePictureRequest(defaultUser),
+                UpdateUserProfilePictureRequest.class));
     }
 }
