@@ -9,7 +9,6 @@ import de.uol.swp.client.di.ClientModule;
 import de.uol.swp.client.user.ClientUserService;
 import de.uol.swp.common.game.message.GameCreatedMessage;
 import de.uol.swp.common.game.message.GameDroppedMessage;
-import de.uol.swp.client.user.UserService;
 import de.uol.swp.common.game.message.TradeOfferInformBiddersMessage;
 import de.uol.swp.common.game.message.TradeStartedMessage;
 import de.uol.swp.common.user.User;
@@ -267,15 +266,15 @@ public class ClientApp extends Application implements ConnectionListener {
     }
 
     @Subscribe
-    public void userStartedTrade(TradeStartedMessage message){
+    public void userStartedTrade(TradeStartedMessage message) {
         LOG.debug("Started a trade " + message.getLobby());
-        sceneManager.showSellerTradeScreen(message.getUser(), message.getLobby(), message.getTradeCode());
+        sceneManager.showSellerTradeScreen(user, message.getLobby(), message.getTradeCode());
     }
 
     @Subscribe
-    public void tradeRegistered(TradeOfferInformBiddersMessage toibm){
+    public void tradeRegistered(TradeOfferInformBiddersMessage toibm) {
         LOG.debug("A trade request was registered");
-        sceneManager.showBidderTradeScreen(toibm.getUser(), toibm.getName(), toibm.getTradeCode());
+        sceneManager.showBidderTradeScreen(user, toibm.getName(), toibm.getTradeCode());
     }
 
     /**

@@ -7,8 +7,6 @@ import de.uol.swp.client.chat.ChatService;
 import de.uol.swp.client.game.GameObjects.BuildingField;
 import de.uol.swp.client.game.GameObjects.TerrainField;
 import de.uol.swp.client.game.HelperObjects.Vector;
-import de.uol.swp.client.game.event.ShowBidderTradeViewEvent;
-import de.uol.swp.client.game.event.ShowSellerTradeViewEvent;
 import de.uol.swp.client.lobby.LobbyService;
 import de.uol.swp.common.chat.RequestChatMessage;
 import de.uol.swp.common.chat.ResponseChatMessage;
@@ -111,7 +109,6 @@ public class GamePresenter extends AbstractPresenter {
     private Button EndTurnButton;
 
 
-
     /**
      * Method called when the send Message button is pressed
      * <p>
@@ -119,7 +116,6 @@ public class GamePresenter extends AbstractPresenter {
      * The message is of type RequestChatMessage If this will result in an exception, go log the exception
      *
      * @param event The ActionEvent created by pressing the send Message button
-     *
      * @author René, Sergej
      * @see de.uol.swp.client.chat.ChatService
      * @since 2021-03-08
@@ -212,17 +208,22 @@ public class GamePresenter extends AbstractPresenter {
     /**
      * This method is called when the Trade button is pressed
      * <p>
-     *  When the user presses the trade button a popup window appears. Within it the user can select which ressources
-     *  he wants to trade and which amount of it. With a click on the Start a Trade button the startTrade method from the
-     *  Gameservice on the client side gets called.
+     * When the user presses the trade button a popup window appears. Within it the user can select which ressources
+     * he wants to trade and which amount of it. With a click on the Start a Trade button the startTrade method from the
+     * Gameservice on the client side gets called.
      *
      * @author Alexander Losse, Ricardo Mook
      * @since 2021-04-07
      */
+
+    @FXML
+    Button tradeButton;
+
     @FXML
     public void onTrade(ActionEvent event) {//TODO TradeCode schon hier generieren
-        String tradeCode = this.joinedLobbyUser +  UUID.randomUUID().toString();
-        eventBus.post(new TradeStartedMessage((UserDTO)this.joinedLobbyUser, this.currentLobby, tradeCode));
+        String tradeCode = UUID.randomUUID().toString().trim().substring(0, 7);
+        eventBus.post(new TradeStartedMessage((UserDTO) this.joinedLobbyUser, this.currentLobby, tradeCode));
+        tradeButton.setDisable(true);
     }
 
     @FXML
@@ -251,7 +252,6 @@ public class GamePresenter extends AbstractPresenter {
      * If the RollDice button is pressed, this methods tries to request the GameService to send a RollDiceRequest.
      *
      * @param event The ActionEvent created by pressing the Roll Dice button
-     *
      * @author Kirstin, Pieter
      * @see de.uol.swp.client.game.GameService
      * @since 2021-01-07
@@ -279,7 +279,6 @@ public class GamePresenter extends AbstractPresenter {
      * If a GameCreatedMessage is detected on the EventBus this method invokes gameStartedSuccessfulLogic.
      *
      * @param message the GameCreatedMessage object seen on the EventBus
-     *
      * @author Ricardo Mook, Alexander Losse
      * @see de.uol.swp.common.game.message.GameCreatedMessage
      * @since 2021-03-05
@@ -297,7 +296,6 @@ public class GamePresenter extends AbstractPresenter {
      * Users in the currentLobby is also requested.
      *
      * @param gcm the GameCreatedMessage given by the original subscriber method.
-     *
      * @author Alexander Losse, Ricardo Mook
      * @see GameCreatedMessage
      * @see de.uol.swp.common.game.GameField
@@ -320,7 +318,6 @@ public class GamePresenter extends AbstractPresenter {
      * If a GameLeftSuccessfulResponse is detected on the EventBus the method gameLeftSuccessfulLogic is invoked.
      *
      * @param glsr the GameLeftSuccessfulResponse object seen on the EventBus
-     *
      * @author Marc Hermes
      * @see de.uol.swp.common.user.response.game.GameLeftSuccessfulResponse
      * @since 2021-03-15
@@ -338,7 +335,6 @@ public class GamePresenter extends AbstractPresenter {
      * not, it becomes unclickable.</p>
      *
      * @param response
-     *
      * @author Pieter Vogt
      */
     @Subscribe
@@ -357,7 +353,6 @@ public class GamePresenter extends AbstractPresenter {
      * on the event bus and no longer be reachable for responses, messages etc.
      *
      * @param glsr the GameLeftSuccessfulResponse given by the original subscriber method
-     *
      * @author Marc Hermes
      * @see de.uol.swp.common.user.response.game.GameLeftSuccessfulResponse
      * @since 2021-03-15
@@ -379,7 +374,6 @@ public class GamePresenter extends AbstractPresenter {
      * GamePresenterException if joinedLobbyUser and currentLobby are not initialised
      *
      * @param event
-     *
      * @author Ricardo Mook, Alexander Losse
      * @see de.uol.swp.client.game.GameService
      * @see de.uol.swp.client.game.GamePresenterException
@@ -403,7 +397,6 @@ public class GamePresenter extends AbstractPresenter {
      * If a UserLeftGameMessage is detected on the EventBus the method otherUserLeftSuccessfulLogic is invoked.
      *
      * @param message the UserLeftGameMessage object seen on the EventBus
-     *
      * @author Iskander Yusupov
      * @see de.uol.swp.common.game.message.UserLeftGameMessage
      * @since 2021-03-17
@@ -421,7 +414,6 @@ public class GamePresenter extends AbstractPresenter {
      * game) is requested.
      *
      * @param ulgm the UserLeftGameMessage given by the original subscriber method.
-     *
      * @author Iskander Yusupov
      * @see de.uol.swp.common.game.message.UserLeftGameMessage
      * @since 2021-03-17
@@ -448,7 +440,6 @@ public class GamePresenter extends AbstractPresenter {
      * List of the Users in the currentLobby in regards to the list given by the response.
      *
      * @param atgur the AllThisLobbyUsersResponse given by the original subscriber method.
-     *
      * @author Iskander Yusupov
      * @see de.uol.swp.common.user.response.game.AllThisGameUsersResponse
      * @since 2021-03-14
@@ -470,7 +461,6 @@ public class GamePresenter extends AbstractPresenter {
      * user list. If there ist no user list this creates one.
      *
      * @param gameUserList A list of UserDTO objects including all currently logged in users
-     *
      * @implNote The code inside this Method has to run in the JavaFX-application thread. Therefore it is crucial not to
      * remove the {@code Platform.runLater()}
      * @author Iskander Yusupov , @design Marc Hermes, Ricardo Mook
@@ -744,7 +734,6 @@ public class GamePresenter extends AbstractPresenter {
      * translated into the correct String names of the tfArray TerrainFields.
      *
      * @param gameField the gameField given by the Server
-     *
      * @author Marc Hermes
      * @see de.uol.swp.common.game.GameField
      * @see de.uol.swp.client.game.GameObjects.TerrainField
@@ -810,7 +799,6 @@ public class GamePresenter extends AbstractPresenter {
      * This method reacts to the NotEnoughRessourcesMessage and shows the corresponding alert window.
      *
      * @param notEnoughRessourcesMessage
-     *
      * @implNote The code inside this Method has to run in the JavaFX-application thread. Therefore it is crucial not to
      * remove the {@code Platform.runLater()}
      * @author Marius Birk
@@ -860,32 +848,30 @@ public class GamePresenter extends AbstractPresenter {
     }
 
 
-
-
-
-
     //informiert die Spieler die auf das Angebot bieten sollen
     @Subscribe
-    public void onTradeOfferInformBiddersMessage(TradeOfferInformBiddersMessage toibm){
-        if(toibm.getName().equals(currentLobby)){
+    public void onTradeOfferInformBiddersMessage(TradeOfferInformBiddersMessage toibm) {
+        if (toibm.getName().equals(currentLobby)) {
+            tradeButton.setDisable(true);
             //TODO: client chooses what to do
         }
     }
 
     //informiert den Verkäufer über die Gebote.
     @Subscribe
-    public void onTradeInformSellerAboutBidsMessage(TradeInformSellerAboutBidsMessage tisabm){
-            if(tisabm.getName().equals(currentLobby)){
-                //TODO: client chooses which bid to accept
-            }
+    public void onTradeInformSellerAboutBidsMessage(TradeInformSellerAboutBidsMessage tisabm) {
+        if (tisabm.getName().equals(currentLobby)) {
+            //TODO: client chooses which bid to accept
+        }
     }
 
     @Subscribe
-    public void onTradeSuccessfulMessage(TradeSuccessfulMessage tsm){
-        if(tsm.getName().equals((currentLobby))){
-            if(tsm.isTradeSuccessful() == true){
+    public void onTradeSuccessfulMessage(TradeSuccessfulMessage tsm) {
+        if (tsm.getName().equals((currentLobby))) {
+            if (tsm.isTradeSuccessful() == true) {
                 //TODO: Show which trade was successful
-            }else{
+                tradeButton.setDisable(false);
+            } else {
                 //TODO: Show no trade successful
             }
             //TODO: Close tradewindow

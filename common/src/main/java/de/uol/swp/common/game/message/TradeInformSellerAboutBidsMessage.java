@@ -35,6 +35,7 @@ public class TradeInformSellerAboutBidsMessage extends AbstractGameMessage {
         this.bidders = bidders;
         this.bids = bids;
         this.tradeCode = tradeCode;
+
     }
 
     /**

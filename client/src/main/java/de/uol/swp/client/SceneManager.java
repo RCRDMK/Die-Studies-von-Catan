@@ -5,15 +5,13 @@ import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.assistedinject.Assisted;
-import de.uol.swp.client.account.event.ShowUserSettingsViewEvent;
-import de.uol.swp.client.account.event.LeaveUserSettingsEvent;
 import de.uol.swp.client.account.UserSettingsPresenter;
+import de.uol.swp.client.account.event.LeaveUserSettingsEvent;
+import de.uol.swp.client.account.event.ShowUserSettingsViewEvent;
 import de.uol.swp.client.account.event.UserSettingsErrorEvent;
 import de.uol.swp.client.auth.LoginPresenter;
 import de.uol.swp.client.auth.events.ShowLoginViewEvent;
 import de.uol.swp.client.game.GamePresenter;
-import de.uol.swp.client.game.event.ShowBidderTradeViewEvent;
-import de.uol.swp.client.game.event.ShowSellerTradeViewEvent;
 import de.uol.swp.client.game.TradePresenter;
 import de.uol.swp.client.lobby.LobbyPresenter;
 import de.uol.swp.client.main.MainMenuPresenter;
@@ -23,6 +21,7 @@ import de.uol.swp.client.register.event.RegistrationErrorEvent;
 import de.uol.swp.client.register.event.ShowRegistrationViewEvent;
 import de.uol.swp.common.game.message.TradeEndedMessage;
 import de.uol.swp.common.user.User;
+import de.uol.swp.common.user.UserDTO;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -32,6 +31,7 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.util.Pair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -66,13 +66,10 @@ public class SceneManager {
     private Scene tabScene;
     private Scene nextLobbyScene;
     private Scene nextGameScene;
-    private Scene nextSellerTradeScene;
-    private Scene nextBidderTradeScene;
     private final Injector injector;
     private TabPane tabPane = new TabPane();
     private TabHelper tabHelper;
     private Scene userSettingsScene;
-
 
 
     @Inject
@@ -107,8 +104,6 @@ public class SceneManager {
         initBidderTradeView();
         nextLobbyScene = initLobbyView();
         nextGameScene = initGameView();
-        nextSellerTradeScene = initSellerTradeView();
-        nextBidderTradeScene = initBidderTradeView();
     }
 
     /**
@@ -240,18 +235,49 @@ public class SceneManager {
         return gameScene;
     }
 
-    private Scene initSellerTradeView(){
-       Parent rootPane = initPresenter(TradePresenter.sellerFxml);
-       sellerTradeScene = new Scene(rootPane, 600, 400);
+    private Pair<Scene, TradePresenter> initSellerTradeView() {
+        Pair<Parent, TradePresenter> thePair = initPresenterBid(TradePresenter.sellerFxml);
+
+        Parent rootPane = thePair.getKey();
+
+        TradePresenter thePresenter = thePair.getValue();
+
+        sellerTradeScene = new Scene(rootPane, 600, 400);
         sellerTradeScene.getStylesheets().add(styleSheet);
-        return sellerTradeScene;
+        Pair<Scene, TradePresenter> thePair2 = new Pair<>(bidderTradeScene, thePresenter);
+        return thePair2;
     }
 
-    private Scene initBidderTradeView(){
-        Parent rootPane = initPresenter(TradePresenter.bidderFxml);
+    private Pair<Scene, TradePresenter> initBidderTradeView() {
+        Pair<Parent, TradePresenter> thePair = initPresenterBid(TradePresenter.sellerFxml);
+
+        Parent rootPane = thePair.getKey();
+
+        TradePresenter thePresenter = thePair.getValue();
+
         bidderTradeScene = new Scene(rootPane, 600, 400);
         bidderTradeScene.getStylesheets().add(styleSheet);
-        return bidderTradeScene;
+        Pair<Scene, TradePresenter> thePair2 = new Pair<>(bidderTradeScene, thePresenter);
+        return thePair2;
+    }
+
+    private Pair<Parent, TradePresenter> initPresenterBid(String fxmlFile) {
+        Parent rootPane;
+        Pair<Parent, TradePresenter> pair;
+        TradePresenter tradePresenter;
+        FXMLLoader loader = injector.getInstance(FXMLLoader.class);
+        try {
+            URL url = getClass().getResource(fxmlFile);
+            LOG.debug("Loading " + url);
+            loader.setLocation(url);
+            rootPane = loader.load();
+            tradePresenter = (TradePresenter) loader.getController();
+
+            pair = new Pair<>(rootPane, tradePresenter);
+        } catch (Exception e) {
+            throw new RuntimeException("Could not load View!" + e.getMessage(), e);
+        }
+        return pair;
     }
 
     /**
@@ -261,8 +287,8 @@ public class SceneManager {
      * a pane showing the userSettings view as specified by the UserSettingsView
      * FXML file.
      *
-     * @see UserSettingsPresenter
      * @author Carsten Dekker
+     * @see UserSettingsPresenter
      * @since 2021-03-04
      */
     private void initUserSettingsView() {
@@ -272,7 +298,6 @@ public class SceneManager {
             userSettingsScene.getStylesheets().add(styleSheet);
         }
     }
-
 
 
     /**
@@ -350,8 +375,8 @@ public class SceneManager {
      * called. It calls a method to switch the current screen to the showUserSettings screen.
      *
      * @param event The ShowUserSettingsViewEvent detected on the EventBus
-     * @see de.uol.swp.client.account.event.ShowUserSettingsViewEvent
      * @author Carsten Dekker
+     * @see de.uol.swp.client.account.event.ShowUserSettingsViewEvent
      * @since 2021-04-03
      */
     @Subscribe
@@ -367,8 +392,8 @@ public class SceneManager {
      * called. It calls a method to show the screen shown before userSettings.
      *
      * @param event The LeaveUserSettingsEvent detected on the EventBus
-     * @see de.uol.swp.client.account.event.LeaveUserSettingsEvent
      * @author Carsten Dekker
+     * @see de.uol.swp.client.account.event.LeaveUserSettingsEvent
      * @since 2021-03-04
      */
     @Subscribe
@@ -383,8 +408,8 @@ public class SceneManager {
      * called. It shows the error message of the event in a error alert.
      *
      * @param event The UserSettingsErrorEvent detected on the EventBus
-     * @see de.uol.swp.client.account.event.UserSettingsErrorEvent
      * @author Carsten Dekker
+     * @see de.uol.swp.client.account.event.UserSettingsErrorEvent
      * @since 2021-03-06
      */
     @Subscribe
@@ -549,6 +574,7 @@ public class SceneManager {
      * <p>
      * Switches the current Scene to the userSettingsScene and sets the title of
      * the window to "UserSettings"
+     *
      * @author Carsten Dekker
      * @since 2021-04-03
      */
@@ -556,11 +582,11 @@ public class SceneManager {
         showScene(userSettingsScene, "UserSettings");
     }
 
-    public void showSellerTradeScreen(User currentUser, String lobbyname, String tradeCode){
+    public void showSellerTradeScreen(User currentUser, String lobbyname, String tradeCode) {
         newSellerTradeTab(currentUser, lobbyname, tradeCode);
     }
 
-    public void showBidderTradeScreen(User currentUser, String lobbyname, String tradeCode){
+    public void showBidderTradeScreen(User currentUser, String lobbyname, String tradeCode) {
         newBidderTradeTab(currentUser, lobbyname, tradeCode);
     }
 
@@ -640,26 +666,44 @@ public class SceneManager {
         nextGameScene = initGameView();
     }
 
-    private void newSellerTradeTab(User currentUser, String gameName, String tradeCode){
+    private void newSellerTradeTab(User currentUser, String gameName, String tradeCode) {
         Tab sellerTradeTab = new Tab("Trade " + tradeCode);
+
+        Pair<Scene, TradePresenter> ja_lol_ey = initSellerTradeView();
+        Scene nextSellerTradeScene = ja_lol_ey.getKey();
+
+        //
+        TradePresenter ja_lol_3_rezo = ja_lol_ey.getValue();
+
+        ja_lol_3_rezo.setValuesOfTradeView((UserDTO) currentUser, gameName, tradeCode);
+        //
         sellerTradeTab.setContent(nextSellerTradeScene.getRoot());
         sellerTradeTab.setClosable(false);
         Platform.runLater(() -> {
             tabHelper.addTab(sellerTradeTab);
             tabHelper.getTabPane().getSelectionModel().select(sellerTradeTab);
         });
-nextSellerTradeScene = initSellerTradeView();
+        //nextSellerTradeScene = initSellerTradeView();
     }
 
-    private void newBidderTradeTab(User currentUser, String gameName, String tradeCode){
+    private void newBidderTradeTab(User currentUser, String gameName, String tradeCode) {
         Tab bidderTradeTab = new Tab("Trade " + tradeCode);
+
+        Pair<Scene, TradePresenter> ja_lol_ey = initBidderTradeView();
+
+        Scene nextBidderTradeScene = ja_lol_ey.getKey();
+        //
+        TradePresenter ja_lol_3_rezo = ja_lol_ey.getValue();
+
+        ja_lol_3_rezo.setValuesOfTradeView((UserDTO) currentUser, gameName, tradeCode);
+        //
         bidderTradeTab.setContent(nextBidderTradeScene.getRoot());
         bidderTradeTab.setClosable(false);
         Platform.runLater(() -> {
             tabHelper.addTab(bidderTradeTab);
             tabHelper.getTabPane().getSelectionModel().select(bidderTradeTab);
         });
-        nextBidderTradeScene = initBidderTradeView();
+        //nextBidderTradeScene = initBidderTradeView();
     }
 
     /**
@@ -680,8 +724,8 @@ nextSellerTradeScene = initSellerTradeView();
         });
     }
 
-@Subscribe
-    public void removeTradeTab(TradeEndedMessage tem){
+    @Subscribe
+    public void removeTradeTab(TradeEndedMessage tem) {
         Platform.runLater(() -> {
             tabHelper.removeTab("Trade " + tem.getTradeCode());
         });

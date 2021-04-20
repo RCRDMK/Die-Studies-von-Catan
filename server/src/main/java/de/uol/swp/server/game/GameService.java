@@ -577,7 +577,7 @@ public class GameService extends AbstractService {
 
                     for (User user : game.get().getUsers()) {
                         if (!request.getUser().equals(user)) {
-                            TradeOfferInformBiddersMessage tradeOfferInformBiddersMessage = new TradeOfferInformBiddersMessage(request.getUser(), request.getName(), tradeCode, request.getTradeItems());
+                            TradeOfferInformBiddersMessage tradeOfferInformBiddersMessage = new TradeOfferInformBiddersMessage(request.getUser(), request.getName(), tradeCode, request.getTradeItems(), (UserDTO) user);
                             sendToSpecificUserInGame(game, tradeOfferInformBiddersMessage, user);
                             System.out.println("Send TradeOfferInformBiddersMessage to " +  user.getUsername());
                         }
@@ -591,6 +591,7 @@ public class GameService extends AbstractService {
                     System.out.println("added bid to "+ tradeCode + " by User: " + request.getUser().getUsername() + " items: " + request.getTradeItems());
                     //If all users have send a bid/empty bid, inform the seller about the bids
                     if (trade.getBids().size() == game.get().getUsers().size() - 1) {
+                        System.out.println("bids full");
                         TradeInformSellerAboutBidsMessage tisabm = new TradeInformSellerAboutBidsMessage(trade.getSeller(), request.getName(), tradeCode, trade.getBidders(), trade.getBids());
                         sendToSpecificUserInGame(game, tisabm, trade.getSeller());
                         System.out.println("Send TradeInformSellerAboutBidsMessage to " +  trade.getSeller().getUsername());

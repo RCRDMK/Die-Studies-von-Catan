@@ -1,6 +1,7 @@
 package de.uol.swp.common.game.message;
 
 import de.uol.swp.common.game.trade.TradeItem;
+import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 
 import java.util.ArrayList;
@@ -18,6 +19,7 @@ public class TradeOfferInformBiddersMessage extends AbstractGameMessage{
 
     private String tradeCode;
     private ArrayList<TradeItem> sellingItems;
+    private UserDTO bidder;
 
     /**
      * constructor
@@ -28,14 +30,16 @@ public class TradeOfferInformBiddersMessage extends AbstractGameMessage{
      * @param gameName String the name of the game
      * @param tradeCode tradeCode String ID of the trade
      * @param sellingItems ArrayList<TradeItem> List of items the seller wants to sell
+     * @param bidder UserDTO of the bidder(user who receives the message)
      * @author Alexander Losse, Ricardo Mook
      * @since 2021-04-11
      */
-    public TradeOfferInformBiddersMessage(UserDTO seller, String gameName, String tradeCode, ArrayList<TradeItem> sellingItems){
+    public TradeOfferInformBiddersMessage(UserDTO seller, String gameName, String tradeCode, ArrayList<TradeItem> sellingItems, UserDTO bidder){
         this.user = seller;//new UserDTO(seller.getUsername(),"","");
         this.name = gameName;
         this.tradeCode = tradeCode;
         this.sellingItems = sellingItems;
+        this.bidder = bidder;
     }
 
 
@@ -61,5 +65,9 @@ public class TradeOfferInformBiddersMessage extends AbstractGameMessage{
      */
     public ArrayList<TradeItem> getSellingItems() {
         return sellingItems;
+    }
+
+    public UserDTO getBidder() {
+        return bidder;
     }
 }
