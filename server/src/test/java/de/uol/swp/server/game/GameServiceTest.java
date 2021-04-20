@@ -29,7 +29,6 @@ public class GameServiceTest {
     GameService gameService = new GameService(gameManagement, lobbyService, new AuthenticationService(bus, new UserManagement()), bus);
     final AuthenticationService authenticationService = new AuthenticationService(bus, userManagement);
 
-
     UserDTO userDTO = new UserDTO("Peter", "lustig", "peter.lustig@uol.de");
     UserDTO userDTO1 = new UserDTO("Carsten", "stahl", "carsten.stahl@uol.de");
     UserDTO userDTO2 = new UserDTO("Test", "lustig1", "peterlustig@uol.de");
@@ -219,6 +218,9 @@ public class GameServiceTest {
      */
     /*
     @Test
+
+    //TODO: This test needs to be reactivated after the dependencies to obsolete classes had been fixed
+  /* @Test
     void onDistributeResourcesTest() {
         GameService gameService1 = new GameService(gameManagement, lobbyService, authenticationService, bus);
 
@@ -240,5 +242,4 @@ public class GameServiceTest {
         assertEquals(game.get().getInventory(userDTO).grain.getNumber(), 1);
     }
     */
-
 }

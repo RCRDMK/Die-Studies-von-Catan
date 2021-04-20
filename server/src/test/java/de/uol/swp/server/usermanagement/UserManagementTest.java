@@ -13,7 +13,8 @@ import static org.junit.jupiter.api.Assertions.*;
 class UserManagementTest {
 
     private static final int NO_USERS = 10;
-    private static final User userNotInStore = new UserDTO("marco" + NO_USERS, "marco" + NO_USERS, "marco" + NO_USERS + "@grawunder.de");
+    private static final User userNotInStore = new UserDTO("marco" + NO_USERS, "marco" + NO_USERS,
+            "marco" + NO_USERS + "@grawunder.de");
     private UserManagement management = new UserManagement();
 
     @Test
@@ -44,7 +45,8 @@ class UserManagementTest {
         User userToLogIn = new UserDTO("test8", "98f6523d467b31d8564e7d10b1dad5ff0f60deae71f7afb4896493e77e11e6c00970f27e11547f3b824f2f0ea2c0a0053b297375a32f255c2e5114a7f5b61371", "");
         User secondUser = new UserDTO("test1", "33eda9895af9f99456b85c2381bfc49543531e92517e3b7c67e86310874dd3a0e08b0dae5d3103ddabcf1794d3833c52659c35c2980f71ce6705bf967a96d856", "");
 
-        assertThrows(SecurityException.class, () -> management.login(userToLogIn.getUsername(), secondUser.getPassword()));
+        assertThrows(SecurityException.class, () -> management.login(userToLogIn.getUsername(),
+                secondUser.getPassword()));
 
         assertFalse(management.isLoggedIn(userToLogIn));
     }

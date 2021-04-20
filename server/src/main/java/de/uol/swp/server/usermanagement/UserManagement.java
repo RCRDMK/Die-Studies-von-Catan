@@ -8,7 +8,10 @@ import org.apache.logging.log4j.Logger;
 
 import javax.inject.Inject;
 import java.sql.*;
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 
 /**
@@ -39,7 +42,6 @@ public class UserManagement extends AbstractUserManagement {
     /**
      * Constructor
      *
-     * @author Marius Birk
      * @author Marius Birk
      * @see de.uol.swp.server.usermanagement.store.UserStore
      * @since 2019-08-05
@@ -115,6 +117,16 @@ public class UserManagement extends AbstractUserManagement {
     public boolean isLoggedIn(User username) {
         return loggedInUsers.containsKey(username.getUsername());
     }
+
+    /**
+     * Creates a New User
+     * <p>
+     * This method creates a new User in the Database. It throws an exception if the username is already used in
+     * the database.
+     *
+     * @return A new UserDTO with the username, password and the mail address
+     * @see java.sql.SQLException
+     */
 
     @Override
     public User createUser(User userToCreate) {
@@ -318,10 +330,10 @@ public class UserManagement extends AbstractUserManagement {
      * This method is used to set the new user values to the old ones if the values
      * in the update request were empty.
      *
-     * @author Marco Grawunder
      * @param firstValue  value to update to, empty String or null
      * @param secondValue the old value
      * @return String containing the value to be used in the update command
+     * @author Marco Grawunder
      * @since 2019-08-05
      */
     private String firstNotNull(String firstValue, String secondValue) {

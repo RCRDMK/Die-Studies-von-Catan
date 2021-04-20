@@ -23,11 +23,11 @@ public class GameDTOTest {
      * We create a new userDTO and join the user to the default game.
      * This will add him to the user set in the gameDTO.
      *
-     * @since 2021-03-17
      * @author Marius Birk
+     * @since 2021-03-17
      */
     @Test
-    void joinUserTest(){
+    void joinUserTest() {
         User user = new UserDTO("test2", "", "");
         defaultGame.joinUser(user);
 
@@ -39,15 +39,15 @@ public class GameDTOTest {
      * <p>
      * We create a new userDTO and join the user to the default game.
      * This will add him to the user set in the gameDTO.
-     *
+     * <p>
      * After that, we want the user to leave the game and check if the user is not longer
      * in the set of the gameDTO.
      *
-     * @since 2021-03-17
      * @author Marius Birk
+     * @since 2021-03-17
      */
     @Test
-    void leaveUserTest(){
+    void leaveUserTest() {
         User user = new UserDTO("test2", "", "");
         defaultGame.joinUser(user);
         assertEquals(defaultGame.getUsers().size(), 2);
@@ -61,15 +61,15 @@ public class GameDTOTest {
      * <p>
      * We create a new userDTO and join the user to the default game.
      * This will add him to the user set in the gameDTO.
-     *
+     * <p>
      * After that, we want the user to be the owner of the game and check if the user
      * is now the owner.
      *
-     * @since 2021-03-17
      * @author Marius Birk
+     * @since 2021-03-17
      */
     @Test
-    void updateOwnerTest(){
+    void updateOwnerTest() {
         User user = new UserDTO("test2", "", "");
         defaultGame.joinUser(user);
         assertEquals(defaultGame.getUsers().size(), 2);

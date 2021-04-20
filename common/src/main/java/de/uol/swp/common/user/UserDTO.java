@@ -22,10 +22,10 @@ public class UserDTO implements User {
     /**
      * Constructor
      *
-     * @author Marco Grawunder
      * @param username username of the user
      * @param password password the user uses
-     * @param eMail email address the user is registered to
+     * @param eMail    email address the user is registered to
+     * @author Marco Grawunder
      * @since 2019-08-13
      */
     public UserDTO(String username, String password, String eMail) {
@@ -71,13 +71,13 @@ public class UserDTO implements User {
 
     /**
      * Copy constructor leaving password variable empty
-     *
+     * <p>
      * This constructor is used for the user list, because it would be a major security
      * flaw to send all user data including passwords to everyone connected.
      *
-     * @author Marco Grawunder
      * @param user User object to copy the values of
      * @return UserDTO copy of User object having the password variable left empty
+     * @author Marco Grawunder
      * @since 2019-08-13
      */
     public static UserDTO createWithoutPassword(User user) {
@@ -112,10 +112,10 @@ public class UserDTO implements User {
 
     @Override
     public boolean equals(Object obj) {
-        if (! (obj instanceof UserDTO)){
+        if (!(obj instanceof UserDTO)) {
             return false;
         }
-        return Objects.equals(this.username, ((UserDTO)obj).username);
+        return Objects.equals(this.username, ((UserDTO) obj).username);
     }
 
     @Override

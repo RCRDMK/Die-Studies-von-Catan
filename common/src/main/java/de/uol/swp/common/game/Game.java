@@ -32,7 +32,6 @@ public interface Game extends Serializable {
      * Changes the owner of the game
      *
      * @param user The user who should be the new owner
-     *
      * @since 2021-01-15
      */
     void updateOwner(User user);
@@ -49,7 +48,6 @@ public interface Game extends Serializable {
      * Adds a new user to the game
      *
      * @param user The new user to add to the game
-     *
      * @since 2021-01-25
      */
     void joinUser(User user);
@@ -58,7 +56,6 @@ public interface Game extends Serializable {
      * Removes an user from the game
      *
      * @param user The user to remove from the game
-     *
      * @since 2021-01-15
      */
     void leaveUser(User user);
@@ -92,27 +89,6 @@ public interface Game extends Serializable {
      * @since 2021-03-26
      */
     User getUser(int index);
-
-    /**
-     * Getter for the GameField of this game
-     *
-     * @return The GameField of this game
-     * @author Pieter Vogt, Marc Hermes
-     * @see de.uol.swp.common.game.GameField
-     * @since 2021-03-13
-     */
-    GameField getGameField();
-
-    /**
-     * Setter for the GameField of this game
-     *
-     * @param gameField the GameField to be set as the gameField of this Game
-     *
-     * @author Pieter Vogt, Marc Hermes
-     * @see de.uol.swp.common.game.GameField
-     * @since 2021-03-13
-     */
-    void setGameField(GameField gameField);
 
     /**
      * Sets up the Arraylist containing the users.
@@ -174,6 +150,7 @@ public interface Game extends Serializable {
      * Getter for the Inventory from user
      *
      * @param user
+     *
      * @return The Inventory from user
      * @author Anton Nikiforov
      * @see de.uol.swp.common.game.inventory.Inventory
@@ -181,5 +158,29 @@ public interface Game extends Serializable {
      */
     Inventory getInventory(User user);
 
+    /**
+     * Returns the MapGraph object.
+     *
+     * @return The logical graph with all Nodes, Hexagons and connections between them.
+     * @author Pieter Vogt
+     * @see MapGraph
+     * @since 2021-04-11
+     */
+    MapGraph getMapGraph();
+
+    /**
+     * Puts the parsed MapGraph into the DTO.
+     *
+     * @param mapGraph
+     *
+     * @author Pieter Vogt
+     * @see MapGraph
+     * @since 2021-04-11
+     */
+    void setMapGraph(MapGraph mapGraph);
+
     DevelopmentCardDeck getDevelopmentCardDeck();
+
+    //TODO: this Methods need to be removed after all dependencies on the 3 obsolete classes had been resolved!!!
+    GameField getGameField();
 }
