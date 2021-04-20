@@ -292,7 +292,6 @@ public class GameService extends AbstractService {
      */
     public void tooMuchCards(RollDiceRequest rollDiceRequest) {
         Optional<Game> game = gameManagement.getGame(rollDiceRequest.getName());
-    //game.get().getMapGraph().getHexagonHashSet()
         if (game.isPresent()) {
             for (User user : game.get().getUsers()) {
                 if (game.get().getInventory(user).getResource() >= 7) {
@@ -306,7 +305,6 @@ public class GameService extends AbstractService {
                 }
             }
         }
-        //Jeden HexagonContrainer durchgehen und prüfen
     }
 
     /**
@@ -392,6 +390,7 @@ public class GameService extends AbstractService {
 
         //Bei Möglichkeit Robber zu versetzen Alert einblenden um Nutze zu sagen, er soll auf neues Feld klicken um Robber zu bewegen.
         //mouseEvent.getSource().equals(container.getCircle()) && itsMyTurn
+
         do {
             dice.rollDice();
         } while (dice.getEyes() == 7);

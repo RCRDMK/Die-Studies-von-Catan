@@ -15,4 +15,8 @@ public class MoveRobberResponse extends AbstractResponseMessage {
     public MoveRobberResponse(String gameName) {
         this.gameName = gameName;
     }
+
+    public String getName() {
+        return gameName;
+    }
 }

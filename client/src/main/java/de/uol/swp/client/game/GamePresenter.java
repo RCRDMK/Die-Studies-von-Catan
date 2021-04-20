@@ -12,6 +12,7 @@ import de.uol.swp.common.chat.ResponseChatMessage;
 import de.uol.swp.common.game.MapGraph;
 import de.uol.swp.common.game.message.*;
 import de.uol.swp.common.game.request.EndTurnRequest;
+import de.uol.swp.common.game.response.MoveRobberResponse;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.user.response.game.AllThisGameUsersResponse;
@@ -60,10 +61,7 @@ public class GamePresenter extends AbstractPresenter {
     public static final String fxml = "/fxml/GameView.fxml";
 
     private static final Logger LOG = LogManager.getLogger(GamePresenter.class);
-    @FXML
-    public TextField gameChatInput;
-    @FXML
-    public TextArea gameChatArea;
+
     private User joinedLobbyUser;
     private String currentLobby;
     private Alert alert;
@@ -77,6 +75,13 @@ public class GamePresenter extends AbstractPresenter {
     private GameService gameService;
     @Inject
     private ChatService chatService;
+
+    @FXML
+    public TextField gameChatInput;
+
+    @FXML
+    public TextArea gameChatArea;
+
     @FXML
     private Canvas canvas;
 
@@ -90,41 +95,20 @@ public class GamePresenter extends AbstractPresenter {
     private Button EndTurnButton;
 
     @FXML
+    private Button rollDice;
+
+    @FXML
+    private Button buyDevCard;
+
+    @FXML
     private GridPane chooseResource;
 
     @FXML
-    private Button lumberUp;
-
-    @FXML
-    private Button lumberDown;
-
-    @FXML
-    private Button grainUp;
-
-    @FXML
-    private Button grainDown;
-
-    @FXML
-    private Button woolUp;
-
-    @FXML
-    private Button woolDown;
-
-    @FXML
-    private Button oreUp;
-
-    @FXML
-    private Button oreDown;
-
-    @FXML
-    private Button brickUp;
-
-    @FXML
-    private Button brickDown;
+    private Rectangle robber;
 
     @FXML
     void onIncResource(ActionEvent event) {
-
+        System.out.println("test");
     }
 
     /**
@@ -312,6 +296,7 @@ public class GamePresenter extends AbstractPresenter {
             Platform.runLater(() -> {
                 setupRessourceAlert();
                 initializeRobberResourceMenu();
+                setupRobberAlert();
             });
         }
     }
@@ -330,6 +315,11 @@ public class GamePresenter extends AbstractPresenter {
      * @since 2021-04-19
      */
     public void initializeRobberResourceMenu() {
+        robber = new Rectangle();
+        robber.setFill(new ImagePattern(new Image("textures/originals/robbers.png")));
+        robber.setX(600);
+        robber.setY(250); //TODO anzeigen des robbers funktioniert nicht
+        robber.setVisible(true);
         Rectangle[] resources = new Rectangle[5];
         resources[0] = new Rectangle(30, 30);
         resources[1] = new Rectangle(30, 30);
@@ -357,6 +347,7 @@ public class GamePresenter extends AbstractPresenter {
                 choose[i].setGraphic(imageView);
             }
         }
+        choose[0].setOnAction(this::onIncResource);
         for (int i = 0; i < 4; i++) {
             chooseResource.add(choose[i], i, 0);
             chooseResource.add(choose[5 + i], i, 2);
@@ -366,6 +357,24 @@ public class GamePresenter extends AbstractPresenter {
         chooseResource.setHgap(30);
 
         hideRobberResourceMenu();
+
+        EventHandler<MouseEvent> clickOnCircleHandler = new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent mouseEvent) {
+                for (HexagonContainer container : hexagonContainers) {
+                    System.out.println(container.getCircle());
+                    System.out.println(mouseEvent.getSource());
+                    if (mouseEvent.getSource().equals(container.getCircle()) && itsMyTurn == true) {
+                        robber.setX(container.getCircle().getCenterX());
+                        robber.setY(container.getCircle().getCenterY());
+                    }
+                }
+            }
+        };
+
+        for (HexagonContainer container : hexagonContainers) {
+            container.getCircle().setOnMouseClicked(clickOnCircleHandler);
+        }
     }
 
     /**
@@ -427,9 +436,13 @@ public class GamePresenter extends AbstractPresenter {
             if (response.getPlayerWithCurrentTurn().equals(joinedLobbyUser.getUsername())) {
                 itsMyTurn = true;
                 EndTurnButton.setDisable(false);
+                rollDice.setDisable(false);
+                buyDevCard.setDisable(false);
             } else {
                 itsMyTurn = false;
                 EndTurnButton.setDisable(true);
+                rollDice.setDisable(true);
+                buyDevCard.setDisable(true);
             }
         }
     }
@@ -853,6 +866,45 @@ public class GamePresenter extends AbstractPresenter {
      * @since 2021-04-03
      */
     public void setupRessourceAlert() {
+        this.alert = new Alert(javafx.scene.control.Alert.AlertType.CONFIRMATION);
+        this.buttonTypeOkay = new ButtonType("Okay", ButtonBar.ButtonData.OK_DONE);
+        alert.getButtonTypes().setAll(buttonTypeOkay);
+        this.btnOkay = (Button) alert.getDialogPane().lookupButton(buttonTypeOkay);
+        btnOkay.setOnAction(event -> {
+            alert.close();
+            event.consume();
+        });
+    }
+
+    @Subscribe
+    public void onMoveRobberResponse(MoveRobberResponse moveRobberResponse) {
+        moveRobberResponseLogic(moveRobberResponse);
+    }
+
+    public void moveRobberResponseLogic(MoveRobberResponse moveRobberResponse) {
+        if (this.currentLobby != null) {
+            if (this.currentLobby.equals(moveRobberResponse.getName())) {
+                Platform.runLater(() -> {
+                    this.alert.setTitle(moveRobberResponse.getName());
+                    this.alert.setHeaderText("Click on a field to move the Robber!");
+                    this.alert.show();
+                });
+
+
+            }
+        }
+    }
+
+    /**
+     * The method invoked when the Game Presenter is first used.
+     * <p>
+     * The Alert tells the user, that he has to move the robber to a new field. The user can only
+     * click the showed button to close the dialog.
+     *
+     * @author Marius Birk
+     * @since 2021-04-20
+     */
+    public void setupRobberAlert() {
         this.alert = new Alert(javafx.scene.control.Alert.AlertType.CONFIRMATION);
         this.buttonTypeOkay = new ButtonType("Okay", ButtonBar.ButtonData.OK_DONE);
         alert.getButtonTypes().setAll(buttonTypeOkay);
