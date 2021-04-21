@@ -316,8 +316,9 @@ public class MapGraph implements Serializable {
                 this.occupiedByPlayer = playerIndex;
                 longestStreetPathCalculator.updateMatrixWithNewStreet(this.getUuid(), playerIndex);
                 longestStreetPathCalculator.printAdjacencyMatrix(playerIndex);
-                longestStreetPathCalculator.calculateLongestPath(playerIndex);
-                longestStreetPathCalculator.getLongestPath(playerIndex);
+                //longestStreetPathCalculator.calculateLongestPath(playerIndex);
+                //longestStreetPathCalculator.getLongestPath(playerIndex);
+                longestStreetPathCalculator.doMakeLongestPath(playerIndex);
                 return true;
             } else return false;
         }
