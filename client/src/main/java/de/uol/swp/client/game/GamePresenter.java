@@ -220,7 +220,7 @@ public class GamePresenter extends AbstractPresenter {
     Button tradeButton;
 
     @FXML
-    public void onTrade(ActionEvent event) {//TODO TradeCode schon hier generieren
+    public void onTrade(ActionEvent event) {
         String tradeCode = UUID.randomUUID().toString().trim().substring(0, 7);
         eventBus.post(new TradeStartedMessage((UserDTO) this.joinedLobbyUser, this.currentLobby, tradeCode));
         tradeButton.setDisable(true);
@@ -853,20 +853,61 @@ public class GamePresenter extends AbstractPresenter {
     public void onTradeOfferInformBiddersMessage(TradeOfferInformBiddersMessage toibm) {
         if (toibm.getName().equals(currentLobby)) {
             tradeButton.setDisable(true);
-            //TODO: client chooses what to do
         }
     }
 
     @Subscribe
     public void onTradeSuccessfulMessage(TradeSuccessfulMessage tsm) {
+        TradeSuccessfulMessage lastMessage = tsm;
         if (tsm.getName().equals((currentLobby))) {
-            if (tsm.isTradeSuccessful() == true) {
-                //TODO: Show which trade was successful
-                tradeButton.setDisable(false);
-            } else {
-                //TODO: Show no trade successful
+            Platform.runLater(() -> {
+                if (tsm.isTradeSuccessful() == true) {
+                    try {
+                        var chatMessageInfo = "The trade: " + tsm.getTradeCode() + " was successful between" + tsm.getUser().getUsername() + " and " + tsm.getBidder().getUsername();
+                        var chatId = "game_" + currentLobby;
+                        if (!chatMessageInfo.isEmpty()) {
+                            RequestChatMessage message = new RequestChatMessage(chatMessageInfo, chatId, joinedLobbyUser.getUsername(),
+                                    System.currentTimeMillis());
+                            chatService.sendMessage(message);
+                        }
+                    } catch (Exception e) {
+                        LOG.debug(e);
+                    }
+                    Platform.runLater(() -> {
+                        tradeButton.setDisable(false);
+                    });
+                } else {
+                    try {
+                        var chatMessageInfo = "The trade: " + tsm.getTradeCode() + " was  not successful! :(";
+                        var chatId = "game_" + currentLobby;
+                        if (!chatMessageInfo.isEmpty()) {
+                            RequestChatMessage message = new RequestChatMessage(chatMessageInfo, chatId, joinedLobbyUser.getUsername(),
+                                    System.currentTimeMillis());
+                            chatService.sendMessage(message);
+                        }
+                    } catch (Exception e) {
+                        LOG.debug(e);
+                    }
+                }
+            });
+        }
+    }
+
+    /**
+     * shows an alert if the trade user has not enough in inventory
+     *
+     * @param message
+     */
+    @Subscribe
+    public void notEnoughResTrade(TradeCardErrorMessage message) {
+        if (this.currentLobby != null) {
+            if (this.currentLobby.equals(message.getName())) {
+                Platform.runLater(() -> {
+                    this.alert.setTitle(message.getName());
+                    this.alert.setHeaderText("You have not enough Resources for the trade in: " + message.getTradeCode());
+                    this.alert.show();
+                });
             }
-            //TODO: Close tradewindow
         }
     }
 }

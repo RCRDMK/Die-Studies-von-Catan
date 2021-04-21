@@ -544,17 +544,18 @@ public class GameService extends AbstractService {
      */
     @Subscribe
     public void onTradeItemRequest(TradeItemRequest request) {
-
         System.out.println("Got message " + request.getUser().getUsername());
         Optional<Game> game = gameManagement.getGame(request.getName());
+
         game.get().getInventory(request.getUser()).incCard("Lumber", 10);
         game.get().getInventory(request.getUser()).incCard("Ore", 10);
         game.get().getInventory(request.getUser()).incCard("Wool", 10);
         game.get().getInventory(request.getUser()).incCard("Grain", 10);
         game.get().getInventory(request.getUser()).incCard("Brick", 10);
+
         if (game.isPresent()) {
             boolean numberOfCardsCorrect = true;
-            //check enough Items
+
             for (TradeItem tradeItem : request.getTradeItems()) {
                 boolean notEnoughInInventoryCheck = tradeItem.getCount() > (int) game.get().getInventory(request.getUser()).getPrivateView().get(tradeItem.getName());
                 if (tradeItem.getCount() < 0 || notEnoughInInventoryCheck == true) {
@@ -562,10 +563,9 @@ public class GameService extends AbstractService {
                     break;
                 }
             }
+
             if (numberOfCardsCorrect == true) {
                 String tradeCode = request.getTradeCode();
-
-                //add new Trade if tradeCode not yet in use
                 if (!game.get().getTradeList().containsKey(tradeCode)) {
                     game.get().addTrades(new Trade(request.getUser(), request.getTradeItems()), tradeCode);
 
@@ -578,14 +578,10 @@ public class GameService extends AbstractService {
                             System.out.println("Send TradeOfferInformBiddersMessage to " + user.getUsername());
                         }
                     }
-                }
-                //add bid to existing trade
-                else {
-                    //TODO: response bid was delivered
+                } else {
                     Trade trade = game.get().getTradeList().get(request.getTradeCode());
                     trade.addBid(request.getUser(), request.getTradeItems());
                     System.out.println("added bid to " + tradeCode + " by User: " + request.getUser().getUsername() + " items: " + request.getTradeItems());
-                    //If all users have send a bid/empty bid, inform the seller about the bids
                     if (trade.getBids().size() == game.get().getUsers().size() - 1) {
                         System.out.println("bids full");
                         TradeInformSellerAboutBidsMessage tisabm = new TradeInformSellerAboutBidsMessage(trade.getSeller(), request.getName(), tradeCode, trade.getBidders(), trade.getBids());
@@ -593,12 +589,8 @@ public class GameService extends AbstractService {
                         System.out.println("Send TradeInformSellerAboutBidsMessage to " + trade.getSeller().getUsername());
                     }
                 }
-
             } else {
-                //TODO: Send Error if trade<0 or not enough items in inventory, GamePresenter has to subscribe for it
-
                 System.out.println("Nicht genug im Inventar");
-
                 TradeCardErrorMessage tcem = new TradeCardErrorMessage(request.getUser(), request.getName(), request.getTradeCode());
                 sendToSpecificUserInGame(game, tcem, request.getUser());
             }
@@ -632,17 +624,14 @@ public class GameService extends AbstractService {
                 Inventory inventoryBidder = game.get().getInventory(request.getUser());
 
                 for (TradeItem soldItem : trade.getSellingItems()) {
-                    //inventorySeller remove sold Item
                     inventorySeller.decCard(soldItem.getName(), soldItem.getCount());
-                    // inventoryBidder add sold Item
                     inventoryBidder.incCard(soldItem.getName(), soldItem.getCount());
                 }
                 for (TradeItem bidItem : trade.getBids().get(request.getUser())) {
-                    //inventorySeller add bid Item
                     inventorySeller.incCard(bidItem.getName(), bidItem.getCount());
-                    //inventoryBidder remove bid Item
                     inventoryBidder.decCard(bidItem.getName(), bidItem.getCount());
                 }
+
                 tsm.addSuccessfulBidder(request.getUser(), trade.getBids().get(request.getUser()));
                 sendToAllInGame(request.getName(), tsm);
             } else {

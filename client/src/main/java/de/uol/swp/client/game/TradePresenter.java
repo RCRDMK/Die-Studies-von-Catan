@@ -7,7 +7,6 @@ import de.uol.swp.common.game.message.TradeCardErrorMessage;
 import de.uol.swp.common.game.message.TradeInformSellerAboutBidsMessage;
 import de.uol.swp.common.game.trade.TradeItem;
 import de.uol.swp.common.user.UserDTO;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
@@ -17,32 +16,355 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * This class is responsible for managing the Trade popup window.
- * <p>
- * When this class is called, either through a onTrade Action event or through a subscription method, it will depict the
- * the trade window. Depending on which method was called, the depiction varies. Inside the window, you can select what
- * resources you want to trade and in which amount.
+ * This class is the for the Trade Scene
  *
  * @author Alexander Losse, Ricardo Mook
  * @see de.uol.swp.client.AbstractPresenter
- * @since 2021-04-07
+ * @since 2021-04-21
  */
 
-public class TradePresenter extends AbstractPresenter {//TODO JavaDoc
+public class TradePresenter extends AbstractPresenter {
 
     public static final String fxml = "/fxml/TradeView.fxml";
+    private static final String lumberString = "Lumber";
+    private static final String oreString = "Ore";
+    private static final String woolString = "Wool";
+    private static final String grainString = "Grain";
+    private static final String brickString = "Brick";
 
     private String tradeCode;
     private String gameName;
     private UserDTO user;
     private ArrayList<UserDTO> bidders;
     private HashMap<UserDTO, ArrayList<TradeItem>> bids;
-    private String lumberString = "Lumber";
-    private String oreString = "Ore";
-    private String woolString = "Wool";
-    private String grainString = "Grain";
-    private String brickString = "Brick";
     private String seller;
+
+    /**
+     * reacts to a TradeInformSellerAboutBidsMessage
+     * <p>
+     * checks if the TradeInformSellerMessage is for the user
+     * enables the endTradeButton and the offerNoneCheckBox
+     * makes all necessary rows visible
+     * for convenience it saves the bidders and the bids
+     *
+     * @param message TradeInformSellerAboutBidsMessage
+     * @author Alexander Losse, Ricardo Mook
+     * @see TradeInformSellerAboutBidsMessage
+     * @since 2021-04-21
+     */
+    @Subscribe
+    public void onTradeInformSellerAboutBidsMessage(TradeInformSellerAboutBidsMessage message) {
+        if (message.getUser().getUsername().equals(user.getUsername()) && message.getTradeCode().equals(tradeCode)) {
+
+            endTradeButton.setDisable(false);
+            offerNoneCheckBox.setDisable(false);
+            row1Hbox.setVisible(true);
+            offer1CheckBox.setDisable(false);
+
+            int biddersCount = message.getBidders().size();
+            if (biddersCount > 1) {
+                row2Hbox.setVisible(true);
+                if (biddersCount > 2) {
+                    row3Hbox.setVisible(true);
+                }
+            }
+            bidders = message.getBidders();
+            bids = message.getBids();
+            setBids();
+        }
+    }
+
+    /**
+     * reacts to the TradeCardErrorMessage
+     * <p>
+     * checks if the TradeCardErrorMessage is for the user
+     * reenables addItemButton, sendItemsButton, ressourceInputValue, ressourceChoice
+     * they are disabled íf the sendItemsButton is pressed
+     * the message is received if the user has not enough items in the inventory
+     *
+     * @param message TradeCardErrorMessage
+     * @author Alexander Losse, Ricardo Mook
+     * @see TradeCardErrorMessage
+     * @since 2021-04-21
+     */
+    @Subscribe
+    public void onTradeCardErrorMessage(TradeCardErrorMessage message) {
+        if (message.getUser().getUsername().equals(user.getUsername()) && message.getTradeCode().equals(tradeCode)) {
+            addItemButton.setDisable(false);
+            sendItemsButton.setDisable(false);
+            ressourceInputValue.setDisable(false);
+            ressourceChoice.setDisable(false);
+        }
+    }
+
+    /**
+     * sets the values for the tradewindow
+     * <p>
+     * this help-method adds the user,gameName,tradeCode and nameOfSeller to the Object
+     *
+     * @param currentUser  UserDTO
+     * @param gameName     String
+     * @param tradeCode    String
+     * @param nameOfSeller String
+     * @author Alexander Losse, Ricardo Mook
+     * @since 2021-04-21
+     */
+    public void setValuesOfTradeView(UserDTO currentUser, String gameName, String tradeCode, String nameOfSeller) {
+        this.gameName = gameName;
+        this.user = currentUser;
+        this.tradeCode = tradeCode;
+        this.seller = nameOfSeller;
+    }
+
+    /**
+     * gives the selling items to bidder
+     * <p>
+     * this help-method adds the selling Items to the Object
+     * the ArrayList<TradeItem> sellingItems is parsed through and the values are displayed in row 1(row-number starts at 0)
+     * row 1 is now visible
+     *
+     * @param sellingItems ArrayList<TradeItem>
+     * @author Alexander Losse, Ricardo Mook
+     * @see TradeItem
+     * @since 2021-04-21
+     */
+    public void setOffer(ArrayList<TradeItem> sellingItems) {
+        for (TradeItem item : sellingItems) {
+            String valueOfCount = String.valueOf(item.getCount());
+            if (item.getName().equals(lumberString)) {
+                lumber1.setText(valueOfCount);
+            } else if (item.getName().equals(oreString)) {
+                ore1.setText(valueOfCount);
+            } else if (item.getName().equals(brickString)) {
+                brick1.setText(valueOfCount);
+            } else if (item.getName().equals(grainString)) {
+                grain1.setText(valueOfCount);
+            } else if (item.getName().equals(woolString)) {
+                wool1.setText(valueOfCount);
+            }
+            row1Hbox.setVisible(true);
+        }
+    }
+
+    /**
+     * ends the trade and send the TradeChoice via the gameService
+     * <p>
+     * the method checks which RadioButton is active
+     * RadioButtons: none,1,2,3
+     * the methods calls gameService.sendTradeChoice with the corresponding bidder
+     *
+     * @author Alexander Losse, Ricardo Mook
+     * @see TradeItem
+     * @see GameService
+     * @since 2021-04-21
+     */
+    @FXML
+    public void onEndTradeButtonPressed() {
+
+        RadioButton selectedRadioButton = (RadioButton) choiceTrade.getSelectedToggle();
+
+        if (selectedRadioButton == offerNoneCheckBox) {
+            gameService.sendTradeChoice(user, false, gameName, tradeCode);
+        } else if (selectedRadioButton == offer1CheckBox) {
+            gameService.sendTradeChoice(bidders.get(0), true, gameName, tradeCode);
+        } else if (selectedRadioButton == offer2CheckBox) {
+            gameService.sendTradeChoice(bidders.get(1), true, gameName, tradeCode);
+        } else if (selectedRadioButton == offer3CheckBox) {
+            gameService.sendTradeChoice(bidders.get(2), true, gameName, tradeCode);
+        }
+    }
+
+    /**
+     * when add button is pressed the help methods gets called to read the input value
+     *
+     * @author Alexander Losse, Ricardo Mook
+     * @see TradeItem
+     * @since 2021-04-21
+     */
+    @FXML
+    public void onAddItemButtonPressed() {
+        readRessourceInputValue();
+    }
+
+    /**
+     * method gets called when on the send button is pressed it collects the trade items - help method -
+     * <p>
+     * ArrayList<TradeItem> sendTradeItemArrayList is created with createTradeItemList()
+     * boolean minimalItems tracks if at least one item ha a count of > 0
+     * if minimalItems == true a TradeItemRequest is send via the GameService
+     * disables addItemButton, sendItemsButton, ressourceInputValue, ressourceChoice
+     * else nothing happens
+     *
+     * @author Alexander Losse, Ricardo Mook
+     * @see GameService
+     * @see TradeItem
+     * @since 2021-04-21
+     */
+    @FXML
+    public void onSendItemsButtonsPressed() {
+        ArrayList<TradeItem> sendTradeItemArrayList = createTradeItemList();
+        boolean minimalItems = false;
+        for (TradeItem item : sendTradeItemArrayList) {
+            if (item.getCount() > 0) {
+                minimalItems = true;
+            }
+        }
+
+        if (minimalItems) {
+            gameService.sendItem(user, gameName, sendTradeItemArrayList, tradeCode);
+            addItemButton.setDisable(true);
+            sendItemsButton.setDisable(true);
+            ressourceInputValue.setDisable(true);
+            ressourceChoice.setDisable(true);
+        }//TODO: inform the user that he has to send at least 1 item
+    }
+
+    /**
+     * reads the input value from ressourceInputValue and saves the value
+     * <p>
+     * reads the input value from ressourceInputValue
+     * if the value is a viable int
+     * the method checks which ressource is to be added
+     * sets the corresponding text in row 0
+     * else nothing happens
+     *
+     * @author Alexander Losse, Ricardo Mook
+     * @see TradeItem
+     * @since 2021-04-21
+     */
+    public void readRessourceInputValue() {
+        String ressourceInputValueText = ressourceInputValue.getText();
+        if (isStringNumber(ressourceInputValueText)) {
+            String ressourceChoiceString = ressourceChoice.getValue().toString();
+            if (ressourceChoiceString.equals(lumberString)) {
+                lumber0.setText(ressourceInputValueText);
+            } else if (ressourceChoiceString.equals(oreString)) {
+                ore0.setText(ressourceInputValueText);
+            } else if (ressourceChoiceString.equals(brickString)) {
+                brick0.setText(ressourceInputValueText);
+            } else if (ressourceChoiceString.equals(grainString)) {
+                grain0.setText(ressourceInputValueText);
+            } else if (ressourceChoiceString.equals(woolString)) {
+                wool0.setText(ressourceInputValueText);
+            }
+        }
+    }
+
+    /**
+     * creates a trade item list - help method -
+     * <p>
+     * creates ArrayList<TradeItems> tradeItems
+     * creates TradeItems with the values from row 0 and the corresponding ressource name
+     * tradeItems are added to tradeItems
+     * tradeItems is returned
+     *
+     * @return ArrayList with TradeItems in it
+     * @author Alexander Losse, Ricardo Mook
+     * @see TradeItem
+     * @since 2021-04-21
+     */
+    public ArrayList<TradeItem> createTradeItemList() {
+        ArrayList<TradeItem> tradeItems = new ArrayList<>();
+        tradeItems.add(new TradeItem(lumberString, Integer.parseInt(lumber0.getText())));
+        tradeItems.add(new TradeItem(oreString, Integer.parseInt(ore0.getText())));
+        tradeItems.add(new TradeItem(brickString, Integer.parseInt(brick0.getText())));
+        tradeItems.add(new TradeItem(grainString, Integer.parseInt(grain0.getText())));
+        tradeItems.add(new TradeItem(woolString, Integer.parseInt(wool0.getText())));
+        return tradeItems;
+    }
+
+    /**
+     * this help method sets the bid in the view for the seller, so that the user can see the offers and select one of them.
+     * <p>
+     * ArrayList<UserDTO> bidders and HashMap<UserDTO, ArrayList<TradeItem>> bids are used to fill row 1,2,3 with the bids of the bidders
+     * if more then 0 bids are available
+     * fills row 1 with the offer of the first bidder in bids
+     * if more then 1 bids are available
+     * fills row 2 with the offer of the second bidder in bids
+     * if more then 2 bids are available
+     * fills row 3 with the offer of the third bidder in bids
+     *
+     * @author Alexander Losse, Ricardo Mook
+     * @see TradeItem
+     * @since 2021-04-21
+     */
+    public void setBids() {
+        if (bids.size() > 0) {
+            ArrayList<TradeItem> itemsOffer1 = bids.get(bidders.get(0));
+
+            for (TradeItem item : itemsOffer1) {
+                String valueOfCount = String.valueOf(item.getCount());
+                if (item.getName().equals(lumberString)) {
+                    lumber1.setText(valueOfCount);
+                } else if (item.getName().equals(oreString)) {
+                    ore1.setText(valueOfCount);
+                } else if (item.getName().equals(brickString)) {
+                    brick1.setText(valueOfCount);
+                } else if (item.getName().equals(grainString)) {
+                    grain1.setText(valueOfCount);
+                } else if (item.getName().equals(woolString)) {
+                    wool1.setText(valueOfCount);
+                }
+            }
+            if (bids.size() > 1) {
+
+                ArrayList<TradeItem> itemsOffer2 = bids.get(bidders.get(1));
+                for (TradeItem item : itemsOffer2) {
+                    String valueOfCount = String.valueOf(item.getCount());
+                    if (item.getName().equals(lumberString)) {
+                        lumber2.setText(valueOfCount);
+                    } else if (item.getName().equals(oreString)) {
+                        ore2.setText(valueOfCount);
+                    } else if (item.getName().equals(brickString)) {
+                        brick2.setText(valueOfCount);
+                    } else if (item.getName().equals(grainString)) {
+                        grain2.setText(valueOfCount);
+                    } else if (item.getName().equals(woolString)) {
+                        wool2.setText(valueOfCount);
+                    }
+                }
+                if (bids.size() > 2) {
+
+                    ArrayList<TradeItem> itemsOffer3 = bids.get(bidders.get(2));
+                    for (TradeItem item : itemsOffer3) {
+                        String valueOfCount = String.valueOf(item.getCount());
+                        if (item.getName().equals(lumberString)) {
+                            lumber3.setText(valueOfCount);
+                        } else if (item.getName().equals(oreString)) {
+                            ore3.setText(valueOfCount);
+                        } else if (item.getName().equals(brickString)) {
+                            brick3.setText(valueOfCount);
+                        } else if (item.getName().equals(grainString)) {
+                            grain3.setText(valueOfCount);
+                        } else if (item.getName().equals(woolString)) {
+                            wool3.setText(valueOfCount);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * checks if given string is a number in the range from 1 to 999
+     *
+     * @param checkedString the input value
+     * @return boolean if input is a number
+     * @author Alexander Losse, Ricardo Mook
+     * @see TradeItem
+     * @since 2021-04-21
+     */
+    public boolean isStringNumber(String checkedString) {
+        if (Integer.parseInt(checkedString) >= 1 && Integer.parseInt(checkedString) <= 999) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    //
+    // <----- FXML STUFF ----->
+    //
 
     @Inject
     GameService gameService;
@@ -144,200 +466,6 @@ public class TradePresenter extends AbstractPresenter {//TODO JavaDoc
 
     @FXML
     HBox row3Hbox;
-
-    @Subscribe
-    public void onTradeInformSellerAboutBidsMessage(TradeInformSellerAboutBidsMessage message) {
-        if (message.getUser().getUsername().equals(user.getUsername()) && message.getTradeCode().equals(tradeCode)) {
-
-            endTradeButton.setDisable(false);
-            offerNoneCheckBox.setDisable(false);
-            row1Hbox.setVisible(true);
-            offer1CheckBox.setDisable(false);
-
-            int biddersCount = message.getBidders().size();
-            if(biddersCount>1){
-                row2Hbox.setVisible(true);
-                if(biddersCount>2){
-                    row3Hbox.setVisible(true);
-                }
-            }
-            bidders = message.getBidders();
-            bids = message.getBids();
-            setBids();
-        }
-    }
-
-    @Subscribe
-    public void onTradeCardErrorMessage (TradeCardErrorMessage message){
-        if(message.getUser().getUsername().equals(user.getUsername()) && message.getTradeCode().equals(tradeCode)){
-            addItemButton.setDisable(false);
-            sendItemsButton.setDisable(false);
-            ressourceInputValue.setDisable(false);
-            ressourceChoice.setDisable(false);
-        }
-    }
-    public void setValuesOfTradeView(UserDTO currentUser, String gameName, String tradeCode, String nameOfSeller) {
-        this.gameName = gameName;
-        this.user = currentUser;
-        this.tradeCode = tradeCode;
-        this.seller = nameOfSeller;
-    }
-    //TODO: methode setAngebot
-    public void setOffer(ArrayList<TradeItem> sellingItems){
-            for (TradeItem item : sellingItems) {
-                String valueOfCount = String.valueOf(item.getCount());
-                if (item.getName().equals(lumberString)) {
-                    lumber1.setText(valueOfCount);
-                } else if (item.getName().equals(oreString)) {
-                    ore1.setText(valueOfCount);
-                } else if (item.getName().equals(brickString)) {
-                    brick1.setText(valueOfCount);
-                } else if (item.getName().equals(grainString)) {
-                    grain1.setText(valueOfCount);
-                } else if (item.getName().equals(woolString)) {
-                    wool1.setText(valueOfCount);
-                }
-                row1Hbox.setVisible(true);
-            }
-        }
-
-
-    //TODO: Subscribe methode die die Informationen für das Bieter Fenster übernimmt
-
-    @FXML
-    public void onEndTradeButtonPressed(ActionEvent actionEvent) {
-        //TODO: Radiobox auf active überprüfen und RadioBoxValue überprüfen und mit value richtiges Angebot weiterleiten(TradeChoiceRequest
-
-        RadioButton selectedRadioButton = (RadioButton) choiceTrade.getSelectedToggle();
-
-        if (selectedRadioButton == offerNoneCheckBox) {
-            gameService.sendTradeChoice(user, false, gameName, tradeCode);
-        } else if (selectedRadioButton == offer1CheckBox) {
-            gameService.sendTradeChoice(bidders.get(0), true, gameName, tradeCode);
-        } else if (selectedRadioButton == offer2CheckBox) {
-            gameService.sendTradeChoice(bidders.get(1), true, gameName, tradeCode);
-        } else if (selectedRadioButton == offer3CheckBox) {
-            gameService.sendTradeChoice(bidders.get(2), true, gameName, tradeCode);
-        }
-    }
-
-    @FXML
-    public void onAddItemButtonPressed() {
-        readRessourceInputValue();
-    }
-
-    @FXML
-    public void onSendItemsButtonsPressed() {
-        // TODO: hier eigenes angebot einblenden? ^^
-        ArrayList<TradeItem> sendTradeItemArrayList = createTradeItemList();
-        boolean minimalItems = false;
-        for(TradeItem item: sendTradeItemArrayList){
-            if(item.getCount()>0){
-                minimalItems = true;
-            }
-        }
-        if(minimalItems) {
-            gameService.sendItem(user, gameName, sendTradeItemArrayList, tradeCode);
-            addItemButton.setDisable(true);
-            sendItemsButton.setDisable(true);
-            ressourceInputValue.setDisable(true);
-            ressourceChoice.setDisable(true);
-        }
-    }
-
-
-    public void readRessourceInputValue() {
-        String ressourceInputValueText = ressourceInputValue.getText();
-        if (isStringNumber(ressourceInputValueText)) {
-            String ressourceChoiceString = ressourceChoice.getValue().toString();
-
-            if (ressourceChoiceString.equals(lumberString)) {
-                lumber0.setText(ressourceInputValueText);
-            } else if (ressourceChoiceString.equals(oreString)) {
-                ore0.setText(ressourceInputValueText);
-            } else if (ressourceChoiceString.equals(brickString)) {
-                brick0.setText(ressourceInputValueText);
-            } else if (ressourceChoiceString.equals(grainString)) {
-                grain0.setText(ressourceInputValueText);
-            } else if (ressourceChoiceString.equals(woolString)) {
-                wool0.setText(ressourceInputValueText);
-            }
-        }
-    }
-
-    public ArrayList<TradeItem> createTradeItemList() {
-        ArrayList<TradeItem> tradeItems = new ArrayList<>();
-        tradeItems.add(new TradeItem(lumberString, Integer.parseInt(lumber0.getText())));
-        tradeItems.add(new TradeItem(oreString, Integer.parseInt(ore0.getText())));
-        tradeItems.add(new TradeItem(brickString, Integer.parseInt(brick0.getText())));
-        tradeItems.add(new TradeItem(grainString, Integer.parseInt(grain0.getText())));
-        tradeItems.add(new TradeItem(woolString, Integer.parseInt(wool0.getText())));
-        return tradeItems;
-    }
-
-    //fills the Textfields with the bids, uses bidders, bids
-    public void setBids() {
-        if (bids.size() == 1) {
-            ArrayList<TradeItem> itemsOffer1 = bids.get(bidders.get(0));
-            //fills text for offer 1
-            for (TradeItem item : itemsOffer1) {
-                String valueOfCount = String.valueOf(item.getCount());
-                if (item.getName().equals(lumberString)) {
-                    lumber1.setText(valueOfCount);
-                } else if (item.getName().equals(oreString)) {
-                    ore1.setText(valueOfCount);
-                } else if (item.getName().equals(brickString)) {
-                    brick1.setText(valueOfCount);
-                } else if (item.getName().equals(grainString)) {
-                    grain1.setText(valueOfCount);
-                } else if (item.getName().equals(woolString)) {
-                    wool1.setText(valueOfCount);
-                }
-            }
-        } else if (bids.size() == 2) {
-            //fills text for offer 2
-            ArrayList<TradeItem> itemsOffer2 = bids.get(bidders.get(1));
-            for (TradeItem item : itemsOffer2) {
-                String valueOfCount = String.valueOf(item.getCount());
-                if (item.getName().equals(lumberString)) {
-                    lumber2.setText(valueOfCount);
-                } else if (item.getName().equals(oreString)) {
-                    ore2.setText(valueOfCount);
-                } else if (item.getName().equals(brickString)) {
-                    brick2.setText(valueOfCount);
-                } else if (item.getName().equals(grainString)) {
-                    grain2.setText(valueOfCount);
-                } else if (item.getName().equals(woolString)) {
-                    wool2.setText(valueOfCount);
-                }
-            }
-        } else if (bids.size() == 3) {
-            //fills text for offer 3
-            ArrayList<TradeItem> itemsOffer3 = bids.get(bidders.get(2));
-            for (TradeItem item : itemsOffer3) {
-                String valueOfCount = String.valueOf(item.getCount());
-                if (item.getName().equals(lumberString)) {
-                    lumber3.setText(valueOfCount);
-                } else if (item.getName().equals(oreString)) {
-                    ore3.setText(valueOfCount);
-                } else if (item.getName().equals(brickString)) {
-                    brick3.setText(valueOfCount);
-                } else if (item.getName().equals(grainString)) {
-                    grain3.setText(valueOfCount);
-                } else if (item.getName().equals(woolString)) {
-                    wool3.setText(valueOfCount);
-                }
-            }
-        }
-    }
-
-    public boolean isStringNumber(String checkedString) {
-        if (Integer.parseInt(checkedString) >= 1 && Integer.parseInt(checkedString) <= 999) {
-            return true;
-        }else{
-            return false;
-        }
-    }
 }
  
 

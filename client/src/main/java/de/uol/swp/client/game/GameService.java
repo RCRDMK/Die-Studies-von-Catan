@@ -106,12 +106,33 @@ public class GameService {
     }
 
 
-    //sends TradeItemRequest
+    /**
+     * this methods sends the added trade items to the server via an TradeItemRequest
+     *
+     * @param bidder    the bidder
+     * @param gameName  the game name
+     * @param bidItems  the bidded items
+     * @param tradeCode the tradecode
+     * @author Alexander Losse, Ricardo Mook
+     * @see de.uol.swp.common.game.request.TradeItemRequest
+     * @since 2021-04-21
+     */
     public void sendItem(UserDTO bidder, String gameName, ArrayList<TradeItem> bidItems, String tradeCode) {
         TradeItemRequest tir = new TradeItemRequest(bidder, gameName, bidItems, tradeCode);
         eventBus.post(tir);
     }
 
+    /**
+     * sends the choice of the seller to the server
+     *
+     * @param tradePartner  the user from which the offer is accepted
+     * @param tradeAccepted boolean for true or false
+     * @param gameName      game name
+     * @param tradeCode     the specific trade code
+     * @author Alexander Losse, Ricardo Mook
+     * @see de.uol.swp.common.game.request.TradeItemRequest
+     * @since 2021-04-21
+     */
     public void sendTradeChoice(UserDTO tradePartner, Boolean tradeAccepted, String gameName, String tradeCode) {
         TradeChoiceRequest tcr = new TradeChoiceRequest(tradePartner, tradeAccepted, gameName, tradeCode);
         eventBus.post(tcr);
