@@ -121,12 +121,10 @@ public class LongestStreetPathCalculator implements Serializable {
             boolean cond = true;
 
             if (currentMatrixEntry.getInteger() == 1 && !walkedPath.contains(currentMatrixEntry.getUuidForColumn())) {
-                if (walkedPath.size() > 1) {
-                    for (int y = 0; y < matrix.length; y++) {
-                        if (matrix[y][lookUpColumn].getUuidForRow().equals(currentMatrixEntry.getUuidForColumn()) && matrix[y][lookUpColumn].getInteger() == 1) {
-                            cond = false;
-                            break;
-                        }
+                for (int y = 0; y < matrix.length; y++) {
+                    if (matrix[y][lookUpColumn].getUuidForRow().equals(currentMatrixEntry.getUuidForColumn()) && matrix[y][lookUpColumn].getInteger() == 1) {
+                        cond = false;
+                        break;
                     }
                 }
                 if (cond) {
@@ -134,7 +132,6 @@ public class LongestStreetPathCalculator implements Serializable {
                     ArrayList<UUID> result = new ArrayList<>(vertical(walkedPath, j, row, matrix));
                     pathArrayListPlayer1.add(result);
                     walkedPath.remove(walkedPath.get(walkedPath.size() - 1));
-                    return walkedPath;
                 }
             }
         }
@@ -146,14 +143,11 @@ public class LongestStreetPathCalculator implements Serializable {
             ConnectionClassIntegerWithUUID currentMatrixEntry = matrix[i][column];
             boolean cond = true;
 
-
             if (currentMatrixEntry.getInteger() == 1 && !walkedPath.contains(currentMatrixEntry.getUuidForRow())) {
-                if (walkedPath.size() > 1) {
-                    for (int x = 0; x < matrix.length; x++) {
-                        if (matrix[lookUpRow][x].getUuidForColumn().equals(currentMatrixEntry.getUuidForRow()) && matrix[lookUpRow][x].getInteger() == 1) {
-                            cond = false;
-                            break;
-                        }
+                for (int x = 0; x < matrix.length; x++) {
+                    if (matrix[lookUpRow][x].getUuidForColumn().equals(currentMatrixEntry.getUuidForRow()) && matrix[lookUpRow][x].getInteger() == 1) {
+                        cond = false;
+                        break;
                     }
                 }
                 if (cond) {
@@ -161,7 +155,6 @@ public class LongestStreetPathCalculator implements Serializable {
                     ArrayList<UUID> result = new ArrayList<>(horizontal(walkedPath, i, column, matrix));
                     pathArrayListPlayer1.add(result);
                     walkedPath.remove(walkedPath.get(walkedPath.size() - 1));
-                    return walkedPath;
                 }
             }
         }
