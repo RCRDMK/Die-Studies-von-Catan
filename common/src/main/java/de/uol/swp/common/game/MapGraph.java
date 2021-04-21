@@ -59,7 +59,6 @@ public class MapGraph implements Serializable {
      *
      * @param mapTypeToGenerate The standard-case is to generate a MapGraph for a standard-playfield. So if you wish to
      *                          generate one, just parse "".
-     *
      * @author Pieter Vogt
      * @since 2021-04-10
      */
@@ -308,7 +307,6 @@ public class MapGraph implements Serializable {
          * Builds a road for player with parsed index.
          *
          * @param playerIndex Index of the player who wants to build a road
-         *
          * @return True if construction was successful, false if not.
          * @author Pieter Vogt
          * @since 2021-04-15
@@ -318,6 +316,8 @@ public class MapGraph implements Serializable {
                 this.occupiedByPlayer = playerIndex;
                 longestStreetPathCalculator.updateMatrixWithNewStreet(this.getUuid(), playerIndex);
                 longestStreetPathCalculator.printAdjacencyMatrix(playerIndex);
+                longestStreetPathCalculator.calculateLongestPath(playerIndex);
+                longestStreetPathCalculator.getLongestPath(playerIndex);
                 return true;
             } else return false;
         }
@@ -409,7 +409,6 @@ public class MapGraph implements Serializable {
          * Builds or upgrades a settlement for player with parsed index.
          *
          * @param playerIndex Index of the player who wants to build or upgrade a building.
-         *
          * @return True if construction was successful, false if not.
          * @author Pieter Vogt
          * @since 2021-04-15
@@ -419,6 +418,9 @@ public class MapGraph implements Serializable {
                 if (sizeOfSettlement < 2) {
                     sizeOfSettlement++;
                     this.occupiedByPlayer = playerIndex;
+                    if (sizeOfSettlement == 1) {
+                        longestStreetPathCalculator.updateMatrixWithNewBuilding(this, playerIndex);
+                    }
                     return true;
                 } else return false;
             } else return false;
@@ -478,7 +480,6 @@ public class MapGraph implements Serializable {
          * the first Hexagon to be placed.</p>
          *
          * @param position The directional vector from the ancestor-Hexagon to this one.
-         *
          * @author Pieter Vogt
          * @since 2021-04-10
          */
@@ -495,7 +496,6 @@ public class MapGraph implements Serializable {
          *
          * @param position     The directional vector from the ancestor-Hexagon to this one.
          * @param positionList The List of positional vectors that describes the position of the ancestor-Hexagon.
-         *
          * @author Pieter Vogt
          * @since 2021-04-10
          */
@@ -1142,7 +1142,7 @@ public class MapGraph implements Serializable {
                 streetLeft.addBuildingNode(buildingTopLeft);
                 streetLeft.addBuildingNode(buildingBottomLeft);
 
-                streetRight.addBuildingNode(buildingTopLeft);
+                streetRight.addBuildingNode(buildingBottomRight);
                 streetRight.addBuildingNode(buildingTopRight);
 
                 streetBottomLeft.addBuildingNode(buildingBottom);

@@ -1,6 +1,7 @@
 package de.uol.swp.common.game;
 
-import org.checkerframework.checker.units.qual.C;
+
+import org.checkerframework.checker.units.qual.A;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -13,6 +14,7 @@ public class LongestStreetPathCalculator implements Serializable {
     // second dimension referencing the columns
     // third dimension referencing the rows, ultimately containing the UUIDs of the corresponding street nodes and the integer value indicating connectedness
     private final ArrayList<ArrayList<ArrayList<ConnectionClassIntegerWithUUID>>> adjacencyMatrixForAllPlayers = new ArrayList<>();
+    private final ArrayList<ArrayList<UUID>> pathArrayList = new ArrayList<>();
 
     // Constructor which creates a new ArrayList of the adjacency matrices for each player in the first dimension.
     public LongestStreetPathCalculator(HashSet<MapGraph.StreetNode> streetNodeHashSet) {
@@ -24,7 +26,7 @@ public class LongestStreetPathCalculator implements Serializable {
 
     }
 
-    // Called when a new street is placed on the mapgraph
+    // Called when a new street is placed on the map graph
     public void updateMatrixWithNewStreet(UUID streetUUID, int playerIndex) {
         // get the corresponding players matrix
         ArrayList<ArrayList<ConnectionClassIntegerWithUUID>> playerMatrix = adjacencyMatrixForAllPlayers.get(playerIndex);
@@ -68,6 +70,87 @@ public class LongestStreetPathCalculator implements Serializable {
 
     }
 
+    public void updateMatrixWithNewBuilding(MapGraph.BuildingNode buildingNode, int playerIndex) {
+        HashSet<MapGraph.StreetNode> streetsOfBuilding = buildingNode.getConnectedStreetNodes();
+        ArrayList<UUID>[] playerArray = new ArrayList[4];
+        playerArray[0] = new ArrayList<>();
+        playerArray[1] = new ArrayList<>();
+        playerArray[2] = new ArrayList<>();
+        playerArray[3] = new ArrayList<>();
+        for (MapGraph.StreetNode streetNode : streetsOfBuilding) {
+            if (streetNode.getOccupiedByPlayer() != 666) {
+                playerArray[streetNode.getOccupiedByPlayer()].add(streetNode.getUuid());
+            }
+        }
+        for (int p = 0; p < playerArray.length; p++) {
+
+            if (playerArray[p].size() >= 2 && p != playerIndex) {
+                ArrayList<ArrayList<ConnectionClassIntegerWithUUID>> playerMatrix = adjacencyMatrixForAllPlayers.get(p);
+
+                for (int i = 0; i < playerMatrix.size(); i++) {
+                    for (int j = 0; j < playerMatrix.get(i).size(); j++) {
+                        UUID rowUUID = playerMatrix.get(i).get(j).getUuidForRow();
+                        UUID columnUUID = playerMatrix.get(i).get(j).getUuidForColumn();
+                        if (playerArray[p].contains(rowUUID) && playerArray[p].contains(columnUUID)) {
+                            playerMatrix.get(i).get(j).setInteger(0);
+                            playerMatrix.get(j).get(i).setInteger(0);
+                        }
+
+                    }
+
+                }
+                printAdjacencyMatrix(p);
+            }
+
+        }
+    }
+
+    public void calculateLongestPath(int playerIndex) {
+
+            ArrayList<ArrayList<ConnectionClassIntegerWithUUID>> playerMatrix = adjacencyMatrixForAllPlayers.get(playerIndex);
+
+
+            for (int i = 0; i < playerMatrix.size(); i++) {
+
+                for (int j = 0; j < playerMatrix.get(i).size(); j++) {
+                    ArrayList<UUID> walkedPathForThisIteration = new ArrayList<>();
+                    walkedPathForThisIteration.add(playerMatrix.get(i).get(j).getUuidForRow());
+                    if (playerMatrix.get(i).get(j).getInteger() == 1) {
+                        walkedPathForThisIteration.add(playerMatrix.get(i).get(j).getUuidForColumn());
+                        goVertical(i, walkedPathForThisIteration, playerMatrix);
+                        break;
+                    }
+                }
+            }
+
+
+    }
+
+    public ArrayList<UUID> goHorizontal(int currentRow, ArrayList<UUID> walkedPath, ArrayList<ArrayList<ConnectionClassIntegerWithUUID>> playerMatrix) {
+
+        for(int i = 0; i < playerMatrix.size(); i++) {
+            if (playerMatrix.get(i).get(currentRow).getInteger() == 1 && !walkedPath.contains(playerMatrix.get(i).get(currentRow).getUuidForColumn())) {
+                walkedPath.add(playerMatrix.get(i).get(currentRow).getUuidForColumn());
+                ArrayList<UUID> result = new ArrayList<>(goVertical(i, walkedPath, playerMatrix));
+                pathArrayList.add(result);
+                walkedPath.remove(walkedPath.get(walkedPath.size()-1));
+            }
+        } return walkedPath;
+    }
+
+    public ArrayList<UUID> goVertical(int currentColumn, ArrayList<UUID> walkedPath, ArrayList<ArrayList<ConnectionClassIntegerWithUUID>> playerMatrix) {
+        for(int i = 0; i < playerMatrix.size(); i++) {
+            if (playerMatrix.get(i).get(currentColumn).getInteger() == 1 && !walkedPath.contains(playerMatrix.get(i).get(currentColumn).getUuidForRow())) {
+                walkedPath.add(playerMatrix.get(i).get(currentColumn).getUuidForRow());
+                ArrayList<UUID> result = new ArrayList<>(goHorizontal(i, walkedPath, playerMatrix));
+                pathArrayList.add(result);
+                walkedPath.remove(walkedPath.get(walkedPath.size()-1));
+            }
+        } return walkedPath;
+    }
+
+
+
     public void printAdjacencyMatrix(int playerIndex) {
         ArrayList<ArrayList<ConnectionClassIntegerWithUUID>> playerMatrix = adjacencyMatrixForAllPlayers.get(playerIndex);
         for (int i = 0; i < playerMatrix.size(); i++) {
@@ -87,5 +170,15 @@ public class LongestStreetPathCalculator implements Serializable {
                 matrix[i][j] = playerMatrix.get(i).get(j);
             }
         }
+    }
+
+    public void getLongestPath(int playerIndex) {
+        int size = 0;
+        for(ArrayList<UUID> list : pathArrayList) {
+            if (size < list.size()) {
+                size = list.size();
+            }
+        }
+        System.out.println(size);
     }
 }
