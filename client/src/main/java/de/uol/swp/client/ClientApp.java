@@ -7,10 +7,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import de.uol.swp.client.di.ClientModule;
 import de.uol.swp.client.user.ClientUserService;
-import de.uol.swp.common.game.message.GameCreatedMessage;
-import de.uol.swp.common.game.message.GameDroppedMessage;
-import de.uol.swp.common.game.message.TradeOfferInformBiddersMessage;
-import de.uol.swp.common.game.message.TradeStartedMessage;
+import de.uol.swp.common.game.message.*;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.exception.RegistrationExceptionMessage;
 import de.uol.swp.common.user.exception.UpdateUserExceptionMessage;
@@ -268,13 +265,13 @@ public class ClientApp extends Application implements ConnectionListener {
     @Subscribe
     public void userStartedTrade(TradeStartedMessage message) {
         LOG.debug("Started a trade " + message.getLobby());
-        sceneManager.showSellerTradeScreen(user, message.getLobby(), message.getTradeCode());
+        sceneManager.showTradeScreen(user, message);
     }
 
     @Subscribe
-    public void tradeRegistered(TradeOfferInformBiddersMessage toibm) {
+    public void tradeRegistered(TradeOfferInformBiddersMessage message) {
         LOG.debug("A trade request was registered");
-        sceneManager.showBidderTradeScreen(user, toibm.getName(), toibm.getTradeCode());
+        sceneManager.showTradeScreen(user, message);
     }
 
     /**
@@ -513,5 +510,10 @@ public class ClientApp extends Application implements ConnectionListener {
         }, 60000, 60000);
     }
 
+    @Subscribe
+    public void onTradeSuccessfulMessage(TradeEndedMessage message) {
+        LOG.info("Trade terminated ROFL LOL OMEGA LUL MJ WAS HERE and nobody cares :') successful.");
+        sceneManager.removeTradeTab(message);
+    }
 
 }

@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import javafx.collections.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.uol.swp.client.game.TradePresenter">
+   <children>
+      <VBox prefHeight="400.0" prefWidth="600.0">
+         <children>
+            <HBox prefHeight="100.0" prefWidth="200.0">
+             <ChoiceBox fx:id="ressourceChoice" layoutX="33.0" layoutY="32.0" value="What do you want to trade?">
+                 <items>
+                     <FXCollections fx:factory="observableArrayList">
+                         <String fx:value="What do you want to trade?" />
+                         <String fx:value="Lumber" />
+                         <String fx:value="Brick" />
+                         <String fx:value="Grain" />
+                         <String fx:value="Wool" />
+                         <String fx:value="Ore" />
+                     </FXCollections>
+                 </items>
+                  <HBox.margin>
+                     <Insets left="25.0" top="25.0" />
+                  </HBox.margin>
+             </ChoiceBox>
+               <TextField fx:id="ressourceInputValue">
+                  <HBox.margin>
+                     <Insets left="25.0" top="25.0" />
+                  </HBox.margin>
+               </TextField>
+               <Button fx:id="addItemButton" mnemonicParsing="false" onAction="#onAddItemButtonPressed" text="add">
+                  <HBox.margin>
+                     <Insets left="25.0" top="25.0" />
+                  </HBox.margin>
+               </Button>
+               <Button fx:id="sendItemsButton" mnemonicParsing="false" onAction="#onSendItemsButtonsPressed" text="send Items">
+                  <HBox.margin>
+                     <Insets left="25.0" top="25.0" />
+                  </HBox.margin>
+               </Button></HBox>
+            <HBox prefHeight="100.0" prefWidth="200.0">
+               <children>
+                  <VBox prefHeight="200.0" prefWidth="600.0">
+                     <children>
+                        <HBox prefHeight="50.0" prefWidth="600.0">
+                           <children>
+                              <VBox prefHeight="200.0" prefWidth="100.0">
+                                 <children>
+                                     <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Brick" />
+                                       <Text fx:id="brick0" strokeType="OUTSIDE" strokeWidth="0.0" text="0" />
+                                 </children>
+                                 <opaqueInsets>
+                                    <Insets />
+                                 </opaqueInsets>
+                              </VBox>
+                              <VBox prefHeight="200.0" prefWidth="100.0">
+                                 <children>
+                                    <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Ore" />
+                                       <Text fx:id="ore0" strokeType="OUTSIDE" strokeWidth="0.0" text="0" />
+                                 </children>
+                              </VBox>
+                              <VBox prefHeight="200.0" prefWidth="100.0">
+                                 <children>
+                                    <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Lumber" />
+                                       <Text fx:id="lumber0" strokeType="OUTSIDE" strokeWidth="0.0" text="0" />
+                                 </children>
+                              </VBox>
+                              <VBox prefHeight="200.0" prefWidth="100.0">
+                                 <children>
+                                     <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Wool" />
+                                       <Text fx:id="wool0" strokeType="OUTSIDE" strokeWidth="0.0" text="0" />
+                                 </children>
+                              </VBox>
+                              <VBox prefHeight="200.0" prefWidth="100.0">
+                                 <children>
+                                     <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Grain" />
+                                       <Text fx:id="grain0" strokeType="OUTSIDE" strokeWidth="0.0" text="0" />
+                                 </children>
+                              </VBox>
+                              <RadioButton fx:id="offerNoneCheckBox" disable="true" mnemonicParsing="false" selected="true" text="none">
+                                 <toggleGroup>
+                                    <ToggleGroup fx:id="choiceTrade" />
+                                 </toggleGroup></RadioButton>
+                           </children>
+                        </HBox>
+                        <HBox fx:id="row1Hbox" layoutX="10.0" layoutY="10.0" prefHeight="50.0" prefWidth="600.0" visible="false">
+                           <children>
+                              <VBox prefHeight="200.0" prefWidth="100.0">
+                                 <children>
+                                    <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Brick" />
+                                    <Text fx:id="brick1" strokeType="OUTSIDE" strokeWidth="0.0" text="0" />
+                                 </children>
+                                 <opaqueInsets>
+                                    <Insets />
+                                 </opaqueInsets>
+                              </VBox>
+                              <VBox prefHeight="200.0" prefWidth="100.0">
+                                 <children>
+                                    <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Ore" />
+                                    <Text fx:id="ore1" strokeType="OUTSIDE" strokeWidth="0.0" text="0" />
+                                 </children>
+                              </VBox>
+                              <VBox prefHeight="200.0" prefWidth="100.0">
+                                 <children>
+                                    <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Lumber" />
+                                    <Text fx:id="lumber1" strokeType="OUTSIDE" strokeWidth="0.0" text="0" />
+                                 </children>
+                              </VBox>
+                              <VBox prefHeight="200.0" prefWidth="100.0">
+                                 <children>
+                                    <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Wool" />
+                                    <Text fx:id="wool1" strokeType="OUTSIDE" strokeWidth="0.0" text="0" />
+                                 </children>
+                              </VBox>
+                              <VBox prefHeight="200.0" prefWidth="100.0">
+                                 <children>
+                                    <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Grain" />
+                                    <Text fx:id="grain1" strokeType="OUTSIDE" strokeWidth="0.0" text="0" />
+                                 </children>
+                              </VBox>
+                              <RadioButton fx:id="offer1CheckBox" disable="true" mnemonicParsing="false" text="RadioButton" toggleGroup="$choiceTrade" />
+                           </children>
+                        </HBox>
+                        <HBox fx:id="row2Hbox" layoutX="10.0" layoutY="10.0" prefHeight="50.0" prefWidth="600.0" visible="false">
+                           <children>
+                              <VBox prefHeight="200.0" prefWidth="100.0">
+                                 <children>
+                                    <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Brick" />
+                                    <Text fx:id="brick2" strokeType="OUTSIDE" strokeWidth="0.0" text="0" />
+                                 </children>
+                                 <opaqueInsets>
+                                    <Insets />
+                                 </opaqueInsets>
+                              </VBox>
+                              <VBox prefHeight="200.0" prefWidth="100.0">
+                                 <children>
+                                    <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Ore" />
+                                    <Text fx:id="ore2" strokeType="OUTSIDE" strokeWidth="0.0" text="0" />
+                                 </children>
+                              </VBox>
+                              <VBox prefHeight="200.0" prefWidth="100.0">
+                                 <children>
+                                    <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Lumber" />
+                                    <Text fx:id="lumber2" strokeType="OUTSIDE" strokeWidth="0.0" text="0" />
+                                 </children>
+                              </VBox>
+                              <VBox prefHeight="200.0" prefWidth="100.0">
+                                 <children>
+                                    <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Wool" />
+                                    <Text fx:id="wool2" strokeType="OUTSIDE" strokeWidth="0.0" text="0" />
+                                 </children>
+                              </VBox>
+                              <VBox prefHeight="200.0" prefWidth="100.0">
+                                 <children>
+                                    <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Grain" />
+                                    <Text fx:id="grain2" strokeType="OUTSIDE" strokeWidth="0.0" text="0" />
+                                 </children>
+                              </VBox>
+                              <RadioButton fx:id="offer2CheckBox" mnemonicParsing="false" text="RadioButton" toggleGroup="$choiceTrade" />
+                           </children>
+                        </HBox>
+                        <HBox fx:id="row3Hbox" layoutX="10.0" layoutY="10.0" prefHeight="50.0" prefWidth="600.0" visible="false">
+                           <children>
+                              <VBox prefHeight="200.0" prefWidth="100.0">
+                                 <children>
+                                    <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Brick" />
+                                    <Text fx:id="brick3" strokeType="OUTSIDE" strokeWidth="0.0" text="0" />
+                                 </children>
+                                 <opaqueInsets>
+                                    <Insets />
+                                 </opaqueInsets>
+                              </VBox>
+                              <VBox prefHeight="200.0" prefWidth="100.0">
+                                 <children>
+                                    <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Ore" />
+                                    <Text fx:id="ore3" strokeType="OUTSIDE" strokeWidth="0.0" text="0" />
+                                 </children>
+                              </VBox>
+                              <VBox prefHeight="200.0" prefWidth="100.0">
+                                 <children>
+                                    <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Lumber" />
+                                    <Text fx:id="lumber3" strokeType="OUTSIDE" strokeWidth="0.0" text="0" />
+                                 </children>
+                              </VBox>
+                              <VBox prefHeight="200.0" prefWidth="100.0">
+                                 <children>
+                                    <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Wool" />
+                                    <Text fx:id="wool3" strokeType="OUTSIDE" strokeWidth="0.0" text="0" />
+                                 </children>
+                              </VBox>
+                              <VBox prefHeight="200.0" prefWidth="100.0">
+                                 <children>
+                                    <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Grain" />
+                                    <Text fx:id="grain3" strokeType="OUTSIDE" strokeWidth="0.0" text="0" />
+                                 </children>
+                              </VBox>
+                              <RadioButton fx:id="offer3CheckBox" mnemonicParsing="false" text="RadioButton" toggleGroup="$choiceTrade" />
+                           </children>
+                        </HBox>
+                     </children>
+                  </VBox>
+               </children></HBox>
+            <HBox layoutX="10.0" layoutY="110.0" prefHeight="100.0" prefWidth="600.0">
+               <children>
+                  <Button fx:id="endTradeButton" disable="true" mnemonicParsing="false" onAction="#onEndTradeButtonPressed" text="end trade" />
+               </children></HBox>
+         </children></VBox>
+   </children>
+</AnchorPane>

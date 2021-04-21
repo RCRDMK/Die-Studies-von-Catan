@@ -20,6 +20,9 @@ import de.uol.swp.client.register.event.RegistrationCanceledEvent;
 import de.uol.swp.client.register.event.RegistrationErrorEvent;
 import de.uol.swp.client.register.event.ShowRegistrationViewEvent;
 import de.uol.swp.common.game.message.TradeEndedMessage;
+import de.uol.swp.common.game.message.TradeOfferInformBiddersMessage;
+import de.uol.swp.common.game.message.TradeStartedMessage;
+import de.uol.swp.common.message.AbstractMessage;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import javafx.application.Platform;
@@ -50,7 +53,6 @@ public class SceneManager {
     static final String styleSheet = "css/swp.css";
 
     final private Stage primaryStage;
-    final private Stage secondaryStage;
     private Scene loginScene;
     private String lastTitle;
     private Scene registrationScene;
@@ -59,8 +61,6 @@ public class SceneManager {
     private Scene currentScene = null;
     private Scene lobbyScene;
     private Scene gameScene;
-    private Scene sellerTradeScene;
-    private Scene bidderTradeScene;
     private Tab mainMenuTab;
     private VBox vBox;
     private Scene tabScene;
@@ -78,8 +78,6 @@ public class SceneManager {
         this.primaryStage = primaryStage;
         this.injector = injected;
         initViews();
-        this.secondaryStage = new Stage();
-
     }
 
     /**
@@ -100,8 +98,6 @@ public class SceneManager {
         initMainView();
         initRegistrationView();
         initUserSettingsView();
-        initSellerTradeView();
-        initBidderTradeView();
         nextLobbyScene = initLobbyView();
         nextGameScene = initGameView();
     }
@@ -235,31 +231,18 @@ public class SceneManager {
         return gameScene;
     }
 
-    private Pair<Scene, TradePresenter> initSellerTradeView() {
-        Pair<Parent, TradePresenter> thePair = initPresenterBid(TradePresenter.sellerFxml);
+    private Pair<Scene, TradePresenter> initTradeView() {
+        Pair<Parent, TradePresenter> thePair = initPresenterBid(TradePresenter.fxml);
 
         Parent rootPane = thePair.getKey();
 
         TradePresenter thePresenter = thePair.getValue();
-
-        sellerTradeScene = new Scene(rootPane, 600, 400);
-        sellerTradeScene.getStylesheets().add(styleSheet);
-        Pair<Scene, TradePresenter> thePair2 = new Pair<>(bidderTradeScene, thePresenter);
+        Scene tradeScene = new Scene(rootPane, 600, 400);
+        tradeScene.getStylesheets().add(styleSheet);
+        Pair<Scene, TradePresenter> thePair2 = new Pair<>(tradeScene, thePresenter);
         return thePair2;
     }
 
-    private Pair<Scene, TradePresenter> initBidderTradeView() {
-        Pair<Parent, TradePresenter> thePair = initPresenterBid(TradePresenter.sellerFxml);
-
-        Parent rootPane = thePair.getKey();
-
-        TradePresenter thePresenter = thePair.getValue();
-
-        bidderTradeScene = new Scene(rootPane, 600, 400);
-        bidderTradeScene.getStylesheets().add(styleSheet);
-        Pair<Scene, TradePresenter> thePair2 = new Pair<>(bidderTradeScene, thePresenter);
-        return thePair2;
-    }
 
     private Pair<Parent, TradePresenter> initPresenterBid(String fxmlFile) {
         Parent rootPane;
@@ -271,7 +254,7 @@ public class SceneManager {
             LOG.debug("Loading " + url);
             loader.setLocation(url);
             rootPane = loader.load();
-            tradePresenter = (TradePresenter) loader.getController();
+            tradePresenter = loader.getController();
 
             pair = new Pair<>(rootPane, tradePresenter);
         } catch (Exception e) {
@@ -582,12 +565,8 @@ public class SceneManager {
         showScene(userSettingsScene, "UserSettings");
     }
 
-    public void showSellerTradeScreen(User currentUser, String lobbyname, String tradeCode) {
-        newSellerTradeTab(currentUser, lobbyname, tradeCode);
-    }
-
-    public void showBidderTradeScreen(User currentUser, String lobbyname, String tradeCode) {
-        newBidderTradeTab(currentUser, lobbyname, tradeCode);
+    public void showTradeScreen(User currentUser, AbstractMessage message) {
+        newTradeTab(currentUser, message);
     }
 
     /**
@@ -666,44 +645,42 @@ public class SceneManager {
         nextGameScene = initGameView();
     }
 
-    private void newSellerTradeTab(User currentUser, String gameName, String tradeCode) {
+    private void newTradeTab(User currentUser, AbstractMessage message) {
+        String tradeCode = "";
+        UserDTO loggedinUser = (UserDTO) currentUser;
+        String seller = "";
+        String lobby = "";
+
+        if (message instanceof TradeStartedMessage) {
+            TradeStartedMessage theCastedMessage = (TradeStartedMessage) message;
+            tradeCode = theCastedMessage.getTradeCode();
+            seller = theCastedMessage.getUser().getUsername();
+            lobby = theCastedMessage.getLobby();
+        } else if (message instanceof TradeOfferInformBiddersMessage) {
+            TradeOfferInformBiddersMessage theCastedMessage2 = (TradeOfferInformBiddersMessage) message;
+            tradeCode = theCastedMessage2.getTradeCode();
+            seller = theCastedMessage2.getUser().getUsername();
+            lobby = theCastedMessage2.getName();
+        }
+
         Tab sellerTradeTab = new Tab("Trade " + tradeCode);
 
-        Pair<Scene, TradePresenter> ja_lol_ey = initSellerTradeView();
-        Scene nextSellerTradeScene = ja_lol_ey.getKey();
+        Pair<Scene, TradePresenter> sceneTradePair = initTradeView();
+        Scene nextSellerTradeScene = sceneTradePair.getKey();
 
-        //
-        TradePresenter ja_lol_3_rezo = ja_lol_ey.getValue();
+        TradePresenter theTradePresenter = sceneTradePair.getValue();
 
-        ja_lol_3_rezo.setValuesOfTradeView((UserDTO) currentUser, gameName, tradeCode);
-        //
+        theTradePresenter.setValuesOfTradeView(loggedinUser, lobby, tradeCode, seller);
+        //TODO: if message instance of informbidders message tradepresenter.setAngebot
+        if(message instanceof TradeOfferInformBiddersMessage)
+            theTradePresenter.setOffer(((TradeOfferInformBiddersMessage) message).getSellingItems());
         sellerTradeTab.setContent(nextSellerTradeScene.getRoot());
         sellerTradeTab.setClosable(false);
         Platform.runLater(() -> {
             tabHelper.addTab(sellerTradeTab);
             tabHelper.getTabPane().getSelectionModel().select(sellerTradeTab);
         });
-        //nextSellerTradeScene = initSellerTradeView();
-    }
 
-    private void newBidderTradeTab(User currentUser, String gameName, String tradeCode) {
-        Tab bidderTradeTab = new Tab("Trade " + tradeCode);
-
-        Pair<Scene, TradePresenter> ja_lol_ey = initBidderTradeView();
-
-        Scene nextBidderTradeScene = ja_lol_ey.getKey();
-        //
-        TradePresenter ja_lol_3_rezo = ja_lol_ey.getValue();
-
-        ja_lol_3_rezo.setValuesOfTradeView((UserDTO) currentUser, gameName, tradeCode);
-        //
-        bidderTradeTab.setContent(nextBidderTradeScene.getRoot());
-        bidderTradeTab.setClosable(false);
-        Platform.runLater(() -> {
-            tabHelper.addTab(bidderTradeTab);
-            tabHelper.getTabPane().getSelectionModel().select(bidderTradeTab);
-        });
-        //nextBidderTradeScene = initBidderTradeView();
     }
 
     /**

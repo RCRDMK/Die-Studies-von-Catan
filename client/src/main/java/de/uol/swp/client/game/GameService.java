@@ -11,7 +11,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
-import java.util.UUID;
 
 /**
  * Class that manages games
@@ -107,24 +106,15 @@ public class GameService {
     }
 
 
-
-
-
-    public void sendBidItem(UserDTO bidder, String gameName, ArrayList<TradeItem> bidItems, String tradeCode){
+    //sends TradeItemRequest
+    public void sendItem(UserDTO bidder, String gameName, ArrayList<TradeItem> bidItems, String tradeCode) {
         TradeItemRequest tir = new TradeItemRequest(bidder, gameName, bidItems, tradeCode);
         eventBus.post(tir);
     }
 
-    //starts the trade
-    public void sendSellingItem(UserDTO bidder, String gameName, ArrayList<TradeItem> bidItems,String tradeCode){
-        //String tradeCode = bidder.getUsername() +  UUID.randomUUID().toString();
-        TradeItemRequest tir = new TradeItemRequest(bidder, gameName, bidItems, tradeCode);
-        eventBus.post(tir);
-    }
-    public void sendTradeChoice(UserDTO tradePartner,Boolean tradeAccepted, String gameName, String tradeCode){
-        //TODO: if all offers are declined: tradeAccepted = false( server checks for it),
+    public void sendTradeChoice(UserDTO tradePartner, Boolean tradeAccepted, String gameName, String tradeCode) {
         TradeChoiceRequest tcr = new TradeChoiceRequest(tradePartner, tradeAccepted, gameName, tradeCode);
-                eventBus.post(tcr);
+        eventBus.post(tcr);
     }
 
 }

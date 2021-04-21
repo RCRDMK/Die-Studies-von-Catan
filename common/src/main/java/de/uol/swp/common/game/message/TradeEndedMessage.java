@@ -1,9 +1,10 @@
 package de.uol.swp.common.game.message;
 
-public class TradeEndedMessage {
+public class TradeEndedMessage extends AbstractGameMessage {
 
     String tradeCode;
-    public TradeEndedMessage(String tradeCode){
+
+    public TradeEndedMessage(String tradeCode) {
         this.tradeCode = tradeCode;
     }
 
