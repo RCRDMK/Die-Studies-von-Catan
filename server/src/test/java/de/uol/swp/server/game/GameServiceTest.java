@@ -348,7 +348,7 @@ public class GameServiceTest {
 
         TradeChoiceRequest tradeChoiceRequest = new TradeChoiceRequest(userDTO1,true,game.get().getName(),tradeCode);
         gameServiceTIRT.onTradeChoiceRequest(tradeChoiceRequest);
-        assertTrue(event instanceof TradeSuccessfulMessage);
+
         assertTrue(game.get().getTradeList().size() ==0);
     }
 }
