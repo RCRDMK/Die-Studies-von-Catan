@@ -118,21 +118,21 @@ public class UserService extends AbstractService {
     }
 
     /**
-     * Handles RetrieveUserMailRequest found on the EventBus
+     * Handles RetrieveUserInformationRequest found on the EventBus
      * <p>
-     * If a RetrieveUserMailRequest is detected on the EventBus, this method is called.
+     * If a RetrieveUserInformationRequest is detected on the EventBus, this method is called.
      * It tries to get the eMail from the user via the UserManagement. If this succeeds a
-     * RetrieveUserInformationResponse is posted on the EventBus otherwise a RetrieveUserMailExceptionMessage
+     * RetrieveUserInformationResponse is posted on the EventBus otherwise a RetrieveUserInformationExceptionMessage
      * gets posted there.
      *
+     * @param retrieveUserInformationRequest The RetrieveUserInformationRequest found on the EventBus
      * @author Carsten Dekker
-     * @param retrieveUserInformationRequest The RetrieveUserMailRequest found on the EventBus
      * @see RetrieveUserInformationRequest
      * @since 2021-03-12
      */
     @Subscribe
     private void onRetrieveUserInformation(RetrieveUserInformationRequest retrieveUserInformationRequest) {
-        if (LOG.isDebugEnabled()){
+        if (LOG.isDebugEnabled()) {
             LOG.debug("Got a new retrieveUserMail request with " + retrieveUserInformationRequest.getUser());
         }
         ResponseMessage returnMessage;
@@ -149,6 +149,17 @@ public class UserService extends AbstractService {
         post(returnMessage);
     }
 
+    /**
+     * This method gets invoked from the startGame method in the gameService
+     * <p>
+     * This method adds the profilePictureID to the users, that get added to the userInGame ArrayList
+     * in the GameService.
+     *
+     * @param user the user to get the profilePictureID from
+     * @return user with the profilePictureID
+     * @author Carsten Dekker
+     * @since 2021-04-18
+     */
     public User retrieveUserInformation(User user) {
         try {
             return userManagement.retrieveUserInformation(user);
@@ -158,7 +169,6 @@ public class UserService extends AbstractService {
         return user;
     }
 
-
     /**
      * Handles UpdateUserProfilePictureRequest found on the eventBus
      * <p>
@@ -167,8 +177,8 @@ public class UserService extends AbstractService {
      * UpdateUserSuccessfulResponse is posted on the EventBus otherwise a UpdateUserExceptionMessage
      * gets posted there.
      *
-     * @author Carsten Dekker
      * @param uuppr the UpdateUserProfilePictureRequest found on the eventBus
+     * @author Carsten Dekker
      * @see de.uol.swp.common.user.request.UpdateUserProfilePictureRequest
      * @since 2021.04.15
      */
@@ -191,7 +201,6 @@ public class UserService extends AbstractService {
             post(returnMessage);
         }
     }
-
 
 
     /**

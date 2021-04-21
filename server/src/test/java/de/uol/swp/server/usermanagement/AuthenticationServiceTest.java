@@ -52,7 +52,6 @@ class AuthenticationServiceTest {
     final LobbyManagement lobbyManagement = new LobbyManagement();
     final LobbyService lobbyService = new LobbyService(lobbyManagement, authService, bus);
     final GameManagement gameManagement = new GameManagement();
-    final GameService gameService = new GameService(gameManagement, lobbyService, authService, bus);
     private Object event;
 
     AuthenticationServiceTest() throws SQLException {

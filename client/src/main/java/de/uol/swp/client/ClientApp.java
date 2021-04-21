@@ -171,8 +171,8 @@ public class ClientApp extends Application implements ConnectionListener {
      * @since 2021-03-14
      */
     @Subscribe
-    public void onRetrieveUserMailResponse(RetrieveUserInformationResponse response) {
-        LOG.debug("Got the response with the Mail from User " + response.getUser().getUsername());
+    public void onRetrieveUserInformationResponse(RetrieveUserInformationResponse response) {
+        LOG.debug("Got the response with the Information from User " + response.getUser().getUsername());
         this.user = response.getUser();
     }
 

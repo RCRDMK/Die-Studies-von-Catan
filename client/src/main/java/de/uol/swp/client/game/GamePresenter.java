@@ -79,6 +79,10 @@ public class GamePresenter extends AbstractPresenter {
     @FXML
     private Canvas canvas;
 
+    private ArrayList<ImagePattern> profilePicturePatterns = new ArrayList<>();
+
+    private ArrayList<Rectangle> rectangles = new ArrayList<>();
+
     @FXML
     private AnchorPane gameAnchorPane;
 
@@ -306,14 +310,18 @@ public class GamePresenter extends AbstractPresenter {
     }
 
     /**
-     * Method
+     * Handles the creation of the profile pictures at game start
+     * <p>
+     * At the start of a game this method gets called. It uses an arrayList, containing all the users in the game,
+     * and creates the right profile picture for each user.
      *
-     * @param list
+     * @param list an ArrayList with UserDTOs
      * @author Carsten Dekker
+     * @since 2021-04-18
      */
     public void setupPlayerPictures(ArrayList<UserDTO> list) {
         for (UserDTO userDTO : list) {
-            Rectangle rectangle = new Rectangle(50, 50);
+            Rectangle rectangle = new Rectangle(100, 100);
             rectangle.setFill(profilePicturePatterns.get(userDTO.getProfilePictureID() - 1));
             rectangles.add(rectangle);
         }
@@ -393,7 +401,7 @@ public class GamePresenter extends AbstractPresenter {
      * If the leaveGameButton is pressed, the method tries to call the GameService method leaveGame It throws a
      * GamePresenterException if joinedLobbyUser and currentLobby are not initialised
      *
-     * @param event
+     * @param event \\TODO JavaDoc fehlt hier
      *
      * @author Ricardo Mook, Alexander Losse
      * @see de.uol.swp.client.game.GameService

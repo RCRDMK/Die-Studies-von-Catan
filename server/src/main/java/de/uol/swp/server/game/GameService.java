@@ -55,7 +55,6 @@ public class GameService extends AbstractService {
     private final GameManagement gameManagement;
     private final LobbyService lobbyService;
     private final AuthenticationService authenticationService;
-    private static final Logger LOG = LogManager.getLogger(GameService.class);
     private final UserService userService;
 
     /**

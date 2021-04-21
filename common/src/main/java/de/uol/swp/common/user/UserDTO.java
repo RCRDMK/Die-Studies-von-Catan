@@ -128,8 +128,4 @@ public class UserDTO implements User {
         return profilePictureID;
     }
 
-    @Override
-    public void setProfilePictureID(int profilePictureID) {
-        this.profilePictureID = profilePictureID;
-    }
 }

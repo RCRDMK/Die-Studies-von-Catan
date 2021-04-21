@@ -19,6 +19,8 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+//TODO um diese Klasse werde ich mich kümmern, sobald meine Tickets fertig sind (Carsten Dekker)
+
 public class GameServiceTest {
 /*
     final EventBus bus = new EventBus();
