@@ -262,12 +262,26 @@ public class ClientApp extends Application implements ConnectionListener {
         sceneManager.suspendLobbyTab(message.getName());
     }
 
+    /**
+     * reacts to TradeStartedMessage
+     *
+     * @param message TradeStartedMessage
+     * @author Alexander Losse, Ricardo Mook
+     * @since 2021-04-21
+     */
     @Subscribe
     public void userStartedTrade(TradeStartedMessage message) {
         LOG.debug("Started a trade " + message.getLobby());
         sceneManager.showTradeScreen(user, message);
     }
 
+    /**
+     * reacts to TradeOfferInformBiddersMessage
+     *
+     * @param message TradeStartedMessage
+     * @author Alexander Losse, Ricardo Mook
+     * @since 2021-04-21
+     */
     @Subscribe
     public void tradeRegistered(TradeOfferInformBiddersMessage message) {
         LOG.debug("A trade request was registered");

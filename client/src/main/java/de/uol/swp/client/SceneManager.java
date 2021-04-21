@@ -231,6 +231,13 @@ public class SceneManager {
         return gameScene;
     }
 
+    /**
+     * returns the scene and the tradePresenter
+     *
+     * @return Pair<Scene, TradePresenter> thePair2
+     * @Alexander Losse, Ricardo Mook
+     * @since 2021-04-21
+     */
     private Pair<Scene, TradePresenter> initTradeView() {
         Pair<Parent, TradePresenter> thePair = initPresenterBid(TradePresenter.fxml);
 
@@ -243,7 +250,14 @@ public class SceneManager {
         return thePair2;
     }
 
-
+    /**
+     * returns the tradePresenter
+     *
+     * @param fxmlFile
+     * @return
+     * @author ALexander Losse, Ricardo Mook
+     * @since 2021-04-21
+     */
     private Pair<Parent, TradePresenter> initPresenterBid(String fxmlFile) {
         Parent rootPane;
         Pair<Parent, TradePresenter> pair;
@@ -565,6 +579,14 @@ public class SceneManager {
         showScene(userSettingsScene, "UserSettings");
     }
 
+    /**
+     * calls newTradeTab()
+     *
+     * @param currentUser User
+     * @param message     AbstractMessage(either TradeOfferInformBiddersMessage, or TradeStartedMessage)
+     * @author Alexander Losse, Ricardo Mook
+     * @since 2021-04-21
+     */
     public void showTradeScreen(User currentUser, AbstractMessage message) {
         newTradeTab(currentUser, message);
     }
@@ -645,6 +667,21 @@ public class SceneManager {
         nextGameScene = initGameView();
     }
 
+    /**
+     * opens an new TradeTab
+     * <p>
+     * to initialize tradeCode, loggedinUser, seller, lobby the method checks if message is TradeStartedMessage or TradeOfferInformBiddersMessage
+     * creates a new TradeTab
+     * calls initTradeView() to get the TradePresenter and a scene to fill tab
+     * setValuesOfTradeView() is called, so the tradePresenter gets the user, tradeCode, gameName and the seller
+     * setOffer() is called if the message is TradeOfferInformBiddersMessage, so the bidder knows the offer of the seller
+     * the tradeTab is filled and no longer closable
+     *
+     * @param currentUser User
+     * @param message     AbstractMessage
+     * @author Alexander Losse, Ricardo Mook
+     * @since 2021-04-21
+     */
     private void newTradeTab(User currentUser, AbstractMessage message) {
         String tradeCode = "";
         UserDTO loggedinUser = (UserDTO) currentUser;
@@ -672,7 +709,7 @@ public class SceneManager {
 
         theTradePresenter.setValuesOfTradeView(loggedinUser, lobby, tradeCode, seller);
         //TODO: if message instance of informbidders message tradepresenter.setAngebot
-        if(message instanceof TradeOfferInformBiddersMessage)
+        if (message instanceof TradeOfferInformBiddersMessage)
             theTradePresenter.setOffer(((TradeOfferInformBiddersMessage) message).getSellingItems());
         sellerTradeTab.setContent(nextSellerTradeScene.getRoot());
         sellerTradeTab.setClosable(false);
