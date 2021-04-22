@@ -96,6 +96,7 @@ public class LongestStreetPathCalculator implements Serializable {
                         UUID rowUUID = playerMatrix.get(i).get(j).getUuidForRow();
                         UUID columnUUID = playerMatrix.get(i).get(j).getUuidForColumn();
                         if (playerArray[p].contains(rowUUID) && playerArray[p].contains(columnUUID)) {
+                            reCalculatePathsAtNewBuilding(p, rowUUID, columnUUID);
                             playerMatrix.get(i).get(j).setInteger(0);
                             playerMatrix.get(j).get(i).setInteger(0);
                         }
@@ -104,9 +105,28 @@ public class LongestStreetPathCalculator implements Serializable {
 
                 }
                 printAdjacencyMatrix(p);
+                System.out.println("Amount of paths found " + pathArrayList.get(p).size());
+                System.out.println("Longest path " + getLongestPath(p));
             }
 
         }
+    }
+
+    public void reCalculatePathsAtNewBuilding(int playerIndex, UUID street1, UUID street2){
+        ArrayList<ArrayList<UUID>> pathListForPlayer = pathArrayList.get(playerIndex);
+        int size = pathListForPlayer.size();
+        for( int i = 0; i < size; i++) {
+            ArrayList<UUID> path = pathListForPlayer.get(i);
+            if (Math.abs(path.indexOf(street1) - path.indexOf(street2)) == 1 && path.contains(street1) && path.contains(street2)) {
+                int index = Math.min(path.indexOf(street1), path.indexOf(street2));
+                ArrayList<UUID> newPath = new ArrayList<>();
+                while (path.size()-1 > index) {
+                    newPath.add(path.remove(index+1));
+                }
+                pathListForPlayer.add(newPath);
+            }
+        }
+
     }
 
     public void reCalculatePaths(int playerIndex) {
@@ -198,50 +218,6 @@ public class LongestStreetPathCalculator implements Serializable {
         }
         return walkedPath;
     }
-
-    /*public void calculateLongestPath(int playerIndex) {
-
-            ArrayList<ArrayList<ConnectionClassIntegerWithUUID>> playerMatrix = adjacencyMatrixForAllPlayers.get(playerIndex);
-
-
-            for (int i = 0; i < playerMatrix.size(); i++) {
-
-                //for (int j = 0; j < playerMatrix.get(i).size(); j++) {
-                    ArrayList<UUID> walkedPathForThisIteration = new ArrayList<>();
-                    walkedPathForThisIteration.add(playerMatrix.get(i).get(0).getUuidForRow());
-                    //if (playerMatrix.get(i).get(j).getInteger() == 1) {
-                        //walkedPathForThisIteration.add(playerMatrix.get(i).get(j).getUuidForColumn());
-                        goHorizontal(i, walkedPathForThisIteration, playerMatrix);
-                    }
-                //}
-            //}
-
-
-    }*/
-
-    /*public ArrayList<UUID> goHorizontal(int currentRow, ArrayList<UUID> walkedPath, ArrayList<ArrayList<ConnectionClassIntegerWithUUID>> playerMatrix) {
-
-        for(int i = 0; i < playerMatrix.size(); i++) {
-            if (playerMatrix.get(i).get(currentRow).getInteger() == 1 && !walkedPath.contains(playerMatrix.get(i).get(currentRow).getUuidForColumn())) {
-                walkedPath.add(playerMatrix.get(i).get(currentRow).getUuidForColumn());
-                ArrayList<UUID> result = new ArrayList<>(goVertical(i, walkedPath, playerMatrix));
-                pathArrayList.add(result);
-                walkedPath.remove(walkedPath.get(walkedPath.size()-1));
-            }
-        } return walkedPath;
-    }
-
-    public ArrayList<UUID> goVertical(int currentColumn, ArrayList<UUID> walkedPath, ArrayList<ArrayList<ConnectionClassIntegerWithUUID>> playerMatrix) {
-        for(int i = 0; i < playerMatrix.size(); i++) {
-            if (playerMatrix.get(i).get(currentColumn).getInteger() == 1 && !walkedPath.contains(playerMatrix.get(i).get(currentColumn).getUuidForRow())) {
-                walkedPath.add(playerMatrix.get(i).get(currentColumn).getUuidForRow());
-                ArrayList<UUID> result = new ArrayList<>(goHorizontal(i, walkedPath, playerMatrix));
-                pathArrayList.add(result);
-                walkedPath.remove(walkedPath.get(walkedPath.size()-1));
-            }
-        } return walkedPath;
-    }*/
-
 
     public void printAdjacencyMatrix(int playerIndex) {
         ArrayList<ArrayList<ConnectionClassIntegerWithUUID>> playerMatrix = adjacencyMatrixForAllPlayers.get(playerIndex);
