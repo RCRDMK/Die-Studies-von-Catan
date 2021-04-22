@@ -384,12 +384,13 @@ public class TradePresenter extends AbstractPresenter {
     public boolean isStringNumber(String checkedString) {
         boolean isCheckedStringInt = false;
         if (!checkedString.isEmpty()) {
-            if (checkedString.charAt(0) == 0) {
+            //char turns the value to ASCII: 0 ->48
+            if (checkedString.charAt(0) == 48) {
                 return false;
             }
-            for (int i = 0; i < checkedString.length(); i++) {
-                char a = checkedString.charAt(i);
-                if (a == 0 || a == 1 || a == 2 || a == 3 || a == 4 || a == 5 || a == 6 || a == 7 || a == 8 || a == 9) {
+            //char turns the value to ASCII: 0->48, 1->49,...,9->57
+            for (char a : checkedString.toCharArray()){
+                if (a == 48 || a == 49  || a == 50 || a == 51 || a == 52 || a == 53 || a == 54 || a == 55 || a == 56 || a == 57) {
                     isCheckedStringInt = true;
                 } else {
                     return false;
