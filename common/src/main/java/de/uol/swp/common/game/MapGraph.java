@@ -314,11 +314,9 @@ public class MapGraph implements Serializable {
         public Boolean buildRoad(int playerIndex) {
             if (this.occupiedByPlayer == 666) {
                 this.occupiedByPlayer = playerIndex;
+                System.out.println("this streets ID " + this.getUuid());
                 longestStreetPathCalculator.updateMatrixWithNewStreet(this.getUuid(), playerIndex);
                 longestStreetPathCalculator.printAdjacencyMatrix(playerIndex);
-                //longestStreetPathCalculator.calculateLongestPath(playerIndex);
-                //longestStreetPathCalculator.getLongestPath(playerIndex);
-                longestStreetPathCalculator.doMakeLongestPath(playerIndex);
                 return true;
             } else return false;
         }
