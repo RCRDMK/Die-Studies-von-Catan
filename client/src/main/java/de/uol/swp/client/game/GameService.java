@@ -4,6 +4,8 @@ package de.uol.swp.client.game;
 import com.google.common.eventbus.EventBus;
 import com.google.inject.Inject;
 import de.uol.swp.common.game.message.ConstructionMessage;
+import de.uol.swp.common.game.message.TradeEndedMessage;
+import de.uol.swp.common.game.message.TradeSuccessfulMessage;
 import de.uol.swp.common.game.request.*;
 import de.uol.swp.common.game.trade.TradeItem;
 import de.uol.swp.common.user.User;
@@ -12,7 +14,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
-
 import java.util.UUID;
 
 /**
@@ -42,7 +43,6 @@ public class GameService {
      *
      * @param name Name of the lobby/game where the user wants to roll the dice
      * @param user User who wants to roll the dice
-     *
      * @author Kirstin, Pieter
      * @see de.uol.swp.common.game.request.RollDiceRequest
      * @since 2021-01-07
@@ -74,7 +74,6 @@ public class GameService {
      * <p>
      *
      * @param gameName Name of the game of which the User list was requested
-     *
      * @author Iskander Yusupov
      * @see de.uol.swp.common.game.request.RetrieveAllThisGameUsersRequest
      * @since 2020-03-14
@@ -153,6 +152,22 @@ public class GameService {
     public void sendTradeChoice(UserDTO tradePartner, Boolean tradeAccepted, String gameName, String tradeCode) {
         TradeChoiceRequest tcr = new TradeChoiceRequest(tradePartner, tradeAccepted, gameName, tradeCode);
         eventBus.post(tcr);
+    }
+
+    /**
+     * sends a TradeEndedMessage
+     * <p>
+     * used to close the TradeTab if no Trade is saved at the server, e.g. the seller hit the TradeButton by accident and doesnt want to Trade( didnt send a TradeItemRequest)
+     *
+     * @param tradeCode String
+     * @author Alexander Losse, Ricardo Mook
+     * @since 2021-04-21
+     */
+    public void endTradeBeforeItStarted(UserDTO user, String gameName,String tradeCode) {
+        TradeEndedMessage tem = new TradeEndedMessage(tradeCode);
+        TradeSuccessfulMessage tsm = new TradeSuccessfulMessage(user, gameName, new ArrayList<>(),tradeCode);
+        eventBus.post(tem);
+        eventBus.post(tsm);
     }
 
 }

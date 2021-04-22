@@ -34,12 +34,15 @@ public class TradePresenter extends AbstractPresenter {
     private static final String grainString = "Grain";
     private static final String brickString = "Brick";
 
+
+    private boolean sellerGotBids;
     private String tradeCode;
     private String gameName;
     private UserDTO user;
     private ArrayList<UserDTO> bidders;
     private HashMap<UserDTO, ArrayList<TradeItem>> bids;
     private String seller;
+
 
     /**
      * reacts to a TradeInformSellerAboutBidsMessage
@@ -73,6 +76,7 @@ public class TradePresenter extends AbstractPresenter {
             bidders = message.getBidders();
             bids = message.getBids();
             setBids();
+            sellerGotBids = true;
         }
     }
 
@@ -96,6 +100,7 @@ public class TradePresenter extends AbstractPresenter {
             sendItemsButton.setDisable(false);
             ressourceInputValue.setDisable(false);
             ressourceChoice.setDisable(false);
+            endTradeButton.setVisible(true);
         }
     }
 
@@ -116,6 +121,7 @@ public class TradePresenter extends AbstractPresenter {
         this.user = currentUser;
         this.tradeCode = tradeCode;
         this.seller = nameOfSeller;
+        sellerGotBids = false;
     }
 
     /**
@@ -144,8 +150,30 @@ public class TradePresenter extends AbstractPresenter {
             } else if (item.getName().equals(woolString)) {
                 wool1.setText(valueOfCount);
             }
+            endTradeButton.setVisible(false);
+            rejectOfferButton.setVisible(true);
             row1Hbox.setVisible(true);
+
         }
+    }
+
+    /**
+     * rejects the offer of the seller
+     * <p>
+     * sends a TradeItemRequest with all TradeItem counts = 0
+     *
+     * @author Alexander Losse, Ricardo Mook
+     * @since 2021-04-22
+     */
+    @FXML
+    public void onRejectOfferButtonPressed() {
+        ArrayList<TradeItem> sendEmptyTradeItemArrayList = new ArrayList<>();
+        sendEmptyTradeItemArrayList.add(new TradeItem(oreString, 0));
+        sendEmptyTradeItemArrayList.add(new TradeItem(lumberString, 0));
+        sendEmptyTradeItemArrayList.add(new TradeItem(woolString, 0));
+        sendEmptyTradeItemArrayList.add(new TradeItem(grainString, 0));
+        sendEmptyTradeItemArrayList.add(new TradeItem(brickString, 0));
+        gameService.sendItem(user, gameName, sendEmptyTradeItemArrayList, tradeCode);
     }
 
     /**
@@ -162,17 +190,20 @@ public class TradePresenter extends AbstractPresenter {
      */
     @FXML
     public void onEndTradeButtonPressed() {
+        if (sellerGotBids) {
+            RadioButton selectedRadioButton = (RadioButton) choiceTrade.getSelectedToggle();
 
-        RadioButton selectedRadioButton = (RadioButton) choiceTrade.getSelectedToggle();
-
-        if (selectedRadioButton == offerNoneRadioButton) {
-            gameService.sendTradeChoice(user, false, gameName, tradeCode);
-        } else if (selectedRadioButton == offer1RadioButton) {
-            gameService.sendTradeChoice(bidders.get(0), true, gameName, tradeCode);
-        } else if (selectedRadioButton == offer2RadioButton) {
-            gameService.sendTradeChoice(bidders.get(1), true, gameName, tradeCode);
-        } else if (selectedRadioButton == offer3RadioButton) {
-            gameService.sendTradeChoice(bidders.get(2), true, gameName, tradeCode);
+            if (selectedRadioButton == offerNoneRadioButton) {
+                gameService.sendTradeChoice(user, false, gameName, tradeCode);
+            } else if (selectedRadioButton == offer1RadioButton) {
+                gameService.sendTradeChoice(bidders.get(0), true, gameName, tradeCode);
+            } else if (selectedRadioButton == offer2RadioButton) {
+                gameService.sendTradeChoice(bidders.get(1), true, gameName, tradeCode);
+            } else if (selectedRadioButton == offer3RadioButton) {
+                gameService.sendTradeChoice(bidders.get(2), true, gameName, tradeCode);
+            }
+        }else{
+            gameService.endTradeBeforeItStarted(user, gameName, tradeCode);
         }
     }
 
@@ -218,6 +249,7 @@ public class TradePresenter extends AbstractPresenter {
             sendItemsButton.setDisable(true);
             ressourceInputValue.setDisable(true);
             ressourceChoice.setDisable(true);
+            endTradeButton.setVisible(false);
         }//TODO: inform the user that he has to send at least 1 item
         else {
             Alert noValidInput = new Alert(Alert.AlertType.CONFIRMATION);
@@ -389,8 +421,8 @@ public class TradePresenter extends AbstractPresenter {
                 return false;
             }
             //char turns the value to ASCII: 0->48, 1->49,...,9->57
-            for (char a : checkedString.toCharArray()){
-                if (a == 48 || a == 49  || a == 50 || a == 51 || a == 52 || a == 53 || a == 54 || a == 55 || a == 56 || a == 57) {
+            for (char a : checkedString.toCharArray()) {
+                if (a == 48 || a == 49 || a == 50 || a == 51 || a == 52 || a == 53 || a == 54 || a == 55 || a == 56 || a == 57) {
                     isCheckedStringInt = true;
                 } else {
                     return false;
@@ -416,6 +448,9 @@ public class TradePresenter extends AbstractPresenter {
 
     @FXML
     Button endTradeButton;
+
+    @FXML
+    Button rejectOfferButton;
 
     @FXML
     ChoiceBox ressourceChoice;

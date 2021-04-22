@@ -87,7 +87,7 @@
                                  </toggleGroup></RadioButton>
                            </children>
                         </HBox>
-                        <HBox fx:id="row1Hbox" layoutX="10.0" layoutY="10.0" prefHeight="50.0" prefWidth="600.0">
+                        <HBox fx:id="row1Hbox" layoutX="10.0" layoutY="10.0" prefHeight="50.0" prefWidth="600.0" visible="false">
                            <children>
                               <VBox prefHeight="200.0" prefWidth="100.0">
                                  <children>
@@ -206,7 +206,8 @@
                </children></HBox>
             <HBox layoutX="10.0" layoutY="110.0" prefHeight="100.0" prefWidth="600.0">
                <children>
-                  <Button fx:id="endTradeButton" mnemonicParsing="false" onAction="#onEndTradeButtonPressed" text="end trade" visible="false" />
+                  <Button fx:id="endTradeButton" mnemonicParsing="false" onAction="#onEndTradeButtonPressed" text="end trade" />
+                  <Button fx:id="rejectOfferButton" mnemonicParsing="false" onAction="#onRejectOfferButtonPressed" text="reject offer" visible="false" />
                </children></HBox>
          </children></VBox>
    </children>
