@@ -6,6 +6,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import de.uol.swp.common.chat.ResponseChatMessage;
 import de.uol.swp.common.game.Game;
+import de.uol.swp.common.game.MapGraph;
 import de.uol.swp.common.game.TerrainFieldContainer;
 import de.uol.swp.common.game.inventory.Inventory;
 import de.uol.swp.common.game.message.*;
@@ -47,10 +48,10 @@ import java.util.stream.Collectors;
 @Singleton
 public class GameService extends AbstractService {
 
+    private static final Logger LOG = LogManager.getLogger(GameService.class);
     private final GameManagement gameManagement;
     private final LobbyService lobbyService;
     private final AuthenticationService authenticationService;
-    private static final Logger LOG = LogManager.getLogger(GameService.class);
 
     /**
      * Constructor
@@ -59,6 +60,7 @@ public class GameService extends AbstractService {
      * @param gameManagement        The management class for creating, storing and deleting games
      * @param authenticationService the user management
      * @param eventBus              the server-wide EventBus
+     *
      * @since 2021-01-07
      */
     @Inject
@@ -110,6 +112,7 @@ public class GameService extends AbstractService {
      * of a AllThisGameUsersResponse for a specific user that sent the initial request.
      *
      * @param retrieveAllThisGameUsersRequest The RetrieveAllThisGameUsersRequest found on the EventBus
+     *
      * @author Iskander Yusupov
      * @see de.uol.swp.common.game.Game
      * @since 2021-01-15
@@ -123,6 +126,55 @@ public class GameService extends AbstractService {
                 Optional<MessageContext> ctx = retrieveAllThisGameUsersRequest.getMessageContext();
                 sendToSpecificUser(ctx.get(), new AllThisGameUsersResponse(gameUsers, retrieveAllThisGameUsersRequest.getName()));
             }
+        }
+    }
+
+    /**
+     * Handles incoming build requests.
+     *
+     * @param message
+     *
+     * @author Pieter Vogt
+     * @since 2021-04-15
+     */
+    @Subscribe
+    public void onConstructionMessage(ConstructionMessage message) {
+        LOG.debug("Recieved new ConstructionMessage from user " + message.getUser());
+        Optional<Game> game = gameManagement.getGame(message.getGame());
+        int playerIndex = 666;
+        for (int i = 0; i < game.get().getUsersList().size(); i++) {
+            if (game.get().getUsersList().get(i).equals(message.getUser())) {
+                playerIndex = i;
+                break;
+            }
+        }
+
+        try {
+            if (message.getTypeOfNode().equals("BuildingNode")) { //If the node from the message is a building node...
+                for (MapGraph.BuildingNode buildingNode : game.get().getMapGraph().getBuildingNodeHashSet()) {
+                    if (message.getUuid().equals(buildingNode.getUuid())) { // ... and if the node in the message is a node in the MapGraph BuildingNodeSet...
+                        if (buildingNode.buildOrDevelopSettlement(playerIndex)) {
+                            sendToAllInGame(game.get().getName(), new SuccessfulConstructionMessage(playerIndex, message.getUuid(), "BuildingNode"));
+                            break;
+                        }
+                    }
+                }
+            } else {
+                for (MapGraph.StreetNode streetNode : game.get().getMapGraph().getStreetNodeHashSet()) {
+                    if (message.getUuid().equals(streetNode.getUuid())) {
+                        if (streetNode.buildRoad(playerIndex)) {
+                            sendToAllInGame(game.get().getName(), new SuccessfulConstructionMessage(playerIndex, message.getUuid(), "StreetNode"));
+                            break;
+                        }
+
+                    }
+                }
+            }
+
+
+        } catch (GameManagementException e) {
+            LOG.debug(e);
+            System.out.println("Player " + message.getUser() + " tried to build at node with UUID: " + message.getUuid() + " but it did not work.");
         }
     }
 
@@ -143,7 +195,6 @@ public class GameService extends AbstractService {
         post(message);
     }
 
-
     public void sendToSpecificUser(MessageContext ctx, ResponseMessage message) {
         ctx.writeAndFlush(message);
     }
@@ -154,6 +205,7 @@ public class GameService extends AbstractService {
      * @param game    Optional<Game> game
      * @param message ServerMessage message
      * @param user    User user
+     *
      * @author Alexander Losse, Ricardo Mook
      * @since 2021-03-11
      */
@@ -179,14 +231,12 @@ public class GameService extends AbstractService {
      * Handles RollDiceRequests found on the EventBus
      * <p>
      * If a RollDiceRequest is detected on the EventBus, this method is called. It rolls the dices and sends a
-     * ResponseChatMessage containing the user who roll the dice and the result to every user in the lobby.
-     * If a RollDiceRequest is detected on the EventBus, this method is called.
-     * It rolls the dices and sends a ResponseChatMessage containing the user who rolls the dice
-     * and the result is shown to every user in the game.
-     * If the cheatEyes > 0 this method overrides the rolled Dice with the provided integer.
-     * This is necessary for the roll cheat.
+     * ResponseChatMessage containing the user who roll the dice and the result to every user in the lobby. If a
+     * RollDiceRequest is detected on the EventBus, this method is called. It rolls the dices and sends a
+     * ResponseChatMessage containing the user who rolls the dice and the result is shown to every user in the game.
      *
      * @param rollDiceRequest The RollDiceRequest found on the EventBus
+     *
      * @author Kirstin, Pieter
      * @see de.uol.swp.common.game.request.RollDiceRequest
      * @see de.uol.swp.common.chat.ResponseChatMessage
@@ -239,12 +289,14 @@ public class GameService extends AbstractService {
     /**
      * Handles the distribution of resources to the users
      * <p>
-     * This method handles the distribution of the resources to the users. First the method gets the game and gets the coressponding
-     * terrainfieldcontainer. After that the method checks if the diceToken on the field is equal to the rolled amount of eyes and increases the resource of the user by one.
-     * To Do is, that not every user gets the ressource.
+     * This method handles the distribution of the resources to the users. First the method gets the game and gets the
+     * coressponding terrainfieldcontainer. After that the method checks if the diceToken on the field is equal to the
+     * rolled amount of eyes and increases the resource of the user by one. To Do is, that not every user gets the
+     * ressource.
      *
      * @param eyes     Number of eyes rolled with dice
      * @param gameName Name of the Game
+     *
      * @author Marius Birk, Carsten Dekker
      * @since 2021-04-06
      */
@@ -303,6 +355,7 @@ public class GameService extends AbstractService {
      *
      * @param lobbyName Name of the lobby the players are in
      * @param message   the message to be send to the users
+     *
      * @author Marco Grawunder
      * @see de.uol.swp.common.message.ServerMessage
      * @since 2019-10-08
@@ -327,10 +380,10 @@ public class GameService extends AbstractService {
      * NotLobbyOwnerResponse, NotEnoughPlayersResponse or GameAlreadyExistsResponse and sends it to a specific user that
      * sent the initial request.
      * <p>
-     * enhanced by Alexander Losse, Ricardo Mook 2021-03-05
-     * enhanced by Marc Hermes 2021-03-25
+     * enhanced by Alexander Losse, Ricardo Mook 2021-03-05 enhanced by Marc Hermes 2021-03-25
      *
      * @param startGameRequest the StartGameRequest found on the EventBus
+     *
      * @author Kirstin Beyer, Iskander Yusupov
      * @see de.uol.swp.common.lobby.request.StartGameRequest
      * @since 2021-01-24
@@ -384,10 +437,11 @@ public class GameService extends AbstractService {
      * A new game is created if at least 2 players are to start the game and if not already a game exists. All players
      * ready are joined to the game and a GameCreatedMessage is send to all players in the game.
      * <p>
-     * enhanced by Alexander Losse, Ricardo Mook 2021-03-05 enhanced by Pieter Vogt 2021-03-26
-     * enhanced by Marc Hermes 2021-03-25
+     * enhanced by Alexander Losse, Ricardo Mook 2021-03-05 enhanced by Pieter Vogt 2021-03-26 enhanced by Marc Hermes
+     * 2021-03-25
      *
      * @param lobby lobby that wants to start a game
+     *
      * @author Kirstin Beyer, Iskander Yusupov
      * @since 2021-01-24
      */
@@ -406,7 +460,7 @@ public class GameService extends AbstractService {
             lobby.get().setGameStarted(true);
             post(new GameStartedMessage(lobby.get().getName()));
             for (User user : game.get().getUsers()) {
-                sendToSpecificUserInGame(game, new GameCreatedMessage(game.get().getName(), (UserDTO) user, game.get().getGameField(), usersInGame), user);
+                sendToSpecificUserInGame(game, new GameCreatedMessage(game.get().getName(), (UserDTO) user, game.get().getMapGraph(), usersInGame), user);
             }
             game.get().setUpUserArrayList();
             game.get().setUpInventories();
@@ -427,6 +481,7 @@ public class GameService extends AbstractService {
      * enhanced by Marc Hermes 2021-03-25
      *
      * @param playerReadyRequest the PlayerReadyRequest found on the EventBus
+     *
      * @author Kirstin Beyer, Iskander Yusupov
      * @see de.uol.swp.common.game.request.PlayerReadyRequest
      * @since 2021-01-24
@@ -459,6 +514,7 @@ public class GameService extends AbstractService {
      * game and whos turn is up now.</p>
      *
      * @param request Transports the games name and the senders UserDTO.
+     *
      * @author Pieter Vogt
      * @since 2021-03-26
      */
@@ -479,13 +535,14 @@ public class GameService extends AbstractService {
      * Handles BuyDevelopmentCardRequest found on the eventbus.
      *
      * <p>
-     * Gets the game from the gameManagement and retrieves the inventory from the user. Then the method
-     * checks if enough ressources are available to buy a development card. If there are enough ressources, then
-     * the method gets the next development card from the development card deck and sends a message with the development card to the user.
-     * If there are not enough ressources a NoEnoughRessourcesMessage is send to the user.
+     * Gets the game from the gameManagement and retrieves the inventory from the user. Then the method checks if enough
+     * ressources are available to buy a development card. If there are enough ressources, then the method gets the next
+     * development card from the development card deck and sends a message with the development card to the user. If
+     * there are not enough ressources a NoEnoughRessourcesMessage is send to the user.
      * </p>
      *
      * @param request Transports the senders UserDTO
+     *
      * @author Marius Birk
      * @since 2021-04-03
      */
@@ -516,11 +573,12 @@ public class GameService extends AbstractService {
      * Method to update private and public inventories in a game
      * <p>
      * If game exists, method sends two types of messages with updated information about inventories.
-     * PrivateInventoryChangeMessage is send to specific player in the game.
-     * PublicInventoryChangeMessage is send to all players in the game.
+     * PrivateInventoryChangeMessage is send to specific player in the game. PublicInventoryChangeMessage is send to all
+     * players in the game.
      * <p>
      *
      * @param game game that wants to update private and public inventories
+     *
      * @author Iskander Yusupov, Anton Nikiforov
      * @since 2021-04-08
      */
@@ -549,22 +607,21 @@ public class GameService extends AbstractService {
     /**
      * Handles LogoutRequests found on the EventBus
      * <p>
-     * If a LogoutRequest is detected on the EventBus, this method is called. It
-     * gets all games from the GameManagement and loops through them.
-     * If the user is part of a game, he gets removed from it.
-     * If he is the last user in the game, the game gets dropped.
-     * Finally we log how many games the user left.
+     * If a LogoutRequest is detected on the EventBus, this method is called. It gets all games from the GameManagement
+     * and loops through them. If the user is part of a game, he gets removed from it. If he is the last user in the
+     * game, the game gets dropped. Finally we log how many games the user left.
      *
      * @param request LogoutRequest found on the eventBus
+     *
+     * @author René Meyer, Sergej Tulnev
      * @see de.uol.swp.common.user.request.LogoutRequest
      * @see de.uol.swp.common.game.request.GameLeaveUserRequest
      * @see de.uol.swp.server.lobby.LobbyService
-     * @author René Meyer, Sergej Tulnev
      * @since 2021-04-08
      */
     @Subscribe
-    public void onLogoutRequest(LogoutRequest request){
-        if (request.getSession().isPresent()){
+    public void onLogoutRequest(LogoutRequest request) {
+        if (request.getSession().isPresent()) {
             Session session = request.getSession().get();
             var userToLogOut = session.getUser();
             // Could be already logged out
@@ -579,18 +636,18 @@ public class GameService extends AbstractService {
                 while (it.hasNext()) {
                     Map.Entry<String, Game> entry = it.next();
                     Game game = entry.getValue();
-                    if(game.getUsers().contains(userToLogOut)){
+                    if (game.getUsers().contains(userToLogOut)) {
                         // leave every game the user is part of
                         var gameLeaveUserRequest = new GameLeaveUserRequest(game.getName(), (UserDTO) userToLogOut);
-                        if(request.getMessageContext().isPresent()){
+                        if (request.getMessageContext().isPresent()) {
                             gameLeaveUserRequest.setMessageContext(request.getMessageContext().get());
                             this.onGameLeaveUserRequest(gameLeaveUserRequest);
                         }
                     }
                     i++;
                 }
-                var lobbyString = i>1? " games":" game";
-                LOG.debug("Left " + i + lobbyString+" for User: " + userToLogOut.getUsername());
+                var lobbyString = i > 1 ? " games" : " game";
+                LOG.debug("Left " + i + lobbyString + " for User: " + userToLogOut.getUsername());
             }
         }
 

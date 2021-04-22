@@ -1,7 +1,7 @@
 package de.uol.swp.common.game;
 
 import java.io.Serializable;
-
+//TODO: Diese Klasse ist obsolet! Es müssen alle Uses überarbeitet werden, sodass diese Klasse schnellstmöglich wieder entfernt werden kann!
 /**
  * Class used to store information about the TerrainFields of the GameField
  *
