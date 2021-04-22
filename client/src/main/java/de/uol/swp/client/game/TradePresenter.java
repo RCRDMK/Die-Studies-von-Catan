@@ -58,10 +58,10 @@ public class TradePresenter extends AbstractPresenter {
     public void onTradeInformSellerAboutBidsMessage(TradeInformSellerAboutBidsMessage message) {
         if (message.getUser().getUsername().equals(user.getUsername()) && message.getTradeCode().equals(tradeCode)) {
 
-            endTradeButton.setDisable(false);
-            offerNoneRadioButton.setDisable(false);
+            endTradeButton.setVisible(true);
+            offerNoneRadioButton.setVisible(true);
             row1Hbox.setVisible(true);
-            offer1RadioButton.setDisable(false);
+            offer1RadioButton.setVisible(true);
 
             int biddersCount = message.getBidders().size();
             if (biddersCount > 1) {
@@ -363,21 +363,42 @@ public class TradePresenter extends AbstractPresenter {
     }
 
     /**
-     * checks if given string is a number in the range from 1 to 999
+     * checks if given string is a int
+     * <p>
+     * the method initialises isCheckedStringInt as false
+     * checks if String is empty
+     * if true, the methods returns isCheckedStringInt = false
+     * if false,
+     * the first char is checked if it is 0
+     * if true, the method returns false
+     * if false,
+     * the methods checks if the chars are valid values(0-9)
+     * if true,  isCheckedStringInt is set to true and if all chars are valid the method returns isCheckedStringInt = true
+     * if false, the methods returns false
      *
      * @param checkedString the input value
      * @return boolean if input is a number
      * @author Alexander Losse, Ricardo Mook
-     * @see TradeItem
      * @since 2021-04-21
      */
     public boolean isStringNumber(String checkedString) {
-        if (Integer.parseInt(checkedString) >= 1 && Integer.parseInt(checkedString) <= 999) {
-            return true;
-        } else {
-            return false;
+        boolean isCheckedStringInt = false;
+        if (!checkedString.isEmpty()) {
+            if (checkedString.charAt(0) == 0) {
+                return false;
+            }
+            for (int i = 0; i < checkedString.length(); i++) {
+                char a = checkedString.charAt(i);
+                if (a == 0 || a == 1 || a == 2 || a == 3 || a == 4 || a == 5 || a == 6 || a == 7 || a == 8 || a == 9) {
+                    isCheckedStringInt = true;
+                } else {
+                    return false;
+                }
+            }
         }
+        return isCheckedStringInt;
     }
+
 
     //
     // <----- FXML STUFF ----->

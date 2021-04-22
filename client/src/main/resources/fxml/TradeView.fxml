@@ -81,13 +81,13 @@
                                        <Text fx:id="grain0" strokeType="OUTSIDE" strokeWidth="0.0" text="0" />
                                  </children>
                               </VBox>
-                              <RadioButton fx:id="offerNoneRadioButton" disable="true" mnemonicParsing="false" selected="true" text=" Accept none">
+                              <RadioButton fx:id="offerNoneRadioButton" mnemonicParsing="false" selected="true" text=" Accept none" visible="false">
                                  <toggleGroup>
                                     <ToggleGroup fx:id="choiceTrade" />
                                  </toggleGroup></RadioButton>
                            </children>
                         </HBox>
-                        <HBox fx:id="row1Hbox" layoutX="10.0" layoutY="10.0" prefHeight="50.0" prefWidth="600.0" visible="false">
+                        <HBox fx:id="row1Hbox" layoutX="10.0" layoutY="10.0" prefHeight="50.0" prefWidth="600.0">
                            <children>
                               <VBox prefHeight="200.0" prefWidth="100.0">
                                  <children>
@@ -116,13 +116,13 @@
                                     <Text fx:id="wool1" strokeType="OUTSIDE" strokeWidth="0.0" text="0" />
                                  </children>
                               </VBox>
-                              <VBox prefHeight="200.0" prefWidth="100.0">
+                              <VBox prefHeight="200.0" prefWidth="100.0" visible="false">
                                  <children>
                                     <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Grain" />
                                     <Text fx:id="grain1" strokeType="OUTSIDE" strokeWidth="0.0" text="0" />
                                  </children>
                               </VBox>
-                              <RadioButton fx:id="offer1RadioButton" disable="true" mnemonicParsing="false" text="Accept Offer 1" toggleGroup="$choiceTrade" />
+                              <RadioButton fx:id="offer1RadioButton" mnemonicParsing="false" text="Accept Offer 1" toggleGroup="$choiceTrade" visible="false" />
                            </children>
                         </HBox>
                         <HBox fx:id="row2Hbox" layoutX="10.0" layoutY="10.0" prefHeight="50.0" prefWidth="600.0" visible="false">
@@ -206,7 +206,7 @@
                </children></HBox>
             <HBox layoutX="10.0" layoutY="110.0" prefHeight="100.0" prefWidth="600.0">
                <children>
-                  <Button fx:id="endTradeButton" disable="true" mnemonicParsing="false" onAction="#onEndTradeButtonPressed" text="end trade" />
+                  <Button fx:id="endTradeButton" mnemonicParsing="false" onAction="#onEndTradeButtonPressed" text="end trade" visible="false" />
                </children></HBox>
          </children></VBox>
    </children>
