@@ -84,7 +84,7 @@ public class Inventory {
     }
 
     /**
-     * Summed all Resource Cards up
+     * Summed all Resource Cards together
      * <p>
      * This method summed all Resource Cards together and gives their sum
      *
@@ -101,7 +101,7 @@ public class Inventory {
     }
 
     /**
-     * Summed all Development Cards up
+     * Summed all Development Cards together
      * <p>
      * This method summed all Development Cards together and gives their sum
      *
@@ -123,7 +123,8 @@ public class Inventory {
      * It gets the right card for the entered name.
      *
      * @param cardName to get
-     * @return Card
+     *
+     * @return Card with entered cardName
      * @author Anton Nikiforov
      * @see de.uol.swp.common.game.inventory.Card
      * @since 2021-04-06
@@ -143,6 +144,21 @@ public class Inventory {
 
             default : return null;
         }
+    }
+    /**
+     * Getter for the number of Cards
+     * <p>
+     * It gets the number of Cards for the entered cardName.
+     *
+     * @param cardName to get the number from
+     *
+     * @return number for Card with entered cardName
+     * @author Anton Nikiforov
+     * @see de.uol.swp.common.game.inventory.Card
+     * @since
+     */
+    public int getNumberFromCard(String cardName) {
+        return getCard(cardName).getNumber();
     }
 
     /**

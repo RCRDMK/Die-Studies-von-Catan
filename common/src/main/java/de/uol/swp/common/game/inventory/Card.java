@@ -15,28 +15,28 @@ public class Card {
         return number;
     }
 
-    //Setter (nicht kleiner als 0 und nicht größer als 19)
+    //Setter
     public void setNumber(int number) {
-        this.number = Math.min(Math.max(number, 0), 19);
+        this.number = Math.min(Math.max(number, 0), 19); // (0 <= number <= 19)
     }
 
-    //Incrementer (nicht mehr als 19)
+    //Incrementer
     public void incNumber() {
-        if (this.number < 19) this.number++;
+        if (this.number < 19) this.number++; // (number <= 19)
     }
 
-    //Incrementer with number (nicht mehr als 19)
+    //Incrementer with number
     public void incNumber(int number) {
-        this.number = Math.min(this.number + number, 19);
+        this.number = Math.min(this.number + number, 19); // (number <= 19)
     }
 
-    //Decrementer (nicht weniger als 0)
+    //Decrementer
     public void decNumber() {
-        if (this.number > 0) this.number--;
+        if (this.number > 0) this.number--; // (number >= 0)
     }
 
-    //Decrementer with number (nicht weniger als 0)
+    //Decrementer with number
     public void decNumber(int number) {
-        this.number = Math.max(this.number - number, 0);
+        this.number = Math.max(this.number - number, 0);  // (number >= 0)
     }
 }

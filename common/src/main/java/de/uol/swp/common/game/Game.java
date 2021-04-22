@@ -156,9 +156,6 @@ public interface Game extends Serializable {
      * @see de.uol.swp.common.game.inventory.Inventory
      * @since 2021-04-01
      */
-    Inventory getInventory(User user);
-
-    Inventory getBank();
 
     /**
      * Returns the MapGraph object.
@@ -180,6 +177,10 @@ public interface Game extends Serializable {
      * @since 2021-04-11
      */
     void setMapGraph(MapGraph mapGraph);
+
+    Inventory getBankInventory();
+
+    Inventory getInventory(User user);
 
     DevelopmentCardDeck getDevelopmentCardDeck();
 

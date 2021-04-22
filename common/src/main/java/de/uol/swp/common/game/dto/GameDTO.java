@@ -39,11 +39,11 @@ public class GameDTO implements Game {
     private DevelopmentCardDeck developmentCardDeck = new DevelopmentCardDeck();
     private User bank = new UserDTO("Banker", "password", "rich@man.net");
 
-    private Inventory bankSafe;
     private Inventory inventory1;
     private Inventory inventory2;
     private Inventory inventory3;
     private Inventory inventory4;
+    private Inventory bankInventory;
 
     /**
      * Constructor
@@ -226,12 +226,12 @@ public class GameDTO implements Game {
             if (userArrayList.size() > 3) inventory4 = new Inventory(userArrayList.get(3));
         }
 
-        bankSafe = new Inventory(bank);
-        bankSafe.lumber.setNumber(19);
-        bankSafe.brick.setNumber(19);
-        bankSafe.grain.setNumber(19);
-        bankSafe.wool.setNumber(19);
-        bankSafe.ore.setNumber(19);
+        bankInventory = new Inventory(bank);
+        bankInventory.lumber.setNumber(19);
+        bankInventory.brick.setNumber(19);
+        bankInventory.grain.setNumber(19);
+        bankInventory.wool.setNumber(19);
+        bankInventory.ore.setNumber(19);
     }
 
     /**
@@ -252,13 +252,13 @@ public class GameDTO implements Game {
         if (user.equals(inventory2.getUser())) return inventory2;
         if (user.equals(inventory3.getUser())) return inventory3;
         if (user.equals(inventory4.getUser())) return inventory4;
-        if (user.equals(bankSafe.getUser())) return bankSafe;
+        if (user.equals(bankInventory.getUser())) return bankInventory;
         return null;
     }
 
     @Override
-    public Inventory getBank() {
-        return bankSafe;
+    public Inventory getBankInventory() {
+        return bankInventory;
     }
 
     @Override

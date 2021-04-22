@@ -346,6 +346,7 @@ public class GameService extends AbstractService {
      * @param user who wants the resource
      * @param resourceTyp he wants
      * @param amount of the resource
+     *
      * @author Anton Nikiforov
      * @see de.uol.swp.common.game.inventory
      * @see de.uol.swp.common.message.ServerMessage
@@ -353,7 +354,7 @@ public class GameService extends AbstractService {
      */
     public void giveResource(Optional<Game> game, User user, String resourceTyp, int amount) {
         if (game.isPresent()) {
-            Inventory bank = game.get().getBank();
+            Inventory bank = game.get().getBankInventory();
             for (int i = amount; i > 0; i--) {
                 if (bank.getCard(resourceTyp).getNumber() > 0) {
                     bank.getCard(resourceTyp).decNumber();
@@ -372,13 +373,14 @@ public class GameService extends AbstractService {
      * @param user who wants to give the resource
      * @param resourceTyp he wants to give
      * @param amount of the resource
+     *
      * @author Anton Nikiforov
      * @see de.uol.swp.common.game.inventory
      * @since 2012-04-09
      */
     public void takeResource(Optional<Game> game, User user, String resourceTyp, int amount) {
         if (game.isPresent()) {
-            Inventory bank = game.get().getBank();
+            Inventory bank = game.get().getBankInventory();
             for (int i = amount; i > 0; i--) {
                 if (game.get().getInventory(user).getCard(resourceTyp).getNumber() > 0) {
                     game.get().getInventory(user).getCard(resourceTyp).decNumber();
