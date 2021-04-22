@@ -525,7 +525,7 @@ public class ClientApp extends Application implements ConnectionListener {
     }
 
     @Subscribe
-    public void onTradeSuccessfulMessage(TradeEndedMessage message) {
+    public void onTradeEndedMessage(TradeEndedMessage message) {
         LOG.info("Trade terminated ROFL LOL OMEGA LUL MJ WAS HERE and nobody cares :') successful.");
         sceneManager.removeTradeTab(message);
     }

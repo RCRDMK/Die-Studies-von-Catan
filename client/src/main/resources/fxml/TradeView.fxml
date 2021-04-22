@@ -81,7 +81,7 @@
                                        <Text fx:id="grain0" strokeType="OUTSIDE" strokeWidth="0.0" text="0" />
                                  </children>
                               </VBox>
-                              <RadioButton fx:id="offerNoneCheckBox" disable="true" mnemonicParsing="false" selected="true" text="none">
+                              <RadioButton fx:id="offerNoneRadioButton" disable="true" mnemonicParsing="false" selected="true" text=" Accept none">
                                  <toggleGroup>
                                     <ToggleGroup fx:id="choiceTrade" />
                                  </toggleGroup></RadioButton>
@@ -122,7 +122,7 @@
                                     <Text fx:id="grain1" strokeType="OUTSIDE" strokeWidth="0.0" text="0" />
                                  </children>
                               </VBox>
-                              <RadioButton fx:id="offer1CheckBox" disable="true" mnemonicParsing="false" text="RadioButton" toggleGroup="$choiceTrade" />
+                              <RadioButton fx:id="offer1RadioButton" disable="true" mnemonicParsing="false" text="Accept Offer 1" toggleGroup="$choiceTrade" />
                            </children>
                         </HBox>
                         <HBox fx:id="row2Hbox" layoutX="10.0" layoutY="10.0" prefHeight="50.0" prefWidth="600.0" visible="false">
@@ -160,7 +160,7 @@
                                     <Text fx:id="grain2" strokeType="OUTSIDE" strokeWidth="0.0" text="0" />
                                  </children>
                               </VBox>
-                              <RadioButton fx:id="offer2CheckBox" mnemonicParsing="false" text="RadioButton" toggleGroup="$choiceTrade" />
+                              <RadioButton fx:id="offer2RadioButton" mnemonicParsing="false" text="Accept offer 2" toggleGroup="$choiceTrade" />
                            </children>
                         </HBox>
                         <HBox fx:id="row3Hbox" layoutX="10.0" layoutY="10.0" prefHeight="50.0" prefWidth="600.0" visible="false">
@@ -198,7 +198,7 @@
                                     <Text fx:id="grain3" strokeType="OUTSIDE" strokeWidth="0.0" text="0" />
                                  </children>
                               </VBox>
-                              <RadioButton fx:id="offer3CheckBox" mnemonicParsing="false" text="RadioButton" toggleGroup="$choiceTrade" />
+                              <RadioButton fx:id="offer3RadioButton" mnemonicParsing="false" text="Accept offer 3" toggleGroup="$choiceTrade" />
                            </children>
                         </HBox>
                      </children>

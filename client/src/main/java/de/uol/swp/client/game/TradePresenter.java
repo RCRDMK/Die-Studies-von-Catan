@@ -7,6 +7,8 @@ import de.uol.swp.common.game.message.TradeCardErrorMessage;
 import de.uol.swp.common.game.message.TradeInformSellerAboutBidsMessage;
 import de.uol.swp.common.game.trade.TradeItem;
 import de.uol.swp.common.user.UserDTO;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
@@ -57,9 +59,9 @@ public class TradePresenter extends AbstractPresenter {
         if (message.getUser().getUsername().equals(user.getUsername()) && message.getTradeCode().equals(tradeCode)) {
 
             endTradeButton.setDisable(false);
-            offerNoneCheckBox.setDisable(false);
+            offerNoneRadioButton.setDisable(false);
             row1Hbox.setVisible(true);
-            offer1CheckBox.setDisable(false);
+            offer1RadioButton.setDisable(false);
 
             int biddersCount = message.getBidders().size();
             if (biddersCount > 1) {
@@ -163,13 +165,13 @@ public class TradePresenter extends AbstractPresenter {
 
         RadioButton selectedRadioButton = (RadioButton) choiceTrade.getSelectedToggle();
 
-        if (selectedRadioButton == offerNoneCheckBox) {
+        if (selectedRadioButton == offerNoneRadioButton) {
             gameService.sendTradeChoice(user, false, gameName, tradeCode);
-        } else if (selectedRadioButton == offer1CheckBox) {
+        } else if (selectedRadioButton == offer1RadioButton) {
             gameService.sendTradeChoice(bidders.get(0), true, gameName, tradeCode);
-        } else if (selectedRadioButton == offer2CheckBox) {
+        } else if (selectedRadioButton == offer2RadioButton) {
             gameService.sendTradeChoice(bidders.get(1), true, gameName, tradeCode);
-        } else if (selectedRadioButton == offer3CheckBox) {
+        } else if (selectedRadioButton == offer3RadioButton) {
             gameService.sendTradeChoice(bidders.get(2), true, gameName, tradeCode);
         }
     }
@@ -217,6 +219,21 @@ public class TradePresenter extends AbstractPresenter {
             ressourceInputValue.setDisable(true);
             ressourceChoice.setDisable(true);
         }//TODO: inform the user that he has to send at least 1 item
+        else {
+            Alert noValidInput = new Alert(Alert.AlertType.CONFIRMATION);
+            noValidInput.setContentText("Please only input valid ressources and numbers");
+            Button conformation;
+            ButtonType ok = new ButtonType("OK", ButtonBar.ButtonData.YES);
+            noValidInput.getButtonTypes().setAll(ok);
+            conformation = (Button) noValidInput.getDialogPane().lookupButton(ok);
+            noValidInput.showAndWait();
+            conformation.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                    noValidInput.hide();
+                }
+            });
+        }
     }
 
     /**
@@ -377,6 +394,7 @@ public class TradePresenter extends AbstractPresenter {
 
     @FXML
     Button endTradeButton;
+
     @FXML
     ChoiceBox ressourceChoice;
 
@@ -384,16 +402,16 @@ public class TradePresenter extends AbstractPresenter {
     TextField ressourceInputValue;
 
     @FXML
-    RadioButton offerNoneCheckBox;
+    RadioButton offerNoneRadioButton;
 
     @FXML
-    RadioButton offer1CheckBox;
+    RadioButton offer1RadioButton;
 
     @FXML
-    RadioButton offer2CheckBox;
+    RadioButton offer2RadioButton;
 
     @FXML
-    RadioButton offer3CheckBox;
+    RadioButton offer3RadioButton;
 
     @FXML
     Text brick0;
