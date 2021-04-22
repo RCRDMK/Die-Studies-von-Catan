@@ -827,10 +827,6 @@ public class GamePresenter extends AbstractPresenter {
                     } catch (Exception e) {
                         LOG.debug(e);
                     }
-                    /*
-                    Platform.runLater(() -> {
-                        tradeButton.setDisable(false);
-                    });*/
                 } else {
                     try {
                         var chatMessageInfo = "The trade: " + tsm.getTradeCode() + " was  not successful! :(";

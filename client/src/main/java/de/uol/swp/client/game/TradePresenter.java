@@ -84,7 +84,7 @@ public class TradePresenter extends AbstractPresenter {
      * reacts to the TradeCardErrorMessage
      * <p>
      * checks if the TradeCardErrorMessage is for the user
-     * reenables addItemButton, sendItemsButton, ressourceInputValue, ressourceChoice
+     * reenables addItemButton, sendItemsButton, ressourceInputValue, ressourceChoice, endTradeButton
      * they are disabled íf the sendItemsButton is pressed
      * the message is received if the user has not enough items in the inventory
      *
@@ -177,11 +177,14 @@ public class TradePresenter extends AbstractPresenter {
     }
 
     /**
-     * ends the trade and send the TradeChoice via the gameService
+     * ends the trade and send the TradeChoice via the gameService/closes the trade window if no Trade started
      * <p>
+     * if sellerGotBids == false
      * the method checks which RadioButton is active
      * RadioButtons: none,1,2,3
      * the methods calls gameService.sendTradeChoice with the corresponding bidder
+     * else
+     * closes the TradeWindow
      *
      * @author Alexander Losse, Ricardo Mook
      * @see TradeItem
@@ -202,7 +205,7 @@ public class TradePresenter extends AbstractPresenter {
             } else if (selectedRadioButton == offer3RadioButton) {
                 gameService.sendTradeChoice(bidders.get(2), true, gameName, tradeCode);
             }
-        }else{
+        } else {
             gameService.endTradeBeforeItStarted(user, gameName, tradeCode);
         }
     }
@@ -225,7 +228,7 @@ public class TradePresenter extends AbstractPresenter {
      * ArrayList<TradeItem> sendTradeItemArrayList is created with createTradeItemList()
      * boolean minimalItems tracks if at least one item ha a count of > 0
      * if minimalItems == true a TradeItemRequest is send via the GameService
-     * disables addItemButton, sendItemsButton, ressourceInputValue, ressourceChoice
+     * disables addItemButton, sendItemsButton, ressourceInputValue, ressourceChoice, endTradeButton
      * else nothing happens
      *
      * @author Alexander Losse, Ricardo Mook
