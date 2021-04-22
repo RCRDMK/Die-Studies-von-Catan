@@ -749,11 +749,11 @@ public class GameService extends AbstractService {
                 }
 
                 tsm.addSuccessfulBidder(request.getUser(), trade.getBids().get(request.getUser()));
-                sendToAllInGame(request.getName(), tsm);
+                //sendToAllInGame(request.getName(), tsm);
             } else {
-                TradeNotSuccessfulMessage tradeNotSuccessfulMessage = new TradeNotSuccessfulMessage(request.getTradeCode());
-                sendToAllInGame(request.getName(), tradeNotSuccessfulMessage);
-            }
+                //TradeNotSuccessfulMessage tradeNotSuccessfulMessage = new TradeNotSuccessfulMessage(request.getTradeCode());
+               // sendToAllInGame(request.getName(), tradeNotSuccessfulMessage);
+            }sendToAllInGame(request.getName(), tsm);
 
             sendToAllInGame(request.getName(), new TradeEndedMessage(request.getTradeCode()));
             game.get().removeTrade(request.getTradeCode());

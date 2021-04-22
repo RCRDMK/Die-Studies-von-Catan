@@ -809,14 +809,15 @@ public class GamePresenter extends AbstractPresenter {
         }
     }
 
+    //TODO: JavaDoc bitches
     @Subscribe
     public void onTradeSuccessfulMessage(TradeSuccessfulMessage tsm) {
         TradeSuccessfulMessage lastMessage = tsm;
-        if (tsm.getName().equals((currentLobby))) {
+        if (tsm.getName().equals((currentLobby)) && joinedLobbyUser.getUsername().equals(tsm.getUser().getUsername())) {
             Platform.runLater(() -> {
                 if (tsm.isTradeSuccessful() == true) {
                     try {
-                        var chatMessageInfo = "The trade: " + tsm.getTradeCode() + " was successful between" + tsm.getUser().getUsername() + " and " + tsm.getBidder().getUsername();
+                        var chatMessageInfo = "The trade: " + tsm.getTradeCode() + " was successful between " + tsm.getUser().getUsername() + " and " + tsm.getBidder().getUsername();
                         var chatId = "game_" + currentLobby;
                         if (!chatMessageInfo.isEmpty()) {
                             RequestChatMessage message = new RequestChatMessage(chatMessageInfo, chatId, joinedLobbyUser.getUsername(),
@@ -826,9 +827,10 @@ public class GamePresenter extends AbstractPresenter {
                     } catch (Exception e) {
                         LOG.debug(e);
                     }
+                    /*
                     Platform.runLater(() -> {
                         tradeButton.setDisable(false);
-                    });
+                    });*/
                 } else {
                     try {
                         var chatMessageInfo = "The trade: " + tsm.getTradeCode() + " was  not successful! :(";
@@ -842,6 +844,9 @@ public class GamePresenter extends AbstractPresenter {
                         LOG.debug(e);
                     }
                 }
+                Platform.runLater(() -> {
+                    tradeButton.setDisable(false);
+                });
             });
         }
     }
