@@ -242,6 +242,9 @@ public class GameService extends AbstractService {
      * @see de.uol.swp.common.chat.ResponseChatMessage
      * @since 2021-01-07
      * <p>
+     * enhanced by René Meyer, Sergej Tulnev
+     * @since 2021-04-17
+     * <p>
      * Enhanced by Carsten Dekker
      * @since 2021-03-31
      * <p>
@@ -254,6 +257,13 @@ public class GameService extends AbstractService {
 
         Dice dice = new Dice();
         dice.rollDice();
+
+        // Check if cheatEyes number is provided in rollDiceRequest, if so -> set Eyes manually on dice
+        // for the roll cheat, else ignore and use rolledDice
+        if (rollDiceRequest.getCheatEyes() > 0) {
+            dice.setEyes(rollDiceRequest.getCheatEyes());
+        }
+
         if (dice.getEyes() == 7) {
             //TODO Hier müsste der Räuber aktiviert werden.
         } else {
@@ -583,6 +593,15 @@ public class GameService extends AbstractService {
                 sendToAllInGame(game.get().getName(), publicInventoryChangeMessage);
             }
         }
+    }
+
+    /**
+     * Returns the gameManagement
+     *
+     * @return
+     */
+    public GameManagement getGameManagement() {
+        return this.gameManagement;
     }
 
     /**

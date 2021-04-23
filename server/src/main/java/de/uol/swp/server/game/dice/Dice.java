@@ -27,4 +27,14 @@ public class Dice {
         return eyes;
     }
 
+    /**
+     * Setter for Eyes
+     *
+     * @param eyes setEyes for rollCheat
+     * @author René Meyer, Sergej Tulnev
+     * @since 2021-04-17
+     */
+    public void setEyes(int eyes) {
+        this.eyes = eyes;
+    }
 }
