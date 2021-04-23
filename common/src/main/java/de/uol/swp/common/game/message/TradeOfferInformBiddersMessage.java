@@ -19,7 +19,7 @@ public class TradeOfferInformBiddersMessage extends AbstractGameMessage {
     private String tradeCode;
     private ArrayList<TradeItem> sellingItems;
     private UserDTO bidder;
-
+    private ArrayList<TradeItem> wantedItems;
     /**
      * constructor
      * <p>
@@ -33,12 +33,13 @@ public class TradeOfferInformBiddersMessage extends AbstractGameMessage {
      * @author Alexander Losse, Ricardo Mook
      * @since 2021-04-11
      */
-    public TradeOfferInformBiddersMessage(UserDTO seller, String gameName, String tradeCode, ArrayList<TradeItem> sellingItems, UserDTO bidder) {
+    public TradeOfferInformBiddersMessage(UserDTO seller, String gameName, String tradeCode, ArrayList<TradeItem> sellingItems, UserDTO bidder, ArrayList<TradeItem> wantedItems) {
         this.user = seller;//new UserDTO(seller.getUsername(),"","");
         this.name = gameName;
         this.tradeCode = tradeCode;
         this.sellingItems = sellingItems;
         this.bidder = bidder;
+        this.wantedItems = wantedItems;
     }
 
 
@@ -66,5 +67,9 @@ public class TradeOfferInformBiddersMessage extends AbstractGameMessage {
 
     public UserDTO getBidder() {
         return bidder;
+    }
+
+    public ArrayList<TradeItem> getWantedItems() {
+        return wantedItems;
     }
 }

@@ -12,36 +12,84 @@
       <VBox prefHeight="400.0" prefWidth="600.0">
          <children>
             <HBox prefHeight="100.0" prefWidth="200.0">
-             <ChoiceBox fx:id="ressourceChoice" layoutX="33.0" layoutY="32.0" value="What do you want to trade?">
-                 <items>
-                     <FXCollections fx:factory="observableArrayList">
-                         <String fx:value="What do you want to trade?" />
-                         <String fx:value="Lumber" />
-                         <String fx:value="Brick" />
-                         <String fx:value="Grain" />
-                         <String fx:value="Wool" />
-                         <String fx:value="Ore" />
-                     </FXCollections>
-                 </items>
-                  <HBox.margin>
-                     <Insets left="25.0" top="25.0" />
-                  </HBox.margin>
-             </ChoiceBox>
-               <TextField fx:id="ressourceInputValue">
-                  <HBox.margin>
-                     <Insets left="25.0" top="25.0" />
-                  </HBox.margin>
-               </TextField>
-               <Button fx:id="addItemButton" mnemonicParsing="false" onAction="#onAddItemButtonPressed" text="add">
-                  <HBox.margin>
-                     <Insets left="25.0" top="25.0" />
-                  </HBox.margin>
-               </Button>
-               <Button fx:id="sendItemsButton" mnemonicParsing="false" onAction="#onSendItemsButtonsPressed" text="send Items">
-                  <HBox.margin>
-                     <Insets left="25.0" top="25.0" />
-                  </HBox.margin>
-               </Button></HBox>
+               <VBox prefHeight="200.0" prefWidth="600.0">
+                  <children>
+                     <HBox prefHeight="100.0" prefWidth="600.0">
+                        <children>
+                         <ChoiceBox fx:id="ressourceChoice" value="What do you want to add?">
+                             <items>
+                                 <FXCollections fx:factory="observableArrayList">
+                                     <String fx:value="What do you want to add?" />
+                                     <String fx:value="Lumber" />
+                                     <String fx:value="Brick" />
+                                     <String fx:value="Grain" />
+                                     <String fx:value="Wool" />
+                                     <String fx:value="Ore" />
+                                 </FXCollections>
+                             </items>
+                              <HBox.margin>
+                                 <Insets top="12.0" />
+                              </HBox.margin>
+                         </ChoiceBox>
+                           <TextField fx:id="ressourceInputValue">
+                              <HBox.margin>
+                                 <Insets top="12.0" />
+                              </HBox.margin></TextField>
+                           <Button fx:id="addItemOfferButton" mnemonicParsing="false" onAction="#onAddItemOfferButtonPressed" text="add offer">
+                              <HBox.margin>
+                                 <Insets top="12.0" />
+                              </HBox.margin></Button>
+                           <Button fx:id="addItemWishButton" mnemonicParsing="false" onAction="#onAddItemWishButtonPressed" text="add wish">
+                              <opaqueInsets>
+                                 <Insets />
+                              </opaqueInsets>
+                              <HBox.margin>
+                                 <Insets top="12.0" />
+                              </HBox.margin>
+                           </Button>
+                           <Button fx:id="sendItemsButton" mnemonicParsing="false" onAction="#onSendItemsButtonsPressed" text="send Items">
+                              <HBox.margin>
+                                 <Insets top="12.0" />
+                              </HBox.margin></Button>
+                           <Button fx:id="rejectOfferButton" mnemonicParsing="false" onAction="#onRejectOfferButtonPressed" text="reject offer" visible="false">
+                              <HBox.margin>
+                                 <Insets top="12.0" />
+                              </HBox.margin></Button>
+                        </children>
+                     </HBox>
+                     <HBox prefHeight="100.0" prefWidth="200.0">
+                        <children>
+                           <VBox prefHeight="200.0" prefWidth="100.0">
+                              <children>
+                                 <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Brick" />
+                                 <Text fx:id="brickW" strokeType="OUTSIDE" strokeWidth="0.0" text="0" />
+                              </children></VBox>
+                           <VBox prefHeight="200.0" prefWidth="100.0">
+                              <children>
+                                 <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Ore" />
+                                 <Text fx:id="oreW" strokeType="OUTSIDE" strokeWidth="0.0" text="0" />
+                              </children></VBox>
+                           <VBox prefHeight="200.0" prefWidth="100.0">
+                              <children>
+                                 <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Lumber" />
+                                 <Text fx:id="lumberW" strokeType="OUTSIDE" strokeWidth="0.0" text="0" />
+                              </children>
+                           </VBox>
+                           <VBox prefHeight="200.0" prefWidth="100.0">
+                              <children>
+                                 <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Wool" />
+                                 <Text fx:id="woolW" strokeType="OUTSIDE" strokeWidth="0.0" text="0" />
+                              </children>
+                           </VBox>
+                           <VBox prefHeight="200.0" prefWidth="100.0">
+                              <children>
+                                 <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Grain" />
+                                 <Text fx:id="grainW" strokeType="OUTSIDE" strokeWidth="0.0" text="0" />
+                              </children>
+                           </VBox>
+                        </children></HBox>
+                  </children>
+               </VBox></HBox>
             <HBox prefHeight="100.0" prefWidth="200.0">
                <children>
                   <VBox prefHeight="200.0" prefWidth="600.0">
@@ -116,7 +164,7 @@
                                     <Text fx:id="wool1" strokeType="OUTSIDE" strokeWidth="0.0" text="0" />
                                  </children>
                               </VBox>
-                              <VBox prefHeight="200.0" prefWidth="100.0" visible="false">
+                              <VBox prefHeight="200.0" prefWidth="100.0">
                                  <children>
                                     <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Grain" />
                                     <Text fx:id="grain1" strokeType="OUTSIDE" strokeWidth="0.0" text="0" />
@@ -207,7 +255,6 @@
             <HBox layoutX="10.0" layoutY="110.0" prefHeight="100.0" prefWidth="600.0">
                <children>
                   <Button fx:id="endTradeButton" mnemonicParsing="false" onAction="#onEndTradeButtonPressed" text="end trade" />
-                  <Button fx:id="rejectOfferButton" mnemonicParsing="false" onAction="#onRejectOfferButtonPressed" text="reject offer" visible="false" />
                </children></HBox>
          </children></VBox>
    </children>

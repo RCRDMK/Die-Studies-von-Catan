@@ -278,7 +278,7 @@ public class GameServiceTest {
         assertEquals(game.get().getInventory(userDTO).grain.getNumber(), 1);
     }*/
 
-
+/*
     @Test
     void TradeTest(){
 
@@ -354,4 +354,6 @@ public class GameServiceTest {
 
         assertTrue(game.get().getTradeList().size() ==0);
     }
+
+ */
 }

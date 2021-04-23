@@ -689,7 +689,7 @@ public class GameService extends AbstractService {
 
                     for (User user : game.get().getUsers()) {
                         if (!request.getUser().equals(user)) {
-                            TradeOfferInformBiddersMessage tradeOfferInformBiddersMessage = new TradeOfferInformBiddersMessage(request.getUser(), request.getName(), tradeCode, request.getTradeItems(), (UserDTO) user);
+                            TradeOfferInformBiddersMessage tradeOfferInformBiddersMessage = new TradeOfferInformBiddersMessage(request.getUser(), request.getName(), tradeCode, request.getTradeItems(), (UserDTO) user, request.getWishItems());
                             sendToSpecificUserInGame(game, tradeOfferInformBiddersMessage, user);
                             System.out.println("Send TradeOfferInformBiddersMessage to " + user.getUsername());
                         }

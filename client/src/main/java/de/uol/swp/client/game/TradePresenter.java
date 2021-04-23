@@ -85,7 +85,7 @@ public class TradePresenter extends AbstractPresenter {
      * reacts to the TradeCardErrorMessage
      * <p>
      * checks if the TradeCardErrorMessage is for the user
-     * reenables addItemButton, sendItemsButton, ressourceInputValue, ressourceChoice, endTradeButton
+     * reenables addItemOfferButton, sendItemsButton, ressourceInputValue, ressourceChoice, endTradeButton
      * they are disabled íf the sendItemsButton is pressed
      * the message is received if the user has not enough items in the inventory
      *
@@ -97,7 +97,8 @@ public class TradePresenter extends AbstractPresenter {
     @Subscribe
     public void onTradeCardErrorMessage(TradeCardErrorMessage message) {
         if (message.getUser().getUsername().equals(user.getUsername()) && message.getTradeCode().equals(tradeCode)) {
-            addItemButton.setDisable(false);
+            addItemOfferButton.setDisable(false);
+            addItemWishButton.setDisable(false);
             sendItemsButton.setDisable(false);
             ressourceInputValue.setDisable(false);
             ressourceChoice.setDisable(false);
@@ -141,7 +142,8 @@ public class TradePresenter extends AbstractPresenter {
      * @see TradeItem
      * @since 2021-04-21
      */
-    public void setOffer(ArrayList<TradeItem> sellingItems) {
+    //TODO: rowW wishItems
+    public void setOffer(ArrayList<TradeItem> sellingItems, ArrayList<TradeItem> wantedItems) {
         for (TradeItem item : sellingItems) {
             String valueOfCount = String.valueOf(item.getCount());
             if (item.getName().equals(lumberString)) {
@@ -155,12 +157,29 @@ public class TradePresenter extends AbstractPresenter {
             } else if (item.getName().equals(woolString)) {
                 wool1.setText(valueOfCount);
             }
-            endTradeButton.setVisible(false);
-            rejectOfferButton.setVisible(true);
-            row1Hbox.setVisible(true);
-            isBidder = true;
-
         }
+
+        for (TradeItem item : wantedItems) {
+            String valueOfCount = String.valueOf(item.getCount());
+            if (item.getName().equals(lumberString)) {
+                lumber2.setText(valueOfCount);
+            } else if (item.getName().equals(oreString)) {
+                ore2.setText(valueOfCount);
+            } else if (item.getName().equals(brickString)) {
+                brick2.setText(valueOfCount);
+            } else if (item.getName().equals(grainString)) {
+                grain2.setText(valueOfCount);
+            } else if (item.getName().equals(woolString)) {
+                wool2.setText(valueOfCount);
+            }
+        }
+        endTradeButton.setVisible(false);
+        rejectOfferButton.setVisible(true);
+        row1Hbox.setVisible(true);
+        row2Hbox.setVisible(true);
+        offer2RadioButton.setVisible(false);
+        isBidder = true;
+        addItemWishButton.setVisible(false);
     }
 
     /**
@@ -179,7 +198,7 @@ public class TradePresenter extends AbstractPresenter {
         sendEmptyTradeItemArrayList.add(new TradeItem(woolString, 0));
         sendEmptyTradeItemArrayList.add(new TradeItem(grainString, 0));
         sendEmptyTradeItemArrayList.add(new TradeItem(brickString, 0));
-        gameService.sendItem(user, gameName, sendEmptyTradeItemArrayList, tradeCode);
+        gameService.sendItem(user, gameName, sendEmptyTradeItemArrayList, tradeCode, sendEmptyTradeItemArrayList);
         disableAbilityToSentItems();
     }
 
@@ -226,17 +245,21 @@ public class TradePresenter extends AbstractPresenter {
      * @since 2021-04-21
      */
     @FXML
-    public void onAddItemButtonPressed() {
-        readRessourceInputValue();
+    public void onAddItemOfferButtonPressed() {
+        saveRessourceOfferInputValue();
     }
 
+    @FXML
+    public void onAddItemWishButtonPressed(){
+        saveRessourceWishInputValue();
+    }
     /**
      * method gets called when on the send button is pressed it collects the trade items - help method -
      * <p>
      * ArrayList<TradeItem> sendTradeItemArrayList is created with createTradeItemList()
      * boolean minimalItems tracks if at least one item ha a count of > 0
      * if minimalItems == true a TradeItemRequest is send via the GameService
-     * disables addItemButton, sendItemsButton, ressourceInputValue, ressourceChoice, endTradeButton
+     * disables addItemOfferButton, sendItemsButton, ressourceInputValue, ressourceChoice, endTradeButton
      * else nothing happens
      *
      * @author Alexander Losse, Ricardo Mook
@@ -246,16 +269,17 @@ public class TradePresenter extends AbstractPresenter {
      */
     @FXML
     public void onSendItemsButtonsPressed() {
-        ArrayList<TradeItem> sendTradeItemArrayList = createTradeItemList();
+        ArrayList<TradeItem> sendTradeOfferItemArrayList = createTradeOfferItemList();
+        ArrayList<TradeItem> sendTradeWishItemArrayList = createTradeWishItemList();
         boolean minimalItems = false;
-        for (TradeItem item : sendTradeItemArrayList) {
+        for (TradeItem item : sendTradeOfferItemArrayList) {
             if (item.getCount() > 0) {
                 minimalItems = true;
             }
         }
 
         if (minimalItems) {
-            gameService.sendItem(user, gameName, sendTradeItemArrayList, tradeCode);
+            gameService.sendItem(user, gameName, sendTradeOfferItemArrayList, tradeCode, sendTradeWishItemArrayList);
             disableAbilityToSentItems();
         }//TODO: inform the user that he has to send at least 1 item
         else {
@@ -288,20 +312,39 @@ public class TradePresenter extends AbstractPresenter {
      * @see TradeItem
      * @since 2021-04-21
      */
-    public void readRessourceInputValue() {
-        String ressourceInputValueText = ressourceInputValue.getText();
-        if (isStringNumber(ressourceInputValueText)) {
+    public void saveRessourceOfferInputValue() {
+        String ressourceOfferInputValueText = ressourceInputValue.getText();
+        if (isStringNumber(ressourceOfferInputValueText)) {
             String ressourceChoiceString = ressourceChoice.getValue().toString();
             if (ressourceChoiceString.equals(lumberString)) {
-                lumber0.setText(ressourceInputValueText);
+                lumber0.setText(ressourceOfferInputValueText);
             } else if (ressourceChoiceString.equals(oreString)) {
-                ore0.setText(ressourceInputValueText);
+                ore0.setText(ressourceOfferInputValueText);
             } else if (ressourceChoiceString.equals(brickString)) {
-                brick0.setText(ressourceInputValueText);
+                brick0.setText(ressourceOfferInputValueText);
             } else if (ressourceChoiceString.equals(grainString)) {
-                grain0.setText(ressourceInputValueText);
+                grain0.setText(ressourceOfferInputValueText);
             } else if (ressourceChoiceString.equals(woolString)) {
-                wool0.setText(ressourceInputValueText);
+                wool0.setText(ressourceOfferInputValueText);
+            }
+        }
+    }
+
+    //TODO: JavaDoc
+    public void saveRessourceWishInputValue() {
+        String ressourceWishInputValueText = ressourceInputValue.getText();
+        if (isStringNumber(ressourceWishInputValueText)) {
+            String ressourceChoiceString = ressourceChoice.getValue().toString();
+            if (ressourceChoiceString.equals(lumberString)) {
+                lumberW.setText(ressourceWishInputValueText);
+            } else if (ressourceChoiceString.equals(oreString)) {
+                oreW.setText(ressourceWishInputValueText);
+            } else if (ressourceChoiceString.equals(brickString)) {
+                brickW.setText(ressourceWishInputValueText);
+            } else if (ressourceChoiceString.equals(grainString)) {
+                grainW.setText(ressourceWishInputValueText);
+            } else if (ressourceChoiceString.equals(woolString)) {
+                woolW.setText(ressourceWishInputValueText);
             }
         }
     }
@@ -319,13 +362,23 @@ public class TradePresenter extends AbstractPresenter {
      * @see TradeItem
      * @since 2021-04-21
      */
-    public ArrayList<TradeItem> createTradeItemList() {
+    public ArrayList<TradeItem> createTradeOfferItemList() {
         ArrayList<TradeItem> tradeItems = new ArrayList<>();
         tradeItems.add(new TradeItem(lumberString, Integer.parseInt(lumber0.getText())));
         tradeItems.add(new TradeItem(oreString, Integer.parseInt(ore0.getText())));
         tradeItems.add(new TradeItem(brickString, Integer.parseInt(brick0.getText())));
         tradeItems.add(new TradeItem(grainString, Integer.parseInt(grain0.getText())));
         tradeItems.add(new TradeItem(woolString, Integer.parseInt(wool0.getText())));
+        return tradeItems;
+    }
+
+    public ArrayList<TradeItem> createTradeWishItemList() {
+        ArrayList<TradeItem> tradeItems = new ArrayList<>();
+        tradeItems.add(new TradeItem(lumberString, Integer.parseInt(lumberW.getText())));
+        tradeItems.add(new TradeItem(oreString, Integer.parseInt(oreW.getText())));
+        tradeItems.add(new TradeItem(brickString, Integer.parseInt(brickW.getText())));
+        tradeItems.add(new TradeItem(grainString, Integer.parseInt(grainW.getText())));
+        tradeItems.add(new TradeItem(woolString, Integer.parseInt(woolW.getText())));
         return tradeItems;
     }
 
@@ -440,10 +493,12 @@ public class TradePresenter extends AbstractPresenter {
     }
 
     private void disableAbilityToSentItems() {
-        addItemButton.setDisable(true);
+        addItemOfferButton.setDisable(true);
+        addItemWishButton.setDisable(true);
         sendItemsButton.setDisable(true);
         ressourceInputValue.setDisable(true);
         ressourceChoice.setDisable(true);
+
         endTradeButton.setVisible(false);
         if (isBidder) {
             rejectOfferButton.setDisable(true);
@@ -458,10 +513,13 @@ public class TradePresenter extends AbstractPresenter {
     GameService gameService;
 
     @FXML
-    Button addItemButton;
+    Button addItemOfferButton;
 
     @FXML
     Button sendItemsButton;
+
+    @FXML
+    Button addItemWishButton;
 
     @FXML
     Button endTradeButton;
@@ -488,6 +546,8 @@ public class TradePresenter extends AbstractPresenter {
     RadioButton offer3RadioButton;
 
     @FXML
+    Text brickW;
+    @FXML
     Text brick0;
 
     @FXML
@@ -498,6 +558,8 @@ public class TradePresenter extends AbstractPresenter {
 
     @FXML
     Text brick3;
+    @FXML
+    Text oreW;
 
     @FXML
     Text ore0;
@@ -512,6 +574,9 @@ public class TradePresenter extends AbstractPresenter {
     Text ore3;
 
     @FXML
+    Text lumberW;
+
+    @FXML
     Text lumber0;
 
     @FXML
@@ -522,6 +587,9 @@ public class TradePresenter extends AbstractPresenter {
 
     @FXML
     Text lumber3;
+
+    @FXML
+    Text grainW;
 
     @FXML
     Text grain0;
@@ -535,6 +603,8 @@ public class TradePresenter extends AbstractPresenter {
     @FXML
     Text grain3;
 
+    @FXML
+    Text woolW;
     @FXML
     Text wool0;
 
@@ -558,6 +628,8 @@ public class TradePresenter extends AbstractPresenter {
 
     @FXML
     HBox row3Hbox;
+
+
 }
  
 

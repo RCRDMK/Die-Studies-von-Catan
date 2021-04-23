@@ -710,7 +710,7 @@ public class SceneManager {
         theTradePresenter.setValuesOfTradeView(loggedinUser, lobby, tradeCode, seller);
         //TODO: if message instance of informbidders message tradepresenter.setAngebot
         if (message instanceof TradeOfferInformBiddersMessage)
-            theTradePresenter.setOffer(((TradeOfferInformBiddersMessage) message).getSellingItems());
+            theTradePresenter.setOffer(((TradeOfferInformBiddersMessage) message).getSellingItems(), ((TradeOfferInformBiddersMessage) message).getWantedItems());
         sellerTradeTab.setContent(nextSellerTradeScene.getRoot());
         sellerTradeTab.setClosable(false);
         Platform.runLater(() -> {
@@ -738,7 +738,7 @@ public class SceneManager {
         });
     }
 
-    @Subscribe
+    //TODO: JavaDoc
     public void removeTradeTab(TradeEndedMessage tem) {
         Platform.runLater(() -> {
             tabHelper.removeTab("Trade " + tem.getTradeCode());

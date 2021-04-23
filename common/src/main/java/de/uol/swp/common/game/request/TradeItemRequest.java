@@ -12,6 +12,7 @@ import java.util.ArrayList;
 public class TradeItemRequest extends AbstractGameRequest{
 
     private ArrayList<TradeItem> tradeItems;
+    private ArrayList<TradeItem> wishItems;
     private String tradeCode;
 
     /**
@@ -25,11 +26,12 @@ public class TradeItemRequest extends AbstractGameRequest{
      * @author Alexander Losse, Ricardo Mook
      * @since 2021-04-11
      */
-    public TradeItemRequest(UserDTO user, String gameName, ArrayList<TradeItem> tradeItems, String tradeCode){
+    public TradeItemRequest(UserDTO user, String gameName, ArrayList<TradeItem> tradeItems, String tradeCode, ArrayList<TradeItem> wishItems){
         this.user = user; //new UserDTO(user.getUsername(),"","");
         this.name = gameName;
         this.tradeItems = tradeItems;
         this.tradeCode = tradeCode;
+        this.wishItems = wishItems;
     }
 
     /**
@@ -41,6 +43,11 @@ public class TradeItemRequest extends AbstractGameRequest{
      */
     public ArrayList<TradeItem> getTradeItems() {
         return tradeItems;
+    }
+
+    //TODO: JavaDoc
+    public ArrayList<TradeItem> getWishItems() {
+        return wishItems;
     }
 
     /**

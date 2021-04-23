@@ -127,14 +127,14 @@ public class GameService {
      *
      * @param bidder    the bidder
      * @param gameName  the game name
-     * @param bidItems  the bidded items
+     * @param bidItems  the bid items
      * @param tradeCode the tradecode
      * @author Alexander Losse, Ricardo Mook
      * @see de.uol.swp.common.game.request.TradeItemRequest
      * @since 2021-04-21
      */
-    public void sendItem(UserDTO bidder, String gameName, ArrayList<TradeItem> bidItems, String tradeCode) {
-        TradeItemRequest tir = new TradeItemRequest(bidder, gameName, bidItems, tradeCode);
+    public void sendItem(UserDTO bidder, String gameName, ArrayList<TradeItem> bidItems, String tradeCode, ArrayList<TradeItem> wishItems) {
+        TradeItemRequest tir = new TradeItemRequest(bidder, gameName, bidItems, tradeCode, wishItems);
         eventBus.post(tir);
     }
 
