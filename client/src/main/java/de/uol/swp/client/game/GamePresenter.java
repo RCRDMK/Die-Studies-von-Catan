@@ -813,9 +813,9 @@ public class GamePresenter extends AbstractPresenter {
     @Subscribe
     public void onTradeSuccessfulMessage(TradeSuccessfulMessage tsm) {
         TradeSuccessfulMessage lastMessage = tsm;
-        if (tsm.getName().equals((currentLobby)) && joinedLobbyUser.getUsername().equals(tsm.getUser().getUsername())) {
+        if (tsm.getName().equals((currentLobby)) ) {
             Platform.runLater(() -> {
-                if (tsm.isTradeSuccessful() == true) {
+                if (tsm.isTradeSuccessful() == true && joinedLobbyUser.getUsername().equals(tsm.getUser().getUsername())) {
                     try {
                         var chatMessageInfo = "The trade: " + tsm.getTradeCode() + " was successful between " + tsm.getUser().getUsername() + " and " + tsm.getBidder().getUsername();
                         var chatId = "game_" + currentLobby;

@@ -36,6 +36,7 @@ public class TradePresenter extends AbstractPresenter {
 
 
     private boolean sellerGotBids;
+    private boolean isBidder = false;
     private String tradeCode;
     private String gameName;
     private UserDTO user;
@@ -100,7 +101,11 @@ public class TradePresenter extends AbstractPresenter {
             sendItemsButton.setDisable(false);
             ressourceInputValue.setDisable(false);
             ressourceChoice.setDisable(false);
-            endTradeButton.setVisible(true);
+            if (!isBidder) {
+                endTradeButton.setVisible(true);
+            } else {
+                rejectOfferButton.setDisable(false);
+            }
         }
     }
 
@@ -153,6 +158,7 @@ public class TradePresenter extends AbstractPresenter {
             endTradeButton.setVisible(false);
             rejectOfferButton.setVisible(true);
             row1Hbox.setVisible(true);
+            isBidder = true;
 
         }
     }
@@ -174,7 +180,9 @@ public class TradePresenter extends AbstractPresenter {
         sendEmptyTradeItemArrayList.add(new TradeItem(grainString, 0));
         sendEmptyTradeItemArrayList.add(new TradeItem(brickString, 0));
         gameService.sendItem(user, gameName, sendEmptyTradeItemArrayList, tradeCode);
+        disableAbilityToSentItems();
     }
+
 
     /**
      * ends the trade and send the TradeChoice via the gameService/closes the trade window if no Trade started
@@ -248,11 +256,7 @@ public class TradePresenter extends AbstractPresenter {
 
         if (minimalItems) {
             gameService.sendItem(user, gameName, sendTradeItemArrayList, tradeCode);
-            addItemButton.setDisable(true);
-            sendItemsButton.setDisable(true);
-            ressourceInputValue.setDisable(true);
-            ressourceChoice.setDisable(true);
-            endTradeButton.setVisible(false);
+            disableAbilityToSentItems();
         }//TODO: inform the user that he has to send at least 1 item
         else {
             Alert noValidInput = new Alert(Alert.AlertType.CONFIRMATION);
@@ -420,7 +424,7 @@ public class TradePresenter extends AbstractPresenter {
         boolean isCheckedStringInt = false;
         if (!checkedString.isEmpty()) {
             //char turns the value to ASCII: 0 ->48
-            if (checkedString.charAt(0) == 48) {
+            if (checkedString.length() > 1 && checkedString.charAt(0) == 48) {
                 return false;
             }
             //char turns the value to ASCII: 0->48, 1->49,...,9->57
@@ -435,6 +439,16 @@ public class TradePresenter extends AbstractPresenter {
         return isCheckedStringInt;
     }
 
+    private void disableAbilityToSentItems() {
+        addItemButton.setDisable(true);
+        sendItemsButton.setDisable(true);
+        ressourceInputValue.setDisable(true);
+        ressourceChoice.setDisable(true);
+        endTradeButton.setVisible(false);
+        if (isBidder) {
+            rejectOfferButton.setDisable(true);
+        }
+    }
 
     //
     // <----- FXML STUFF ----->
