@@ -9,8 +9,6 @@ import de.uol.swp.common.game.message.TradeOfferInformBiddersMessage;
 import de.uol.swp.common.game.message.TradeStartedMessage;
 import de.uol.swp.common.game.trade.TradeItem;
 import de.uol.swp.common.user.UserDTO;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
@@ -44,16 +42,20 @@ public class TradePresenter extends AbstractPresenter {
     private UserDTO user;
     private ArrayList<UserDTO> bidders;
     private HashMap<UserDTO, ArrayList<TradeItem>> bids;
-    private String seller;
 
-
+    /**
+     * Initializes the values when a new tradeStartedMessage comes in for the seller
+     *
+     * @param tradeStartedMessage the message which signals a new trade
+     * @author Alexander Lossa, Ricardo Mook
+     * @since 2021-04-21
+     */
     @Subscribe
     public void onTradeStartedMessage(TradeStartedMessage tradeStartedMessage) {
         if (this.tradeCode == null) {
-            this.tradeCode=tradeStartedMessage.getTradeCode();
-            this.gameName=tradeStartedMessage.getGame();
-            this.user=tradeStartedMessage.getUser();
-            this.seller=tradeStartedMessage.getUser().getUsername();
+            this.tradeCode = tradeStartedMessage.getTradeCode();
+            this.gameName = tradeStartedMessage.getGame();
+            this.user = tradeStartedMessage.getUser();
         }
     }
 
@@ -95,14 +97,21 @@ public class TradePresenter extends AbstractPresenter {
         }
     }
 
+    /**
+     * Initializes the values when a new tradeStartedMessage comes in for the bidder
+     *
+     * @param tradeOfferInformBiddersMessage
+     * @author Alexander Losse, Ricardo Mook
+     * @see TradeOfferInformBiddersMessage
+     * @since 2021-04-21
+     */
     @Subscribe
     public void onTradeOfferInformBiddersMessage(TradeOfferInformBiddersMessage tradeOfferInformBiddersMessage) {
-        if(this.tradeCode==null) {
-            this.tradeCode=tradeOfferInformBiddersMessage.getTradeCode();
-            this.gameName=tradeOfferInformBiddersMessage.getName();
-            this.user= tradeOfferInformBiddersMessage.getBidder();
+        if (this.tradeCode == null) {
+            this.tradeCode = tradeOfferInformBiddersMessage.getTradeCode();
+            this.gameName = tradeOfferInformBiddersMessage.getName();
+            this.user = tradeOfferInformBiddersMessage.getBidder();
             setOffer(tradeOfferInformBiddersMessage.getSellingItems(), tradeOfferInformBiddersMessage.getWantedItems());
-
         }
     }
 
@@ -135,26 +144,6 @@ public class TradePresenter extends AbstractPresenter {
                 }
             }
         }
-    }
-
-    /**
-     * sets the values for the tradewindow
-     * <p>
-     * this help-method adds the user,gameName,tradeCode and nameOfSeller to the Object
-     *
-     * @param currentUser  UserDTO
-     * @param gameName     String
-     * @param tradeCode    String
-     * @param nameOfSeller String
-     * @author Alexander Losse, Ricardo Mook
-     * @since 2021-04-21
-     */
-    public void setValuesOfTradeView(UserDTO currentUser, String gameName, String tradeCode, String nameOfSeller) {
-        this.gameName = gameName;
-        this.user = currentUser;
-        this.tradeCode = tradeCode;
-        this.seller = nameOfSeller;
-        sellerGotBids = false;
     }
 
     /**
@@ -276,10 +265,17 @@ public class TradePresenter extends AbstractPresenter {
         saveRessourceOfferInputValue();
     }
 
+    /**
+     * Help method which saves the input wish value
+     *
+     * @author Alexander Losse, Ricardo Mook
+     * @since 2021-04-21
+     */
     @FXML
-    public void onAddItemWishButtonPressed(){
+    public void onAddItemWishButtonPressed() {
         saveRessourceWishInputValue();
     }
+
     /**
      * method gets called when on the send button is pressed it collects the trade items - help method -
      * <p>
@@ -317,12 +313,7 @@ public class TradePresenter extends AbstractPresenter {
             noValidInput.getButtonTypes().setAll(ok);
             conformation = (Button) noValidInput.getDialogPane().lookupButton(ok);
             noValidInput.showAndWait();
-            conformation.setOnAction(new EventHandler<ActionEvent>() {
-                @Override
-                public void handle(ActionEvent event) {
-                    noValidInput.hide();
-                }
-            });
+            conformation.setOnAction(event -> noValidInput.hide());
         }
     }
 
@@ -357,7 +348,12 @@ public class TradePresenter extends AbstractPresenter {
         }
     }
 
-    //TODO: JavaDoc
+    /**
+     * Saves the WishInputValue
+     *
+     * @author Alexander Losse, Ricardo Moo
+     * @since 2021-04-21
+     */
     public void saveRessourceWishInputValue() {
         String ressourceWishInputValueText = ressourceInputValue.getText();
         if (isStringNumber(ressourceWishInputValueText)) {
@@ -399,6 +395,14 @@ public class TradePresenter extends AbstractPresenter {
         return tradeItems;
     }
 
+    /**
+     * Help method for creating the ItemList for the wishes
+     *
+     * @return TradeItem wish list
+     * @author Alexander Losse, Ricardo Mook
+     * @see TradeItem
+     * @since 2021-04-21
+     */
     public ArrayList<TradeItem> createTradeWishItemList() {
         ArrayList<TradeItem> tradeItems = new ArrayList<>();
         tradeItems.add(new TradeItem(lumberString, Integer.parseInt(lumberW.getText())));
@@ -519,6 +523,12 @@ public class TradePresenter extends AbstractPresenter {
         return isCheckedStringInt;
     }
 
+    /**
+     * Help method for disabling buttons
+     *
+     * @author Alexander Losse, Ricardo Mook
+     * @since 2021-04-21
+     */
     private void disableAbilityToSentItems() {
         addItemOfferButton.setDisable(true);
         addItemWishButton.setDisable(true);
@@ -532,9 +542,13 @@ public class TradePresenter extends AbstractPresenter {
         }
     }
 
+    ////////////////////////////////////////
     //
-    // <----- FXML STUFF ----->
     //
+    //  FXML STUFF
+    //
+    //
+    ////////////////////////////////////////
 
     @Inject
     GameService gameService;

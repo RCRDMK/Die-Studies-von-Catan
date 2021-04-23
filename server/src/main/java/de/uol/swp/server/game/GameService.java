@@ -62,7 +62,6 @@ public class GameService extends AbstractService {
      * @param gameManagement        The management class for creating, storing and deleting games
      * @param authenticationService the user management
      * @param eventBus              the server-wide EventBus
-     *
      * @since 2021-01-07
      */
     @Inject
@@ -114,7 +113,6 @@ public class GameService extends AbstractService {
      * of a AllThisGameUsersResponse for a specific user that sent the initial request.
      *
      * @param retrieveAllThisGameUsersRequest The RetrieveAllThisGameUsersRequest found on the EventBus
-     *
      * @author Iskander Yusupov
      * @see de.uol.swp.common.game.Game
      * @since 2021-01-15
@@ -135,7 +133,6 @@ public class GameService extends AbstractService {
      * Handles incoming build requests.
      *
      * @param message
-     *
      * @author Pieter Vogt
      * @since 2021-04-15
      */
@@ -207,7 +204,6 @@ public class GameService extends AbstractService {
      * @param game    Optional<Game> game
      * @param message ServerMessage message
      * @param user    User user
-     *
      * @author Alexander Losse, Ricardo Mook
      * @since 2021-03-11
      */
@@ -238,7 +234,6 @@ public class GameService extends AbstractService {
      * ResponseChatMessage containing the user who rolls the dice and the result is shown to every user in the game.
      *
      * @param rollDiceRequest The RollDiceRequest found on the EventBus
-     *
      * @author Kirstin, Pieter
      * @see de.uol.swp.common.game.request.RollDiceRequest
      * @see de.uol.swp.common.chat.ResponseChatMessage
@@ -288,7 +283,6 @@ public class GameService extends AbstractService {
      *
      * @param eyes     Number of eyes rolled with dice
      * @param gameName Name of the Game
-     *
      * @author Marius Birk, Carsten Dekker
      * @since 2021-04-06
      */
@@ -347,7 +341,6 @@ public class GameService extends AbstractService {
      *
      * @param lobbyName Name of the lobby the players are in
      * @param message   the message to be send to the users
-     *
      * @author Marco Grawunder
      * @see de.uol.swp.common.message.ServerMessage
      * @since 2019-10-08
@@ -375,7 +368,6 @@ public class GameService extends AbstractService {
      * enhanced by Alexander Losse, Ricardo Mook 2021-03-05 enhanced by Marc Hermes 2021-03-25
      *
      * @param startGameRequest the StartGameRequest found on the EventBus
-     *
      * @author Kirstin Beyer, Iskander Yusupov
      * @see de.uol.swp.common.lobby.request.StartGameRequest
      * @since 2021-01-24
@@ -433,7 +425,6 @@ public class GameService extends AbstractService {
      * 2021-03-25
      *
      * @param lobby lobby that wants to start a game
-     *
      * @author Kirstin Beyer, Iskander Yusupov
      * @since 2021-01-24
      */
@@ -474,7 +465,6 @@ public class GameService extends AbstractService {
      * enhanced by Marc Hermes 2021-03-25
      *
      * @param playerReadyRequest the PlayerReadyRequest found on the EventBus
-     *
      * @author Kirstin Beyer, Iskander Yusupov
      * @see de.uol.swp.common.game.request.PlayerReadyRequest
      * @since 2021-01-24
@@ -507,7 +497,6 @@ public class GameService extends AbstractService {
      * game and whos turn is up now.</p>
      *
      * @param request Transports the games name and the senders UserDTO.
-     *
      * @author Pieter Vogt
      * @since 2021-03-26
      */
@@ -535,7 +524,6 @@ public class GameService extends AbstractService {
      * </p>
      *
      * @param request Transports the senders UserDTO
-     *
      * @author Marius Birk
      * @since 2021-04-03
      */
@@ -571,7 +559,6 @@ public class GameService extends AbstractService {
      * <p>
      *
      * @param game game that wants to update private and public inventories
-     *
      * @author Iskander Yusupov, Anton Nikiforov
      * @since 2021-04-08
      */
@@ -596,7 +583,6 @@ public class GameService extends AbstractService {
      * game, the game gets dropped. Finally we log how many games the user left.
      *
      * @param request LogoutRequest found on the eventBus
-     *
      * @author René Meyer, Sergej Tulnev
      * @see de.uol.swp.common.user.request.LogoutRequest
      * @see de.uol.swp.common.game.request.GameLeaveUserRequest
@@ -636,7 +622,6 @@ public class GameService extends AbstractService {
         }
 
     }
-
 
     /**
      * either initiates a new trade or adds a bid to an existing trade
@@ -731,9 +716,6 @@ public class GameService extends AbstractService {
         Optional<Game> game = gameManagement.getGame(request.getName());
         if (game.isPresent()) {
             Trade trade = game.get().getTradeList().get(request.getTradeCode());
-            ArrayList<TradeItem> soldItems = trade.getSellingItems();
-
-            TradeSuccessfulMessage tsm = new TradeSuccessfulMessage(trade.getSeller(), request.getName(), soldItems, request.getTradeCode());
 
             if (request.getTradeAccepted() == true) {
                 Inventory inventorySeller = game.get().getInventory(trade.getSeller());
@@ -747,13 +729,53 @@ public class GameService extends AbstractService {
                     inventorySeller.incCard(bidItem.getName(), bidItem.getCount());
                     inventoryBidder.decCard(bidItem.getName(), bidItem.getCount());
                 }
-
-                tsm.addSuccessfulBidder(request.getUser(), trade.getBids().get(request.getUser()));
-                //sendToAllInGame(request.getName(), tsm);
             }
-            sendToAllInGame(request.getName(), tsm);
+            tradeEndedChatMessageHelper(game.get().getName(), request.getTradeCode(), request.getUser().getUsername(), request.getTradeAccepted());
             sendToAllInGame(request.getName(), new TradeEndedMessage(request.getTradeCode()));
             game.get().removeTrade(request.getTradeCode());
         }
+    }
+
+    /**
+     * help method to deliver a chatmessage to all players of the game how the trade ended
+     *
+     * @param gameName     the game name
+     * @param tradeCode    the trade code
+     * @param winnerBidder the winners name
+     * @param success      bool if successful or not
+     * @author Alexander Losse, Ricardo Mook
+     * @since 2021-04-11
+     */
+    private void tradeEndedChatMessageHelper(String gameName, String tradeCode, String winnerBidder, Boolean success) {
+        try {
+            String chatMessage;
+            var chatId = "game_" + gameName;
+            if (success) {
+                chatMessage = "The offer from Player " + winnerBidder + " was accepted at trade: " + tradeCode;
+            } else {
+                chatMessage = "None of the bids was accepted. Sorry! :(";
+            }
+            ResponseChatMessage msg = new ResponseChatMessage(chatMessage, chatId, "TradeInfo", System.currentTimeMillis());
+            post(msg);
+            LOG.debug("Posted ResponseChatMessage on eventBus");
+        } catch (Exception e) {
+            LOG.debug(e);
+        }
+    }
+
+    /**
+     * sends tradeStartedMessage to the seller when his request to start a trade is handled by the server
+     *
+     * @param request TradeStartedRequest
+     * @author Alexander Losse, Ricardo Mook
+     * @see TradeStartedRequest
+     * @since 2021-04-11
+     */
+    @Subscribe
+    public void onTradeStartedRequest(TradeStartedRequest request) {
+        Optional<Game> game = gameManagement.getGame(request.getName());
+        UserDTO user = request.getUser();
+        TradeStartedMessage tsm = new TradeStartedMessage(user, request.getName(), request.getTradeCode());
+        sendToSpecificUserInGame(game, tsm, user);
     }
 }

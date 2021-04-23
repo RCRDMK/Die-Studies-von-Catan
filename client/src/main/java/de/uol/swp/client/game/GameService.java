@@ -165,9 +165,7 @@ public class GameService {
      */
     public void endTradeBeforeItStarted(UserDTO user, String gameName,String tradeCode) {
         TradeEndedMessage tem = new TradeEndedMessage(tradeCode);
-        TradeSuccessfulMessage tsm = new TradeSuccessfulMessage(user, gameName, new ArrayList<>(),tradeCode);
         eventBus.post(tem);
-        eventBus.post(tsm);
     }
 
 }

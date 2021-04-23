@@ -20,11 +20,7 @@ import de.uol.swp.client.register.event.RegistrationCanceledEvent;
 import de.uol.swp.client.register.event.RegistrationErrorEvent;
 import de.uol.swp.client.register.event.ShowRegistrationViewEvent;
 import de.uol.swp.common.game.message.TradeEndedMessage;
-import de.uol.swp.common.game.message.TradeOfferInformBiddersMessage;
-import de.uol.swp.common.game.message.TradeStartedMessage;
-import de.uol.swp.common.message.AbstractMessage;
 import de.uol.swp.common.user.User;
-import de.uol.swp.common.user.UserDTO;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -34,7 +30,6 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import javafx.util.Pair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -234,57 +229,22 @@ public class SceneManager {
         return gameScene;
     }
 
+    /**
+     * Initializes the gatrade view
+     * <p>
+     * If the tradeScene is null it gets set to a new scene containing the
+     * a pane showing the game view as specified by the TradeView
+     * FXML file
+     *
+     * @author Alexander Lossa, Ricardo Mook
+     * @see de.uol.swp.client.game.TradePresenter
+     * @since 2021-04-21
+     */
     private Scene initTradeView() {
         Parent rootPane = initPresenter(TradePresenter.fxml);
         tradeScene = new Scene(rootPane, 800, 600);
         tradeScene.getStylesheets().add(styleSheet);
         return tradeScene;
-    }
-
-    /**
-     * returns the scene and the tradePresenter
-     *
-     * @return Pair<Scene, TradePresenter> thePair2
-     * @Alexander Losse, Ricardo Mook
-     * @since 2021-04-21
-     */
-    /*private Pair<Scene, TradePresenter> initTradeView() {
-        Pair<Parent, TradePresenter> thePair = initPresenterBid(TradePresenter.fxml);
-
-        Parent rootPane = thePair.getKey();
-
-        TradePresenter thePresenter = thePair.getValue();
-        Scene tradeScene = new Scene(rootPane, 600, 400);
-        tradeScene.getStylesheets().add(styleSheet);
-        Pair<Scene, TradePresenter> thePair2 = new Pair<>(tradeScene, thePresenter);
-        return thePair2;
-    }*/
-
-    /**
-     * returns the tradePresenter
-     *
-     * @param fxmlFile
-     * @return
-     * @author ALexander Losse, Ricardo Mook
-     * @since 2021-04-21
-     */
-    private Pair<Parent, TradePresenter> initPresenterBid(String fxmlFile) {
-        Parent rootPane;
-        Pair<Parent, TradePresenter> pair;
-        TradePresenter tradePresenter;
-        FXMLLoader loader = injector.getInstance(FXMLLoader.class);
-        try {
-            URL url = getClass().getResource(fxmlFile);
-            LOG.debug("Loading " + url);
-            loader.setLocation(url);
-            rootPane = loader.load();
-            tradePresenter = loader.getController();
-
-            pair = new Pair<>(rootPane, tradePresenter);
-        } catch (Exception e) {
-            throw new RuntimeException("Could not load View!" + e.getMessage(), e);
-        }
-        return pair;
     }
 
     /**
@@ -305,7 +265,6 @@ public class SceneManager {
             userSettingsScene.getStylesheets().add(styleSheet);
         }
     }
-
 
     /**
      * Handles ShowRegistrationViewEvent detected on the EventBus
@@ -592,12 +551,11 @@ public class SceneManager {
     /**
      * calls newTradeTab()
      *
-     * @param currentUser User
-     * @param tradeCode     AbstractMessage(either TradeOfferInformBiddersMessage, or TradeStartedMessage)
+     * @param tradeCode AbstractMessage(either TradeOfferInformBiddersMessage, or TradeStartedMessage)
      * @author Alexander Losse, Ricardo Mook
      * @since 2021-04-21
      */
-    public void showTradeScreen(User currentUser, String tradeCode) {
+    public void showTradeScreen(String tradeCode) {
         newTradeTab(tradeCode);
     }
 
@@ -649,8 +607,8 @@ public class SceneManager {
      * @author Kirstin Beyer
      * @since 2021-01-14
      */
-    public void showGameScreen(User currentUser, String gamename) {
-        newGameTab(currentUser, gamename);
+    public void showGameScreen(String gamename) {
+        newGameTab(gamename);
     }
 
     /**
@@ -666,7 +624,7 @@ public class SceneManager {
      * @author Marc Hermes
      * @since 2021-01-21
      */
-    public void newGameTab(User currentUser, String gamename) {
+    public void newGameTab(String gamename) {
         Tab gameTab = new Tab("Game " + gamename);
         gameTab.setContent(nextGameScene.getRoot());
         gameTab.setClosable(false);
@@ -677,6 +635,13 @@ public class SceneManager {
         nextGameScene = initGameView();
     }
 
+    /**
+     * Opens a new trade tab on call
+     *
+     * @param tradeID the tradeCode for the trade
+     * @author Alexander Losse, Ricardo Mook
+     * @since 2021-04-21
+     */
     public void newTradeTab(String tradeID) {
         Tab tradeTab = new Tab("Trade " + tradeID);
         tradeTab.setContent(nextTradeScene.getRoot());
@@ -687,59 +652,6 @@ public class SceneManager {
         });
         nextTradeScene = initTradeView();
     }
-
-    /**
-     * opens an new TradeTab
-     * <p>
-     * to initialize tradeCode, loggedinUser, seller, lobby the method checks if message is TradeStartedMessage or TradeOfferInformBiddersMessage
-     * creates a new TradeTab
-     * calls initTradeView() to get the TradePresenter and a scene to fill tab
-     * setValuesOfTradeView() is called, so the tradePresenter gets the user, tradeCode, gameName and the seller
-     * setOffer() is called if the message is TradeOfferInformBiddersMessage, so the bidder knows the offer of the seller
-     * the tradeTab is filled and no longer closable
-     *
-     * @param currentUser User
-     * @param message     AbstractMessage
-     * @author Alexander Losse, Ricardo Mook
-     * @since 2021-04-21
-     */
-    /*private void newTradeTab(User currentUser, AbstractMessage message) {
-        String tradeCode = "";
-        UserDTO loggedinUser = (UserDTO) currentUser;
-        String seller = "";
-        String lobby = "";
-
-        if (message instanceof TradeStartedMessage) {
-            TradeStartedMessage theCastedMessage = (TradeStartedMessage) message;
-            tradeCode = theCastedMessage.getTradeCode();
-            seller = theCastedMessage.getUser().getUsername();
-            lobby = theCastedMessage.getLobby();
-        } else if (message instanceof TradeOfferInformBiddersMessage) {
-            TradeOfferInformBiddersMessage theCastedMessage2 = (TradeOfferInformBiddersMessage) message;
-            tradeCode = theCastedMessage2.getTradeCode();
-            seller = theCastedMessage2.getUser().getUsername();
-            lobby = theCastedMessage2.getName();
-        }
-
-        Tab sellerTradeTab = new Tab("Trade " + tradeCode);
-
-        Pair<Scene, TradePresenter> sceneTradePair = initTradeView();
-        Scene nextSellerTradeScene = sceneTradePair.getKey();
-
-        TradePresenter theTradePresenter = sceneTradePair.getValue();
-
-        theTradePresenter.setValuesOfTradeView(loggedinUser, lobby, tradeCode, seller);
-        //TODO: if message instance of informbidders message tradepresenter.setAngebot
-        if (message instanceof TradeOfferInformBiddersMessage)
-            theTradePresenter.setOffer(((TradeOfferInformBiddersMessage) message).getSellingItems(), ((TradeOfferInformBiddersMessage) message).getWantedItems());
-        sellerTradeTab.setContent(nextSellerTradeScene.getRoot());
-        sellerTradeTab.setClosable(false);
-        Platform.runLater(() -> {
-            tabHelper.addTab(sellerTradeTab);
-            tabHelper.getTabPane().getSelectionModel().select(sellerTradeTab);
-        });
-
-    }*/
 
     /**
      * Removes an old game tab
@@ -759,7 +671,14 @@ public class SceneManager {
         });
     }
 
-    //TODO: JavaDoc
+    /**
+     * Removes an old trade tab
+     * <p>
+     * When this method is invoked a trade tab with a specific tradeCode is removed from
+     *
+     * @author Alexander Losse, Ricardo Mook - 2021-03-05
+     * @since 2021-04-21
+     */
     public void removeTradeTab(TradeEndedMessage tem) {
         Platform.runLater(() -> {
             tabHelper.removeTab("Trade " + tem.getTradeCode());

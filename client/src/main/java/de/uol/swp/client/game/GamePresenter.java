@@ -12,6 +12,7 @@ import de.uol.swp.common.chat.ResponseChatMessage;
 import de.uol.swp.common.game.MapGraph;
 import de.uol.swp.common.game.message.*;
 import de.uol.swp.common.game.request.EndTurnRequest;
+import de.uol.swp.common.game.request.TradeStartedRequest;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.user.response.game.AllThisGameUsersResponse;
@@ -67,7 +68,6 @@ public class GamePresenter extends AbstractPresenter {
     private Button btnOkay;
     private ObservableList<String> gameUsers;
 
-    private TradeStartedMessage tradeStartedMessage;
 
     private ArrayList<HexagonContainer> hexagonContainers = new ArrayList<>();
     private ArrayList<MapGraphNodeContainer> mapGraphNodeContainers = new ArrayList<>();
@@ -87,7 +87,8 @@ public class GamePresenter extends AbstractPresenter {
 
     @FXML
     private Button EndTurnButton;
-
+    @FXML
+    Button tradeButton;
 
     /**
      * Method called when the send Message button is pressed
@@ -197,13 +198,9 @@ public class GamePresenter extends AbstractPresenter {
      */
 
     @FXML
-    Button tradeButton;
-
-    @FXML
     public void onTrade(ActionEvent event) {
         String tradeCode = UUID.randomUUID().toString().trim().substring(0, 7);
-        eventBus.post(new TradeStartedMessage((UserDTO) this.joinedLobbyUser, this.currentLobby, tradeCode));
-        tradeButton.setDisable(true);
+        eventBus.post(new TradeStartedRequest((UserDTO) this.joinedLobbyUser, this.currentLobby, tradeCode));
     }
 
     @FXML
@@ -231,7 +228,6 @@ public class GamePresenter extends AbstractPresenter {
      * <p>
      * If the RollDice button is pressed, this methods tries to request the GameService to send a RollDiceRequest.
      *
-     * @param event The ActionEvent created by pressing the Roll Dice button
      * @author Kirstin, Pieter
      * @see de.uol.swp.client.game.GameService
      * @since 2021-01-07
@@ -242,14 +238,14 @@ public class GamePresenter extends AbstractPresenter {
      * I have changed the place of the method to the new GamePresenter.
      */
     @FXML
-    public void onRollDice(ActionEvent event) {
+    public void onRollDice() {
         if (this.currentLobby != null) {
             gameService.rollDice(this.currentLobby, this.joinedLobbyUser);
         }
     }
 
     @FXML
-    public void onEndTurn(ActionEvent event) {
+    public void onEndTurn() {
         eventBus.post(new EndTurnRequest(this.currentLobby, (UserDTO) this.joinedLobbyUser));
     }
 
@@ -323,9 +319,11 @@ public class GamePresenter extends AbstractPresenter {
             if (response.getPlayerWithCurrentTurn().equals(joinedLobbyUser.getUsername())) {
                 itsMyTurn = true;
                 EndTurnButton.setDisable(false);
+                tradeButton.setDisable(false);
             } else {
                 itsMyTurn = false;
                 EndTurnButton.setDisable(true);
+                tradeButton.setDisable(true);
             }
         }
     }
