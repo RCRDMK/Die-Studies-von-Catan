@@ -271,8 +271,8 @@ public class ClientApp extends Application implements ConnectionListener {
      */
     @Subscribe
     public void userStartedTrade(TradeStartedMessage message) {
-        LOG.debug("Started a trade " + message.getLobby());
-        sceneManager.showTradeScreen(user, message);
+        LOG.debug("Started a trade " + message.getGame());
+        sceneManager.showTradeScreen(user, message.getTradeCode());
     }
 
     /**
@@ -285,7 +285,7 @@ public class ClientApp extends Application implements ConnectionListener {
     @Subscribe
     public void tradeRegistered(TradeOfferInformBiddersMessage message) {
         LOG.debug("A trade request was registered");
-        sceneManager.showTradeScreen(user, message);
+        sceneManager.showTradeScreen(user, message.getTradeCode());
     }
 
     /**

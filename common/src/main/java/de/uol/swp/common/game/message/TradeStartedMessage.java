@@ -5,12 +5,12 @@ import de.uol.swp.common.user.UserDTO;
 
 public class TradeStartedMessage extends AbstractGameRequest {
     private UserDTO user;
-    private String lobby;
+    private String game;
     private String tradeCode;
 
-    public TradeStartedMessage(UserDTO user, String lobby, String tradeCode){
+    public TradeStartedMessage(UserDTO user, String game, String tradeCode){
         this.user = user;
-        this.lobby = lobby;
+        this.game = game;
         this.tradeCode = tradeCode;
     }
 
@@ -18,8 +18,8 @@ public class TradeStartedMessage extends AbstractGameRequest {
         return user;
     }
 
-    public String getLobby() {
-        return lobby;
+    public String getGame() {
+        return game;
     }
 
     public String getTradeCode(){

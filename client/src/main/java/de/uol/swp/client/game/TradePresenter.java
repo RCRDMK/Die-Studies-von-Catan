@@ -5,6 +5,8 @@ import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
 import de.uol.swp.common.game.message.TradeCardErrorMessage;
 import de.uol.swp.common.game.message.TradeInformSellerAboutBidsMessage;
+import de.uol.swp.common.game.message.TradeOfferInformBiddersMessage;
+import de.uol.swp.common.game.message.TradeStartedMessage;
 import de.uol.swp.common.game.trade.TradeItem;
 import de.uol.swp.common.user.UserDTO;
 import javafx.event.ActionEvent;
@@ -45,6 +47,16 @@ public class TradePresenter extends AbstractPresenter {
     private String seller;
 
 
+    @Subscribe
+    public void onTradeStartedMessage(TradeStartedMessage tradeStartedMessage) {
+        if (this.tradeCode == null) {
+            this.tradeCode=tradeStartedMessage.getTradeCode();
+            this.gameName=tradeStartedMessage.getGame();
+            this.user=tradeStartedMessage.getUser();
+            this.seller=tradeStartedMessage.getUser().getUsername();
+        }
+    }
+
     /**
      * reacts to a TradeInformSellerAboutBidsMessage
      * <p>
@@ -60,24 +72,37 @@ public class TradePresenter extends AbstractPresenter {
      */
     @Subscribe
     public void onTradeInformSellerAboutBidsMessage(TradeInformSellerAboutBidsMessage message) {
-        if (message.getUser().getUsername().equals(user.getUsername()) && message.getTradeCode().equals(tradeCode)) {
+        if (this.tradeCode != null) {
+            if (message.getUser().getUsername().equals(user.getUsername()) && message.getTradeCode().equals(tradeCode)) {
 
-            endTradeButton.setVisible(true);
-            offerNoneRadioButton.setVisible(true);
-            row1Hbox.setVisible(true);
-            offer1RadioButton.setVisible(true);
+                endTradeButton.setVisible(true);
+                offerNoneRadioButton.setVisible(true);
+                row1Hbox.setVisible(true);
+                offer1RadioButton.setVisible(true);
 
-            int biddersCount = message.getBidders().size();
-            if (biddersCount > 1) {
-                row2Hbox.setVisible(true);
-                if (biddersCount > 2) {
-                    row3Hbox.setVisible(true);
+                int biddersCount = message.getBidders().size();
+                if (biddersCount > 1) {
+                    row2Hbox.setVisible(true);
+                    if (biddersCount > 2) {
+                        row3Hbox.setVisible(true);
+                    }
                 }
+                bidders = message.getBidders();
+                bids = message.getBids();
+                setBids();
+                sellerGotBids = true;
             }
-            bidders = message.getBidders();
-            bids = message.getBids();
-            setBids();
-            sellerGotBids = true;
+        }
+    }
+
+    @Subscribe
+    public void onTradeOfferInformBiddersMessage(TradeOfferInformBiddersMessage tradeOfferInformBiddersMessage) {
+        if(this.tradeCode==null) {
+            this.tradeCode=tradeOfferInformBiddersMessage.getTradeCode();
+            this.gameName=tradeOfferInformBiddersMessage.getName();
+            this.user= tradeOfferInformBiddersMessage.getBidder();
+            setOffer(tradeOfferInformBiddersMessage.getSellingItems(), tradeOfferInformBiddersMessage.getWantedItems());
+
         }
     }
 
@@ -96,16 +121,18 @@ public class TradePresenter extends AbstractPresenter {
      */
     @Subscribe
     public void onTradeCardErrorMessage(TradeCardErrorMessage message) {
-        if (message.getUser().getUsername().equals(user.getUsername()) && message.getTradeCode().equals(tradeCode)) {
-            addItemOfferButton.setDisable(false);
-            addItemWishButton.setDisable(false);
-            sendItemsButton.setDisable(false);
-            ressourceInputValue.setDisable(false);
-            ressourceChoice.setDisable(false);
-            if (!isBidder) {
-                endTradeButton.setVisible(true);
-            } else {
-                rejectOfferButton.setDisable(false);
+        if (this.tradeCode != null) {
+            if (message.getUser().getUsername().equals(user.getUsername()) && message.getTradeCode().equals(tradeCode)) {
+                addItemOfferButton.setDisable(false);
+                addItemWishButton.setDisable(false);
+                sendItemsButton.setDisable(false);
+                ressourceInputValue.setDisable(false);
+                ressourceChoice.setDisable(false);
+                if (!isBidder) {
+                    endTradeButton.setVisible(true);
+                } else {
+                    rejectOfferButton.setDisable(false);
+                }
             }
         }
     }

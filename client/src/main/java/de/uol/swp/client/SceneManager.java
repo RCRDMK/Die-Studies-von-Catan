@@ -61,11 +61,13 @@ public class SceneManager {
     private Scene currentScene = null;
     private Scene lobbyScene;
     private Scene gameScene;
+    private Scene tradeScene;
     private Tab mainMenuTab;
     private VBox vBox;
     private Scene tabScene;
     private Scene nextLobbyScene;
     private Scene nextGameScene;
+    private Scene nextTradeScene;
     private final Injector injector;
     private TabPane tabPane = new TabPane();
     private TabHelper tabHelper;
@@ -100,6 +102,7 @@ public class SceneManager {
         initUserSettingsView();
         nextLobbyScene = initLobbyView();
         nextGameScene = initGameView();
+        nextTradeScene = initTradeView();
     }
 
     /**
@@ -231,6 +234,13 @@ public class SceneManager {
         return gameScene;
     }
 
+    private Scene initTradeView() {
+        Parent rootPane = initPresenter(TradePresenter.fxml);
+        tradeScene = new Scene(rootPane, 800, 600);
+        tradeScene.getStylesheets().add(styleSheet);
+        return tradeScene;
+    }
+
     /**
      * returns the scene and the tradePresenter
      *
@@ -238,7 +248,7 @@ public class SceneManager {
      * @Alexander Losse, Ricardo Mook
      * @since 2021-04-21
      */
-    private Pair<Scene, TradePresenter> initTradeView() {
+    /*private Pair<Scene, TradePresenter> initTradeView() {
         Pair<Parent, TradePresenter> thePair = initPresenterBid(TradePresenter.fxml);
 
         Parent rootPane = thePair.getKey();
@@ -248,7 +258,7 @@ public class SceneManager {
         tradeScene.getStylesheets().add(styleSheet);
         Pair<Scene, TradePresenter> thePair2 = new Pair<>(tradeScene, thePresenter);
         return thePair2;
-    }
+    }*/
 
     /**
      * returns the tradePresenter
@@ -583,12 +593,12 @@ public class SceneManager {
      * calls newTradeTab()
      *
      * @param currentUser User
-     * @param message     AbstractMessage(either TradeOfferInformBiddersMessage, or TradeStartedMessage)
+     * @param tradeCode     AbstractMessage(either TradeOfferInformBiddersMessage, or TradeStartedMessage)
      * @author Alexander Losse, Ricardo Mook
      * @since 2021-04-21
      */
-    public void showTradeScreen(User currentUser, AbstractMessage message) {
-        newTradeTab(currentUser, message);
+    public void showTradeScreen(User currentUser, String tradeCode) {
+        newTradeTab(tradeCode);
     }
 
     /**
@@ -667,6 +677,17 @@ public class SceneManager {
         nextGameScene = initGameView();
     }
 
+    public void newTradeTab(String tradeID) {
+        Tab tradeTab = new Tab("Trade " + tradeID);
+        tradeTab.setContent(nextTradeScene.getRoot());
+        tradeTab.setClosable(false);
+        Platform.runLater(() -> {
+            tabHelper.addTab(tradeTab);
+            tabHelper.getTabPane().getSelectionModel().select(tradeTab);
+        });
+        nextTradeScene = initTradeView();
+    }
+
     /**
      * opens an new TradeTab
      * <p>
@@ -682,7 +703,7 @@ public class SceneManager {
      * @author Alexander Losse, Ricardo Mook
      * @since 2021-04-21
      */
-    private void newTradeTab(User currentUser, AbstractMessage message) {
+    /*private void newTradeTab(User currentUser, AbstractMessage message) {
         String tradeCode = "";
         UserDTO loggedinUser = (UserDTO) currentUser;
         String seller = "";
@@ -718,7 +739,7 @@ public class SceneManager {
             tabHelper.getTabPane().getSelectionModel().select(sellerTradeTab);
         });
 
-    }
+    }*/
 
     /**
      * Removes an old game tab
