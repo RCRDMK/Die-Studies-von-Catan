@@ -12,7 +12,6 @@ import de.uol.swp.common.chat.ResponseChatMessage;
 import de.uol.swp.common.game.MapGraph;
 import de.uol.swp.common.game.message.*;
 import de.uol.swp.common.game.request.EndTurnRequest;
-import de.uol.swp.common.game.response.MoveRobberResponse;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.user.response.game.AllThisGameUsersResponse;
@@ -311,15 +310,12 @@ public class GamePresenter extends AbstractPresenter {
      * After this initialization the pane gets invisible and will only be shown by the MoveRobberResponse.
      *
      * @author Marius Birk
-     * @see de.uol.swp.common.game.response.MoveRobberResponse
+     * @see de.uol.swp.common.game.message.MoveRobberMessage
      * @since 2021-04-19
      */
     public void initializeRobberResourceMenu() {
-        robber = new Rectangle();
-        robber.setFill(new ImagePattern(new Image("textures/originals/robbers.png")));
-        robber.setX(600);
-        robber.setY(250); //TODO anzeigen des robbers funktioniert nicht
-        robber.setVisible(true);
+
+        //Initialize the robber menu
         Rectangle[] resources = new Rectangle[5];
         resources[0] = new Rectangle(30, 30);
         resources[1] = new Rectangle(30, 30);
@@ -358,6 +354,7 @@ public class GamePresenter extends AbstractPresenter {
 
         hideRobberResourceMenu();
 
+        //adding a eventhandler to know where the user wants to set the robber
         EventHandler<MouseEvent> clickOnCircleHandler = new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent mouseEvent) {
@@ -654,7 +651,7 @@ public class GamePresenter extends AbstractPresenter {
 
         //Drawing background.
 
-        g.setFill(Color.BLACK);
+        g.setFill(Color.BLUE);
         g.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
 
         //Drawing hexagons
@@ -670,9 +667,19 @@ public class GamePresenter extends AbstractPresenter {
             if (hexagonContainer.getHexagon().getDiceToken() != 0) {
                 Text text = new Text(placementVector.getX(), placementVector.getY(), Integer.toString(hexagonContainer.getHexagon().getDiceToken()));
                 text.setFill(Color.WHITE);
-                Platform.runLater(() -> gameAnchorPane.getChildren().add(text));
+                Platform.runLater(() -> {
+                    gameAnchorPane.getChildren().add(text);
+                });
             }
+
         }
+
+        robber.setLayoutX(centerOfCanvasVector.getX() - (robber.getWidth() / 2));
+        robber.setLayoutY(centerOfCanvasVector.getY() - (robber.getHeight() / 2));
+        Platform.runLater(() -> {
+            gameAnchorPane.getChildren().add(robber);
+        });
+
 
         //Draw buildings
 
@@ -815,7 +822,16 @@ public class GamePresenter extends AbstractPresenter {
             initializeNodeSpots(mapGraphNodeContainer);
             Platform.runLater(() -> gameAnchorPane.getChildren().add(mapGraphNodeContainer.getCircle()));
         }
+
+
+        //Draw robber
+        //Initialize the robber graphics
+        robber = new Rectangle(30, 30);
+        robber.setFill(new ImagePattern(new Image("textures/originals/robbers")));
+        robber.setVisible(true);
+
         draw();
+
     }
 
     @Subscribe
@@ -877,15 +893,15 @@ public class GamePresenter extends AbstractPresenter {
     }
 
     @Subscribe
-    public void onMoveRobberResponse(MoveRobberResponse moveRobberResponse) {
-        moveRobberResponseLogic(moveRobberResponse);
+    public void onMoveRobberMessage(MoveRobberMessage moveRobberMessage) {
+        moveRobberResponseLogic(moveRobberMessage);
     }
 
-    public void moveRobberResponseLogic(MoveRobberResponse moveRobberResponse) {
+    public void moveRobberResponseLogic(MoveRobberMessage moveRobberMessage) {
         if (this.currentLobby != null) {
-            if (this.currentLobby.equals(moveRobberResponse.getName())) {
+            if (this.currentLobby.equals(moveRobberMessage.getName())) {
                 Platform.runLater(() -> {
-                    this.alert.setTitle(moveRobberResponse.getName());
+                    this.alert.setTitle(moveRobberMessage.getName());
                     this.alert.setHeaderText("Click on a field to move the Robber!");
                     this.alert.show();
                 });

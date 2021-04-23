@@ -60,7 +60,6 @@ public class GameService extends AbstractService {
      * @param gameManagement        The management class for creating, storing and deleting games
      * @param authenticationService the user management
      * @param eventBus              the server-wide EventBus
-     *
      * @since 2021-01-07
      */
     @Inject
@@ -112,7 +111,6 @@ public class GameService extends AbstractService {
      * of a AllThisGameUsersResponse for a specific user that sent the initial request.
      *
      * @param retrieveAllThisGameUsersRequest The RetrieveAllThisGameUsersRequest found on the EventBus
-     *
      * @author Iskander Yusupov
      * @see de.uol.swp.common.game.Game
      * @since 2021-01-15
@@ -133,7 +131,6 @@ public class GameService extends AbstractService {
      * Handles incoming build requests.
      *
      * @param message
-     *
      * @author Pieter Vogt
      * @since 2021-04-15
      */
@@ -205,7 +202,6 @@ public class GameService extends AbstractService {
      * @param game    Optional<Game> game
      * @param message ServerMessage message
      * @param user    User user
-     *
      * @author Alexander Losse, Ricardo Mook
      * @since 2021-03-11
      */
@@ -236,7 +232,6 @@ public class GameService extends AbstractService {
      * ResponseChatMessage containing the user who rolls the dice and the result is shown to every user in the game.
      *
      * @param rollDiceRequest The RollDiceRequest found on the EventBus
-     *
      * @author Kirstin, Pieter
      * @see de.uol.swp.common.game.request.RollDiceRequest
      * @see de.uol.swp.common.chat.ResponseChatMessage
@@ -253,11 +248,29 @@ public class GameService extends AbstractService {
         LOG.debug("Got new RollDiceRequest from user: " + rollDiceRequest.getUser());
 
         Dice dice = new Dice();
-        dice.rollDice();
+        //TODO Ohne Do-While natürlich, weil nur einmal gewürfelt werden soll und der räuber nicht andauernd getriggert werden darf
+        do {
+            dice.rollDice();
+        } while (dice.getEyes() != 7);
+
         if (dice.getEyes() == 7) {
-            //TODO Methode zum auswählen der Rohstoffkarten und der Abgabe an die Bank
-            tooMuchCards(rollDiceRequest);
-            moveRobber(dice, rollDiceRequest);
+            Optional<Game> game = gameManagement.getGame(rollDiceRequest.getName());
+            if (game.isPresent()) {
+                MoveRobberMessage moveRobberMessage = new MoveRobberMessage(rollDiceRequest.getName());
+                sendToSpecificUserInGame(gameManagement.getGame(rollDiceRequest.getName()), moveRobberMessage, rollDiceRequest.getUser());
+
+                for (User user : game.get().getUsers()) {
+                    if (game.get().getInventory(user).getResource() >= 7) {
+                        if (game.get().getInventory(user).getResource() % 2 != 0) {
+                            TooMuchResourceCardsMessage tooMuchResourceCardsMessage = new TooMuchResourceCardsMessage(game.get().getName(), (UserDTO) user, ((game.get().getInventory(user).getResource() - 1) / 2));
+                            sendToSpecificUserInGame(game, tooMuchResourceCardsMessage, user);
+                        } else {
+                            TooMuchResourceCardsMessage tooMuchResourceCardsMessage = new TooMuchResourceCardsMessage(game.get().getName(), (UserDTO) user, (game.get().getInventory(user).getResource() / 2));
+                            sendToSpecificUserInGame(game, tooMuchResourceCardsMessage, user);
+                        }
+                    }
+                }
+            }
         } else {
             distributeResources(dice.getEyes(), rollDiceRequest.getName());
         }
@@ -278,34 +291,6 @@ public class GameService extends AbstractService {
         }
     }
 
-    /**
-     * Handles the case if the user has too much cards in the inventory.
-     * <p>
-     * This method is called, when the robber is invoked. It checks for every user if there are more than seven
-     * cards in the inventory. In that case a TooMuchResourceCardsMessage is send to the specific user.
-     * The method also checks if the user has an uneven number of resources in the inventory.
-     * In the case, that the number of resources in the inventory is uneven, we round down the number of cards the user has to choose.
-     *
-     * @param rollDiceRequest
-     * @author Marius Birk
-     * @since 2021-04-14
-     */
-    public void tooMuchCards(RollDiceRequest rollDiceRequest) {
-        Optional<Game> game = gameManagement.getGame(rollDiceRequest.getName());
-        if (game.isPresent()) {
-            for (User user : game.get().getUsers()) {
-                if (game.get().getInventory(user).getResource() >= 7) {
-                    if (game.get().getInventory(user).getResource() % 2 != 0) {
-                        TooMuchResourceCardsMessage tooMuchResourceCardsMessage = new TooMuchResourceCardsMessage(game.get().getName(), (UserDTO) user, ((game.get().getInventory(user).getResource() - 1) / 2));
-                        sendToSpecificUserInGame(game, tooMuchResourceCardsMessage, user);
-                    } else {
-                        TooMuchResourceCardsMessage tooMuchResourceCardsMessage = new TooMuchResourceCardsMessage(game.get().getName(), (UserDTO) user, (game.get().getInventory(user).getResource() / 2));
-                        sendToSpecificUserInGame(game, tooMuchResourceCardsMessage, user);
-                    }
-                }
-            }
-        }
-    }
 
     /**
      * Handles the distribution of resources to the users
@@ -317,7 +302,6 @@ public class GameService extends AbstractService {
      *
      * @param eyes     Number of eyes rolled with dice
      * @param gameName Name of the Game
-     *
      * @author Marius Birk, Carsten Dekker
      * @since 2021-04-06
      */
@@ -385,82 +369,27 @@ public class GameService extends AbstractService {
         }
     }
 
-    public void moveRobber(Dice dice, RollDiceRequest rollDiceRequest) {
-//TODO Vorerst wird der Räuber random versetzt, sobald möglich, wird eine grafische Versetzung implementiert
-
+    @Subscribe
+    public void onRobbersNewFieldMessage(RobbersNewFieldMessage robbersNewFieldMessage) {
         //Bei Möglichkeit Robber zu versetzen Alert einblenden um Nutze zu sagen, er soll auf neues Feld klicken um Robber zu bewegen.
         //mouseEvent.getSource().equals(container.getCircle()) && itsMyTurn
 
-        do {
-            dice.rollDice();
-        } while (dice.getEyes() == 7);
-        Optional<Game> game = gameManagement.getGame(rollDiceRequest.getName());
+
+        Optional<Game> game = gameManagement.getGame(robbersNewFieldMessage.getName());
         if (game.isPresent()) {
-            TerrainFieldContainer[] temp = game.get().getGameField().getTFCs();
-            TerrainFieldContainer robber = new TerrainFieldContainer(0, 0);
 
             //Indicate the old robbers place and "deactivate" the occupiedByRobber option.
-            for (TerrainFieldContainer tfc : temp) {
-                if (tfc.isOccupiedByRobber()) {
-                    tfc.setOccupiedByRobber(false);
+            for (MapGraph.Hexagon hexagon : game.get().getMapGraph().getHexagonHashSet()) {
+                if (hexagon.isOccupiedByRobber()) {
+                    hexagon.setOccupiedByRobber(false);
+                }
+                if (hexagon.getUuid().equals(robbersNewFieldMessage.getNewField())) {
+                    //If the UUIDs match, the new field ist set to occupied
+                    hexagon.setOccupiedByRobber(true);
                 }
             }
 
-            //Set new field for the robber, in case there are two fields with the same diceToken, it chooses the first it reaches and occupies this.
-            for (int i = 0; i < temp.length; i++) {
-                if (temp[i].getDiceTokens() == dice.getEyes()) {
-                    temp[i].setOccupiedByRobber(true);
-                    robber = temp[i];
-                    break;
-                }
-            }
 
-            //Clearing out which BuildingSpot is Occupied and which is not.
-            for (User user : game.get().getUsers()) {
-                if (!user.equals(rollDiceRequest.getUser())) {
-                    for (int i = 0; i < robber.getBuildingSpots().length; i++) {
-                        System.out.println(robber.getBuildingSpots()[i]);
-                        if (!robber.getBuildingSpots()[i].isStreet) {
-                            if (robber.getBuildingSpots()[i].isOccupied) {
-                                //TODO Addressierung der Gebäudeplatzierung fehlt um auszumachen wem die Stadt an diesem Buildingspot denn gehört.
-                            }
-                        }
-                    }
-                }
-            }
-            //TODO Noch geben alle User eine Ressource, des Resscourcentyps des Feldes auf dem der Räuber steht, an den aktiven Spieler. Auch hier Änderung notwendig, wenn Addressierung abgeschlossen.
-            //"Ocean" = 0; "Forest" = 1; "Farmland" = 2; "Grassland" = 3; "Hillside" = 4; "Mountain" = 5; "Desert" = 6;
-            for (User user : game.get().getUsers()) {
-                switch (robber.getFieldType()) {
-                    case 1:
-                        game.get().getInventory(rollDiceRequest.getUser()).lumber.incNumber();
-                        LOG.debug(rollDiceRequest.getUser() + " increased his lumber by one.");
-                        game.get().getInventory(user).lumber.decNumber();
-                        LOG.debug(user.getUsername() + "decreased his lumber by one.");
-                    case 2:
-                        game.get().getInventory(user).grain.decNumber();
-                        game.get().getInventory(rollDiceRequest.getUser()).grain.incNumber();
-                        LOG.debug(rollDiceRequest.getUser() + " increased his grain by one.");
-                        LOG.debug(user.getUsername() + "decreased his grain by one.");
-                    case 3:
-                        game.get().getInventory(user).wool.decNumber();
-                        game.get().getInventory(rollDiceRequest.getUser()).wool.incNumber();
-                        LOG.debug(rollDiceRequest.getUser() + " increased his wool by one.");
-                        LOG.debug(user.getUsername() + "decreased his wool by one.");
-
-                    case 4:
-                        game.get().getInventory(user).brick.decNumber();
-                        game.get().getInventory(rollDiceRequest.getUser()).brick.incNumber();
-                        LOG.debug(rollDiceRequest.getUser() + " increased his bricks by one.");
-                        LOG.debug(user.getUsername() + "decreased his bricks by one.");
-
-                    case 5:
-                        game.get().getInventory(user).ore.decNumber();
-                        game.get().getInventory(rollDiceRequest.getUser()).ore.incNumber();
-                        LOG.debug(rollDiceRequest.getUser() + " increased his ore by one.");
-                        LOG.debug(user.getUsername() + "decreased his ore by one.");
-                }
-            }
         }
     }
 
@@ -470,7 +399,6 @@ public class GameService extends AbstractService {
      *
      * @param lobbyName Name of the lobby the players are in
      * @param message   the message to be send to the users
-     *
      * @author Marco Grawunder
      * @see de.uol.swp.common.message.ServerMessage
      * @since 2019-10-08
@@ -498,7 +426,6 @@ public class GameService extends AbstractService {
      * enhanced by Alexander Losse, Ricardo Mook 2021-03-05 enhanced by Marc Hermes 2021-03-25
      *
      * @param startGameRequest the StartGameRequest found on the EventBus
-     *
      * @author Kirstin Beyer, Iskander Yusupov
      * @see de.uol.swp.common.lobby.request.StartGameRequest
      * @since 2021-01-24
@@ -556,7 +483,6 @@ public class GameService extends AbstractService {
      * 2021-03-25
      *
      * @param lobby lobby that wants to start a game
-     *
      * @author Kirstin Beyer, Iskander Yusupov
      * @since 2021-01-24
      */
@@ -596,7 +522,6 @@ public class GameService extends AbstractService {
      * enhanced by Marc Hermes 2021-03-25
      *
      * @param playerReadyRequest the PlayerReadyRequest found on the EventBus
-     *
      * @author Kirstin Beyer, Iskander Yusupov
      * @see de.uol.swp.common.game.request.PlayerReadyRequest
      * @since 2021-01-24
@@ -629,7 +554,6 @@ public class GameService extends AbstractService {
      * game and whos turn is up now.</p>
      *
      * @param request Transports the games name and the senders UserDTO.
-     *
      * @author Pieter Vogt
      * @since 2021-03-26
      */
@@ -657,7 +581,6 @@ public class GameService extends AbstractService {
      * </p>
      *
      * @param request Transports the senders UserDTO
-     *
      * @author Marius Birk
      * @since 2021-04-03
      */
@@ -693,7 +616,6 @@ public class GameService extends AbstractService {
      * <p>
      *
      * @param game game that wants to update private and public inventories
-     *
      * @author Iskander Yusupov, Anton Nikiforov
      * @since 2021-04-08
      */
@@ -718,7 +640,6 @@ public class GameService extends AbstractService {
      * game, the game gets dropped. Finally we log how many games the user left.
      *
      * @param request LogoutRequest found on the eventBus
-     *
      * @author René Meyer, Sergej Tulnev
      * @see de.uol.swp.common.user.request.LogoutRequest
      * @see de.uol.swp.common.game.request.GameLeaveUserRequest

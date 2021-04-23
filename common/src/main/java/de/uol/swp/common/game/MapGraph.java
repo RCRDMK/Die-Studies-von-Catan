@@ -458,6 +458,8 @@ public class MapGraph implements Serializable {
         private List<StreetNode> streetNodes = new ArrayList<>();
         private List<Hexagon> hexagons = new ArrayList<>();
 
+        private boolean occupiedByRobber;
+
         //CONSTRUCTOR
 
         /**
@@ -682,6 +684,14 @@ public class MapGraph implements Serializable {
 
         public UUID getUuid() {
             return uuid;
+        }
+
+        public boolean isOccupiedByRobber() {
+            return occupiedByRobber;
+        }
+
+        public void setOccupiedByRobber(boolean occupiedByRobber) {
+            this.occupiedByRobber = occupiedByRobber;
         }
 
         // METHODS

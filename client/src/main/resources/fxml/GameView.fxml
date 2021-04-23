@@ -3,7 +3,6 @@
 <?import javafx.scene.canvas.Canvas?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.shape.Rectangle?>
 <?import javafx.scene.text.Text?>
 <AnchorPane xmlns:fx="http://javafx.com/fxml/1" fx:id="gameAnchorPane" maxHeight="-Infinity" maxWidth="-Infinity"
             prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1"
@@ -15,7 +14,7 @@
         <ListView fx:id="gameUsersView" layoutX="370.0" layoutY="30.0" prefHeight="90.0" prefWidth="224.0"/>
         <ToolBar layoutY="-5.0" prefHeight="35.0" prefWidth="600.0">
             <items>
-                <Button mnemonicParsing="false" fx:id="rollDice" onAction="#onRollDice" text="Roll Dice"/>
+                <Button fx:id="rollDice" mnemonicParsing="false" onAction="#onRollDice" text="Roll Dice"/>
                 <Text fx:id="DiceOutput" strokeType="OUTSIDE" strokeWidth="0.0" text="Text"/>
                 <Separator orientation="VERTICAL"/>
                 <Button mnemonicParsing="false" onAction="#onTrade" text="Trade">
@@ -27,9 +26,8 @@
                         <MenuItem mnemonicParsing="false" onAction="#onBuildTown" text="Town"/>
                     </items>
                 </MenuButton>
-                <Button layoutX="153.0" layoutY="11.0" fx:id="buyDevCard" mnemonicParsing="false"
-                        onAction="#onBuyDevelopmentCard"
-                        text="Buy DevelopmentCard"/>
+                <Button fx:id="buyDevCard" layoutX="153.0" layoutY="11.0" mnemonicParsing="false"
+                        onAction="#onBuyDevelopmentCard" text="Buy DevelopmentCard"/>
                 <Button fx:id="EndTurnButton" layoutX="10.0" layoutY="10.0" mnemonicParsing="false"
                         onAction="#onEndTurn" text="End Turn"/>
                 <Region prefHeight="25.0" prefWidth="73.0"/>
@@ -37,7 +35,6 @@
             </items>
         </ToolBar>
         <Canvas fx:id="canvas" height="370.0" layoutY="30.0" width="370"/>
-        <Rectangle fx:id="robber" height="30.0" width="30"/>
         <Button layoutX="534.0" layoutY="345.0" mnemonicParsing="false" onAction="#onSendMessage" prefHeight="25.0"
                 prefWidth="59.0" text="Send"/>
         <TextField fx:id="gameChatInput" layoutX="370.0" layoutY="345.0" onAction="#onSendMessage" prefHeight="25.0"
