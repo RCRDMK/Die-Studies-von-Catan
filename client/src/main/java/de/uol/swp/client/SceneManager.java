@@ -230,7 +230,7 @@ public class SceneManager {
     }
 
     /**
-     * Initializes the gatrade view
+     * Initializes the trade view
      * <p>
      * If the tradeScene is null it gets set to a new scene containing the
      * a pane showing the game view as specified by the TradeView

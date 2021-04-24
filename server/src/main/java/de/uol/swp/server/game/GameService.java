@@ -653,7 +653,7 @@ public class GameService extends AbstractService {
         game.get().getInventory(request.getUser()).incCard("Wool", 10);
         game.get().getInventory(request.getUser()).incCard("Grain", 10);
         game.get().getInventory(request.getUser()).incCard("Brick", 10);
-
+        Inventory easyPrüfen = game.get().getInventory(request.getUser());
         if (game.isPresent()) {
             boolean numberOfCardsCorrect = true;
 
@@ -766,13 +766,13 @@ public class GameService extends AbstractService {
     /**
      * sends tradeStartedMessage to the seller when his request to start a trade is handled by the server
      *
-     * @param request TradeStartedRequest
+     * @param request TradeStartRequest
      * @author Alexander Losse, Ricardo Mook
-     * @see TradeStartedRequest
+     * @see TradeStartRequest
      * @since 2021-04-11
      */
     @Subscribe
-    public void onTradeStartedRequest(TradeStartedRequest request) {
+    public void onTradeStartedRequest(TradeStartRequest request) {
         Optional<Game> game = gameManagement.getGame(request.getName());
         UserDTO user = request.getUser();
         TradeStartedMessage tsm = new TradeStartedMessage(user, request.getName(), request.getTradeCode());

@@ -12,7 +12,6 @@ import de.uol.swp.common.chat.ResponseChatMessage;
 import de.uol.swp.common.game.MapGraph;
 import de.uol.swp.common.game.message.*;
 import de.uol.swp.common.game.request.EndTurnRequest;
-import de.uol.swp.common.game.request.TradeStartedRequest;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.user.response.game.AllThisGameUsersResponse;
@@ -200,7 +199,8 @@ public class GamePresenter extends AbstractPresenter {
     @FXML
     public void onTrade(ActionEvent event) {
         String tradeCode = UUID.randomUUID().toString().trim().substring(0, 7);
-        eventBus.post(new TradeStartedRequest((UserDTO) this.joinedLobbyUser, this.currentLobby, tradeCode));
+        gameService.sendTradeStartedRequest((UserDTO) this.joinedLobbyUser, this.currentLobby, tradeCode);
+
     }
 
     @FXML

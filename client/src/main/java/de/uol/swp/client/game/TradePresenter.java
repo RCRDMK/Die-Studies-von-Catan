@@ -158,7 +158,6 @@ public class TradePresenter extends AbstractPresenter {
      * @see TradeItem
      * @since 2021-04-21
      */
-    //TODO: row2 wishItems
     public void setOffer(ArrayList<TradeItem> sellingItems, ArrayList<TradeItem> wantedItems) {
         for (TradeItem item : sellingItems) {
             String valueOfCount = String.valueOf(item.getCount());

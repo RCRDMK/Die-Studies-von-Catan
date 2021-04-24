@@ -45,7 +45,13 @@ public class TradeItemRequest extends AbstractGameRequest{
         return tradeItems;
     }
 
-    //TODO: JavaDoc
+    /**
+     * returns the wishItems
+     *
+     * @return ArrayList<TradeItem> wishItems
+     * @author Alexander Losse, Ricardo Mook
+     * @since 2021-04-11
+     */
     public ArrayList<TradeItem> getWishItems() {
         return wishItems;
     }
