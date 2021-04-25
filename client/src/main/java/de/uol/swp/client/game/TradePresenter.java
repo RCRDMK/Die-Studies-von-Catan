@@ -112,6 +112,13 @@ public class TradePresenter extends AbstractPresenter {
             this.gameName = tradeOfferInformBiddersMessage.getName();
             this.user = tradeOfferInformBiddersMessage.getBidder();
             setOffer(tradeOfferInformBiddersMessage.getSellingItems(), tradeOfferInformBiddersMessage.getWantedItems());
+            textRowW.setVisible(false);
+            grainW.setVisible(false);
+            lumberW.setVisible(false);
+            oreW.setVisible(false);
+            brickW.setVisible(false);
+            woolW.setVisible(false);
+
         }
     }
 
@@ -173,6 +180,7 @@ public class TradePresenter extends AbstractPresenter {
                 wool1.setText(valueOfCount);
             }
         }
+        textRow1.setText("Seller offers:");
 
         for (TradeItem item : wantedItems) {
             String valueOfCount = String.valueOf(item.getCount());
@@ -188,6 +196,7 @@ public class TradePresenter extends AbstractPresenter {
                 wool2.setText(valueOfCount);
             }
         }
+        textRow2.setText("Seller wants:");
         endTradeButton.setVisible(false);
         rejectOfferButton.setVisible(true);
         row1Hbox.setVisible(true);
@@ -656,6 +665,21 @@ public class TradePresenter extends AbstractPresenter {
 
     @FXML
     Text wool3;
+
+    @FXML
+    Text textRowW;
+
+    @FXML
+    Text textRow0;
+
+    @FXML
+    Text textRow1;
+
+    @FXML
+    Text textRow2;
+
+    @FXML
+    Text textRow3;
 
     @FXML
     ToggleGroup choiceTrade;
