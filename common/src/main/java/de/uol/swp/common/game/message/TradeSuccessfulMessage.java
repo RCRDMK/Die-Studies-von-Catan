@@ -32,7 +32,7 @@ public class TradeSuccessfulMessage extends AbstractGameMessage{
      * @since 2021-04-11
      */
     public TradeSuccessfulMessage(UserDTO seller, String gameName, ArrayList<TradeItem> soldItems, String tradeCode){
-        this.user = seller;//new UserDTO(seller.getUsername(),"","");
+        this.user = new UserDTO(seller.getUsername(),"","");
         this.name = gameName;
         this.soldItems = soldItems;
         tradeSuccessful = false;
