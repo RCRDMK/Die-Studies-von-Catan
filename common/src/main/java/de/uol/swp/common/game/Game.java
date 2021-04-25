@@ -99,6 +99,14 @@ public interface Game extends Serializable {
     void setUpUserArrayList();
 
     /**
+     * Returns a boolean, indicating the starting turns.
+     *
+     * @author Kirstin Beyer
+     * @since 2021-04-25
+     */
+    boolean getStartingTurns();
+
+    /**
      * Returns a number, indicating whos turn it is.
      *
      * <p>The number represents the index inside the playersList, pointing to a certain Player.</p>

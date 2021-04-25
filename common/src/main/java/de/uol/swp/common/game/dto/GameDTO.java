@@ -172,7 +172,7 @@ public class GameDTO implements Game {
      * Organizing the opening-phase for the set amount of players.
      *
      * <p>
-     * This is checking many different statements for boolean value to evaluate wich players turn is up next. It does
+     * This is checking many different statements for boolean value to evaluate which players turn is up next. It does
      * this until every player did his move according to the games rules. For n players, the opening-phase goes from
      * player 1 upwards to player n, then player n again and then backwards to player 1. After that, it disables the
      * opening-phase for the rest of the game.
@@ -262,5 +262,10 @@ public class GameDTO implements Game {
     @Override
     public GameField getGameField() {
         return null;
+    }
+
+    @Override
+    public boolean getStartingTurns() {
+        return startingTurns;
     }
 }

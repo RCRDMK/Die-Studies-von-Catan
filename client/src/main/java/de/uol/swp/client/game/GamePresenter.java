@@ -84,6 +84,10 @@ public class GamePresenter extends AbstractPresenter {
     @FXML
     private Button EndTurnButton;
 
+    @FXML
+    public Label BuildingNotSuccessfulLabel;
+
+
     /**
      * Method called when the send Message button is pressed
      * <p>
@@ -764,6 +768,7 @@ public class GamePresenter extends AbstractPresenter {
      */
     @Subscribe
     public void onSuccessfulConstructionMessage(SuccessfulConstructionMessage message) {
+        BuildingNotSuccessfulLabel.setVisible(false);
         if (message.getTypeOfNode().equals("BuildingNode")) {
             for (MapGraphNodeContainer mapGraphNodeContainer : mapGraphNodeContainers) {
                 if (mapGraphNodeContainer.getMapGraphNode().getUuid().equals(message.getUuid())) {
@@ -783,6 +788,20 @@ public class GamePresenter extends AbstractPresenter {
                 }
             }
         }
+    }
+
+    /**
+     * Updates the corresponding Node in the list of MapGraphNodes to represent the changes from the message.
+     *
+     * @param message The data about the changed properties of the MapGraph
+     *
+     * @author Pieter Vogt
+     * @since 2021-04-15
+     */
+    @Subscribe
+    public void onNotSuccessfulConstructionMessage(NotSuccessfulConstructionMessage message) {
+        LOG.debug("Building not successful");
+        BuildingNotSuccessfulLabel.setVisible(true);
     }
 
     @Subscribe

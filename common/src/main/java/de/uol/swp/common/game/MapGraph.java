@@ -300,14 +300,40 @@ public class MapGraph implements Serializable {
          * @param playerIndex Index of the player who wants to build a road
          *
          * @return True if construction was successful, false if not.
-         * @author Pieter Vogt
+         * @author Pieter Vogt, enhanced by Kirstin Beyer
          * @since 2021-04-15
          */
-        public Boolean buildRoad(int playerIndex) {
-            if (this.occupiedByPlayer == 666) {
-                this.occupiedByPlayer = playerIndex;
-                return true;
+        public Boolean tryBuildRoad(int playerIndex, boolean startingTurns) {
+
+            boolean existingConnection = false;
+            boolean buildingAllowed = false;
+            if (startingTurns) {
+                buildingAllowed = true;
+            }
+
+            for (MapGraph.BuildingNode connectedBuildingNode : this.getConnectedBuildingNodes()) {
+                if (connectedBuildingNode.getOccupiedByPlayer() == playerIndex) {
+                    existingConnection = true;
+                }
+                for (MapGraph.StreetNode connectedStreetNode : connectedBuildingNode.getConnectedStreetNodes()) {
+                    if (connectedStreetNode.getOccupiedByPlayer() == playerIndex) {
+                        if (connectedBuildingNode.getOccupiedByPlayer() == 666 || connectedBuildingNode.getOccupiedByPlayer() == playerIndex) {
+                            buildingAllowed = true;
+                            existingConnection = true;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (this.occupiedByPlayer == 666 && existingConnection && buildingAllowed) {
+                return buildRoad(playerIndex);
             } else return false;
+        }
+
+        public boolean buildRoad(int playerIndex) {
+            this.occupiedByPlayer = playerIndex;
+            return true;
         }
     }
 
@@ -399,17 +425,39 @@ public class MapGraph implements Serializable {
          * @param playerIndex Index of the player who wants to build or upgrade a building.
          *
          * @return True if construction was successful, false if not.
-         * @author Pieter Vogt
+         * @author Pieter Vogt, enhanced by Kirstin Beyer
          * @since 2021-04-15
          */
-        public Boolean buildOrDevelopSettlement(int playerIndex) {
+        public Boolean tryBuildOrDevelopSettlement(int playerIndex, boolean startingTurns) {
+
+            boolean existingStreet = false;
+            boolean buildingAllowed = true;
+            if (startingTurns) {
+                existingStreet = true;
+            }
+
+            for (MapGraph.StreetNode connectedStreetNode : this.getConnectedStreetNodes()) {
+                if (connectedStreetNode.getOccupiedByPlayer() == playerIndex) {
+                    existingStreet = true;
+                }
+                for (MapGraph.BuildingNode connectedBuildingNode : connectedStreetNode.getConnectedBuildingNodes()) {
+                    if (connectedBuildingNode.getOccupiedByPlayer() != 666) {
+                        buildingAllowed = false;
+                    }
+                }
+            }
+
             if (occupiedByPlayer == 666 || occupiedByPlayer == playerIndex) {
-                if (sizeOfSettlement < 2) {
-                    sizeOfSettlement++;
-                    this.occupiedByPlayer = playerIndex;
-                    return true;
+                if (sizeOfSettlement < 2 && existingStreet && buildingAllowed) {
+                    return buildOrDevelopSettlement(playerIndex);
                 } else return false;
             } else return false;
+        }
+
+        public boolean buildOrDevelopSettlement(int playerIndex) {
+            this.occupiedByPlayer = playerIndex;
+            sizeOfSettlement++;
+            return true;
         }
     }
 
