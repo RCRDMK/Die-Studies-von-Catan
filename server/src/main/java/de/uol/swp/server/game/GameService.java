@@ -698,14 +698,15 @@ public class GameService extends AbstractService {
         }
     }
 
-    //TODO: update
+
     /**
      * finalises the trade
      * <p>
-     * the method creates TradeSuccessfulMessage
-     * if a bid was accepted by the seller, the method trades the items and adds the chosen bidder to the TradeSuccessfulMessage
-     * if the bids were rejected, changes nothing at the TradeSuccessfulMessage
-     * the TradeSuccessfulMessage is send
+     * if a bid was accepted by the seller
+     * trades the items between the users
+     * if rejected, nothing happens
+     * calls tradeEndedChatMessageHelper to inform the players about the result of the trade
+     * TradeEndedMessage is send to all player in game
      * the specified trade is removed from the game
      *
      * @param request TradeChoiceRequest containing the choice the seller made
