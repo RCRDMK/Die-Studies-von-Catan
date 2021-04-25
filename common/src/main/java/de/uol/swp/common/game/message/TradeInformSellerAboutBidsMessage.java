@@ -31,7 +31,7 @@ public class TradeInformSellerAboutBidsMessage extends AbstractGameMessage {
      */
     public TradeInformSellerAboutBidsMessage(UserDTO seller, String gameName, String tradeCode, ArrayList<UserDTO> bidders, HashMap<UserDTO, ArrayList<TradeItem>> bids){
         this.name = gameName;
-        this.user = seller; //new UserDTO(seller.getUsername(),"","");
+        this.user = new UserDTO(seller.getUsername(),"","");
         this.bidders = bidders;
         this.bids = bids;
         this.tradeCode = tradeCode;

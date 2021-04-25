@@ -7,7 +7,7 @@ public class TradeStartedMessage extends AbstractGameMessage {
     private String tradeCode;
 
     public TradeStartedMessage(UserDTO user, String game, String tradeCode){
-        this.user = user;
+        this.user = new UserDTO(user.getUsername(), "","");
         this.game = game;
         this.tradeCode = tradeCode;
     }

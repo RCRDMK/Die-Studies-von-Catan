@@ -698,6 +698,7 @@ public class GameService extends AbstractService {
         }
     }
 
+    //TODO: update
     /**
      * finalises the trade
      * <p>

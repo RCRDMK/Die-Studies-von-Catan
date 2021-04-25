@@ -659,7 +659,6 @@ public class GamePresenter extends AbstractPresenter {
      * translated into the correct String names of the tfArray TerrainFields.
      *
      * @param mapGraph the MapGraph created by the Server
-     *
      * @author Marc Hermes
      * @see de.uol.swp.common.game.GameField
      * @see de.uol.swp.client.game.GameObjects.TerrainField
@@ -761,7 +760,6 @@ public class GamePresenter extends AbstractPresenter {
      * Updates the corresponding Node in the list of MapGraphNodes to represent the changes from the message.
      *
      * @param message The data about the changed properties of the MapGraph
-     *
      * @author Pieter Vogt
      * @since 2021-04-15
      */
@@ -799,56 +797,12 @@ public class GamePresenter extends AbstractPresenter {
     }
 
 
-    //informiert die Spieler die auf das Angebot bieten sollen
-    @Subscribe
-    public void onTradeOfferInformBiddersMessage(TradeOfferInformBiddersMessage toibm) {
-        if (toibm.getName().equals(currentLobby)) {
-            tradeButton.setDisable(true);
-        }
-    }
-
-    //TODO: JavaDoc bitches
-    @Subscribe
-    public void onTradeSuccessfulMessage(TradeSuccessfulMessage tsm) {
-        TradeSuccessfulMessage lastMessage = tsm;
-        if (tsm.getName().equals((currentLobby)) ) {
-            Platform.runLater(() -> {
-                if (tsm.isTradeSuccessful() == true && joinedLobbyUser.getUsername().equals(tsm.getUser().getUsername())) {
-                    try {
-                        var chatMessageInfo = "The trade: " + tsm.getTradeCode() + " was successful between " + tsm.getUser().getUsername() + " and " + tsm.getBidder().getUsername();
-                        var chatId = "game_" + currentLobby;
-                        if (!chatMessageInfo.isEmpty()) {
-                            RequestChatMessage message = new RequestChatMessage(chatMessageInfo, chatId, joinedLobbyUser.getUsername(),
-                                    System.currentTimeMillis());
-                            chatService.sendMessage(message);
-                        }
-                    } catch (Exception e) {
-                        LOG.debug(e);
-                    }
-                } else {
-                    try {
-                        var chatMessageInfo = "The trade: " + tsm.getTradeCode() + " was  not successful! :(";
-                        var chatId = "game_" + currentLobby;
-                        if (!chatMessageInfo.isEmpty()) {
-                            RequestChatMessage message = new RequestChatMessage(chatMessageInfo, chatId, joinedLobbyUser.getUsername(),
-                                    System.currentTimeMillis());
-                            chatService.sendMessage(message);
-                        }
-                    } catch (Exception e) {
-                        LOG.debug(e);
-                    }
-                }
-                Platform.runLater(() -> {
-                    tradeButton.setDisable(false);
-                });
-            });
-        }
-    }
-
     /**
      * shows an alert if the trade user has not enough in inventory
      *
-     * @param message
+     * @param message TradeCardErrorMessage
+     * @author Alexander Losse, Ricardo Mook
+     * @since 2021-04-25
      */
     @Subscribe
     public void notEnoughResTrade(TradeCardErrorMessage message) {

@@ -8,7 +8,7 @@ public class TradeStartRequest extends AbstractGameRequest {
         private String tradeCode;
 
         public TradeStartRequest(UserDTO user, String game, String tradeCode){
-            this.user = user;
+            this.user = new UserDTO(user.getUsername(),"","");
             this.name = game;
             this.tradeCode = tradeCode;
         }
