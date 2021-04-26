@@ -647,13 +647,14 @@ public class GameService extends AbstractService {
     public void onTradeItemRequest(TradeItemRequest request) {
         System.out.println("Got message " + request.getUser().getUsername());
         Optional<Game> game = gameManagement.getGame(request.getName());
-
+/*      TODO: Wird nur zum testen verwendet
         game.get().getInventory(request.getUser()).incCard("Lumber", 10);
         game.get().getInventory(request.getUser()).incCard("Ore", 10);
         game.get().getInventory(request.getUser()).incCard("Wool", 10);
         game.get().getInventory(request.getUser()).incCard("Grain", 10);
         game.get().getInventory(request.getUser()).incCard("Brick", 10);
         Inventory easyPrüfen = game.get().getInventory(request.getUser());
+  */
         if (game.isPresent()) {
             boolean numberOfCardsCorrect = true;
 
