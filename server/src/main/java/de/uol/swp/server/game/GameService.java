@@ -14,6 +14,8 @@ import de.uol.swp.common.game.request.*;
 import de.uol.swp.common.game.response.AllCreatedGamesResponse;
 import de.uol.swp.common.game.response.GameAlreadyExistsResponse;
 import de.uol.swp.common.game.response.NotLobbyOwnerResponse;
+import de.uol.swp.common.game.trade.Trade;
+import de.uol.swp.common.game.trade.TradeItem;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.message.StartGameMessage;
 import de.uol.swp.common.lobby.request.StartGameRequest;
@@ -60,7 +62,6 @@ public class GameService extends AbstractService {
      * @param gameManagement        The management class for creating, storing and deleting games
      * @param authenticationService the user management
      * @param eventBus              the server-wide EventBus
-     *
      * @since 2021-01-07
      */
     @Inject
@@ -112,7 +113,6 @@ public class GameService extends AbstractService {
      * of a AllThisGameUsersResponse for a specific user that sent the initial request.
      *
      * @param retrieveAllThisGameUsersRequest The RetrieveAllThisGameUsersRequest found on the EventBus
-     *
      * @author Iskander Yusupov
      * @see de.uol.swp.common.game.Game
      * @since 2021-01-15
@@ -133,7 +133,6 @@ public class GameService extends AbstractService {
      * Handles incoming build requests.
      *
      * @param message
-     *
      * @author Pieter Vogt
      * @since 2021-04-15
      */
@@ -205,7 +204,6 @@ public class GameService extends AbstractService {
      * @param game    Optional<Game> game
      * @param message ServerMessage message
      * @param user    User user
-     *
      * @author Alexander Losse, Ricardo Mook
      * @since 2021-03-11
      */
@@ -236,7 +234,6 @@ public class GameService extends AbstractService {
      * ResponseChatMessage containing the user who rolls the dice and the result is shown to every user in the game.
      *
      * @param rollDiceRequest The RollDiceRequest found on the EventBus
-     *
      * @author Kirstin, Pieter
      * @see de.uol.swp.common.game.request.RollDiceRequest
      * @see de.uol.swp.common.chat.ResponseChatMessage
@@ -296,7 +293,6 @@ public class GameService extends AbstractService {
      *
      * @param eyes     Number of eyes rolled with dice
      * @param gameName Name of the Game
-     *
      * @author Marius Birk, Carsten Dekker
      * @since 2021-04-06
      */
@@ -355,7 +351,6 @@ public class GameService extends AbstractService {
      *
      * @param lobbyName Name of the lobby the players are in
      * @param message   the message to be send to the users
-     *
      * @author Marco Grawunder
      * @see de.uol.swp.common.message.ServerMessage
      * @since 2019-10-08
@@ -383,7 +378,6 @@ public class GameService extends AbstractService {
      * enhanced by Alexander Losse, Ricardo Mook 2021-03-05 enhanced by Marc Hermes 2021-03-25
      *
      * @param startGameRequest the StartGameRequest found on the EventBus
-     *
      * @author Kirstin Beyer, Iskander Yusupov
      * @see de.uol.swp.common.lobby.request.StartGameRequest
      * @since 2021-01-24
@@ -441,7 +435,6 @@ public class GameService extends AbstractService {
      * 2021-03-25
      *
      * @param lobby lobby that wants to start a game
-     *
      * @author Kirstin Beyer, Iskander Yusupov
      * @since 2021-01-24
      */
@@ -454,6 +447,7 @@ public class GameService extends AbstractService {
             for (User user : lobby.get().getPlayersReady()) {
                 game.get().joinUser(user);
                 usersInGame.add((UserDTO) user);
+
             }
             lobby.get().setPlayersReadyToNull();
             lobby.get().setRdyResponsesReceived(0);
@@ -481,7 +475,6 @@ public class GameService extends AbstractService {
      * enhanced by Marc Hermes 2021-03-25
      *
      * @param playerReadyRequest the PlayerReadyRequest found on the EventBus
-     *
      * @author Kirstin Beyer, Iskander Yusupov
      * @see de.uol.swp.common.game.request.PlayerReadyRequest
      * @since 2021-01-24
@@ -514,7 +507,6 @@ public class GameService extends AbstractService {
      * game and whos turn is up now.</p>
      *
      * @param request Transports the games name and the senders UserDTO.
-     *
      * @author Pieter Vogt
      * @since 2021-03-26
      */
@@ -542,7 +534,6 @@ public class GameService extends AbstractService {
      * </p>
      *
      * @param request Transports the senders UserDTO
-     *
      * @author Marius Birk
      * @since 2021-04-03
      */
@@ -578,7 +569,6 @@ public class GameService extends AbstractService {
      * <p>
      *
      * @param game game that wants to update private and public inventories
-     *
      * @author Iskander Yusupov, Anton Nikiforov
      * @since 2021-04-08
      */
@@ -612,7 +602,6 @@ public class GameService extends AbstractService {
      * game, the game gets dropped. Finally we log how many games the user left.
      *
      * @param request LogoutRequest found on the eventBus
-     *
      * @author René Meyer, Sergej Tulnev
      * @see de.uol.swp.common.user.request.LogoutRequest
      * @see de.uol.swp.common.game.request.GameLeaveUserRequest
@@ -651,5 +640,164 @@ public class GameService extends AbstractService {
             }
         }
 
+    }
+
+    /**
+     * either initiates a new trade or adds a bid to an existing trade
+     * <p>
+     * the method checks if the user has enough items in his inventory
+     * if check not successful the methods sends an error message to the user
+     * if successful the method checks if the String tradeCode already exists
+     * if the tradeCode does not exists, the methods initiates a new trade. The user who send the TradeItemRequest becomes the seller
+     * the method sends TradeOfferInformBiddersMessage to the other users in the game, informing about them new trade
+     * if the tradeCOde does exists, the method adds a new bidder to the specified trade
+     * if all users, who are not the seller) have send their bid, the method informs the seller about the the offers(TradeInformSellerAboutBidsMessage)
+     *
+     * @param request TradeItemRequest
+     * @author Alexander Losse, Ricardo Mook
+     * @see TradeItem
+     * @see Trade
+     * @see TradeItemRequest
+     * @see TradeOfferInformBiddersMessage
+     * @see TradeInformSellerAboutBidsMessage
+     * @since 2021-04-11
+     */
+    @Subscribe
+    public void onTradeItemRequest(TradeItemRequest request) {
+        System.out.println("Got message " + request.getUser().getUsername());
+        Optional<Game> game = gameManagement.getGame(request.getName());
+/*      TODO: Wird nur zum testen verwendet
+        game.get().getInventory(request.getUser()).incCard("Lumber", 10);
+        game.get().getInventory(request.getUser()).incCard("Ore", 10);
+        game.get().getInventory(request.getUser()).incCard("Wool", 10);
+        game.get().getInventory(request.getUser()).incCard("Grain", 10);
+        game.get().getInventory(request.getUser()).incCard("Brick", 10);
+        Inventory easyPrüfen = game.get().getInventory(request.getUser());
+  */
+        if (game.isPresent()) {
+            boolean numberOfCardsCorrect = true;
+
+            for (TradeItem tradeItem : request.getTradeItems()) {
+                boolean notEnoughInInventoryCheck = tradeItem.getCount() > (int) game.get().getInventory(request.getUser()).getPrivateView().get(tradeItem.getName());
+                if (tradeItem.getCount() < 0 || notEnoughInInventoryCheck == true) {
+                    numberOfCardsCorrect = false;
+                    break;
+                }
+            }
+
+            if (numberOfCardsCorrect == true) {
+                String tradeCode = request.getTradeCode();
+                if (!game.get().getTradeList().containsKey(tradeCode)) {
+                    game.get().addTrades(new Trade(request.getUser(), request.getTradeItems()), tradeCode);
+
+                    System.out.println("added Trade " + tradeCode + " by User: " + request.getUser().getUsername() + " items: " + request.getTradeItems());
+
+                    for (User user : game.get().getUsers()) {
+                        if (!request.getUser().equals(user)) {
+                            TradeOfferInformBiddersMessage tradeOfferInformBiddersMessage = new TradeOfferInformBiddersMessage(request.getUser(), request.getName(), tradeCode, request.getTradeItems(), (UserDTO) user, request.getWishItems());
+                            sendToSpecificUserInGame(game, tradeOfferInformBiddersMessage, user);
+                            System.out.println("Send TradeOfferInformBiddersMessage to " + user.getUsername());
+                        }
+                    }
+                } else {
+                    Trade trade = game.get().getTradeList().get(request.getTradeCode());
+                    trade.addBid(request.getUser(), request.getTradeItems());
+                    System.out.println("added bid to " + tradeCode + " by User: " + request.getUser().getUsername() + " items: " + request.getTradeItems());
+                    if (trade.getBids().size() == game.get().getUsers().size() - 1) {
+                        System.out.println("bids full");
+                        TradeInformSellerAboutBidsMessage tisabm = new TradeInformSellerAboutBidsMessage(trade.getSeller(), request.getName(), tradeCode, trade.getBidders(), trade.getBids());
+                        sendToSpecificUserInGame(game, tisabm, trade.getSeller());
+                        System.out.println("Send TradeInformSellerAboutBidsMessage to " + trade.getSeller().getUsername());
+                    }
+                }
+            } else {
+                System.out.println("Nicht genug im Inventar");
+                TradeCardErrorMessage tcem = new TradeCardErrorMessage(request.getUser(), request.getName(), request.getTradeCode());
+                sendToSpecificUserInGame(game, tcem, request.getUser());
+            }
+        }
+    }
+
+
+    /**
+     * finalises the trade
+     * <p>
+     * if a bid was accepted by the seller
+     * trades the items between the users
+     * if rejected, nothing happens
+     * calls tradeEndedChatMessageHelper to inform the players about the result of the trade
+     * TradeEndedMessage is send to all player in game
+     * the specified trade is removed from the game
+     *
+     * @param request TradeChoiceRequest containing the choice the seller made
+     * @author Alexander Losse, Ricardo Mook
+     * @since 2021-04-13
+     */
+    @Subscribe
+    public void onTradeChoiceRequest(TradeChoiceRequest request) {
+        Optional<Game> game = gameManagement.getGame(request.getName());
+        if (game.isPresent()) {
+            Trade trade = game.get().getTradeList().get(request.getTradeCode());
+
+            if (request.getTradeAccepted() == true) {
+                Inventory inventorySeller = game.get().getInventory(trade.getSeller());
+                Inventory inventoryBidder = game.get().getInventory(request.getUser());
+
+                for (TradeItem soldItem : trade.getSellingItems()) {
+                    inventorySeller.decCard(soldItem.getName(), soldItem.getCount());
+                    inventoryBidder.incCard(soldItem.getName(), soldItem.getCount());
+                }
+                for (TradeItem bidItem : trade.getBids().get(request.getUser())) {
+                    inventorySeller.incCard(bidItem.getName(), bidItem.getCount());
+                    inventoryBidder.decCard(bidItem.getName(), bidItem.getCount());
+                }
+            }
+            tradeEndedChatMessageHelper(game.get().getName(), request.getTradeCode(), request.getUser().getUsername(), request.getTradeAccepted());
+            sendToAllInGame(request.getName(), new TradeEndedMessage(request.getTradeCode()));
+            game.get().removeTrade(request.getTradeCode());
+        }
+    }
+
+    /**
+     * help method to deliver a chatmessage to all players of the game how the trade ended
+     *
+     * @param gameName     the game name
+     * @param tradeCode    the trade code
+     * @param winnerBidder the winners name
+     * @param success      bool if successful or not
+     * @author Alexander Losse, Ricardo Mook
+     * @since 2021-04-11
+     */
+    private void tradeEndedChatMessageHelper(String gameName, String tradeCode, String winnerBidder, Boolean success) {
+        try {
+            String chatMessage;
+            var chatId = "game_" + gameName;
+            if (success) {
+                chatMessage = "The offer from Player " + winnerBidder + " was accepted at trade: " + tradeCode;
+            } else {
+                chatMessage = "None of the bids was accepted. Sorry! :(";
+            }
+            ResponseChatMessage msg = new ResponseChatMessage(chatMessage, chatId, "TradeInfo", System.currentTimeMillis());
+            post(msg);
+            LOG.debug("Posted ResponseChatMessage on eventBus");
+        } catch (Exception e) {
+            LOG.debug(e);
+        }
+    }
+
+    /**
+     * sends tradeStartedMessage to the seller when his request to start a trade is handled by the server
+     *
+     * @param request TradeStartRequest
+     * @author Alexander Losse, Ricardo Mook
+     * @see TradeStartRequest
+     * @since 2021-04-11
+     */
+    @Subscribe
+    public void onTradeStartedRequest(TradeStartRequest request) {
+        Optional<Game> game = gameManagement.getGame(request.getName());
+        UserDTO user = request.getUser();
+        TradeStartedMessage tsm = new TradeStartedMessage(user, request.getName(), request.getTradeCode());
+        sendToSpecificUserInGame(game, tsm, user);
     }
 }
