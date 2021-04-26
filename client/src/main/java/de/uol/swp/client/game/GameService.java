@@ -4,6 +4,7 @@ package de.uol.swp.client.game;
 import com.google.common.eventbus.EventBus;
 import com.google.inject.Inject;
 import de.uol.swp.common.game.message.ConstructionMessage;
+import de.uol.swp.common.game.message.RobbersNewFieldMessage;
 import de.uol.swp.common.game.request.*;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
@@ -117,5 +118,10 @@ public class GameService {
     public void constructBuilding(UserDTO user, String gameName, UUID uuid, String typeOfNode) {
         ConstructionMessage message = new ConstructionMessage(user, gameName, uuid, typeOfNode);
         eventBus.post(message);
+    }
+
+    public void movedRobber(String game, User user, UUID uuid) {
+        RobbersNewFieldMessage robbersNewFieldMessage = new RobbersNewFieldMessage(game, (UserDTO) user, uuid);
+        eventBus.post(robbersNewFieldMessage);
     }
 }

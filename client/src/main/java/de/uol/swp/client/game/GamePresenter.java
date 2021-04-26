@@ -307,10 +307,10 @@ public class GamePresenter extends AbstractPresenter {
      * The method initializes an array of 5 rectangles and fills it with the pictures of the resources. After that,
      * it creates 10 buttons and sets some icons, to indicate the buttons.
      * If this is complete, the method puts the buttons and rectangles into a gridpane that is shown besides the chat.
-     * After this initialization the pane gets invisible and will only be shown by the MoveRobberResponse.
+     * After this initialization the pane gets invisible and will only be shown by the TooMuchResourceCarsMessage.
      *
      * @author Marius Birk
-     * @see de.uol.swp.common.game.message.MoveRobberMessage
+     * @see de.uol.swp.common.game.message.TooMuchResourceCardsMessage
      * @since 2021-04-19
      */
     public void initializeRobberResourceMenu() {
@@ -354,30 +354,18 @@ public class GamePresenter extends AbstractPresenter {
 
         hideRobberResourceMenu();
 
-        //adding a eventhandler to know where the user wants to set the robber
-        EventHandler<MouseEvent> clickOnCircleHandler = new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent mouseEvent) {
-                for (HexagonContainer container : hexagonContainers) {
-                    System.out.println(container.getCircle());
-                    System.out.println(mouseEvent.getSource());
-                    if (mouseEvent.getSource().equals(container.getCircle()) && itsMyTurn == true) {
-                        robber.setX(container.getCircle().getCenterX());
-                        robber.setY(container.getCircle().getCenterY());
-                    }
-                }
-            }
-        };
-
-        for (HexagonContainer container : hexagonContainers) {
-            container.getCircle().setOnMouseClicked(clickOnCircleHandler);
-        }
+        //Initializing robber on the canvas
+        robber.setLayoutX((canvas.getWidth() / 2 + canvas.getLayoutX()) - (robber.getWidth() / 2));
+        robber.setLayoutY((canvas.getHeight() / 2 + canvas.getLayoutY()) - (robber.getHeight() / 2));
+        Platform.runLater(() -> {
+            gameAnchorPane.getChildren().add(robber);
+        });
     }
 
     /**
      * This method shows the initialized gridpane.
      * <p>
-     * This method shows the initialized gridpane, if the user does received a MoveRobberResponse.
+     * This method shows the initialized gridpane, if the user does received a TooMuchResourceCardsMessage.
      *
      * @author Marius Birk
      * @since 2021-04-19
@@ -391,7 +379,7 @@ public class GamePresenter extends AbstractPresenter {
     /**
      * This method hides the initialized gridpane.
      * <p>
-     * This method hides the initialized gridpane, if the user doesn't received a MoveRobberResponse.
+     * This method hides the initialized gridpane, if the user doesn't received a TooMuchResourceCardsMessage.
      *
      * @author Marius Birk
      * @since 2021-04-19
@@ -674,13 +662,6 @@ public class GamePresenter extends AbstractPresenter {
 
         }
 
-        robber.setLayoutX(centerOfCanvasVector.getX() - (robber.getWidth() / 2));
-        robber.setLayoutY(centerOfCanvasVector.getY() - (robber.getHeight() / 2));
-        Platform.runLater(() -> {
-            gameAnchorPane.getChildren().add(robber);
-        });
-
-
         //Draw buildings
 
         for (MapGraphNodeContainer mapGraphNodeContainer : mapGraphNodeContainers) {
@@ -776,6 +757,7 @@ public class GamePresenter extends AbstractPresenter {
         for (MapGraphNodeContainer container : mapGraphNodeContainers) {
             container.getCircle().setOnMouseClicked(clickOnCircleHandler);
         }
+        draw();
     }
 
     /**
@@ -905,6 +887,29 @@ public class GamePresenter extends AbstractPresenter {
                     this.alert.setHeaderText("Click on a field to move the Robber!");
                     this.alert.show();
                 });
+
+                //adding a eventhandler to know where the user wants to set the robber
+                EventHandler<MouseEvent> clickOnHexagonHandler = new EventHandler<MouseEvent>() {
+                    @Override
+                    public void handle(MouseEvent mouseEvent) {
+                        for (HexagonContainer container : hexagonContainers) {
+                            if (mouseEvent.getSource().equals(container.getCircle()) && itsMyTurn == true) {
+                                if (container.getHexagon().getTerrainType() != 6) {
+                                    robber.setLayoutX(container.getCircle().getLayoutX() - (robber.getWidth() / 2));
+                                    robber.setLayoutY(container.getCircle().getLayoutY() - (robber.getHeight() / 2));
+                                    for (HexagonContainer container1 : hexagonContainers) {
+                                        container1.getCircle().removeEventHandler(MouseEvent.MOUSE_PRESSED, this);
+                                    }
+                                    gameService.movedRobber(moveRobberMessage.getName(), moveRobberMessage.getUser(), container.getHexagon().getUuid());
+                                }
+                            }
+
+                        }
+                    }
+                };
+                for (HexagonContainer container : hexagonContainers) {
+                    container.getCircle().addEventHandler(MouseEvent.MOUSE_PRESSED, clickOnHexagonHandler);
+                }
 
 
             }

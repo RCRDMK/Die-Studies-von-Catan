@@ -371,10 +371,6 @@ public class GameService extends AbstractService {
 
     @Subscribe
     public void onRobbersNewFieldMessage(RobbersNewFieldMessage robbersNewFieldMessage) {
-        //Bei Möglichkeit Robber zu versetzen Alert einblenden um Nutze zu sagen, er soll auf neues Feld klicken um Robber zu bewegen.
-        //mouseEvent.getSource().equals(container.getCircle()) && itsMyTurn
-
-
         Optional<Game> game = gameManagement.getGame(robbersNewFieldMessage.getName());
         if (game.isPresent()) {
 
@@ -386,9 +382,10 @@ public class GameService extends AbstractService {
                 if (hexagon.getUuid().equals(robbersNewFieldMessage.getNewField())) {
                     //If the UUIDs match, the new field ist set to occupied
                     hexagon.setOccupiedByRobber(true);
+                    sendToAllInGame(robbersNewFieldMessage.getName(), new SuccessfullMovedRobberMessage(hexagon.getUuid()));
+
                 }
             }
-
 
         }
     }
