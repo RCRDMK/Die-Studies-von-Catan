@@ -127,6 +127,8 @@ public interface Game extends Serializable {
      */
     void nextRound();
 
+    ArrayList<MapGraph.BuildingNode> getLastBuildingOfOpeningTurn();
+
     /**
      * Runs the initial Turn for every player.
      * <p>
@@ -150,7 +152,6 @@ public interface Game extends Serializable {
      * Getter for the Inventory from user
      *
      * @param user
-     *
      * @return The Inventory from user
      * @author Anton Nikiforov
      * @see de.uol.swp.common.game.inventory.Inventory
@@ -168,11 +169,12 @@ public interface Game extends Serializable {
      */
     MapGraph getMapGraph();
 
+    boolean isStartingTurns();
+
     /**
      * Puts the parsed MapGraph into the DTO.
      *
      * @param mapGraph
-     *
      * @author Pieter Vogt
      * @see MapGraph
      * @since 2021-04-11

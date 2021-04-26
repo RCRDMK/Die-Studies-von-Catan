@@ -7,7 +7,6 @@ import com.google.inject.Singleton;
 import de.uol.swp.common.chat.ResponseChatMessage;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.MapGraph;
-import de.uol.swp.common.game.TerrainFieldContainer;
 import de.uol.swp.common.game.inventory.Inventory;
 import de.uol.swp.common.game.message.*;
 import de.uol.swp.common.game.request.*;
@@ -60,7 +59,6 @@ public class GameService extends AbstractService {
      * @param gameManagement        The management class for creating, storing and deleting games
      * @param authenticationService the user management
      * @param eventBus              the server-wide EventBus
-     *
      * @since 2021-01-07
      */
     @Inject
@@ -112,7 +110,6 @@ public class GameService extends AbstractService {
      * of a AllThisGameUsersResponse for a specific user that sent the initial request.
      *
      * @param retrieveAllThisGameUsersRequest The RetrieveAllThisGameUsersRequest found on the EventBus
-     *
      * @author Iskander Yusupov
      * @see de.uol.swp.common.game.Game
      * @since 2021-01-15
@@ -133,7 +130,6 @@ public class GameService extends AbstractService {
      * Handles incoming build requests.
      *
      * @param message
-     *
      * @author Pieter Vogt
      * @since 2021-04-15
      */
@@ -148,12 +144,12 @@ public class GameService extends AbstractService {
                 break;
             }
         }
-
         try {
             if (message.getTypeOfNode().equals("BuildingNode")) { //If the node from the message is a building node...
                 for (MapGraph.BuildingNode buildingNode : game.get().getMapGraph().getBuildingNodeHashSet()) {
                     if (message.getUuid().equals(buildingNode.getUuid())) { // ... and if the node in the message is a node in the MapGraph BuildingNodeSet...
                         if (buildingNode.buildOrDevelopSettlement(playerIndex)) {
+                            game.get().getMapGraph().addBuiltBuilding(buildingNode);
                             sendToAllInGame(game.get().getName(), new SuccessfulConstructionMessage(playerIndex, message.getUuid(), "BuildingNode"));
                             break;
                         }
@@ -205,7 +201,6 @@ public class GameService extends AbstractService {
      * @param game    Optional<Game> game
      * @param message ServerMessage message
      * @param user    User user
-     *
      * @author Alexander Losse, Ricardo Mook
      * @since 2021-03-11
      */
@@ -236,7 +231,6 @@ public class GameService extends AbstractService {
      * ResponseChatMessage containing the user who rolls the dice and the result is shown to every user in the game.
      *
      * @param rollDiceRequest The RollDiceRequest found on the EventBus
-     *
      * @author Kirstin, Pieter
      * @see de.uol.swp.common.game.request.RollDiceRequest
      * @see de.uol.swp.common.chat.ResponseChatMessage
@@ -278,7 +272,8 @@ public class GameService extends AbstractService {
             } else {
                 chatMessage = "Player " + rollDiceRequest.getUser().getUsername() + " rolled a " + dice.getEyes();
             }
-            ResponseChatMessage msg = new ResponseChatMessage(chatMessage, chatId, rollDiceRequest.getUser().getUsername(), System.currentTimeMillis());
+            ResponseChatMessage msg = new ResponseChatMessage(chatMessage, chatId,
+                    rollDiceRequest.getUser().getUsername(), System.currentTimeMillis());
             post(msg);
             LOG.debug("Posted ResponseChatMessage on eventBus");
         } catch (Exception e) {
@@ -287,67 +282,138 @@ public class GameService extends AbstractService {
     }
 
     /**
+     * Handles the distribution of resources to the users in the opening turn
+     * <p>
+     * This method handles the distribution of the resources to the users. First the method gets the game and gets the
+     * coressponding hexagons. After that the method gives the second built buildings in the opening turn the resource.
+     *
+     * @param gameName Name of the Game
+     * @author Philip Nitsche
+     * @since 2021-04-24
+     */
+    public void distributeResources(String gameName) {
+        Optional<Game> game = gameManagement.getGame(gameName);
+        if (game.isPresent()) {
+            for (MapGraph.Hexagon hexagon : game.get().getMapGraph().getHexagonHashSet())
+                for (int i = 0; i < game.get().getLastBuildingOfOpeningTurn().size(); i++)
+                    if (hexagon.getBuildingNodes().contains(game.get().getLastBuildingOfOpeningTurn().get(i))) {
+                        //"Ocean" = 0; "Forest" = 1; "Farmland" = 2; "Grassland" = 3; "Hillside" = 4; "Mountain" = 5; "Desert" = 6;
+                        switch (hexagon.getTerrainType()) {
+                            case 1:
+                                game.get().getInventory(game.get().getUser(i)).lumber.incNumber();
+                                break;
+                            case 2:
+                                game.get().getInventory(game.get().getUser(i)).grain.incNumber();
+                                break;
+                            case 3:
+                                game.get().getInventory(game.get().getUser(i)).wool.incNumber();
+                                break;
+                            case 4:
+                                game.get().getInventory(game.get().getUser(i)).brick.incNumber();
+                                break;
+                            case 5:
+                                game.get().getInventory(game.get().getUser(i)).ore.incNumber();
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+        }
+    }
+
+    /**
      * Handles the distribution of resources to the users
      * <p>
      * This method handles the distribution of the resources to the users. First the method gets the game and gets the
-     * coressponding terrainfieldcontainer. After that the method checks if the diceToken on the field is equal to the
-     * rolled amount of eyes and increases the resource of the user by one. To Do is, that not every user gets the
-     * ressource.
+     * coressponding hexagons. After that the method checks if the diceToken on the field is equal to the
+     * rolled amount of eyes and increases the resource of the user by one(village), two(city).
      *
      * @param eyes     Number of eyes rolled with dice
      * @param gameName Name of the Game
-     *
-     * @author Marius Birk, Carsten Dekker
+     * @author Marius Birk, Carsten Dekker, Philip Nitsche
      * @since 2021-04-06
      */
     public void distributeResources(int eyes, String gameName) {
         Optional<Game> game = gameManagement.getGame(gameName);
-
         if (game.isPresent()) {
-            //TODO Sobald eine Bank implementiert ist, müssen die Ressourcen natürlich noch bei der Bank abgezogen werden.
-            //"Ocean" = 0; "Forest" = 1; "Farmland" = 2; "Grassland" = 3; "Hillside" = 4; "Mountain" = 5; "Desert" = 6;
-            TerrainFieldContainer[] temp = game.get().getGameField().getTFCs();
-            for (TerrainFieldContainer terrainFieldContainer : temp) {
-                if (terrainFieldContainer.getDiceTokens() == eyes) {
-                    switch (terrainFieldContainer.getFieldType()) {
-                        case 1:
-                            for (User user : game.get().getUsers()) {
-                                //TODO Wenn Stadt angrenzend an Field, dann gebe User Resource, Erstmal wird an jeden Resource geben.
-                                game.get().getInventory(user).lumber.incNumber();
-                            }
-                            break;
-                        case 2:
-                            for (User user : game.get().getUsers()) {
-                                //TODO Wenn Stadt angrenzend an Field, dann gebe User Resource, Erstmal wird an jeden Resource geben
-                                game.get().getInventory(user).grain.incNumber();
-                            }
-                            break;
-                        case 3:
-                            for (User user : game.get().getUsers()) {
-                                //TODO Wenn Stadt angrenzend an Field, dann gebe User Resource, Erstmal wird an jeden Resource geben
-                                game.get().getInventory(user).wool.incNumber();
-                            }
-                            break;
-                        case 4:
-                            for (User user : game.get().getUsers()) {
-                                //TODO Wenn Stadt angrenzend an Field, dann gebe User Resource, Erstmal wird an jeden Resource geben
-                                game.get().getInventory(user).brick.incNumber();
-                            }
-                            break;
-                        case 5:
-                            for (User user : game.get().getUsers()) {
-                                //TODO Wenn Stadt angrenzend an Field, dann gebe User Ressource, Erstmal wird an jeden Ressource geben
-                                game.get().getInventory(user).ore.incNumber();
-                            }
-                            break;
-                        default:
-                            break;
+            for (MapGraph.Hexagon hexagon : game.get().getMapGraph().getHexagonHashSet()) {
+                if (hexagon.getDiceToken() == eyes) {
+                    for (MapGraph.BuildingNode buildingNode : hexagon.getBuildingNodes()) {
+                        //"Ocean" = 0; "Forest" = 1; "Farmland" = 2; "Grassland" = 3; "Hillside" = 4; "Mountain" = 5; "Desert" = 6;
+                        switch (hexagon.getTerrainType()) {
+                            case 1:
+                                switch (buildingNode.getSizeOfSettlement()) {
+                                    case 1:
+                                        game.get().getInventory(game.get().getUser(buildingNode.getOccupiedByPlayer())).lumber.incNumber();
+                                        break;
+                                    case 2:
+                                        game.get().getInventory(game.get().getUser(buildingNode.getOccupiedByPlayer())).lumber.incNumber();
+                                        game.get().getInventory(game.get().getUser(buildingNode.getOccupiedByPlayer())).lumber.incNumber();
+                                        break;
+                                    default:
+                                        break;
+                                }
+                                break;
+                            case 2:
+                                switch (buildingNode.getSizeOfSettlement()) {
+                                    case 1:
+                                        game.get().getInventory(game.get().getUser(buildingNode.getOccupiedByPlayer())).grain.incNumber();
+                                        break;
+                                    case 2:
+                                        game.get().getInventory(game.get().getUser(buildingNode.getOccupiedByPlayer())).grain.incNumber();
+                                        game.get().getInventory(game.get().getUser(buildingNode.getOccupiedByPlayer())).grain.incNumber();
+                                        break;
+                                    default:
+                                        break;
+                                }
+                                break;
+                            case 3:
+                                switch (buildingNode.getSizeOfSettlement()) {
+                                    case 1:
+                                        game.get().getInventory(game.get().getUser(buildingNode.getOccupiedByPlayer())).wool.incNumber();
+                                        break;
+                                    case 2:
+                                        game.get().getInventory(game.get().getUser(buildingNode.getOccupiedByPlayer())).wool.incNumber();
+                                        game.get().getInventory(game.get().getUser(buildingNode.getOccupiedByPlayer())).wool.incNumber();
+                                        break;
+                                    default:
+                                        break;
+                                }
+                                break;
+                            case 4:
+                                switch (buildingNode.getSizeOfSettlement()) {
+                                    case 1:
+                                        game.get().getInventory(game.get().getUser(buildingNode.getOccupiedByPlayer())).brick.incNumber();
+                                        break;
+                                    case 2:
+                                        game.get().getInventory(game.get().getUser(buildingNode.getOccupiedByPlayer())).brick.incNumber();
+                                        game.get().getInventory(game.get().getUser(buildingNode.getOccupiedByPlayer())).brick.incNumber();
+                                        break;
+                                    default:
+                                        break;
+                                }
+                                break;
+                            case 5:
+                                switch (buildingNode.getSizeOfSettlement()) {
+                                    case 1:
+                                        game.get().getInventory(game.get().getUser(buildingNode.getOccupiedByPlayer())).ore.incNumber();
+                                        break;
+                                    case 2:
+                                        game.get().getInventory(game.get().getUser(buildingNode.getOccupiedByPlayer())).ore.incNumber();
+                                        game.get().getInventory(game.get().getUser(buildingNode.getOccupiedByPlayer())).ore.incNumber();
+                                        break;
+                                    default:
+                                        break;
+                                }
+                            default:
+                                break;
+                        }
                     }
                 }
             }
-
         }
     }
+
 
     /**
      * Prepares a given ServerMessage to be send to all players in the lobby and posts it on the EventBus
@@ -355,7 +421,6 @@ public class GameService extends AbstractService {
      *
      * @param lobbyName Name of the lobby the players are in
      * @param message   the message to be send to the users
-     *
      * @author Marco Grawunder
      * @see de.uol.swp.common.message.ServerMessage
      * @since 2019-10-08
@@ -383,7 +448,6 @@ public class GameService extends AbstractService {
      * enhanced by Alexander Losse, Ricardo Mook 2021-03-05 enhanced by Marc Hermes 2021-03-25
      *
      * @param startGameRequest the StartGameRequest found on the EventBus
-     *
      * @author Kirstin Beyer, Iskander Yusupov
      * @see de.uol.swp.common.lobby.request.StartGameRequest
      * @since 2021-01-24
@@ -441,7 +505,6 @@ public class GameService extends AbstractService {
      * 2021-03-25
      *
      * @param lobby lobby that wants to start a game
-     *
      * @author Kirstin Beyer, Iskander Yusupov
      * @since 2021-01-24
      */
@@ -481,7 +544,6 @@ public class GameService extends AbstractService {
      * enhanced by Marc Hermes 2021-03-25
      *
      * @param playerReadyRequest the PlayerReadyRequest found on the EventBus
-     *
      * @author Kirstin Beyer, Iskander Yusupov
      * @see de.uol.swp.common.game.request.PlayerReadyRequest
      * @since 2021-01-24
@@ -514,16 +576,21 @@ public class GameService extends AbstractService {
      * game and whos turn is up now.</p>
      *
      * @param request Transports the games name and the senders UserDTO.
-     *
-     * @author Pieter Vogt
+     * @author Pieter Vogt, Philip Nitsche
      * @since 2021-03-26
      */
     @Subscribe
     public void onEndTurnRequest(EndTurnRequest request) {
-        if (request.getUser().getUsername().equals(gameManagement.getGame(request.getName()).get().getUser(gameManagement.getGame(request.getName()).get().getTurn()).getUsername())) {
+        Optional<Game> game = gameManagement.getGame(request.getName());
+        if (request.getUser().getUsername().equals(game.get().getUser(game.get().getTurn()).getUsername())) {
             try {
-                gameManagement.getGame(request.getName()).get().nextRound();
-                sendToAllInGame(gameManagement.getGame(request.getName()).get().getName(), new NextTurnMessage(gameManagement.getGame(request.getName()).get().getName(), gameManagement.getGame(request.getName()).get().getUser(gameManagement.getGame(request.getName()).get().getTurn()).getUsername(), gameManagement.getGame(request.getName()).get().getTurn()));
+                boolean priorGamePhase = game.get().isStartingTurns();
+                game.get().nextRound();
+                if (priorGamePhase == true && game.get().isStartingTurns() == false) {
+                    distributeResources(request.getName());
+                }
+                sendToAllInGame(game.get().getName(), new NextTurnMessage(game.get().getName(),
+                        game.get().getUser(game.get().getTurn()).getUsername(), game.get().getTurn()));
             } catch (GameManagementException e) {
                 LOG.debug(e);
                 System.out.println("Sender " + request.getUser().getUsername() + " was not player with current turn");
@@ -542,7 +609,6 @@ public class GameService extends AbstractService {
      * </p>
      *
      * @param request Transports the senders UserDTO
-     *
      * @author Marius Birk
      * @since 2021-04-03
      */
@@ -578,7 +644,6 @@ public class GameService extends AbstractService {
      * <p>
      *
      * @param game game that wants to update private and public inventories
-     *
      * @author Iskander Yusupov, Anton Nikiforov
      * @since 2021-04-08
      */
@@ -612,7 +677,6 @@ public class GameService extends AbstractService {
      * game, the game gets dropped. Finally we log how many games the user left.
      *
      * @param request LogoutRequest found on the eventBus
-     *
      * @author René Meyer, Sergej Tulnev
      * @see de.uol.swp.common.user.request.LogoutRequest
      * @see de.uol.swp.common.game.request.GameLeaveUserRequest
