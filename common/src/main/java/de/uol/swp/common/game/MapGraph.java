@@ -327,6 +327,7 @@ public class MapGraph implements Serializable {
 
             boolean existingConnection = false;
             boolean buildingAllowed = false;
+            boolean correctBuildingPhaseTwo = false;
             if (startingPhase > 0){
                 buildingAllowed = true;
             }
@@ -334,6 +335,7 @@ public class MapGraph implements Serializable {
             for (MapGraph.BuildingNode connectedBuildingNode : this.getConnectedBuildingNodes()) {
                 if (connectedBuildingNode.getOccupiedByPlayer() == playerIndex) {
                     existingConnection = true;
+                    correctBuildingPhaseTwo = builtBuildings.get(builtBuildings.size()-1).getUuid().equals(connectedBuildingNode.getUuid());
                 }
                 for (MapGraph.StreetNode connectedStreetNode : connectedBuildingNode.getConnectedStreetNodes()) {
                     if (connectedStreetNode.getOccupiedByPlayer() == playerIndex) {
@@ -347,7 +349,8 @@ public class MapGraph implements Serializable {
             }
 
             if (this.occupiedByPlayer == 666 && existingConnection && buildingAllowed && (startingPhase == 0 ||
-                    (numOfRoads[playerIndex] == startingPhase-1 && numOfRoads[playerIndex] < numOfBuildings[playerIndex]))) {
+                    ((startingPhase == 1 || (startingPhase == 2 && correctBuildingPhaseTwo)) &&
+                    numOfRoads[playerIndex] == startingPhase-1 && numOfRoads[playerIndex] < numOfBuildings[playerIndex]))) {
                 numOfRoads[playerIndex]++;
                 return buildRoad(playerIndex);
             } else return false;
@@ -481,7 +484,6 @@ public class MapGraph implements Serializable {
         public boolean buildOrDevelopSettlement(int playerIndex) {
             this.occupiedByPlayer = playerIndex;
             sizeOfSettlement++;
-            System.out.println("Size of Settlement = " + sizeOfSettlement);
             return true;
         }
     }
