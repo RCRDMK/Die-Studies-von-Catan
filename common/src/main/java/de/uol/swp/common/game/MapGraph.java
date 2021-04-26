@@ -23,6 +23,7 @@ public class MapGraph implements Serializable {
     private final HashSet<StreetNode> streetNodeHashSet = new HashSet<>();
     private final HashSet<BuildingNode> buildingNodeHashSet = new HashSet<>();
     private final HashSet<Hexagon> hexagonHashSet = new HashSet<>();
+    private final ArrayList<BuildingNode> builtBuildings = new ArrayList<>();
 
     /**
      * Creates the interconnected Grid of StreetNodes and BuildingNodes.
@@ -53,7 +54,6 @@ public class MapGraph implements Serializable {
      *
      * @param mapTypeToGenerate The standard-case is to generate a MapGraph for a standard-playfield. So if you wish to
      *                          generate one, just parse "".
-     *
      * @author Pieter Vogt
      * @since 2021-04-10
      */
@@ -193,6 +193,25 @@ public class MapGraph implements Serializable {
         return 666; //nonsense-value
     }
 
+    public ArrayList<BuildingNode> getBuiltBuildings() {
+        return builtBuildings;
+    }
+
+    /**
+     * Adds built Buildings to a List.
+     *
+     * <p>Adds a new building to the list if it is not already part of the list.</p>
+     *
+     * @author Philip Nitsche
+     * @since 2021-04-26
+     */
+
+    public void addBuiltBuilding(BuildingNode builtBuilding) {
+        if (!builtBuildings.contains(builtBuilding)) {
+            builtBuildings.add(builtBuilding);
+        }
+    }
+
     /**
      * Represents a buildable Node of the MapGraph.
      * <p>This class gives us the ability to put StreetNodes and BuildingNodes into the same List by putting in
@@ -298,7 +317,6 @@ public class MapGraph implements Serializable {
          * Builds a road for player with parsed index.
          *
          * @param playerIndex Index of the player who wants to build a road
-         *
          * @return True if construction was successful, false if not.
          * @author Pieter Vogt
          * @since 2021-04-15
@@ -397,7 +415,6 @@ public class MapGraph implements Serializable {
          * Builds or upgrades a settlement for player with parsed index.
          *
          * @param playerIndex Index of the player who wants to build or upgrade a building.
-         *
          * @return True if construction was successful, false if not.
          * @author Pieter Vogt
          * @since 2021-04-15
@@ -466,7 +483,6 @@ public class MapGraph implements Serializable {
          * the first Hexagon to be placed.</p>
          *
          * @param position The directional vector from the ancestor-Hexagon to this one.
-         *
          * @author Pieter Vogt
          * @since 2021-04-10
          */
@@ -483,7 +499,6 @@ public class MapGraph implements Serializable {
          *
          * @param position     The directional vector from the ancestor-Hexagon to this one.
          * @param positionList The List of positional vectors that describes the position of the ancestor-Hexagon.
-         *
          * @author Pieter Vogt
          * @since 2021-04-10
          */
