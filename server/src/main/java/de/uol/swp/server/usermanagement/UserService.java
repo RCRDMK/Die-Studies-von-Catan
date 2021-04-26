@@ -128,6 +128,7 @@ public class UserService extends AbstractService {
      * RetrieveUserInformationResponse is posted on the EventBus otherwise a RetrieveUserMailExceptionMessage
      * gets posted there.
      *
+     * @author Carsten Dekker
      * @param retrieveUserMailRequest The RetrieveUserMailRequest found on the EventBus
      * @author Carsten Dekker
      * @see de.uol.swp.common.user.request.RetrieveUserMailRequest
@@ -162,6 +163,7 @@ public class UserService extends AbstractService {
      *
      * @param updateUserMailRequest The UpdateUserRequest found on the EventBus
      * @author Carsten Dekker
+     * @param updateUserMailRequest The UpdateUserRequest found on the EventBus
      * @see de.uol.swp.common.user.request.UpdateUserMailRequest
      * @since 2021-03-14
      */
@@ -193,6 +195,7 @@ public class UserService extends AbstractService {
      * UpdateUserSuccessfulResponse is posted on the EventBus otherwise a UpdateUserExceptionMessage
      * gets posted there.
      *
+     * @author Carsten Dekker
      * @param updateUserPasswordRequest The UpdateUserRequest found on the EventBus
      * @author Carsten Dekker
      * @see de.uol.swp.common.user.request.UpdateUserPasswordRequest
