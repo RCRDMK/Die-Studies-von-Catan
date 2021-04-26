@@ -8,7 +8,7 @@
 <AnchorPane fx:id="gameAnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.uol.swp.client.game.GamePresenter">
     <children>
         <TextArea fx:id="gameChatArea" editable="false" layoutX="370.0" layoutY="231.0" prefHeight="114.0" prefWidth="224.0" GridPane.rowIndex="2" />
-        <Label fx:id="BuildingNotSuccessfulLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="370.0" layoutY="125.0" prefHeight="17.0" prefWidth="224.0" text="You can not build here" textAlignment="CENTER" visible="false" />
+        <Label fx:id="BuildingNotSuccessfulLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="370.0" layoutY="125.0" prefHeight="17.0" prefWidth="224.0" text="You are not allowed to build here" textAlignment="CENTER" visible="false" />
         <ListView fx:id="gameUsersView" layoutX="370.0" layoutY="30.0" prefHeight="90.0" prefWidth="224.0" />
 
         <ToolBar layoutY="-5.0" prefHeight="35.0" prefWidth="600.0">

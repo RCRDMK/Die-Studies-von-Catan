@@ -23,6 +23,9 @@ public class MapGraph implements Serializable {
     private final HashSet<StreetNode> streetNodeHashSet = new HashSet<>();
     private final HashSet<BuildingNode> buildingNodeHashSet = new HashSet<>();
     private final HashSet<Hexagon> hexagonHashSet = new HashSet<>();
+    private int[] numOfRoads = new int[]{0,0,0,0};
+    private int[] numOfBuildings = new int[]{0,0,0,0};
+
 
     /**
      * Creates the interconnected Grid of StreetNodes and BuildingNodes.
@@ -303,11 +306,11 @@ public class MapGraph implements Serializable {
          * @author Pieter Vogt, enhanced by Kirstin Beyer
          * @since 2021-04-15
          */
-        public Boolean tryBuildRoad(int playerIndex, boolean startingTurns) {
+        public Boolean tryBuildRoad(int playerIndex, int startingPhase) {
 
             boolean existingConnection = false;
             boolean buildingAllowed = false;
-            if (startingTurns) {
+            if (startingPhase > 0){
                 buildingAllowed = true;
             }
 
@@ -317,16 +320,18 @@ public class MapGraph implements Serializable {
                 }
                 for (MapGraph.StreetNode connectedStreetNode : connectedBuildingNode.getConnectedStreetNodes()) {
                     if (connectedStreetNode.getOccupiedByPlayer() == playerIndex) {
+                        existingConnection = true;
                         if (connectedBuildingNode.getOccupiedByPlayer() == 666 || connectedBuildingNode.getOccupiedByPlayer() == playerIndex) {
                             buildingAllowed = true;
-                            existingConnection = true;
                             break;
                         }
                     }
                 }
             }
 
-            if (this.occupiedByPlayer == 666 && existingConnection && buildingAllowed) {
+            if (this.occupiedByPlayer == 666 && existingConnection && buildingAllowed && (startingPhase == 0 ||
+                    (numOfRoads[playerIndex] == startingPhase-1 && numOfRoads[playerIndex] < numOfBuildings[playerIndex]))) {
+                numOfRoads[playerIndex]++;
                 return buildRoad(playerIndex);
             } else return false;
         }
@@ -428,11 +433,11 @@ public class MapGraph implements Serializable {
          * @author Pieter Vogt, enhanced by Kirstin Beyer
          * @since 2021-04-15
          */
-        public Boolean tryBuildOrDevelopSettlement(int playerIndex, boolean startingTurns) {
+        public Boolean tryBuildOrDevelopSettlement(int playerIndex, int startingPhase) {
 
             boolean existingStreet = false;
             boolean buildingAllowed = true;
-            if (startingTurns) {
+            if (startingPhase > 0) {
                 existingStreet = true;
             }
 
@@ -448,7 +453,9 @@ public class MapGraph implements Serializable {
             }
 
             if (occupiedByPlayer == 666 || occupiedByPlayer == playerIndex) {
-                if (sizeOfSettlement < 2 && existingStreet && buildingAllowed) {
+                if (sizeOfSettlement < 2 && existingStreet && buildingAllowed &&
+                        (startingPhase == 0 || numOfBuildings[playerIndex] == startingPhase-1)) {
+                    numOfBuildings[playerIndex]++;
                     return buildOrDevelopSettlement(playerIndex);
                 } else return false;
             } else return false;
@@ -1178,7 +1185,7 @@ public class MapGraph implements Serializable {
                 streetLeft.addBuildingNode(buildingTopLeft);
                 streetLeft.addBuildingNode(buildingBottomLeft);
 
-                streetRight.addBuildingNode(buildingTopLeft);
+                streetRight.addBuildingNode(buildingBottomRight);
                 streetRight.addBuildingNode(buildingTopRight);
 
                 streetBottomLeft.addBuildingNode(buildingBottom);

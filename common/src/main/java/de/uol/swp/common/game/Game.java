@@ -99,12 +99,12 @@ public interface Game extends Serializable {
     void setUpUserArrayList();
 
     /**
-     * Returns a boolean, indicating the starting turns.
+     * Returns an integer, indicating the number of starting phase.
      *
      * @author Kirstin Beyer
      * @since 2021-04-25
      */
-    boolean getStartingTurns();
+    int getStartingPhase();
 
     /**
      * Returns a number, indicating whos turn it is.

@@ -153,7 +153,8 @@ public class GameService extends AbstractService {
             if (message.getTypeOfNode().equals("BuildingNode")) { //If the node from the message is a building node...
                 for (MapGraph.BuildingNode buildingNode : game.get().getMapGraph().getBuildingNodeHashSet()) {
                     if (message.getUuid().equals(buildingNode.getUuid())) { // ... and if the node in the message is a node in the MapGraph BuildingNodeSet...
-                        if (buildingNode.tryBuildOrDevelopSettlement(playerIndex, game.get().getStartingTurns())) {
+                        game.get().getStartingPhase();
+                        if (buildingNode.tryBuildOrDevelopSettlement(playerIndex, game.get().getStartingPhase())) {
                             sendToAllInGame(game.get().getName(), new SuccessfulConstructionMessage(playerIndex, message.getUuid(), "BuildingNode"));
                             break;
                         } else sendToAllInGame(game.get().getName(), new NotSuccessfulConstructionMessage(playerIndex, message.getUuid(), "BuildingNode"));
@@ -162,7 +163,7 @@ public class GameService extends AbstractService {
             } else {
                 for (MapGraph.StreetNode streetNode : game.get().getMapGraph().getStreetNodeHashSet()) {
                     if (message.getUuid().equals(streetNode.getUuid())) {
-                        if (streetNode.tryBuildRoad(playerIndex, game.get().getStartingTurns())) {
+                        if (streetNode.tryBuildRoad(playerIndex, game.get().getStartingPhase())) {
                             sendToAllInGame(game.get().getName(), new SuccessfulConstructionMessage(playerIndex, message.getUuid(), "StreetNode"));
                             break;
                         } else sendToAllInGame(game.get().getName(), new NotSuccessfulConstructionMessage(playerIndex, message.getUuid(), "BuildingNode"));

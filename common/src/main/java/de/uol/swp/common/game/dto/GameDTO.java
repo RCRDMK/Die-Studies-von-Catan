@@ -33,6 +33,7 @@ public class GameDTO implements Game {
     private final ArrayList<User> userArrayList = new ArrayList<User>();
     private User owner;
     private boolean startingTurns = true;
+    private int startingPhase = 1;
     private boolean countingUp = true;
     private boolean lastPlayerSecondTurn = false;
     private DevelopmentCardDeck developmentCardDeck = new DevelopmentCardDeck();
@@ -188,18 +189,23 @@ public class GameDTO implements Game {
         if (overallTurns == userArrayList.size() - 1 && !lastPlayerSecondTurn) { // 1)... and if the last player did his first turn but he did not use his second turn:
             lastPlayerSecondTurn = true; // now he did.
             countingUp = false; // we count backwards from now on.
+            startingPhase = 2;
             return;
         } else if (overallTurns <= userArrayList.size()) { // 2)... and if we are not at the last player ...
             if (countingUp) { // 2a)... and if we still count up:
                 overallTurns++; //count one up.
+                startingPhase = 1;
                 return;
             } else { // 2b)... and if we dont count up anymore ...
                 if (overallTurns > 0) {  // 2b1) ... and if we did not arrive back at player 1:
                     overallTurns--; // count one down.
                     countingUp = false; // dont count up anymore.
+                    startingPhase = 2;
                     return;
-                } else
+                } else {
                     startingTurns = false; // 2b2) if we are at player 1 and were already counting backwards, end the openingphase.
+                    startingPhase = 0;
+                }
             }
         }
     }
@@ -265,7 +271,7 @@ public class GameDTO implements Game {
     }
 
     @Override
-    public boolean getStartingTurns() {
-        return startingTurns;
+    public int getStartingPhase() {
+        return startingPhase;
     }
 }

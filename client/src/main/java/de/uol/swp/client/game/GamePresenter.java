@@ -800,7 +800,6 @@ public class GamePresenter extends AbstractPresenter {
      */
     @Subscribe
     public void onNotSuccessfulConstructionMessage(NotSuccessfulConstructionMessage message) {
-        LOG.debug("Building not successful");
         BuildingNotSuccessfulLabel.setVisible(true);
     }
 
