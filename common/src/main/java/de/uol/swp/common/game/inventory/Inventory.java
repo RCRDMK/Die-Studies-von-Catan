@@ -128,7 +128,7 @@ public class Inventory {
         privateInventory.put("Victory Point Card", cardVictoryPoint);
 
         // Building Units
-        privateInventory.put("Citys", city.getNumber());
+        privateInventory.put("Cities", city.getNumber());
         privateInventory.put("Roads", road.getNumber());
         privateInventory.put("Settlements", settlement.getNumber());
 

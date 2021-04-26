@@ -25,6 +25,8 @@ import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
@@ -83,6 +85,34 @@ public class GamePresenter extends AbstractPresenter {
 
     @FXML
     private Button EndTurnButton;
+
+    @FXML
+    private javafx.scene.image.ImageView privateLumber;
+    public Image lumber = new Image ("textures/resized/RES_Holz.png");
+    @FXML
+    private javafx.scene.image.ImageView privateBrick;
+    public Image brick = new Image ("textures/resized/RES_Lehm.png");
+    @FXML
+    private javafx.scene.image.ImageView privateGrain;
+    public Image grain = new Image ("textures/resized/RES_Getreide.png");
+    @FXML
+    private javafx.scene.image.ImageView privateWool;
+    public Image wool = new Image ("textures/resized/RES_Wolle.png");
+    @FXML
+    private javafx.scene.image.ImageView privateOre;
+    public Image ore = new Image ("textures/resized/RES_Erz.png");
+    @FXML
+    private javafx.scene.image.ImageView privateDevelopmentCard;
+    public Image devCard = new Image ("textures/resized/CARD_Ritter.png");
+    @FXML
+    private javafx.scene.image.ImageView privateCities;
+    public Image cities = new Image ("textures/resized/RES_Holz.png");
+    @FXML
+    private javafx.scene.image.ImageView privateRoads;
+    public Image roads = new Image ("textures/resized/RES_Holz.png");
+    @FXML
+    private javafx.scene.image.ImageView privateSettlements;
+    public Image settlements = new Image ("textures/resized/RES_Holz.png");
 
     /**
      * Method called when the send Message button is pressed
@@ -274,6 +304,7 @@ public class GamePresenter extends AbstractPresenter {
             this.currentLobby = gcm.getName();
             updateGameUsersList(gcm.getUsers());
             initializeMatch(gcm.getMapGraph());
+            displayPrivateInventory();
             Platform.runLater(this::setupRessourceAlert);
         }
     }
@@ -435,7 +466,7 @@ public class GamePresenter extends AbstractPresenter {
      * Updates the game menu user list of the current game according to the list given
      * <p>
      * This method clears the entire user list and then adds the name of each user in the list given to the game menu
-     * user list. If there ist no user list this creates one.
+     * user list. If there is no user list this creates one.
      *
      * @param gameUserList A list of UserDTO objects including all currently logged in users
      *
@@ -793,5 +824,17 @@ public class GamePresenter extends AbstractPresenter {
     @Subscribe
     public void onPublicInventoryChangeMessage(PublicInventoryChangeMessage publicInventoryChangeMessage) {
         //TODO: Darstellung der Veränderung des Inventars
+    }
+
+    public void displayPrivateInventory (){
+        privateLumber.setImage(lumber);
+        privateBrick.setImage(brick);
+        privateGrain.setImage(grain);
+        privateWool.setImage(wool);
+        privateOre.setImage(ore);
+        privateDevelopmentCard.setImage(devCard);
+        privateCities.setImage(cities);
+        privateRoads.setImage(roads);
+        privateSettlements.setImage(settlements);
     }
 }
