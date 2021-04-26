@@ -169,6 +169,16 @@ public interface Game extends Serializable {
      */
     MapGraph getMapGraph();
 
+    /**
+     * Returns a boolean, whether the opening phase is active.
+     *
+     * <p>This is used to identify the starting round at the beginning of a game.</p>
+     *
+     * @return boolean value, whether the opening phase is active
+     * @author Philip Nitsche
+     * @since 2021-04-26
+     */
+
     boolean isStartingTurns();
 
     /**

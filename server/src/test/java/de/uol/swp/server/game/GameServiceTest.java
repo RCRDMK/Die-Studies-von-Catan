@@ -2,6 +2,7 @@ package de.uol.swp.server.game;
 
 import com.google.common.eventbus.EventBus;
 import de.uol.swp.common.game.Game;
+import de.uol.swp.common.game.MapGraph;
 import de.uol.swp.common.game.request.GameLeaveUserRequest;
 import de.uol.swp.common.game.request.RetrieveAllThisGameUsersRequest;
 import de.uol.swp.common.lobby.Lobby;
@@ -14,7 +15,9 @@ import de.uol.swp.server.usermanagement.UserManagement;
 import org.junit.jupiter.api.Test;
 
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -236,4 +239,57 @@ public class GameServiceTest {
         assertEquals(game.get().getInventory(userDTO).lumber.getNumber(), 1);
         assertEquals(game.get().getInventory(userDTO).grain.getNumber(), 1);
     }*/
+
+    /**
+     * This test checks if the distributeResource method works as intendet.
+     * <p>
+     * We create a new gameService and we create a new game. After that we assert that, the game is present and we
+     * join some user to the game. We setup the inventories and the UserArrayList. We built at every possible
+     * buildingspot. We assume that we rolled a 5 and give that to our method. To check if it works fine, we
+     * assert that it incremented with 6.
+     *
+     * @author Philip Nitsche
+     * @since 2021-04-26
+     */
+
+    @Test
+    void distributeResourcesTest() {
+        GameService gameService1 = new GameService(gameManagement, lobbyService, authenticationService, bus);
+
+        gameManagement.createGame("test", userDTO, "Standard");
+        Optional<Game> game = gameManagement.getGame("test");
+        assertTrue(game.isPresent());
+
+        game.get().joinUser(userDTO1);
+        game.get().joinUser(userDTO2);
+        game.get().joinUser(userDTO3);
+
+        game.get().setUpUserArrayList();
+        game.get().setUpInventories();
+
+        for (MapGraph.BuildingNode b : game.get().getMapGraph().getBuildingNodeHashSet()) {
+            b.buildOrDevelopSettlement(1);
+        }
+
+        Map<String, Integer> inventoryEmpty = new HashMap<>();
+        inventoryEmpty = game.get().getInventory(game.get().getUser(1)).getPrivateView();
+        assertEquals(inventoryEmpty.get("Lumber"), 0);
+        assertEquals(inventoryEmpty.get("Brick"), 0);
+        assertEquals(inventoryEmpty.get("Grain"), 0);
+        assertEquals(inventoryEmpty.get("Wool"), 0);
+        assertEquals(inventoryEmpty.get("Ore"), 0);
+
+        gameService1.distributeResources(5, "test");
+        Map<String, Integer> inventoryFull = new HashMap<>();
+        inventoryFull = game.get().getInventory(game.get().getUser(1)).getPrivateView();
+        assertEquals(inventoryFull.get("Lumber"), 6);
+        assertEquals(inventoryFull.get("Brick"), 0);
+        assertEquals(inventoryFull.get("Grain"), 6);
+        assertEquals(inventoryFull.get("Wool"), 0);
+        assertEquals(inventoryFull.get("Ore"), 0);
+        assertEquals(game.get().getInventory(game.get().getUser(1)).getResource(), 12);
+        assertEquals(game.get().getInventory(game.get().getUser(0)).getResource(), 0);
+        assertEquals(game.get().getInventory(game.get().getUser(2)).getResource(), 0);
+    }
+
 }

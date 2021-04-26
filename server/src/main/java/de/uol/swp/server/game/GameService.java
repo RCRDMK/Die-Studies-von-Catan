@@ -150,7 +150,8 @@ public class GameService extends AbstractService {
                     if (message.getUuid().equals(buildingNode.getUuid())) { // ... and if the node in the message is a node in the MapGraph BuildingNodeSet...
                         if (buildingNode.buildOrDevelopSettlement(playerIndex)) {
                             game.get().getMapGraph().addBuiltBuilding(buildingNode);
-                            sendToAllInGame(game.get().getName(), new SuccessfulConstructionMessage(playerIndex, message.getUuid(), "BuildingNode"));
+                            sendToAllInGame(game.get().getName(), new SuccessfulConstructionMessage(playerIndex,
+                                    message.getUuid(), "BuildingNode"));
                             break;
                         }
                     }
@@ -159,7 +160,8 @@ public class GameService extends AbstractService {
                 for (MapGraph.StreetNode streetNode : game.get().getMapGraph().getStreetNodeHashSet()) {
                     if (message.getUuid().equals(streetNode.getUuid())) {
                         if (streetNode.buildRoad(playerIndex)) {
-                            sendToAllInGame(game.get().getName(), new SuccessfulConstructionMessage(playerIndex, message.getUuid(), "StreetNode"));
+                            sendToAllInGame(game.get().getName(), new SuccessfulConstructionMessage(playerIndex,
+                                    message.getUuid(), "StreetNode"));
                             break;
                         }
 
@@ -339,71 +341,47 @@ public class GameService extends AbstractService {
             for (MapGraph.Hexagon hexagon : game.get().getMapGraph().getHexagonHashSet()) {
                 if (hexagon.getDiceToken() == eyes) {
                     for (MapGraph.BuildingNode buildingNode : hexagon.getBuildingNodes()) {
+                        Inventory inventory = game.get().getInventory(game.get().getUser(buildingNode.getOccupiedByPlayer()));
                         //"Ocean" = 0; "Forest" = 1; "Farmland" = 2; "Grassland" = 3; "Hillside" = 4; "Mountain" = 5; "Desert" = 6;
                         switch (hexagon.getTerrainType()) {
                             case 1:
-                                switch (buildingNode.getSizeOfSettlement()) {
-                                    case 1:
-                                        game.get().getInventory(game.get().getUser(buildingNode.getOccupiedByPlayer())).lumber.incNumber();
-                                        break;
-                                    case 2:
-                                        game.get().getInventory(game.get().getUser(buildingNode.getOccupiedByPlayer())).lumber.incNumber();
-                                        game.get().getInventory(game.get().getUser(buildingNode.getOccupiedByPlayer())).lumber.incNumber();
-                                        break;
-                                    default:
-                                        break;
+                                if (buildingNode.getSizeOfSettlement() == 1) {
+                                    inventory.lumber.incNumber();
+                                } else if (buildingNode.getSizeOfSettlement() == 2) {
+                                    inventory.lumber.incNumber();
+                                    inventory.lumber.incNumber();
                                 }
                                 break;
                             case 2:
-                                switch (buildingNode.getSizeOfSettlement()) {
-                                    case 1:
-                                        game.get().getInventory(game.get().getUser(buildingNode.getOccupiedByPlayer())).grain.incNumber();
-                                        break;
-                                    case 2:
-                                        game.get().getInventory(game.get().getUser(buildingNode.getOccupiedByPlayer())).grain.incNumber();
-                                        game.get().getInventory(game.get().getUser(buildingNode.getOccupiedByPlayer())).grain.incNumber();
-                                        break;
-                                    default:
-                                        break;
+                                if (buildingNode.getSizeOfSettlement() == 1) {
+                                    inventory.grain.incNumber();
+                                } else if (buildingNode.getSizeOfSettlement() == 2) {
+                                    inventory.grain.incNumber();
+                                    inventory.grain.incNumber();
                                 }
                                 break;
                             case 3:
-                                switch (buildingNode.getSizeOfSettlement()) {
-                                    case 1:
-                                        game.get().getInventory(game.get().getUser(buildingNode.getOccupiedByPlayer())).wool.incNumber();
-                                        break;
-                                    case 2:
-                                        game.get().getInventory(game.get().getUser(buildingNode.getOccupiedByPlayer())).wool.incNumber();
-                                        game.get().getInventory(game.get().getUser(buildingNode.getOccupiedByPlayer())).wool.incNumber();
-                                        break;
-                                    default:
-                                        break;
+                                if (buildingNode.getSizeOfSettlement() == 1) {
+                                    inventory.wool.incNumber();
+                                } else if (buildingNode.getSizeOfSettlement() == 2) {
+                                    inventory.wool.incNumber();
+                                    inventory.wool.incNumber();
                                 }
                                 break;
                             case 4:
-                                switch (buildingNode.getSizeOfSettlement()) {
-                                    case 1:
-                                        game.get().getInventory(game.get().getUser(buildingNode.getOccupiedByPlayer())).brick.incNumber();
-                                        break;
-                                    case 2:
-                                        game.get().getInventory(game.get().getUser(buildingNode.getOccupiedByPlayer())).brick.incNumber();
-                                        game.get().getInventory(game.get().getUser(buildingNode.getOccupiedByPlayer())).brick.incNumber();
-                                        break;
-                                    default:
-                                        break;
+                                if (buildingNode.getSizeOfSettlement() == 1) {
+                                    inventory.brick.incNumber();
+                                } else if (buildingNode.getSizeOfSettlement() == 2) {
+                                    inventory.brick.incNumber();
+                                    inventory.brick.incNumber();
                                 }
                                 break;
                             case 5:
-                                switch (buildingNode.getSizeOfSettlement()) {
-                                    case 1:
-                                        game.get().getInventory(game.get().getUser(buildingNode.getOccupiedByPlayer())).ore.incNumber();
-                                        break;
-                                    case 2:
-                                        game.get().getInventory(game.get().getUser(buildingNode.getOccupiedByPlayer())).ore.incNumber();
-                                        game.get().getInventory(game.get().getUser(buildingNode.getOccupiedByPlayer())).ore.incNumber();
-                                        break;
-                                    default:
-                                        break;
+                                if (buildingNode.getSizeOfSettlement() == 1) {
+                                    inventory.ore.incNumber();
+                                } else if (buildingNode.getSizeOfSettlement() == 2) {
+                                    inventory.ore.incNumber();
+                                    inventory.ore.incNumber();
                                 }
                             default:
                                 break;

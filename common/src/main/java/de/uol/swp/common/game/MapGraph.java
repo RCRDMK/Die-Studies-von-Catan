@@ -197,6 +197,15 @@ public class MapGraph implements Serializable {
         return builtBuildings;
     }
 
+    /**
+     * Adds built Buildings to a List.
+     *
+     * <p>Adds a new building to the list if it is not already part of the list.</p>
+     *
+     * @author Philip Nitsche
+     * @since 2021-04-26
+     */
+
     public void addBuiltBuilding(BuildingNode builtBuilding) {
         if (!builtBuildings.contains(builtBuilding)) {
             builtBuildings.add(builtBuilding);
