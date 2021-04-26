@@ -876,10 +876,10 @@ public class GamePresenter extends AbstractPresenter {
 
     @Subscribe
     public void onMoveRobberMessage(MoveRobberMessage moveRobberMessage) {
-        moveRobberResponseLogic(moveRobberMessage);
+        moveRobberMessageLogic(moveRobberMessage);
     }
 
-    public void moveRobberResponseLogic(MoveRobberMessage moveRobberMessage) {
+    public void moveRobberMessageLogic(MoveRobberMessage moveRobberMessage) {
         if (this.currentLobby != null) {
             if (this.currentLobby.equals(moveRobberMessage.getName())) {
                 Platform.runLater(() -> {
@@ -967,6 +967,16 @@ public class GamePresenter extends AbstractPresenter {
     }
 
     @Subscribe
+    public void onSuccessfullMovedRobberMessage(SuccessfullMovedRobberMessage successfullMovedRobberMessage) {
+        for (HexagonContainer hexagonContainer : hexagonContainers) {
+            if (hexagonContainer.getHexagon().getUuid().equals(successfullMovedRobberMessage.getNewField())) {
+                robber.setLayoutX(hexagonContainer.getCircle().getLayoutX() - (robber.getWidth() / 2));
+                robber.setLayoutY(hexagonContainer.getCircle().getLayoutY() - (robber.getHeight() / 2));
+            }
+        }
+    }
+
+    @Subscribe
     public void onPrivateInventoryChangeMessage(PrivateInventoryChangeMessage privateInventoryChangeMessage) {
         //TODO: Darstellung der Veränderung des Inventars
     }
@@ -979,7 +989,7 @@ public class GamePresenter extends AbstractPresenter {
 
     @Subscribe
     public void onTooMuchRessourceCardsMessage(TooMuchResourceCardsMessage tooMuchResourceCardsMessage) {
-        //show alert
+        showRobberResourceMenu();
 
         //send Message with ressources to discard and to add to bank
     }

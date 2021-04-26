@@ -370,7 +370,7 @@ public class GameService extends AbstractService {
     }
 
     @Subscribe
-    public void onRobbersNewFieldMessage(RobbersNewFieldMessage robbersNewFieldMessage) {
+    public void onRobbersNewFieldRequest(RobbersNewFieldRequest robbersNewFieldMessage) {
         Optional<Game> game = gameManagement.getGame(robbersNewFieldMessage.getName());
         if (game.isPresent()) {
 

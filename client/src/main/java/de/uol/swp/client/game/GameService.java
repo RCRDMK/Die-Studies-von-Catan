@@ -4,7 +4,7 @@ package de.uol.swp.client.game;
 import com.google.common.eventbus.EventBus;
 import com.google.inject.Inject;
 import de.uol.swp.common.game.message.ConstructionMessage;
-import de.uol.swp.common.game.message.RobbersNewFieldMessage;
+import de.uol.swp.common.game.message.RobbersNewFieldRequest;
 import de.uol.swp.common.game.request.*;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
@@ -121,7 +121,7 @@ public class GameService {
     }
 
     public void movedRobber(String game, User user, UUID uuid) {
-        RobbersNewFieldMessage robbersNewFieldMessage = new RobbersNewFieldMessage(game, (UserDTO) user, uuid);
+        RobbersNewFieldRequest robbersNewFieldMessage = new RobbersNewFieldRequest(game, (UserDTO) user, uuid);
         eventBus.post(robbersNewFieldMessage);
     }
 }
