@@ -453,8 +453,9 @@ public class MapGraph implements Serializable {
             }
 
             if (occupiedByPlayer == 666 || occupiedByPlayer == playerIndex) {
-                if (sizeOfSettlement < 2 && existingStreet && buildingAllowed &&
-                        (startingPhase == 0 || numOfBuildings[playerIndex] == startingPhase-1)) {
+                if ((sizeOfSettlement < 1 && existingStreet && buildingAllowed &&
+                        (startingPhase == 0 || numOfBuildings[playerIndex] == startingPhase-1)) ||
+                        (startingPhase == 0 && sizeOfSettlement == 1 && occupiedByPlayer == playerIndex)) {
                     numOfBuildings[playerIndex]++;
                     return buildOrDevelopSettlement(playerIndex);
                 } else return false;
@@ -464,6 +465,7 @@ public class MapGraph implements Serializable {
         public boolean buildOrDevelopSettlement(int playerIndex) {
             this.occupiedByPlayer = playerIndex;
             sizeOfSettlement++;
+            System.out.println("Size of Settlement = " + sizeOfSettlement);
             return true;
         }
     }

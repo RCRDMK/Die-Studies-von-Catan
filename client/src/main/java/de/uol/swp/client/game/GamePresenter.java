@@ -791,11 +791,11 @@ public class GamePresenter extends AbstractPresenter {
     }
 
     /**
-     * Updates the corresponding Node in the list of MapGraphNodes to represent the changes from the message.
+     * Sets BuildingNotSuccessfulLabel visible.
      *
-     * @param message The data about the changed properties of the MapGraph
+     * @param message NotSuccessfulConstructionMessage
      *
-     * @author Pieter Vogt
+     * @author Kirstin Beyer
      * @since 2021-04-15
      */
     @Subscribe
