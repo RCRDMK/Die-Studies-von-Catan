@@ -5,12 +5,11 @@ import de.uol.swp.common.game.GameField;
 import de.uol.swp.common.game.MapGraph;
 import de.uol.swp.common.game.inventory.DevelopmentCardDeck;
 import de.uol.swp.common.game.inventory.Inventory;
+import de.uol.swp.common.game.trade.Trade;
 import de.uol.swp.common.user.User;
+import de.uol.swp.common.user.UserDTO;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 /**
  * Object to transfer the information of a game
@@ -37,18 +36,20 @@ public class GameDTO implements Game {
     private boolean countingUp = true;
     private boolean lastPlayerSecondTurn = false;
     private DevelopmentCardDeck developmentCardDeck = new DevelopmentCardDeck();
+    private final ArrayList<MapGraph.BuildingNode> lastBuildingOfOpeningTurn = new ArrayList<>();
 
     private Inventory inventory1;
     private Inventory inventory2;
     private Inventory inventory3;
     private Inventory inventory4;
 
+    private HashMap<String, Trade> tradeList = new HashMap<>();
+
     /**
      * Constructor
      *
      * @param name    The name the game should have
      * @param creator The user who created the game and therefore shall be the owner
-     *
      * @since 2021-01-15
      */
     public GameDTO(String name, User creator) {
@@ -170,16 +171,32 @@ public class GameDTO implements Game {
     }
 
     /**
+     * Returns the last built Buildings.
+     *
+     * <p>Returns a Array List with the last built Buildings</p>
+     *
+     * @return Returns a Array List with the last built Buildings
+     * @author Philip Nitsche
+     * @since 2021-04-26
+     */
+
+    @Override
+    public ArrayList<MapGraph.BuildingNode> getLastBuildingOfOpeningTurn() {
+        return lastBuildingOfOpeningTurn;
+    }
+
+    /**
      * Organizing the opening-phase for the set amount of players.
      *
      * <p>
      * This is checking many different statements for boolean value to evaluate which players turn is up next. It does
      * this until every player did his move according to the games rules. For n players, the opening-phase goes from
      * player 1 upwards to player n, then player n again and then backwards to player 1. After that, it disables the
-     * opening-phase for the rest of the game.
+     * opening-phase for the rest of the game. It also creates a list of the built buildings from which raw materials
+     * are distributed in the opening phase
      * </p>
      *
-     * @author Pieter Vogt
+     * @author Pieter Vogt, Philip Nitsche
      * @since 2021-03-30
      */
     @Override
@@ -205,6 +222,9 @@ public class GameDTO implements Game {
                 } else {
                     startingTurns = false; // 2b2) if we are at player 1 and were already counting backwards, end the openingphase.
                     startingPhase = 0;
+                    for (int i = 0; i < userArrayList.size(); i++) {
+                        lastBuildingOfOpeningTurn.add(mapGraph.getBuiltBuildings().get(mapGraph.getBuiltBuildings().size() - 1 - i));
+                    }
                 }
             }
         }
@@ -234,7 +254,6 @@ public class GameDTO implements Game {
      * It compares the user with the inventory user and returns the inventory from user
      *
      * @param user
-     *
      * @return The Inventory from user
      * @author Anton Nikiforov
      * @see de.uol.swp.common.game.inventory.Inventory
@@ -260,6 +279,11 @@ public class GameDTO implements Game {
     }
 
     @Override
+    public boolean isStartingTurns() {
+        return startingTurns;
+    }
+
+    @Override
     public void setMapGraph(MapGraph mapGraph) {
         this.mapGraph = mapGraph;
     }
@@ -273,5 +297,42 @@ public class GameDTO implements Game {
     @Override
     public int getStartingPhase() {
         return startingPhase;
+    }
+
+    /**
+     * adds a Trade to the game
+     *
+     * @see Trade
+     * @param trade Trade to be added
+     * @param tradeCode String used to identify trade
+     * @author Alecander Losse, Ricardo Mook
+     * @since 2021-04-13
+     */
+    @Override
+    public void addTrades(Trade trade, String tradeCode){
+        tradeList.put(tradeCode,trade);
+    }
+    /**
+     * getter for the HashMap containing the Trades
+     *
+     * @return HashMap<String, Trade>
+     * @author Alecander Losse, Ricardo Mook
+     * @since 2021-04-13
+     */
+    @Override
+    public HashMap getTradeList(){
+        return tradeList;
+    }
+
+    /**
+     * removes a trade from the game
+     *
+     * @param tradeCode String used to identify trade
+     * @author Alecander Losse, Ricardo Mook
+     * @since 2021-04-13
+     */
+    @Override
+    public void removeTrade(String tradeCode){
+        tradeList.remove(tradeCode);
     }
 }
