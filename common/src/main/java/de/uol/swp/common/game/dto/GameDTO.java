@@ -5,12 +5,11 @@ import de.uol.swp.common.game.GameField;
 import de.uol.swp.common.game.MapGraph;
 import de.uol.swp.common.game.inventory.DevelopmentCardDeck;
 import de.uol.swp.common.game.inventory.Inventory;
+import de.uol.swp.common.game.trade.Trade;
 import de.uol.swp.common.user.User;
+import de.uol.swp.common.user.UserDTO;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 /**
  * Object to transfer the information of a game
@@ -42,6 +41,8 @@ public class GameDTO implements Game {
     private Inventory inventory2;
     private Inventory inventory3;
     private Inventory inventory4;
+
+    private HashMap<String, Trade> tradeList = new HashMap<>();
 
     /**
      * Constructor
@@ -286,5 +287,42 @@ public class GameDTO implements Game {
     @Override
     public GameField getGameField() {
         return null;
+    }
+
+    /**
+     * adds a Trade to the game
+     *
+     * @see Trade
+     * @param trade Trade to be added
+     * @param tradeCode String used to identify trade
+     * @author Alecander Losse, Ricardo Mook
+     * @since 2021-04-13
+     */
+    @Override
+    public void addTrades(Trade trade, String tradeCode){
+        tradeList.put(tradeCode,trade);
+    }
+    /**
+     * getter for the HashMap containing the Trades
+     *
+     * @return HashMap<String, Trade>
+     * @author Alecander Losse, Ricardo Mook
+     * @since 2021-04-13
+     */
+    @Override
+    public HashMap getTradeList(){
+        return tradeList;
+    }
+
+    /**
+     * removes a trade from the game
+     *
+     * @param tradeCode String used to identify trade
+     * @author Alecander Losse, Ricardo Mook
+     * @since 2021-04-13
+     */
+    @Override
+    public void removeTrade(String tradeCode){
+        tradeList.remove(tradeCode);
     }
 }

@@ -168,4 +168,69 @@ public class Inventory {
 
         return (HashMap) publicInventory;
     }
+
+    /**
+     * increases a specific Ressource Card by a specific amount
+     *
+     * this method calls the Method incNumber(int) of the class Card
+     * String Card specifies the Ressource Card
+     * valid Strings: Lumber, Brick, Grain, Wool, Ore
+     *
+     * @param card the name of the Ressource Card
+     * @param amount how much of the Card should be increased
+     * @author Alexander Losse, Ricardo Mook
+     * @since 2021-04-08
+     */
+    public void incCard(String card, int amount){
+        switch (card){
+            case "Lumber":
+                lumber.incNumber(amount);
+                break;
+            case "Brick":
+                brick.incNumber(amount);
+                break;
+            case "Grain":
+                grain.incNumber(amount);
+                break;
+            case "Wool":
+                wool.incNumber(amount);
+                break;
+            case "Ore":
+                ore.incNumber(amount);
+                break;
+        }
+    }
+
+    /**
+     * decreases a specific Ressource Card by a specific amount
+     *
+     * this method calls the Method decNumber(int) of the class Card
+     * String Card specifies the Ressource Card
+     * valid Strings: Lumber, Brick, Grain, Wool, Ore
+     *
+     * @param card the name of the Ressource Card
+     * @param amount how much of the Card should be decreased
+     * @author Alexander Losse, Ricardo Mook
+     * @since 2021-04-08
+     */
+    public void decCard(String card, int amount){
+        switch (card){
+            case "Lumber":
+                lumber.decNumber(amount);
+                break;
+            case "Brick":
+                brick.decNumber(amount);
+                break;
+            case "Grain":
+                grain.decNumber(amount);
+                break;
+            case "Wool":
+                wool.decNumber(amount);
+                break;
+            case "Ore":
+                ore.decNumber(amount);
+                break;
+        }
+    }
+
 }
