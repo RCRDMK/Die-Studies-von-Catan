@@ -4,16 +4,9 @@ import com.google.common.eventbus.DeadEvent;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import de.uol.swp.common.game.Game;
-
-import de.uol.swp.common.game.message.TradeInformSellerAboutBidsMessage;
-import de.uol.swp.common.game.message.TradeOfferInformBiddersMessage;
-
 import de.uol.swp.common.game.MapGraph;
 import de.uol.swp.common.game.request.GameLeaveUserRequest;
 import de.uol.swp.common.game.request.RetrieveAllThisGameUsersRequest;
-import de.uol.swp.common.game.request.TradeChoiceRequest;
-import de.uol.swp.common.game.request.TradeItemRequest;
-import de.uol.swp.common.game.trade.TradeItem;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.user.Session;
 import de.uol.swp.common.user.UserDTO;
@@ -27,7 +20,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -80,6 +72,7 @@ public class GameServiceTest {
     void deregisterBus() {
         bus.unregister(this);
     }
+
     /**
      * Test checks if created lobby exists, then it is joined by userDTO1.
      * <p>
