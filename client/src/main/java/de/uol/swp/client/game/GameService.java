@@ -4,7 +4,7 @@ package de.uol.swp.client.game;
 import com.google.common.eventbus.EventBus;
 import com.google.inject.Inject;
 import de.uol.swp.common.game.message.ConstructionMessage;
-import de.uol.swp.common.game.message.RobbersNewFieldRequest;
+import de.uol.swp.common.game.message.RobbersNewFieldMessage;
 import de.uol.swp.common.game.message.TradeEndedMessage;
 import de.uol.swp.common.game.request.*;
 import de.uol.swp.common.game.trade.TradeItem;
@@ -121,9 +121,8 @@ public class GameService {
         eventBus.post(message);
     }
 
-    public void movedRobber(String game, User user, UUID uuid) {
-        RobbersNewFieldRequest robbersNewFieldMessage = new RobbersNewFieldRequest(game, (UserDTO) user, uuid);
-        eventBus.post(robbersNewFieldMessage);
+    drawResourceFromPlayer(String userName) {
+
     }
 
 
@@ -168,12 +167,17 @@ public class GameService {
      * @author Alexander Losse, Ricardo Mook
      * @since 2021-04-21
      */
-    public void endTradeBeforeItStarted(UserDTO user, String gameName,String tradeCode) {
+    public void endTradeBeforeItStarted(UserDTO user, String gameName, String tradeCode) {
         TradeEndedMessage tem = new TradeEndedMessage(tradeCode);
         eventBus.post(tem);
     }
 
-    public void sendTradeStartedRequest(UserDTO joinedLobbyUser, String currentLobby, String tradeCode){
+    public void sendTradeStartedRequest(UserDTO joinedLobbyUser, String currentLobby, String tradeCode) {
         eventBus.post(new TradeStartRequest(joinedLobbyUser, currentLobby, tradeCode));
+    }
+
+    public void movedRobber(String game, User user, UUID uuid) {
+        RobbersNewFieldMessage robbersNewFieldMessage = new RobbersNewFieldMessage(game, (UserDTO) user, uuid);
+        eventBus.post(robbersNewFieldMessage);
     }
 }

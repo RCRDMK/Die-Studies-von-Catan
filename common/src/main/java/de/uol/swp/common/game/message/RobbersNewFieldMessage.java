@@ -5,11 +5,11 @@ import de.uol.swp.common.user.UserDTO;
 
 import java.util.UUID;
 
-public class RobbersNewFieldRequest extends AbstractGameRequest {
+public class RobbersNewFieldMessage extends AbstractGameRequest {
 
     UUID newField;
 
-    public RobbersNewFieldRequest(String name, UserDTO user, UUID newField) {
+    public RobbersNewFieldMessage(String name, UserDTO user, UUID newField) {
         super(name, user);
         this.newField = newField;
     }

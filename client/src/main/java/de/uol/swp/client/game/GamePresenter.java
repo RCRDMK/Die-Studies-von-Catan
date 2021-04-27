@@ -39,10 +39,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Manages the GameView
@@ -69,6 +66,9 @@ public class GamePresenter extends AbstractPresenter {
     private String currentLobby;
     private Alert alert;
     private ButtonType buttonTypeOkay;
+    private ButtonType buttonTypeOne;
+    private ButtonType buttonTypeTwo;
+    private ButtonType buttonTypeThree;
     private Button btnOkay;
     private ObservableList<String> gameUsers;
     private ArrayList<HexagonContainer> hexagonContainers = new ArrayList<>();
@@ -305,7 +305,6 @@ public class GamePresenter extends AbstractPresenter {
             updateGameUsersList(gcm.getUsers());
             initializeMatch(gcm.getMapGraph());
             Platform.runLater(() -> {
-                setupRessourceAlert();
                 initializeRobberResourceMenu();
                 setupRobberAlert();
             });
@@ -322,7 +321,6 @@ public class GamePresenter extends AbstractPresenter {
      * After this initialization the pane gets invisible and will only be shown by the TooMuchResourceCarsMessage.
      *
      * @author Marius Birk
-     * @see de.uol.swp.common.game.message.TooMuchResourceCardsMessage
      * @since 2021-04-19
      */
     public void initializeRobberResourceMenu() {
@@ -830,6 +828,7 @@ public class GamePresenter extends AbstractPresenter {
 
     }
 
+
     @Subscribe
     public void onBuyDevelopmentCardMessage(BuyDevelopmentCardMessage buyDevelopmentCardMessage) {
         buyDevelopmentCardLogic(buyDevelopmentCardMessage.getDevCard());
@@ -860,9 +859,7 @@ public class GamePresenter extends AbstractPresenter {
         if (this.currentLobby != null) {
             if (this.currentLobby.equals(notEnoughRessourcesMessage.getName())) {
                 Platform.runLater(() -> {
-                    this.alert.setTitle(notEnoughRessourcesMessage.getName());
-                    this.alert.setHeaderText("You have not enough Ressources!");
-                    this.alert.show();
+                    setupRessourceAlert(notEnoughRessourcesMessage.getName());
                 });
             }
         }
@@ -877,15 +874,15 @@ public class GamePresenter extends AbstractPresenter {
      * @author Marius Birk
      * @since 2021-04-03
      */
-    public void setupRessourceAlert() {
+    public void setupRessourceAlert(String gameName) {
         this.alert = new Alert(javafx.scene.control.Alert.AlertType.CONFIRMATION);
         this.buttonTypeOkay = new ButtonType("Okay", ButtonBar.ButtonData.OK_DONE);
         alert.getButtonTypes().setAll(buttonTypeOkay);
         this.btnOkay = (Button) alert.getDialogPane().lookupButton(buttonTypeOkay);
-        btnOkay.setOnAction(event -> {
-            alert.close();
-            event.consume();
-        });
+        alert.getButtonTypes().setAll(buttonTypeOkay);
+        this.alert.setHeaderText("You have not enough Ressources!");
+        this.alert.setTitle(gameName);
+        alert.show();
     }
 
     @Subscribe
@@ -909,8 +906,6 @@ public class GamePresenter extends AbstractPresenter {
                         for (HexagonContainer container : hexagonContainers) {
                             if (mouseEvent.getSource().equals(container.getCircle()) && itsMyTurn == true) {
                                 if (container.getHexagon().getTerrainType() != 6) {
-                                    robber.setLayoutX(container.getCircle().getLayoutX() - (robber.getWidth() / 2));
-                                    robber.setLayoutY(container.getCircle().getLayoutY() - (robber.getHeight() / 2));
                                     for (HexagonContainer container1 : hexagonContainers) {
                                         container1.getCircle().removeEventHandler(MouseEvent.MOUSE_PRESSED, this);
                                     }
@@ -924,8 +919,6 @@ public class GamePresenter extends AbstractPresenter {
                 for (HexagonContainer container : hexagonContainers) {
                     container.getCircle().addEventHandler(MouseEvent.MOUSE_PRESSED, clickOnHexagonHandler);
                 }
-
-
             }
         }
     }
@@ -948,6 +941,35 @@ public class GamePresenter extends AbstractPresenter {
             alert.close();
             event.consume();
         });
+    }
+
+    /**
+     * The method invoked when the Game Presenter is first used.
+     * <p>
+     * The Alert tells the user, that he has to move the robber to a new field. The user can only
+     * click the showed button to close the dialog.
+     *
+     * @author Marius Birk
+     * @since 2021-04-20
+     */
+    public void setupChoosePlayerAlert(ChoosePlayerMessage choosePlayerMessage) {
+        this.alert = new Alert(Alert.AlertType.CONFIRMATION);
+        this.buttonTypeOne = new ButtonType(choosePlayerMessage.getUserList().get(0));
+        this.buttonTypeTwo = new ButtonType(choosePlayerMessage.getUserList().get(1));
+        this.buttonTypeThree = new ButtonType(choosePlayerMessage.getUserList().get(2));
+        alert.getButtonTypes().setAll(buttonTypeOne, buttonTypeTwo, buttonTypeThree);
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.get() == buttonTypeOne) {
+            gameService.drawResourceFromPlayer(choosePlayerMessage.getUserList().get(0));
+        }
+        if (result.get() == buttonTypeTwo) {
+            drawResourceFromPlayer(choosePlayerMessage.getUserList().get(1));
+
+        }
+        if (result.get() == buttonTypeThree) {
+            drawResourceFromPlayer(choosePlayerMessage.getUserList().get(2));
+
+        }
     }
 
     /**
@@ -1027,5 +1049,19 @@ public class GamePresenter extends AbstractPresenter {
         showRobberResourceMenu();
 
         //send Message with ressources to discard and to add to bank
+    }
+
+    @Subscribe
+    public void onRobberResourceToDiscardMessage(ChoosePlayerMessage choosePlayerMessage) {
+
+    }
+
+    @Subscribe
+    public void onChoosePlayerMessage(ChoosePlayerMessage choosePlayerMessage) {
+        if (this.currentLobby != null) {
+            if (this.currentLobby.equals(choosePlayerMessage.getName())) {
+                Platform.runLater(() -> setupChoosePlayerAlert(choosePlayerMessage));
+            }
+        }
     }
 }

@@ -268,7 +268,7 @@ public class GameService extends AbstractService {
         if (dice.getEyes() == 7) {
             Optional<Game> game = gameManagement.getGame(rollDiceRequest.getName());
             if (game.isPresent()) {
-                MoveRobberMessage moveRobberMessage = new MoveRobberMessage(rollDiceRequest.getName());
+                MoveRobberMessage moveRobberMessage = new MoveRobberMessage(rollDiceRequest.getName(), (UserDTO) rollDiceRequest.getUser());
                 sendToSpecificUserInGame(gameManagement.getGame(rollDiceRequest.getName()), moveRobberMessage, rollDiceRequest.getUser());
 
                 for (User user : game.get().getUsers()) {
@@ -415,10 +415,10 @@ public class GameService extends AbstractService {
 
 
     @Subscribe
-    public void onRobbersNewFieldRequest(RobbersNewFieldRequest robbersNewFieldMessage) {
+    public void onRobbersNewFieldRequest(RobbersNewFieldMessage robbersNewFieldMessage) {
         Optional<Game> game = gameManagement.getGame(robbersNewFieldMessage.getName());
         if (game.isPresent()) {
-
+            List<String> userList = new ArrayList<>();
             //Indicate the old robbers place and "deactivate" the occupiedByRobber option.
             for (MapGraph.Hexagon hexagon : game.get().getMapGraph().getHexagonHashSet()) {
                 if (hexagon.isOccupiedByRobber()) {
@@ -428,10 +428,16 @@ public class GameService extends AbstractService {
                     //If the UUIDs match, the new field ist set to occupied
                     hexagon.setOccupiedByRobber(true);
                     sendToAllInGame(robbersNewFieldMessage.getName(), new SuccessfullMovedRobberMessage(hexagon.getUuid()));
+                }
 
+                for (int i = 0; i < hexagon.getBuildingNodes().size(); i++) {
+                    if (hexagon.getBuildingNodes().get(i).getOccupiedByPlayer() != 666) {
+                        userList.add(game.get().getUser(hexagon.getBuildingNodes().get(i).getOccupiedByPlayer()).getUsername());
+                    }
                 }
             }
-
+            ChoosePlayerMessage choosePlayerMessage = new ChoosePlayerMessage(game.get().getName(), robbersNewFieldMessage.getUser(), userList);
+            sendToSpecificUserInGame(game, choosePlayerMessage, robbersNewFieldMessage.getUser());
         }
     }
 
@@ -753,7 +759,7 @@ public class GameService extends AbstractService {
     public void onTradeItemRequest(TradeItemRequest request) {
         System.out.println("Got message " + request.getUser().getUsername());
         Optional<Game> game = gameManagement.getGame(request.getName());
-      TODO: Wird nur zum testen verwendet
+        //TODO: Wird nur zum testen verwendet
 
         if (game.isPresent()) {
             boolean numberOfCardsCorrect = true;
@@ -880,5 +886,9 @@ public class GameService extends AbstractService {
         UserDTO user = request.getUser();
         TradeStartedMessage tsm = new TradeStartedMessage(user, request.getName(), request.getTradeCode());
         sendToSpecificUserInGame(game, tsm, user);
+    }
+
+    public GameManagement getGameManagement() {
+        return gameManagement;
     }
 }

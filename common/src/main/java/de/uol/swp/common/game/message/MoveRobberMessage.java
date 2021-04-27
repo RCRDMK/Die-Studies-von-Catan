@@ -1,5 +1,7 @@
 package de.uol.swp.common.game.message;
 
+import de.uol.swp.common.user.UserDTO;
+
 /**
  * Response send to the user, that rolled a seven.
  *
@@ -8,13 +10,7 @@ package de.uol.swp.common.game.message;
  * @since 2021-04-07
  */
 public class MoveRobberMessage extends AbstractGameMessage {
-    private final String gameName;
-
-    public MoveRobberMessage(String gameName) {
-        this.gameName = gameName;
-    }
-
-    public String getName() {
-        return gameName;
+    public MoveRobberMessage(String name, UserDTO user) {
+        super(name, user);
     }
 }
