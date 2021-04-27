@@ -13,7 +13,7 @@ import de.uol.swp.common.user.exception.UpdateUserExceptionMessage;
 import de.uol.swp.common.user.request.*;
 import de.uol.swp.common.user.response.DropUserSuccessfulResponse;
 import de.uol.swp.common.user.response.RegistrationSuccessfulResponse;
-import de.uol.swp.common.user.response.RetrieveUserMailResponse;
+import de.uol.swp.common.user.response.RetrieveUserInformationResponse;
 import de.uol.swp.common.user.response.UpdateUserSuccessfulResponse;
 import de.uol.swp.server.AbstractService;
 import org.apache.logging.log4j.LogManager;
