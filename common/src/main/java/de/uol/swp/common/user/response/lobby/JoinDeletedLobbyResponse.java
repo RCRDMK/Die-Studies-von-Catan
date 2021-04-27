@@ -16,16 +16,22 @@ public class JoinDeletedLobbyResponse extends AbstractResponseMessage {
 
     private String lobbyName;
 
-    public JoinDeletedLobbyResponse(String lobbyName){
+    /**
+     * Constructor
+     *
+     * @param lobbyName Name form the Lobby
+     */
+
+    public JoinDeletedLobbyResponse(String lobbyName) {
         this.lobbyName = lobbyName;
     }
 
-    public String getLobbyName(){
+    public String getLobbyName() {
         return lobbyName;
     }
 
     @Override
-    public int hashCode(){
+    public int hashCode() {
         return Objects.hash(lobbyName);
     }
 

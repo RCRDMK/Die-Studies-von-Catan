@@ -27,6 +27,7 @@ public class LobbyCreatedSuccessfulResponse extends AbstractResponseMessage {
     /**
      * Constructor
      * <p>
+     *
      * @author Marc Hermes
      * @since 2020-11-24
      */

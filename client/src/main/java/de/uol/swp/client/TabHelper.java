@@ -1,4 +1,5 @@
 package de.uol.swp.client;
+
 import javafx.collections.ListChangeListener;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
@@ -22,6 +23,7 @@ public class TabHelper {
     /**
      * Getter for the tabPane
      * <p>
+     *
      * @return tabPane of the TabHelper
      * @author Alexander Losse, Marc Hermes
      * @since 2021-01-20
@@ -33,6 +35,7 @@ public class TabHelper {
     /**
      * Setter for the tabPane
      * <p>
+     *
      * @param tabPane the tabPane to be set to this tabHelper
      * @author Alexander Losse, Marc Hermes
      * @since 2021-01-20
@@ -62,6 +65,7 @@ public class TabHelper {
      * Initializes the TabHelper so that the tabsMap Hashmap is updated everytime a tab is added or removed
      * from the tabPane of this TabHelper
      * <p>
+     *
      * @author Alexander Losse, Marc Hermes
      * @since 2021-01-20
      */
@@ -75,9 +79,9 @@ public class TabHelper {
                         tabsMap.put(tab.getText(), tab);
                     }
                 }
-                if(c.wasRemoved()){
+                if (c.wasRemoved()) {
                     List<? extends Tab> removedTabs = c.getRemoved();
-                    for(Tab tab : removedTabs){
+                    for (Tab tab : removedTabs) {
                         tabsMap.remove(tab.getText());
                     }
                 }
@@ -89,6 +93,7 @@ public class TabHelper {
     /**
      * Adds a Tab to the tabPane stored in the TabHelper
      * <p>
+     *
      * @param tab the Tab to be added to the inherent tabPane
      * @return true when successfully added, false when not
      * @author Alexander Losse, Marc Hermes
@@ -101,6 +106,7 @@ public class TabHelper {
     /**
      * Returns a Tab in the tabsMap in regards to the text of the tab
      * <p>
+     *
      * @param text the text of the Tab to be found in the tabsMap
      * @return the Tab corresponding to the text found in the tabsMap
      * @author Alexander Losse, Marc Hermes
@@ -113,12 +119,13 @@ public class TabHelper {
     /**
      * Adds a Tab to the tabPane stored in the TabHelper
      * <p>
+     *
      * @param text the text of the Tab to be removed from the inherent tabPane
      * @return true when successfully removed, false when not
      * @author Alexander Losse, Marc Hermes
      * @since 2021-01-20
      */
-    public boolean removeTab(String text){
+    public boolean removeTab(String text) {
         return this.tabPane.getTabs().remove(getTabByText(text));
     }
 
@@ -128,17 +135,16 @@ public class TabHelper {
      * Puts the tab to suspend in the suspendedTabs Map and removes it from the
      * tabsMap.
      *
-     * @author Marc Hermes
      * @param text The name of the Tab to suspend
      * @return True when successfully suspended, false when not
+     * @author Marc Hermes
      * @since 2021-03-16
      */
     public boolean suspendTab(String text) {
         if (tabsMap.containsKey(text)) {
             suspendedTabs.put(text, getTabByText(text));
             return removeTab(text);
-        }
-        else {
+        } else {
             return false;
         }
     }
@@ -149,17 +155,16 @@ public class TabHelper {
      * Removes the tab to unsuspend from the suspendedTabs Map and adds it to the
      * tabsMap.
      *
-     * @author Marc Hermes
      * @param text The name of the Tab to unsuspend
      * @return True when successfully unsuspended, false when not
+     * @author Marc Hermes
      * @since 2021-03-16
      */
     public boolean unsuspendTab(String text) {
         if (suspendedTabs.containsKey(text)) {
             Tab tabToUnsuspend = suspendedTabs.remove(text);
             return addTab(tabToUnsuspend);
-        }
-        else {
+        } else {
             return false;
         }
     }

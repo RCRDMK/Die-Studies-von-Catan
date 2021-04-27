@@ -12,7 +12,8 @@ class SerializationTestHelperTest {
     @Test
     void checkNonSerializable() {
         assertThrows(RuntimeException.class, () ->
-                SerializationTestHelper.checkSerializableAndDeserializable(new NotSerializable(), NotSerializable.class));
+                SerializationTestHelper.checkSerializableAndDeserializable(new NotSerializable(),
+                        NotSerializable.class));
     }
 
     @Test

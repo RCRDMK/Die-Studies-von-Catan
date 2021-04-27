@@ -19,6 +19,11 @@ public class ResponseChatMessage extends AbstractServerMessage {
 
     /**
      * Constructor
+     *
+     * @param message  Text the Message should contain
+     * @param chat     Chat the Massage was send in
+     * @param username Username form the User how tries to send the message
+     * @param time     Time when the User tries to send the message
      * @author René Meyer
      * @since 2020-11-30
      */

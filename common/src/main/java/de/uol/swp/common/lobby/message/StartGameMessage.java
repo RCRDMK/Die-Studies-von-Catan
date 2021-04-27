@@ -8,9 +8,10 @@ import java.util.List;
 /**
  * Message sent by the server when there are enough players in the lobby and game can be started.
  * <p>
+ *
+ * @author Kirstin Beyer, Iskander Yusupov
  * @see de.uol.swp.common.lobby.request.AbstractLobbyRequest
  * @see de.uol.swp.common.user.User
- * @author Kirstin Beyer, Iskander Yusupov
  * @since 2021-01-24
  */
 public class StartGameMessage extends AbstractLobbyMessage {
@@ -20,6 +21,7 @@ public class StartGameMessage extends AbstractLobbyMessage {
     /**
      * Default constructor
      * <p>
+     *
      * @implNote this constructor is needed for serialization
      * @author Kirstin Beyer, Iskander Yusupov
      * @since 2021-01-24
@@ -30,8 +32,9 @@ public class StartGameMessage extends AbstractLobbyMessage {
     /**
      * Constructor
      * <p>
+     *
      * @param lobbyName name of the lobby
-     * @param user user sent startGameRequest
+     * @param user      user sent startGameRequest
      * @author Kirstin Beyer, Iskander Yusupov
      * @since 2021-01-24
      */
