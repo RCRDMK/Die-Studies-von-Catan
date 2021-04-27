@@ -16,6 +16,7 @@ import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.user.response.game.AllThisGameUsersResponse;
 import de.uol.swp.common.user.response.game.GameLeftSuccessfulResponse;
+import javafx.animation.AnimationTimer;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
@@ -28,6 +29,7 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
@@ -130,7 +132,7 @@ public class GamePresenter extends AbstractPresenter {
 
     Image dicePictureSix = new Image("img/dice/dice_6.png");
 
-    private ArrayList<Image> diceImages;
+    private ArrayList<Rectangle> diceImages = new ArrayList<>();
 
     /**
      * Method called when the send Message button is pressed
@@ -830,24 +832,22 @@ public class GamePresenter extends AbstractPresenter {
         rectanglePlayerOne2.setFill(new ImagePattern(dicePictureOne));
         playerOneDiceView.add(rectanglePlayerOne1, 0, 0);
         playerOneDiceView.add(rectanglePlayerOne2, 1,0);
-        diceImages.add(dicePictureOne);
-        diceImages.add(dicePictureTwo);
-        diceImages.add(dicePictureThree);
-        diceImages.add(dicePictureFour);
-        diceImages.add(dicePictureFive);
-        diceImages.add(dicePictureSix);
+        for (int i = 1; i <= 6; i++) {
+            Image image = new Image("img/dice/dice_" + i + ".png");
+            ImagePattern imagePattern = new ImagePattern(image);
+            Rectangle rectangle = new Rectangle(100, 100);
+            rectangle.setFill(imagePattern);
+            diceImages.add(rectangle);
+        }
+        System.out.println(diceImages.size());
     }
 
     public void passTheDice(GridPane gridPane) {
         Platform.runLater(() -> {
-            Rectangle rectangle1 = new Rectangle();
-            rectangle1.setHeight(100);
-            rectangle1.setWidth(100);
+            Rectangle rectangle1 = new Rectangle(100, 100);
             rectangle1.setFill(new ImagePattern(dicePictureOne));
             gridPane.add(rectangle1, 0, 0);
-            Rectangle rectangle2 = new Rectangle();
-            rectangle2.setHeight(100);
-            rectangle2.setWidth(100);
+            Rectangle rectangle2 = new Rectangle(100, 100);
             rectangle2.setFill(new ImagePattern(dicePictureOne));
             gridPane.add(rectangle2, 1, 0);
         });
@@ -867,7 +867,8 @@ public class GamePresenter extends AbstractPresenter {
     }
 
     public void shuffleTheDice(GridPane gridPane, int diceEyes1, int diceEyes2) {
-
+        Timeline tm = new Timeline();
+        tm.
 
     }
 
