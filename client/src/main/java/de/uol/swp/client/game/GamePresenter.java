@@ -41,6 +41,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Manages the GameView
@@ -69,6 +70,8 @@ public class GamePresenter extends AbstractPresenter {
     private ButtonType buttonTypeOkay;
     private Button btnOkay;
     private ObservableList<String> gameUsers;
+
+
     private ArrayList<HexagonContainer> hexagonContainers = new ArrayList<>();
     private ArrayList<MapGraphNodeContainer> mapGraphNodeContainers = new ArrayList<>();
     private Boolean itsMyTurn = false;
@@ -91,6 +94,8 @@ public class GamePresenter extends AbstractPresenter {
 
     @FXML
     private Button EndTurnButton;
+    @FXML
+    Button tradeButton;
 
     @FXML
     private Pane picturePlayerView1;
@@ -111,7 +116,6 @@ public class GamePresenter extends AbstractPresenter {
      * The message is of type RequestChatMessage If this will result in an exception, go log the exception
      *
      * @param event The ActionEvent created by pressing the send Message button
-     *
      * @author René, Sergej
      * @see de.uol.swp.client.chat.ChatService
      * @since 2021-03-08
@@ -139,7 +143,6 @@ public class GamePresenter extends AbstractPresenter {
      * If a ResponseChatMessage is detected on the EventBus the method onResponseChatMessageLogic is invoked.
      *
      * @param message the ResponseChatMessage object seen on the EventBus
-     *
      * @author René Meyer
      * @see de.uol.swp.common.chat.ResponseChatMessage
      * @since 2021-03-13
@@ -153,7 +156,6 @@ public class GamePresenter extends AbstractPresenter {
      * Adds the ResponseChatMessage to the textArea
      *
      * @param message
-     *
      * @author René Meyer
      * @see de.uol.swp.common.chat.ResponseChatMessage
      * @since 2021-03-13
@@ -165,11 +167,11 @@ public class GamePresenter extends AbstractPresenter {
     /**
      * Adds the ResponseChatMessage to the textArea
      * <p>
-     * First the message gets formatted with the readableTime. After the formatting the Message gets added to the
-     * textArea. The formatted Message contains the username, readableTime and message
+     * First the message gets formatted with the readableTime.
+     * After the formatting the Message gets added to the textArea.
+     * The formatted Message contains the username, readableTime and message
      *
      * @param rcm the ResponseChatMessage given by the original subscriber method.
-     *
      * @author René Meyer
      * @see de.uol.swp.common.chat.ResponseChatMessage
      * @since 2021-03-13
@@ -189,7 +191,6 @@ public class GamePresenter extends AbstractPresenter {
      * the currentLobby in regards to the input given by the response.
      *
      * @param rcm the ResponseChatMessage given by the original subscriber method.
-     *
      * @author Alexander Losse, Marc Hermes
      * @see de.uol.swp.common.chat.ResponseChatMessage
      * @since 2021-01-20
@@ -204,9 +205,22 @@ public class GamePresenter extends AbstractPresenter {
         }
     }
 
+    /**
+     * This method is called when the Trade button is pressed
+     * <p>
+     * When the user presses the trade button a popup window appears. Within it the user can select which ressources
+     * he wants to trade and which amount of it. With a click on the Start a Trade button the startTrade method from the
+     * Gameservice on the client side gets called.
+     *
+     * @author Alexander Losse, Ricardo Mook
+     * @since 2021-04-07
+     */
+
     @FXML
     public void onTrade(ActionEvent event) {
-        //TODO:...
+        String tradeCode = UUID.randomUUID().toString().trim().substring(0, 7);
+        gameService.sendTradeStartedRequest((UserDTO) this.joinedLobbyUser, this.currentLobby, tradeCode);
+
     }
 
     @FXML
@@ -234,8 +248,6 @@ public class GamePresenter extends AbstractPresenter {
      * <p>
      * If the RollDice button is pressed, this methods tries to request the GameService to send a RollDiceRequest.
      *
-     * @param event The ActionEvent created by pressing the Roll Dice button
-     *
      * @author Kirstin, Pieter
      * @see de.uol.swp.client.game.GameService
      * @since 2021-01-07
@@ -246,7 +258,7 @@ public class GamePresenter extends AbstractPresenter {
      * I have changed the place of the method to the new GamePresenter.
      */
     @FXML
-    public void onRollDice(ActionEvent event) {
+    public void onRollDice() {
         if (this.currentLobby != null) {
             gameService.rollDice(this.currentLobby, this.joinedLobbyUser);
         }
@@ -254,7 +266,7 @@ public class GamePresenter extends AbstractPresenter {
 
     //TODO JavaDoc fehlt
     @FXML
-    public void onEndTurn(ActionEvent event) {
+    public void onEndTurn() {
         eventBus.post(new EndTurnRequest(this.currentLobby, (UserDTO) this.joinedLobbyUser));
     }
 
@@ -264,7 +276,6 @@ public class GamePresenter extends AbstractPresenter {
      * If a GameCreatedMessage is detected on the EventBus this method invokes gameStartedSuccessfulLogic.
      *
      * @param message the GameCreatedMessage object seen on the EventBus
-     *
      * @author Ricardo Mook, Alexander Losse
      * @see de.uol.swp.common.game.message.GameCreatedMessage
      * @since 2021-03-05
@@ -282,7 +293,6 @@ public class GamePresenter extends AbstractPresenter {
      * Users in the currentLobby is also requested.
      *
      * @param gcm the GameCreatedMessage given by the original subscriber method.
-     *
      * @author Alexander Losse, Ricardo Mook
      * @see GameCreatedMessage
      * @see de.uol.swp.common.game.GameField
@@ -339,7 +349,6 @@ public class GamePresenter extends AbstractPresenter {
      * If a GameLeftSuccessfulResponse is detected on the EventBus the method gameLeftSuccessfulLogic is invoked.
      *
      * @param glsr the GameLeftSuccessfulResponse object seen on the EventBus
-     *
      * @author Marc Hermes
      * @see de.uol.swp.common.user.response.game.GameLeftSuccessfulResponse
      * @since 2021-03-15
@@ -357,7 +366,6 @@ public class GamePresenter extends AbstractPresenter {
      * not, it becomes unclickable.</p>
      *
      * @param response
-     *
      * @author Pieter Vogt
      */
     @Subscribe
@@ -366,9 +374,11 @@ public class GamePresenter extends AbstractPresenter {
             if (response.getPlayerWithCurrentTurn().equals(joinedLobbyUser.getUsername())) {
                 itsMyTurn = true;
                 EndTurnButton.setDisable(false);
+                tradeButton.setDisable(false);
             } else {
                 itsMyTurn = false;
                 EndTurnButton.setDisable(true);
+                tradeButton.setDisable(true);
             }
         }
     }
@@ -380,7 +390,6 @@ public class GamePresenter extends AbstractPresenter {
      * on the event bus and no longer be reachable for responses, messages etc.
      *
      * @param glsr the GameLeftSuccessfulResponse given by the original subscriber method
-     *
      * @author Marc Hermes
      * @see de.uol.swp.common.user.response.game.GameLeftSuccessfulResponse
      * @since 2021-03-15
@@ -426,7 +435,6 @@ public class GamePresenter extends AbstractPresenter {
      * If a UserLeftGameMessage is detected on the EventBus the method otherUserLeftSuccessfulLogic is invoked.
      *
      * @param message the UserLeftGameMessage object seen on the EventBus
-     *
      * @author Iskander Yusupov
      * @see de.uol.swp.common.game.message.UserLeftGameMessage
      * @since 2021-03-17
@@ -444,7 +452,6 @@ public class GamePresenter extends AbstractPresenter {
      * game) is requested.
      *
      * @param ulgm the UserLeftGameMessage given by the original subscriber method.
-     *
      * @author Iskander Yusupov
      * @see de.uol.swp.common.game.message.UserLeftGameMessage
      * @since 2021-03-17
@@ -471,7 +478,6 @@ public class GamePresenter extends AbstractPresenter {
      * List of the Users in the currentLobby in regards to the list given by the response.
      *
      * @param atgur the AllThisLobbyUsersResponse given by the original subscriber method.
-     *
      * @author Iskander Yusupov
      * @see de.uol.swp.common.user.response.game.AllThisGameUsersResponse
      * @since 2021-03-14
@@ -493,7 +499,6 @@ public class GamePresenter extends AbstractPresenter {
      * user list. If there ist no user list this creates one.
      *
      * @param gameUserList A list of UserDTO objects including all currently logged in users
-     *
      * @implNote The code inside this Method has to run in the JavaFX-application thread. Therefore it is crucial not to
      * remove the {@code Platform.runLater()}
      * @author Iskander Yusupov , @design Marc Hermes, Ricardo Mook
@@ -710,7 +715,6 @@ public class GamePresenter extends AbstractPresenter {
      * translated into the correct String names of the tfArray TerrainFields.
      *
      * @param mapGraph the MapGraph created by the Server
-     *
      * @author Marc Hermes
      * @see de.uol.swp.common.game.GameField
      * @see de.uol.swp.client.game.GameObjects.TerrainField
@@ -770,7 +774,6 @@ public class GamePresenter extends AbstractPresenter {
      * This method reacts to the NotEnoughRessourcesMessage and shows the corresponding alert window.
      *
      * @param notEnoughRessourcesMessage
-     *
      * @implNote The code inside this Method has to run in the JavaFX-application thread. Therefore it is crucial not to
      * remove the {@code Platform.runLater()}
      * @author Marius Birk
@@ -813,7 +816,6 @@ public class GamePresenter extends AbstractPresenter {
      * Updates the corresponding Node in the list of MapGraphNodes to represent the changes from the message.
      *
      * @param message The data about the changed properties of the MapGraph
-     *
      * @author Pieter Vogt
      * @since 2021-04-15
      */
@@ -848,5 +850,26 @@ public class GamePresenter extends AbstractPresenter {
     @Subscribe
     public void onPublicInventoryChangeMessage(PublicInventoryChangeMessage publicInventoryChangeMessage) {
         //TODO: Darstellung der Veränderung des Inventars
+    }
+
+
+    /**
+     * shows an alert if the trade user has not enough in inventory
+     *
+     * @param message TradeCardErrorMessage
+     * @author Alexander Losse, Ricardo Mook
+     * @since 2021-04-25
+     */
+    @Subscribe
+    public void notEnoughResTrade(TradeCardErrorMessage message) {
+        if (this.currentLobby != null) {
+            if (this.currentLobby.equals(message.getName())) {
+                Platform.runLater(() -> {
+                    this.alert.setTitle(message.getName());
+                    this.alert.setHeaderText("You have not enough Resources for the trade in: " + message.getTradeCode());
+                    this.alert.show();
+                });
+            }
+        }
     }
 }

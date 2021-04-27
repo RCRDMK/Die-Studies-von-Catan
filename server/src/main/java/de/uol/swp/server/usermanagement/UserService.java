@@ -11,7 +11,10 @@ import de.uol.swp.common.user.exception.RegistrationExceptionMessage;
 import de.uol.swp.common.user.exception.RetrieveUserInformationExceptionMessage;
 import de.uol.swp.common.user.exception.UpdateUserExceptionMessage;
 import de.uol.swp.common.user.request.*;
-import de.uol.swp.common.user.response.*;
+import de.uol.swp.common.user.response.DropUserSuccessfulResponse;
+import de.uol.swp.common.user.response.RegistrationSuccessfulResponse;
+import de.uol.swp.common.user.response.RetrieveUserMailResponse;
+import de.uol.swp.common.user.response.UpdateUserSuccessfulResponse;
 import de.uol.swp.server.AbstractService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -212,6 +215,7 @@ public class UserService extends AbstractService {
      * gets posted there.
      *
      * @param updateUserMailRequest The UpdateUserRequest found on the EventBus
+     * @param updateUserMailRequest The UpdateUserRequest found on the EventBus
      * @author Carsten Dekker
      * @see de.uol.swp.common.user.request.UpdateUserMailRequest
      * @since 2021-03-14
@@ -245,6 +249,7 @@ public class UserService extends AbstractService {
      * gets posted there.
      *
      * @param updateUserPasswordRequest The UpdateUserRequest found on the EventBus
+     * @author Carsten Dekker
      * @author Carsten Dekker
      * @see de.uol.swp.common.user.request.UpdateUserPasswordRequest
      * @since 2021-03-14

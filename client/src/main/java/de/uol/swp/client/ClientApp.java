@@ -7,6 +7,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import de.uol.swp.client.di.ClientModule;
 import de.uol.swp.client.user.ClientUserService;
+import de.uol.swp.common.game.message.*;
 import de.uol.swp.common.game.message.GameCreatedMessage;
 import de.uol.swp.common.game.message.GameDroppedMessage;
 import de.uol.swp.common.user.User;
@@ -259,8 +260,34 @@ public class ClientApp extends Application implements ConnectionListener {
     @Subscribe
     public void userStartedGame(GameCreatedMessage message) {
         LOG.debug(" Started a game " + message.getName());
-        sceneManager.showGameScreen(user, message.getName());
+        sceneManager.showGameScreen(message.getName());
         sceneManager.suspendLobbyTab(message.getName());
+    }
+
+    /**
+     * reacts to TradeStartedMessage
+     *
+     * @param message TradeStartedMessage
+     * @author Alexander Losse, Ricardo Mook
+     * @since 2021-04-21
+     */
+    @Subscribe
+    public void userStartedTrade(TradeStartedMessage message) {
+        LOG.debug("Started a trade " + message.getGame());
+        sceneManager.showTradeScreen(message.getTradeCode());
+    }
+
+    /**
+     * reacts to TradeOfferInformBiddersMessage
+     *
+     * @param message TradeStartedMessage
+     * @author Alexander Losse, Ricardo Mook
+     * @since 2021-04-21
+     */
+    @Subscribe
+    public void tradeRegistered(TradeOfferInformBiddersMessage message) {
+        LOG.debug("A trade request was registered");
+        sceneManager.showTradeScreen(message.getTradeCode());
     }
 
     /**
@@ -487,7 +514,6 @@ public class ClientApp extends Application implements ConnectionListener {
      * @author Philip, Marc
      * @since 2021-01-22
      */
-
     private void checkForTimeout() {
         timer.schedule(new TimerTask() {
             @Override
@@ -499,5 +525,17 @@ public class ClientApp extends Application implements ConnectionListener {
         }, 60000, 60000);
     }
 
+    /**
+     * Removes the trade tab, when the trade ended
+     *
+     * @param message
+     * @author Alexander Lossa, Ricardo Mook
+     * @since 2021-04-21
+     */
+    @Subscribe
+    public void onTradeEndedMessage(TradeEndedMessage message) {
+        LOG.info("TradeEndedMessage");
+        sceneManager.removeTradeTab(message);
+    }
 
 }
