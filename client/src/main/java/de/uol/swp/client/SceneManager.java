@@ -12,12 +12,14 @@ import de.uol.swp.client.account.event.UserSettingsErrorEvent;
 import de.uol.swp.client.auth.LoginPresenter;
 import de.uol.swp.client.auth.events.ShowLoginViewEvent;
 import de.uol.swp.client.game.GamePresenter;
+import de.uol.swp.client.game.TradePresenter;
 import de.uol.swp.client.lobby.LobbyPresenter;
 import de.uol.swp.client.main.MainMenuPresenter;
 import de.uol.swp.client.register.RegistrationPresenter;
 import de.uol.swp.client.register.event.RegistrationCanceledEvent;
 import de.uol.swp.client.register.event.RegistrationErrorEvent;
 import de.uol.swp.client.register.event.ShowRegistrationViewEvent;
+import de.uol.swp.common.game.message.TradeEndedMessage;
 import de.uol.swp.common.user.User;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -54,15 +56,18 @@ public class SceneManager {
     private Scene currentScene = null;
     private Scene lobbyScene;
     private Scene gameScene;
+    private Scene tradeScene;
     private Tab mainMenuTab;
     private VBox vBox;
     private Scene tabScene;
     private Scene nextLobbyScene;
     private Scene nextGameScene;
+    private Scene nextTradeScene;
     private final Injector injector;
     private TabPane tabPane = new TabPane();
     private TabHelper tabHelper;
     private Scene userSettingsScene;
+
 
     @Inject
     public SceneManager(EventBus eventBus, Injector injected, @Assisted Stage primaryStage) {
@@ -92,6 +97,7 @@ public class SceneManager {
         initUserSettingsView();
         nextLobbyScene = initLobbyView();
         nextGameScene = initGameView();
+        nextTradeScene = initTradeView();
     }
 
     /**
@@ -224,6 +230,24 @@ public class SceneManager {
     }
 
     /**
+     * Initializes the trade view
+     * <p>
+     * If the tradeScene is null it gets set to a new scene containing the
+     * a pane showing the game view as specified by the TradeView
+     * FXML file
+     *
+     * @author Alexander Lossa, Ricardo Mook
+     * @see de.uol.swp.client.game.TradePresenter
+     * @since 2021-04-21
+     */
+    private Scene initTradeView() {
+        Parent rootPane = initPresenter(TradePresenter.fxml);
+        tradeScene = new Scene(rootPane, 800, 600);
+        tradeScene.getStylesheets().add(styleSheet);
+        return tradeScene;
+    }
+
+    /**
      * Initializes the userSettings view
      * <p>
      * If the userSettingsScene is null it gets set to a new scene containing the
@@ -241,7 +265,6 @@ public class SceneManager {
             userSettingsScene.getStylesheets().add(styleSheet);
         }
     }
-
 
     /**
      * Handles ShowRegistrationViewEvent detected on the EventBus
@@ -326,6 +349,7 @@ public class SceneManager {
     public void onShowUserSettingsViewEvent(ShowUserSettingsViewEvent event) {
         showUserSettingsScreen();
     }
+
 
     /**
      * Handles LeaveUserSettingsEvent detected on the EventBus
@@ -525,6 +549,17 @@ public class SceneManager {
     }
 
     /**
+     * calls newTradeTab()
+     *
+     * @param tradeCode AbstractMessage(either TradeOfferInformBiddersMessage, or TradeStartedMessage)
+     * @author Alexander Losse, Ricardo Mook
+     * @since 2021-04-21
+     */
+    public void showTradeScreen(String tradeCode) {
+        newTradeTab(tradeCode);
+    }
+
+    /**
      * Creates a new lobby tab
      * <p>
      * When this method is invoked a new lobby tab with a specific name is created.
@@ -572,8 +607,8 @@ public class SceneManager {
      * @author Kirstin Beyer
      * @since 2021-01-14
      */
-    public void showGameScreen(User currentUser, String gamename) {
-        newGameTab(currentUser, gamename);
+    public void showGameScreen(String gamename) {
+        newGameTab(gamename);
     }
 
     /**
@@ -589,7 +624,7 @@ public class SceneManager {
      * @author Marc Hermes
      * @since 2021-01-21
      */
-    public void newGameTab(User currentUser, String gamename) {
+    public void newGameTab(String gamename) {
         Tab gameTab = new Tab("Game " + gamename);
         gameTab.setContent(nextGameScene.getRoot());
         gameTab.setClosable(false);
@@ -598,6 +633,24 @@ public class SceneManager {
             tabHelper.getTabPane().getSelectionModel().select(gameTab);
         });
         nextGameScene = initGameView();
+    }
+
+    /**
+     * Opens a new trade tab on call
+     *
+     * @param tradeID the tradeCode for the trade
+     * @author Alexander Losse, Ricardo Mook
+     * @since 2021-04-21
+     */
+    public void newTradeTab(String tradeID) {
+        Tab tradeTab = new Tab("Trade " + tradeID);
+        tradeTab.setContent(nextTradeScene.getRoot());
+        tradeTab.setClosable(false);
+        Platform.runLater(() -> {
+            tabHelper.addTab(tradeTab);
+            tabHelper.getTabPane().getSelectionModel().select(tradeTab);
+        });
+        nextTradeScene = initTradeView();
     }
 
     /**
@@ -615,6 +668,20 @@ public class SceneManager {
     public void removeGameTab(String gamename) {
         Platform.runLater(() -> {
             tabHelper.removeTab("Game " + gamename);
+        });
+    }
+
+    /**
+     * Removes an old trade tab
+     * <p>
+     * When this method is invoked a trade tab with a specific tradeCode is removed from
+     *
+     * @author Alexander Losse, Ricardo Mook - 2021-03-05
+     * @since 2021-04-21
+     */
+    public void removeTradeTab(TradeEndedMessage tem) {
+        Platform.runLater(() -> {
+            tabHelper.removeTab("Trade " + tem.getTradeCode());
         });
     }
 

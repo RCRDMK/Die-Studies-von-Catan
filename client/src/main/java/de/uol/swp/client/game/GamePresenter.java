@@ -42,6 +42,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Manages the GameView
@@ -60,7 +61,10 @@ public class GamePresenter extends AbstractPresenter {
     public static final String fxml = "/fxml/GameView.fxml";
 
     private static final Logger LOG = LogManager.getLogger(GamePresenter.class);
-
+    @FXML
+    public TextField gameChatInput;
+    @FXML
+    public TextArea gameChatArea;
     private User joinedLobbyUser;
     private String currentLobby;
     private Alert alert;
@@ -74,13 +78,6 @@ public class GamePresenter extends AbstractPresenter {
     private GameService gameService;
     @Inject
     private ChatService chatService;
-
-    @FXML
-    public TextField gameChatInput;
-
-    @FXML
-    public TextArea gameChatArea;
-
     @FXML
     private Canvas canvas;
 
@@ -92,6 +89,8 @@ public class GamePresenter extends AbstractPresenter {
 
     @FXML
     private Button EndTurnButton;
+    @FXML
+    Button tradeButton;
 
     @FXML
     private Button rollDice;
@@ -168,8 +167,9 @@ public class GamePresenter extends AbstractPresenter {
     /**
      * Adds the ResponseChatMessage to the textArea
      * <p>
-     * First the message gets formatted with the readableTime. After the formatting the Message gets added to the
-     * textArea. The formatted Message contains the username, readableTime and message
+     * First the message gets formatted with the readableTime.
+     * After the formatting the Message gets added to the textArea.
+     * The formatted Message contains the username, readableTime and message
      *
      * @param rcm the ResponseChatMessage given by the original subscriber method.
      * @author René Meyer
@@ -205,9 +205,22 @@ public class GamePresenter extends AbstractPresenter {
         }
     }
 
+    /**
+     * This method is called when the Trade button is pressed
+     * <p>
+     * When the user presses the trade button a popup window appears. Within it the user can select which ressources
+     * he wants to trade and which amount of it. With a click on the Start a Trade button the startTrade method from the
+     * Gameservice on the client side gets called.
+     *
+     * @author Alexander Losse, Ricardo Mook
+     * @since 2021-04-07
+     */
+
     @FXML
     public void onTrade(ActionEvent event) {
-        //TODO:...
+        String tradeCode = UUID.randomUUID().toString().trim().substring(0, 7);
+        gameService.sendTradeStartedRequest((UserDTO) this.joinedLobbyUser, this.currentLobby, tradeCode);
+
     }
 
     @FXML
@@ -235,7 +248,6 @@ public class GamePresenter extends AbstractPresenter {
      * <p>
      * If the RollDice button is pressed, this methods tries to request the GameService to send a RollDiceRequest.
      *
-     * @param event The ActionEvent created by pressing the Roll Dice button
      * @author Kirstin, Pieter
      * @see de.uol.swp.client.game.GameService
      * @since 2021-01-07
@@ -246,14 +258,14 @@ public class GamePresenter extends AbstractPresenter {
      * I have changed the place of the method to the new GamePresenter.
      */
     @FXML
-    public void onRollDice(ActionEvent event) {
+    public void onRollDice() {
         if (this.currentLobby != null) {
             gameService.rollDice(this.currentLobby, this.joinedLobbyUser);
         }
     }
 
     @FXML
-    public void onEndTurn(ActionEvent event) {
+    public void onEndTurn() {
         eventBus.post(new EndTurnRequest(this.currentLobby, (UserDTO) this.joinedLobbyUser));
     }
 
@@ -423,11 +435,13 @@ public class GamePresenter extends AbstractPresenter {
                 EndTurnButton.setDisable(false);
                 rollDice.setDisable(false);
                 buyDevCard.setDisable(false);
+                tradeButton.setDisable(false);
             } else {
                 itsMyTurn = false;
                 EndTurnButton.setDisable(true);
                 rollDice.setDisable(true);
                 buyDevCard.setDisable(true);
+                tradeButton.setDisable(true);
             }
         }
     }
@@ -984,6 +998,27 @@ public class GamePresenter extends AbstractPresenter {
     @Subscribe
     public void onPublicInventoryChangeMessage(PublicInventoryChangeMessage publicInventoryChangeMessage) {
         //TODO: Darstellung der Veränderung des Inventars
+    }
+
+
+    /**
+     * Shows an alert if the trade user has not enough in inventory
+     *
+     * @param message TradeCardErrorMessage
+     * @author Alexander Losse, Ricardo Mook
+     * @since 2021-04-25
+     */
+    @Subscribe
+    public void notEnoughResTrade(TradeCardErrorMessage message) {
+        if (this.currentLobby != null) {
+            if (this.currentLobby.equals(message.getName())) {
+                Platform.runLater(() -> {
+                    this.alert.setTitle(message.getName());
+                    this.alert.setHeaderText("You have not enough Resources for the trade in: " + message.getTradeCode());
+                    this.alert.show();
+                });
+            }
+        }
     }
 
 
