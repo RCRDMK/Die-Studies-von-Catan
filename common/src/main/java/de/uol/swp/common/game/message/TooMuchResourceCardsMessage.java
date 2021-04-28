@@ -9,4 +9,8 @@ public class TooMuchResourceCardsMessage extends AbstractGameMessage {
         super(name, user);
         this.cards = cards;
     }
+
+    public int getCards() {
+        return cards;
+    }
 }

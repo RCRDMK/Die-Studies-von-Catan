@@ -1,6 +1,5 @@
-package de.uol.swp.common.game.request;
+package de.uol.swp.common.game.message;
 
-import de.uol.swp.common.game.message.AbstractGameMessage;
 import de.uol.swp.common.user.UserDTO;
 
 public class DrawRandomResourceFromPlayerMessage extends AbstractGameMessage {

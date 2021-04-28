@@ -11,7 +11,6 @@ import de.uol.swp.common.chat.RequestChatMessage;
 import de.uol.swp.common.chat.ResponseChatMessage;
 import de.uol.swp.common.game.MapGraph;
 import de.uol.swp.common.game.message.*;
-import de.uol.swp.common.game.request.DrawRandomResourceFromPlayerMessage;
 import de.uol.swp.common.game.request.EndTurnRequest;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
@@ -23,7 +22,6 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
@@ -326,6 +324,8 @@ public class GamePresenter extends AbstractPresenter {
      */
     public void initializeRobberResourceMenu() {
 
+        this.alert = new Alert(javafx.scene.control.Alert.AlertType.CONFIRMATION);
+        chooseResource = new GridPane();
         //Initialize the robber menu
         Rectangle[] resources = new Rectangle[5];
         resources[0] = new Rectangle(30, 30);
@@ -362,8 +362,7 @@ public class GamePresenter extends AbstractPresenter {
         }
         chooseResource.setVgap(40);
         chooseResource.setHgap(30);
-
-        hideRobberResourceMenu();
+        this.alert.getDialogPane().setContent(chooseResource);
 
         //Initializing robber on the canvas
         robber.setLayoutX((canvas.getWidth() / 2 + canvas.getLayoutX()) - (robber.getWidth() / 2));
@@ -381,25 +380,11 @@ public class GamePresenter extends AbstractPresenter {
      * @author Marius Birk
      * @since 2021-04-19
      */
-    public void showRobberResourceMenu() {
-        for (Node node : chooseResource.getChildren()) {
-            node.setVisible(true);
-        }
+    public void showRobberResourceMenu(TooMuchResourceCardsMessage tooMuchResourceCardsMessage) {
+        this.alert.setTitle(tooMuchResourceCardsMessage.getName());
+        this.alert.showAndWait();
     }
 
-    /**
-     * This method hides the initialized gridpane.
-     * <p>
-     * This method hides the initialized gridpane, if the user doesn't received a TooMuchResourceCardsMessage.
-     *
-     * @author Marius Birk
-     * @since 2021-04-19
-     */
-    public void hideRobberResourceMenu() {
-        for (Node node : chooseResource.getChildren()) {
-            node.setVisible(false);
-        }
-    }
 
     /**
      * Handles successful leaving of game
@@ -1020,7 +1005,8 @@ public class GamePresenter extends AbstractPresenter {
 
     @Subscribe
     public void onPrivateInventoryChangeMessage(PrivateInventoryChangeMessage privateInventoryChangeMessage) {
-        //TODO: Darstellung der Veränderung des Inventars
+
+
     }
 
     @Subscribe
@@ -1052,7 +1038,9 @@ public class GamePresenter extends AbstractPresenter {
 
     @Subscribe
     public void onTooMuchRessourceCardsMessage(TooMuchResourceCardsMessage tooMuchResourceCardsMessage) {
-        showRobberResourceMenu();
+        if (this.currentLobby.equals(tooMuchResourceCardsMessage.getName())) {
+            Platform.runLater(() -> showRobberResourceMenu(tooMuchResourceCardsMessage));
+        }
 
         //send Message with ressources to discard and to add to bank
     }

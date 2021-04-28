@@ -448,7 +448,7 @@ public class GameService extends AbstractService {
                     hexagon.setOccupiedByRobber(true);
                     sendToAllInGame(robbersNewFieldMessage.getName(), new SuccessfullMovedRobberMessage(hexagon.getUuid()));
                 }
-
+                //check if the building nodes at the hexagon are occupied by players
                 for (int i = 0; i < hexagon.getBuildingNodes().size(); i++) {
                     if (hexagon.getBuildingNodes().get(i).getOccupiedByPlayer() != 666) {
                         userList.add(game.get().getUser(hexagon.getBuildingNodes().get(i).getOccupiedByPlayer()).getUsername());

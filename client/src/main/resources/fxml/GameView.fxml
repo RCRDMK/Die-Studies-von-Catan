@@ -2,7 +2,9 @@
 
 <?import javafx.scene.canvas.Canvas?>
 <?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.Region?>
 <?import javafx.scene.text.Text?>
 <AnchorPane xmlns:fx="http://javafx.com/fxml/1" fx:id="gameAnchorPane" maxHeight="-Infinity" maxWidth="-Infinity"
             prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1"
@@ -40,21 +42,5 @@
         <TextField fx:id="gameChatInput" layoutX="370.0" layoutY="345.0" onAction="#onSendMessage" prefHeight="25.0"
                    prefWidth="161.0" promptText="Send Message.."/>
         <Canvas id="inventory" fx:id="inventory" height="104.0" layoutX="370.0" layoutY="120.0" width="224.0"/>
-        <GridPane fx:id="chooseResource" alignment="CENTER" layoutX="600.0" layoutY="250.0" prefHeight="104.0"
-                  prefWidth="200.0" AnchorPane.leftAnchor="600.0" AnchorPane.topAnchor="250.0">
-            <columnConstraints>
-                <ColumnConstraints fillWidth="true" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
-                <ColumnConstraints fillWidth="true" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
-                <ColumnConstraints fillWidth="true" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
-                <ColumnConstraints fillWidth="true" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
-                <ColumnConstraints fillWidth="true" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
-            </columnConstraints>
-            <rowConstraints>
-                <RowConstraints maxHeight="27.0" minHeight="10.0" prefHeight="27.0" vgrow="SOMETIMES"/>
-                <RowConstraints maxHeight="40.0" minHeight="10.0" prefHeight="26.0" vgrow="SOMETIMES"/>
-                <RowConstraints maxHeight="41.0" minHeight="10.0" prefHeight="23.0" vgrow="SOMETIMES"/>
-                <RowConstraints maxHeight="41.0" minHeight="10.0" prefHeight="29.0" vgrow="SOMETIMES"/>
-            </rowConstraints>
-        </GridPane>
     </children>
 </AnchorPane>
