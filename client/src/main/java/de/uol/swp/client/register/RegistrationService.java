@@ -21,13 +21,13 @@ public class RegistrationService {
      * @since 2021-01-15
      */
     public boolean isValidEmailAddress(String email) {
-        String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\."+
+        String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\." +
                 "[a-zA-Z0-9_+&*-]+)*@" +
                 "(?:[a-zA-Z0-9-]+\\.)+[a-z" +
                 "A-Z]{2,7}$";
 
         Pattern pat = Pattern.compile(emailRegex);
-        if(email == null)
+        if (email == null)
             return false;
         return pat.matcher(email).matches();
     }

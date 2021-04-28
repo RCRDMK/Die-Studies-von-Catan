@@ -2,10 +2,13 @@ package de.uol.swp.common.game;
 
 import de.uol.swp.common.game.inventory.DevelopmentCardDeck;
 import de.uol.swp.common.game.inventory.Inventory;
+import de.uol.swp.common.game.trade.Trade;
 import de.uol.swp.common.user.User;
+import de.uol.swp.common.user.UserDTO;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Set;
 
 /**
@@ -94,27 +97,6 @@ public interface Game extends Serializable {
     User getUser(int index);
 
     /**
-     * Getter for the GameField of this game
-     *
-     * @return The GameField of this game
-     * @author Pieter Vogt, Marc Hermes
-     * @see de.uol.swp.common.game.GameField
-     * @since 2021-03-13
-     */
-    GameField getGameField();
-
-    /**
-     * Setter for the GameField of this game
-     *
-     * @param gameField the GameField to be set as the gameField of this Game
-     *
-     * @author Pieter Vogt, Marc Hermes
-     * @see de.uol.swp.common.game.GameField
-     * @since 2021-03-13
-     */
-    void setGameField(GameField gameField);
-
-    /**
      * Sets up the Arraylist containing the users.
      *
      * <p>This is used to enable the server to adress users with indices. This was not possible with the Set-structure
@@ -151,6 +133,8 @@ public interface Game extends Serializable {
      */
     void nextRound();
 
+    ArrayList<MapGraph.BuildingNode> getLastBuildingOfOpeningTurn();
+
     /**
      * Runs the initial Turn for every player.
      * <p>
@@ -181,7 +165,71 @@ public interface Game extends Serializable {
      */
     Inventory getInventory(User user);
 
-    DevelopmentCardDeck getDevelopmentCardDeck();
+    /**
+     * Returns the MapGraph object.
+     *
+     * @return The logical graph with all Nodes, Hexagons and connections between them.
+     * @author Pieter Vogt
+     * @see MapGraph
+     * @since 2021-04-11
+     */
+    MapGraph getMapGraph();
+
+    /**
+     * Returns a boolean, whether the opening phase is active.
+     *
+     * <p>This is used to identify the starting round at the beginning of a game.</p>
+     *
+     * @return boolean value, whether the opening phase is active
+     * @author Philip Nitsche
+     * @since 2021-04-26
+     */
 
     boolean isStartingTurns();
+
+    /**
+     * Puts the parsed MapGraph into the DTO.
+     *
+     * @param mapGraph
+     * @author Pieter Vogt
+     * @see MapGraph
+     * @since 2021-04-11
+     */
+    void setMapGraph(MapGraph mapGraph);
+
+    DevelopmentCardDeck getDevelopmentCardDeck();
+
+    //TODO: this Methods need to be removed after all dependencies on the 3 obsolete classes had been resolved!!!
+    GameField getGameField();
+
+
+    /**
+     * adds a Trade to the game
+     *
+     * @see Trade
+     * @param trade Trade to be added
+     * @param tradeCode String used to identify trade
+     * @author Alecander Losse, Ricardo Mook
+     * @since 2021-04-13
+     */
+    void addTrades(Trade trade, String tradeCode);
+
+    /**
+     * getter for the HashMap containing the Trades
+     *
+     * @return HashMap<String, Trade>
+     * @author Alecander Losse, Ricardo Mook
+     * @since 2021-04-13
+     */
+    HashMap<String, Trade> getTradeList();
+
+    /**
+     * removes a trade from the game
+     *
+     * @param tradeCode String used to identify trade
+     * @author Alecander Losse, Ricardo Mook
+     * @since 2021-04-13
+     */
+    void removeTrade(String tradeCode);
+
 }

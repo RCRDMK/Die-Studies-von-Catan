@@ -2,6 +2,7 @@ package de.uol.swp.common.game;
 
 import java.io.Serializable;
 import java.util.LinkedList;
+//TODO: Diese Klasse ist obsolet! Es müssen alle Uses überarbeitet werden, sodass diese Klasse schnellstmöglich wieder entfernt werden kann!
 
 /**
  * The GameField class used to store information about the GameField

@@ -29,11 +29,12 @@ public class AllThisLobbyUsersResponse extends AbstractResponseMessage {
     /**
      * Default Constructor
      * <p>
+     *
      * @implNote this constructor is needed for serialization
      * @author Marc Hermes
      * @since 2020-12-02
      */
-    public AllThisLobbyUsersResponse(){
+    public AllThisLobbyUsersResponse() {
         // needed for serialization
     }
 
@@ -45,7 +46,7 @@ public class AllThisLobbyUsersResponse extends AbstractResponseMessage {
      * List contains copies of the User objects. These copies have their password
      * variable set to an empty String.
      *
-     * @param users List of all sessions of the users currently in the lobby
+     * @param users     List of all sessions of the users currently in the lobby
      * @param lobbyName String of the name of the Lobby
      * @author Marc Hermes
      * @since 2020-12-02
@@ -60,6 +61,7 @@ public class AllThisLobbyUsersResponse extends AbstractResponseMessage {
     /**
      * Getter for the list of users currently in the lobby
      * <p>
+     *
      * @return list of users currently in the lobby
      * @author Marc Hermes
      * @since 2020-12-02
@@ -71,10 +73,13 @@ public class AllThisLobbyUsersResponse extends AbstractResponseMessage {
     /**
      * Getter for the name of the lobby
      * <p>
+     *
      * @return string name of the lobby
      * @author Marc Hermes
      * @since 2021-01-20
      */
-    public String getName() { return lobby; }
+    public String getName() {
+        return lobby;
+    }
 
 }

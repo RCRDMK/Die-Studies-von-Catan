@@ -18,6 +18,7 @@ class UserManagementException extends RuntimeException {
      *
      * @author Marco Grawunder
      * @param s String containing the cause for the exception.
+     * @author Marco Grawunder
      * @since 2019-07-08
      */
     UserManagementException(String s) {
