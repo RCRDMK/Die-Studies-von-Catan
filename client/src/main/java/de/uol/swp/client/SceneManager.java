@@ -146,6 +146,7 @@ public class SceneManager {
             Parent rootPane = initPresenter(MainMenuPresenter.fxml);
             mainScene = new Scene(rootPane, 800, 600);
             mainScene.getStylesheets().add(styleSheet);
+            rootPane.getStyleClass().add("menuView");
             mainMenuTab = new Tab("Main Menu");
             mainMenuTab.setClosable(false);
             mainMenuTab.setContent(mainScene.getRoot());
@@ -168,8 +169,9 @@ public class SceneManager {
     private void initLoginView() {
         if (loginScene == null) {
             Parent rootPane = initPresenter(LoginPresenter.fxml);
-            loginScene = new Scene(rootPane, 400, 200);
+            loginScene = new Scene(rootPane, 400, 300);
             loginScene.getStylesheets().add(styleSheet);
+            rootPane.getStyleClass().add("login");
         }
     }
 
@@ -189,6 +191,7 @@ public class SceneManager {
             Parent rootPane = initPresenter(RegistrationPresenter.fxml);
             registrationScene = new Scene(rootPane, 400, 260);
             registrationScene.getStylesheets().add(styleSheet);
+            rootPane.getStyleClass().add("registration");
         }
     }
 
@@ -208,6 +211,7 @@ public class SceneManager {
         Parent rootPane = initPresenter(LobbyPresenter.fxml);
         lobbyScene = new Scene(rootPane, 800, 600);
         lobbyScene.getStylesheets().add(styleSheet);
+        rootPane.getStyleClass().add("menuView");
         return lobbyScene;
     }
 
@@ -226,6 +230,7 @@ public class SceneManager {
         Parent rootPane = initPresenter(GamePresenter.fxml);
         gameScene = new Scene(rootPane, 800, 600);
         gameScene.getStylesheets().add(styleSheet);
+        rootPane.getStyleClass().add("game");
         return gameScene;
     }
 
@@ -244,6 +249,7 @@ public class SceneManager {
         Parent rootPane = initPresenter(TradePresenter.fxml);
         tradeScene = new Scene(rootPane, 800, 600);
         tradeScene.getStylesheets().add(styleSheet);
+        rootPane.getStyleClass().add("trade");
         return tradeScene;
     }
 
@@ -263,6 +269,7 @@ public class SceneManager {
             Parent rootPane = initPresenter(UserSettingsPresenter.fxml);
             userSettingsScene = new Scene(rootPane, 400, 300);
             userSettingsScene.getStylesheets().add(styleSheet);
+            rootPane.getStyleClass().add("settings");
         }
     }
 
