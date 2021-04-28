@@ -219,6 +219,26 @@ public class GameService extends AbstractService {
         }
     }
 
+    /**
+     * Prepares a given ServerMessage to be send to all players in the lobby and posts it on the EventBus
+     * <p>
+     *
+     * @param lobbyName Name of the lobby the players are in
+     * @param message   the message to be send to the users
+     * @author Marco Grawunder
+     * @see de.uol.swp.common.message.ServerMessage
+     * @since 2019-10-08
+     */
+    public void sendToAllInLobby(String lobbyName, ServerMessage message) {
+        Optional<Lobby> lobby = lobbyService.getLobby(lobbyName);
+        if (lobby.isPresent()) {
+            message.setReceiver(authenticationService.getSessions(lobby.get().getUsers()));
+            post(message);
+        } else {
+            throw new LobbyManagementException("Lobby unknown!");
+        }
+    }
+
     @Subscribe
     public void onRetrieveAllGamesRequest(RetrieveAllGamesRequest msg) {
         AllCreatedGamesResponse response = new AllCreatedGamesResponse(this.gameManagement.getAllGames().values());
@@ -413,7 +433,6 @@ public class GameService extends AbstractService {
         }
     }
 
-
     @Subscribe
     public void onRobbersNewFieldRequest(RobbersNewFieldMessage robbersNewFieldMessage) {
         Optional<Game> game = gameManagement.getGame(robbersNewFieldMessage.getName());
@@ -438,26 +457,6 @@ public class GameService extends AbstractService {
             }
             ChoosePlayerMessage choosePlayerMessage = new ChoosePlayerMessage(game.get().getName(), robbersNewFieldMessage.getUser(), userList);
             sendToSpecificUserInGame(game, choosePlayerMessage, robbersNewFieldMessage.getUser());
-        }
-    }
-
-    /**
-     * Prepares a given ServerMessage to be send to all players in the lobby and posts it on the EventBus
-     * <p>
-     *
-     * @param lobbyName Name of the lobby the players are in
-     * @param message   the message to be send to the users
-     * @author Marco Grawunder
-     * @see de.uol.swp.common.message.ServerMessage
-     * @since 2019-10-08
-     */
-    public void sendToAllInLobby(String lobbyName, ServerMessage message) {
-        Optional<Lobby> lobby = lobbyService.getLobby(lobbyName);
-        if (lobby.isPresent()) {
-            message.setReceiver(authenticationService.getSessions(lobby.get().getUsers()));
-            post(message);
-        } else {
-            throw new LobbyManagementException("Lobby unknown!");
         }
     }
 
@@ -660,6 +659,11 @@ public class GameService extends AbstractService {
                 }
             }
         }
+    }
+
+    @Subscribe
+    public void onGetInventoryRequest(DrawRandomResourceFromPlayerMessage drawRandomResourceFromPlayerMessage) {
+        updateInventory(gameManagement.getGame(drawRandomResourceFromPlayerMessage.getName()));
     }
 
     /**
@@ -886,6 +890,35 @@ public class GameService extends AbstractService {
         UserDTO user = request.getUser();
         TradeStartedMessage tsm = new TradeStartedMessage(user, request.getName(), request.getTradeCode());
         sendToSpecificUserInGame(game, tsm, user);
+    }
+
+    @Subscribe
+    public void onDrawRandomResourceFromPlayerMessage(DrawRandomResourceFromPlayerMessage drrfp) {
+        Optional<Game> game = gameManagement.getGame(drrfp.getName());
+        if (game.isPresent()) {
+            HashMap inventory = game.get().getInventory(new UserDTO(drrfp.getUserName(), "", "")).getPrivateView();
+            String random = randomResource();
+            inventory.keySet().forEach(e -> {
+                if (e.equals(random)) {
+                    game.get().getInventory(drrfp.getUser()).incCard(random, 1);
+                    game.get().getInventory(new UserDTO(drrfp.getUserName(), "", "")).decCard(random, 1);
+                }
+            });
+            updateInventory(game);
+        }
+    }
+
+    public String randomResource() {
+        List<String> resources = new ArrayList();
+        resources.add("Wool");
+        resources.add("Lumber");
+        resources.add("Brick");
+        resources.add("Grain");
+        resources.add("Ore");
+
+        int random = (int) Math.random() * 5;
+
+        return resources.get(random);
     }
 
     public GameManagement getGameManagement() {

@@ -121,11 +121,6 @@ public class GameService {
         eventBus.post(message);
     }
 
-    drawResourceFromPlayer(String userName) {
-
-    }
-
-
     /**
      * this methods sends the added trade items to the server via an TradeItemRequest
      *

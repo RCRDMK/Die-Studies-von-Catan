@@ -11,6 +11,7 @@ import de.uol.swp.common.chat.RequestChatMessage;
 import de.uol.swp.common.chat.ResponseChatMessage;
 import de.uol.swp.common.game.MapGraph;
 import de.uol.swp.common.game.message.*;
+import de.uol.swp.common.game.request.DrawRandomResourceFromPlayerMessage;
 import de.uol.swp.common.game.request.EndTurnRequest;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
@@ -954,21 +955,26 @@ public class GamePresenter extends AbstractPresenter {
      */
     public void setupChoosePlayerAlert(ChoosePlayerMessage choosePlayerMessage) {
         this.alert = new Alert(Alert.AlertType.CONFIRMATION);
-        this.buttonTypeOne = new ButtonType(choosePlayerMessage.getUserList().get(0));
-        this.buttonTypeTwo = new ButtonType(choosePlayerMessage.getUserList().get(1));
-        this.buttonTypeThree = new ButtonType(choosePlayerMessage.getUserList().get(2));
+        String user1 = choosePlayerMessage.getUserList().get(0);
+        String user2 = choosePlayerMessage.getUserList().get(1);
+        String user3 = choosePlayerMessage.getUserList().get(2);
+
+        this.buttonTypeOne = new ButtonType(user1);
+        this.buttonTypeTwo = new ButtonType(user2);
+        this.buttonTypeThree = new ButtonType(user3);
         alert.getButtonTypes().setAll(buttonTypeOne, buttonTypeTwo, buttonTypeThree);
         Optional<ButtonType> result = alert.showAndWait();
         if (result.get() == buttonTypeOne) {
-            gameService.drawResourceFromPlayer(choosePlayerMessage.getUserList().get(0));
+            DrawRandomResourceFromPlayerMessage drawRandomResourceFromPlayerMessage = new DrawRandomResourceFromPlayerMessage(choosePlayerMessage.getName(), (UserDTO) choosePlayerMessage.getUser(), user1);
+            eventBus.post(drawRandomResourceFromPlayerMessage);
         }
         if (result.get() == buttonTypeTwo) {
-            drawResourceFromPlayer(choosePlayerMessage.getUserList().get(1));
-
+            DrawRandomResourceFromPlayerMessage drawRandomResourceFromPlayerMessage = new DrawRandomResourceFromPlayerMessage(choosePlayerMessage.getName(), (UserDTO) choosePlayerMessage.getUser(), user2);
+            eventBus.post(drawRandomResourceFromPlayerMessage);
         }
         if (result.get() == buttonTypeThree) {
-            drawResourceFromPlayer(choosePlayerMessage.getUserList().get(2));
-
+            DrawRandomResourceFromPlayerMessage drawRandomResourceFromPlayerMessage = new DrawRandomResourceFromPlayerMessage(choosePlayerMessage.getName(), (UserDTO) choosePlayerMessage.getUser(), user3);
+            eventBus.post(drawRandomResourceFromPlayerMessage);
         }
     }
 
