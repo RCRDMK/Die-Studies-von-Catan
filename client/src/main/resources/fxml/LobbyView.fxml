@@ -27,8 +27,8 @@
            visible="false"/>
     <Label fx:id="gameAlreadyExistsLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="349.0" layoutY="321.0"
            prefHeight="17.0" prefWidth="189.0" text="Game already exists" textAlignment="CENTER" visible="false"/>
-    <Text layoutX="14.0" layoutY="274.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Gamesettings"/>
-    <Text layoutX="14.0" layoutY="305.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Gamefieldtype"/>
+    <Text layoutX="14.0" layoutY="274.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Gamesettings" fill="white"/>
+    <Text layoutX="14.0" layoutY="305.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Gamefieldtype" fill="white"/>
     <RadioButton fx:id="standardGameField" layoutX="14.0" layoutY="313.0" mnemonicParsing="false"
                  onAction="#onStandardGameField" text="Standard">
         <toggleGroup>

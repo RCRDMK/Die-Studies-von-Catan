@@ -1,4 +1,11 @@
+/*author Ricardo Mook, 2021-04-28*/
+
 .button {/* Sets behaviour for the Button class*/
+    -fx-background-color: #a19d9d;
+    -fx-text-fill: white;
+}
+
+.menu-button .label{/*calls the label "build" inside the menu button*/
     -fx-background-color: #a19d9d;
     -fx-text-fill: white;
 }
@@ -9,7 +16,7 @@
     -fx-text-fill: black;
 }
 
-.label {/* Sets behaviour for the label class*/
+.radio-button{
     -fx-text-fill: white;
 }
 

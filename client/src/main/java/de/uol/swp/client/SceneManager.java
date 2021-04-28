@@ -137,6 +137,9 @@ public class SceneManager {
      * <p>
      * enhanced by Alexander Losse and Marc Hermes - 2021-01-20
      *
+     * enhanced by Ricardo Mook - 2021-04-28
+     * added a CSS rule
+     *
      * @author Marco Grawunder
      * @see de.uol.swp.client.main.MainMenuPresenter
      * @since 2019-09-03
@@ -162,6 +165,9 @@ public class SceneManager {
      * If the loginScene is null it gets set to a new scene containing the
      * a pane showing the login view as specified by the LoginView FXML file.
      *
+     * enhanced by Ricardo Mook - 2021-04-28
+     * added a CSS rule
+     *
      * @author Marco Grawunder
      * @see de.uol.swp.client.auth.LoginPresenter
      * @since 2019-09-03
@@ -181,6 +187,9 @@ public class SceneManager {
      * If the registrationScene is null it gets set to a new scene containing the
      * a pane showing the registration view as specified by the RegistrationView
      * FXML file.
+     *
+     * enhanced by Ricardo Mook - 2021-04-28
+     * added a CSS rule
      *
      * @author Marco Grawunder
      * @see de.uol.swp.client.register.RegistrationPresenter
@@ -203,6 +212,9 @@ public class SceneManager {
      * <p>
      * enhanced by Alexander Losse and Marc Hermes - 2021-01-20
      *
+     * enhanced by Ricardo Mook - 2021-04-28
+     * added a CSS rule
+     *
      * @author Marc Hermes, Ricardo Mook
      * @see de.uol.swp.client.lobby.LobbyPresenter
      * @since 2020-11-19
@@ -221,6 +233,9 @@ public class SceneManager {
      * If the gameScene is null it gets set to a new scene containing the
      * a pane showing the game view as specified by the GameView
      * FXML file
+     *
+     * enhanced by Ricardo Mook - 2021-04-28
+     * added a CSS rule
      *
      * @author Kirstin Beyer
      * @see de.uol.swp.client.game.GamePresenter
@@ -241,6 +256,9 @@ public class SceneManager {
      * a pane showing the game view as specified by the TradeView
      * FXML file
      *
+     * enhanced by Ricardo Mook - 2021-04-28
+     * added a CSS rule
+     *
      * @author Alexander Lossa, Ricardo Mook
      * @see de.uol.swp.client.game.TradePresenter
      * @since 2021-04-21
@@ -259,6 +277,9 @@ public class SceneManager {
      * If the userSettingsScene is null it gets set to a new scene containing the
      * a pane showing the userSettings view as specified by the UserSettingsView
      * FXML file.
+     *
+     * enhanced by Ricardo Mook - 2021-04-28
+     * added a CSS rule
      *
      * @author Carsten Dekker
      * @see UserSettingsPresenter
