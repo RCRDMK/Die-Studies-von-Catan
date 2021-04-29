@@ -79,12 +79,8 @@ public class RollDiceRequest extends AbstractRequestMessage {
      */
     public String getName() {
         return name;
-    public RollDiceRequest() {
     }
 
-    public RollDiceRequest(String gameName, UserDTO user) {
-        setUser(user);
-        setName(gameName);
     /**
      * Getter for user
      * <p>

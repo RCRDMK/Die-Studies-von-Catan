@@ -948,15 +948,7 @@ public class GamePresenter extends AbstractPresenter {
     public void onRollDiceResultMessage(RollDiceResultMessage message) {
         if (this.currentLobby != null) {
             if (message.getName().equals(currentLobby)) {
-                if (message.getTurn() == 0) {
-                    shuffleTheDice(message.getDiceEyes1(), message.getDiceEyes2());
-                } else if (message.getTurn() == 1) {
-                    shuffleTheDice(message.getDiceEyes1(), message.getDiceEyes2());
-                } else if (message.getTurn() == 2) {
-                    shuffleTheDice(message.getDiceEyes1(), message.getDiceEyes2());
-                } else if (message.getTurn() == 3) {
-                    shuffleTheDice(message.getDiceEyes1(), message.getDiceEyes2());
-                }
+                shuffleTheDice(message.getDiceEyes1(), message.getDiceEyes2());
             }
         }
     }

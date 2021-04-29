@@ -271,7 +271,6 @@ public class GameService extends AbstractService {
         } else {
             distributeResources(addedEyes, rollDiceRequest.getName());
         }
-
         try {
             String chatMessage;
             var chatId = "game_" + rollDiceRequest.getName();
@@ -289,9 +288,9 @@ public class GameService extends AbstractService {
         }
         Optional<Game> game = gameManagement.getGame(rollDiceRequest.getName());
         if(game.isPresent()) {
-            if (rollDiceRequest.getUser().equals(gameManagement.getGame(rollDiceRequest.getName()).get().getUser(gameManagement.getGame(rollDiceRequest.getName()).get().getTurn()))) {
+            if (rollDiceRequest.getUser().equals(game.get().getUser(game.get().getTurn()))) {
                 try {
-                    RollDiceResultMessage result = new RollDiceResultMessage(dice.getDiceEyes1(), dice.getDiceEyes2(), gameManagement.getGame(rollDiceRequest.getName()).get().getTurn(), game.get().getName());
+                    RollDiceResultMessage result = new RollDiceResultMessage(dice.getDiceEyes1(), dice.getDiceEyes2(), game.get().getTurn(), game.get().getName());
                     sendToAllInGame(game.get().getName(), result);
                 } catch (Exception e) {
                     LOG.debug(e);
