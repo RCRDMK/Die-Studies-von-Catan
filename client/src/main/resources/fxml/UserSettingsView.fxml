@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.shape.*?>
 
-<AnchorPane fx:id="userSettingsAnchorPane" prefHeight="500.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.uol.swp.client.account.UserSettingsPresenter">
+<AnchorPane fx:id="userSettingsAnchorPane" prefHeight="300.0" prefWidth="300.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.uol.swp.client.account.UserSettingsPresenter" stylesheets="@../css/swp.css">
     <children>
       <MenuButton layoutX="27.0" layoutY="14.0" mnemonicParsing="false" text="Options">
         <items>
@@ -14,15 +14,15 @@
             <MenuItem id="changeProfilePicture" mnemonicParsing="false" onAction="#onChangeProfilePictureButtonPressed" text="Change profile picture" />
         </items>
       </MenuButton>
-      <Label fx:id="currentPasswordLabel" layoutX="18.0" layoutY="78.0" text="Current Password" />
-      <Label fx:id="newPasswordLabel1" layoutX="25.0" layoutY="123.0" text="New Password" />
-      <Label fx:id="newPasswordLabel2" layoutX="26.0" layoutY="167.0" text="New Password" />
+      <Label fx:id="currentPasswordLabel" layoutX="18.0" layoutY="78.0" text="Current Password" textFill="white"/>
+      <Label fx:id="newPasswordLabel1" layoutX="25.0" layoutY="123.0" text="New Password" textFill="white"/>
+      <Label fx:id="newPasswordLabel2" layoutX="26.0" layoutY="167.0" text="New Password" textFill="white"/>
       <PasswordField id="passwordField" fx:id="currentPasswordField" layoutX="119.0" layoutY="74.0" promptText="Enter Current Password" />
       <PasswordField id="passwordField" fx:id="newPasswordField1" layoutX="119.0" layoutY="119.0" promptText="Enter New Password" />
       <PasswordField id="passwordField" fx:id="newPasswordField2" layoutX="119.0" layoutY="163.0" promptText="Repeat New Password" />
-      <Label fx:id="currentEmailLabel" layoutX="25.0" layoutY="78.0" text="Current E-Mail" visible="false" />
-      <Label fx:id="newEmailLabel1" layoutX="35.0" layoutY="123.0" text="New E-Mail" visible="false" />
-      <Label fx:id="newEmailLabel2" layoutX="35.0" layoutY="167.0" text="New E-Mail" visible="false" />
+      <Label fx:id="currentEmailLabel" layoutX="25.0" layoutY="78.0" text="Current E-Mail" visible="false" textFill="white"/>
+      <Label fx:id="newEmailLabel1" layoutX="35.0" layoutY="123.0" text="New E-Mail" visible="false" textFill="white"/>
+      <Label fx:id="newEmailLabel2" layoutX="35.0" layoutY="167.0" text="New E-Mail" visible="false" textFill="white"/>
       <TextField id="emailField" fx:id="currentEmailField" layoutX="119.0" layoutY="74.0" visible="false" />
       <TextField id="emailField" fx:id="newEmailField1" layoutX="119.0" layoutY="119.0" promptText="Enter New Email" visible="false" />
       <TextField id="emailField" fx:id="newEmailField2" layoutX="119.0" layoutY="163.0" promptText="Repeat New Email" visible="false" />

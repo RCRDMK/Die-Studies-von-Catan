@@ -25,12 +25,18 @@ import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.ImagePattern;
+import javafx.scene.paint.ImagePattern;
+import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
@@ -573,6 +579,49 @@ public class GamePresenter extends AbstractPresenter {
     }
 
     /**
+     * Determines the paint (image) to draw its host-object.
+     *
+     * @return the paint for the host-object
+     * @author Marc Hermes
+     * @since 2021-04-28
+     */
+    public Paint determinePictureOfTerrain(MapGraph.Hexagon h) {
+        ImagePattern imagePattern;
+        Paint paint;
+        //"Ocean" = 0; "Forest" = 1; "Farmland" = 2; "Grassland" = 3; "Hillside" = 4; "Mountain" = 5; "Desert" = 6;
+        switch (h.getTerrainType()) {
+            case 1:
+                imagePattern = new ImagePattern(new Image("textures/resized/HEX_Wald.png"));
+                paint = imagePattern;
+                break;
+            case 2:
+                imagePattern = new ImagePattern(new Image("textures/resized/HEX_Felder.png"));
+                paint = imagePattern;
+                break;
+            case 3:
+                imagePattern = new ImagePattern(new Image("textures/resized/HEX_Weideland.png"));
+                paint = imagePattern;
+                break;
+            case 4:
+                imagePattern = new ImagePattern(new Image("textures/resized/HEX_Lehm.png"));
+                paint = imagePattern;
+                break;
+            case 5:
+                imagePattern = new ImagePattern(new Image("textures/resized/HEX_Minen.png"));
+                paint = imagePattern;
+                break;
+            case 0:
+                paint = Color.DODGERBLUE;
+                break;
+            default:
+                imagePattern = new ImagePattern(new Image("/textures/resized/HEX_Wueste.png"));
+                paint = imagePattern;
+                break;
+        }
+        return paint;
+    }
+
+    /**
      * The method that actually draws graphical objects to the screen.
      * <p>
      * This method draws its items from back to front, meaning backmost items need to be drawn first and so on. This is
@@ -591,7 +640,7 @@ public class GamePresenter extends AbstractPresenter {
 
         //Drawing background.
 
-        g.setFill(Color.BLACK);
+        g.setFill(new ImagePattern(new Image("textures/blaues-meer-sicht-von-oben.jpg")));
         g.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
 
         //Drawing hexagons
@@ -600,13 +649,15 @@ public class GamePresenter extends AbstractPresenter {
 
             Vector placementVector = Vector.convertStringListToVector(hexagonContainer.getHexagon().getSelfPosition(), cardSize(), centerOfCanvasVector);
 
-            hexagonContainer.getCircle().setLayoutX(placementVector.getX());
-            hexagonContainer.getCircle().setLayoutY(placementVector.getY());
-            hexagonContainer.getCircle().setFill(determineColorOfTerrain(hexagonContainer.getHexagon()));
+            hexagonContainer.getHexagonShape().setLayoutX(placementVector.getX());
+            hexagonContainer.getHexagonShape().setLayoutY(placementVector.getY());
+            Platform.runLater(() -> {
+                hexagonContainer.getHexagonShape().setFill(determinePictureOfTerrain(hexagonContainer.getHexagon()));
+            });
 
             if (hexagonContainer.getHexagon().getDiceToken() != 0) {
                 Text text = new Text(placementVector.getX(), placementVector.getY(), Integer.toString(hexagonContainer.getHexagon().getDiceToken()));
-                text.setFill(Color.WHITE);
+                text.setFill(Color.BLACK);
                 Platform.runLater(() -> gameAnchorPane.getChildren().add(text));
             }
         }
@@ -726,10 +777,9 @@ public class GamePresenter extends AbstractPresenter {
         System.out.println("Setting up " + mapGraph.getHexagonHashSet().size() + " HexagonContainers...");
 
         for (MapGraph.Hexagon hexagon : mapGraph.getHexagonHashSet()) {
-            Circle circle = new Circle(cardSize() / 2);
-            HexagonContainer hexagonContainer = new HexagonContainer(hexagon, circle);
+            HexagonContainer hexagonContainer = new HexagonContainer(hexagon, cardSize());
             this.hexagonContainers.add(hexagonContainer);
-            Platform.runLater(() -> gameAnchorPane.getChildren().add(hexagonContainer.getCircle()));
+            Platform.runLater(() -> gameAnchorPane.getChildren().add(hexagonContainer.getHexagonShape()));
         }
 
         //Setting up the BuildingNodeContainers
@@ -826,7 +876,7 @@ public class GamePresenter extends AbstractPresenter {
                 if (mapGraphNodeContainer.getMapGraphNode().getUuid().equals(message.getUuid())) {
                     MapGraph.BuildingNode buildingNode = (MapGraph.BuildingNode) mapGraphNodeContainer.getMapGraphNode();
                     buildingNode.buildOrDevelopSettlement(message.getPlayerIndex());
-                    draw();
+                    mapGraphNodeContainer.getCircle().setFill(determinePlayerColorByIndex(mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer()));
                     break;
                 }
             }
@@ -835,7 +885,7 @@ public class GamePresenter extends AbstractPresenter {
                 if (mapGraphNodeContainer.getMapGraphNode().getUuid().equals(message.getUuid())) {
                     MapGraph.StreetNode streetNode = (MapGraph.StreetNode) mapGraphNodeContainer.getMapGraphNode();
                     streetNode.buildRoad(message.getPlayerIndex());
-                    draw();
+                    mapGraphNodeContainer.getCircle().setFill(determinePlayerColorByIndex(mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer()));
                     break;
                 }
             }
