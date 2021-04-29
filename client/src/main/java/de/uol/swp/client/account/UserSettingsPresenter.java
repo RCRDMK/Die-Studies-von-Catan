@@ -10,16 +10,27 @@ import de.uol.swp.client.account.event.UserSettingsErrorEvent;
 import de.uol.swp.client.auth.events.ShowLoginViewEvent;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
-import de.uol.swp.common.user.response.RetrieveUserMailResponse;
+import de.uol.swp.common.user.response.RetrieveUserInformationResponse;
 import de.uol.swp.common.user.response.UpdateUserSuccessfulResponse;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.GridPane;
+import javafx.scene.paint.ImagePattern;
+import javafx.scene.shape.Rectangle;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
@@ -28,7 +39,6 @@ import java.util.Arrays;
  * @author Carsten Dekker
  * @see de.uol.swp.client.AbstractPresenter
  * @since 2021-03-04
- *
  */
 public class UserSettingsPresenter extends AbstractPresenter {
 
@@ -92,16 +102,28 @@ public class UserSettingsPresenter extends AbstractPresenter {
     @FXML
     private Button confirmEmailButton;
 
+    @FXML
+    private Button confirmProfilePictureButton;
+
+    @FXML
+    private Rectangle profilePictureRectangle;
+
+    @FXML
+    private GridPane profilePicturesView;
+
+    Rectangle[][] rectangles = new Rectangle[8][8];
+
+    @FXML
+    private Button leaveButton;
+
     @Inject
     private UserSettingsService userSettingsService;
 
-    /**
-     * Default Constructor
-     *
-     * @since 2021-03-04
-     */
-    public UserSettingsPresenter() {
-    }
+    private int selectedPictureID;
+
+    private boolean pictureLocked;
+
+    private final ArrayList<ImagePattern> profilePicturePatterns = new ArrayList<>();
 
     /**
      * Method called when the Leave button is pressed.
@@ -110,7 +132,6 @@ public class UserSettingsPresenter extends AbstractPresenter {
      * of the leaveUserSettingsEvent to the EventBus the SceneManager is subscribed to.
      *
      * @param event The ActionEvent created by pressing the Leave button
-     *
      * @author Carsten Dekker
      * @see de.uol.swp.client.user.UserService
      * @since 2021-03-04
@@ -128,7 +149,6 @@ public class UserSettingsPresenter extends AbstractPresenter {
      * The request is of type DropUserRequest
      *
      * @param event The ActionEvent created by pressing the DeleteUser button
-     *
      * @author Carsten Dekker
      * @see de.uol.swp.client.user.UserService
      * @since 2020-12-15
@@ -145,7 +165,6 @@ public class UserSettingsPresenter extends AbstractPresenter {
      * that are used  to change the password, to visible. It also hides the elements that are used to change the eMail.
      *
      * @param event The ActionEvent created by pressing the changePassword MenuItem
-     *
      * @author Carsten Dekker
      * @since 2021-03-06
      */
@@ -167,6 +186,11 @@ public class UserSettingsPresenter extends AbstractPresenter {
         currentEmailField.setDisable(false);
         confirmPasswordButton.setVisible(true);
         confirmEmailButton.setVisible(false);
+        confirmProfilePictureButton.setVisible(false);
+        profilePicturesView.setVisible(false);
+        profilePictureRectangle.setVisible(false);
+        leaveButton.setLayoutX(234);
+        leaveButton.setLayoutY(219);
     }
 
     /**
@@ -177,7 +201,6 @@ public class UserSettingsPresenter extends AbstractPresenter {
      * password.
      *
      * @param event The ActionEvent created by pressing the changeEmail MenuItem
-     *
      * @author Carsten Dekker
      * @since 2021-03-06
      */
@@ -198,6 +221,45 @@ public class UserSettingsPresenter extends AbstractPresenter {
         currentEmailField.setDisable(true);
         confirmPasswordButton.setVisible(false);
         confirmEmailButton.setVisible(true);
+        confirmProfilePictureButton.setVisible(false);
+        profilePicturesView.setVisible(false);
+        profilePictureRectangle.setVisible(false);
+        leaveButton.setLayoutX(234);
+        leaveButton.setLayoutY(219);
+    }
+
+    /**
+     * Method called when the changePicture MenuItem is pressed
+     * <p>
+     * If the changePicture is pressed, this method sets all the not needed labels, text fields and confirm buttons to
+     * visible = false. It also sets the needed elements to visible = true.
+     *
+     * @param event The ActionEvent created by pressing the changePicture MenuItem
+     * @author Carsten Dekker
+     * @since 2021-04-15
+     */
+    @FXML
+    void onChangeProfilePictureButtonPressed(ActionEvent event) {
+        for (Label label : Arrays.asList(currentPasswordLabel, newPasswordLabel1, newPasswordLabel2)) {
+            label.setVisible(false);
+        }
+        for (PasswordField passwordField : Arrays.asList(currentPasswordField, newPasswordField1, newPasswordField2)) {
+            passwordField.setVisible(false);
+        }
+        for (Label label : Arrays.asList(currentEmailLabel, newEmailLabel1, newEmailLabel2)) {
+            label.setVisible(false);
+        }
+        for (TextField textField : Arrays.asList(currentEmailField, newEmailField1, newEmailField2)) {
+            textField.setVisible(false);
+        }
+        currentEmailField.setDisable(true);
+        confirmPasswordButton.setVisible(false);
+        confirmEmailButton.setVisible(false);
+        confirmProfilePictureButton.setVisible(true);
+        profilePicturesView.setVisible(true);
+        profilePictureRectangle.setVisible(true);
+        leaveButton.setLayoutX(600);
+        leaveButton.setLayoutY(425);
     }
 
     /**
@@ -207,13 +269,12 @@ public class UserSettingsPresenter extends AbstractPresenter {
      * method tries to update the User via the userService, else it creates an error event.
      *
      * @param event The ActionEvent created by pressing the confirm password button
-     *
      * @author Carsten Dekker
      * @since 2021-03-17
      */
     @FXML
     void onConfirmPasswordButtonPressed(ActionEvent event) throws InvalidKeySpecException, NoSuchAlgorithmException {
-        if (Strings.isNullOrEmpty(currentPasswordField.getText())){
+        if (Strings.isNullOrEmpty(currentPasswordField.getText())) {
             eventBus.post(new UserSettingsErrorEvent("Please enter your current password"));
         } else if (!newPasswordField1.getText().equals(newPasswordField2.getText())) {
             eventBus.post(new UserSettingsErrorEvent("Passwords are not equal"));
@@ -221,7 +282,7 @@ public class UserSettingsPresenter extends AbstractPresenter {
             eventBus.post(new UserSettingsErrorEvent("Password cannot be empty"));
         } else {
             userService.updateUserPassword(new UserDTO(loggedInUser.getUsername(), newPasswordField1.getText(), ""),
-                     currentPasswordField.getText());
+                    currentPasswordField.getText());
         }
     }
 
@@ -234,12 +295,11 @@ public class UserSettingsPresenter extends AbstractPresenter {
      * field.
      *
      * @param event The ActionEvent created by pressing the confirm email button
-     *
      * @author Carsten Dekker
      * @since 2021-03-17
      */
     @FXML
-    void onConfirmEmailButtonPressed(ActionEvent event)  {
+    void onConfirmEmailButtonPressed(ActionEvent event) {
         if (!newEmailField1.getText().equals(newEmailField2.getText())) {
             eventBus.post(new UserSettingsErrorEvent("Email addresses are not equal"));
         } else if (Strings.isNullOrEmpty(newEmailField1.getText())) {
@@ -256,6 +316,23 @@ public class UserSettingsPresenter extends AbstractPresenter {
     }
 
     /**
+     * Method called when the confirm profilePicture button is pressed
+     * <p>
+     * If the confirm profilePicture button is pressed, this method checks, if the user clicked on a different
+     * picture. If the picture is the same, the method creates an error event. After the confirm button was successful
+     * pressed this method calls the userService.
+     *
+     * @author Carsten Dekker
+     * @param event The ActionEvent created by pressing the confirm profile picture button
+     * @see de.uol.swp.client.user.UserService
+     * @since 2021-04-15
+     */
+    @FXML
+    void onConfirmProfilePictureButtonPressed(ActionEvent event) {
+        userService.updateUserProfilePicture(new UserDTO(loggedInUser.getUsername(), "", "", selectedPictureID));
+    }
+
+    /**
      * Handles successful retrieving of the user information.
      * <p>
      * If a RetrieveUserMailResponse is detected on the EventBus the method retrieveUserMailResponseLogic
@@ -263,11 +340,11 @@ public class UserSettingsPresenter extends AbstractPresenter {
      *
      * @param response the RetrieveUserMailResponse object seen on the EventBus
      * @author Carsten Dekker
-     * @see de.uol.swp.common.user.response.RetrieveUserMailResponse
+     * @see RetrieveUserInformationResponse
      * @since 2021-03-18
      */
     @Subscribe
-    public void onRetrieveUserMailResponse(RetrieveUserMailResponse response) {
+    public void onRetrieveUserMailResponse(RetrieveUserInformationResponse response) {
         retrieveUserMailResponseLogic(response);
     }
 
@@ -280,13 +357,19 @@ public class UserSettingsPresenter extends AbstractPresenter {
      *
      * @param response the UpdateUserSuccessfulResponse given by the original subscriber method.
      * @author Carsten Dekker
-     * @see de.uol.swp.common.user.response.RetrieveUserMailResponse
+     * @see RetrieveUserInformationResponse
      * @since 2021-03-18
      */
-    public void retrieveUserMailResponseLogic(RetrieveUserMailResponse response) {
-        LOG.debug("User mail received " + response.getUser().getUsername() + response.getUser().getEMail());
+    public void retrieveUserMailResponseLogic(RetrieveUserInformationResponse response) {
+        LOG.debug("User information received " + response.getUser().getUsername() + response.getUser().getEMail(), response.getUser().getProfilePictureID());
         this.loggedInUser = response.getUser();
         currentEmailField.setText(response.getUser().getEMail());
+        selectedPictureID = response.getUser().getProfilePictureID();
+        Platform.runLater(this::setNewPicture);
+    }
+
+    public void setNewPicture() {
+        profilePictureRectangle.setFill(profilePicturePatterns.get(selectedPictureID - 1));
     }
 
     /**
@@ -302,7 +385,7 @@ public class UserSettingsPresenter extends AbstractPresenter {
      */
     @Subscribe
     public void onUpdateUserSuccessfulResponse(UpdateUserSuccessfulResponse response) {
-       updateUserSuccessfulResponseLogic(response);
+        updateUserSuccessfulResponseLogic(response);
     }
 
     /**
@@ -329,13 +412,13 @@ public class UserSettingsPresenter extends AbstractPresenter {
      * called. It calls the method to create the buttons and the alert for the drop user button.
      *
      * @param event The ShowUserSettingsViewEvent detected on the EventBus
-     * @see de.uol.swp.client.account.event.ShowUserSettingsViewEvent
      * @author Carsten Dekker
+     * @see de.uol.swp.client.account.event.ShowUserSettingsViewEvent
      * @since 2021-03-17
      */
     @Subscribe
     public void onShowUserSettingsViewEvent(ShowUserSettingsViewEvent event) {
-        if(this.loggedInUser == null) {
+        if (this.loggedInUser == null) {
             Platform.runLater(this::setupButtonsAndAlerts);
         }
     }
@@ -343,29 +426,79 @@ public class UserSettingsPresenter extends AbstractPresenter {
     /**
      * The method invoked when the UserSettingsPresenter is first used.
      * <p>
-     * The Alert asking the user whether he wants to delete his account or not as well as its corresponding
-     * buttons buttonTypeYes/No are created.
-     * Also 2 more hidden buttons are created whose ActionEvents are linked to the buttonTypeYes/No buttons
-     * of the Alert.
+     * The Alert, asking the user, whether he wants to delete his account or not, as well as its corresponding
+     * buttons buttonTypeYes/No, are created.
+     * 2 more hidden buttons are created whose ActionEvents are linked to the buttonTypeYes/No buttons
+     * of the Alert. A preview of available pictures is created in a 8x8 gridPane filled with rectangles. Every
+     * rectangle has two eventHandlers. One is an onMouseClicked MouseEvent and the other is an onMouseEntered
+     * MouseEvent. The profilePictureRectangle gets filled with the currently used profilePicture.
      *
      * @author Carsten Dekker and Marc Hermes
      * @since 2021-03-18
+     *
+     * Enhanced by Carsten Dekker und Marc Hermes
+     * @since 2021-04-15
      */
     public void setupButtonsAndAlerts() {
         this.alert = new Alert(Alert.AlertType.CONFIRMATION);
         this.buttonTypeYes = new ButtonType("Yes", ButtonBar.ButtonData.YES);
         this.buttonTypeNo = new ButtonType("No", ButtonBar.ButtonData.NO);
         alert.getButtonTypes().setAll(buttonTypeYes, buttonTypeNo);
-        this.btnYes = (Button) alert.getDialogPane().lookupButton( buttonTypeYes );
-        btnYes.setOnAction( event -> {
+        this.btnYes = (Button) alert.getDialogPane().lookupButton(buttonTypeYes);
+        btnYes.setOnAction(event -> {
             onBtnYesClicked();
             event.consume();
-        } );
-        this.btnNo = (Button) alert.getDialogPane().lookupButton( buttonTypeNo );
-        btnNo.setOnAction( event -> {
+        });
+        this.btnNo = (Button) alert.getDialogPane().lookupButton(buttonTypeNo);
+        btnNo.setOnAction(event -> {
             onBtnNoClicked();
             event.consume();
-        } );
+        });
+        for (int i = 1; i <= 64; i++) {
+            Image image;
+            image = new Image("img/profilePictures/" + i + ".png");
+            ImagePattern imagePattern;
+            imagePattern = new ImagePattern(image);
+            profilePicturePatterns.add(imagePattern);
+        }
+        int counter = 0;
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                rectangles[i][j] = new Rectangle(50, 50);
+                rectangles[i][j].setOnMouseEntered(new EventHandler<MouseEvent>() {
+                    @Override
+                    public void handle(MouseEvent event) {
+                        if (!pictureLocked) {
+                            Rectangle rectangle = (Rectangle) event.getSource();
+                            profilePictureRectangle.setFill(rectangle.getFill());
+                        }
+                    }
+                });
+                rectangles[i][j].setOnMouseClicked(new EventHandler<MouseEvent>() {
+                    @Override
+                    public void handle(MouseEvent event) {
+                        Rectangle rectangle = (Rectangle) event.getSource();
+                        profilePictureRectangle.setFill(rectangle.getFill());
+                        for (int i = 0; i < profilePicturePatterns.size(); i++) {
+                            if (profilePicturePatterns.get(i).equals(rectangle.getFill())) {
+                                selectedPictureID = i + 1;
+                                pictureLocked = true;
+                            }
+                        }
+                    }
+                });
+                rectangles[i][j].setFill(profilePicturePatterns.get(counter));
+                counter++;
+                profilePicturesView.add(rectangles[i][j], j, i);
+            }
+        }
+        profilePicturesView.setOnMouseExited(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                pictureLocked = false;
+            }
+        });
+        profilePictureRectangle.setFill(profilePicturePatterns.get(selectedPictureID - 1));
     }
 
     /**
@@ -397,4 +530,13 @@ public class UserSettingsPresenter extends AbstractPresenter {
         alert.close();
         LOG.debug("User pressed the no button");
     }
+
+    //TODO Diese Methode wurde von mir: Carsten Dekker erstellt, weil ich dachte, ich brauche sie. Ich habe sie erstmal auskommentiert und lösche sie, wenn ich sie endgültig nicht mehr brauche.
+    /*
+    public void changeSize(double width, double height) {
+        ChangeToCertainSizeEvent ctcse = new ChangeToCertainSizeEvent(width, height);
+        eventBus.post(ctcse);
+    }
+    */
 }
+

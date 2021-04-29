@@ -12,7 +12,7 @@ import java.util.Objects;
  * @since 2021-03-12
  */
 
-public class RetrieveUserMailExceptionMessage extends AbstractResponseMessage {
+public class RetrieveUserInformationExceptionMessage extends AbstractResponseMessage {
 
     private final String message;
 
@@ -22,7 +22,7 @@ public class RetrieveUserMailExceptionMessage extends AbstractResponseMessage {
      * @param message String containing the reason why the process failed
      * @since 2021-03-12
      */
-    public RetrieveUserMailExceptionMessage(String message){
+    public RetrieveUserInformationExceptionMessage(String message){
         this.message = message;
     }
 
@@ -35,7 +35,7 @@ public class RetrieveUserMailExceptionMessage extends AbstractResponseMessage {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        RetrieveUserMailExceptionMessage that = (RetrieveUserMailExceptionMessage) o;
+        RetrieveUserInformationExceptionMessage that = (RetrieveUserInformationExceptionMessage) o;
         return Objects.equals(message, that.message);
     }
 
