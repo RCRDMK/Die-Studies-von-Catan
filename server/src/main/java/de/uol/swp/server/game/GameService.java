@@ -32,9 +32,12 @@ import de.uol.swp.server.game.dice.Dice;
 import de.uol.swp.server.lobby.LobbyManagementException;
 import de.uol.swp.server.lobby.LobbyService;
 import de.uol.swp.server.usermanagement.AuthenticationService;
+import de.uol.swp.server.usermanagement.UserManagement;
+import de.uol.swp.server.usermanagement.UserService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -53,6 +56,7 @@ public class GameService extends AbstractService {
     private final GameManagement gameManagement;
     private final LobbyService lobbyService;
     private final AuthenticationService authenticationService;
+    private final UserService userService;
 
     /**
      * Constructor
@@ -64,11 +68,12 @@ public class GameService extends AbstractService {
      * @since 2021-01-07
      */
     @Inject
-    public GameService(GameManagement gameManagement, LobbyService lobbyService, AuthenticationService authenticationService, EventBus eventBus) {
+    public GameService(GameManagement gameManagement, LobbyService lobbyService, AuthenticationService authenticationService, EventBus eventBus, UserService userService) {
         super(eventBus);
         this.gameManagement = gameManagement;
         this.authenticationService = authenticationService;
         this.lobbyService = lobbyService;
+        this.userService = userService;
     }
 
     @Subscribe
@@ -497,6 +502,7 @@ public class GameService extends AbstractService {
             Optional<Game> game = gameManagement.getGame(lobby.get().getName());
             ArrayList<UserDTO> usersInGame = new ArrayList<>();
             for (User user : lobby.get().getPlayersReady()) {
+                user = userService.retrieveUserInformation(user);
                 game.get().joinUser(user);
                 usersInGame.add((UserDTO) user);
 

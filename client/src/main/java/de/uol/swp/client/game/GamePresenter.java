@@ -29,12 +29,16 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
+import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.ImagePattern;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -84,6 +88,10 @@ public class GamePresenter extends AbstractPresenter {
     @FXML
     private Canvas canvas;
 
+    private ArrayList<ImagePattern> profilePicturePatterns = new ArrayList<>();
+
+    private ArrayList<Rectangle> rectangles = new ArrayList<>();
+
     @FXML
     private AnchorPane gameAnchorPane;
 
@@ -94,6 +102,18 @@ public class GamePresenter extends AbstractPresenter {
     private Button EndTurnButton;
     @FXML
     Button tradeButton;
+
+    @FXML
+    private Pane picturePlayerView1;
+
+    @FXML
+    private Pane picturePlayerView2;
+
+    @FXML
+    private Pane picturePlayerView3;
+
+    @FXML
+    private Pane picturePlayerView4;
 
     /**
      * Method called when the send Message button is pressed
@@ -250,6 +270,7 @@ public class GamePresenter extends AbstractPresenter {
         }
     }
 
+    //TODO JavaDoc fehlt
     @FXML
     public void onEndTurn() {
         eventBus.post(new EndTurnRequest(this.currentLobby, (UserDTO) this.joinedLobbyUser));
@@ -275,13 +296,16 @@ public class GamePresenter extends AbstractPresenter {
      * <p>
      * If the currentLobby is null, meaning this is an empty GamePresenter that is ready to be used for a new game tab,
      * the parameters of this GamePresenter are updated to the User and Lobby given by the gcm Message. An update of the
-     * Users in the currentLobby is also requested.
+     * Users in the currentLobby is also requested. After that the player pictures are created in the game.
      *
      * @param gcm the GameCreatedMessage given by the original subscriber method.
      * @author Alexander Losse, Ricardo Mook
      * @see GameCreatedMessage
      * @see de.uol.swp.common.game.GameField
      * @since 2021-03-05
+     *
+     * Enhanced by Carsten Dekker
+     * @since 2021-04-22
      */
     public void gameStartedSuccessfulLogic(GameCreatedMessage gcm) {
         if (this.currentLobby == null) {
@@ -290,8 +314,42 @@ public class GamePresenter extends AbstractPresenter {
             this.currentLobby = gcm.getName();
             updateGameUsersList(gcm.getUsers());
             initializeMatch(gcm.getMapGraph());
-            Platform.runLater(this::setupRessourceAlert);
+            for (int i = 1; i <= 64; i++) {
+                Image image;
+                image = new Image("img/profilePictures/" + i + ".png");
+                ImagePattern imagePattern;
+                imagePattern = new ImagePattern(image);
+                profilePicturePatterns.add(imagePattern);
+            }
+            Platform.runLater(() -> {
+                setupPlayerPictures(gcm.getUsers());
+                setupRessourceAlert();
+            });
         }
+    }
+
+    /**
+     * Handles the creation of the profile pictures at game start
+     * <p>
+     * At the start of a game this method gets called. It uses an arrayList, containing all the users in the game,
+     * and creates the right profile picture for each user.
+     *
+     * @param list an ArrayList with UserDTOs
+     * @author Carsten Dekker
+     * @since 2021-04-18
+     */
+    public void setupPlayerPictures(ArrayList<UserDTO> list) {
+        for (UserDTO userDTO : list) {
+            Rectangle rectangle = new Rectangle(100, 100);
+            rectangle.setFill(profilePicturePatterns.get(userDTO.getProfilePictureID() - 1));
+            rectangles.add(rectangle);
+        }
+        picturePlayerView1.getChildren().add(rectangles.get(0));
+        picturePlayerView2.getChildren().add(rectangles.get(1));
+        if (rectangles.size() > 2)
+            picturePlayerView3.getChildren().add(rectangles.get(2));
+        if (rectangles.size() > 3)
+            picturePlayerView4.getChildren().add(rectangles.get(3));
     }
 
     /**
@@ -361,7 +419,8 @@ public class GamePresenter extends AbstractPresenter {
      * If the leaveGameButton is pressed, the method tries to call the GameService method leaveGame It throws a
      * GamePresenterException if joinedLobbyUser and currentLobby are not initialised
      *
-     * @param event
+     * @param event \\TODO JavaDoc fehlt hier
+     *
      * @author Ricardo Mook, Alexander Losse
      * @see de.uol.swp.client.game.GameService
      * @see de.uol.swp.client.game.GamePresenterException

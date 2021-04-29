@@ -7,6 +7,7 @@ import com.google.inject.Injector;
 import com.google.inject.assistedinject.Assisted;
 import de.uol.swp.client.account.UserSettingsPresenter;
 import de.uol.swp.client.account.event.LeaveUserSettingsEvent;
+import de.uol.swp.client.account.event.ChangeToCertainSizeEvent;
 import de.uol.swp.client.account.event.ShowUserSettingsViewEvent;
 import de.uol.swp.client.account.event.UserSettingsErrorEvent;
 import de.uol.swp.client.auth.LoginPresenter;
@@ -288,11 +289,20 @@ public class SceneManager {
     private void initUserSettingsView() {
         if (userSettingsScene == null) {
             Parent rootPane = initPresenter(UserSettingsPresenter.fxml);
-            userSettingsScene = new Scene(rootPane, 400, 300);
+            userSettingsScene = new Scene(rootPane, 800, 500);
             userSettingsScene.getStylesheets().add(styleSheet);
             rootPane.getStyleClass().add("settings");
         }
     }
+
+    /*
+    @Subscribe
+    public void onChangeToCertainSizeEvent(ChangeToCertainSizeEvent event) {
+       primaryStage.setWidth(event.getWidth());
+       primaryStage.setHeight(event.getHeight());
+    }
+     */
+
 
     /**
      * Handles ShowRegistrationViewEvent detected on the EventBus
