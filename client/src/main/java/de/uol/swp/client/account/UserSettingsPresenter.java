@@ -531,6 +531,7 @@ public class UserSettingsPresenter extends AbstractPresenter {
         LOG.debug("User pressed the no button");
     }
 
+    //TODO Diese Methode wurde von mir: Carsten Dekker erstellt, weil ich dachte, ich brauche sie. Ich habe sie erstmal auskommentiert und lösche sie, wenn ich sie endgültig nicht mehr brauche.
     /*
     public void changeSize(double width, double height) {
         ChangeToCertainSizeEvent ctcse = new ChangeToCertainSizeEvent(width, height);
