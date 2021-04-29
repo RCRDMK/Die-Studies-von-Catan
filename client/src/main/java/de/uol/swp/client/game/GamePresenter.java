@@ -50,10 +50,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Manages the GameView
@@ -136,19 +136,11 @@ public class GamePresenter extends AbstractPresenter {
     @FXML
     private GridPane playerFourDiceView;
 
-    Image dicePictureOne = new Image("img/dice/dice_1.png");
+    final private ArrayList<ImagePattern> diceImages = new ArrayList<>();
 
-    Image dicePictureTwo = new Image("img/dice/dice_2.png");
+    final private Rectangle rectangleDie1 = new Rectangle(100, 100);
 
-    Image dicePictureThree = new Image("img/dice/dice_3.png");
-
-    Image dicePictureFour = new Image("img/dice/dice_4.png");
-
-    Image dicePictureFive = new Image("img/dice/dice_5.png");
-
-    Image dicePictureSix = new Image("img/dice/dice_6.png");
-
-    private ArrayList<Image> diceImages;
+    final private Rectangle rectangleDie2 = new Rectangle(100, 100);
 
     /**
      * Method called when the send Message button is pressed
@@ -338,7 +330,7 @@ public class GamePresenter extends AbstractPresenter {
      * @see GameCreatedMessage
      * @see de.uol.swp.common.game.GameField
      * @since 2021-03-05
-     *
+     * <p>
      * Enhanced by Carsten Dekker
      * @since 2021-04-22
      */
@@ -359,7 +351,7 @@ public class GamePresenter extends AbstractPresenter {
             Platform.runLater(() -> {
                 setupPlayerPictures(gcm.getUsers());
                 setupRessourceAlert();
-                setupDicesAtGameStart;
+                setupDicesAtGameStart();
             });
         }
     }
@@ -427,19 +419,19 @@ public class GamePresenter extends AbstractPresenter {
             }
             if (!response.isInStartingTurn()) {
                 if (response.getTurn() == 0) {
-                    passTheDice(playerOneDiceView);
+                    passTheDice(playerFourDiceView, playerOneDiceView);
                     playerOneDiceView.setVisible(true);
                     playerFourDiceView.setVisible(false);
                 } else if (response.getTurn() == 1) {
-                    passTheDice(playerTwoDiceView);
+                    passTheDice(playerOneDiceView, playerTwoDiceView);
                     playerOneDiceView.setVisible(false);
                     playerTwoDiceView.setVisible(true);
                 } else if (response.getTurn() == 2) {
-                    passTheDice(playerThreeDiceView);
+                    passTheDice(playerTwoDiceView, playerThreeDiceView);
                     playerTwoDiceView.setVisible(false);
                     playerThreeDiceView.setVisible(true);
                 } else if (response.getTurn() == 3) {
-                    passTheDice(playerFourDiceView);
+                    passTheDice(playerThreeDiceView, playerFourDiceView);
                     playerThreeDiceView.setVisible(false);
                     playerFourDiceView.setVisible(true);
                 }
@@ -475,7 +467,6 @@ public class GamePresenter extends AbstractPresenter {
      * GamePresenterException if joinedLobbyUser and currentLobby are not initialised
      *
      * @param event \\TODO JavaDoc fehlt hier
-     *
      * @author Ricardo Mook, Alexander Losse
      * @see de.uol.swp.client.game.GameService
      * @see de.uol.swp.client.game.GamePresenterException
@@ -921,56 +912,69 @@ public class GamePresenter extends AbstractPresenter {
     }
 
     public void setupDicesAtGameStart() {
-        Rectangle rectanglePlayerOne1 = new Rectangle();
-        rectanglePlayerOne1.setHeight(100);
-        rectanglePlayerOne1.setWidth(100);
-        rectanglePlayerOne1.setFill(new ImagePattern(dicePictureOne));
-        Rectangle rectanglePlayerOne2 = new Rectangle();
-        rectanglePlayerOne2.setHeight(100);
-        rectanglePlayerOne2.setWidth(100);
-        rectanglePlayerOne2.setFill(new ImagePattern(dicePictureOne));
-        playerOneDiceView.add(rectanglePlayerOne1, 0, 0);
-        playerOneDiceView.add(rectanglePlayerOne2, 1,0);
-        diceImages.add(dicePictureOne);
-        diceImages.add(dicePictureTwo);
-        diceImages.add(dicePictureThree);
-        diceImages.add(dicePictureFour);
-        diceImages.add(dicePictureFive);
-        diceImages.add(dicePictureSix);
+        for (int i = 1; i <= 6; i++) {
+            Image image = new Image("img/dice/dice_" + i + ".png");
+            ImagePattern imagePattern = new ImagePattern(image);
+            diceImages.add(imagePattern);
+        }
+        rectangleDie1.setFill(diceImages.get(0));
+        playerOneDiceView.add(rectangleDie1, 0, 0);
+        rectangleDie2.setFill(diceImages.get(0));
+        playerOneDiceView.add(rectangleDie2, 1, 0);
     }
 
-    public void passTheDice(GridPane gridPane) {
+    public void passTheDice(GridPane oldGridPane, GridPane newGridPane) {
         Platform.runLater(() -> {
-            Rectangle rectangle1 = new Rectangle();
-            rectangle1.setHeight(100);
-            rectangle1.setWidth(100);
-            rectangle1.setFill(new ImagePattern(dicePictureOne));
-            gridPane.add(rectangle1, 0, 0);
-            Rectangle rectangle2 = new Rectangle();
-            rectangle2.setHeight(100);
-            rectangle2.setWidth(100);
-            rectangle2.setFill(new ImagePattern(dicePictureOne));
-            gridPane.add(rectangle2, 1, 0);
+            oldGridPane.getChildren().remove(rectangleDie1);
+            oldGridPane.getChildren().remove(rectangleDie2);
+            rectangleDie1.setFill(diceImages.get(0));
+            newGridPane.add(rectangleDie1, 0, 0);
+            rectangleDie2.setFill(diceImages.get(0));
+            newGridPane.add(rectangleDie2, 1, 0);
         });
     }
 
     @Subscribe
     public void onRollDiceResultMessage(RollDiceResultMessage message) {
-        if (message.getTurn() == 0) {
-            shuffleTheDice(playerOneDiceView, message.getDiceEyes1(), message.getDiceEyes2());
-        } else if (message.getTurn() == 1) {
-            shuffleTheDice(playerTwoDiceView, message.getDiceEyes1(), message.getDiceEyes2());
-        } else if (message.getTurn() == 2) {
-            shuffleTheDice(playerThreeDiceView, message.getDiceEyes1(), message.getDiceEyes2());
-        } else if (message.getTurn() == 3) {
-            shuffleTheDice(playerFourDiceView, message.getDiceEyes1(), message.getDiceEyes2());
+        if (this.currentLobby != null) {
+            if (message.getName().equals(currentLobby)) {
+                if (message.getTurn() == 0) {
+                    shuffleTheDice(message.getDiceEyes1(), message.getDiceEyes2());
+                } else if (message.getTurn() == 1) {
+                    shuffleTheDice(message.getDiceEyes1(), message.getDiceEyes2());
+                } else if (message.getTurn() == 2) {
+                    shuffleTheDice(message.getDiceEyes1(), message.getDiceEyes2());
+                } else if (message.getTurn() == 3) {
+                    shuffleTheDice(message.getDiceEyes1(), message.getDiceEyes2());
+                }
+            }
         }
     }
 
-    public void shuffleTheDice(GridPane gridPane, int diceEyes1, int diceEyes2) {
-
-
+    public void shuffleTheDice(int diceEyes1, int diceEyes2) {
+        final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+        final int[] i = {0};
+        executorService.scheduleAtFixedRate(new Runnable() {
+            @Override
+            public void run() {
+                    i[0]++;
+                    int randomNumber = randomInt(0, 5);
+                    rectangleDie1.setFill(diceImages.get(randomNumber));
+                    randomNumber = randomInt(0, 5);
+                    rectangleDie2.setFill(diceImages.get(randomNumber));
+                    if (i[0] == 12) {
+                        executorService.shutdown();
+                        rectangleDie1.setFill(diceImages.get(diceEyes1 - 1));
+                        rectangleDie2.setFill(diceImages.get(diceEyes2 - 1));
+                    }
+            }
+        }, 0, 125, TimeUnit.MILLISECONDS);
     }
+
+    private int randomInt(int min, int max) {
+        return (int) (Math.random() * (max - min)) + min;
+    }
+
 
     /**
      * Updates the corresponding Node in the list of MapGraphNodes to represent the changes from the message.

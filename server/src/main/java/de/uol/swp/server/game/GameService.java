@@ -291,7 +291,7 @@ public class GameService extends AbstractService {
         if(game.isPresent()) {
             if (rollDiceRequest.getUser().equals(gameManagement.getGame(rollDiceRequest.getName()).get().getUser(gameManagement.getGame(rollDiceRequest.getName()).get().getTurn()))) {
                 try {
-                    RollDiceResultMessage result = new RollDiceResultMessage(dice.getDiceEyes1(), dice.getDiceEyes2(), gameManagement.getGame(rollDiceRequest.getName()).get().getTurn());
+                    RollDiceResultMessage result = new RollDiceResultMessage(dice.getDiceEyes1(), dice.getDiceEyes2(), gameManagement.getGame(rollDiceRequest.getName()).get().getTurn(), game.get().getName());
                     sendToAllInGame(game.get().getName(), result);
                 } catch (Exception e) {
                     LOG.debug(e);

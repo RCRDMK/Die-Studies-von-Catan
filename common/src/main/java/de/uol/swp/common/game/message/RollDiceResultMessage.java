@@ -9,10 +9,11 @@ public class RollDiceResultMessage extends AbstractGameMessage {
     public RollDiceResultMessage() {
     }
 
-    public RollDiceResultMessage(int diceEyes1, int diceEyes2, int turn) {
+    public RollDiceResultMessage(int diceEyes1, int diceEyes2, int turn, String gameName) {
         this.diceEyes1 = diceEyes1;
         this.diceEyes2 = diceEyes2;
         this.turn = turn;
+        super.name = gameName;
     }
 
     public int getDiceEyes1() {

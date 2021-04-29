@@ -7,6 +7,8 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.text.Text?>
 <?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.RowConstraints?>
 
 <AnchorPane xmlns:fx="http://javafx.com/fxml/1" fx:id="gameAnchorPane" maxHeight="-Infinity" maxWidth="-Infinity"
             prefHeight="400.0"
