@@ -16,6 +16,7 @@ import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.user.response.game.AllThisGameUsersResponse;
 import de.uol.swp.common.user.response.game.GameLeftSuccessfulResponse;
+import javafx.animation.AnimationTimer;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
@@ -28,6 +29,7 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
@@ -77,10 +79,15 @@ public class GamePresenter extends AbstractPresenter {
     @FXML
     public TextArea gameChatArea;
     private User joinedLobbyUser;
+
     private String currentLobby;
+
     private Alert alert;
+
     private ButtonType buttonTypeOkay;
+
     private Button btnOkay;
+
     private ObservableList<String> gameUsers;
 
 
@@ -89,8 +96,10 @@ public class GamePresenter extends AbstractPresenter {
     private Boolean itsMyTurn = false;
     @Inject
     private GameService gameService;
+
     @Inject
     private ChatService chatService;
+
     @FXML
     private Canvas canvas;
 
@@ -415,6 +424,7 @@ public class GamePresenter extends AbstractPresenter {
             } else {
                 itsMyTurn = false;
                 EndTurnButton.setDisable(true);
+                itsMyTurn = false;
                 tradeButton.setDisable(true);
             }
             if (!response.isInStartingTurn()) {

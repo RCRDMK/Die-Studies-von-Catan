@@ -260,12 +260,12 @@ public class GameService extends AbstractService {
 
         Dice dice = new Dice();
         dice.rollDice();
+        int addedEyes = dice.getDiceEyes1() + dice.getDiceEyes2();
         // Check if cheatEyes number is provided in rollDiceRequest, if so -> set Eyes manually on dice
         // for the roll cheat, else ignore and use rolledDice
         if (rollDiceRequest.getCheatEyes() > 0) {
             dice.setEyes(rollDiceRequest.getCheatEyes());
         }
-        int addedEyes = dice.getDiceEyes1() + dice.getDiceEyes2();
         if (addedEyes == 7) {
             //TODO Hier müsste der Räuber aktiviert werden.
         } else {

@@ -14,7 +14,6 @@
             prefHeight="400.0"
             prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1"
             fx:controller="de.uol.swp.client.game.GamePresenter" stylesheets="@../css/swp.css">
-<?import javafx.scene.layout.Pane?>
     <children>
         <TextArea fx:id="gameChatArea" editable="false" layoutX="370.0" layoutY="231.0" prefHeight="114.0" prefWidth="224.0" GridPane.rowIndex="2" />
         <ListView fx:id="gameUsersView" layoutX="370.0" layoutY="30.0" prefHeight="90.0" prefWidth="224.0" />
