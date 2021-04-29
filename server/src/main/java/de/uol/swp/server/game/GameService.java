@@ -343,50 +343,52 @@ public class GameService extends AbstractService {
             for (MapGraph.Hexagon hexagon : game.get().getMapGraph().getHexagonHashSet()) {
                 if (hexagon.getDiceToken() == eyes) {
                     for (MapGraph.BuildingNode buildingNode : hexagon.getBuildingNodes()) {
-                        Inventory inventory = game.get().getInventory(game.get().getUser(buildingNode.getOccupiedByPlayer()));
-                        //"Ocean" = 0; "Forest" = 1; "Farmland" = 2; "Grassland" = 3; "Hillside" = 4; "Mountain" = 5; "Desert" = 6;
-                        switch (hexagon.getTerrainType()) {
-                            case 1:
-                                if (buildingNode.getSizeOfSettlement() == 1) {
-                                    inventory.lumber.incNumber();
-                                } else if (buildingNode.getSizeOfSettlement() == 2) {
-                                    inventory.lumber.incNumber();
-                                    inventory.lumber.incNumber();
-                                }
-                                break;
-                            case 2:
-                                if (buildingNode.getSizeOfSettlement() == 1) {
-                                    inventory.grain.incNumber();
-                                } else if (buildingNode.getSizeOfSettlement() == 2) {
-                                    inventory.grain.incNumber();
-                                    inventory.grain.incNumber();
-                                }
-                                break;
-                            case 3:
-                                if (buildingNode.getSizeOfSettlement() == 1) {
-                                    inventory.wool.incNumber();
-                                } else if (buildingNode.getSizeOfSettlement() == 2) {
-                                    inventory.wool.incNumber();
-                                    inventory.wool.incNumber();
-                                }
-                                break;
-                            case 4:
-                                if (buildingNode.getSizeOfSettlement() == 1) {
-                                    inventory.brick.incNumber();
-                                } else if (buildingNode.getSizeOfSettlement() == 2) {
-                                    inventory.brick.incNumber();
-                                    inventory.brick.incNumber();
-                                }
-                                break;
-                            case 5:
-                                if (buildingNode.getSizeOfSettlement() == 1) {
-                                    inventory.ore.incNumber();
-                                } else if (buildingNode.getSizeOfSettlement() == 2) {
-                                    inventory.ore.incNumber();
-                                    inventory.ore.incNumber();
-                                }
-                            default:
-                                break;
+                        if (buildingNode.getOccupiedByPlayer()!=666) {
+                            Inventory inventory = game.get().getInventory(game.get().getUser(buildingNode.getOccupiedByPlayer()));
+                            //"Ocean" = 0; "Forest" = 1; "Farmland" = 2; "Grassland" = 3; "Hillside" = 4; "Mountain" = 5; "Desert" = 6;
+                            switch (hexagon.getTerrainType()) {
+                                case 1:
+                                    if (buildingNode.getSizeOfSettlement() == 1) {
+                                        inventory.lumber.incNumber();
+                                    } else if (buildingNode.getSizeOfSettlement() == 2) {
+                                        inventory.lumber.incNumber();
+                                        inventory.lumber.incNumber();
+                                    }
+                                    break;
+                                case 2:
+                                    if (buildingNode.getSizeOfSettlement() == 1) {
+                                        inventory.grain.incNumber();
+                                    } else if (buildingNode.getSizeOfSettlement() == 2) {
+                                        inventory.grain.incNumber();
+                                        inventory.grain.incNumber();
+                                    }
+                                    break;
+                                case 3:
+                                    if (buildingNode.getSizeOfSettlement() == 1) {
+                                        inventory.wool.incNumber();
+                                    } else if (buildingNode.getSizeOfSettlement() == 2) {
+                                        inventory.wool.incNumber();
+                                        inventory.wool.incNumber();
+                                    }
+                                    break;
+                                case 4:
+                                    if (buildingNode.getSizeOfSettlement() == 1) {
+                                        inventory.brick.incNumber();
+                                    } else if (buildingNode.getSizeOfSettlement() == 2) {
+                                        inventory.brick.incNumber();
+                                        inventory.brick.incNumber();
+                                    }
+                                    break;
+                                case 5:
+                                    if (buildingNode.getSizeOfSettlement() == 1) {
+                                        inventory.ore.incNumber();
+                                    } else if (buildingNode.getSizeOfSettlement() == 2) {
+                                        inventory.ore.incNumber();
+                                        inventory.ore.incNumber();
+                                    }
+                                default:
+                                    break;
+                            }
                         }
                     }
                 }
