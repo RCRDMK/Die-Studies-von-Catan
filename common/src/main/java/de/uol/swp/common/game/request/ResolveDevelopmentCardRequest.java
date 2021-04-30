@@ -1,5 +1,6 @@
 package de.uol.swp.common.game.request;
 
+import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 
 import java.util.UUID;
@@ -29,6 +30,16 @@ public class ResolveDevelopmentCardRequest extends AbstractGameRequest {
         this.resource2 = "";
         this.street1 = street1;
         this.street2 = street2;
+    }
+
+    // Constructor for Year of Plenty DevelopmentCard
+    public ResolveDevelopmentCardRequest(String devCard, UserDTO user, String gameName, String resource1, String resource2) {
+        super(gameName, user);
+        this.devCard = devCard;
+        this.resource1 = resource1;
+        this.resource2 = resource2;
+        this.street1 = null;
+        this.street2 = null;
     }
 
     public String getDevCard() {

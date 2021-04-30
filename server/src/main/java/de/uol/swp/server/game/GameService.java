@@ -10,10 +10,7 @@ import de.uol.swp.common.game.MapGraph;
 import de.uol.swp.common.game.inventory.Inventory;
 import de.uol.swp.common.game.message.*;
 import de.uol.swp.common.game.request.*;
-import de.uol.swp.common.game.response.AllCreatedGamesResponse;
-import de.uol.swp.common.game.response.GameAlreadyExistsResponse;
-import de.uol.swp.common.game.response.NotLobbyOwnerResponse;
-import de.uol.swp.common.game.response.PlayDevelopmentCardResponse;
+import de.uol.swp.common.game.response.*;
 import de.uol.swp.common.game.trade.Trade;
 import de.uol.swp.common.game.trade.TradeItem;
 import de.uol.swp.common.lobby.Lobby;
@@ -650,7 +647,9 @@ public class GameService extends AbstractService {
                         }
 
                     case "Road Building":
-                        if (inventory.cardRoadBuilding.getNumber() > 0 && currentCardOfGame.equals("") && !alreadyPlayedCard) {
+                        if (inventory.cardRoadBuilding.getNumber() > 0 && currentCardOfGame.equals("") && !alreadyPlayedCard && inventory.road.getNumber() > 1) {
+                            // TODO: check if the player is allowed to even attempt to build 2 streets i.e. not possible when there are no legal spaces to build 2 streets
+                            // TODO: probs very complicated to check that, so maybe just ignore that fringe scenario???
                             game.get().setCurrentCard("Road Building");
                             game.get().setPlayedCardThisTurn(true);
                             PlayDevelopmentCardResponse response = new PlayDevelopmentCardResponse(devCard, true, turnPlayer.getUsername(), game.get().getName());
@@ -661,6 +660,7 @@ public class GameService extends AbstractService {
 
                     case "Year of Plenty":
                         if (inventory.cardYearOfPlenty.getNumber() > 0 && currentCardOfGame.equals("") && !alreadyPlayedCard) {
+                            // TODO: Check if there theoretically are resources left in the bank that could be obtained for the player
                             game.get().setCurrentCard("Year of Plenty");
                             game.get().setPlayedCardThisTurn(true);
                             PlayDevelopmentCardResponse response = new PlayDevelopmentCardResponse(devCard, true, turnPlayer.getUsername(), game.get().getName());
@@ -696,10 +696,12 @@ public class GameService extends AbstractService {
         if (game.isPresent()) {
             User turnPlayer = game.get().getUser(game.get().getTurn());
             String gameName = game.get().getName();
+            String devCard = request.getDevCard();
 
             if (request.getUser().getUsername().equals(turnPlayer.getUsername())) {
-                Inventory inventory = game.get().getInventory(turnPlayer);
-                String devCard = request.getDevCard();
+                Inventory turnPlayerInventory = game.get().getInventory(turnPlayer);
+                ResolveDevelopmentCardMessage message = new ResolveDevelopmentCardMessage(devCard, (UserDTO) turnPlayer, gameName);
+                ResolveDevelopmentCardNotSuccessful notSuccessfulResponse = new ResolveDevelopmentCardNotSuccessful(devCard, turnPlayer.getUsername(), gameName);
 
                 switch (devCard) {
                     case "Monopoly":
@@ -709,47 +711,60 @@ public class GameService extends AbstractService {
                                 Inventory x = game.get().getInventory(user);
                                 switch (resource) {
                                     case "Lumber":
-                                        inventory.incCard(resource, x.lumber.getNumber());
+                                        turnPlayerInventory.incCard(resource, x.lumber.getNumber());
                                         x.lumber.decNumber(x.lumber.getNumber());
                                         break;
                                     case "Ore":
-                                        inventory.incCard(resource, x.ore.getNumber());
+                                        turnPlayerInventory.incCard(resource, x.ore.getNumber());
                                         x.ore.decNumber(x.ore.getNumber());
                                         break;
                                     case "Wool":
-                                        inventory.incCard(resource, x.wool.getNumber());
+                                        turnPlayerInventory.incCard(resource, x.wool.getNumber());
                                         x.wool.decNumber(x.wool.getNumber());
                                         break;
                                     case "Brick":
-                                        inventory.incCard(resource, x.brick.getNumber());
+                                        turnPlayerInventory.incCard(resource, x.brick.getNumber());
                                         x.brick.decNumber(x.brick.getNumber());
                                         break;
                                     case "Grain":
-                                        inventory.incCard(resource, x.grain.getNumber());
+                                        turnPlayerInventory.incCard(resource, x.grain.getNumber());
                                         x.grain.decNumber(x.grain.getNumber());
                                         break;
-
                                 }
                             }
                         }
+                        sendToAllInGame(gameName, message);
+                        updateInventory(game);
                         game.get().setCurrentCard("");
                         break;
 
                     case "Road Building":
-                        ConstructionMessage constructionMessage = new ConstructionMessage((UserDTO)turnPlayer, gameName,request.getStreet1(), "StreetNode");
-                        boolean successful = onConstructionMessage(constructionMessage);
-                        if (!successful) {
-                            //TODO: implement Not successful functionality i.e. if the selected streets are not valid choices
+                        ConstructionMessage constructionMessage1 = new ConstructionMessage((UserDTO) turnPlayer, gameName, request.getStreet1(), "StreetNode");
+                        ConstructionMessage constructionMessage2 = new ConstructionMessage((UserDTO) turnPlayer, gameName, request.getStreet1(), "StreetNode");
+                        boolean successful1 = onConstructionMessage(constructionMessage1);
+                        boolean successful2 = onConstructionMessage(constructionMessage2);
+                        if (!(successful1 && successful2)) {
+                            post(notSuccessfulResponse);
+                            //TODO: implement "not successful" functionality i.e. if the selected streets are not valid choices
                         } else {
+                            sendToAllInGame(gameName, message);
                             game.get().setCurrentCard("");
                         }
-                        // TODO: implement functionality
+                        break;
 
                     case "Year of Plenty":
-                        // TODO: implement functionality
+                        // TODO: implement bank resources and "not successful" functionality i.e. when the bank doesnt have enough resources
+
+                        turnPlayerInventory.incCard(request.getResource1(), 1);
+                        turnPlayerInventory.incCard(request.getResource2(), 1);
+                        sendToAllInGame(gameName, message);
+                        game.get().setCurrentCard("");
+                        updateInventory(game);
+                        break;
 
                     case "Knight":
-                        // TODO: implement functionality
+                        // TODO: implement functionality of moving the robber/bandit
+                        break;
 
                     default:
                         break;
