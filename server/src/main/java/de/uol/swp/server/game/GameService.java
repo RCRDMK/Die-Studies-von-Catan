@@ -598,7 +598,8 @@ public class GameService extends AbstractService {
             var inventory = game.get().getInventory(user);
             // If user has 10 victory points, he wins and the Summary Screen gets shown for every user in the game.
             if (inventory.getVictoryPoints() >= 10) {
-                sendToAllInGame(game.get().getName(), new GameFinishedMessage(gameManagement.getGame(request.getName()).get().getName()));
+                var gameDto = (GameDTO) gameManagement.getGame(request.getName()).get();
+                sendToAllInGame(game.get().getName(), new GameFinishedMessage(gameDto));
                 LOG.debug("User " + user.getUsername() + " has atleast 10 victory points and won.");
             }
         }

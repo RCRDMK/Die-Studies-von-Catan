@@ -2,6 +2,7 @@ package de.uol.swp.common.game.inventory;
 
 import de.uol.swp.common.user.User;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,7 +12,7 @@ import java.util.Map;
  * @author Anton
  * @since 2021-02-01
  */
-public class Inventory {
+public class Inventory implements Serializable {
 
     private User user;
 

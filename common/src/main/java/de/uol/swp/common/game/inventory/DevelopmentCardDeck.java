@@ -1,5 +1,6 @@
 package de.uol.swp.common.game.inventory;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.Stack;
 
@@ -11,7 +12,7 @@ import java.util.Stack;
  * @author Anton
  * @since 2021-01-17
  */
-public class DevelopmentCardDeck {
+public class DevelopmentCardDeck implements Serializable {
 
     private Stack<String> deck = new Stack<>();
 
