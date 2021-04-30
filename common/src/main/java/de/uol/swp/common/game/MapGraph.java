@@ -23,6 +23,7 @@ public class MapGraph implements Serializable {
     private final HashSet<StreetNode> streetNodeHashSet = new HashSet<>();
     private final HashSet<BuildingNode> buildingNodeHashSet = new HashSet<>();
     private final HashSet<Hexagon> hexagonHashSet = new HashSet<>();
+    private final ArrayList<BuildingNode> builtBuildings = new ArrayList<>();
     private final LongestStreetPathCalculator longestStreetPathCalculator;
 
     /**
@@ -200,6 +201,25 @@ public class MapGraph implements Serializable {
     public int returnPlayerWithLongestRoad() {
         //TODO:This needs to be implemented in a separate ticket some time soon.
         return 666; //nonsense-value
+    }
+
+    public ArrayList<BuildingNode> getBuiltBuildings() {
+        return builtBuildings;
+    }
+
+    /**
+     * Adds built Buildings to a List.
+     *
+     * <p>Adds a new building to the list if it is not already part of the list.</p>
+     *
+     * @author Philip Nitsche
+     * @since 2021-04-26
+     */
+
+    public void addBuiltBuilding(BuildingNode builtBuilding) {
+        if (!builtBuildings.contains(builtBuilding)) {
+            builtBuildings.add(builtBuilding);
+        }
     }
 
     /**
