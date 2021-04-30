@@ -142,7 +142,7 @@ public class GameService extends AbstractService {
      * @since 2021-04-15
      */
     @Subscribe
-    public void onConstructionMessage(ConstructionMessage message) {
+    public boolean onConstructionMessage(ConstructionMessage message) {
         LOG.debug("Recieved new ConstructionMessage from user " + message.getUser());
         Optional<Game> game = gameManagement.getGame(message.getGame());
         int playerIndex = 666;
@@ -160,7 +160,7 @@ public class GameService extends AbstractService {
                             game.get().getMapGraph().addBuiltBuilding(buildingNode);
                             sendToAllInGame(game.get().getName(), new SuccessfulConstructionMessage(playerIndex,
                                     message.getUuid(), "BuildingNode"));
-                            break;
+                            return true;
                         }
                     }
                 }
@@ -170,7 +170,7 @@ public class GameService extends AbstractService {
                         if (streetNode.buildRoad(playerIndex)) {
                             sendToAllInGame(game.get().getName(), new SuccessfulConstructionMessage(playerIndex,
                                     message.getUuid(), "StreetNode"));
-                            break;
+                            return true;
                         }
 
                     }
@@ -182,6 +182,7 @@ public class GameService extends AbstractService {
             LOG.debug(e);
             System.out.println("Player " + message.getUser() + " tried to build at node with UUID: " + message.getUuid() + " but it did not work.");
         }
+        return false;
     }
 
     public void sendToAllInGame(String gameName, ServerMessage message) {
@@ -694,15 +695,54 @@ public class GameService extends AbstractService {
         Optional<Game> game = gameManagement.getGame(request.getName());
         if (game.isPresent()) {
             User turnPlayer = game.get().getUser(game.get().getTurn());
+            String gameName = game.get().getName();
+
             if (request.getUser().getUsername().equals(turnPlayer.getUsername())) {
                 Inventory inventory = game.get().getInventory(turnPlayer);
                 String devCard = request.getDevCard();
 
                 switch (devCard) {
                     case "Monopoly":
-                        // TODO: implement functionality
+                        String resource = request.getResource1();
+                        for (User user : game.get().getUsers()) {
+                            if (!user.equals(turnPlayer)) {
+                                Inventory x = game.get().getInventory(user);
+                                switch (resource) {
+                                    case "Lumber":
+                                        inventory.incCard(resource, x.lumber.getNumber());
+                                        x.lumber.decNumber(x.lumber.getNumber());
+                                        break;
+                                    case "Ore":
+                                        inventory.incCard(resource, x.ore.getNumber());
+                                        x.ore.decNumber(x.ore.getNumber());
+                                        break;
+                                    case "Wool":
+                                        inventory.incCard(resource, x.wool.getNumber());
+                                        x.wool.decNumber(x.wool.getNumber());
+                                        break;
+                                    case "Brick":
+                                        inventory.incCard(resource, x.brick.getNumber());
+                                        x.brick.decNumber(x.brick.getNumber());
+                                        break;
+                                    case "Grain":
+                                        inventory.incCard(resource, x.grain.getNumber());
+                                        x.grain.decNumber(x.grain.getNumber());
+                                        break;
+
+                                }
+                            }
+                        }
+                        game.get().setCurrentCard("");
+                        break;
 
                     case "Road Building":
+                        ConstructionMessage constructionMessage = new ConstructionMessage((UserDTO)turnPlayer, gameName,request.getStreet1(), "StreetNode");
+                        boolean successful = onConstructionMessage(constructionMessage);
+                        if (!successful) {
+                            //TODO: implement Not successful functionality i.e. if the selected streets are not valid choices
+                        } else {
+                            game.get().setCurrentCard("");
+                        }
                         // TODO: implement functionality
 
                     case "Year of Plenty":
