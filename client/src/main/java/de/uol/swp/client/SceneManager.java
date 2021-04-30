@@ -7,7 +7,6 @@ import com.google.inject.Injector;
 import com.google.inject.assistedinject.Assisted;
 import de.uol.swp.client.account.UserSettingsPresenter;
 import de.uol.swp.client.account.event.LeaveUserSettingsEvent;
-import de.uol.swp.client.account.event.ChangeToCertainSizeEvent;
 import de.uol.swp.client.account.event.ShowUserSettingsViewEvent;
 import de.uol.swp.client.account.event.UserSettingsErrorEvent;
 import de.uol.swp.client.auth.LoginPresenter;
@@ -22,6 +21,7 @@ import de.uol.swp.client.register.event.RegistrationCanceledEvent;
 import de.uol.swp.client.register.event.RegistrationErrorEvent;
 import de.uol.swp.client.register.event.ShowRegistrationViewEvent;
 import de.uol.swp.common.game.message.GameFinishedMessage;
+import de.uol.swp.common.game.message.SummaryConfirmedMessage;
 import de.uol.swp.common.game.message.TradeEndedMessage;
 import de.uol.swp.common.user.User;
 import javafx.application.Platform;
@@ -375,9 +375,17 @@ public class SceneManager {
      */
     @Subscribe
     public void onFinishedGameMessage(GameFinishedMessage message) {
-        var gameName = message.GetGameName();
+        var gameName = message.GetGame().getName();
         removeGameTab(gameName);
         showSummaryScreen(gameName);
+    }
+
+    @Subscribe
+    public void onConfirmedSummaryMessage(SummaryConfirmedMessage message) {
+        var gameName = message.GetGameName();
+        var user = message.getUser();
+        removeSummaryTab(gameName);
+        showMainTab(user);
     }
 
     /**
@@ -690,6 +698,12 @@ public class SceneManager {
     public void removeLobbyTab(User currentUser, String lobbyname) {
         Platform.runLater(() -> {
             tabHelper.removeTab("Lobby " + lobbyname);
+        });
+    }
+
+    public void removeSummaryTab(String gamename) {
+        Platform.runLater(() -> {
+            tabHelper.removeTab("Summary of Game " + gamename);
         });
     }
 
