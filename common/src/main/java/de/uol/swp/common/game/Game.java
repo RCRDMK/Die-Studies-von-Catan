@@ -232,4 +232,11 @@ public interface Game extends Serializable {
      */
     void removeTrade(String tradeCode);
 
+    String getCurrentCard();
+
+    void setCurrentCard(String currentCard);
+
+    boolean playedCardThisTurn();
+
+    void setPlayedCardThisTurn(boolean value);
 }

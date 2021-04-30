@@ -34,6 +34,7 @@ public class GameDTO implements Game {
     private boolean startingTurns = true;
     private boolean countingUp = true;
     private boolean lastPlayerSecondTurn = false;
+    private boolean playedCardThisTurn = false;
     private DevelopmentCardDeck developmentCardDeck = new DevelopmentCardDeck();
     private final ArrayList<MapGraph.BuildingNode> lastBuildingOfOpeningTurn = new ArrayList<>();
 
@@ -43,6 +44,7 @@ public class GameDTO implements Game {
     private Inventory inventory4;
 
     private HashMap<String, Trade> tradeList = new HashMap<>();
+    private String currentCard = "";
 
     /**
      * Constructor
@@ -167,6 +169,7 @@ public class GameDTO implements Game {
         if (startingTurns) {
             openingPhase();
         } else overallTurns++;
+        playedCardThisTurn = false;
     }
 
     /**
@@ -325,4 +328,25 @@ public class GameDTO implements Game {
     public void removeTrade(String tradeCode){
         tradeList.remove(tradeCode);
     }
+
+    @Override
+    public String getCurrentCard() {
+        return this.currentCard;
+    }
+
+    @Override
+    public void setCurrentCard(String currentCard) {
+        this.currentCard = currentCard;
+    }
+
+    @Override
+    public boolean playedCardThisTurn() {
+        return this.playedCardThisTurn;
+    }
+
+    @Override
+    public void setPlayedCardThisTurn(boolean value) {
+        playedCardThisTurn =value;
+    }
+
 }

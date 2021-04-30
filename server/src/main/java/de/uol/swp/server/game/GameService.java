@@ -13,6 +13,7 @@ import de.uol.swp.common.game.request.*;
 import de.uol.swp.common.game.response.AllCreatedGamesResponse;
 import de.uol.swp.common.game.response.GameAlreadyExistsResponse;
 import de.uol.swp.common.game.response.NotLobbyOwnerResponse;
+import de.uol.swp.common.game.response.PlayDevelopmentCardResponse;
 import de.uol.swp.common.game.trade.Trade;
 import de.uol.swp.common.game.trade.TradeItem;
 import de.uol.swp.common.lobby.Lobby;
@@ -348,7 +349,7 @@ public class GameService extends AbstractService {
             for (MapGraph.Hexagon hexagon : game.get().getMapGraph().getHexagonHashSet()) {
                 if (hexagon.getDiceToken() == eyes) {
                     for (MapGraph.BuildingNode buildingNode : hexagon.getBuildingNodes()) {
-                        if (buildingNode.getOccupiedByPlayer()!=666) {
+                        if (buildingNode.getOccupiedByPlayer() != 666) {
                             Inventory inventory = game.get().getInventory(game.get().getUser(buildingNode.getOccupiedByPlayer()));
                             //"Ocean" = 0; "Forest" = 1; "Farmland" = 2; "Grassland" = 3; "Hillside" = 4; "Mountain" = 5; "Desert" = 6;
                             switch (hexagon.getTerrainType()) {
@@ -571,7 +572,7 @@ public class GameService extends AbstractService {
     @Subscribe
     public void onEndTurnRequest(EndTurnRequest request) {
         Optional<Game> game = gameManagement.getGame(request.getName());
-        if (request.getUser().getUsername().equals(game.get().getUser(game.get().getTurn()).getUsername())) {
+        if (request.getUser().getUsername().equals(game.get().getUser(game.get().getTurn()).getUsername()) && game.get().getCurrentCard().equals("")) {
             try {
                 boolean priorGamePhase = game.get().isStartingTurns();
                 game.get().nextRound();
@@ -605,7 +606,7 @@ public class GameService extends AbstractService {
     public void onBuyDevelopmentCardRequest(BuyDevelopmentCardRequest request) {
         Optional<Game> game = gameManagement.getGame(request.getName());
         if (game.isPresent()) {
-            if (request.getUser().equals(gameManagement.getGame(request.getName()).get().getUser(gameManagement.getGame(request.getName()).get().getTurn()))) {
+            if (request.getUser().getUsername().equals(game.get().getUser(game.get().getTurn()).getUsername())) {
                 Inventory inventory = game.get().getInventory(request.getUser());
                 if (inventory.wool.getNumber() >= 1 && inventory.ore.getNumber() >= 1 && inventory.grain.getNumber() >= 1) {
                     String devCard = game.get().getDevelopmentCardDeck().drawnCard();
@@ -623,6 +624,100 @@ public class GameService extends AbstractService {
             }
         }
     }
+
+    @Subscribe
+    public void onPlayDevelopmentCardRequest(PlayDevelopmentCardRequest request) {
+        Optional<Game> game = gameManagement.getGame(request.getName());
+        if (game.isPresent()) {
+            User turnPlayer = game.get().getUser(game.get().getTurn());
+            if (request.getUser().getUsername().equals(turnPlayer.getUsername())) {
+                Inventory inventory = game.get().getInventory(turnPlayer);
+                String devCard = request.getDevCard();
+                String currentCardOfGame = game.get().getCurrentCard();
+                boolean alreadyPlayedCard = game.get().playedCardThisTurn();
+                // TODO: Check if the card was bought THIS turn, because it cannot be used then
+                switch (devCard) {
+
+                    case "Monopoly":
+                        if (inventory.cardMonopoly.getNumber() > 0 && currentCardOfGame.equals("") && !alreadyPlayedCard) {
+                            game.get().setCurrentCard("Monopoly");
+                            game.get().setPlayedCardThisTurn(true);
+                            PlayDevelopmentCardResponse response = new PlayDevelopmentCardResponse(devCard, true, turnPlayer.getUsername(), game.get().getName());
+                            post(response);
+                            inventory.cardMonopoly.decNumber();
+                            break;
+                        }
+
+                    case "Road Building":
+                        if (inventory.cardRoadBuilding.getNumber() > 0 && currentCardOfGame.equals("") && !alreadyPlayedCard) {
+                            game.get().setCurrentCard("Road Building");
+                            game.get().setPlayedCardThisTurn(true);
+                            PlayDevelopmentCardResponse response = new PlayDevelopmentCardResponse(devCard, true, turnPlayer.getUsername(), game.get().getName());
+                            post(response);
+                            inventory.cardRoadBuilding.decNumber();
+                            break;
+                        }
+
+                    case "Year of Plenty":
+                        if (inventory.cardYearOfPlenty.getNumber() > 0 && currentCardOfGame.equals("") && !alreadyPlayedCard) {
+                            game.get().setCurrentCard("Year of Plenty");
+                            game.get().setPlayedCardThisTurn(true);
+                            PlayDevelopmentCardResponse response = new PlayDevelopmentCardResponse(devCard, true, turnPlayer.getUsername(), game.get().getName());
+                            post(response);
+                            inventory.cardYearOfPlenty.decNumber();
+                            break;
+                        }
+
+                    case "Knight":
+                        if (inventory.cardKnight.getNumber() > 0 && currentCardOfGame.equals("") && !alreadyPlayedCard) {
+                            game.get().setCurrentCard("Knight");
+                            game.get().setPlayedCardThisTurn(true);
+                            PlayDevelopmentCardResponse response = new PlayDevelopmentCardResponse(devCard, true, turnPlayer.getUsername(), game.get().getName());
+                            post(response);
+                            inventory.setPlayedKnights(inventory.getPlayedKnights() + 1);
+                            inventory.cardKnight.decNumber();
+                            break;
+                        }
+
+                    default:
+                        PlayDevelopmentCardResponse response = new PlayDevelopmentCardResponse(devCard, false, turnPlayer.getUsername(), game.get().getName());
+                        post(response);
+                        break;
+                }
+
+            }
+        }
+    }
+
+    @Subscribe
+    public void onResolveDevelopmentCardRequest(ResolveDevelopmentCardRequest request) {
+        Optional<Game> game = gameManagement.getGame(request.getName());
+        if (game.isPresent()) {
+            User turnPlayer = game.get().getUser(game.get().getTurn());
+            if (request.getUser().getUsername().equals(turnPlayer.getUsername())) {
+                Inventory inventory = game.get().getInventory(turnPlayer);
+                String devCard = request.getDevCard();
+
+                switch (devCard) {
+                    case "Monopoly":
+                        // TODO: implement functionality
+
+                    case "Road Building":
+                        // TODO: implement functionality
+
+                    case "Year of Plenty":
+                        // TODO: implement functionality
+
+                    case "Knight":
+                        // TODO: implement functionality
+
+                    default:
+                        break;
+                }
+            }
+        }
+    }
+
 
     /**
      * Method to update private and public inventories in a game
