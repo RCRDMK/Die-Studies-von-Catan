@@ -16,9 +16,6 @@ import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.user.response.game.AllThisGameUsersResponse;
 import de.uol.swp.common.user.response.game.GameLeftSuccessfulResponse;
-import javafx.animation.AnimationTimer;
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -29,28 +26,21 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import javafx.scene.image.Image;
-import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.ImagePattern;
-import javafx.scene.paint.ImagePattern;
-import javafx.scene.paint.ImagePattern;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
-import javafx.util.Duration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.Executors;
@@ -74,10 +64,13 @@ public class GamePresenter extends AbstractPresenter {
     public static final String fxml = "/fxml/GameView.fxml";
 
     private static final Logger LOG = LogManager.getLogger(GamePresenter.class);
+
     @FXML
     public TextField gameChatInput;
+
     @FXML
     public TextArea gameChatArea;
+
     private User joinedLobbyUser;
 
     private String currentLobby;
@@ -90,10 +83,12 @@ public class GamePresenter extends AbstractPresenter {
 
     private ObservableList<String> gameUsers;
 
-
     private ArrayList<HexagonContainer> hexagonContainers = new ArrayList<>();
+
     private ArrayList<MapGraphNodeContainer> mapGraphNodeContainers = new ArrayList<>();
+
     private Boolean itsMyTurn = false;
+
     @Inject
     private GameService gameService;
 
@@ -332,7 +327,8 @@ public class GamePresenter extends AbstractPresenter {
      * <p>
      * If the currentLobby is null, meaning this is an empty GamePresenter that is ready to be used for a new game tab,
      * the parameters of this GamePresenter are updated to the User and Lobby given by the gcm Message. An update of the
-     * Users in the currentLobby is also requested. After that the player pictures are created in the game.
+     * Users in the currentLobby is also requested. After that the player pictures and the needed objects for the dice
+     * are created in the game.
      *
      * @param gcm the GameCreatedMessage given by the original subscriber method.
      * @author Alexander Losse, Ricardo Mook
@@ -409,10 +405,13 @@ public class GamePresenter extends AbstractPresenter {
      *
      * <p>This method checks, if the the games name equals the name of the game in the message. If so, and if you are
      * the player with the current turn (transported in message), your button for ending your turn gets clickable. If
-     * not, it becomes unclickable.</p>
+     * not, it becomes unclickable. It also invokes the passTheDice method and manages the visibility of the diceViews.</p>
      *
-     * @param response
+     * @param response //TODO JavaDoc
      * @author Pieter Vogt
+     *
+     * Enhanced by Carsten Dekker
+     * @since 2021-04-30
      */
     @Subscribe
     public void nextPlayerTurn(NextTurnMessage response) {
@@ -921,6 +920,15 @@ public class GamePresenter extends AbstractPresenter {
         });
     }
 
+    /**
+     * The method gets invoked when the Game Presenter is created.
+     * <p>
+     * This method creates six imagePatterns and adds them to the ArrayList diceImages. Then it fills rectangleDie1 and
+     * rectangleDie2 with the die picture one. Both rectangles are added to the playerOneDiceView.
+     *
+     * @author Carsten Dekker
+     * @since 2021-04-30
+     */
     public void setupDicesAtGameStart() {
         for (int i = 1; i <= 6; i++) {
             Image image = new Image("img/dice/dice_" + i + ".png");
@@ -933,6 +941,17 @@ public class GamePresenter extends AbstractPresenter {
         playerOneDiceView.add(rectangleDie2, 1, 0);
     }
 
+    /**
+     * Handles the removing and adding of the two rectangleDie from one gridPane to another
+     * <p>
+     * This method removes the rectangles from the current GridPane and adds them to the new GridPane. Then it fills
+     * both rectangles with the imagePatterns for the die with eyes one.
+     *
+     * @param oldGridPane the gridPane, where the rectangles currently are
+     * @param newGridPane the next gridPane, where the rectangles going to be added
+     * @author Carsten Dekker
+     * @since 2021-04-30
+     */
     public void passTheDice(GridPane oldGridPane, GridPane newGridPane) {
         Platform.runLater(() -> {
             oldGridPane.getChildren().remove(rectangleDie1);
@@ -944,6 +963,15 @@ public class GamePresenter extends AbstractPresenter {
         });
     }
 
+    /**
+     * The method invoked by the RollDiceResultMessage
+     * <p>
+     * This method calls the shuffleTheDice method and passes the DiceEyes1 and DiceEyes2.
+     *
+     * @param message the RollDiceResultMessage object seen on the eventBus
+     * @author Carsten Dekker
+     * @since 2021-04-30
+     */
     @Subscribe
     public void onRollDiceResultMessage(RollDiceResultMessage message) {
         if (this.currentLobby != null) {
@@ -953,6 +981,20 @@ public class GamePresenter extends AbstractPresenter {
         }
     }
 
+    /**
+     * This method handles the dice animation
+     * <p>
+     * This method uses an ExecutorService that can schedule commands to run after a given delay, or to execute
+     * periodically. With this service we can delay the for-loop for 125 milliseconds. For every iteration we generate two
+     * random numbers between zero and five. We use these numbers and the diceImages ArrayList to fill both rectangleDie
+     * with random imagePattern. In the 12th iteration the executorService gets shutdown and the imagePattern equal to
+     * the rollDiceResult are shown.
+     *
+     * @param diceEyes1 the eyes from die one
+     * @param diceEyes2 the eyes from die two
+     * @author Carsten Dekker
+     * @since 2021-04-30
+     */
     public void shuffleTheDice(int diceEyes1, int diceEyes2) {
         final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
         final int[] i = {0};
@@ -973,10 +1015,17 @@ public class GamePresenter extends AbstractPresenter {
         }, 0, 125, TimeUnit.MILLISECONDS);
     }
 
+    /**
+     * Randomizer for an int
+     * <p>
+     * This method returns a random number between int min and int max.
+     *
+     * @author Carsten Dekker
+     * @since 2021-04-30
+     */
     private int randomInt(int min, int max) {
         return (int) (Math.random() * (max - min)) + min;
     }
-
 
     /**
      * Updates the corresponding Node in the list of MapGraphNodes to represent the changes from the message.

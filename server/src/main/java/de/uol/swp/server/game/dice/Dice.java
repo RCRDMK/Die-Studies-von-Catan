@@ -25,6 +25,11 @@ public class Dice {
         diceEyes2 = dice2;
     }
 
+    //für den cheat eventuell relevant
+    public int getEyes() {
+        return diceEyes1 + diceEyes2;
+    }
+
     public int getDiceEyes1() {
         return diceEyes1;
     }
@@ -32,6 +37,7 @@ public class Dice {
     public int getDiceEyes2() {
         return diceEyes2;
     }
+
     /**
      * Setter for Eyes
      *

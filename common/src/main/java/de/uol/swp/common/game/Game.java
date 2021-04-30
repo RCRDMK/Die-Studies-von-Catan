@@ -231,4 +231,5 @@ public interface Game extends Serializable {
      * @since 2021-04-13
      */
     void removeTrade(String tradeCode);
+
 }

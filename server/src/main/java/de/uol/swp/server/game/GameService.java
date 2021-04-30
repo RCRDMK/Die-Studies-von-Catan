@@ -257,7 +257,9 @@ public class GameService extends AbstractService {
     @Subscribe
     public void onRollDiceRequest(RollDiceRequest rollDiceRequest) {
         LOG.debug("Got new RollDiceRequest from user: " + rollDiceRequest.getUser());
-
+        Optional<Game> game = gameManagement.getGame(rollDiceRequest.getName());
+        if(game.isPresent()) {
+            if (rollDiceRequest.getUser().equals(game.get().getUser(game.get().getTurn()))) {
         Dice dice = new Dice();
         dice.rollDice();
         int addedEyes = dice.getDiceEyes1() + dice.getDiceEyes2();
@@ -286,15 +288,14 @@ public class GameService extends AbstractService {
         } catch (Exception e) {
             LOG.debug(e);
         }
-        Optional<Game> game = gameManagement.getGame(rollDiceRequest.getName());
-        if(game.isPresent()) {
-            if (rollDiceRequest.getUser().equals(game.get().getUser(game.get().getTurn()))) {
                 try {
                     RollDiceResultMessage result = new RollDiceResultMessage(dice.getDiceEyes1(), dice.getDiceEyes2(), game.get().getTurn(), game.get().getName());
                     sendToAllInGame(game.get().getName(), result);
                 } catch (Exception e) {
                     LOG.debug(e);
                 }
+            } else {
+                LOG.debug("It is not your turn. :) " + rollDiceRequest.getUser());
             }
         }
     }
