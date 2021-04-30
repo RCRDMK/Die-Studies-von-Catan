@@ -25,21 +25,14 @@ import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
-import javafx.scene.control.Button;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
-import javafx.scene.image.Image;
-import javafx.scene.image.Image;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.ImagePattern;
-import javafx.scene.paint.ImagePattern;
 import javafx.scene.paint.Paint;
-import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
@@ -101,8 +94,9 @@ public class GamePresenter extends AbstractPresenter {
 
     @FXML
     private Button EndTurnButton;
+
     @FXML
-    Button tradeButton;
+    private Button tradeButton;
 
     @FXML
     private Pane picturePlayerView1;
@@ -321,7 +315,7 @@ public class GamePresenter extends AbstractPresenter {
      * @see GameCreatedMessage
      * @see de.uol.swp.common.game.GameField
      * @since 2021-03-05
-     *
+     * <p>
      * Enhanced by Carsten Dekker
      * @since 2021-04-22
      */
@@ -519,7 +513,6 @@ public class GamePresenter extends AbstractPresenter {
      * GamePresenterException if joinedLobbyUser and currentLobby are not initialised
      *
      * @param event \\TODO JavaDoc fehlt hier
-     *
      * @author Ricardo Mook, Alexander Losse
      * @see de.uol.swp.client.game.GameService
      * @see de.uol.swp.client.game.GamePresenterException
@@ -910,7 +903,7 @@ public class GamePresenter extends AbstractPresenter {
         //Draw robber
         //Initialize the robber graphics
         robber = new Rectangle(30, 30);
-        robber.setFill(new ImagePattern(new Image("textures/originals/robbers")));
+        robber.setFill(new ImagePattern(new Image("textures/originals/robbers.png")));
         robber.setVisible(true);
 
         draw();
@@ -973,6 +966,7 @@ public class GamePresenter extends AbstractPresenter {
             event.consume();
         });
     }
+
     @Subscribe
     public void onMoveRobberMessage(MoveRobberMessage moveRobberMessage) {
         moveRobberMessageLogic(moveRobberMessage);
@@ -992,10 +986,10 @@ public class GamePresenter extends AbstractPresenter {
                     @Override
                     public void handle(MouseEvent mouseEvent) {
                         for (HexagonContainer container : hexagonContainers) {
-                            if (mouseEvent.getSource().equals(container.getCircle()) && itsMyTurn == true) {
+                            if (mouseEvent.getSource().equals(container.getHexagonShape()) && itsMyTurn == true) {
                                 if (container.getHexagon().getTerrainType() != 6) {
                                     for (HexagonContainer container1 : hexagonContainers) {
-                                        container1.getCircle().removeEventHandler(MouseEvent.MOUSE_PRESSED, this);
+                                        container1.getHexagonShape().removeEventHandler(MouseEvent.MOUSE_PRESSED, this);
                                     }
                                     gameService.movedRobber(moveRobberMessage.getName(), moveRobberMessage.getUser(), container.getHexagon().getUuid());
                                 }
@@ -1005,7 +999,7 @@ public class GamePresenter extends AbstractPresenter {
                     }
                 };
                 for (HexagonContainer container : hexagonContainers) {
-                    container.getCircle().addEventHandler(MouseEvent.MOUSE_PRESSED, clickOnHexagonHandler);
+                    container.getHexagonShape().addEventHandler(MouseEvent.MOUSE_PRESSED, clickOnHexagonHandler);
                 }
             }
         }
@@ -1099,8 +1093,8 @@ public class GamePresenter extends AbstractPresenter {
     public void onSuccessfullMovedRobberMessage(SuccessfullMovedRobberMessage successfullMovedRobberMessage) {
         for (HexagonContainer hexagonContainer : hexagonContainers) {
             if (hexagonContainer.getHexagon().getUuid().equals(successfullMovedRobberMessage.getNewField())) {
-                robber.setLayoutX(hexagonContainer.getCircle().getLayoutX() - (robber.getWidth() / 2));
-                robber.setLayoutY(hexagonContainer.getCircle().getLayoutY() - (robber.getHeight() / 2));
+                robber.setLayoutX(hexagonContainer.getHexagonShape().getLayoutX() - (robber.getWidth() / 2));
+                robber.setLayoutY(hexagonContainer.getHexagonShape().getLayoutY() - (robber.getHeight() / 2));
             }
         }
     }
