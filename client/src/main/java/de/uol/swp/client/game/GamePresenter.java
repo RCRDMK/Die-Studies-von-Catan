@@ -25,11 +25,20 @@ import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.Image;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.ImagePattern;
+import javafx.scene.paint.ImagePattern;
+import javafx.scene.paint.Paint;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
@@ -80,6 +89,10 @@ public class GamePresenter extends AbstractPresenter {
     @FXML
     private Canvas canvas;
 
+    private ArrayList<ImagePattern> profilePicturePatterns = new ArrayList<>();
+
+    private ArrayList<Rectangle> rectangles = new ArrayList<>();
+
     @FXML
     private AnchorPane gameAnchorPane;
 
@@ -90,6 +103,18 @@ public class GamePresenter extends AbstractPresenter {
     private Button EndTurnButton;
     @FXML
     Button tradeButton;
+
+    @FXML
+    private Pane picturePlayerView1;
+
+    @FXML
+    private Pane picturePlayerView2;
+
+    @FXML
+    private Pane picturePlayerView3;
+
+    @FXML
+    private Pane picturePlayerView4;
 
     @FXML
     private Button rollDice;
@@ -263,6 +288,7 @@ public class GamePresenter extends AbstractPresenter {
         }
     }
 
+    //TODO JavaDoc fehlt
     @FXML
     public void onEndTurn() {
         eventBus.post(new EndTurnRequest(this.currentLobby, (UserDTO) this.joinedLobbyUser));
@@ -288,13 +314,16 @@ public class GamePresenter extends AbstractPresenter {
      * <p>
      * If the currentLobby is null, meaning this is an empty GamePresenter that is ready to be used for a new game tab,
      * the parameters of this GamePresenter are updated to the User and Lobby given by the gcm Message. An update of the
-     * Users in the currentLobby is also requested.
+     * Users in the currentLobby is also requested. After that the player pictures are created in the game.
      *
      * @param gcm the GameCreatedMessage given by the original subscriber method.
      * @author Alexander Losse, Ricardo Mook
      * @see GameCreatedMessage
      * @see de.uol.swp.common.game.GameField
      * @since 2021-03-05
+     *
+     * Enhanced by Carsten Dekker
+     * @since 2021-04-22
      */
     public void gameStartedSuccessfulLogic(GameCreatedMessage gcm) {
         if (this.currentLobby == null) {
@@ -303,9 +332,17 @@ public class GamePresenter extends AbstractPresenter {
             this.currentLobby = gcm.getName();
             updateGameUsersList(gcm.getUsers());
             initializeMatch(gcm.getMapGraph());
+            for (int i = 1; i <= 64; i++) {
+                Image image;
+                image = new Image("img/profilePictures/" + i + ".png");
+                ImagePattern imagePattern;
+                imagePattern = new ImagePattern(image);
+                profilePicturePatterns.add(imagePattern);
+            }
             Platform.runLater(() -> {
                 initializeRobberResourceMenu();
                 setupRobberAlert();
+                setupRessourceAlert();
             });
         }
     }
@@ -370,6 +407,30 @@ public class GamePresenter extends AbstractPresenter {
         Platform.runLater(() -> {
             gameAnchorPane.getChildren().add(robber);
         });
+    }
+
+    /**
+     * Handles the creation of the profile pictures at game start
+     * <p>
+     * At the start of a game this method gets called. It uses an arrayList, containing all the users in the game,
+     * and creates the right profile picture for each user.
+     *
+     * @param list an ArrayList with UserDTOs
+     * @author Carsten Dekker
+     * @since 2021-04-18
+     */
+    public void setupPlayerPictures(ArrayList<UserDTO> list) {
+        for (UserDTO userDTO : list) {
+            Rectangle rectangle = new Rectangle(100, 100);
+            rectangle.setFill(profilePicturePatterns.get(userDTO.getProfilePictureID() - 1));
+            rectangles.add(rectangle);
+        }
+        picturePlayerView1.getChildren().add(rectangles.get(0));
+        picturePlayerView2.getChildren().add(rectangles.get(1));
+        if (rectangles.size() > 2)
+            picturePlayerView3.getChildren().add(rectangles.get(2));
+        if (rectangles.size() > 3)
+            picturePlayerView4.getChildren().add(rectangles.get(3));
     }
 
     /**
@@ -457,7 +518,8 @@ public class GamePresenter extends AbstractPresenter {
      * If the leaveGameButton is pressed, the method tries to call the GameService method leaveGame It throws a
      * GamePresenterException if joinedLobbyUser and currentLobby are not initialised
      *
-     * @param event
+     * @param event \\TODO JavaDoc fehlt hier
+     *
      * @author Ricardo Mook, Alexander Losse
      * @see de.uol.swp.client.game.GameService
      * @see de.uol.swp.client.game.GamePresenterException
@@ -619,6 +681,49 @@ public class GamePresenter extends AbstractPresenter {
     }
 
     /**
+     * Determines the paint (image) to draw its host-object.
+     *
+     * @return the paint for the host-object
+     * @author Marc Hermes
+     * @since 2021-04-28
+     */
+    public Paint determinePictureOfTerrain(MapGraph.Hexagon h) {
+        ImagePattern imagePattern;
+        Paint paint;
+        //"Ocean" = 0; "Forest" = 1; "Farmland" = 2; "Grassland" = 3; "Hillside" = 4; "Mountain" = 5; "Desert" = 6;
+        switch (h.getTerrainType()) {
+            case 1:
+                imagePattern = new ImagePattern(new Image("textures/resized/HEX_Wald.png"));
+                paint = imagePattern;
+                break;
+            case 2:
+                imagePattern = new ImagePattern(new Image("textures/resized/HEX_Felder.png"));
+                paint = imagePattern;
+                break;
+            case 3:
+                imagePattern = new ImagePattern(new Image("textures/resized/HEX_Weideland.png"));
+                paint = imagePattern;
+                break;
+            case 4:
+                imagePattern = new ImagePattern(new Image("textures/resized/HEX_Lehm.png"));
+                paint = imagePattern;
+                break;
+            case 5:
+                imagePattern = new ImagePattern(new Image("textures/resized/HEX_Minen.png"));
+                paint = imagePattern;
+                break;
+            case 0:
+                paint = Color.DODGERBLUE;
+                break;
+            default:
+                imagePattern = new ImagePattern(new Image("/textures/resized/HEX_Wueste.png"));
+                paint = imagePattern;
+                break;
+        }
+        return paint;
+    }
+
+    /**
      * The method that actually draws graphical objects to the screen.
      * <p>
      * This method draws its items from back to front, meaning backmost items need to be drawn first and so on. This is
@@ -637,7 +742,7 @@ public class GamePresenter extends AbstractPresenter {
 
         //Drawing background.
 
-        g.setFill(Color.BLUE);
+        g.setFill(new ImagePattern(new Image("textures/blaues-meer-sicht-von-oben.jpg")));
         g.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
 
         //Drawing hexagons
@@ -646,16 +751,16 @@ public class GamePresenter extends AbstractPresenter {
 
             Vector placementVector = Vector.convertStringListToVector(hexagonContainer.getHexagon().getSelfPosition(), cardSize(), centerOfCanvasVector);
 
-            hexagonContainer.getCircle().setLayoutX(placementVector.getX());
-            hexagonContainer.getCircle().setLayoutY(placementVector.getY());
-            hexagonContainer.getCircle().setFill(determineColorOfTerrain(hexagonContainer.getHexagon()));
+            hexagonContainer.getHexagonShape().setLayoutX(placementVector.getX());
+            hexagonContainer.getHexagonShape().setLayoutY(placementVector.getY());
+            Platform.runLater(() -> {
+                hexagonContainer.getHexagonShape().setFill(determinePictureOfTerrain(hexagonContainer.getHexagon()));
+            });
 
             if (hexagonContainer.getHexagon().getDiceToken() != 0) {
                 Text text = new Text(placementVector.getX(), placementVector.getY(), Integer.toString(hexagonContainer.getHexagon().getDiceToken()));
-                text.setFill(Color.WHITE);
-                Platform.runLater(() -> {
-                    gameAnchorPane.getChildren().add(text);
-                });
+                text.setFill(Color.BLACK);
+                Platform.runLater(() -> gameAnchorPane.getChildren().add(text));
             }
 
         }
@@ -717,9 +822,8 @@ public class GamePresenter extends AbstractPresenter {
                 return Color.color(1.0, 1.0, 0.4);
             case 3:
                 return Color.color(0.5, 1.0, 0.4);
-            default:
-                return Color.color(0, 0, 0);
         }
+        return Color.color(0.5, 0.5, 0.5);
     }
 
     /**
@@ -777,10 +881,9 @@ public class GamePresenter extends AbstractPresenter {
         System.out.println("Setting up " + mapGraph.getHexagonHashSet().size() + " HexagonContainers...");
 
         for (MapGraph.Hexagon hexagon : mapGraph.getHexagonHashSet()) {
-            Circle circle = new Circle(cardSize() / 2);
-            HexagonContainer hexagonContainer = new HexagonContainer(hexagon, circle);
+            HexagonContainer hexagonContainer = new HexagonContainer(hexagon, cardSize());
             this.hexagonContainers.add(hexagonContainer);
-            Platform.runLater(() -> gameAnchorPane.getChildren().add(hexagonContainer.getCircle()));
+            Platform.runLater(() -> gameAnchorPane.getChildren().add(hexagonContainer.getHexagonShape()));
         }
 
         //Setting up the BuildingNodeContainers
@@ -811,9 +914,7 @@ public class GamePresenter extends AbstractPresenter {
         robber.setVisible(true);
 
         draw();
-
     }
-
 
     @Subscribe
     public void onBuyDevelopmentCardMessage(BuyDevelopmentCardMessage buyDevelopmentCardMessage) {
@@ -845,7 +946,9 @@ public class GamePresenter extends AbstractPresenter {
         if (this.currentLobby != null) {
             if (this.currentLobby.equals(notEnoughRessourcesMessage.getName())) {
                 Platform.runLater(() -> {
-                    setupRessourceAlert(notEnoughRessourcesMessage.getName());
+                    this.alert.setTitle(notEnoughRessourcesMessage.getName());
+                    this.alert.setHeaderText("You have not enough Ressources!");
+                    this.alert.show();
                 });
             }
         }
@@ -860,17 +963,16 @@ public class GamePresenter extends AbstractPresenter {
      * @author Marius Birk
      * @since 2021-04-03
      */
-    public void setupRessourceAlert(String gameName) {
+    public void setupRessourceAlert() {
         this.alert = new Alert(javafx.scene.control.Alert.AlertType.CONFIRMATION);
         this.buttonTypeOkay = new ButtonType("Okay", ButtonBar.ButtonData.OK_DONE);
         alert.getButtonTypes().setAll(buttonTypeOkay);
         this.btnOkay = (Button) alert.getDialogPane().lookupButton(buttonTypeOkay);
-        alert.getButtonTypes().setAll(buttonTypeOkay);
-        this.alert.setHeaderText("You have not enough Ressources!");
-        this.alert.setTitle(gameName);
-        alert.show();
+        btnOkay.setOnAction(event -> {
+            alert.close();
+            event.consume();
+        });
     }
-
     @Subscribe
     public void onMoveRobberMessage(MoveRobberMessage moveRobberMessage) {
         moveRobberMessageLogic(moveRobberMessage);
@@ -977,7 +1079,7 @@ public class GamePresenter extends AbstractPresenter {
                 if (mapGraphNodeContainer.getMapGraphNode().getUuid().equals(message.getUuid())) {
                     MapGraph.BuildingNode buildingNode = (MapGraph.BuildingNode) mapGraphNodeContainer.getMapGraphNode();
                     buildingNode.buildOrDevelopSettlement(message.getPlayerIndex());
-                    draw();
+                    mapGraphNodeContainer.getCircle().setFill(determinePlayerColorByIndex(mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer()));
                     break;
                 }
             }
@@ -986,7 +1088,7 @@ public class GamePresenter extends AbstractPresenter {
                 if (mapGraphNodeContainer.getMapGraphNode().getUuid().equals(message.getUuid())) {
                     MapGraph.StreetNode streetNode = (MapGraph.StreetNode) mapGraphNodeContainer.getMapGraphNode();
                     streetNode.buildRoad(message.getPlayerIndex());
-                    draw();
+                    mapGraphNodeContainer.getCircle().setFill(determinePlayerColorByIndex(mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer()));
                     break;
                 }
             }
@@ -1005,8 +1107,7 @@ public class GamePresenter extends AbstractPresenter {
 
     @Subscribe
     public void onPrivateInventoryChangeMessage(PrivateInventoryChangeMessage privateInventoryChangeMessage) {
-
-
+        //TODO: Darstellung der Veränderung des Inventars
     }
 
     @Subscribe
