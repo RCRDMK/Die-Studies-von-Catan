@@ -328,7 +328,7 @@ public class GameServiceTest {
     public void TradeTest() {
         String tradeCode = "seller1acv";
         loginUsers();
-        //GameService gameServiceTIRT = new GameService(gameManagement, lobbyService, new AuthenticationService(bus, new UserManagement()), bus, userService);
+        GameService gameServiceTIRT = new GameService(gameManagement, lobbyService, authenticationService, bus, userService);
 
         gameManagement.createGame("test", userDTO, "Standard");
         Optional<Game> game = gameManagement.getGame("test");
@@ -374,7 +374,7 @@ public class GameServiceTest {
         TradeItemRequest sellerItemRequest = new TradeItemRequest(userDTO, game.get().getName(), sellerItems, tradeCode, wishItems);
 
         assertTrue(game.get().getTradeList().isEmpty());
-        gameService.onTradeItemRequest(sellerItemRequest);
+        gameServiceTIRT.onTradeItemRequest(sellerItemRequest);
         assertTrue(event instanceof TradeOfferInformBiddersMessage);
         assertTrue(game.get().getTradeList().containsKey(tradeCode));
         assertTrue(game.get().getTradeList().size() == 1);
@@ -397,7 +397,7 @@ public class GameServiceTest {
         bidder1ItemsWrong.add(bidder1ItemOre);
 
         TradeItemRequest bidder1ItemRequest = new TradeItemRequest(userDTO1, game.get().getName(), bidder1ItemsWrong, tradeCode, bidder1wishItems);
-        gameService.onTradeItemRequest(bidder1ItemRequest);
+        gameServiceTIRT.onTradeItemRequest(bidder1ItemRequest);
 
         assertTrue(event instanceof TradeCardErrorMessage);
         assertTrue(game.get().getTradeList().get(tradeCode).getBidders().isEmpty());
@@ -417,7 +417,7 @@ public class GameServiceTest {
         bidder1ItemsRight.add(bidder1ItemOre);
 
         bidder1ItemRequest = new TradeItemRequest(userDTO1, game.get().getName(), bidder1ItemsRight, tradeCode, bidder1wishItems);
-        gameService.onTradeItemRequest(bidder1ItemRequest);
+        gameServiceTIRT.onTradeItemRequest(bidder1ItemRequest);
 
         assertFalse(event instanceof TradeInformSellerAboutBidsMessage);
         assertTrue(game.get().getTradeList().get(tradeCode).getBidders().size() == 1);
@@ -460,14 +460,14 @@ public class GameServiceTest {
         bidder3Items.add(bidder3ItemOre);
 
         TradeItemRequest bidder3ItemRequest = new TradeItemRequest(userDTO3, game.get().getName(), bidder3Items, tradeCode, bidder3wishItems);
-        gameService.onTradeItemRequest(bidder3ItemRequest);
+        gameServiceTIRT.onTradeItemRequest(bidder3ItemRequest);
 
         assertTrue(event instanceof TradeInformSellerAboutBidsMessage);
         assertTrue(game.get().getTradeList().get(tradeCode).getBidders().size() == 3);
 
         //TradeChoice
         TradeChoiceRequest tradeChoiceRight = new TradeChoiceRequest(userDTO1, true, game.get().getName(), tradeCode);
-        gameService.onTradeChoiceRequest(tradeChoiceRight);
+        gameServiceTIRT.onTradeChoiceRequest(tradeChoiceRight);
 
         assertTrue(game.get().getInventory(userDTO).ore.getNumber() == 4);
         assertTrue(game.get().getInventory(userDTO).lumber.getNumber() == 5);
@@ -494,21 +494,8 @@ public class GameServiceTest {
         assertTrue(game.get().getInventory(userDTO3).wool.getNumber() == 10);
         assertTrue(event instanceof TradeEndedMessage);
 
-        assertFalse(event instanceof TradeInformSellerAboutBidsMessage);
-        assertTrue(game.get().getTradeList().get(tradeCode).getBidders().size() == 2);
 
-        //test bidder3
-        /*TradeItem bidder3ItemLumber = new TradeItem("Lumber", 0);
-        TradeItem bidder3ItemOre = new TradeItem("Ore", 0);
-        TradeItem bidder3ItemBrick = new TradeItem("Brick", 0);
-        TradeItem bidder3ItemWool = new TradeItem("Wool", 10);
-        TradeItem bidder3ItemGrain = new TradeItem("Grain", 0);
 
-        assertTrue(game.get().getInventory(userDTO).ore.getNumber() == 4);
-        assertTrue(game.get().getInventory(userDTO).lumber.getNumber() == 5);
-        assertTrue(game.get().getInventory(userDTO).grain.getNumber() == 0);
-        assertTrue(game.get().getInventory(userDTO).brick.getNumber() == 0);
-        assertTrue(game.get().getInventory(userDTO).wool.getNumber() == 0);*/
     }
 
 
