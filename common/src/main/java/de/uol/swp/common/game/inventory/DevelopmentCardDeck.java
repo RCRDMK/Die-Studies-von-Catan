@@ -16,12 +16,12 @@ public class DevelopmentCardDeck implements Serializable {
 
     private Stack<String> deck = new Stack<>();
 
-    public DevelopmentCardDeck(){
+    public DevelopmentCardDeck() {
 
-        for (int i=0; i<5; i++) deck.push("Victory Point");
-        for (int i=0; i<14; i++) deck.push("Knight");
+        for (int i = 0; i < 5; i++) deck.push("Victory Point");
+        for (int i = 0; i < 14; i++) deck.push("Knight");
 
-        for (int i=0; i<2; i++) {
+        for (int i = 0; i < 2; i++) {
             deck.push("Monopoly");
             deck.push("Road Building");
             deck.push("Year of Plenty");

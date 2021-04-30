@@ -1,5 +1,7 @@
 package de.uol.swp.common.game.message;
 
+import de.uol.swp.common.game.dto.GameDTO;
+
 /**
  * Message sent by the server when a game is finished
  * <p>

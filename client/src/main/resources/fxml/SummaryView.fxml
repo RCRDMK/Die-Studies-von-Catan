@@ -8,7 +8,7 @@
             fx:controller="de.uol.swp.client.game.SummaryPresenter" stylesheets="@../css/swp.css">
     <?import javafx.scene.layout.Pane?>
     <children>
-        <Button layoutX="241.0" layoutY="342.0" mnemonicParsing="false" text="Back to Main Menu"/>
+        <Button layoutX="241.0" layoutY="342.0" onAction="#onBackToMainMenu" text="Back to Main Menu"/>
         <ListView layoutX="200.0" layoutY="100.0" prefHeight="200.0" prefWidth="200.0"/>
         <Label fx:id="winnerLabel" layoutX="200.0" layoutY="36.0" prefHeight="17.0" prefWidth="200.0"/>
     </children>

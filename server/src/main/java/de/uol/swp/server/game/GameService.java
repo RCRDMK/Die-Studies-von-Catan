@@ -7,6 +7,7 @@ import com.google.inject.Singleton;
 import de.uol.swp.common.chat.ResponseChatMessage;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.MapGraph;
+import de.uol.swp.common.game.dto.GameDTO;
 import de.uol.swp.common.game.inventory.Inventory;
 import de.uol.swp.common.game.message.*;
 import de.uol.swp.common.game.request.*;
@@ -32,12 +33,10 @@ import de.uol.swp.server.game.dice.Dice;
 import de.uol.swp.server.lobby.LobbyManagementException;
 import de.uol.swp.server.lobby.LobbyService;
 import de.uol.swp.server.usermanagement.AuthenticationService;
-import de.uol.swp.server.usermanagement.UserManagement;
 import de.uol.swp.server.usermanagement.UserService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 
