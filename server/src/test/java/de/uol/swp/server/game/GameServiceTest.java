@@ -328,7 +328,7 @@ public class GameServiceTest {
     public void TradeTest() {
         String tradeCode = "seller1acv";
         loginUsers();
-        GameService gameServiceTIRT = new GameService(gameManagement, lobbyService, authenticationService, bus);
+        //GameService gameServiceTIRT = new GameService(gameManagement, lobbyService, new AuthenticationService(bus, new UserManagement()), bus, userService);
 
         gameManagement.createGame("test", userDTO, "Standard");
         Optional<Game> game = gameManagement.getGame("test");
