@@ -49,16 +49,49 @@ public class SummaryPresenter extends AbstractPresenter {
     private String gameName;
     private Game game;
 
+    /**
+     * Gets triggered when the back to main menu button gets pressed
+     * <p>
+     * Posts a new SummaryConfirmedMessage on the eventBus.
+     * SummaryConfirmedMessage gets subscribed in SceneManager
+     *
+     * @param event actionEvent
+     * @author René Meyer, Sergej Tulnev
+     * @see de.uol.swp.client.SceneManager
+     * @since 2021-05-01
+     */
     @FXML
     public void onBackToMainMenu(ActionEvent event) {
+        //@TODO: Add functionality to this logic so user actually leaves/ends game
         eventBus.post(new SummaryConfirmedMessage(this.gameName, this.currentUser));
     }
 
+    /**
+     * Subscribe to GameCreatedMessage to get the actual current user
+     * <p>
+     * This is needed so we have the currentUser in the SummaryPresenter
+     *
+     * @param gcm GameCreatedMessage
+     * @author René Meyer, Sergej Tulnev
+     * @see GameCreatedMessage
+     * @since 2021-05-01
+     */
     @Subscribe
     public void onGameCreated(GameCreatedMessage gcm) {
         this.currentUser = gcm.getUser();
     }
 
+    /**
+     * Subscribe to GameFinishedMessage to get the game object
+     * <p>
+     * This is needed so we have the game object in the SummaryPresenter
+     * This method also calls the function setStatistics to trigger the statistics logic.
+     *
+     * @param message GameFinishedMessage
+     * @author René Meyer, Sergej Tulnev
+     * @see GameFinishedMessage
+     * @since 2021-05-01
+     */
     @Subscribe
     public void onGameFinishedMessage(GameFinishedMessage message) {
         this.gameName = message.GetGame().getName();
@@ -66,6 +99,17 @@ public class SummaryPresenter extends AbstractPresenter {
         setStatistics();
     }
 
+    /**
+     * Sets all ui elements
+     * <p>
+     * This method sets all ui elements for the SummaryPresenter
+     * e.g. the winner label, profile picture and calls the initTable() function to
+     * initialize the statsTable on the fx thread
+     *
+     * @author René Meyer, Sergej Tulnev
+     * @see ImageView
+     * @since 2021-05-01
+     */
     private void setStatistics() {
         var profilePictureId = currentUser.getProfilePictureID();
         var profilePictureString = String.format("/img/profilePictures/%d.png", profilePictureId);
@@ -89,7 +133,18 @@ public class SummaryPresenter extends AbstractPresenter {
         });
     }
 
+    /**
+     * Initializes the statsTable
+     * <p>
+     * This method prepares the statsTable and loops the users from the game
+     * to add their stats to the table.
+     *
+     * @author René Meyer, Sergej Tulnev
+     * @see TableColumn
+     * @since 2021-05-01
+     */
     private void initTable() {
+        // Init Table
         TableColumn userColumn = new TableColumn("User");
         userColumn.setCellValueFactory(new PropertyValueFactory<>("user"));
         userColumn.setPrefWidth(100);
@@ -106,6 +161,7 @@ public class SummaryPresenter extends AbstractPresenter {
 
         // Get all User Data from game to display it in the tableView
         var usersFromGame = game.getUsersList();
+        // Loop users to add table items for stats
         usersFromGame.forEach((user) -> {
             var inventory = game.getInventory(user);
             String thisUser;
@@ -119,6 +175,17 @@ public class SummaryPresenter extends AbstractPresenter {
         });
     }
 
+    /**
+     * Gets the Winner
+     * <p>
+     * This function loops the users from the game and then returns the winner (player with >= 10 victory points)
+     * Since this function is readonly it is safe from possible malicious attacks and client-sided to reduce server-client traffic and code readability.
+     *
+     * @return winner as User object
+     * @author René Meyer, Sergej Tulnev
+     * @see de.uol.swp.common.game.inventory.Inventory
+     * @since 2021-05-01
+     */
     private User getWinner() {
         var users = game.getUsersList();
         Optional<User> winner = users.stream().filter(user -> {
@@ -131,5 +198,4 @@ public class SummaryPresenter extends AbstractPresenter {
         }).findFirst();
         return winner.get();
     }
-
 }

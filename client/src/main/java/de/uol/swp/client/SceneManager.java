@@ -380,6 +380,17 @@ public class SceneManager {
         showSummaryScreen(gameName);
     }
 
+    /**
+     * Handles SummaryConfirmedMessage detected on the EventBus
+     * <p>
+     * If a SummaryConfirmedMessage is detected on the EventBus, this method gets
+     * called. It removes the summaryTab and shows the MainTab.
+     *
+     * @param message SummaryConfirmedMessage that contains the GameName and user
+     * @author René Meyer, Sergej Tulnev
+     * @see SummaryConfirmedMessage
+     * @since 2021-05-01
+     */
     @Subscribe
     public void onConfirmedSummaryMessage(SummaryConfirmedMessage message) {
         var gameName = message.GetGameName();
@@ -701,6 +712,15 @@ public class SceneManager {
         });
     }
 
+    /**
+     * Removes an old summary tab
+     * <p>
+     * When this method is invoked a summarytab with a specific name is removed from the TabPane.
+     *
+     * @param gamename the name of the game that corresponds to the tab that is to be deleted
+     * @author René Meyer, Sergej Tulnev
+     * @since 2021-05-01
+     */
     public void removeSummaryTab(String gamename) {
         Platform.runLater(() -> {
             tabHelper.removeTab("Summary of Game " + gamename);
