@@ -138,50 +138,6 @@ public class Inventory {
     }
 
     /**
-     * Getter for Cards
-     * <p>
-     * It gets the right card for the entered name.
-     *
-     * @param cardName to get
-     *
-     * @return Card with entered cardName
-     * @author Anton Nikiforov
-     * @see de.uol.swp.common.game.inventory.Card
-     * @since 2021-04-06
-     */
-    public Card getCard(String cardName) {
-        switch (cardName) {
-            case "Lumber" : return lumber;
-            case "Brick" : return brick;
-            case "Grain" : return grain;
-            case "Wool" : return wool;
-            case "Ore" : return ore;
-
-            case "Knight" : return cardKnight;
-            case "Monopoly" : return cardMonopoly;
-            case "Road Building" : return cardRoadBuilding;
-            case "Year of Plenty" : return cardYearOfPlenty;
-
-            default : return null;
-        }
-    }
-    /**
-     * Getter for the number of Cards
-     * <p>
-     * It gets the number of Cards for the entered cardName.
-     *
-     * @param cardName to get the number from
-     *
-     * @return number for Card with entered cardName
-     * @author Anton Nikiforov
-     * @see de.uol.swp.common.game.inventory.Card
-     * @since
-     */
-    public int getNumberFromCard(String cardName) {
-        return getCard(cardName).getNumber();
-    }
-
-    /**
      * Creates Private Inventory View
      * <p>
      * This method creates a HashMap with all the information about the Inventory
@@ -247,6 +203,51 @@ public class Inventory {
         else publicInventory.put("Public Victory Points", victoryPoints - cardVictoryPoint);
 
         return (HashMap) publicInventory;
+    }
+
+    /**
+     * Getter for Cards
+     * <p>
+     * It gets the right card for the entered name.
+     *
+     * @param card to get
+     *
+     * @return Card with entered cardName
+     * @author Anton Nikiforov
+     * @see de.uol.swp.common.game.inventory.Card
+     * @since 2021-04-06
+     */
+    public Card getCard(String card) {
+        switch (card) {
+            case "Lumber" : return lumber;
+            case "Brick" : return brick;
+            case "Grain" : return grain;
+            case "Wool" : return wool;
+            case "Ore" : return ore;
+
+            case "Knight" : return cardKnight;
+            case "Monopoly" : return cardMonopoly;
+            case "Road Building" : return cardRoadBuilding;
+            case "Year of Plenty" : return cardYearOfPlenty;
+
+            default : return null;
+        }
+    }
+
+    /**
+     * Getter for the number of Cards
+     * <p>
+     * It gets the number of Cards for the entered cardName.
+     *
+     * @param card to get the number from
+     *
+     * @return number for Card with entered cardName
+     * @author Anton Nikiforov
+     * @see de.uol.swp.common.game.inventory.Card
+     * @since
+     */
+    public int getNumberFromCard(String card) {
+        return getCard(card).getNumber();
     }
 
     /**
