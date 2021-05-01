@@ -291,6 +291,46 @@ public class GameService extends AbstractService {
     }
 
     /**
+     * Handles the distribution of resources to the users in the opening turn
+     * <p>
+     * This method handles the distribution of the resources to the users. First the method gets the game and gets the
+     * coressponding hexagons. After that the method gives the second built buildings in the opening turn the resource.
+     *
+     * @param gameName Name of the Game
+     * @author Philip Nitsche
+     * @since 2021-04-24
+     */
+    public void distributeResources(String gameName) {
+        Optional<Game> game = gameManagement.getGame(gameName);
+        if (game.isPresent()) {
+            for (MapGraph.Hexagon hexagon : game.get().getMapGraph().getHexagonHashSet())
+                for (int i = 0; i < game.get().getLastBuildingOfOpeningTurn().size(); i++)
+                    if (hexagon.getBuildingNodes().contains(game.get().getLastBuildingOfOpeningTurn().get(i))) {
+                        //"Ocean" = 0; "Forest" = 1; "Farmland" = 2; "Grassland" = 3; "Hillside" = 4; "Mountain" = 5; "Desert" = 6;
+                        switch (hexagon.getTerrainType()) {
+                            case 1:
+                                game.get().getInventory(game.get().getUser(i)).lumber.incNumber();
+                                break;
+                            case 2:
+                                game.get().getInventory(game.get().getUser(i)).grain.incNumber();
+                                break;
+                            case 3:
+                                game.get().getInventory(game.get().getUser(i)).wool.incNumber();
+                                break;
+                            case 4:
+                                game.get().getInventory(game.get().getUser(i)).brick.incNumber();
+                                break;
+                            case 5:
+                                game.get().getInventory(game.get().getUser(i)).ore.incNumber();
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+        }
+    }
+
+    /**
      * Handles the distribution of resources to the users
      * <p>
      * This method handles the distribution of the resources to the users. First the method gets the game and gets the
