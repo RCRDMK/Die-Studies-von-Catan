@@ -7,7 +7,6 @@ import com.google.inject.Singleton;
 import de.uol.swp.common.chat.ResponseChatMessage;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.MapGraph;
-import de.uol.swp.common.game.dto.GameDTO;
 import de.uol.swp.common.game.inventory.Inventory;
 import de.uol.swp.common.game.message.*;
 import de.uol.swp.common.game.request.*;
@@ -597,8 +596,7 @@ public class GameService extends AbstractService {
             var inventory = game.get().getInventory(user);
             // If user has 10 victory points, he wins and the Summary Screen gets shown for every user in the game.
             if (inventory.getVictoryPoints() >= 10) {
-                var gameDto = (GameDTO) gameManagement.getGame(request.getName()).get();
-                sendToAllInGame(game.get().getName(), new GameFinishedMessage(gameDto));
+                sendToAllInGame(game.get().getName(), new GameFinishedMessage(game.get()));
                 LOG.debug("User " + user.getUsername() + " has atleast 10 victory points and won.");
             }
         }

@@ -33,6 +33,12 @@
     -fx-background-repeat: no-repeat;
 }
 
+#summary {
+    -fx-background-image: url("../textures/images/EndScreenStatsBg.png");
+    -fx-background-size: cover;
+    -fx-background-repeat: no-repeat;
+}
+
 .menuView {
     -fx-background-image: url("../textures/images/MenuBackground.jpg");
     -fx-background-size: cover;
