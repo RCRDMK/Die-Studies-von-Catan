@@ -1,13 +1,16 @@
 package de.uol.swp.client.game;
 
 import com.google.common.eventbus.Subscribe;
+import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
 import de.uol.swp.client.game.HelperObjects.StatsDTO;
+import de.uol.swp.client.lobby.LobbyService;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.message.GameCreatedMessage;
 import de.uol.swp.common.game.message.GameFinishedMessage;
 import de.uol.swp.common.game.message.SummaryConfirmedMessage;
 import de.uol.swp.common.user.User;
+import de.uol.swp.common.user.UserDTO;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -36,6 +39,11 @@ public class SummaryPresenter extends AbstractPresenter {
     public static final String fxml = "/fxml/SummaryView.fxml";
     private static final Logger LOG = LogManager.getLogger(GamePresenter.class);
 
+    @Inject
+    private GameService gameService;
+    @Inject
+    private LobbyService lobbyService;
+
     @FXML
     public Label winnerLabel;
     @FXML
@@ -54,6 +62,7 @@ public class SummaryPresenter extends AbstractPresenter {
      * <p>
      * Posts a new SummaryConfirmedMessage on the eventBus.
      * SummaryConfirmedMessage gets subscribed in SceneManager
+     * Also leaves the specific lobby and game so the game and lobby get removed
      *
      * @param event actionEvent
      * @author René Meyer, Sergej Tulnev
@@ -62,7 +71,8 @@ public class SummaryPresenter extends AbstractPresenter {
      */
     @FXML
     public void onBackToMainMenu(ActionEvent event) {
-        //@TODO: Add functionality to this logic so user actually leaves/ends game
+        gameService.leaveGame(this.gameName, currentUser);
+        lobbyService.leaveLobby(this.gameName, (UserDTO) currentUser);
         eventBus.post(new SummaryConfirmedMessage(this.gameName));
     }
 
