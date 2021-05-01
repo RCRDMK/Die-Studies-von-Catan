@@ -63,7 +63,7 @@ public class SummaryPresenter extends AbstractPresenter {
     @FXML
     public void onBackToMainMenu(ActionEvent event) {
         //@TODO: Add functionality to this logic so user actually leaves/ends game
-        eventBus.post(new SummaryConfirmedMessage(this.gameName, this.currentUser));
+        eventBus.post(new SummaryConfirmedMessage(this.gameName));
     }
 
     /**
