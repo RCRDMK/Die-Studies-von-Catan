@@ -7,7 +7,6 @@ import com.google.inject.Singleton;
 import de.uol.swp.common.chat.ResponseChatMessage;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.MapGraph;
-import de.uol.swp.common.game.TerrainFieldContainer;
 import de.uol.swp.common.game.inventory.Inventory;
 import de.uol.swp.common.game.message.*;
 import de.uol.swp.common.game.request.*;
@@ -33,9 +32,12 @@ import de.uol.swp.server.game.dice.Dice;
 import de.uol.swp.server.lobby.LobbyManagementException;
 import de.uol.swp.server.lobby.LobbyService;
 import de.uol.swp.server.usermanagement.AuthenticationService;
+import de.uol.swp.server.usermanagement.UserManagement;
+import de.uol.swp.server.usermanagement.UserService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -54,6 +56,7 @@ public class GameService extends AbstractService {
     private final GameManagement gameManagement;
     private final LobbyService lobbyService;
     private final AuthenticationService authenticationService;
+    private final UserService userService;
 
     /**
      * Constructor
@@ -65,11 +68,12 @@ public class GameService extends AbstractService {
      * @since 2021-01-07
      */
     @Inject
-    public GameService(GameManagement gameManagement, LobbyService lobbyService, AuthenticationService authenticationService, EventBus eventBus) {
+    public GameService(GameManagement gameManagement, LobbyService lobbyService, AuthenticationService authenticationService, EventBus eventBus, UserService userService) {
         super(eventBus);
         this.gameManagement = gameManagement;
         this.authenticationService = authenticationService;
         this.lobbyService = lobbyService;
+        this.userService = userService;
     }
 
     @Subscribe
@@ -147,13 +151,14 @@ public class GameService extends AbstractService {
                 break;
             }
         }
-
         try {
             if (message.getTypeOfNode().equals("BuildingNode")) { //If the node from the message is a building node...
                 for (MapGraph.BuildingNode buildingNode : game.get().getMapGraph().getBuildingNodeHashSet()) {
                     if (message.getUuid().equals(buildingNode.getUuid())) { // ... and if the node in the message is a node in the MapGraph BuildingNodeSet...
                         if (buildingNode.buildOrDevelopSettlement(playerIndex)) {
-                            sendToAllInGame(game.get().getName(), new SuccessfulConstructionMessage(playerIndex, message.getUuid(), "BuildingNode"));
+                            game.get().getMapGraph().addBuiltBuilding(buildingNode);
+                            sendToAllInGame(game.get().getName(), new SuccessfulConstructionMessage(playerIndex,
+                                    message.getUuid(), "BuildingNode"));
                             break;
                         }
                     }
@@ -162,7 +167,8 @@ public class GameService extends AbstractService {
                 for (MapGraph.StreetNode streetNode : game.get().getMapGraph().getStreetNodeHashSet()) {
                     if (message.getUuid().equals(streetNode.getUuid())) {
                         if (streetNode.buildRoad(playerIndex)) {
-                            sendToAllInGame(game.get().getName(), new SuccessfulConstructionMessage(playerIndex, message.getUuid(), "StreetNode"));
+                            sendToAllInGame(game.get().getName(), new SuccessfulConstructionMessage(playerIndex,
+                                    message.getUuid(), "StreetNode"));
                             break;
                         }
 
@@ -275,7 +281,8 @@ public class GameService extends AbstractService {
             } else {
                 chatMessage = "Player " + rollDiceRequest.getUser().getUsername() + " rolled a " + dice.getEyes();
             }
-            ResponseChatMessage msg = new ResponseChatMessage(chatMessage, chatId, rollDiceRequest.getUser().getUsername(), System.currentTimeMillis());
+            ResponseChatMessage msg = new ResponseChatMessage(chatMessage, chatId,
+                    rollDiceRequest.getUser().getUsername(), System.currentTimeMillis());
             post(msg);
             LOG.debug("Posted ResponseChatMessage on eventBus");
         } catch (Exception e) {
@@ -287,56 +294,67 @@ public class GameService extends AbstractService {
      * Handles the distribution of resources to the users
      * <p>
      * This method handles the distribution of the resources to the users. First the method gets the game and gets the
-     * coressponding terrainfieldcontainer. After that the method checks if the diceToken on the field is equal to the
-     * rolled amount of eyes and increases the resource of the user by one. To Do is, that not every user gets the
-     * ressource.
+     * coressponding hexagons. After that the method checks if the diceToken on the field is equal to the
+     * rolled amount of eyes and increases the resource of the user by one(village), two(city).
      *
      * @param eyes     Number of eyes rolled with dice
      * @param gameName Name of the Game
-     * @author Marius Birk, Carsten Dekker
+     * @author Marius Birk, Carsten Dekker, Philip Nitsche
      * @since 2021-04-06
      */
     public void distributeResources(int eyes, String gameName) {
         Optional<Game> game = gameManagement.getGame(gameName);
-
         if (game.isPresent()) {
-            //"Ocean" = 0; "Forest" = 1; "Farmland" = 2; "Grassland" = 3; "Hillside" = 4; "Mountain" = 5; "Desert" = 6;
-            TerrainFieldContainer[] temp = game.get().getGameField().getTFCs();
-            for (TerrainFieldContainer terrainFieldContainer : temp) {
-                if (terrainFieldContainer.getDiceTokens() == eyes) {
-                    switch (terrainFieldContainer.getFieldType()) {
-                        case 1:
-                            for (User user : game.get().getUsers()) {
-                                //TODO Wenn Stadt angrenzend an Field, dann gebe User Resource, Erstmal wird an jeden Resource geben.
-                                giveResource(game, user, "Lumber", 1);
+            for (MapGraph.Hexagon hexagon : game.get().getMapGraph().getHexagonHashSet()) {
+                if (hexagon.getDiceToken() == eyes) {
+                    for (MapGraph.BuildingNode buildingNode : hexagon.getBuildingNodes()) {
+                        if (buildingNode.getOccupiedByPlayer()!=666) {
+                            Inventory inventory = game.get().getInventory(game.get().getUser(buildingNode.getOccupiedByPlayer()));
+                            //"Ocean" = 0; "Forest" = 1; "Farmland" = 2; "Grassland" = 3; "Hillside" = 4; "Mountain" = 5; "Desert" = 6;
+                            switch (hexagon.getTerrainType()) {
+                                case 1:
+                                    if (buildingNode.getSizeOfSettlement() == 1) {
+                                        inventory.lumber.incNumber();
+                                    } else if (buildingNode.getSizeOfSettlement() == 2) {
+                                        inventory.lumber.incNumber();
+                                        inventory.lumber.incNumber();
+                                    }
+                                    break;
+                                case 2:
+                                    if (buildingNode.getSizeOfSettlement() == 1) {
+                                        inventory.grain.incNumber();
+                                    } else if (buildingNode.getSizeOfSettlement() == 2) {
+                                        inventory.grain.incNumber();
+                                        inventory.grain.incNumber();
+                                    }
+                                    break;
+                                case 3:
+                                    if (buildingNode.getSizeOfSettlement() == 1) {
+                                        inventory.wool.incNumber();
+                                    } else if (buildingNode.getSizeOfSettlement() == 2) {
+                                        inventory.wool.incNumber();
+                                        inventory.wool.incNumber();
+                                    }
+                                    break;
+                                case 4:
+                                    if (buildingNode.getSizeOfSettlement() == 1) {
+                                        inventory.brick.incNumber();
+                                    } else if (buildingNode.getSizeOfSettlement() == 2) {
+                                        inventory.brick.incNumber();
+                                        inventory.brick.incNumber();
+                                    }
+                                    break;
+                                case 5:
+                                    if (buildingNode.getSizeOfSettlement() == 1) {
+                                        inventory.ore.incNumber();
+                                    } else if (buildingNode.getSizeOfSettlement() == 2) {
+                                        inventory.ore.incNumber();
+                                        inventory.ore.incNumber();
+                                    }
+                                default:
+                                    break;
                             }
-                            break;
-                        case 2:
-                            for (User user : game.get().getUsers()) {
-                                //TODO Wenn Stadt angrenzend an Field, dann gebe User Resource, Erstmal wird an jeden Resource geben
-                                giveResource(game, user, "Grain", 1);
-                            }
-                            break;
-                        case 3:
-                            for (User user : game.get().getUsers()) {
-                                //TODO Wenn Stadt angrenzend an Field, dann gebe User Resource, Erstmal wird an jeden Resource geben
-                                giveResource(game, user, "Wool", 1);
-                            }
-                            break;
-                        case 4:
-                            for (User user : game.get().getUsers()) {
-                                //TODO Wenn Stadt angrenzend an Field, dann gebe User Resource, Erstmal wird an jeden Resource geben
-                                giveResource(game, user, "Brick", 1);
-                            }
-                            break;
-                        case 5:
-                            for (User user : game.get().getUsers()) {
-                                //TODO Wenn Stadt angrenzend an Field, dann gebe User Ressource, Erstmal wird an jeden Ressource geben
-                                giveResource(game, user, "Ore", 1);
-                            }
-                            break;
-                        default:
-                            break;
+                        }
                     }
                 }
             }
@@ -496,6 +514,7 @@ public class GameService extends AbstractService {
             Optional<Game> game = gameManagement.getGame(lobby.get().getName());
             ArrayList<UserDTO> usersInGame = new ArrayList<>();
             for (User user : lobby.get().getPlayersReady()) {
+                user = userService.retrieveUserInformation(user);
                 game.get().joinUser(user);
                 usersInGame.add((UserDTO) user);
 
@@ -558,15 +577,21 @@ public class GameService extends AbstractService {
      * game and whos turn is up now.</p>
      *
      * @param request Transports the games name and the senders UserDTO.
-     * @author Pieter Vogt
+     * @author Pieter Vogt, Philip Nitsche
      * @since 2021-03-26
      */
     @Subscribe
     public void onEndTurnRequest(EndTurnRequest request) {
-        if (request.getUser().getUsername().equals(gameManagement.getGame(request.getName()).get().getUser(gameManagement.getGame(request.getName()).get().getTurn()).getUsername())) {
+        Optional<Game> game = gameManagement.getGame(request.getName());
+        if (request.getUser().getUsername().equals(game.get().getUser(game.get().getTurn()).getUsername())) {
             try {
-                gameManagement.getGame(request.getName()).get().nextRound();
-                sendToAllInGame(gameManagement.getGame(request.getName()).get().getName(), new NextTurnMessage(gameManagement.getGame(request.getName()).get().getName(), gameManagement.getGame(request.getName()).get().getUser(gameManagement.getGame(request.getName()).get().getTurn()).getUsername(), gameManagement.getGame(request.getName()).get().getTurn()));
+                boolean priorGamePhase = game.get().isStartingTurns();
+                game.get().nextRound();
+                if (priorGamePhase == true && game.get().isStartingTurns() == false) {
+                    distributeResources(request.getName());
+                }
+                sendToAllInGame(game.get().getName(), new NextTurnMessage(game.get().getName(),
+                        game.get().getUser(game.get().getTurn()).getUsername(), game.get().getTurn()));
             } catch (GameManagementException e) {
                 LOG.debug(e);
                 System.out.println("Sender " + request.getUser().getUsername() + " was not player with current turn");

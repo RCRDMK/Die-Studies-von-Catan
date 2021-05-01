@@ -51,8 +51,9 @@ class AuthenticationServiceTest {
     final AuthenticationService authService = new AuthenticationService(bus, userManagement);
     final LobbyManagement lobbyManagement = new LobbyManagement();
     final LobbyService lobbyService = new LobbyService(lobbyManagement, authService, bus);
+    final UserService userService = new UserService(bus, userManagement);
     final GameManagement gameManagement = new GameManagement();
-    final GameService gameService = new GameService(gameManagement, lobbyService, authService, bus);
+    final GameService gameService = new GameService(gameManagement, lobbyService, authService, bus, userService);
     private Object event;
 
     AuthenticationServiceTest() throws SQLException {
@@ -79,10 +80,13 @@ class AuthenticationServiceTest {
     @BeforeEach
     void testPreparation() throws SQLException {
         if(userManagement.retrieveAllUsers().contains(user)) {
+            userManagement.logout(user);
             userManagement.dropUser(user);
         } else if (userManagement.retrieveAllUsers().contains(user2)) {
+            userManagement.logout(user2);
             userManagement.dropUser(user2);
         } else if (userManagement.retrieveAllUsers().contains(user3)) {
+            userManagement.logout(user3);
             userManagement.dropUser(user3);
         }
     }
@@ -275,8 +279,8 @@ class AuthenticationServiceTest {
         assertTrue(sessionUser.isPresent());
 
         // Login User2 and check session
-        loginUser(user2);
-        Optional<Session> sessionUser2 = authService.getSession(user2);
+        loginUser(user3);
+        Optional<Session> sessionUser2 = authService.getSession(user3);
         assertTrue(sessionUser2.isPresent());
 
         // Create testLobby with user as owner
@@ -291,7 +295,7 @@ class AuthenticationServiceTest {
         assertTrue(lobby.isPresent());
 
         // User2 joins lobby and check if lobby size now = 2
-        lobby.get().joinUser(user2);
+        lobby.get().joinUser(user3);
         lobby = lobbyManagement.getLobby("testLobby");
         assertEquals(lobby.get().getUsers().size(), 2);
 
@@ -299,7 +303,7 @@ class AuthenticationServiceTest {
         gameManagement.createGame("testGame", user, "random");
         var game = gameManagement.getGame("testGame");
         assertTrue(game.isPresent());
-        game.get().joinUser(user2);
+        game.get().joinUser(user3);
         game = gameManagement.getGame("testGame");
         assertEquals(game.get().getUsers().size(), 2);
 
@@ -335,15 +339,16 @@ class AuthenticationServiceTest {
                 bus.post(message);
             }
         };
-        logoutRequest.setSession(sessionUser2.get());
-        logoutRequest.setMessageContext(ctx2);
-        bus.post(logoutRequest);
+        logoutRequest2.setSession(sessionUser2.get());
+        logoutRequest2.setMessageContext(ctx2);
+        bus.post(logoutRequest2);
 
         // After logging out (simulating x button) both users, there has to be 0 lobbies and 0 games.
         var games = gameManagement.getAllGames();
         assertEquals(games.size(), 0);
         lobbies = lobbyManagement.getAllLobbies();
         assertEquals(lobbies.size(), 0);
-
+        userManagement.dropUser(user);
+        userManagement.dropUser(user3);
     }
 }

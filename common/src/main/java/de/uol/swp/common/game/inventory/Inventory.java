@@ -56,25 +56,45 @@ public class Inventory {
 
     //Getter and Setter for Achievements
 
-    public int getVictoryPoints() { return victoryPoints; }
+    public int getVictoryPoints() {
+        return victoryPoints;
+    }
 
-    public int getPlayedKnights() { return playedKnights; }
+    public void setVictoryPoints(int victoryPoints) {
+        this.victoryPoints = Math.max(victoryPoints, 0);
+    }
 
-    public int getContinuousRoad() { return continuousRoad; }
+    public int getPlayedKnights() {
+        return playedKnights;
+    }
 
-    public boolean isLargestArmy() { return largestArmy; }
+    public void setPlayedKnights(int playedKnights) {
+        this.playedKnights = Math.max(playedKnights, 0);
+    }
 
-    public boolean isLongestRoad() { return longestRoad; }
+    public int getContinuousRoad() {
+        return continuousRoad;
+    }
 
-    public void setLargestArmy(boolean largestArmy) { this.largestArmy = largestArmy; }
+    public void setContinuousRoad(int continuousRoad) {
+        this.continuousRoad = Math.max(continuousRoad, 0);
+    }
 
-    public void setLongestRoad(boolean longestRoad) { this.longestRoad = longestRoad; }
+    public boolean isLargestArmy() {
+        return largestArmy;
+    }
 
-    public void setVictoryPoints(int victoryPoints) { this.victoryPoints = Math.max(victoryPoints, 0); }
+    public void setLargestArmy(boolean largestArmy) {
+        this.largestArmy = largestArmy;
+    }
 
-    public void setPlayedKnights(int playedKnights) { this.playedKnights = Math.max(playedKnights, 0); }
+    public boolean isLongestRoad() {
+        return longestRoad;
+    }
 
-    public void setContinuousRoad(int continuousRoad) { this.continuousRoad = Math.max(continuousRoad, 0); }
+    public void setLongestRoad(boolean longestRoad) {
+        this.longestRoad = longestRoad;
+    }
 
 
     //Increment the Victory Point Card and increase the victoryPoints by one
@@ -223,26 +243,26 @@ public class Inventory {
         if (longestRoad) publicInventory.put("Longest Road", 1);
         else publicInventory.put("Longest Road", 0);
 
-        if(victoryPoints < cardVictoryPoint) publicInventory.put("Public Victory Points", 0);
+        if (victoryPoints < cardVictoryPoint) publicInventory.put("Public Victory Points", 0);
         else publicInventory.put("Public Victory Points", victoryPoints - cardVictoryPoint);
 
         return (HashMap) publicInventory;
     }
 
     /**
-     * increases a specific Ressource Card by a specific amount
-     *
+     * Increases a specific Ressource Card by a specific amount
+     * <p>
      * this method calls the Method incNumber(int) of the class Card
      * String Card specifies the Ressource Card
      * valid Strings: Lumber, Brick, Grain, Wool, Ore
      *
-     * @param card the name of the Ressource Card
+     * @param card   the name of the Ressource Card
      * @param amount how much of the Card should be increased
      * @author Alexander Losse, Ricardo Mook
      * @since 2021-04-08
      */
-    public void incCard(String card, int amount){
-        switch (card){
+    public void incCard(String card, int amount) {
+        switch (card) {
             case "Lumber":
                 lumber.incNumber(amount);
                 break;
@@ -263,12 +283,12 @@ public class Inventory {
 
     /**
      * decreases a specific Ressource Card by a specific amount
-     *
+     * <p>
      * this method calls the Method decNumber(int) of the class Card
      * String Card specifies the Ressource Card
      * valid Strings: Lumber, Brick, Grain, Wool, Ore
      *
-     * @param card the name of the Ressource Card
+     * @param card   the name of the Ressource Card
      * @param amount how much of the Card should be decreased
      * @author Alexander Losse, Ricardo Mook
      * @since 2021-04-08

@@ -35,6 +35,7 @@ public class GameDTO implements Game {
     private boolean countingUp = true;
     private boolean lastPlayerSecondTurn = false;
     private DevelopmentCardDeck developmentCardDeck = new DevelopmentCardDeck();
+    private final ArrayList<MapGraph.BuildingNode> lastBuildingOfOpeningTurn = new ArrayList<>();
     private User bank = new UserDTO("Banker", "password", "rich@man.net");
 
     private Inventory inventory1;
@@ -172,16 +173,32 @@ public class GameDTO implements Game {
     }
 
     /**
+     * Returns the last built Buildings.
+     *
+     * <p>Returns a Array List with the last built Buildings</p>
+     *
+     * @return Returns a Array List with the last built Buildings
+     * @author Philip Nitsche
+     * @since 2021-04-26
+     */
+
+    @Override
+    public ArrayList<MapGraph.BuildingNode> getLastBuildingOfOpeningTurn() {
+        return lastBuildingOfOpeningTurn;
+    }
+
+    /**
      * Organizing the opening-phase for the set amount of players.
      *
      * <p>
      * This is checking many different statements for boolean value to evaluate wich players turn is up next. It does
      * this until every player did his move according to the games rules. For n players, the opening-phase goes from
      * player 1 upwards to player n, then player n again and then backwards to player 1. After that, it disables the
-     * opening-phase for the rest of the game.
+     * opening-phase for the rest of the game. It also creates a list of the built buildings from which raw materials
+     * are distributed in the opening phase
      * </p>
      *
-     * @author Pieter Vogt
+     * @author Pieter Vogt, Philip Nitsche
      * @since 2021-03-30
      */
     @Override
@@ -201,8 +218,12 @@ public class GameDTO implements Game {
                     overallTurns--; // count one down.
                     countingUp = false; // dont count up anymore.
                     return;
-                } else
+                } else {
                     startingTurns = false; // 2b2) if we are at player 1 and were already counting backwards, end the openingphase.
+                    for (int i = 0; i < userArrayList.size(); i++) {
+                        lastBuildingOfOpeningTurn.add(mapGraph.getBuiltBuildings().get(mapGraph.getBuiltBuildings().size() - 1 - i));
+                    }
+                }
             }
         }
     }
@@ -225,13 +246,6 @@ public class GameDTO implements Game {
             if (userArrayList.size() > 2) inventory3 = new Inventory(userArrayList.get(2));
             if (userArrayList.size() > 3) inventory4 = new Inventory(userArrayList.get(3));
         }
-
-        bankInventory = new Inventory(bank);
-        bankInventory.lumber.setNumber(19);
-        bankInventory.brick.setNumber(19);
-        bankInventory.grain.setNumber(19);
-        bankInventory.wool.setNumber(19);
-        bankInventory.ore.setNumber(19);
     }
 
     /**
@@ -269,6 +283,11 @@ public class GameDTO implements Game {
     @Override
     public MapGraph getMapGraph() {
         return mapGraph;
+    }
+
+    @Override
+    public boolean isStartingTurns() {
+        return startingTurns;
     }
 
     @Override
