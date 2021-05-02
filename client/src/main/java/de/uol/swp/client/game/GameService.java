@@ -4,6 +4,7 @@ package de.uol.swp.client.game;
 import com.google.common.eventbus.EventBus;
 import com.google.inject.Inject;
 import de.uol.swp.common.game.message.ConstructionMessage;
+import de.uol.swp.common.game.message.DrawRandomResourceFromPlayerMessage;
 import de.uol.swp.common.game.message.RobbersNewFieldMessage;
 import de.uol.swp.common.game.message.TradeEndedMessage;
 import de.uol.swp.common.game.request.*;
@@ -172,7 +173,10 @@ public class GameService {
     }
 
     public void movedRobber(String game, User user, UUID uuid) {
-        RobbersNewFieldMessage robbersNewFieldMessage = new RobbersNewFieldMessage(game, (UserDTO) user, uuid);
-        eventBus.post(robbersNewFieldMessage);
+        eventBus.post(new RobbersNewFieldMessage(game, (UserDTO) user, uuid));
+    }
+
+    public void drawRandomCardFromPlayer(String gameName, User user, String result){
+        eventBus.post(new DrawRandomResourceFromPlayerMessage(gameName, (UserDTO) user, result));
     }
 }

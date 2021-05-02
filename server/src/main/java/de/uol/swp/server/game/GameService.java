@@ -32,12 +32,10 @@ import de.uol.swp.server.game.dice.Dice;
 import de.uol.swp.server.lobby.LobbyManagementException;
 import de.uol.swp.server.lobby.LobbyService;
 import de.uol.swp.server.usermanagement.AuthenticationService;
-import de.uol.swp.server.usermanagement.UserManagement;
 import de.uol.swp.server.usermanagement.UserService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -458,7 +456,9 @@ public class GameService extends AbstractService {
                 //check if the building nodes at the hexagon are occupied by players
                 for (int i = 0; i < hexagon.getBuildingNodes().size(); i++) {
                     if (hexagon.getBuildingNodes().get(i).getOccupiedByPlayer() != 666) {
-                        userList.add(game.get().getUser(hexagon.getBuildingNodes().get(i).getOccupiedByPlayer()).getUsername());
+                        if(!userList.contains(game.get().getUser(hexagon.getBuildingNodes().get(i).getOccupiedByPlayer()).getUsername())){
+                            userList.add(game.get().getUser(hexagon.getBuildingNodes().get(i).getOccupiedByPlayer()).getUsername());
+                        }
                     }
                 }
             }
@@ -667,11 +667,6 @@ public class GameService extends AbstractService {
                 }
             }
         }
-    }
-
-    @Subscribe
-    public void onGetInventoryRequest(DrawRandomResourceFromPlayerMessage drawRandomResourceFromPlayerMessage) {
-        updateInventory(gameManagement.getGame(drawRandomResourceFromPlayerMessage.getName()));
     }
 
     /**
@@ -901,15 +896,16 @@ public class GameService extends AbstractService {
     }
 
     @Subscribe
-    public void onDrawRandomResourceFromPlayerMessage(DrawRandomResourceFromPlayerMessage drrfp) {
-        Optional<Game> game = gameManagement.getGame(drrfp.getName());
+    public void onDrawRandomResourceFromPlayerMessage(DrawRandomResourceFromPlayerMessage drawRandomResourceFromPlayerMessage) {
+        System.out.println(drawRandomResourceFromPlayerMessage.getChosenName());
+        Optional<Game> game = gameManagement.getGame(drawRandomResourceFromPlayerMessage.getName());
         if (game.isPresent()) {
-            HashMap inventory = game.get().getInventory(new UserDTO(drrfp.getUserName(), "", "")).getPrivateView();
+            HashMap inventory = game.get().getInventory(new UserDTO(drawRandomResourceFromPlayerMessage.getChosenName(), "", "")).getPrivateView();
             String random = randomResource();
             inventory.keySet().forEach(e -> {
                 if (e.equals(random)) {
-                    game.get().getInventory(drrfp.getUser()).incCard(random, 1);
-                    game.get().getInventory(new UserDTO(drrfp.getUserName(), "", "")).decCard(random, 1);
+                    game.get().getInventory(drawRandomResourceFromPlayerMessage.getUser()).incCard(random, 1);
+                    game.get().getInventory(new UserDTO(drawRandomResourceFromPlayerMessage.getChosenName(), "", "")).decCard(random, 1);
                 }
             });
             updateInventory(game);

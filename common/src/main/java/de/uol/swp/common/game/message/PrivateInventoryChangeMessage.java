@@ -21,7 +21,9 @@ public class PrivateInventoryChangeMessage extends AbstractGameMessage {
 
     public PrivateInventoryChangeMessage(HashMap privateInventory) {
         this.privateInventory = privateInventory;
-
     }
 
+    public HashMap getPrivateInventory() {
+        return privateInventory;
+    }
 }

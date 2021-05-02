@@ -10,6 +10,7 @@ import de.uol.swp.client.game.HelperObjects.Vector;
 import de.uol.swp.common.chat.RequestChatMessage;
 import de.uol.swp.common.chat.ResponseChatMessage;
 import de.uol.swp.common.game.MapGraph;
+import de.uol.swp.common.game.inventory.Inventory;
 import de.uol.swp.common.game.message.*;
 import de.uol.swp.common.game.request.EndTurnRequest;
 import de.uol.swp.common.user.User;
@@ -75,6 +76,7 @@ public class GamePresenter extends AbstractPresenter {
     private ArrayList<HexagonContainer> hexagonContainers = new ArrayList<>();
     private ArrayList<MapGraphNodeContainer> mapGraphNodeContainers = new ArrayList<>();
     private Boolean itsMyTurn = false;
+    private Inventory inventory;
     @Inject
     private GameService gameService;
     @Inject
@@ -334,9 +336,10 @@ public class GamePresenter extends AbstractPresenter {
                 profilePicturePatterns.add(imagePattern);
             }
             Platform.runLater(() -> {
+                setupPlayerPictures(gcm.getUsers());
+                setupRessourceAlert();
                 initializeRobberResourceMenu();
                 setupRobberAlert();
-                setupRessourceAlert();
             });
         }
     }
@@ -388,12 +391,14 @@ public class GamePresenter extends AbstractPresenter {
         choose[0].setOnAction(this::onIncResource);
         for (int i = 0; i < 4; i++) {
             chooseResource.add(choose[i], i, 0);
-            chooseResource.add(choose[5 + i], i, 2);
             chooseResource.add(resources[i], i, 1);
+            //chooseResource.add(amount, i, 3);
+            chooseResource.add(choose[5 + i], i, 3);
+
         }
         chooseResource.setVgap(40);
         chooseResource.setHgap(30);
-        this.alert.getDialogPane().setContent(chooseResource);
+
 
         //Initializing robber on the canvas
         robber.setLayoutX((canvas.getWidth() / 2 + canvas.getLayoutX()) - (robber.getWidth() / 2));
@@ -436,8 +441,10 @@ public class GamePresenter extends AbstractPresenter {
      * @since 2021-04-19
      */
     public void showRobberResourceMenu(TooMuchResourceCardsMessage tooMuchResourceCardsMessage) {
-        this.alert.setTitle(tooMuchResourceCardsMessage.getName());
-        this.alert.showAndWait();
+        Alert tooMuchAlert = new Alert(Alert.AlertType.INFORMATION);
+        tooMuchAlert.setTitle(tooMuchResourceCardsMessage.getName());
+        tooMuchAlert.getDialogPane().setContent(chooseResource);
+        tooMuchAlert.showAndWait();
     }
 
 
@@ -852,7 +859,6 @@ public class GamePresenter extends AbstractPresenter {
         for (MapGraphNodeContainer container : mapGraphNodeContainers) {
             container.getCircle().setOnMouseClicked(clickOnCircleHandler);
         }
-        draw();
     }
 
     /**
@@ -1035,28 +1041,18 @@ public class GamePresenter extends AbstractPresenter {
      * @since 2021-04-20
      */
     public void setupChoosePlayerAlert(ChoosePlayerMessage choosePlayerMessage) {
-        this.alert = new Alert(Alert.AlertType.CONFIRMATION);
-        String user1 = choosePlayerMessage.getUserList().get(0);
-        String user2 = choosePlayerMessage.getUserList().get(1);
-        String user3 = choosePlayerMessage.getUserList().get(2);
-
-        this.buttonTypeOne = new ButtonType(user1);
-        this.buttonTypeTwo = new ButtonType(user2);
-        this.buttonTypeThree = new ButtonType(user3);
-        alert.getButtonTypes().setAll(buttonTypeOne, buttonTypeTwo, buttonTypeThree);
-        Optional<ButtonType> result = alert.showAndWait();
-        if (result.get() == buttonTypeOne) {
-            DrawRandomResourceFromPlayerMessage drawRandomResourceFromPlayerMessage = new DrawRandomResourceFromPlayerMessage(choosePlayerMessage.getName(), (UserDTO) choosePlayerMessage.getUser(), user1);
-            eventBus.post(drawRandomResourceFromPlayerMessage);
+        Alert chooseAlert = new Alert(Alert.AlertType.WARNING);
+        chooseAlert.getButtonTypes().setAll();
+        chooseAlert.setTitle(choosePlayerMessage.getName());
+        chooseAlert.setContentText("Choose a player to draw a card from!");
+        for(int i = 0; i<choosePlayerMessage.getUserList().size();i++){
+            if(!choosePlayerMessage.getUserList().get(i).equals(choosePlayerMessage.getUser().getUsername())){
+                chooseAlert.getButtonTypes().add(new ButtonType(choosePlayerMessage.getUserList().get(i)));
+            }
         }
-        if (result.get() == buttonTypeTwo) {
-            DrawRandomResourceFromPlayerMessage drawRandomResourceFromPlayerMessage = new DrawRandomResourceFromPlayerMessage(choosePlayerMessage.getName(), (UserDTO) choosePlayerMessage.getUser(), user2);
-            eventBus.post(drawRandomResourceFromPlayerMessage);
-        }
-        if (result.get() == buttonTypeThree) {
-            DrawRandomResourceFromPlayerMessage drawRandomResourceFromPlayerMessage = new DrawRandomResourceFromPlayerMessage(choosePlayerMessage.getName(), (UserDTO) choosePlayerMessage.getUser(), user3);
-            eventBus.post(drawRandomResourceFromPlayerMessage);
-        }
+        chooseAlert.showAndWait();
+        gameService.drawRandomCardFromPlayer(choosePlayerMessage.getName(), choosePlayerMessage.getUser(), chooseAlert.getResult().getText());
+        chooseAlert.close();
     }
 
     /**
@@ -1101,7 +1097,14 @@ public class GamePresenter extends AbstractPresenter {
 
     @Subscribe
     public void onPrivateInventoryChangeMessage(PrivateInventoryChangeMessage privateInventoryChangeMessage) {
-        //TODO: Darstellung der Veränderung des Inventars
+        inventory.lumber.setNumber((int) privateInventoryChangeMessage.getPrivateInventory().get("Lumber"));
+        inventory.grain.setNumber((int) privateInventoryChangeMessage.getPrivateInventory().get("Grain"));
+        inventory.ore.setNumber((int) privateInventoryChangeMessage.getPrivateInventory().get("Ore"));
+        inventory.wool.setNumber((int) privateInventoryChangeMessage.getPrivateInventory().get("Wool"));
+        inventory.brick.setNumber((int) privateInventoryChangeMessage.getPrivateInventory().get("Brick"));
+
+        System.out.println(inventory.getPrivateView());
+
     }
 
     @Subscribe
@@ -1136,7 +1139,6 @@ public class GamePresenter extends AbstractPresenter {
         if (this.currentLobby.equals(tooMuchResourceCardsMessage.getName())) {
             Platform.runLater(() -> showRobberResourceMenu(tooMuchResourceCardsMessage));
         }
-
         //send Message with ressources to discard and to add to bank
     }
 
