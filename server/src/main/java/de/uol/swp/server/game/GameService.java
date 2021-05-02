@@ -398,7 +398,6 @@ public class GameService extends AbstractService {
                     }
                 }
             }
-
         }
     }
 

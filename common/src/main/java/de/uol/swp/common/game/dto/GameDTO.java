@@ -51,7 +51,6 @@ public class GameDTO implements Game {
      *
      * @param name    The name the game should have
      * @param creator The user who created the game and therefore shall be the owner
-     *
      * @since 2021-01-15
      */
     public GameDTO(String name, User creator) {

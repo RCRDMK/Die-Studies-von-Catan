@@ -547,9 +547,9 @@ public class GameServiceTest {
         assertEquals(inventoryFull.get("Grain"), 6);
         assertEquals(inventoryFull.get("Wool"), 0);
         assertEquals(inventoryFull.get("Ore"), 0);
-        assertEquals(game.get().getInventory(game.get().getUser(1)).getResource(), 12);
-        assertEquals(game.get().getInventory(game.get().getUser(0)).getResource(), 0);
-        assertEquals(game.get().getInventory(game.get().getUser(2)).getResource(), 0);
+        assertEquals(game.get().getInventory(game.get().getUser(1)).sumResource(), 12);
+        assertEquals(game.get().getInventory(game.get().getUser(0)).sumResource(), 0);
+        assertEquals(game.get().getInventory(game.get().getUser(2)).sumResource(), 0);
     }
 
 }
