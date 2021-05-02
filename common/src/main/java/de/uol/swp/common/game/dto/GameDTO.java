@@ -35,7 +35,7 @@ public class GameDTO implements Game {
     private boolean countingUp = true;
     private boolean lastPlayerSecondTurn = false;
     private boolean playedCardThisTurn = false;
-    private DevelopmentCardDeck developmentCardDeck = new DevelopmentCardDeck();
+    private final DevelopmentCardDeck developmentCardDeck = new DevelopmentCardDeck();
     private final ArrayList<MapGraph.BuildingNode> lastBuildingOfOpeningTurn = new ArrayList<>();
 
     private Inventory inventory1;
@@ -43,7 +43,7 @@ public class GameDTO implements Game {
     private Inventory inventory3;
     private Inventory inventory4;
 
-    private HashMap<String, Trade> tradeList = new HashMap<>();
+    private final HashMap<String, Trade> tradeList = new HashMap<>();
     private String currentCard = "";
 
     /**
@@ -295,16 +295,17 @@ public class GameDTO implements Game {
     /**
      * adds a Trade to the game
      *
-     * @see Trade
-     * @param trade Trade to be added
+     * @param trade     Trade to be added
      * @param tradeCode String used to identify trade
      * @author Alecander Losse, Ricardo Mook
+     * @see Trade
      * @since 2021-04-13
      */
     @Override
-    public void addTrades(Trade trade, String tradeCode){
-        tradeList.put(tradeCode,trade);
+    public void addTrades(Trade trade, String tradeCode) {
+        tradeList.put(tradeCode, trade);
     }
+
     /**
      * getter for the HashMap containing the Trades
      *
@@ -313,7 +314,7 @@ public class GameDTO implements Game {
      * @since 2021-04-13
      */
     @Override
-    public HashMap getTradeList(){
+    public HashMap getTradeList() {
         return tradeList;
     }
 
@@ -325,7 +326,7 @@ public class GameDTO implements Game {
      * @since 2021-04-13
      */
     @Override
-    public void removeTrade(String tradeCode){
+    public void removeTrade(String tradeCode) {
         tradeList.remove(tradeCode);
     }
 
@@ -346,7 +347,7 @@ public class GameDTO implements Game {
 
     @Override
     public void setPlayedCardThisTurn(boolean value) {
-        playedCardThisTurn =value;
+        playedCardThisTurn = value;
     }
 
 }

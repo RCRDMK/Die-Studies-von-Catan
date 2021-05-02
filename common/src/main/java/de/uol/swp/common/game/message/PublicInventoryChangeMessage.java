@@ -12,7 +12,7 @@ import java.util.HashMap;
  * @since 2021-04-08
  */
 public class PublicInventoryChangeMessage extends AbstractGameMessage {
-    private HashMap publicInventory;
+    final private HashMap<String, Integer> publicInventory;
 
     /**
      * Default constructor
@@ -21,7 +21,7 @@ public class PublicInventoryChangeMessage extends AbstractGameMessage {
      * @since 2021-04-08
      */
 
-    public PublicInventoryChangeMessage(HashMap publicInventory, User user, String gameName) {
+    public PublicInventoryChangeMessage(HashMap<String, Integer> publicInventory, User user, String gameName) {
         super(gameName, (UserDTO) user.getWithoutPassword());
         this.publicInventory = publicInventory;
 

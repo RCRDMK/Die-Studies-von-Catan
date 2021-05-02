@@ -3,7 +3,6 @@ package de.uol.swp.common.game.inventory;
 import de.uol.swp.common.user.User;
 
 import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Creates and manages the Inventory

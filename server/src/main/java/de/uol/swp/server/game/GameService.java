@@ -141,7 +141,7 @@ public class GameService extends AbstractService {
         LOG.debug("Recieved new ConstructionMessage from user " + message.getUser());
         Optional<Game> game = gameManagement.getGame(message.getGame());
         int playerIndex = 666;
-        if (message.getUuid()!=null) {
+        if (message.getUuid() != null) {
             for (int i = 0; i < game.get().getUsersList().size(); i++) {
                 if (game.get().getUsersList().get(i).equals(message.getUser())) {
                     playerIndex = i;
@@ -624,6 +624,18 @@ public class GameService extends AbstractService {
         }
     }
 
+    /**
+     * Handles Requests from a client to play a DevelopmentCard
+     * <p>
+     * If the game exists, the player who sent the request is the turnPlayer and
+     * if a DevelopmentCard wasn't already played this turn, or is currently being played,
+     * then remove the DevelopmentCard from the inventory of the player and inform him that he
+     * may proceed with the resolution of the card. If something went wrong, also inform him.
+     *
+     * @param request the PlayDevelopmentCardRequest sent by the client
+     * @author Marc Hermes
+     * @since 2021-05-01
+     */
     @Subscribe
     public void onPlayDevelopmentCardRequest(PlayDevelopmentCardRequest request) {
         Optional<Game> game = gameManagement.getGame(request.getName());
@@ -638,7 +650,6 @@ public class GameService extends AbstractService {
                 inventory.cardMonopoly.incNumber();
                 inventory.cardRoadBuilding.incNumber();
                 inventory.cardYearOfPlenty.incNumber();
-                System.out.println("Yo komme bis hier");
                 // TODO: Check if the card was bought THIS turn, because it cannot be used then
                 switch (devCard) {
 
@@ -701,6 +712,18 @@ public class GameService extends AbstractService {
         }
     }
 
+    /**
+     * Handles Requests from a client to resolve a DevelopmentCard
+     * <p>
+     * If the game exists, the player who sent the request is the turnPlayer and
+     * if the DevelopmentCard that is currently being played equals the one in this request,
+     * then try to resolve the DevelopmentCard accordingly and inform players of this game that the
+     * resolution was successful. If something went wrong, inform the turnPlayer so that he may try again.
+     *
+     * @param request the ResolveDevelopmentCardRequest sent from the client
+     * @author Marc Hermes
+     * @since 2021-05-01
+     */
     @Subscribe
     public void onResolveDevelopmentCardRequest(ResolveDevelopmentCardRequest request) {
         Optional<Game> game = gameManagement.getGame(request.getName());
@@ -709,7 +732,7 @@ public class GameService extends AbstractService {
             String gameName = game.get().getName();
             String devCard = request.getDevCard();
 
-            if (request.getUser().getUsername().equals(turnPlayer.getUsername())) {
+            if (request.getUser().getUsername().equals(turnPlayer.getUsername()) && request.getDevCard().equals(game.get().getCurrentCard())) {
                 Inventory turnPlayerInventory = game.get().getInventory(turnPlayer);
                 ResolveDevelopmentCardMessage message = new ResolveDevelopmentCardMessage(devCard, (UserDTO) turnPlayer, gameName);
                 ResolveDevelopmentCardNotSuccessfulResponse notSuccessfulResponse = new ResolveDevelopmentCardNotSuccessfulResponse(devCard, turnPlayer.getUsername(), gameName);
@@ -751,7 +774,7 @@ public class GameService extends AbstractService {
 
                     case "Road Building":
                         ConstructionMessage constructionMessage1 = new ConstructionMessage((UserDTO) turnPlayer, gameName, request.getStreet1(), "StreetNode");
-                        ConstructionMessage constructionMessage2 = new ConstructionMessage((UserDTO) turnPlayer, gameName, request.getStreet1(), "StreetNode");
+                        ConstructionMessage constructionMessage2 = new ConstructionMessage((UserDTO) turnPlayer, gameName, request.getStreet2(), "StreetNode");
                         boolean successful1 = onConstructionMessage(constructionMessage1);
                         boolean successful2 = onConstructionMessage(constructionMessage2);
                         if (!(successful1 && successful2)) {

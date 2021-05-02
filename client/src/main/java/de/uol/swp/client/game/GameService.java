@@ -171,20 +171,61 @@ public class GameService {
         eventBus.post(new TradeStartRequest(joinedLobbyUser, currentLobby, tradeCode));
     }
 
+    /**
+     * sends a request to play a certain DevelopmentCard to the server
+     *
+     * @param joinedLobbyUser the user who wants to play the card
+     * @param currentLobby    the name of the game in which the card is to be played
+     * @param devCard         the name of the DevelopmentCard
+     * @author Marc Hermes
+     * @since 2021-05-03
+     */
     public void playDevelopmentCard(UserDTO joinedLobbyUser, String currentLobby, String devCard) {
         eventBus.post(new PlayDevelopmentCardRequest(devCard, currentLobby, joinedLobbyUser));
     }
 
+    /**
+     * sends a request to resolve the Monopoly DevelopmentCard to the server
+     *
+     * @param joinedLobbyUser the user who wants to resolve the Monopoly card
+     * @param currentLobby    the name of the game in which the card is to be resolved
+     * @param devCard         the name of the DevelopmentCard, should be Monopoly
+     * @param resource        the name of the resource for the Monopoly card
+     * @author Marc Hermes
+     * @since 2021-05-03
+     */
     public void resolveDevelopmentCardMonopoly(UserDTO joinedLobbyUser, String currentLobby, String devCard, String resource) {
         eventBus.post(new ResolveDevelopmentCardRequest(devCard, joinedLobbyUser, currentLobby, resource));
     }
 
+    /**
+     * sends a request to resolve the Year of Plenty DevelopmentCard to the server
+     *
+     * @param joinedLobbyUser the user who wants to resolve the Year of Plenty card
+     * @param currentLobby    the name of the game in which the card is to be resolved
+     * @param devCard         the name of the DevelopmentCard, should be Year of Plenty
+     * @param resource1       the name of the first resource for the Year of Plenty card
+     * @param resource2       the name of the second resource for the Year of Plenty card
+     * @author Marc Hermes
+     * @since 2021-05-03
+     */
     public void resolveDevelopmentCardYearOfPlenty(UserDTO joinedLobbyUser, String currentLobby, String devCard, String resource1, String resource2) {
         eventBus.post(new ResolveDevelopmentCardRequest(devCard, joinedLobbyUser, currentLobby, resource1, resource2));
     }
 
+    /**
+     * sends a request to resolve the Road Building DevelopmentCard to the server
+     *
+     * @param joinedLobbyUser the user who wants to resolve the Road Building card
+     * @param currentLobby    the name of the game in which the card is to be resolved
+     * @param devCard         the name of the DevelopmentCard, should be Road Building
+     * @param street1         the UUID of the first street for the Road Building card
+     * @param street2         the UUID of the second street for the Road Building card
+     * @author Marc Hermes
+     * @since 2021-05-03
+     */
     public void resolveDevelopmentCardRoadBuilding(UserDTO joinedLobbyUser, String currentLobby, String devCard, UUID street1, UUID street2) {
-        eventBus.post(new ResolveDevelopmentCardRequest(devCard,joinedLobbyUser,currentLobby, street1, street2));
+        eventBus.post(new ResolveDevelopmentCardRequest(devCard, joinedLobbyUser, currentLobby, street1, street2));
 
     }
 }

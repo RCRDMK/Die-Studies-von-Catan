@@ -137,7 +137,7 @@ public class GamePresenter extends AbstractPresenter {
                         System.currentTimeMillis());
                 chatService.sendMessage(message);
                 // TODO: das muss entfernt werden sobald der Spieler selbst aussuchen kann, welche Karte er spielen möchte
-                gameService.playDevelopmentCard((UserDTO) joinedLobbyUser,currentLobby,chatMessage);
+                gameService.playDevelopmentCard((UserDTO) joinedLobbyUser, currentLobby, chatMessage);
             }
             this.gameChatInput.setText("");
         } catch (Exception e) {
@@ -305,7 +305,7 @@ public class GamePresenter extends AbstractPresenter {
      * @see GameCreatedMessage
      * @see de.uol.swp.common.game.GameField
      * @since 2021-03-05
-     *
+     * <p>
      * Enhanced by Carsten Dekker
      * @since 2021-04-22
      */
@@ -422,7 +422,6 @@ public class GamePresenter extends AbstractPresenter {
      * GamePresenterException if joinedLobbyUser and currentLobby are not initialised
      *
      * @param event \\TODO JavaDoc fehlt hier
-     *
      * @author Ricardo Mook, Alexander Losse
      * @see de.uol.swp.client.game.GameService
      * @see de.uol.swp.client.game.GamePresenterException
@@ -900,13 +899,13 @@ public class GamePresenter extends AbstractPresenter {
     /**
      * The method called when a PrivateInventoryChangeMessage is received
      *
+     * @param privateInventoryChangeMessage the PrivateInventoryChangeMessage received from the server
      * @author Marc Hermes
      * @since 2021-05-02
-     * @param privateInventoryChangeMessage the PrivateInventoryChangeMessage received from the server
      */
     @Subscribe
     public void onPrivateInventoryChangeMessage(PrivateInventoryChangeMessage privateInventoryChangeMessage) {
-        if(this.currentLobby != null) {
+        if (this.currentLobby != null) {
             if (this.currentLobby.equals(privateInventoryChangeMessage.getName())) {
                 // TODO: dient nur zu Testzwecken, muss später richtig dargestellt werden
                 System.out.println(privateInventoryChangeMessage.getPrivateInventory().get("Lumber"));
@@ -926,14 +925,14 @@ public class GamePresenter extends AbstractPresenter {
     /**
      * The method called when a ResolveDevelopmentCardNotSuccessfulResponse is received
      *
+     * @param rdcns the ResolveDevelopmentCardNotSuccessfulResponse received from the server
      * @author Marc Hermes
      * @since 2021-05-02
-     * @param rdcns the ResolveDevelopmentCardNotSuccessfulResponse received from the server
      */
     @Subscribe
     public void onResolveCardNotSuccessfulResponse(ResolveDevelopmentCardNotSuccessfulResponse rdcns) {
-        if(this.currentLobby !=null) {
-            if(this.currentLobby.equals(rdcns.getGameName())) {
+        if (this.currentLobby != null) {
+            if (this.currentLobby.equals(rdcns.getGameName())) {
                 System.out.println(rdcns.getDevCard() + " didnt resolve Card successfully");
                 //TODO: Alert oder so der sagt, dass das ausführen der Karte nicht geklappt hat.
                 // Zudem neuer Aufruf an den User es erneut zu versuchen
@@ -945,21 +944,20 @@ public class GamePresenter extends AbstractPresenter {
     /**
      * The method called when a PlayDevelopmentCardResponse is received
      *
+     * @param pdcr the PlayDevelopmentCardResponse received from the server
      * @author Marc Hermes
      * @since 2021-05-02
-     * @param pdcr the PlayDevelopmentCardResponse received from the server
      */
     @Subscribe
     public void onPlayDevelopmentCardResponse(PlayDevelopmentCardResponse pdcr) {
-        if(this.currentLobby != null) {
+        if (this.currentLobby != null) {
             if (this.currentLobby.equals(pdcr.getGameName())) {
-                if(pdcr.isCanPlayCard()) {
+                if (pdcr.isCanPlayCard()) {
                     LOG.debug("The card " + pdcr.getDevCard() + " was played by the user " + pdcr.getUserName());
                     // TODO: implement way to make the user chose the way to resolve the card
                     // TODO: currently the user will automatically resolve the development card Year of Plenty
-                    gameService.resolveDevelopmentCardYearOfPlenty((UserDTO) joinedLobbyUser,currentLobby,pdcr.getDevCard(), "Lumber", "Brick");
-                }
-                else {
+                    gameService.resolveDevelopmentCardYearOfPlenty((UserDTO) joinedLobbyUser, currentLobby, pdcr.getDevCard(), "Lumber", "Brick");
+                } else {
                     LOG.debug("The user " + pdcr.getUserName() + " cannot play the card " + pdcr.getDevCard());
                 }
             }
@@ -969,13 +967,13 @@ public class GamePresenter extends AbstractPresenter {
     /**
      * The method called when a ResolveDevelopmentCardMessage is received
      *
+     * @param rdcm the ResolveDevelopmentCardMessage received from the server
      * @author Marc Hermes
      * @since 2021-05-02
-     * @param rdcm the ResolveDevelopmentCardMessage received from the server
      */
     @Subscribe
     public void onResolveDevelopmentCardMessage(ResolveDevelopmentCardMessage rdcm) {
-        if(this.currentLobby != null) {
+        if (this.currentLobby != null) {
             if (this.currentLobby.equals(rdcm.getName())) {
                 LOG.debug("The user " + rdcm.getUser().getUsername() + " successfully resolved the card " + rdcm.getDevCard());
             }

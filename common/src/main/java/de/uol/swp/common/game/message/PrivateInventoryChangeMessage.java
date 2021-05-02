@@ -23,11 +23,18 @@ public class PrivateInventoryChangeMessage extends AbstractGameMessage {
      */
 
     public PrivateInventoryChangeMessage(User user, String gameName, HashMap<String, Integer> privateInventory) {
-        super(gameName,(UserDTO) user);
+        super(gameName, (UserDTO) user);
         this.privateInventory = privateInventory;
 
     }
 
+    /**
+     * Getter for the hashMap of the privateInventory
+     *
+     * @return the HashMap representing the private View of the user
+     * @author Marc Hermes
+     * @since 2021-05-03
+     */
     public HashMap<String, Integer> getPrivateInventory() {
         return privateInventory;
     }
