@@ -442,7 +442,7 @@ public class GameService extends AbstractService {
     public void onStartGameRequest(StartGameRequest startGameRequest) {
         Optional<Lobby> lobby = lobbyService.getLobby(startGameRequest.getName());
         Set<User> usersInLobby = lobby.get().getUsers();
-        if (gameManagement.getGame(lobby.get().getName()).isEmpty() && usersInLobby.size() > 1 && startGameRequest.getUser().getUsername().equals(lobby.get().getOwner().getUsername())) {
+        if (gameManagement.getGame(lobby.get().getName()).isEmpty() && usersInLobby.size() > 1 && startGameRequest.getUser().getUsername().equals(lobby.get().getOwner().getUsername()) && !lobby.get().getGameShouldStart()) {
             lobby.get().setPlayersReadyToNull();
             lobby.get().setGameFieldVariant(startGameRequest.getGameFieldVariant());
             lobby.get().setGameShouldStart(true);
@@ -468,6 +468,7 @@ public class GameService extends AbstractService {
                     } else if (lobby.get().getPlayersReady().size() < 2 && lobby.get().getGameShouldStart()) {
                         sendToListOfUsers(users, lobby.get().getName(), new NotEnoughPlayersMessage(lobby.get().getName()));
                     }
+                    lobby.get().setGameShouldStart(false);
                     timer.cancel();
                 }
             }
@@ -966,7 +967,7 @@ public class GameService extends AbstractService {
         if (game.isPresent()) {
             Trade trade = game.get().getTradeList().get(request.getTradeCode());
 
-            if (request.getTradeAccepted() == true) {
+            if (request.getTradeAccepted() == true && !request.getUser().getUsername().equals(trade.getSeller().getUsername())) {
                 Inventory inventorySeller = game.get().getInventory(trade.getSeller());
                 Inventory inventoryBidder = game.get().getInventory(request.getUser());
 
