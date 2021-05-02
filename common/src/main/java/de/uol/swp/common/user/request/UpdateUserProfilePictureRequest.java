@@ -2,28 +2,29 @@ package de.uol.swp.common.user.request;
 
 import de.uol.swp.common.message.AbstractRequestMessage;
 import de.uol.swp.common.user.User;
+
 import java.util.Objects;
 
 /**
- * Request to get the mail from the user
+ * Request to update a user profile picture
  * <p>
  * @see de.uol.swp.common.user.User
  * @author Carsten Dekker
- * @since 2021-03-12
+ * @since 2021-04-15
  */
-public class RetrieveUserMailRequest extends AbstractRequestMessage {
-    final private User toGetMail;
+public class UpdateUserProfilePictureRequest extends AbstractRequestMessage {
+
+    final private User toUpdatePicture;
 
     /**
      * Constructor
      * <p>
-     * @param user the user object the sender shall be updated to unchanged fields
-     *             being empty
+     * @param user the user object that shall be updated
      * @author Carsten Dekker
-     * @since 2021-03-12
+     * @since 2021-04-15
      */
-    public RetrieveUserMailRequest(User user){
-        this.toGetMail = user;
+    public UpdateUserProfilePictureRequest(User user){
+        this.toUpdatePicture = user;
     }
 
     /**
@@ -31,22 +32,22 @@ public class RetrieveUserMailRequest extends AbstractRequestMessage {
      * <p>
      * @return the updated user object
      * @author Carsten Dekker
-     * @since 2021-03-12
+     * @since 2021-04-15
      */
     public User getUser() {
-        return toGetMail;
+        return toUpdatePicture;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        RetrieveUserMailRequest that = (RetrieveUserMailRequest) o;
-        return Objects.equals(toGetMail, that.toGetMail);
+        UpdateUserProfilePictureRequest that = (UpdateUserProfilePictureRequest) o;
+        return Objects.equals(toUpdatePicture, that.toUpdatePicture);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(toGetMail);
+        return Objects.hash(toUpdatePicture);
     }
 }

@@ -8,6 +8,8 @@ import com.google.inject.Injector;
 import de.uol.swp.client.di.ClientModule;
 import de.uol.swp.client.user.ClientUserService;
 import de.uol.swp.common.game.message.*;
+import de.uol.swp.common.game.message.GameCreatedMessage;
+import de.uol.swp.common.game.message.GameDroppedMessage;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.exception.RegistrationExceptionMessage;
 import de.uol.swp.common.user.exception.UpdateUserExceptionMessage;
@@ -170,8 +172,8 @@ public class ClientApp extends Application implements ConnectionListener {
      * @since 2021-03-14
      */
     @Subscribe
-    public void onRetrieveUserMailResponse(RetrieveUserMailResponse response) {
-        LOG.debug("Got the response with the Mail from User " + response.getUser().getUsername());
+    public void onRetrieveUserInformationResponse(RetrieveUserInformationResponse response) {
+        LOG.debug("Got the response with the Information from User " + response.getUser().getUsername());
         this.user = response.getUser();
     }
 

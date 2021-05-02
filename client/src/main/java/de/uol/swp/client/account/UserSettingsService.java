@@ -3,7 +3,7 @@ package de.uol.swp.client.account;
 import com.google.common.eventbus.EventBus;
 import com.google.inject.Inject;
 import de.uol.swp.common.user.User;
-import de.uol.swp.common.user.request.RetrieveUserMailRequest;
+import de.uol.swp.common.user.request.RetrieveUserInformationRequest;
 
 import java.util.regex.Pattern;
 
@@ -42,12 +42,12 @@ public class UserSettingsService {
      * @author Carsten Dekker
      * @param user the logged in user
      * @see de.uol.swp.client.account.UserSettingsPresenter
-     * @see de.uol.swp.common.user.request.RetrieveUserMailRequest
+     * @see RetrieveUserInformationRequest
      * @since 2021-03-14
      */
     public void retrieveUserMail(User user) {
-        RetrieveUserMailRequest retrieveUserMailRequest = new RetrieveUserMailRequest(user);
-        eventBus.post(retrieveUserMailRequest);
+        RetrieveUserInformationRequest retrieveUserInformationRequest = new RetrieveUserInformationRequest(user);
+        eventBus.post(retrieveUserInformationRequest);
     }
 
     /**

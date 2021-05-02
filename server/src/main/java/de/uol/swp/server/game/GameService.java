@@ -32,9 +32,12 @@ import de.uol.swp.server.game.dice.Dice;
 import de.uol.swp.server.lobby.LobbyManagementException;
 import de.uol.swp.server.lobby.LobbyService;
 import de.uol.swp.server.usermanagement.AuthenticationService;
+import de.uol.swp.server.usermanagement.UserManagement;
+import de.uol.swp.server.usermanagement.UserService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -53,6 +56,7 @@ public class GameService extends AbstractService {
     private final GameManagement gameManagement;
     private final LobbyService lobbyService;
     private final AuthenticationService authenticationService;
+    private final UserService userService;
 
     /**
      * Constructor
@@ -64,11 +68,12 @@ public class GameService extends AbstractService {
      * @since 2021-01-07
      */
     @Inject
-    public GameService(GameManagement gameManagement, LobbyService lobbyService, AuthenticationService authenticationService, EventBus eventBus) {
+    public GameService(GameManagement gameManagement, LobbyService lobbyService, AuthenticationService authenticationService, EventBus eventBus, UserService userService) {
         super(eventBus);
         this.gameManagement = gameManagement;
         this.authenticationService = authenticationService;
         this.lobbyService = lobbyService;
+        this.userService = userService;
     }
 
     @Subscribe
@@ -343,50 +348,52 @@ public class GameService extends AbstractService {
             for (MapGraph.Hexagon hexagon : game.get().getMapGraph().getHexagonHashSet()) {
                 if (hexagon.getDiceToken() == eyes) {
                     for (MapGraph.BuildingNode buildingNode : hexagon.getBuildingNodes()) {
-                        Inventory inventory = game.get().getInventory(game.get().getUser(buildingNode.getOccupiedByPlayer()));
-                        //"Ocean" = 0; "Forest" = 1; "Farmland" = 2; "Grassland" = 3; "Hillside" = 4; "Mountain" = 5; "Desert" = 6;
-                        switch (hexagon.getTerrainType()) {
-                            case 1:
-                                if (buildingNode.getSizeOfSettlement() == 1) {
-                                    inventory.lumber.incNumber();
-                                } else if (buildingNode.getSizeOfSettlement() == 2) {
-                                    inventory.lumber.incNumber();
-                                    inventory.lumber.incNumber();
-                                }
-                                break;
-                            case 2:
-                                if (buildingNode.getSizeOfSettlement() == 1) {
-                                    inventory.grain.incNumber();
-                                } else if (buildingNode.getSizeOfSettlement() == 2) {
-                                    inventory.grain.incNumber();
-                                    inventory.grain.incNumber();
-                                }
-                                break;
-                            case 3:
-                                if (buildingNode.getSizeOfSettlement() == 1) {
-                                    inventory.wool.incNumber();
-                                } else if (buildingNode.getSizeOfSettlement() == 2) {
-                                    inventory.wool.incNumber();
-                                    inventory.wool.incNumber();
-                                }
-                                break;
-                            case 4:
-                                if (buildingNode.getSizeOfSettlement() == 1) {
-                                    inventory.brick.incNumber();
-                                } else if (buildingNode.getSizeOfSettlement() == 2) {
-                                    inventory.brick.incNumber();
-                                    inventory.brick.incNumber();
-                                }
-                                break;
-                            case 5:
-                                if (buildingNode.getSizeOfSettlement() == 1) {
-                                    inventory.ore.incNumber();
-                                } else if (buildingNode.getSizeOfSettlement() == 2) {
-                                    inventory.ore.incNumber();
-                                    inventory.ore.incNumber();
-                                }
-                            default:
-                                break;
+                        if (buildingNode.getOccupiedByPlayer()!=666) {
+                            Inventory inventory = game.get().getInventory(game.get().getUser(buildingNode.getOccupiedByPlayer()));
+                            //"Ocean" = 0; "Forest" = 1; "Farmland" = 2; "Grassland" = 3; "Hillside" = 4; "Mountain" = 5; "Desert" = 6;
+                            switch (hexagon.getTerrainType()) {
+                                case 1:
+                                    if (buildingNode.getSizeOfSettlement() == 1) {
+                                        inventory.lumber.incNumber();
+                                    } else if (buildingNode.getSizeOfSettlement() == 2) {
+                                        inventory.lumber.incNumber();
+                                        inventory.lumber.incNumber();
+                                    }
+                                    break;
+                                case 2:
+                                    if (buildingNode.getSizeOfSettlement() == 1) {
+                                        inventory.grain.incNumber();
+                                    } else if (buildingNode.getSizeOfSettlement() == 2) {
+                                        inventory.grain.incNumber();
+                                        inventory.grain.incNumber();
+                                    }
+                                    break;
+                                case 3:
+                                    if (buildingNode.getSizeOfSettlement() == 1) {
+                                        inventory.wool.incNumber();
+                                    } else if (buildingNode.getSizeOfSettlement() == 2) {
+                                        inventory.wool.incNumber();
+                                        inventory.wool.incNumber();
+                                    }
+                                    break;
+                                case 4:
+                                    if (buildingNode.getSizeOfSettlement() == 1) {
+                                        inventory.brick.incNumber();
+                                    } else if (buildingNode.getSizeOfSettlement() == 2) {
+                                        inventory.brick.incNumber();
+                                        inventory.brick.incNumber();
+                                    }
+                                    break;
+                                case 5:
+                                    if (buildingNode.getSizeOfSettlement() == 1) {
+                                        inventory.ore.incNumber();
+                                    } else if (buildingNode.getSizeOfSettlement() == 2) {
+                                        inventory.ore.incNumber();
+                                        inventory.ore.incNumber();
+                                    }
+                                default:
+                                    break;
+                            }
                         }
                     }
                 }
@@ -436,7 +443,7 @@ public class GameService extends AbstractService {
     public void onStartGameRequest(StartGameRequest startGameRequest) {
         Optional<Lobby> lobby = lobbyService.getLobby(startGameRequest.getName());
         Set<User> usersInLobby = lobby.get().getUsers();
-        if (gameManagement.getGame(lobby.get().getName()).isEmpty() && usersInLobby.size() > 1 && startGameRequest.getUser().getUsername().equals(lobby.get().getOwner().getUsername())) {
+        if (gameManagement.getGame(lobby.get().getName()).isEmpty() && usersInLobby.size() > 1 && startGameRequest.getUser().getUsername().equals(lobby.get().getOwner().getUsername()) && !lobby.get().getGameShouldStart()) {
             lobby.get().setPlayersReadyToNull();
             lobby.get().setGameFieldVariant(startGameRequest.getGameFieldVariant());
             lobby.get().setGameShouldStart(true);
@@ -462,6 +469,7 @@ public class GameService extends AbstractService {
                     } else if (lobby.get().getPlayersReady().size() < 2 && lobby.get().getGameShouldStart()) {
                         sendToListOfUsers(users, lobby.get().getName(), new NotEnoughPlayersMessage(lobby.get().getName()));
                     }
+                    lobby.get().setGameShouldStart(false);
                     timer.cancel();
                 }
             }
@@ -495,6 +503,7 @@ public class GameService extends AbstractService {
             Optional<Game> game = gameManagement.getGame(lobby.get().getName());
             ArrayList<UserDTO> usersInGame = new ArrayList<>();
             for (User user : lobby.get().getPlayersReady()) {
+                user = userService.retrieveUserInformation(user);
                 game.get().joinUser(user);
                 usersInGame.add((UserDTO) user);
 
