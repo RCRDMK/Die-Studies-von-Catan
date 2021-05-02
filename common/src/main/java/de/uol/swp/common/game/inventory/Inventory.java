@@ -129,9 +129,9 @@ public class Inventory {
      *
      * @return privateInventory
      */
-    public HashMap getPrivateView() {
+    public HashMap<String, Integer> getPrivateView() {
 
-        Map<String, Integer> privateInventory = new HashMap<>();
+        HashMap<String, Integer> privateInventory = new HashMap<>();
 
         // Resource Cards
         privateInventory.put("Lumber", lumber.getNumber());
@@ -155,7 +155,7 @@ public class Inventory {
         // Achievement
         privateInventory.put("Victory Points", victoryPoints);
 
-        return (HashMap) privateInventory;
+        return privateInventory;
     }
 
     /**
@@ -167,9 +167,9 @@ public class Inventory {
      *
      * @return publicInventory
      */
-    public HashMap getPublicView() {
+    public HashMap<String, Integer> getPublicView() {
 
-        Map<String, Integer> publicInventory = new HashMap<>();
+        HashMap<String, Integer> publicInventory = new HashMap<>();
 
         publicInventory.put("Resource", getResource());
         publicInventory.put("Development Cards", getDevelopmentCards());
@@ -186,7 +186,7 @@ public class Inventory {
         if (victoryPoints < cardVictoryPoint) publicInventory.put("Public Victory Points", 0);
         else publicInventory.put("Public Victory Points", victoryPoints - cardVictoryPoint);
 
-        return (HashMap) publicInventory;
+        return publicInventory;
     }
 
     /**

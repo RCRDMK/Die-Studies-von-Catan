@@ -30,12 +30,10 @@ import de.uol.swp.server.game.dice.Dice;
 import de.uol.swp.server.lobby.LobbyManagementException;
 import de.uol.swp.server.lobby.LobbyService;
 import de.uol.swp.server.usermanagement.AuthenticationService;
-import de.uol.swp.server.usermanagement.UserManagement;
 import de.uol.swp.server.usermanagement.UserService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -143,41 +141,43 @@ public class GameService extends AbstractService {
         LOG.debug("Recieved new ConstructionMessage from user " + message.getUser());
         Optional<Game> game = gameManagement.getGame(message.getGame());
         int playerIndex = 666;
-        for (int i = 0; i < game.get().getUsersList().size(); i++) {
-            if (game.get().getUsersList().get(i).equals(message.getUser())) {
-                playerIndex = i;
-                break;
+        if (message.getUuid()!=null) {
+            for (int i = 0; i < game.get().getUsersList().size(); i++) {
+                if (game.get().getUsersList().get(i).equals(message.getUser())) {
+                    playerIndex = i;
+                    break;
+                }
             }
-        }
-        try {
-            if (message.getTypeOfNode().equals("BuildingNode")) { //If the node from the message is a building node...
-                for (MapGraph.BuildingNode buildingNode : game.get().getMapGraph().getBuildingNodeHashSet()) {
-                    if (message.getUuid().equals(buildingNode.getUuid())) { // ... and if the node in the message is a node in the MapGraph BuildingNodeSet...
-                        if (buildingNode.buildOrDevelopSettlement(playerIndex)) {
-                            game.get().getMapGraph().addBuiltBuilding(buildingNode);
-                            sendToAllInGame(game.get().getName(), new SuccessfulConstructionMessage(playerIndex,
-                                    message.getUuid(), "BuildingNode"));
-                            return true;
+            try {
+                if (message.getTypeOfNode().equals("BuildingNode")) { //If the node from the message is a building node...
+                    for (MapGraph.BuildingNode buildingNode : game.get().getMapGraph().getBuildingNodeHashSet()) {
+                        if (message.getUuid().equals(buildingNode.getUuid())) { // ... and if the node in the message is a node in the MapGraph BuildingNodeSet...
+                            if (buildingNode.buildOrDevelopSettlement(playerIndex)) {
+                                game.get().getMapGraph().addBuiltBuilding(buildingNode);
+                                sendToAllInGame(game.get().getName(), new SuccessfulConstructionMessage(playerIndex,
+                                        message.getUuid(), "BuildingNode"));
+                                return true;
+                            }
+                        }
+                    }
+                } else {
+                    for (MapGraph.StreetNode streetNode : game.get().getMapGraph().getStreetNodeHashSet()) {
+                        if (message.getUuid().equals(streetNode.getUuid())) {
+                            if (streetNode.buildRoad(playerIndex)) {
+                                sendToAllInGame(game.get().getName(), new SuccessfulConstructionMessage(playerIndex,
+                                        message.getUuid(), "StreetNode"));
+                                return true;
+                            }
+
                         }
                     }
                 }
-            } else {
-                for (MapGraph.StreetNode streetNode : game.get().getMapGraph().getStreetNodeHashSet()) {
-                    if (message.getUuid().equals(streetNode.getUuid())) {
-                        if (streetNode.buildRoad(playerIndex)) {
-                            sendToAllInGame(game.get().getName(), new SuccessfulConstructionMessage(playerIndex,
-                                    message.getUuid(), "StreetNode"));
-                            return true;
-                        }
 
-                    }
-                }
+
+            } catch (GameManagementException e) {
+                LOG.debug(e);
+                System.out.println("Player " + message.getUser() + " tried to build at node with UUID: " + message.getUuid() + " but it did not work.");
             }
-
-
-        } catch (GameManagementException e) {
-            LOG.debug(e);
-            System.out.println("Player " + message.getUser() + " tried to build at node with UUID: " + message.getUuid() + " but it did not work.");
         }
         return false;
     }
@@ -633,6 +633,11 @@ public class GameService extends AbstractService {
                 String devCard = request.getDevCard();
                 String currentCardOfGame = game.get().getCurrentCard();
                 boolean alreadyPlayedCard = game.get().playedCardThisTurn();
+                //TODO: delete these 3, only used for testing
+                inventory.cardMonopoly.incNumber();
+                inventory.cardRoadBuilding.incNumber();
+                inventory.cardYearOfPlenty.incNumber();
+                System.out.println("Yo komme bis hier");
                 // TODO: Check if the card was bought THIS turn, because it cannot be used then
                 switch (devCard) {
 
@@ -641,6 +646,7 @@ public class GameService extends AbstractService {
                             game.get().setCurrentCard("Monopoly");
                             game.get().setPlayedCardThisTurn(true);
                             PlayDevelopmentCardResponse response = new PlayDevelopmentCardResponse(devCard, true, turnPlayer.getUsername(), game.get().getName());
+                            response.initWithMessage(request);
                             post(response);
                             inventory.cardMonopoly.decNumber();
                             break;
@@ -653,6 +659,7 @@ public class GameService extends AbstractService {
                             game.get().setCurrentCard("Road Building");
                             game.get().setPlayedCardThisTurn(true);
                             PlayDevelopmentCardResponse response = new PlayDevelopmentCardResponse(devCard, true, turnPlayer.getUsername(), game.get().getName());
+                            response.initWithMessage(request);
                             post(response);
                             inventory.cardRoadBuilding.decNumber();
                             break;
@@ -664,6 +671,7 @@ public class GameService extends AbstractService {
                             game.get().setCurrentCard("Year of Plenty");
                             game.get().setPlayedCardThisTurn(true);
                             PlayDevelopmentCardResponse response = new PlayDevelopmentCardResponse(devCard, true, turnPlayer.getUsername(), game.get().getName());
+                            response.initWithMessage(request);
                             post(response);
                             inventory.cardYearOfPlenty.decNumber();
                             break;
@@ -674,6 +682,7 @@ public class GameService extends AbstractService {
                             game.get().setCurrentCard("Knight");
                             game.get().setPlayedCardThisTurn(true);
                             PlayDevelopmentCardResponse response = new PlayDevelopmentCardResponse(devCard, true, turnPlayer.getUsername(), game.get().getName());
+                            response.initWithMessage(request);
                             post(response);
                             inventory.setPlayedKnights(inventory.getPlayedKnights() + 1);
                             inventory.cardKnight.decNumber();
@@ -682,6 +691,7 @@ public class GameService extends AbstractService {
 
                     default:
                         PlayDevelopmentCardResponse response = new PlayDevelopmentCardResponse(devCard, false, turnPlayer.getUsername(), game.get().getName());
+                        response.initWithMessage(request);
                         post(response);
                         break;
                 }
@@ -701,7 +711,7 @@ public class GameService extends AbstractService {
             if (request.getUser().getUsername().equals(turnPlayer.getUsername())) {
                 Inventory turnPlayerInventory = game.get().getInventory(turnPlayer);
                 ResolveDevelopmentCardMessage message = new ResolveDevelopmentCardMessage(devCard, (UserDTO) turnPlayer, gameName);
-                ResolveDevelopmentCardNotSuccessful notSuccessfulResponse = new ResolveDevelopmentCardNotSuccessful(devCard, turnPlayer.getUsername(), gameName);
+                ResolveDevelopmentCardNotSuccessfulResponse notSuccessfulResponse = new ResolveDevelopmentCardNotSuccessfulResponse(devCard, turnPlayer.getUsername(), gameName);
 
                 switch (devCard) {
                     case "Monopoly":
@@ -744,6 +754,7 @@ public class GameService extends AbstractService {
                         boolean successful1 = onConstructionMessage(constructionMessage1);
                         boolean successful2 = onConstructionMessage(constructionMessage2);
                         if (!(successful1 && successful2)) {
+                            notSuccessfulResponse.initWithMessage(request);
                             post(notSuccessfulResponse);
                             //TODO: implement "not successful" functionality i.e. if the selected streets are not valid choices
                         } else {
@@ -767,6 +778,8 @@ public class GameService extends AbstractService {
                         break;
 
                     default:
+                        notSuccessfulResponse.initWithMessage(request);
+                        post(notSuccessfulResponse);
                         break;
                 }
             }
@@ -789,11 +802,11 @@ public class GameService extends AbstractService {
     public void updateInventory(Optional<Game> game) {
         if (game.isPresent()) {
             for (User user : game.get().getUsers()) {
-                HashMap privateInventory = game.get().getInventory(user).getPrivateView();
-                HashMap publicInventory = game.get().getInventory(user).getPublicView();
-                PrivateInventoryChangeMessage privateInventoryChangeMessage = new PrivateInventoryChangeMessage(privateInventory);
+                HashMap<String, Integer> privateInventory = game.get().getInventory(user).getPrivateView();
+                HashMap<String, Integer> publicInventory = game.get().getInventory(user).getPublicView();
+                PrivateInventoryChangeMessage privateInventoryChangeMessage = new PrivateInventoryChangeMessage(user.getWithoutPassword(), game.get().getName(), privateInventory);
                 sendToSpecificUserInGame(game, privateInventoryChangeMessage, user);
-                PublicInventoryChangeMessage publicInventoryChangeMessage = new PublicInventoryChangeMessage(publicInventory, user);
+                PublicInventoryChangeMessage publicInventoryChangeMessage = new PublicInventoryChangeMessage(publicInventory, user, game.get().getName());
                 sendToAllInGame(game.get().getName(), publicInventoryChangeMessage);
             }
         }

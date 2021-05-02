@@ -162,12 +162,29 @@ public class GameService {
      * @author Alexander Losse, Ricardo Mook
      * @since 2021-04-21
      */
-    public void endTradeBeforeItStarted(UserDTO user, String gameName,String tradeCode) {
+    public void endTradeBeforeItStarted(UserDTO user, String gameName, String tradeCode) {
         TradeEndedMessage tem = new TradeEndedMessage(tradeCode);
         eventBus.post(tem);
     }
 
-    public void sendTradeStartedRequest(UserDTO joinedLobbyUser, String currentLobby, String tradeCode){
+    public void sendTradeStartedRequest(UserDTO joinedLobbyUser, String currentLobby, String tradeCode) {
         eventBus.post(new TradeStartRequest(joinedLobbyUser, currentLobby, tradeCode));
+    }
+
+    public void playDevelopmentCard(UserDTO joinedLobbyUser, String currentLobby, String devCard) {
+        eventBus.post(new PlayDevelopmentCardRequest(devCard, currentLobby, joinedLobbyUser));
+    }
+
+    public void resolveDevelopmentCardMonopoly(UserDTO joinedLobbyUser, String currentLobby, String devCard, String resource) {
+        eventBus.post(new ResolveDevelopmentCardRequest(devCard, joinedLobbyUser, currentLobby, resource));
+    }
+
+    public void resolveDevelopmentCardYearOfPlenty(UserDTO joinedLobbyUser, String currentLobby, String devCard, String resource1, String resource2) {
+        eventBus.post(new ResolveDevelopmentCardRequest(devCard, joinedLobbyUser, currentLobby, resource1, resource2));
+    }
+
+    public void resolveDevelopmentCardRoadBuilding(UserDTO joinedLobbyUser, String currentLobby, String devCard, UUID street1, UUID street2) {
+        eventBus.post(new ResolveDevelopmentCardRequest(devCard,joinedLobbyUser,currentLobby, street1, street2));
+
     }
 }
