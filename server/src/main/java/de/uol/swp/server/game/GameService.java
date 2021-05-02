@@ -32,12 +32,10 @@ import de.uol.swp.server.game.dice.Dice;
 import de.uol.swp.server.lobby.LobbyManagementException;
 import de.uol.swp.server.lobby.LobbyService;
 import de.uol.swp.server.usermanagement.AuthenticationService;
-import de.uol.swp.server.usermanagement.UserManagement;
 import de.uol.swp.server.usermanagement.UserService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -581,6 +579,7 @@ public class GameService extends AbstractService {
                 }
                 sendToAllInGame(game.get().getName(), new NextTurnMessage(game.get().getName(),
                         game.get().getUser(game.get().getTurn()).getUsername(), game.get().getTurn()));
+                LOG.debug("EndTurn Request");
             } catch (GameManagementException e) {
                 LOG.debug(e);
                 System.out.println("Sender " + request.getUser().getUsername() + " was not player with current turn");

@@ -103,6 +103,12 @@ public class Inventory {
         this.victoryPoints++;
     }
 
+    //Increment the Victory Point Card by amount
+    public void incCardVictoryPoint(int amount) {
+        this.cardVictoryPoint += amount;
+        this.victoryPoints += amount;
+    }
+
     //This method add the Resource Cards
     public int getResource() {
         return lumber.getNumber() +
