@@ -804,7 +804,7 @@ public class GameService extends AbstractService {
         if (game.isPresent()) {
             Trade trade = game.get().getTradeList().get(request.getTradeCode());
 
-            if (request.getTradeAccepted() == true) {
+            if (request.getTradeAccepted() == true && !request.getUser().getUsername().equals(trade.getSeller().getUsername())) {
                 Inventory inventorySeller = game.get().getInventory(trade.getSeller());
                 Inventory inventoryBidder = game.get().getInventory(request.getUser());
 
