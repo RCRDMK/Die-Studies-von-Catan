@@ -5,10 +5,12 @@
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.*?>
 <?import javafx.scene.text.*?>
 
-<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.uol.swp.client.game.TradePresenter" stylesheets="@../css/swp.css">
+<AnchorPane prefHeight="400.0" prefWidth="600.0" stylesheets="@../css/swp.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.uol.swp.client.game.TradePresenter">
    <children>
+      <Rectangle id="textBackground" arcHeight="5.0" arcWidth="5.0" fill="#8b8d8f" height="156.0" layoutY="44.0" opacity="0.33" stroke="BLACK" strokeType="INSIDE" width="600.0" />
       <VBox prefHeight="400.0" prefWidth="600.0">
          <children>
             <HBox prefHeight="100.0" prefWidth="506.0">
@@ -61,35 +63,35 @@
                         <children>
                            <VBox prefHeight="200.0" prefWidth="100.0">
                               <children>
-                                 <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Brick" fill="white"/>
-                                 <Text fx:id="textRowW" strokeType="OUTSIDE" strokeWidth="0.0" text="You want:" fill="white"/>
-                                 <Text fx:id="brickW" strokeType="OUTSIDE" strokeWidth="0.0" text="0" fill="white"/>
+                                 <Text fill="white" strokeType="OUTSIDE" strokeWidth="0.0" text="Brick" />
+                                 <Text fx:id="textRowW" fill="white" strokeType="OUTSIDE" strokeWidth="0.0" text="You want:" />
+                                 <Text fx:id="brickW" fill="white" strokeType="OUTSIDE" strokeWidth="0.0" text="0" />
                               </children></VBox>
                            <VBox prefHeight="200.0" prefWidth="100.0">
                               <children>
-                                 <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Ore" fill="white"/>
-                                 <Text layoutX="10.0" layoutY="23.0" strokeType="OUTSIDE" strokeWidth="0.0" fill="white"/>
-                                 <Text fx:id="oreW" strokeType="OUTSIDE" strokeWidth="0.0" text="0" fill="white"/>
+                                 <Text fill="white" strokeType="OUTSIDE" strokeWidth="0.0" text="Ore" />
+                                 <Text fill="white" layoutX="10.0" layoutY="23.0" strokeType="OUTSIDE" strokeWidth="0.0" />
+                                 <Text fx:id="oreW" fill="white" strokeType="OUTSIDE" strokeWidth="0.0" text="0" />
                               </children></VBox>
                            <VBox prefHeight="200.0" prefWidth="100.0">
                               <children>
-                                 <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Lumber" fill="white"/>
-                                 <Text strokeType="OUTSIDE" strokeWidth="0.0" fill="white"/>
-                                 <Text fx:id="lumberW" strokeType="OUTSIDE" strokeWidth="0.0" text="0" fill="white"/>
+                                 <Text fill="white" strokeType="OUTSIDE" strokeWidth="0.0" text="Lumber" />
+                                 <Text fill="white" strokeType="OUTSIDE" strokeWidth="0.0" />
+                                 <Text fx:id="lumberW" fill="white" strokeType="OUTSIDE" strokeWidth="0.0" text="0" />
                               </children>
                            </VBox>
                            <VBox prefHeight="200.0" prefWidth="100.0">
                               <children>
-                                 <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Wool" fill="white"/>
-                                 <Text strokeType="OUTSIDE" strokeWidth="0.0" fill="white"/>
-                                 <Text fx:id="woolW" strokeType="OUTSIDE" strokeWidth="0.0" text="0" fill="white"/>
+                                 <Text fill="white" strokeType="OUTSIDE" strokeWidth="0.0" text="Wool" />
+                                 <Text fill="white" strokeType="OUTSIDE" strokeWidth="0.0" />
+                                 <Text fx:id="woolW" fill="white" strokeType="OUTSIDE" strokeWidth="0.0" text="0" />
                               </children>
                            </VBox>
                            <VBox prefHeight="200.0" prefWidth="100.0">
                               <children>
-                                 <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Grain" fill="white"/>
-                                 <Text strokeType="OUTSIDE" strokeWidth="0.0" fill="white"/>
-                                 <Text fx:id="grainW" strokeType="OUTSIDE" strokeWidth="0.0" text="0" fill="white"/>
+                                 <Text fill="white" strokeType="OUTSIDE" strokeWidth="0.0" text="Grain" />
+                                 <Text fill="white" strokeType="OUTSIDE" strokeWidth="0.0" />
+                                 <Text fx:id="grainW" fill="white" strokeType="OUTSIDE" strokeWidth="0.0" text="0" />
                               </children>
                            </VBox>
                         </children></HBox>
@@ -103,8 +105,8 @@
                            <children>
                               <VBox prefHeight="200.0" prefWidth="100.0">
                                  <children>
-                                     <Text fx:id="textRow0" strokeType="OUTSIDE" strokeWidth="0.0" text="Your offer:" fill="white"/>
-                                       <Text fx:id="brick0" strokeType="OUTSIDE" strokeWidth="0.0" text="0" fill="white"/>
+                                     <Text fx:id="textRow0" fill="white" strokeType="OUTSIDE" strokeWidth="0.0" text="Your offer:" />
+                                       <Text fx:id="brick0" fill="white" strokeType="OUTSIDE" strokeWidth="0.0" text="0" />
                                  </children>
                                  <opaqueInsets>
                                     <Insets />
@@ -112,26 +114,26 @@
                               </VBox>
                               <VBox prefHeight="200.0" prefWidth="100.0">
                                  <children>
-                                    <Text strokeType="OUTSIDE" strokeWidth="0.0" fill="white"/>
-                                       <Text fx:id="ore0" strokeType="OUTSIDE" strokeWidth="0.0" text="0" fill="white"/>
+                                    <Text fill="white" strokeType="OUTSIDE" strokeWidth="0.0" />
+                                       <Text fx:id="ore0" fill="white" strokeType="OUTSIDE" strokeWidth="0.0" text="0" />
                                  </children>
                               </VBox>
                               <VBox prefHeight="200.0" prefWidth="100.0">
                                  <children>
-                                    <Text strokeType="OUTSIDE" strokeWidth="0.0" fill="white"/>
-                                       <Text fx:id="lumber0" strokeType="OUTSIDE" strokeWidth="0.0" text="0" fill="white"/>
+                                    <Text fill="white" strokeType="OUTSIDE" strokeWidth="0.0" />
+                                       <Text fx:id="lumber0" fill="white" strokeType="OUTSIDE" strokeWidth="0.0" text="0" />
                                  </children>
                               </VBox>
                               <VBox prefHeight="200.0" prefWidth="100.0">
                                  <children>
-                                     <Text strokeType="OUTSIDE" strokeWidth="0.0" fill="white"/>
-                                       <Text fx:id="wool0" strokeType="OUTSIDE" strokeWidth="0.0" text="0" fill="white"/>
+                                     <Text fill="white" strokeType="OUTSIDE" strokeWidth="0.0" />
+                                       <Text fx:id="wool0" fill="white" strokeType="OUTSIDE" strokeWidth="0.0" text="0" />
                                  </children>
                               </VBox>
                               <VBox prefHeight="200.0" prefWidth="100.0">
                                  <children>
-                                     <Text strokeType="OUTSIDE" strokeWidth="0.0" fill="white"/>
-                                       <Text fx:id="grain0" strokeType="OUTSIDE" strokeWidth="0.0" text="0" fill="white"/>
+                                     <Text fill="white" strokeType="OUTSIDE" strokeWidth="0.0" />
+                                       <Text fx:id="grain0" fill="white" strokeType="OUTSIDE" strokeWidth="0.0" text="0" />
                                  </children>
                               </VBox>
                               <RadioButton fx:id="offerNoneRadioButton" mnemonicParsing="false" selected="true" text=" Accept none" visible="false">
@@ -144,8 +146,8 @@
                            <children>
                               <VBox prefHeight="200.0" prefWidth="100.0">
                                  <children>
-                                    <Text fx:id="textRow1" strokeType="OUTSIDE" strokeWidth="0.0" text="Offer 1:" fill="white"/>
-                                    <Text fx:id="brick1" strokeType="OUTSIDE" strokeWidth="0.0" text="0" fill="white"/>
+                                    <Text fx:id="textRow1" fill="white" strokeType="OUTSIDE" strokeWidth="0.0" text="Offer 1:" />
+                                    <Text fx:id="brick1" fill="white" strokeType="OUTSIDE" strokeWidth="0.0" text="0" />
                                  </children>
                                  <opaqueInsets>
                                     <Insets />
@@ -153,26 +155,26 @@
                               </VBox>
                               <VBox prefHeight="200.0" prefWidth="100.0">
                                  <children>
-                                    <Text strokeType="OUTSIDE" strokeWidth="0.0" fill="white"/>
-                                    <Text fx:id="ore1" strokeType="OUTSIDE" strokeWidth="0.0" text="0" fill="white"/>
+                                    <Text fill="white" strokeType="OUTSIDE" strokeWidth="0.0" />
+                                    <Text fx:id="ore1" fill="white" strokeType="OUTSIDE" strokeWidth="0.0" text="0" />
                                  </children>
                               </VBox>
                               <VBox prefHeight="200.0" prefWidth="100.0">
                                  <children>
-                                    <Text strokeType="OUTSIDE" strokeWidth="0.0" fill="white"/>
-                                    <Text fx:id="lumber1" strokeType="OUTSIDE" strokeWidth="0.0" text="0" fill="white"/>
+                                    <Text fill="white" strokeType="OUTSIDE" strokeWidth="0.0" />
+                                    <Text fx:id="lumber1" fill="white" strokeType="OUTSIDE" strokeWidth="0.0" text="0" />
                                  </children>
                               </VBox>
                               <VBox prefHeight="200.0" prefWidth="100.0">
                                  <children>
-                                    <Text strokeType="OUTSIDE" strokeWidth="0.0" fill="white"/>
-                                    <Text fx:id="wool1" strokeType="OUTSIDE" strokeWidth="0.0" text="0" fill="white"/>
+                                    <Text fill="white" strokeType="OUTSIDE" strokeWidth="0.0" />
+                                    <Text fx:id="wool1" fill="white" strokeType="OUTSIDE" strokeWidth="0.0" text="0" />
                                  </children>
                               </VBox>
                               <VBox prefHeight="200.0" prefWidth="100.0">
                                  <children>
-                                    <Text strokeType="OUTSIDE" strokeWidth="0.0" fill="white"/>
-                                    <Text fx:id="grain1" strokeType="OUTSIDE" strokeWidth="0.0" text="0" fill="white"/>
+                                    <Text fill="white" strokeType="OUTSIDE" strokeWidth="0.0" />
+                                    <Text fx:id="grain1" fill="white" strokeType="OUTSIDE" strokeWidth="0.0" text="0" />
                                  </children>
                               </VBox>
                               <RadioButton fx:id="offer1RadioButton" mnemonicParsing="false" text="Accept Offer 1" toggleGroup="$choiceTrade" visible="false" />
@@ -182,8 +184,8 @@
                            <children>
                               <VBox prefHeight="200.0" prefWidth="100.0">
                                  <children>
-                                    <Text fx:id="textRow2" strokeType="OUTSIDE" strokeWidth="0.0" text="Offer 2:" fill="white"/>
-                                    <Text fx:id="brick2" strokeType="OUTSIDE" strokeWidth="0.0" text="0" fill="white"/>
+                                    <Text fx:id="textRow2" fill="white" strokeType="OUTSIDE" strokeWidth="0.0" text="Offer 2:" />
+                                    <Text fx:id="brick2" fill="white" strokeType="OUTSIDE" strokeWidth="0.0" text="0" />
                                  </children>
                                  <opaqueInsets>
                                     <Insets />
@@ -191,26 +193,26 @@
                               </VBox>
                               <VBox prefHeight="200.0" prefWidth="100.0">
                                  <children>
-                                    <Text strokeType="OUTSIDE" strokeWidth="0.0" fill="white"/>
-                                    <Text fx:id="ore2" strokeType="OUTSIDE" strokeWidth="0.0" text="0" fill="white"/>
+                                    <Text fill="white" strokeType="OUTSIDE" strokeWidth="0.0" />
+                                    <Text fx:id="ore2" fill="white" strokeType="OUTSIDE" strokeWidth="0.0" text="0" />
                                  </children>
                               </VBox>
                               <VBox prefHeight="200.0" prefWidth="100.0">
                                  <children>
-                                    <Text strokeType="OUTSIDE" strokeWidth="0.0" fill="white"/>
-                                    <Text fx:id="lumber2" strokeType="OUTSIDE" strokeWidth="0.0" text="0" fill="white"/>
+                                    <Text fill="white" strokeType="OUTSIDE" strokeWidth="0.0" />
+                                    <Text fx:id="lumber2" fill="white" strokeType="OUTSIDE" strokeWidth="0.0" text="0" />
                                  </children>
                               </VBox>
                               <VBox prefHeight="200.0" prefWidth="100.0">
                                  <children>
-                                    <Text strokeType="OUTSIDE" strokeWidth="0.0" fill="white"/>
-                                    <Text fx:id="wool2" strokeType="OUTSIDE" strokeWidth="0.0" text="0" fill="white"/>
+                                    <Text fill="white" strokeType="OUTSIDE" strokeWidth="0.0" />
+                                    <Text fx:id="wool2" fill="white" strokeType="OUTSIDE" strokeWidth="0.0" text="0" />
                                  </children>
                               </VBox>
                               <VBox prefHeight="200.0" prefWidth="100.0">
                                  <children>
-                                    <Text strokeType="OUTSIDE" strokeWidth="0.0" fill="white"/>
-                                    <Text fx:id="grain2" strokeType="OUTSIDE" strokeWidth="0.0" text="0" fill="white"/>
+                                    <Text fill="white" strokeType="OUTSIDE" strokeWidth="0.0" />
+                                    <Text fx:id="grain2" fill="white" strokeType="OUTSIDE" strokeWidth="0.0" text="0" />
                                  </children>
                               </VBox>
                               <RadioButton fx:id="offer2RadioButton" mnemonicParsing="false" text="Accept offer 2" toggleGroup="$choiceTrade" />
@@ -220,8 +222,8 @@
                            <children>
                               <VBox prefHeight="200.0" prefWidth="100.0">
                                  <children>
-                                    <Text fx:id="textRow3" strokeType="OUTSIDE" strokeWidth="0.0" text="Offer 3:" fill="white"/>
-                                    <Text fx:id="brick3" strokeType="OUTSIDE" strokeWidth="0.0" text="0" fill="white"/>
+                                    <Text fx:id="textRow3" fill="white" strokeType="OUTSIDE" strokeWidth="0.0" text="Offer 3:" />
+                                    <Text fx:id="brick3" fill="white" strokeType="OUTSIDE" strokeWidth="0.0" text="0" />
                                  </children>
                                  <opaqueInsets>
                                     <Insets />
@@ -229,26 +231,26 @@
                               </VBox>
                               <VBox prefHeight="200.0" prefWidth="100.0">
                                  <children>
-                                    <Text strokeType="OUTSIDE" strokeWidth="0.0" fill="white"/>
-                                    <Text fx:id="ore3" strokeType="OUTSIDE" strokeWidth="0.0" text="0" fill="white"/>
+                                    <Text fill="white" strokeType="OUTSIDE" strokeWidth="0.0" />
+                                    <Text fx:id="ore3" fill="white" strokeType="OUTSIDE" strokeWidth="0.0" text="0" />
                                  </children>
                               </VBox>
                               <VBox prefHeight="200.0" prefWidth="100.0">
                                  <children>
-                                    <Text strokeType="OUTSIDE" strokeWidth="0.0" fill="white"/>
-                                    <Text fx:id="lumber3" strokeType="OUTSIDE" strokeWidth="0.0" text="0" fill="white"/>
+                                    <Text fill="white" strokeType="OUTSIDE" strokeWidth="0.0" />
+                                    <Text fx:id="lumber3" fill="white" strokeType="OUTSIDE" strokeWidth="0.0" text="0" />
                                  </children>
                               </VBox>
                               <VBox prefHeight="200.0" prefWidth="100.0">
                                  <children>
-                                    <Text strokeType="OUTSIDE" strokeWidth="0.0" fill="white"/>
-                                    <Text fx:id="wool3" strokeType="OUTSIDE" strokeWidth="0.0" text="0" fill="white"/>
+                                    <Text fill="white" strokeType="OUTSIDE" strokeWidth="0.0" />
+                                    <Text fx:id="wool3" fill="white" strokeType="OUTSIDE" strokeWidth="0.0" text="0" />
                                  </children>
                               </VBox>
                               <VBox prefHeight="200.0" prefWidth="100.0">
                                  <children>
-                                    <Text strokeType="OUTSIDE" strokeWidth="0.0" fill="white"/>
-                                    <Text fx:id="grain3" strokeType="OUTSIDE" strokeWidth="0.0" text="0" fill="white"/>
+                                    <Text fill="white" strokeType="OUTSIDE" strokeWidth="0.0" />
+                                    <Text fx:id="grain3" fill="white" strokeType="OUTSIDE" strokeWidth="0.0" text="0" />
                                  </children>
                               </VBox>
                               <RadioButton fx:id="offer3RadioButton" mnemonicParsing="false" text="Accept offer 3" toggleGroup="$choiceTrade" />
