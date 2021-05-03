@@ -248,7 +248,7 @@ public class GameService extends AbstractService {
                     game.get().getInventory(user).ore.decNumber(resourcesToDiscardRequest.getInventory().get("Ore"));
                 }
             }
-            updateInventory(game);
+            //updateInventory(game);
         }
     }
 
@@ -500,7 +500,7 @@ public class GameService extends AbstractService {
                     hexagon.setOccupiedByRobber(false);
                 }
                 if (hexagon.getUuid().equals(robbersNewFieldMessage.getNewField())) {
-                    //If the UUIDs match, the new field ist set to occupied
+                    //If the UUIDs match, the new field is set to occupied
                     hexagon.setOccupiedByRobber(true);
                     sendToAllInGame(robbersNewFieldMessage.getName(), new SuccessfullMovedRobberMessage(hexagon.getUuid()));
                 }
@@ -508,13 +508,16 @@ public class GameService extends AbstractService {
                 for (int i = 0; i < hexagon.getBuildingNodes().size(); i++) {
                     if (hexagon.getBuildingNodes().get(i).getOccupiedByPlayer() != 666) {
                         if (!userList.contains(game.get().getUser(hexagon.getBuildingNodes().get(i).getOccupiedByPlayer()).getUsername())) {
-                            userList.add(game.get().getUser(hexagon.getBuildingNodes().get(i).getOccupiedByPlayer()).getUsername());
+                            if(!robbersNewFieldMessage.getUser().getUsername().equals(game.get().getUser(hexagon.getBuildingNodes().get(i).getOccupiedByPlayer()).getUsername())){
+                                userList.add(game.get().getUser(hexagon.getBuildingNodes().get(i).getOccupiedByPlayer()).getUsername());
+                            }
                         }
                     }
                 }
             }
             ChoosePlayerMessage choosePlayerMessage = new ChoosePlayerMessage(game.get().getName(), robbersNewFieldMessage.getUser(), userList);
             sendToSpecificUserInGame(game, choosePlayerMessage, robbersNewFieldMessage.getUser());
+
         }
     }
     /**
