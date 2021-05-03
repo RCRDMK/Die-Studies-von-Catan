@@ -25,12 +25,20 @@ import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
+import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.ImagePattern;
+import javafx.scene.paint.ImagePattern;
+import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -39,6 +47,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Manages the GameView
@@ -67,6 +76,8 @@ public class GamePresenter extends AbstractPresenter {
     private ButtonType buttonTypeOkay;
     private Button btnOkay;
     private ObservableList<String> gameUsers;
+
+
     private ArrayList<HexagonContainer> hexagonContainers = new ArrayList<>();
     private ArrayList<MapGraphNodeContainer> mapGraphNodeContainers = new ArrayList<>();
     private Boolean itsMyTurn = false;
@@ -77,6 +88,10 @@ public class GamePresenter extends AbstractPresenter {
     @FXML
     private Canvas canvas;
 
+    private ArrayList<ImagePattern> profilePicturePatterns = new ArrayList<>();
+
+    private ArrayList<Rectangle> rectangles = new ArrayList<>();
+
     @FXML
     private AnchorPane gameAnchorPane;
 
@@ -85,6 +100,20 @@ public class GamePresenter extends AbstractPresenter {
 
     @FXML
     private Button EndTurnButton;
+    @FXML
+    Button tradeButton;
+
+    @FXML
+    private Pane picturePlayerView1;
+
+    @FXML
+    private Pane picturePlayerView2;
+
+    @FXML
+    private Pane picturePlayerView3;
+
+    @FXML
+    private Pane picturePlayerView4;
 
     @FXML
     private javafx.scene.image.ImageView privateLumber;
@@ -114,6 +143,7 @@ public class GamePresenter extends AbstractPresenter {
     private javafx.scene.image.ImageView privateSettlements;
     public Image settlements = new Image ("textures/resized/RES_Holz.png");
 
+
     /**
      * Method called when the send Message button is pressed
      * <p>
@@ -121,7 +151,6 @@ public class GamePresenter extends AbstractPresenter {
      * The message is of type RequestChatMessage If this will result in an exception, go log the exception
      *
      * @param event The ActionEvent created by pressing the send Message button
-     *
      * @author René, Sergej
      * @see de.uol.swp.client.chat.ChatService
      * @since 2021-03-08
@@ -149,7 +178,6 @@ public class GamePresenter extends AbstractPresenter {
      * If a ResponseChatMessage is detected on the EventBus the method onResponseChatMessageLogic is invoked.
      *
      * @param message the ResponseChatMessage object seen on the EventBus
-     *
      * @author René Meyer
      * @see de.uol.swp.common.chat.ResponseChatMessage
      * @since 2021-03-13
@@ -163,7 +191,6 @@ public class GamePresenter extends AbstractPresenter {
      * Adds the ResponseChatMessage to the textArea
      *
      * @param message
-     *
      * @author René Meyer
      * @see de.uol.swp.common.chat.ResponseChatMessage
      * @since 2021-03-13
@@ -175,11 +202,11 @@ public class GamePresenter extends AbstractPresenter {
     /**
      * Adds the ResponseChatMessage to the textArea
      * <p>
-     * First the message gets formatted with the readableTime. After the formatting the Message gets added to the
-     * textArea. The formatted Message contains the username, readableTime and message
+     * First the message gets formatted with the readableTime.
+     * After the formatting the Message gets added to the textArea.
+     * The formatted Message contains the username, readableTime and message
      *
      * @param rcm the ResponseChatMessage given by the original subscriber method.
-     *
      * @author René Meyer
      * @see de.uol.swp.common.chat.ResponseChatMessage
      * @since 2021-03-13
@@ -199,7 +226,6 @@ public class GamePresenter extends AbstractPresenter {
      * the currentLobby in regards to the input given by the response.
      *
      * @param rcm the ResponseChatMessage given by the original subscriber method.
-     *
      * @author Alexander Losse, Marc Hermes
      * @see de.uol.swp.common.chat.ResponseChatMessage
      * @since 2021-01-20
@@ -214,9 +240,22 @@ public class GamePresenter extends AbstractPresenter {
         }
     }
 
+    /**
+     * This method is called when the Trade button is pressed
+     * <p>
+     * When the user presses the trade button a popup window appears. Within it the user can select which ressources
+     * he wants to trade and which amount of it. With a click on the Start a Trade button the startTrade method from the
+     * Gameservice on the client side gets called.
+     *
+     * @author Alexander Losse, Ricardo Mook
+     * @since 2021-04-07
+     */
+
     @FXML
     public void onTrade(ActionEvent event) {
-        //TODO:...
+        String tradeCode = UUID.randomUUID().toString().trim().substring(0, 7);
+        gameService.sendTradeStartedRequest((UserDTO) this.joinedLobbyUser, this.currentLobby, tradeCode);
+
     }
 
     @FXML
@@ -244,8 +283,6 @@ public class GamePresenter extends AbstractPresenter {
      * <p>
      * If the RollDice button is pressed, this methods tries to request the GameService to send a RollDiceRequest.
      *
-     * @param event The ActionEvent created by pressing the Roll Dice button
-     *
      * @author Kirstin, Pieter
      * @see de.uol.swp.client.game.GameService
      * @since 2021-01-07
@@ -256,14 +293,15 @@ public class GamePresenter extends AbstractPresenter {
      * I have changed the place of the method to the new GamePresenter.
      */
     @FXML
-    public void onRollDice(ActionEvent event) {
+    public void onRollDice() {
         if (this.currentLobby != null) {
             gameService.rollDice(this.currentLobby, this.joinedLobbyUser);
         }
     }
 
+    //TODO JavaDoc fehlt
     @FXML
-    public void onEndTurn(ActionEvent event) {
+    public void onEndTurn() {
         eventBus.post(new EndTurnRequest(this.currentLobby, (UserDTO) this.joinedLobbyUser));
     }
 
@@ -273,7 +311,6 @@ public class GamePresenter extends AbstractPresenter {
      * If a GameCreatedMessage is detected on the EventBus this method invokes gameStartedSuccessfulLogic.
      *
      * @param message the GameCreatedMessage object seen on the EventBus
-     *
      * @author Ricardo Mook, Alexander Losse
      * @see de.uol.swp.common.game.message.GameCreatedMessage
      * @since 2021-03-05
@@ -288,14 +325,16 @@ public class GamePresenter extends AbstractPresenter {
      * <p>
      * If the currentLobby is null, meaning this is an empty GamePresenter that is ready to be used for a new game tab,
      * the parameters of this GamePresenter are updated to the User and Lobby given by the gcm Message. An update of the
-     * Users in the currentLobby is also requested.
+     * Users in the currentLobby is also requested. After that the player pictures are created in the game.
      *
      * @param gcm the GameCreatedMessage given by the original subscriber method.
-     *
      * @author Alexander Losse, Ricardo Mook
      * @see GameCreatedMessage
      * @see de.uol.swp.common.game.GameField
      * @since 2021-03-05
+     *
+     * Enhanced by Carsten Dekker
+     * @since 2021-04-22
      */
     public void gameStartedSuccessfulLogic(GameCreatedMessage gcm) {
         if (this.currentLobby == null) {
@@ -305,8 +344,42 @@ public class GamePresenter extends AbstractPresenter {
             updateGameUsersList(gcm.getUsers());
             initializeMatch(gcm.getMapGraph());
             displayPrivateInventory();
-            Platform.runLater(this::setupRessourceAlert);
+            for (int i = 1; i <= 64; i++) {
+                Image image;
+                image = new Image("img/profilePictures/" + i + ".png");
+                ImagePattern imagePattern;
+                imagePattern = new ImagePattern(image);
+                profilePicturePatterns.add(imagePattern);
+            }
+            Platform.runLater(() -> {
+                setupPlayerPictures(gcm.getUsers());
+                setupRessourceAlert();
+            });
         }
+    }
+
+    /**
+     * Handles the creation of the profile pictures at game start
+     * <p>
+     * At the start of a game this method gets called. It uses an arrayList, containing all the users in the game,
+     * and creates the right profile picture for each user.
+     *
+     * @param list an ArrayList with UserDTOs
+     * @author Carsten Dekker
+     * @since 2021-04-18
+     */
+    public void setupPlayerPictures(ArrayList<UserDTO> list) {
+        for (UserDTO userDTO : list) {
+            Rectangle rectangle = new Rectangle(100, 100);
+            rectangle.setFill(profilePicturePatterns.get(userDTO.getProfilePictureID() - 1));
+            rectangles.add(rectangle);
+        }
+        picturePlayerView1.getChildren().add(rectangles.get(0));
+        picturePlayerView2.getChildren().add(rectangles.get(1));
+        if (rectangles.size() > 2)
+            picturePlayerView3.getChildren().add(rectangles.get(2));
+        if (rectangles.size() > 3)
+            picturePlayerView4.getChildren().add(rectangles.get(3));
     }
 
     /**
@@ -315,7 +388,6 @@ public class GamePresenter extends AbstractPresenter {
      * If a GameLeftSuccessfulResponse is detected on the EventBus the method gameLeftSuccessfulLogic is invoked.
      *
      * @param glsr the GameLeftSuccessfulResponse object seen on the EventBus
-     *
      * @author Marc Hermes
      * @see de.uol.swp.common.user.response.game.GameLeftSuccessfulResponse
      * @since 2021-03-15
@@ -333,7 +405,6 @@ public class GamePresenter extends AbstractPresenter {
      * not, it becomes unclickable.</p>
      *
      * @param response
-     *
      * @author Pieter Vogt
      */
     @Subscribe
@@ -342,9 +413,11 @@ public class GamePresenter extends AbstractPresenter {
             if (response.getPlayerWithCurrentTurn().equals(joinedLobbyUser.getUsername())) {
                 itsMyTurn = true;
                 EndTurnButton.setDisable(false);
+                tradeButton.setDisable(false);
             } else {
                 itsMyTurn = false;
                 EndTurnButton.setDisable(true);
+                tradeButton.setDisable(true);
             }
         }
     }
@@ -356,7 +429,6 @@ public class GamePresenter extends AbstractPresenter {
      * on the event bus and no longer be reachable for responses, messages etc.
      *
      * @param glsr the GameLeftSuccessfulResponse given by the original subscriber method
-     *
      * @author Marc Hermes
      * @see de.uol.swp.common.user.response.game.GameLeftSuccessfulResponse
      * @since 2021-03-15
@@ -377,7 +449,7 @@ public class GamePresenter extends AbstractPresenter {
      * If the leaveGameButton is pressed, the method tries to call the GameService method leaveGame It throws a
      * GamePresenterException if joinedLobbyUser and currentLobby are not initialised
      *
-     * @param event
+     * @param event \\TODO JavaDoc fehlt hier
      *
      * @author Ricardo Mook, Alexander Losse
      * @see de.uol.swp.client.game.GameService
@@ -402,7 +474,6 @@ public class GamePresenter extends AbstractPresenter {
      * If a UserLeftGameMessage is detected on the EventBus the method otherUserLeftSuccessfulLogic is invoked.
      *
      * @param message the UserLeftGameMessage object seen on the EventBus
-     *
      * @author Iskander Yusupov
      * @see de.uol.swp.common.game.message.UserLeftGameMessage
      * @since 2021-03-17
@@ -420,7 +491,6 @@ public class GamePresenter extends AbstractPresenter {
      * game) is requested.
      *
      * @param ulgm the UserLeftGameMessage given by the original subscriber method.
-     *
      * @author Iskander Yusupov
      * @see de.uol.swp.common.game.message.UserLeftGameMessage
      * @since 2021-03-17
@@ -447,7 +517,6 @@ public class GamePresenter extends AbstractPresenter {
      * List of the Users in the currentLobby in regards to the list given by the response.
      *
      * @param atgur the AllThisLobbyUsersResponse given by the original subscriber method.
-     *
      * @author Iskander Yusupov
      * @see de.uol.swp.common.user.response.game.AllThisGameUsersResponse
      * @since 2021-03-14
@@ -466,10 +535,9 @@ public class GamePresenter extends AbstractPresenter {
      * Updates the game menu user list of the current game according to the list given
      * <p>
      * This method clears the entire user list and then adds the name of each user in the list given to the game menu
-     * user list. If there is no user list this creates one.
+     * user list. If there ist no user list this creates one.
      *
      * @param gameUserList A list of UserDTO objects including all currently logged in users
-     *
      * @implNote The code inside this Method has to run in the JavaFX-application thread. Therefore it is crucial not to
      * remove the {@code Platform.runLater()}
      * @author Iskander Yusupov , @design Marc Hermes, Ricardo Mook
@@ -544,6 +612,49 @@ public class GamePresenter extends AbstractPresenter {
     }
 
     /**
+     * Determines the paint (image) to draw its host-object.
+     *
+     * @return the paint for the host-object
+     * @author Marc Hermes
+     * @since 2021-04-28
+     */
+    public Paint determinePictureOfTerrain(MapGraph.Hexagon h) {
+        ImagePattern imagePattern;
+        Paint paint;
+        //"Ocean" = 0; "Forest" = 1; "Farmland" = 2; "Grassland" = 3; "Hillside" = 4; "Mountain" = 5; "Desert" = 6;
+        switch (h.getTerrainType()) {
+            case 1:
+                imagePattern = new ImagePattern(new Image("textures/resized/HEX_Wald.png"));
+                paint = imagePattern;
+                break;
+            case 2:
+                imagePattern = new ImagePattern(new Image("textures/resized/HEX_Felder.png"));
+                paint = imagePattern;
+                break;
+            case 3:
+                imagePattern = new ImagePattern(new Image("textures/resized/HEX_Weideland.png"));
+                paint = imagePattern;
+                break;
+            case 4:
+                imagePattern = new ImagePattern(new Image("textures/resized/HEX_Lehm.png"));
+                paint = imagePattern;
+                break;
+            case 5:
+                imagePattern = new ImagePattern(new Image("textures/resized/HEX_Minen.png"));
+                paint = imagePattern;
+                break;
+            case 0:
+                paint = Color.DODGERBLUE;
+                break;
+            default:
+                imagePattern = new ImagePattern(new Image("/textures/resized/HEX_Wueste.png"));
+                paint = imagePattern;
+                break;
+        }
+        return paint;
+    }
+
+    /**
      * The method that actually draws graphical objects to the screen.
      * <p>
      * This method draws its items from back to front, meaning backmost items need to be drawn first and so on. This is
@@ -562,7 +673,7 @@ public class GamePresenter extends AbstractPresenter {
 
         //Drawing background.
 
-        g.setFill(Color.BLACK);
+        g.setFill(new ImagePattern(new Image("textures/blaues-meer-sicht-von-oben.jpg")));
         g.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
 
         //Drawing hexagons
@@ -571,13 +682,15 @@ public class GamePresenter extends AbstractPresenter {
 
             Vector placementVector = Vector.convertStringListToVector(hexagonContainer.getHexagon().getSelfPosition(), cardSize(), centerOfCanvasVector);
 
-            hexagonContainer.getCircle().setLayoutX(placementVector.getX());
-            hexagonContainer.getCircle().setLayoutY(placementVector.getY());
-            hexagonContainer.getCircle().setFill(determineColorOfTerrain(hexagonContainer.getHexagon()));
+            hexagonContainer.getHexagonShape().setLayoutX(placementVector.getX());
+            hexagonContainer.getHexagonShape().setLayoutY(placementVector.getY());
+            Platform.runLater(() -> {
+                hexagonContainer.getHexagonShape().setFill(determinePictureOfTerrain(hexagonContainer.getHexagon()));
+            });
 
             if (hexagonContainer.getHexagon().getDiceToken() != 0) {
                 Text text = new Text(placementVector.getX(), placementVector.getY(), Integer.toString(hexagonContainer.getHexagon().getDiceToken()));
-                text.setFill(Color.WHITE);
+                text.setFill(Color.BLACK);
                 Platform.runLater(() -> gameAnchorPane.getChildren().add(text));
             }
         }
@@ -686,7 +799,6 @@ public class GamePresenter extends AbstractPresenter {
      * translated into the correct String names of the tfArray TerrainFields.
      *
      * @param mapGraph the MapGraph created by the Server
-     *
      * @author Marc Hermes
      * @see de.uol.swp.common.game.GameField
      * @see de.uol.swp.client.game.GameObjects.TerrainField
@@ -698,10 +810,9 @@ public class GamePresenter extends AbstractPresenter {
         System.out.println("Setting up " + mapGraph.getHexagonHashSet().size() + " HexagonContainers...");
 
         for (MapGraph.Hexagon hexagon : mapGraph.getHexagonHashSet()) {
-            Circle circle = new Circle(cardSize() / 2);
-            HexagonContainer hexagonContainer = new HexagonContainer(hexagon, circle);
+            HexagonContainer hexagonContainer = new HexagonContainer(hexagon, cardSize());
             this.hexagonContainers.add(hexagonContainer);
-            Platform.runLater(() -> gameAnchorPane.getChildren().add(hexagonContainer.getCircle()));
+            Platform.runLater(() -> gameAnchorPane.getChildren().add(hexagonContainer.getHexagonShape()));
         }
 
         //Setting up the BuildingNodeContainers
@@ -746,7 +857,6 @@ public class GamePresenter extends AbstractPresenter {
      * This method reacts to the NotEnoughRessourcesMessage and shows the corresponding alert window.
      *
      * @param notEnoughRessourcesMessage
-     *
      * @implNote The code inside this Method has to run in the JavaFX-application thread. Therefore it is crucial not to
      * remove the {@code Platform.runLater()}
      * @author Marius Birk
@@ -789,7 +899,6 @@ public class GamePresenter extends AbstractPresenter {
      * Updates the corresponding Node in the list of MapGraphNodes to represent the changes from the message.
      *
      * @param message The data about the changed properties of the MapGraph
-     *
      * @author Pieter Vogt
      * @since 2021-04-15
      */
@@ -800,7 +909,7 @@ public class GamePresenter extends AbstractPresenter {
                 if (mapGraphNodeContainer.getMapGraphNode().getUuid().equals(message.getUuid())) {
                     MapGraph.BuildingNode buildingNode = (MapGraph.BuildingNode) mapGraphNodeContainer.getMapGraphNode();
                     buildingNode.buildOrDevelopSettlement(message.getPlayerIndex());
-                    draw();
+                    mapGraphNodeContainer.getCircle().setFill(determinePlayerColorByIndex(mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer()));
                     break;
                 }
             }
@@ -809,7 +918,7 @@ public class GamePresenter extends AbstractPresenter {
                 if (mapGraphNodeContainer.getMapGraphNode().getUuid().equals(message.getUuid())) {
                     MapGraph.StreetNode streetNode = (MapGraph.StreetNode) mapGraphNodeContainer.getMapGraphNode();
                     streetNode.buildRoad(message.getPlayerIndex());
-                    draw();
+                    mapGraphNodeContainer.getCircle().setFill(determinePlayerColorByIndex(mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer()));
                     break;
                 }
             }
@@ -826,6 +935,26 @@ public class GamePresenter extends AbstractPresenter {
         //TODO: Darstellung der Veränderung des Inventars
     }
 
+
+    /**
+     * shows an alert if the trade user has not enough in inventory
+     *
+     * @param message TradeCardErrorMessage
+     * @author Alexander Losse, Ricardo Mook
+     * @since 2021-04-25
+     */
+    @Subscribe
+    public void notEnoughResTrade(TradeCardErrorMessage message) {
+        if (this.currentLobby != null) {
+            if (this.currentLobby.equals(message.getName())) {
+                Platform.runLater(() -> {
+                    this.alert.setTitle(message.getName());
+                    this.alert.setHeaderText("You have not enough Resources for the trade in: " + message.getTradeCode());
+                    this.alert.show();
+                });
+            }
+        }
+    }
     public void displayPrivateInventory (){
         privateLumber.setImage(lumber);
         privateBrick.setImage(brick);

@@ -17,6 +17,7 @@ public class UserDTO implements User {
     private final String username;
     private final String password;
     private final String eMail;
+    private int profilePictureID;
 
     /**
      * Constructor
@@ -34,6 +35,26 @@ public class UserDTO implements User {
         this.username = username;
         this.password = password;
         this.eMail = eMail;
+    }
+
+    /**
+     * Overloaded Constructor
+     * <p>
+     * @author Carsten Dekker
+     * @param username username of the user
+     * @param password password of the user
+     * @param eMail email address of the user
+     * @param pictureID pictureID of the chosen profilePicture
+     * @since 2021-04-15
+     */
+    public UserDTO(String username, String password, String eMail, int pictureID) {
+        assert Objects.nonNull(username);
+        assert Objects.nonNull(password);
+        assert Objects.nonNull(eMail);
+        this.username = username;
+        this.password = password;
+        this.eMail = eMail;
+        this.profilePictureID = pictureID;
     }
 
     /**
@@ -101,4 +122,10 @@ public class UserDTO implements User {
     public int hashCode() {
         return Objects.hashCode(username);
     }
+
+    @Override
+    public int getProfilePictureID() {
+        return profilePictureID;
+    }
+
 }
