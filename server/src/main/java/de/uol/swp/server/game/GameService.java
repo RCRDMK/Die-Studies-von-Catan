@@ -277,10 +277,7 @@ public class GameService extends AbstractService {
         LOG.debug("Got new RollDiceRequest from user: " + rollDiceRequest.getUser());
 
         Dice dice = new Dice();
-        //TODO Ohne Do-While natürlich, weil nur einmal gewürfelt werden soll und der räuber nicht andauernd getriggert werden darf
-        do {
-            dice.rollDice();
-        } while (dice.getEyes() != 7);
+        dice.rollDice();
 
         // Check if cheatEyes number is provided in rollDiceRequest, if so -> set Eyes manually on dice
         // for the roll cheat, else ignore and use rolledDice
@@ -385,7 +382,7 @@ public class GameService extends AbstractService {
             for (MapGraph.Hexagon hexagon : game.get().getMapGraph().getHexagonHashSet()) {
                 if (hexagon.getDiceToken() == eyes) {
                     for (MapGraph.BuildingNode buildingNode : hexagon.getBuildingNodes()) {
-                        if (buildingNode.getOccupiedByPlayer()!=666) {
+                        if (buildingNode.getOccupiedByPlayer() != 666) {
                             Inventory inventory = game.get().getInventory(game.get().getUser(buildingNode.getOccupiedByPlayer()));
                             //"Ocean" = 0; "Forest" = 1; "Farmland" = 2; "Grassland" = 3; "Hillside" = 4; "Mountain" = 5; "Desert" = 6;
                             switch (hexagon.getTerrainType()) {
@@ -438,6 +435,20 @@ public class GameService extends AbstractService {
         }
     }
 
+    /**
+     * This method is invoked if a RobbersNewFieldMessage is detected on the event bus.
+     * <p>
+     *     First the method checks if the game is present or not. If it is present, a list of usernames is initialized.
+     *     After that, the method iterates over every hexagon in the MapGraph to detect the old place of the robber and to
+     *     set it on false. Now the method checks if the new fields UUID is the same as the UUID of the hexagon and set the
+     *     occupiedByRobber attribute on true. The new position is now send to all in the game.
+     *     Next, the method checks if the new places buildingspots are occupied by players and put their names in the freshly instantiated
+     *     list of usernames. If all buildingspots are checked, a ChoosePlayerMessage is send to the user who rolled a 7.
+     *
+     * @param robbersNewFieldMessage The message, that will be send, if a user rolled a 7.
+     * @autor Marius Birk
+     * @since 2021-04-25
+     */
     @Subscribe
     public void onRobbersNewFieldRequest(RobbersNewFieldMessage robbersNewFieldMessage) {
         Optional<Game> game = gameManagement.getGame(robbersNewFieldMessage.getName());
@@ -456,7 +467,7 @@ public class GameService extends AbstractService {
                 //check if the building nodes at the hexagon are occupied by players
                 for (int i = 0; i < hexagon.getBuildingNodes().size(); i++) {
                     if (hexagon.getBuildingNodes().get(i).getOccupiedByPlayer() != 666) {
-                        if(!userList.contains(game.get().getUser(hexagon.getBuildingNodes().get(i).getOccupiedByPlayer()).getUsername())){
+                        if (!userList.contains(game.get().getUser(hexagon.getBuildingNodes().get(i).getOccupiedByPlayer()).getUsername())) {
                             userList.add(game.get().getUser(hexagon.getBuildingNodes().get(i).getOccupiedByPlayer()).getUsername());
                         }
                     }
@@ -895,9 +906,21 @@ public class GameService extends AbstractService {
         sendToSpecificUserInGame(game, tsm, user);
     }
 
+    /**
+     * Draws a random card from the user, that was chosen from the player that moved the robber.
+     * <p>
+     * If a DrawRandomResourceFromPlayerMessage is detected on the eventbus, this method will be invoked. First the
+     * method checks if the game is present and then gets the inventory of the user, from who the card will be drawn.
+     * After that, a random resource will be chosen and the method iterates over the inventory in search of the
+     * random resource. If it found the method, the number of the resource will be decreased and the resource will
+     * be increased in the inventory of the player that moved the robber.
+     *
+     * @param drawRandomResourceFromPlayerMessage
+     * @author Marius Birk
+     * @since 2021-05-01
+     */
     @Subscribe
     public void onDrawRandomResourceFromPlayerMessage(DrawRandomResourceFromPlayerMessage drawRandomResourceFromPlayerMessage) {
-        System.out.println(drawRandomResourceFromPlayerMessage.getChosenName());
         Optional<Game> game = gameManagement.getGame(drawRandomResourceFromPlayerMessage.getName());
         if (game.isPresent()) {
             HashMap inventory = game.get().getInventory(new UserDTO(drawRandomResourceFromPlayerMessage.getChosenName(), "", "")).getPrivateView();
@@ -912,6 +935,17 @@ public class GameService extends AbstractService {
         }
     }
 
+    /**
+     * The method chosses a random resource and returns it.
+     * <p>
+     *   This method will be invoked, if the name of a random resource is needed. For that, it creates a List of resources
+     *   and initializes a random number between 1 and 5. To get now a random name of resource, we substrate 1 and
+     *   invoke the get() method of the List and return that value.
+     *
+     * @return the name of a resource
+     * @author Marius Birk
+     * @since 2021-04-29
+     */
     public String randomResource() {
         List<String> resources = new ArrayList();
         resources.add("Wool");
@@ -922,7 +956,7 @@ public class GameService extends AbstractService {
 
         int random = (int) Math.random() * 5;
 
-        return resources.get(random);
+        return resources.get(random-1);
     }
 
     public GameManagement getGameManagement() {

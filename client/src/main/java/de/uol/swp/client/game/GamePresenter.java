@@ -868,6 +868,10 @@ public class GamePresenter extends AbstractPresenter {
      * values and copies them to the tfArray of this GamePresenter. Then the values of the fieldTypes are checked and
      * translated into the correct String names of the tfArray TerrainFields.
      *
+     * Enhanced, with a drawing of a robber
+     * @author Marius Birk
+     * @since 2021-04-20
+     *
      * @param mapGraph the MapGraph created by the Server
      * @author Marc Hermes
      * @see de.uol.swp.common.game.GameField
@@ -978,6 +982,19 @@ public class GamePresenter extends AbstractPresenter {
         moveRobberMessageLogic(moveRobberMessage);
     }
 
+    /**
+     * This method will be invoked if a MoveRobberMessage is detected on the eventBus.
+     * <p>
+     * At first it checks if the current lobby is null and if that, it checks if the current lobby is the lobby we want to work in.
+     * After a successfull check the method calls an alert on another thread to inform the user, that he can move the robber.
+     * To know, where the user has clicked, we need to create an evenhandler and override the handle method. in the handle
+     * method we iterate over every hexagon and check if the mouse was pressed on it. Now it can call the movedRobber method
+     * in the gameService and it can remove the eventhandler from the hexagons.
+     *
+     * @param moveRobberMessage
+     * @author Marius Birk
+     * @since 2021-04-20
+     * */
     public void moveRobberMessageLogic(MoveRobberMessage moveRobberMessage) {
         if (this.currentLobby != null) {
             if (this.currentLobby.equals(moveRobberMessage.getName())) {
@@ -1045,8 +1062,8 @@ public class GamePresenter extends AbstractPresenter {
         chooseAlert.getButtonTypes().setAll();
         chooseAlert.setTitle(choosePlayerMessage.getName());
         chooseAlert.setContentText("Choose a player to draw a card from!");
-        for(int i = 0; i<choosePlayerMessage.getUserList().size();i++){
-            if(!choosePlayerMessage.getUserList().get(i).equals(choosePlayerMessage.getUser().getUsername())){
+        for (int i = 0; i < choosePlayerMessage.getUserList().size(); i++) {
+            if (!choosePlayerMessage.getUserList().get(i).equals(choosePlayerMessage.getUser().getUsername())) {
                 chooseAlert.getButtonTypes().add(new ButtonType(choosePlayerMessage.getUserList().get(i)));
             }
         }
@@ -1085,6 +1102,19 @@ public class GamePresenter extends AbstractPresenter {
         }
     }
 
+    /**
+     * This method will be invoked if the robber is successfully moved on the gamefield.
+     * <p>
+     * If the robber is successfully moved on the gamefield and needs to be moved.
+     * The method iterates over every hexagon on the gamefield and checks if the uuid of the hexagon is the same
+     * as the uuid in the SuccessfullMovedRobberMessage. If this is true, the robbers layout will be set to the
+     * hexagons layout. From that layout we substract the half of the height/width of the robber, because the layout
+     * is determined as the upper left edge of the robber.
+     *
+     * @param successfullMovedRobberMessage
+     * @author Marius Birk
+     * @since 2021-04-22
+     */
     @Subscribe
     public void onSuccessfullMovedRobberMessage(SuccessfullMovedRobberMessage successfullMovedRobberMessage) {
         for (HexagonContainer hexagonContainer : hexagonContainers) {
@@ -1097,14 +1127,7 @@ public class GamePresenter extends AbstractPresenter {
 
     @Subscribe
     public void onPrivateInventoryChangeMessage(PrivateInventoryChangeMessage privateInventoryChangeMessage) {
-        inventory.lumber.setNumber((int) privateInventoryChangeMessage.getPrivateInventory().get("Lumber"));
-        inventory.grain.setNumber((int) privateInventoryChangeMessage.getPrivateInventory().get("Grain"));
-        inventory.ore.setNumber((int) privateInventoryChangeMessage.getPrivateInventory().get("Ore"));
-        inventory.wool.setNumber((int) privateInventoryChangeMessage.getPrivateInventory().get("Wool"));
-        inventory.brick.setNumber((int) privateInventoryChangeMessage.getPrivateInventory().get("Brick"));
-
-        System.out.println(inventory.getPrivateView());
-
+        //TODO: Darstellung der Veränderung des Inventars
     }
 
     @Subscribe
@@ -1133,20 +1156,30 @@ public class GamePresenter extends AbstractPresenter {
         }
     }
 
-
+    /**
+     * This method is invoked if a TooMuchResourceCardsMessage is layed on the bus.
+     *
+     * @param tooMuchResourceCardsMessage
+     */
     @Subscribe
     public void onTooMuchRessourceCardsMessage(TooMuchResourceCardsMessage tooMuchResourceCardsMessage) {
         if (this.currentLobby.equals(tooMuchResourceCardsMessage.getName())) {
             Platform.runLater(() -> showRobberResourceMenu(tooMuchResourceCardsMessage));
         }
+        //TODO not complete, see comment
         //send Message with ressources to discard and to add to bank
     }
 
-    @Subscribe
-    public void onRobberResourceToDiscardMessage(ChoosePlayerMessage choosePlayerMessage) {
-
-    }
-
+    /**
+     * This method will be invoked if a choosePlayerMessage is layed on the bus.
+     * <p>
+     * The method sets up an alert to choose a player to draw a card from.
+     * That will be done on another Thread.
+     *
+     * @param choosePlayerMessage
+     * @author Marius Birk
+     * @since 2021-05-01
+     */
     @Subscribe
     public void onChoosePlayerMessage(ChoosePlayerMessage choosePlayerMessage) {
         if (this.currentLobby != null) {

@@ -172,10 +172,26 @@ public class GameService {
         eventBus.post(new TradeStartRequest(joinedLobbyUser, currentLobby, tradeCode));
     }
 
+    /**
+     * This method sends a RobbersNewFieldMessage to the server and updates the position of the robber.
+     * @param game String of the gameName
+     * @param user String of the userName that invoked the method.
+     * @param uuid UUID of the hexagon, where the user wants to move the robber.
+     * @author Marius Birk
+     * @since 2021-04-24
+     */
     public void movedRobber(String game, User user, UUID uuid) {
         eventBus.post(new RobbersNewFieldMessage(game, (UserDTO) user, uuid));
     }
 
+    /**
+     * This method will be invoked if the robber is moved to a field, where a user has occupied a buildingNode.
+     * @param gameName String of the gameName
+     * @param user String of the userName that invoked the method.
+     * @param result String of the userName from that the card will be drawn.
+     * @author Marius Birk
+     * @since 2021-04-24
+     */
     public void drawRandomCardFromPlayer(String gameName, User user, String result){
         eventBus.post(new DrawRandomResourceFromPlayerMessage(gameName, (UserDTO) user, result));
     }
