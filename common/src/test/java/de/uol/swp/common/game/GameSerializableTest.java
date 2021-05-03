@@ -55,7 +55,7 @@ public class GameSerializableTest {
                 RobbersNewFieldMessage.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new SuccessfullMovedRobberMessage(defaultUuid),
                 SuccessfullMovedRobberMessage.class));
-        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new TooMuchResourceCardsMessage("test", defaultUser, 5),
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new TooMuchResourceCardsMessage("test", defaultUser, 5, defaultHashMap),
                 TooMuchResourceCardsMessage.class));
     }
 

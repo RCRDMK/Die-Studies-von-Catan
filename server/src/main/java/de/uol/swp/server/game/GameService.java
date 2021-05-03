@@ -304,12 +304,11 @@ public class GameService extends AbstractService {
 
                 for (User user : game.get().getUsers()) {
                     if (game.get().getInventory(user).getResource() >= 7) {
-                        System.out.println(game.get().getInventory(user).getResource());
                         if (game.get().getInventory(user).getResource() % 2 != 0) {
-                            TooMuchResourceCardsMessage tooMuchResourceCardsMessage = new TooMuchResourceCardsMessage(game.get().getName(), (UserDTO) user, ((game.get().getInventory(user).getResource() - 1) / 2));
+                            TooMuchResourceCardsMessage tooMuchResourceCardsMessage = new TooMuchResourceCardsMessage(game.get().getName(), (UserDTO) user, ((game.get().getInventory(user).getResource() - 1) / 2), game.get().getInventory(user).getPrivateView());
                             sendToSpecificUserInGame(game, tooMuchResourceCardsMessage, user);
                         } else {
-                            TooMuchResourceCardsMessage tooMuchResourceCardsMessage = new TooMuchResourceCardsMessage(game.get().getName(), (UserDTO) user, (game.get().getInventory(user).getResource() / 2));
+                            TooMuchResourceCardsMessage tooMuchResourceCardsMessage = new TooMuchResourceCardsMessage(game.get().getName(), (UserDTO) user, (game.get().getInventory(user).getResource() / 2), game.get().getInventory(user).getPrivateView());
                             sendToSpecificUserInGame(game, tooMuchResourceCardsMessage, user);
                         }
                     }

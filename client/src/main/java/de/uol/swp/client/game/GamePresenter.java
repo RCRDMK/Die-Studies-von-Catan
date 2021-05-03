@@ -413,12 +413,6 @@ public class GamePresenter extends AbstractPresenter {
         this.alert = new Alert(javafx.scene.control.Alert.AlertType.CONFIRMATION);
         chooseResource = new GridPane();
         this.privateInventory = new HashMap<>();
-        this.privateInventory.put("Lumber", 0);
-        this.privateInventory.put("Grain", 0);
-        this.privateInventory.put("Wool", 0);
-        this.privateInventory.put("Brick", 0);
-        this.privateInventory.put("Ore", 0);
-
 
         //Initialize the robber menu
         Rectangle[] resources = new Rectangle[5];
@@ -617,6 +611,27 @@ public class GamePresenter extends AbstractPresenter {
         tooMuchAlert.setTitle(tooMuchResourceCardsMessage.getName());
         toDiscardLabel.setText(Integer.toString(tooMuchResourceCardsMessage.getCards()));
         tooMuchAlert.getDialogPane().setContent(chooseResource);
+
+        if(this.privateInventory.containsKey("Lumber")){
+            this.privateInventory.remove("Lumber");
+        }
+        if(this.privateInventory.containsKey("Grain")){
+            this.privateInventory.remove("Grain");
+        }
+        if(this.privateInventory.containsKey("Wool")){
+            this.privateInventory.remove("Wool");
+        }
+        if(this.privateInventory.containsKey("Brick")){
+            this.privateInventory.remove("Brick");
+        }
+        if(this.privateInventory.containsKey("Ore")){
+            this.privateInventory.remove("Ore");
+        }
+        this.privateInventory.put("Lumber", tooMuchResourceCardsMessage.getInventory().get("Lumber"));
+        this.privateInventory.put("Grain", tooMuchResourceCardsMessage.getInventory().get("Grain"));
+        this.privateInventory.put("Wool", tooMuchResourceCardsMessage.getInventory().get("Wool"));
+        this.privateInventory.put("Brick", tooMuchResourceCardsMessage.getInventory().get("Brick"));
+        this.privateInventory.put("Ore", tooMuchResourceCardsMessage.getInventory().get("Ore"));
 
         if (privateInventory.get("Lumber") != 0) {
             choose[0].setDisable(false);
