@@ -436,6 +436,7 @@ public class GamePresenter extends AbstractPresenter {
             @Override
             public void handle(ActionEvent event) {
                 if (Integer.parseInt(lumberLabelRobberMenu.getText()) > 0) {
+                    toDiscardLabel.setText(Integer.toString(Integer.parseInt(toDiscardLabel.getText())-1));
                     lumberLabelRobberMenu.setText(Integer.toString(Integer.parseInt(lumberLabelRobberMenu.getText()) - 1));
                 }
             }
@@ -445,6 +446,7 @@ public class GamePresenter extends AbstractPresenter {
             @Override
             public void handle(ActionEvent event) {
                 if (privateInventory.get("Lumber") > Integer.parseInt(lumberLabelRobberMenu.getText())) {
+                    toDiscardLabel.setText(Integer.toString(Integer.parseInt(toDiscardLabel.getText())+1));
                     lumberLabelRobberMenu.setText(Integer.toString(Integer.parseInt(lumberLabelRobberMenu.getText()) + 1));
                 }
             }
@@ -454,6 +456,7 @@ public class GamePresenter extends AbstractPresenter {
             @Override
             public void handle(ActionEvent event) {
                 if (Integer.parseInt(grainLabelRobberMenu.getText()) > 0) {
+                    toDiscardLabel.setText(Integer.toString(Integer.parseInt(toDiscardLabel.getText())-1));
                     grainLabelRobberMenu.setText(Integer.toString(Integer.parseInt(grainLabelRobberMenu.getText()) - 1));
                 }
             }
@@ -462,6 +465,7 @@ public class GamePresenter extends AbstractPresenter {
             @Override
             public void handle(ActionEvent event) {
                 if (privateInventory.get("Grain") > Integer.parseInt(grainLabelRobberMenu.getText())) {
+                    toDiscardLabel.setText(Integer.toString(Integer.parseInt(toDiscardLabel.getText())+1));
                     grainLabelRobberMenu.setText(Integer.toString(Integer.parseInt(grainLabelRobberMenu.getText()) + 1));
                 }
             }
@@ -470,6 +474,7 @@ public class GamePresenter extends AbstractPresenter {
             @Override
             public void handle(ActionEvent event) {
                 if (Integer.parseInt(woolLabelRobberMenu.getText()) > 0) {
+                    toDiscardLabel.setText(Integer.toString(Integer.parseInt(toDiscardLabel.getText())-1));
                     woolLabelRobberMenu.setText(Integer.toString(Integer.parseInt(woolLabelRobberMenu.getText()) - 1));
                 }
             }
@@ -478,6 +483,7 @@ public class GamePresenter extends AbstractPresenter {
             @Override
             public void handle(ActionEvent event) {
                 if (privateInventory.get("Wool") > Integer.parseInt(woolLabelRobberMenu.getText())) {
+                    toDiscardLabel.setText(Integer.toString(Integer.parseInt(toDiscardLabel.getText())+1));
                     woolLabelRobberMenu.setText(Integer.toString(Integer.parseInt(woolLabelRobberMenu.getText()) + 1));
                 }
             }
@@ -486,6 +492,7 @@ public class GamePresenter extends AbstractPresenter {
             @Override
             public void handle(ActionEvent event) {
                 if (Integer.parseInt(brickLabelRobberMenu.getText()) > 0) {
+                    toDiscardLabel.setText(Integer.toString(Integer.parseInt(toDiscardLabel.getText())-1));
                     brickLabelRobberMenu.setText(Integer.toString(Integer.parseInt(brickLabelRobberMenu.getText()) - 1));
                 }
             }
@@ -494,6 +501,7 @@ public class GamePresenter extends AbstractPresenter {
             @Override
             public void handle(ActionEvent event) {
                 if (privateInventory.get("Brick") > Integer.parseInt(brickLabelRobberMenu.getText())) {
+                    toDiscardLabel.setText(Integer.toString(Integer.parseInt(toDiscardLabel.getText())+1));
                     brickLabelRobberMenu.setText(Integer.toString(Integer.parseInt(brickLabelRobberMenu.getText()) + 1));
                 }
             }
@@ -502,6 +510,7 @@ public class GamePresenter extends AbstractPresenter {
             @Override
             public void handle(ActionEvent event) {
                 if (Integer.parseInt(oreLabelRobberMenu.getText()) > 0) {
+                    toDiscardLabel.setText(Integer.toString(Integer.parseInt(toDiscardLabel.getText())-1));
                     oreLabelRobberMenu.setText(Integer.toString(Integer.parseInt(oreLabelRobberMenu.getText()) - 1));
                 }
             }
@@ -510,6 +519,7 @@ public class GamePresenter extends AbstractPresenter {
             @Override
             public void handle(ActionEvent event) {
                 if (privateInventory.get("Ore") > Integer.parseInt(oreLabelRobberMenu.getText())) {
+                    toDiscardLabel.setText(Integer.toString(Integer.parseInt(toDiscardLabel.getText())+1));
                     oreLabelRobberMenu.setText(Integer.toString(Integer.parseInt(oreLabelRobberMenu.getText()) + 1));
                 }
             }
@@ -555,12 +565,7 @@ public class GamePresenter extends AbstractPresenter {
         Alert tooMuchAlert = new Alert(Alert.AlertType.CONFIRMATION);
         tooMuchAlert.setContentText("Choose the resources you want to discard!");
         tooMuchAlert.setTitle(tooMuchResourceCardsMessage.getName());
-        int amountOfResources = privateInventory.get("Lumber")+privateInventory.get("Brick")+privateInventory.get("Grain")+privateInventory.get("Ore")+privateInventory.get("Wool");
-        if(amountOfResources%2==0){
-            toDiscardLabel.setText(Integer.toString(amountOfResources/2));
-        }else{
-            toDiscardLabel.setText(Integer.toString((amountOfResources/2)-1));
-        }
+        toDiscardLabel.setText(Integer.toString(tooMuchResourceCardsMessage.getCards()));
         tooMuchAlert.getDialogPane().setContent(chooseResource);
 
         lumberLabelRobberMenu.setText(Integer.toString(privateInventory.get("Lumber")));
@@ -1349,9 +1354,6 @@ public class GamePresenter extends AbstractPresenter {
             if (this.currentLobby.equals(tooMuchResourceCardsMessage.getName())) {
                 Platform.runLater(() -> showRobberResourceMenu(tooMuchResourceCardsMessage));
             }
-
-            //TODO not complete, see comment
-            //send Message with ressources to discard and to add to bank
         }
     }
 

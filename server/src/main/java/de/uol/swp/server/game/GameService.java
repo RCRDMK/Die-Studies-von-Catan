@@ -241,14 +241,14 @@ public class GameService extends AbstractService {
         if(game.isPresent()){
             for(User user: game.get().getUsers()){
                 if(user.equals(resourcesToDiscardRequest.getUser())){
-                    game.get().getInventory(user).lumber.setNumber(resourcesToDiscardRequest.getInventory().get("Lumber"));
-                    game.get().getInventory(user).grain.setNumber(resourcesToDiscardRequest.getInventory().get("Grain"));
-                    game.get().getInventory(user).wool.setNumber(resourcesToDiscardRequest.getInventory().get("Wool"));
-                    game.get().getInventory(user).brick.setNumber(resourcesToDiscardRequest.getInventory().get("Brick"));
-                    game.get().getInventory(user).ore.setNumber(resourcesToDiscardRequest.getInventory().get("Ore"));
+                    game.get().getInventory(user).lumber.decNumber(resourcesToDiscardRequest.getInventory().get("Lumber"));
+                    game.get().getInventory(user).grain.decNumber(resourcesToDiscardRequest.getInventory().get("Grain"));
+                    game.get().getInventory(user).wool.decNumber(resourcesToDiscardRequest.getInventory().get("Wool"));
+                    game.get().getInventory(user).brick.decNumber(resourcesToDiscardRequest.getInventory().get("Brick"));
+                    game.get().getInventory(user).ore.decNumber(resourcesToDiscardRequest.getInventory().get("Ore"));
                 }
             }
-            updateInventory(game);
+         //   updateInventory(game);
         }
     }
 
@@ -462,7 +462,6 @@ public class GameService extends AbstractService {
                     }
                 }
             }
-            updateInventory(game);
         }
     }
 

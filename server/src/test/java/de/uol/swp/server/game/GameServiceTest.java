@@ -6,6 +6,7 @@ import com.google.common.eventbus.Subscribe;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.MapGraph;
 import de.uol.swp.common.game.request.GameLeaveUserRequest;
+import de.uol.swp.common.game.request.ResourcesToDiscardRequest;
 import de.uol.swp.common.game.request.RetrieveAllThisGameUsersRequest;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.user.Session;
@@ -413,4 +414,48 @@ public class GameServiceTest {
         assertEquals(game.get().getInventory(game.get().getUser(2)).getResource(), 0);
     }
 
+
+    @Test
+    public void ResourcesToDiscardTest(){
+        GameService gameService2 = new GameService(gameManagement, lobbyService, authenticationService, bus, userService);
+        gameManagement.createGame("test", userDTO, "Standard");
+        Optional<Game> game = gameManagement.getGame("test");
+        assertTrue(game.isPresent());
+
+        game.get().joinUser(userDTO1);
+        game.get().joinUser(userDTO2);
+        game.get().joinUser(userDTO3);
+
+        game.get().setUpUserArrayList();
+        game.get().setUpInventories();
+
+        for (MapGraph.BuildingNode b : game.get().getMapGraph().getBuildingNodeHashSet()) {
+            b.buildOrDevelopSettlement(1);
+        }
+
+        Map<String, Integer> inventoryEmpty = new HashMap<>();
+        inventoryEmpty = game.get().getInventory(game.get().getUser(1)).getPrivateView();
+        assertEquals(inventoryEmpty.get("Lumber"), 0);
+        assertEquals(inventoryEmpty.get("Brick"), 0);
+        assertEquals(inventoryEmpty.get("Grain"), 0);
+        assertEquals(inventoryEmpty.get("Wool"), 0);
+        assertEquals(inventoryEmpty.get("Ore"), 0);
+
+        gameService2.distributeResources(5, "test");
+        HashMap<String, Integer> inventoryChosen = new HashMap<>();
+        inventoryChosen.put("Lumber", 3);
+        inventoryChosen.put("Wool", 0);
+        inventoryChosen.put("Ore", 0);
+        inventoryChosen.put("Brick", 0);
+        inventoryChosen.put("Grain", 4);
+
+        ResourcesToDiscardRequest resources = new ResourcesToDiscardRequest("test", userDTO1, inventoryChosen);
+        gameService2.onResourcesToDiscard(resources);
+        game = gameManagement.getGame("test");
+
+        assertEquals(game.get().getInventory(userDTO1).lumber.getNumber(), 3);
+        assertEquals(game.get().getInventory(userDTO1).grain.getNumber(), 2);
+
+
+    }
 }
