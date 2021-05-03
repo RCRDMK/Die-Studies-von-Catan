@@ -294,8 +294,8 @@ public class Inventory {
      * @author Alexander Losse, Ricardo Mook
      * @since 2021-04-08
      */
-    public void decCard(String card, int amount){
-        switch (card){
+    public void decCard(String card, int amount) {
+        switch (card) {
             case "Lumber":
                 lumber.decNumber(amount);
                 break;

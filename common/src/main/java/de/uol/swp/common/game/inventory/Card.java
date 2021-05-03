@@ -17,17 +17,17 @@ public class Card {
 
     //Setter
     public void setNumber(int number) {
-        this.number = Math.min(Math.max(number, 0), 19); // (0 <= number <= 19)
+        this.number = Math.max(number, 0); // (number >= 0)
     }
 
     //Incrementer
     public void incNumber() {
-        if (this.number < 19) this.number++; // (number <= 19)
+        this.number++;
     }
 
     //Incrementer with number
     public void incNumber(int number) {
-        this.number = Math.min(this.number + number, 19); // (number <= 19)
+        this.number += number;
     }
 
     //Decrementer

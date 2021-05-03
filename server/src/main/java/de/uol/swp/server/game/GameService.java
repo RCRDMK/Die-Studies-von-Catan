@@ -402,8 +402,12 @@ public class GameService extends AbstractService {
     }
 
     /**
-     * Gives the given User the entered Resource from the bank
+     * Gives the given User the entered resource from the bank
      * <p>
+     * It takes the resource from the bank and gives them to the user one by one until
+     * the amount is reached or the bank is empty.
+     * Than if it's the first time where the bank gos empty for this resourceTyp,
+     * it posts a chat message in the game.
      *
      * @param game where we are
      * @param user who wants the resource
@@ -418,19 +422,29 @@ public class GameService extends AbstractService {
     public void giveResource(Optional<Game> game, User user, String resourceTyp, int amount) {
         if (game.isPresent()) {
             Inventory bank = game.get().getBankInventory();
+            boolean first = bank.getNumberFromCard(resourceTyp) > 0;
             for (int i = amount; i > 0; i--) {
-                if (bank.getCard(resourceTyp).getNumber() > 0) {
-                    bank.getCard(resourceTyp).decNumber();
-                    game.get().getInventory(user).getCard(resourceTyp).incNumber();
+                if (bank.getNumberFromCard(resourceTyp) > 0) {
+                    bank.decCard(resourceTyp, 1);
+                    game.get().getInventory(user).incCard(resourceTyp, 1);
                 }
-                else ;//TODO: Ein message senden wenn die Bank leer ist
+                else if (first){
+                    String chatMessage = resourceTyp + " storage is empty, resource cannot be distributed";
+                    String chatId = "game_" + game.get().getName();
+                    ResponseChatMessage msg = new ResponseChatMessage(chatMessage, chatId, "Bank", System.currentTimeMillis());
+                    post(msg);
+                    break;
+                }
+                else break;
             }
         }
     }
 
     /**
      * Takes the entered Resource from given User
-     *<p>
+     * <p>
+     * It takes the resource from the user and gives them to the bank one by one until
+     * the amount is reached or the inventory form user is empty.
      *
      * @param game where we are
      * @param user who wants to give the resource
@@ -445,10 +459,11 @@ public class GameService extends AbstractService {
         if (game.isPresent()) {
             Inventory bank = game.get().getBankInventory();
             for (int i = amount; i > 0; i--) {
-                if (game.get().getInventory(user).getCard(resourceTyp).getNumber() > 0) {
-                    game.get().getInventory(user).getCard(resourceTyp).decNumber();
-                    bank.getCard(resourceTyp).incNumber();
+                if (game.get().getInventory(user).getNumberFromCard(resourceTyp) > 0) {
+                    game.get().getInventory(user).decCard(resourceTyp, 1);
+                    bank.incCard(resourceTyp, 1);
                 }
+                else break;
             }
         }
     }
