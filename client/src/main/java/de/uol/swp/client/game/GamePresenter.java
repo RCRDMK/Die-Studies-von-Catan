@@ -413,6 +413,12 @@ public class GamePresenter extends AbstractPresenter {
         this.alert = new Alert(javafx.scene.control.Alert.AlertType.CONFIRMATION);
         chooseResource = new GridPane();
         this.privateInventory = new HashMap<>();
+        this.privateInventory.put("Lumber", 0);
+        this.privateInventory.put("Grain", 0);
+        this.privateInventory.put("Wool", 0);
+        this.privateInventory.put("Brick", 0);
+        this.privateInventory.put("Ore", 0);
+
 
         //Initialize the robber menu
         Rectangle[] resources = new Rectangle[5];
@@ -461,6 +467,7 @@ public class GamePresenter extends AbstractPresenter {
         chooseResource.add(oreLabelRobberMenu, 4, 2);
         chooseResource.add(new Label("Amount of Cards to discard:"), 0, 4);
         chooseResource.add(toDiscardLabel, 1, 4);
+
         chooseResource.setVgap(40);
         chooseResource.setHgap(30);
 
@@ -605,17 +612,11 @@ public class GamePresenter extends AbstractPresenter {
      * @since 2021-04-19
      */
     public void showRobberResourceMenu(TooMuchResourceCardsMessage tooMuchResourceCardsMessage) {
-        Alert tooMuchAlert = new Alert(Alert.AlertType.CONFIRMATION);
-        tooMuchAlert.setContentText("Choose the resources you want to discard!");
+        Alert tooMuchAlert = new Alert(Alert.AlertType.INFORMATION);
+        tooMuchAlert.setHeaderText("Choose the resources you want to discard!");
         tooMuchAlert.setTitle(tooMuchResourceCardsMessage.getName());
         toDiscardLabel.setText(Integer.toString(tooMuchResourceCardsMessage.getCards()));
         tooMuchAlert.getDialogPane().setContent(chooseResource);
-
-        lumberLabelRobberMenu.setText(Integer.toString(privateInventory.get("Lumber")));
-        grainLabelRobberMenu.setText(Integer.toString(privateInventory.get("Grain")));
-        brickLabelRobberMenu.setText(Integer.toString(privateInventory.get("Brick")));
-        oreLabelRobberMenu.setText(Integer.toString(privateInventory.get("Ore")));
-        woolLabelRobberMenu.setText(Integer.toString(privateInventory.get("Wool")));
 
         if (privateInventory.get("Lumber") != 0) {
             choose[0].setDisable(false);
@@ -652,6 +653,12 @@ public class GamePresenter extends AbstractPresenter {
             choose[4].setDisable(true);
             choose[9].setDisable(true);
         }
+
+        lumberLabelRobberMenu.setText(Integer.toString(privateInventory.get("Lumber")));
+        grainLabelRobberMenu.setText(Integer.toString(privateInventory.get("Grain")));
+        brickLabelRobberMenu.setText(Integer.toString(privateInventory.get("Brick")));
+        oreLabelRobberMenu.setText(Integer.toString(privateInventory.get("Ore")));
+        woolLabelRobberMenu.setText(Integer.toString(privateInventory.get("Wool")));
 
         tooMuchAlert.showAndWait();
 

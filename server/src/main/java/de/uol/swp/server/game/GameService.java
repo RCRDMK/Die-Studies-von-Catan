@@ -248,27 +248,7 @@ public class GameService extends AbstractService {
                     game.get().getInventory(user).ore.decNumber(resourcesToDiscardRequest.getInventory().get("Ore"));
                 }
             }
-         //   updateInventory(game);
-        }
-    }
-
-    /**
-     * Prepares a given ServerMessage to be send to all players in the lobby and posts it on the EventBus
-     * <p>
-     *
-     * @param lobbyName Name of the lobby the players are in
-     * @param message   the message to be send to the users
-     * @author Marco Grawunder
-     * @see de.uol.swp.common.message.ServerMessage
-     * @since 2019-10-08
-     */
-    public void sendToAllInLobby(String lobbyName, ServerMessage message) {
-        Optional<Lobby> lobby = lobbyService.getLobby(lobbyName);
-        if (lobby.isPresent()) {
-            message.setReceiver(authenticationService.getSessions(lobby.get().getUsers()));
-            post(message);
-        } else {
-            throw new LobbyManagementException("Lobby unknown!");
+            updateInventory(game);
         }
     }
 
@@ -318,13 +298,13 @@ public class GameService extends AbstractService {
         }
 
         if (dice.getEyes() == 7) {
-            Optional<Game> game = gameManagement.getGame(rollDiceRequest.getName());
             if (game.isPresent()) {
                 MoveRobberMessage moveRobberMessage = new MoveRobberMessage(rollDiceRequest.getName(), (UserDTO) rollDiceRequest.getUser());
                 sendToSpecificUserInGame(gameManagement.getGame(rollDiceRequest.getName()), moveRobberMessage, rollDiceRequest.getUser());
 
                 for (User user : game.get().getUsers()) {
                     if (game.get().getInventory(user).getResource() >= 7) {
+                        System.out.println(game.get().getInventory(user).getResource());
                         if (game.get().getInventory(user).getResource() % 2 != 0) {
                             TooMuchResourceCardsMessage tooMuchResourceCardsMessage = new TooMuchResourceCardsMessage(game.get().getName(), (UserDTO) user, ((game.get().getInventory(user).getResource() - 1) / 2));
                             sendToSpecificUserInGame(game, tooMuchResourceCardsMessage, user);
@@ -423,7 +403,7 @@ public class GameService extends AbstractService {
             for (MapGraph.Hexagon hexagon : game.get().getMapGraph().getHexagonHashSet()) {
                 if (hexagon.getDiceToken() == eyes) {
                     for (MapGraph.BuildingNode buildingNode : hexagon.getBuildingNodes()) {
-                        if (buildingNode.getOccupiedByPlayer() != 666) {
+                        if (buildingNode.getOccupiedByPlayer() != 666 && hexagon.isOccupiedByRobber()==false) {
                             Inventory inventory = game.get().getInventory(game.get().getUser(buildingNode.getOccupiedByPlayer()));
                             //"Ocean" = 0; "Forest" = 1; "Farmland" = 2; "Grassland" = 3; "Hillside" = 4; "Mountain" = 5; "Desert" = 6;
                             switch (hexagon.getTerrainType()) {

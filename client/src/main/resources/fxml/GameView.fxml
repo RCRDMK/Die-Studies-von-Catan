@@ -18,7 +18,6 @@
         <ToolBar layoutY="-5.0" prefHeight="35.0" prefWidth="600.0">
             <items>
                 <Button fx:id="rollDice" mnemonicParsing="false" onAction="#onRollDice" text="Roll Dice"/>
-                <Button fx:id="rollDiceButton" mnemonicParsing="false" onAction="#onRollDice" text="Roll Dice"/>
                 <Text fx:id="DiceOutput" strokeType="OUTSIDE" strokeWidth="0.0" text="Text"/>
                 <Separator orientation="VERTICAL"/>
                 <Button fx:id="tradeButton" mnemonicParsing="false" onAction="#onTrade" text="Trade">
