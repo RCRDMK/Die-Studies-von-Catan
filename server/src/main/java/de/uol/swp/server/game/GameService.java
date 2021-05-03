@@ -309,24 +309,25 @@ public class GameService extends AbstractService {
                         //"Ocean" = 0; "Forest" = 1; "Farmland" = 2; "Grassland" = 3; "Hillside" = 4; "Mountain" = 5; "Desert" = 6;
                         switch (hexagon.getTerrainType()) {
                             case 1:
-                                game.get().getInventory(game.get().getUser(i)).lumber.incNumber();
+                                giveResource(game, game.get().getUser(i), "Lumber", 1);
                                 break;
                             case 2:
-                                game.get().getInventory(game.get().getUser(i)).grain.incNumber();
+                                giveResource(game, game.get().getUser(i), "Grain", 1);
                                 break;
                             case 3:
-                                game.get().getInventory(game.get().getUser(i)).wool.incNumber();
+                                giveResource(game, game.get().getUser(i), "Wool", 1);
                                 break;
                             case 4:
-                                game.get().getInventory(game.get().getUser(i)).brick.incNumber();
+                                giveResource(game, game.get().getUser(i), "Brick", 1);
                                 break;
                             case 5:
-                                game.get().getInventory(game.get().getUser(i)).ore.incNumber();
+                                giveResource(game, game.get().getUser(i), "Ore", 1);
                                 break;
                             default:
                                 break;
                         }
                     }
+            updateInventory(game);
         }
     }
 
@@ -345,59 +346,34 @@ public class GameService extends AbstractService {
     public void distributeResources(int eyes, String gameName) {
         Optional<Game> game = gameManagement.getGame(gameName);
         if (game.isPresent()) {
-            for (MapGraph.Hexagon hexagon : game.get().getMapGraph().getHexagonHashSet()) {
+            for (MapGraph.Hexagon hexagon : game.get().getMapGraph().getHexagonHashSet())
                 if (hexagon.getDiceToken() == eyes) {
-                    for (MapGraph.BuildingNode buildingNode : hexagon.getBuildingNodes()) {
+                    for (MapGraph.BuildingNode buildingNode : hexagon.getBuildingNodes())
                         if (buildingNode.getOccupiedByPlayer()!=666) {
                             Inventory inventory = game.get().getInventory(game.get().getUser(buildingNode.getOccupiedByPlayer()));
                             //"Ocean" = 0; "Forest" = 1; "Farmland" = 2; "Grassland" = 3; "Hillside" = 4; "Mountain" = 5; "Desert" = 6;
                             switch (hexagon.getTerrainType()) {
                                 case 1:
-                                    if (buildingNode.getSizeOfSettlement() == 1) {
-                                        inventory.lumber.incNumber();
-                                    } else if (buildingNode.getSizeOfSettlement() == 2) {
-                                        inventory.lumber.incNumber();
-                                        inventory.lumber.incNumber();
-                                    }
+                                    giveResource(game, game.get().getUser(buildingNode.getOccupiedByPlayer()), "Lumber", buildingNode.getSizeOfSettlement());
                                     break;
                                 case 2:
-                                    if (buildingNode.getSizeOfSettlement() == 1) {
-                                        inventory.grain.incNumber();
-                                    } else if (buildingNode.getSizeOfSettlement() == 2) {
-                                        inventory.grain.incNumber();
-                                        inventory.grain.incNumber();
-                                    }
+                                    giveResource(game, game.get().getUser(buildingNode.getOccupiedByPlayer()), "Grain", buildingNode.getSizeOfSettlement());
                                     break;
                                 case 3:
-                                    if (buildingNode.getSizeOfSettlement() == 1) {
-                                        inventory.wool.incNumber();
-                                    } else if (buildingNode.getSizeOfSettlement() == 2) {
-                                        inventory.wool.incNumber();
-                                        inventory.wool.incNumber();
-                                    }
+                                    giveResource(game, game.get().getUser(buildingNode.getOccupiedByPlayer()), "Wool", buildingNode.getSizeOfSettlement());
                                     break;
                                 case 4:
-                                    if (buildingNode.getSizeOfSettlement() == 1) {
-                                        inventory.brick.incNumber();
-                                    } else if (buildingNode.getSizeOfSettlement() == 2) {
-                                        inventory.brick.incNumber();
-                                        inventory.brick.incNumber();
-                                    }
+                                    giveResource(game, game.get().getUser(buildingNode.getOccupiedByPlayer()), "Brick", buildingNode.getSizeOfSettlement());
                                     break;
                                 case 5:
-                                    if (buildingNode.getSizeOfSettlement() == 1) {
-                                        inventory.ore.incNumber();
-                                    } else if (buildingNode.getSizeOfSettlement() == 2) {
-                                        inventory.ore.incNumber();
-                                        inventory.ore.incNumber();
-                                    }
+                                    giveResource(game, game.get().getUser(buildingNode.getOccupiedByPlayer()), "Ore", buildingNode.getSizeOfSettlement());
+                                    break;
                                 default:
                                     break;
                             }
                         }
-                    }
                 }
-            }
+            updateInventory(game);
         }
     }
 
@@ -422,21 +398,20 @@ public class GameService extends AbstractService {
     public void giveResource(Optional<Game> game, User user, String resourceTyp, int amount) {
         if (game.isPresent()) {
             Inventory bank = game.get().getBankInventory();
-            boolean first = bank.getNumberFromCard(resourceTyp) > 0;
             for (int i = amount; i > 0; i--) {
                 if (bank.getNumberFromCard(resourceTyp) > 0) {
                     bank.decCard(resourceTyp, 1);
                     game.get().getInventory(user).incCard(resourceTyp, 1);
                 }
-                else if (first){
+                else {
                     String chatMessage = resourceTyp + " storage is empty, resource cannot be distributed";
                     String chatId = "game_" + game.get().getName();
                     ResponseChatMessage msg = new ResponseChatMessage(chatMessage, chatId, "Bank", System.currentTimeMillis());
                     post(msg);
                     break;
                 }
-                else break;
             }
+            LOG.debug("\n Bank " + bank.getPrivateView());
         }
     }
 
@@ -711,6 +686,7 @@ public class GameService extends AbstractService {
                 sendToSpecificUserInGame(game, privateInventoryChangeMessage, user);
                 PublicInventoryChangeMessage publicInventoryChangeMessage = new PublicInventoryChangeMessage(publicInventory, user);
                 sendToAllInGame(game.get().getName(), publicInventoryChangeMessage);
+                LOG.debug("\n" + user.getUsername() + privateInventory + "\n" + publicInventory);
             }
         }
     }

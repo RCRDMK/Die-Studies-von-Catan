@@ -245,6 +245,12 @@ public class GameDTO implements Game {
             if (userArrayList.size() > 2) inventory3 = new Inventory(userArrayList.get(2));
             if (userArrayList.size() > 3) inventory4 = new Inventory(userArrayList.get(3));
         }
+        bankInventory = new Inventory(bank);
+        bankInventory.lumber.setNumber(19);
+        bankInventory.brick.setNumber(19);
+        bankInventory.grain.setNumber(19);
+        bankInventory.wool.setNumber(19);
+        bankInventory.ore.setNumber(19);
     }
 
     /**
@@ -252,7 +258,7 @@ public class GameDTO implements Game {
      * <p>
      * It compares the user with the inventory user and returns the inventory from user
      *
-     * @param user you want the inventory of
+     * @param user form the inventory you want
      *
      * @return The Inventory from user
      * @author Anton Nikiforov
