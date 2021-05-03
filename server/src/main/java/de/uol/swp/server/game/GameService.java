@@ -35,6 +35,7 @@ import de.uol.swp.server.usermanagement.AuthenticationService;
 import de.uol.swp.server.usermanagement.UserService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.checkerframework.checker.nullness.Opt;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -219,6 +220,35 @@ public class GameService extends AbstractService {
             post(message);
         } else {
             throw new GameManagementException("Game unknown!");
+        }
+    }
+
+    /**
+     * This method is invoked, when a ResourcesToDiscardRequest is posted on the eventbus.
+     * <p>
+     *     If a ResourcesToDiscardRequest is posted on the eventbus this method is invoked. First it checks if the game is present
+     *     or not. After that it iterates over the list of users in the game to get the right one. If the method found the right user,
+     *     it sets the new inventory for the user. At the end we call the updateInventory method, to get the right inventory
+     *     back to the client.
+     * @param resourcesToDiscardRequest request with a hashmap(inventory), the game name and the user, that send it.
+     * @author Marius Birk
+     * @since 2021-05-03
+     */
+    @Subscribe
+    public void onResourcesToDiscard(ResourcesToDiscardRequest resourcesToDiscardRequest){
+        //TODO Hier muss nach Implementierung der Bank nochmal etwas ergänzt werden.
+        Optional<Game> game = gameManagement.getGame(resourcesToDiscardRequest.getName());
+        if(game.isPresent()){
+            for(User user: game.get().getUsers()){
+                if(user.equals(resourcesToDiscardRequest.getUser())){
+                    game.get().getInventory(user).lumber.setNumber(resourcesToDiscardRequest.getInventory().get("Lumber"));
+                    game.get().getInventory(user).grain.setNumber(resourcesToDiscardRequest.getInventory().get("Grain"));
+                    game.get().getInventory(user).wool.setNumber(resourcesToDiscardRequest.getInventory().get("Wool"));
+                    game.get().getInventory(user).brick.setNumber(resourcesToDiscardRequest.getInventory().get("Brick"));
+                    game.get().getInventory(user).ore.setNumber(resourcesToDiscardRequest.getInventory().get("Ore"));
+                }
+            }
+            updateInventory(game);
         }
     }
 
@@ -432,6 +462,7 @@ public class GameService extends AbstractService {
                     }
                 }
             }
+            updateInventory(game);
         }
     }
 
@@ -697,13 +728,14 @@ public class GameService extends AbstractService {
             for (User user : game.get().getUsers()) {
                 HashMap privateInventory = game.get().getInventory(user).getPrivateView();
                 HashMap publicInventory = game.get().getInventory(user).getPublicView();
-                PrivateInventoryChangeMessage privateInventoryChangeMessage = new PrivateInventoryChangeMessage(privateInventory);
+                PrivateInventoryChangeMessage privateInventoryChangeMessage = new PrivateInventoryChangeMessage(game.get().getName(), (UserDTO) user, privateInventory);
                 sendToSpecificUserInGame(game, privateInventoryChangeMessage, user);
                 PublicInventoryChangeMessage publicInventoryChangeMessage = new PublicInventoryChangeMessage(publicInventory, user);
                 sendToAllInGame(game.get().getName(), publicInventoryChangeMessage);
             }
         }
     }
+
 
     /**
      * Handles LogoutRequests found on the EventBus
@@ -954,9 +986,8 @@ public class GameService extends AbstractService {
         resources.add("Grain");
         resources.add("Ore");
 
-        int random = (int) Math.random() * 5;
-
-        return resources.get(random-1);
+        int random = (int) Math.floor(Math.random() * (4 - 0 +1)) + 0;
+        return resources.get(random);
     }
 
     public GameManagement getGameManagement() {

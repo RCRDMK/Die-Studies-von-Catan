@@ -9,12 +9,14 @@ import de.uol.swp.common.game.message.RobbersNewFieldMessage;
 import de.uol.swp.common.game.message.TradeEndedMessage;
 import de.uol.swp.common.game.request.*;
 import de.uol.swp.common.game.trade.TradeItem;
+import de.uol.swp.common.message.MessageContext;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -193,6 +195,7 @@ public class GameService {
      * @since 2021-04-24
      */
     public void drawRandomCardFromPlayer(String gameName, User user, String result){
-        eventBus.post(new DrawRandomResourceFromPlayerMessage(gameName, (UserDTO) user, result));
+        DrawRandomResourceFromPlayerMessage drawRandomResourceFromPlayerMessage = new DrawRandomResourceFromPlayerMessage(gameName, (UserDTO) user, result);
+        eventBus.post(drawRandomResourceFromPlayerMessage);
     }
 }
