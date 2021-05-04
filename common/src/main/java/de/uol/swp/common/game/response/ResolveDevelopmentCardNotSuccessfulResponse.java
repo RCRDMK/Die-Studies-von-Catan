@@ -12,6 +12,7 @@ public class ResolveDevelopmentCardNotSuccessfulResponse extends AbstractRespons
     final private String devCard;
     final private String userName;
     final private String gameName;
+    private String errorDescription;
 
     /**
      * Constructor
@@ -59,5 +60,13 @@ public class ResolveDevelopmentCardNotSuccessfulResponse extends AbstractRespons
      */
     public String getGameName() {
         return gameName;
+    }
+
+    public String getErrorDescription() {
+        return errorDescription;
+    }
+
+    public void setErrorDescription(String errorDescription) {
+        this.errorDescription = errorDescription;
     }
 }

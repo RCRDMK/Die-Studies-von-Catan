@@ -1335,12 +1335,10 @@ public class GamePresenter extends AbstractPresenter {
                 this.currentDevelopmentCard = rdcns.getDevCard();
                 Platform.runLater(() -> {
                     this.resolveDevelopmentCardAlert.setTitle(currentDevelopmentCard + " in " + rdcns.getGameName());
-                    this.resolveDevelopmentCardAlert.setHeaderText("Something didn't work. Try again.");
+                    this.resolveDevelopmentCardAlert.setHeaderText(rdcns.getErrorDescription());
                     this.resolveDevelopmentCardAlert.show();
                 });
 
-                //TODO: Alert oder so der sagt, dass das ausführen der Karte nicht geklappt hat.
-                // Zudem neuer Aufruf an den User es erneut zu versuchen
             }
         }
 
@@ -1380,7 +1378,7 @@ public class GamePresenter extends AbstractPresenter {
                                     container.getCircle().setVisible(container.getMapGraphNode() instanceof MapGraph.StreetNode);
                                 }
                             }
-                            this.resolveDevelopmentCardAlert.setHeaderText("Select 2 Streets");
+                            this.resolveDevelopmentCardAlert.setHeaderText("Select 2 building spots for the streets");
                             for (Rectangle rect : resourceRectangles) {
                                 rect.setVisible(false);
                             }

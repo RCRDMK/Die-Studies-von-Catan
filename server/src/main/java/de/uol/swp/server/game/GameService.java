@@ -788,6 +788,7 @@ public class GameService extends AbstractService {
                             game.get().setCurrentCard("");
                         } else {
                             notSuccessfulResponse.initWithMessage(request);
+                            notSuccessfulResponse.setErrorDescription("Please select a valid resource");
                             post(notSuccessfulResponse);
                         }
                         break;
@@ -801,8 +802,8 @@ public class GameService extends AbstractService {
                         boolean successful2 = onConstructionMessage(constructionMessage2);
                         if (!(successful1 && successful2)) {
                             notSuccessfulResponse.initWithMessage(request);
+                            notSuccessfulResponse.setErrorDescription("Please select 2 valid building spots for the streets");
                             post(notSuccessfulResponse);
-                            //TODO: implement "not successful" functionality i.e. if the selected streets are not valid choices
                         } else {
                             sendToAllInGame(gameName, message);
                             game.get().setCurrentCard("");
@@ -818,6 +819,7 @@ public class GameService extends AbstractService {
                                 turnPlayerInventory.decCard(request.getResource1(), 1);
                                 turnPlayerInventory.decCard(request.getResource2(), 1);
                                 notSuccessfulResponse.initWithMessage(request);
+                                notSuccessfulResponse.setErrorDescription("Please select 2 valid resources");
                                 post(notSuccessfulResponse);
                                 break;
                             }
@@ -833,6 +835,7 @@ public class GameService extends AbstractService {
 
                     default:
                         notSuccessfulResponse.initWithMessage(request);
+                        notSuccessfulResponse.setErrorDescription("Not a valid DevelopmentCard");
                         post(notSuccessfulResponse);
                         break;
                 }
