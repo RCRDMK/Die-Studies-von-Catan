@@ -154,7 +154,7 @@ public class GameService extends AbstractService {
                         if (message.getUuid().equals(buildingNode.getUuid())) { // ... and if the node in the message is a node in the MapGraph BuildingNodeSet...
                             if (buildingNode.buildOrDevelopSettlement(playerIndex)) {
                                 game.get().getMapGraph().addBuiltBuilding(buildingNode);
-                                sendToAllInGame(game.get().getName(), new SuccessfulConstructionMessage(playerIndex,
+                                sendToAllInGame(game.get().getName(), new SuccessfulConstructionMessage(game.get().getName(), message.getUser().getWithoutPassword(), playerIndex,
                                         message.getUuid(), "BuildingNode"));
                                 return true;
                             }
@@ -164,7 +164,7 @@ public class GameService extends AbstractService {
                     for (MapGraph.StreetNode streetNode : game.get().getMapGraph().getStreetNodeHashSet()) {
                         if (message.getUuid().equals(streetNode.getUuid())) {
                             if (streetNode.buildRoad(playerIndex)) {
-                                sendToAllInGame(game.get().getName(), new SuccessfulConstructionMessage(playerIndex,
+                                sendToAllInGame(game.get().getName(), new SuccessfulConstructionMessage(game.get().getName(), message.getUser().getWithoutPassword(), playerIndex,
                                         message.getUuid(), "StreetNode"));
                                 return true;
                             }

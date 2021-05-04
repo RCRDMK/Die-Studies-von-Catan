@@ -40,8 +40,11 @@ import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
+import javafx.stage.Modality;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.checkerframework.checker.units.qual.C;
+import org.w3c.dom.css.Rect;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -73,6 +76,7 @@ public class GamePresenter extends AbstractPresenter {
     private User joinedLobbyUser;
     private String currentLobby;
     private Alert alert;
+    private Alert resolveDevelopmentCardAlert;
     private ButtonType buttonTypeOkay;
     private Button btnOkay;
     private ObservableList<String> gameUsers;
@@ -87,6 +91,21 @@ public class GamePresenter extends AbstractPresenter {
     private ChatService chatService;
     @FXML
     private Canvas canvas;
+
+    // Used for the DevelopmentCard alerts
+    private final ImagePattern brick = new ImagePattern(new Image("textures/resized/RES_Lehm.png"));
+    private final ImagePattern ore = new ImagePattern(new Image("textures/resized/RES_Erz.png"));
+    private final ImagePattern wool = new ImagePattern(new Image("textures/resized/RES_Wolle.png"));
+    private final ImagePattern grain = new ImagePattern(new Image("textures/resized/RES_Getreide.png"));
+    private final ImagePattern lumber = new ImagePattern(new Image("textures/resized/RES_Holz.png"));
+    private final ArrayList<Rectangle> resourceRectangles = new ArrayList<>();
+    private String currentDevelopmentCard = "";
+    private String resource1 = "";
+    private String resource2 = "";
+    private UUID street1;
+    private UUID street2;
+    private final Circle selectedStreet1 = new Circle();
+    private final Circle selectedStreet2 = new Circle();
 
     private ArrayList<ImagePattern> profilePicturePatterns = new ArrayList<>();
 
@@ -233,16 +252,29 @@ public class GamePresenter extends AbstractPresenter {
 
     @FXML
     public void onBuildStreet(ActionEvent event) {
+        for (MapGraphNodeContainer container : mapGraphNodeContainers) {
+            if (container.getMapGraphNode().getOccupiedByPlayer() == 666) {
+                container.getCircle().setVisible(container.getMapGraphNode() instanceof MapGraph.StreetNode);
+            }
+        }
         //TODO:...
     }
 
     @FXML
     public void onBuildSettlement(ActionEvent event) {
+        for (MapGraphNodeContainer container : mapGraphNodeContainers) {
+            if (container.getMapGraphNode().getOccupiedByPlayer() == 666) {
+                container.getCircle().setVisible(container.getMapGraphNode() instanceof MapGraph.BuildingNode);
+            }
+        }
         //TODO:...
     }
 
     @FXML
     public void onBuildTown(ActionEvent event) {
+        for (MapGraphNodeContainer container : mapGraphNodeContainers) {
+            container.getCircle().setVisible(container.getMapGraphNode().getOccupiedByPlayer() != 666);
+        }
         //TODO:...
     }
 
@@ -326,6 +358,7 @@ public class GamePresenter extends AbstractPresenter {
             Platform.runLater(() -> {
                 setupPlayerPictures(gcm.getUsers());
                 setupRessourceAlert();
+                setupResolveDevelopmentCardAlert();
             });
         }
     }
@@ -681,8 +714,8 @@ public class GamePresenter extends AbstractPresenter {
                 Circle circle = mapGraphNodeContainer.getCircle();
                 circle.setRadius(itemSize);
                 circle.setLayoutX(drawVector.getX());
-
                 circle.setLayoutY(drawVector.getY());
+                circle.setVisible(false);
 
                 mapGraphNodeContainer.getCircle().setFill(determinePlayerColorByIndex(mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer()));
 
@@ -700,6 +733,7 @@ public class GamePresenter extends AbstractPresenter {
                 circle.setRadius(itemSize);
                 circle.setLayoutX(drawVector.getX());
                 circle.setLayoutY(drawVector.getY());
+                circle.setVisible(false);
 
                 circle.setFill(determinePlayerColorByIndex(mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer()));
             }
@@ -743,15 +777,30 @@ public class GamePresenter extends AbstractPresenter {
             @Override
             public void handle(MouseEvent mouseEvent) {
                 for (MapGraphNodeContainer container : mapGraphNodeContainers) {
-                    if (mouseEvent.getSource().equals(container.getCircle()) && itsMyTurn == true) {
+                    if (mouseEvent.getSource().equals(container.getCircle()) && itsMyTurn) {
                         String typeOfNode;
                         if (container.getMapGraphNode() instanceof MapGraph.BuildingNode) {
                             typeOfNode = "BuildingNode";
                         } else {
                             typeOfNode = "StreetNode";
                         }
-                        UserDTO user = new UserDTO(joinedLobbyUser.getUsername(), joinedLobbyUser.getPassword(), joinedLobbyUser.getEMail()); //Still sent with password because tight deadline. TODO: Change responsible Interface in future, to send Users without Passwords.
-                        gameService.constructBuilding(user, currentLobby, container.getMapGraphNode().getUuid(), typeOfNode);
+                        if (currentDevelopmentCard.equals("")) {
+                            gameService.constructBuilding((UserDTO) joinedLobbyUser.getWithoutPassword(), currentLobby, container.getMapGraphNode().getUuid(), typeOfNode);
+                        } else if (currentDevelopmentCard.equals("Road Building") && typeOfNode.equals("StreetNode")) {
+                            if (street1 == null) {
+                                street1 = container.getMapGraphNode().getUuid();
+                                selectedStreet1.setLayoutX(container.getCircle().getLayoutX());
+                                selectedStreet1.setLayoutY(container.getCircle().getLayoutY());
+                                selectedStreet1.setRadius(container.getCircle().getRadius() * 2);
+                                gameAnchorPane.getChildren().add(selectedStreet1);
+                            } else if (street2 == null) {
+                                street2 = container.getMapGraphNode().getUuid();
+                                selectedStreet2.setLayoutX(container.getCircle().getLayoutX());
+                                selectedStreet2.setLayoutY(container.getCircle().getLayoutY());
+                                selectedStreet2.setRadius(container.getCircle().getRadius() * 2);
+                                gameAnchorPane.getChildren().add(selectedStreet2);
+                            }
+                        }
                     }
                 }
             }
@@ -866,6 +915,99 @@ public class GamePresenter extends AbstractPresenter {
         });
     }
 
+    public void setupResolveDevelopmentCardAlert() {
+
+        EventHandler<MouseEvent> clickOnResourceRectangleHandler = mouseEvent -> {
+            Rectangle rect = (Rectangle) mouseEvent.getSource();
+            if (rect.getFill().equals(lumber)) {
+                if (resource1.equals("")) {
+                    resource1 = "Lumber";
+                } else if (resource2.equals("")) {
+                    resource2 = "Lumber";
+                }
+            } else if (rect.getFill().equals(ore)) {
+                if (resource1.equals("")) {
+                    resource1 = "Ore";
+                } else if (resource2.equals("")) {
+                    resource2 = "Ore";
+                }
+            } else if (rect.getFill().equals(brick)) {
+                if (resource1.equals("")) {
+                    resource1 = "Brick";
+                } else if (resource2.equals("")) {
+                    resource2 = "Brick";
+                }
+            } else if (rect.getFill().equals(grain)) {
+                if (resource1.equals("")) {
+                    resource1 = "Grain";
+                } else if (resource2.equals("")) {
+                    resource2 = "Grain";
+                }
+            } else if (rect.getFill().equals(wool)) {
+                if (resource1.equals("")) {
+                    resource1 = "Wool";
+                } else if (resource2.equals("")) {
+                    resource2 = "Wool";
+                }
+            }
+        };
+
+        this.resolveDevelopmentCardAlert = new Alert(javafx.scene.control.Alert.AlertType.CONFIRMATION);
+        ButtonType resolveButtonType = new ButtonType("Okay", ButtonBar.ButtonData.OK_DONE);
+        Button resolveButton;
+        Rectangle lumberRectangle = new Rectangle(50, 100);
+        lumberRectangle.setFill(lumber);
+        resourceRectangles.add(lumberRectangle);
+        Rectangle oreRectangle = new Rectangle(50, 100);
+        oreRectangle.setFill(ore);
+        resourceRectangles.add(oreRectangle);
+        Rectangle grainRectangle = new Rectangle(50, 100);
+        grainRectangle.setFill(grain);
+        resourceRectangles.add(grainRectangle);
+        Rectangle brickRectangle = new Rectangle(50, 100);
+        brickRectangle.setFill(brick);
+        resourceRectangles.add(brickRectangle);
+        Rectangle woolRectangle = new Rectangle(50, 100);
+        woolRectangle.setFill(wool);
+        resourceRectangles.add(woolRectangle);
+        double position = 0;
+        for (Rectangle rectangle : resourceRectangles) {
+            rectangle.setOnMouseClicked(clickOnResourceRectangleHandler);
+            rectangle.setLayoutY(50);
+            rectangle.setLayoutX(position);
+            position = position + 50.0;
+        }
+        resolveDevelopmentCardAlert.getButtonTypes().setAll(resolveButtonType);
+        resolveButton = (Button) resolveDevelopmentCardAlert.getDialogPane().lookupButton(resolveButtonType);
+        resolveButton.setOnAction(event -> {
+            switch (this.currentDevelopmentCard) {
+                case "Year of Plenty":
+                    gameService.resolveDevelopmentCardYearOfPlenty((UserDTO) joinedLobbyUser.getWithoutPassword(), currentLobby, currentDevelopmentCard, resource1, resource2);
+                    break;
+                case "Monopoly":
+                    gameService.resolveDevelopmentCardMonopoly((UserDTO) joinedLobbyUser.getWithoutPassword(), currentLobby, currentDevelopmentCard, resource1);
+                    break;
+                case "Road Building":
+                    gameService.resolveDevelopmentCardRoadBuilding((UserDTO) joinedLobbyUser.getWithoutPassword(), currentLobby, currentDevelopmentCard, street1, street2);
+                    break;
+                case "Knight":
+                    // TODO: implement knight functionality
+                    break;
+            }
+            resource1 = "";
+            resource2 = "";
+            street1 = null;
+            street2 = null;
+            gameAnchorPane.getChildren().remove(selectedStreet1);
+            gameAnchorPane.getChildren().remove(selectedStreet2);
+            currentDevelopmentCard = "";
+            event.consume();
+        });
+        resolveDevelopmentCardAlert.initModality(Modality.NONE);
+        resolveDevelopmentCardAlert.getDialogPane().getChildren().addAll(lumberRectangle, oreRectangle, grainRectangle, brickRectangle, woolRectangle);
+    }
+
+
     /**
      * Updates the corresponding Node in the list of MapGraphNodes to represent the changes from the message.
      *
@@ -875,22 +1017,28 @@ public class GamePresenter extends AbstractPresenter {
      */
     @Subscribe
     public void onSuccessfulConstructionMessage(SuccessfulConstructionMessage message) {
-        if (message.getTypeOfNode().equals("BuildingNode")) {
-            for (MapGraphNodeContainer mapGraphNodeContainer : mapGraphNodeContainers) {
-                if (mapGraphNodeContainer.getMapGraphNode().getUuid().equals(message.getUuid())) {
-                    MapGraph.BuildingNode buildingNode = (MapGraph.BuildingNode) mapGraphNodeContainer.getMapGraphNode();
-                    buildingNode.buildOrDevelopSettlement(message.getPlayerIndex());
-                    mapGraphNodeContainer.getCircle().setFill(determinePlayerColorByIndex(mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer()));
-                    break;
-                }
-            }
-        } else {
-            for (MapGraphNodeContainer mapGraphNodeContainer : mapGraphNodeContainers) {
-                if (mapGraphNodeContainer.getMapGraphNode().getUuid().equals(message.getUuid())) {
-                    MapGraph.StreetNode streetNode = (MapGraph.StreetNode) mapGraphNodeContainer.getMapGraphNode();
-                    streetNode.buildRoad(message.getPlayerIndex());
-                    mapGraphNodeContainer.getCircle().setFill(determinePlayerColorByIndex(mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer()));
-                    break;
+        if (this.currentLobby != null) {
+            if (this.currentLobby.equals(message.getName())) {
+                if (message.getTypeOfNode().equals("BuildingNode")) {
+                    for (MapGraphNodeContainer mapGraphNodeContainer : mapGraphNodeContainers) {
+                        if (mapGraphNodeContainer.getMapGraphNode().getUuid().equals(message.getUuid())) {
+                            MapGraph.BuildingNode buildingNode = (MapGraph.BuildingNode) mapGraphNodeContainer.getMapGraphNode();
+                            buildingNode.buildOrDevelopSettlement(message.getPlayerIndex());
+                            mapGraphNodeContainer.getCircle().setFill(determinePlayerColorByIndex(mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer()));
+                            mapGraphNodeContainer.getCircle().setVisible(true);
+                            break;
+                        }
+                    }
+                } else {
+                    for (MapGraphNodeContainer mapGraphNodeContainer : mapGraphNodeContainers) {
+                        if (mapGraphNodeContainer.getMapGraphNode().getUuid().equals(message.getUuid())) {
+                            MapGraph.StreetNode streetNode = (MapGraph.StreetNode) mapGraphNodeContainer.getMapGraphNode();
+                            streetNode.buildRoad(message.getPlayerIndex());
+                            mapGraphNodeContainer.getCircle().setFill(determinePlayerColorByIndex(mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer()));
+                            mapGraphNodeContainer.getCircle().setVisible(true);
+                            break;
+                        }
+                    }
                 }
             }
         }
@@ -934,6 +1082,13 @@ public class GamePresenter extends AbstractPresenter {
         if (this.currentLobby != null) {
             if (this.currentLobby.equals(rdcns.getGameName())) {
                 System.out.println(rdcns.getDevCard() + " didnt resolve Card successfully");
+                this.currentDevelopmentCard = rdcns.getDevCard();
+                Platform.runLater(() -> {
+                    this.resolveDevelopmentCardAlert.setTitle(currentDevelopmentCard + " in " + rdcns.getGameName());
+                    this.resolveDevelopmentCardAlert.setHeaderText("Something didn't work. Try again.");
+                    this.resolveDevelopmentCardAlert.show();
+                });
+
                 //TODO: Alert oder so der sagt, dass das ausführen der Karte nicht geklappt hat.
                 // Zudem neuer Aufruf an den User es erneut zu versuchen
             }
@@ -956,7 +1111,34 @@ public class GamePresenter extends AbstractPresenter {
                     LOG.debug("The card " + pdcr.getDevCard() + " was played by the user " + pdcr.getUserName());
                     // TODO: implement way to make the user chose the way to resolve the card
                     // TODO: currently the user will automatically resolve the development card Year of Plenty
-                    gameService.resolveDevelopmentCardYearOfPlenty((UserDTO) joinedLobbyUser, currentLobby, pdcr.getDevCard(), "Lumber", "Brick");
+                    this.currentDevelopmentCard = pdcr.getDevCard();
+                    Platform.runLater(() -> {
+                        this.resolveDevelopmentCardAlert.setTitle(currentDevelopmentCard + " in " + pdcr.getGameName());
+                        if (this.currentDevelopmentCard.equals("Year of Plenty") || this.currentDevelopmentCard.equals("Monopoly")) {
+                            this.resolveDevelopmentCardAlert.setHeaderText("Select Resource/s");
+                            for (Rectangle rect : resourceRectangles) {
+                                rect.setVisible(true);
+                            }
+                            for (MapGraphNodeContainer container : mapGraphNodeContainers) {
+                                if (container.getMapGraphNode().getOccupiedByPlayer() == 666) {
+                                    container.getCircle().setVisible(false);
+                                }
+                            }
+                        } else if (this.currentDevelopmentCard.equals("Road Building")) {
+                            for (MapGraphNodeContainer container : mapGraphNodeContainers) {
+                                if (container.getMapGraphNode().getOccupiedByPlayer() == 666) {
+                                    container.getCircle().setVisible(container.getMapGraphNode() instanceof MapGraph.StreetNode);
+                                }
+                            }
+                            this.resolveDevelopmentCardAlert.setHeaderText("Select 2 Streets");
+                            for (Rectangle rect : resourceRectangles) {
+                                rect.setVisible(false);
+                            }
+                        }
+                        this.resolveDevelopmentCardAlert.show();
+
+                    });
+
                 } else {
                     LOG.debug("The user " + pdcr.getUserName() + " cannot play the card " + pdcr.getDevCard());
                 }
@@ -975,6 +1157,7 @@ public class GamePresenter extends AbstractPresenter {
     public void onResolveDevelopmentCardMessage(ResolveDevelopmentCardMessage rdcm) {
         if (this.currentLobby != null) {
             if (this.currentLobby.equals(rdcm.getName())) {
+                resolveDevelopmentCardAlert.close();
                 LOG.debug("The user " + rdcm.getUser().getUsername() + " successfully resolved the card " + rdcm.getDevCard());
             }
         }
