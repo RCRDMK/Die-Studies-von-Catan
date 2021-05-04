@@ -31,7 +31,6 @@ import javafx.scene.image.Image;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
@@ -45,6 +44,7 @@ import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.Executors;
@@ -88,9 +88,9 @@ public class GamePresenter extends AbstractPresenter {
 
     private ObservableList<String> gameUsers;
 
-    private ArrayList<HexagonContainer> hexagonContainers = new ArrayList<>();
+    private final ArrayList<HexagonContainer> hexagonContainers = new ArrayList<>();
 
-    private ArrayList<MapGraphNodeContainer> mapGraphNodeContainers = new ArrayList<>();
+    private final ArrayList<MapGraphNodeContainer> mapGraphNodeContainers = new ArrayList<>();
 
     private Boolean itsMyTurn = false;
 
@@ -113,14 +113,16 @@ public class GamePresenter extends AbstractPresenter {
     private String currentDevelopmentCard = "";
     private String resource1 = "";
     private String resource2 = "";
-    private UUID street1;
-    private UUID street2;
+    private UUID street1 = null;
+    private UUID street2 = null;
     private final Circle selectedStreet1 = new Circle();
     private final Circle selectedStreet2 = new Circle();
+    private final Circle selectedResource1 = new Circle();
+    private final Circle selectedResource2 = new Circle();
 
-    private ArrayList<ImagePattern> profilePicturePatterns = new ArrayList<>();
+    private final ArrayList<ImagePattern> profilePicturePatterns = new ArrayList<>();
 
-    private ArrayList<Rectangle> rectangles = new ArrayList<>();
+    private final ArrayList<Rectangle> rectangles = new ArrayList<>();
 
     @FXML
     private AnchorPane gameAnchorPane;
@@ -445,7 +447,7 @@ public class GamePresenter extends AbstractPresenter {
      *
      * @param response //TODO JavaDoc
      * @author Pieter Vogt
-     *
+     * <p>
      * Enhanced by Carsten Dekker
      * @since 2021-04-30
      */
@@ -459,7 +461,6 @@ public class GamePresenter extends AbstractPresenter {
             } else {
                 itsMyTurn = false;
                 EndTurnButton.setDisable(true);
-                itsMyTurn = false;
                 tradeButton.setDisable(true);
             }
             if (!response.isInStartingTurn()) {
@@ -849,13 +850,19 @@ public class GamePresenter extends AbstractPresenter {
                                 selectedStreet1.setLayoutX(container.getCircle().getLayoutX());
                                 selectedStreet1.setLayoutY(container.getCircle().getLayoutY());
                                 selectedStreet1.setRadius(container.getCircle().getRadius() * 2);
-                                gameAnchorPane.getChildren().add(selectedStreet1);
+                                selectedStreet1.setVisible(true);
                             } else if (street2 == null) {
                                 street2 = container.getMapGraphNode().getUuid();
                                 selectedStreet2.setLayoutX(container.getCircle().getLayoutX());
                                 selectedStreet2.setLayoutY(container.getCircle().getLayoutY());
                                 selectedStreet2.setRadius(container.getCircle().getRadius() * 2);
-                                gameAnchorPane.getChildren().add(selectedStreet2);
+                                selectedStreet2.setVisible(true);
+                            } else {
+                                street2 = null;
+                                street1 =container.getMapGraphNode().getUuid();
+                                selectedStreet2.setVisible(false);
+                                selectedStreet1.setLayoutX(container.getCircle().getLayoutX());
+                                selectedStreet1.setLayoutY(container.getCircle().getLayoutY());
                             }
                         }
                     }
@@ -979,32 +986,92 @@ public class GamePresenter extends AbstractPresenter {
             if (rect.getFill().equals(lumber)) {
                 if (resource1.equals("")) {
                     resource1 = "Lumber";
-                } else if (resource2.equals("")) {
+                    selectedResource1.setLayoutX(rect.getLayoutX() + selectedResource1.getRadius());
+                    selectedResource1.setLayoutY(rect.getLayoutY() + selectedResource1.getRadius());
+                    selectedResource1.setVisible(true);
+                } else if (resource2.equals("") && currentDevelopmentCard.equals("Year of Plenty")) {
                     resource2 = "Lumber";
+                    selectedResource2.setLayoutX(rect.getLayoutX() + selectedResource2.getRadius() / 2 + rect.getWidth() - selectedResource2.getRadius());
+                    selectedResource2.setLayoutY(rect.getLayoutY() + selectedResource2.getRadius());
+                    selectedResource2.setVisible(true);
+                } else {
+                    resource1 = "Lumber";
+                    resource2 = "";
+                    selectedResource1.setLayoutX(rect.getLayoutX() + selectedResource1.getRadius());
+                    selectedResource1.setLayoutY(rect.getLayoutY() + selectedResource1.getRadius());
+                    selectedResource2.setVisible(false);
                 }
             } else if (rect.getFill().equals(ore)) {
                 if (resource1.equals("")) {
                     resource1 = "Ore";
-                } else if (resource2.equals("")) {
+                    selectedResource1.setLayoutX(rect.getLayoutX() + selectedResource1.getRadius());
+                    selectedResource1.setLayoutY(rect.getLayoutY() + selectedResource1.getRadius());
+                    selectedResource1.setVisible(true);
+                } else if (resource2.equals("") && currentDevelopmentCard.equals("Year of Plenty")) {
                     resource2 = "Ore";
+                    selectedResource2.setLayoutX(rect.getLayoutX() + selectedResource2.getRadius() / 2 + rect.getWidth() - selectedResource2.getRadius());
+                    selectedResource2.setLayoutY(rect.getLayoutY() + selectedResource2.getRadius());
+                    selectedResource2.setVisible(true);
+                } else {
+                    resource1 = "Ore";
+                    resource2 = "";
+                    selectedResource1.setLayoutX(rect.getLayoutX() + selectedResource1.getRadius());
+                    selectedResource1.setLayoutY(rect.getLayoutY() + selectedResource1.getRadius());
+                    selectedResource2.setVisible(false);
                 }
             } else if (rect.getFill().equals(brick)) {
                 if (resource1.equals("")) {
                     resource1 = "Brick";
-                } else if (resource2.equals("")) {
+                    selectedResource1.setLayoutX(rect.getLayoutX() + selectedResource1.getRadius());
+                    selectedResource1.setLayoutY(rect.getLayoutY() + selectedResource1.getRadius());
+                    selectedResource1.setVisible(true);
+                } else if (resource2.equals("") && currentDevelopmentCard.equals("Year of Plenty")) {
                     resource2 = "Brick";
+                    selectedResource2.setLayoutX(rect.getLayoutX() + selectedResource2.getRadius() / 2 + rect.getWidth() - selectedResource2.getRadius());
+                    selectedResource2.setLayoutY(rect.getLayoutY() + selectedResource2.getRadius());
+                    selectedResource2.setVisible(true);
+                } else {
+                    resource1 = "Brick";
+                    resource2 = "";
+                    selectedResource1.setLayoutX(rect.getLayoutX() + selectedResource1.getRadius());
+                    selectedResource1.setLayoutY(rect.getLayoutY() + selectedResource1.getRadius());
+                    selectedResource2.setVisible(false);
                 }
             } else if (rect.getFill().equals(grain)) {
                 if (resource1.equals("")) {
                     resource1 = "Grain";
-                } else if (resource2.equals("")) {
+                    selectedResource1.setLayoutX(rect.getLayoutX() + selectedResource1.getRadius());
+                    selectedResource1.setLayoutY(rect.getLayoutY() + selectedResource1.getRadius());
+                    selectedResource1.setVisible(true);
+                } else if (resource2.equals("") && currentDevelopmentCard.equals("Year of Plenty")) {
                     resource2 = "Grain";
+                    selectedResource2.setLayoutX(rect.getLayoutX() + selectedResource2.getRadius() / 2 + rect.getWidth() - selectedResource2.getRadius());
+                    selectedResource2.setLayoutY(rect.getLayoutY() + selectedResource2.getRadius());
+                    selectedResource2.setVisible(true);
+                } else {
+                    resource1 = "Grain";
+                    resource2 = "";
+                    selectedResource1.setLayoutX(rect.getLayoutX() + selectedResource1.getRadius());
+                    selectedResource1.setLayoutY(rect.getLayoutY() + selectedResource1.getRadius());
+                    selectedResource2.setVisible(false);
                 }
             } else if (rect.getFill().equals(wool)) {
                 if (resource1.equals("")) {
                     resource1 = "Wool";
-                } else if (resource2.equals("")) {
+                    selectedResource1.setLayoutX(rect.getLayoutX() + selectedResource1.getRadius());
+                    selectedResource1.setLayoutY(rect.getLayoutY() + selectedResource1.getRadius());
+                    selectedResource1.setVisible(true);
+                } else if (resource2.equals("") && currentDevelopmentCard.equals("Year of Plenty")) {
                     resource2 = "Wool";
+                    selectedResource2.setLayoutX(rect.getLayoutX() + selectedResource2.getRadius() / 2 + rect.getWidth() - selectedResource2.getRadius());
+                    selectedResource2.setLayoutY(rect.getLayoutY() + selectedResource2.getRadius());
+                    selectedResource2.setVisible(true);
+                } else {
+                    resource1 = "Wool";
+                    resource2 = "";
+                    selectedResource1.setLayoutX(rect.getLayoutX() + selectedResource1.getRadius());
+                    selectedResource1.setLayoutY(rect.getLayoutY() + selectedResource1.getRadius());
+                    selectedResource2.setVisible(false);
                 }
             }
         };
@@ -1012,6 +1079,10 @@ public class GamePresenter extends AbstractPresenter {
         this.resolveDevelopmentCardAlert = new Alert(javafx.scene.control.Alert.AlertType.CONFIRMATION);
         ButtonType resolveButtonType = new ButtonType("Okay", ButtonBar.ButtonData.OK_DONE);
         Button resolveButton;
+        selectedResource1.setFill(Color.BLACK);
+        selectedResource2.setFill(Color.RED);
+        selectedResource1.setRadius(5);
+        selectedResource2.setRadius(5);
         Rectangle lumberRectangle = new Rectangle(50, 100);
         lumberRectangle.setFill(lumber);
         resourceRectangles.add(lumberRectangle);
@@ -1039,29 +1110,44 @@ public class GamePresenter extends AbstractPresenter {
         resolveButton.setOnAction(event -> {
             switch (this.currentDevelopmentCard) {
                 case "Year of Plenty":
-                    gameService.resolveDevelopmentCardYearOfPlenty((UserDTO) joinedLobbyUser.getWithoutPassword(), currentLobby, currentDevelopmentCard, resource1, resource2);
+                        gameService.resolveDevelopmentCardYearOfPlenty((UserDTO) joinedLobbyUser.getWithoutPassword(), currentLobby, currentDevelopmentCard, resource1, resource2);
+                        resource1 = "";
+                        resource2 = "";
+                        selectedResource1.setVisible(false);
+                        selectedResource2.setVisible(false);
+                        currentDevelopmentCard = "";
                     break;
                 case "Monopoly":
-                    gameService.resolveDevelopmentCardMonopoly((UserDTO) joinedLobbyUser.getWithoutPassword(), currentLobby, currentDevelopmentCard, resource1);
+                        gameService.resolveDevelopmentCardMonopoly((UserDTO) joinedLobbyUser.getWithoutPassword(), currentLobby, currentDevelopmentCard, resource1);
+                        resource1 = "";
+                        selectedResource1.setVisible(false);
+                        currentDevelopmentCard = "";
                     break;
                 case "Road Building":
-                    gameService.resolveDevelopmentCardRoadBuilding((UserDTO) joinedLobbyUser.getWithoutPassword(), currentLobby, currentDevelopmentCard, street1, street2);
+                        gameService.resolveDevelopmentCardRoadBuilding((UserDTO) joinedLobbyUser.getWithoutPassword(), currentLobby, currentDevelopmentCard, street1, street2);
+                        street1 = null;
+                        street2 = null;
+                        selectedStreet1.setVisible(false);
+                        selectedStreet2.setVisible(false);
+                        currentDevelopmentCard = "";
                     break;
                 case "Knight":
                     // TODO: implement knight functionality
                     break;
             }
-            resource1 = "";
-            resource2 = "";
-            street1 = null;
-            street2 = null;
-            gameAnchorPane.getChildren().remove(selectedStreet1);
-            gameAnchorPane.getChildren().remove(selectedStreet2);
-            currentDevelopmentCard = "";
             event.consume();
         });
         resolveDevelopmentCardAlert.initModality(Modality.NONE);
-        resolveDevelopmentCardAlert.getDialogPane().getChildren().addAll(lumberRectangle, oreRectangle, grainRectangle, brickRectangle, woolRectangle);
+        resolveDevelopmentCardAlert.getDialogPane().getChildren().addAll(resourceRectangles);
+        resolveDevelopmentCardAlert.getDialogPane().getChildren().addAll(selectedResource1, selectedResource2);
+        gameAnchorPane.getChildren().add(selectedStreet1);
+        gameAnchorPane.getChildren().add(selectedStreet2);
+        selectedResource1.setVisible(false);
+        selectedResource2.setVisible(false);
+        selectedStreet1.setVisible(false);
+        selectedStreet2.setVisible(false);
+        selectedStreet1.setFill(Color.BLACK);
+        selectedStreet2.setFill(Color.RED);
     }
 
 
@@ -1146,16 +1232,16 @@ public class GamePresenter extends AbstractPresenter {
         executorService.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
-                    i[0]++;
-                    int randomNumber = randomInt(0, 5);
-                    rectangleDie1.setFill(diceImages.get(randomNumber));
-                    randomNumber = randomInt(0, 5);
-                    rectangleDie2.setFill(diceImages.get(randomNumber));
-                    if (i[0] == 12) {
-                        executorService.shutdown();
-                        rectangleDie1.setFill(diceImages.get(diceEyes1 - 1));
-                        rectangleDie2.setFill(diceImages.get(diceEyes2 - 1));
-                    }
+                i[0]++;
+                int randomNumber = randomInt(0, 5);
+                rectangleDie1.setFill(diceImages.get(randomNumber));
+                randomNumber = randomInt(0, 5);
+                rectangleDie2.setFill(diceImages.get(randomNumber));
+                if (i[0] == 12) {
+                    executorService.shutdown();
+                    rectangleDie1.setFill(diceImages.get(diceEyes1 - 1));
+                    rectangleDie2.setFill(diceImages.get(diceEyes2 - 1));
+                }
             }
         }, 0, 125, TimeUnit.MILLISECONDS);
     }
@@ -1220,10 +1306,11 @@ public class GamePresenter extends AbstractPresenter {
         if (this.currentLobby != null) {
             if (this.currentLobby.equals(privateInventoryChangeMessage.getName())) {
                 // TODO: dient nur zu Testzwecken, muss später richtig dargestellt werden
-                System.out.println(privateInventoryChangeMessage.getPrivateInventory().get("Lumber"));
-                System.out.println(privateInventoryChangeMessage.getPrivateInventory().get("Brick"));
-                System.out.println(privateInventoryChangeMessage.getPrivateInventory().get("Ore"));
-
+                System.out.println("Lumber " + privateInventoryChangeMessage.getPrivateInventory().get("Lumber"));
+                System.out.println("Brick " + privateInventoryChangeMessage.getPrivateInventory().get("Brick"));
+                System.out.println("Ore " + privateInventoryChangeMessage.getPrivateInventory().get("Ore"));
+                System.out.println("Grain " + privateInventoryChangeMessage.getPrivateInventory().get("Grain"));
+                System.out.println("Wool " + privateInventoryChangeMessage.getPrivateInventory().get("Wool"));
             }
         }
         //TODO: Darstellung der Veränderung des Inventars
