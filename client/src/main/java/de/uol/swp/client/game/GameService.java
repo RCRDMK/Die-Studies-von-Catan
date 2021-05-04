@@ -196,7 +196,7 @@ public class GameService {
      * @since 2021-05-03
      */
     public void resolveDevelopmentCardMonopoly(UserDTO joinedLobbyUser, String currentLobby, String devCard, String resource) {
-        eventBus.post(new ResolveDevelopmentCardRequest(devCard, joinedLobbyUser, currentLobby, resource));
+        eventBus.post(new ResolveDevelopmentCardMonopolyRequest(devCard, joinedLobbyUser, currentLobby, resource));
     }
 
     /**
@@ -211,7 +211,7 @@ public class GameService {
      * @since 2021-05-03
      */
     public void resolveDevelopmentCardYearOfPlenty(UserDTO joinedLobbyUser, String currentLobby, String devCard, String resource1, String resource2) {
-        eventBus.post(new ResolveDevelopmentCardRequest(devCard, joinedLobbyUser, currentLobby, resource1, resource2));
+        eventBus.post(new ResolveDevelopmentCardYearOfPlentyRequest(devCard, joinedLobbyUser, currentLobby, resource1, resource2));
     }
 
     /**
@@ -226,7 +226,6 @@ public class GameService {
      * @since 2021-05-03
      */
     public void resolveDevelopmentCardRoadBuilding(UserDTO joinedLobbyUser, String currentLobby, String devCard, UUID street1, UUID street2) {
-        eventBus.post(new ResolveDevelopmentCardRequest(devCard, joinedLobbyUser, currentLobby, street1, street2));
-
+        eventBus.post(new ResolveDevelopmentCardRoadBuildingRequest(devCard, joinedLobbyUser, currentLobby, street1, street2));
     }
 }

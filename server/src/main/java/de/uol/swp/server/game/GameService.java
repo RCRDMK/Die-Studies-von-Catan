@@ -746,39 +746,47 @@ public class GameService extends AbstractService {
                 Inventory turnPlayerInventory = game.get().getInventory(turnPlayer);
                 ResolveDevelopmentCardMessage message = new ResolveDevelopmentCardMessage(devCard, (UserDTO) turnPlayer, gameName);
                 ResolveDevelopmentCardNotSuccessfulResponse notSuccessfulResponse = new ResolveDevelopmentCardNotSuccessfulResponse(devCard, turnPlayer.getUsername(), gameName);
-                boolean resolvedDevelopmentCardSuccessfully = true;
+                boolean resolvedDevelopmentCardSuccessfully = false;
 
                 switch (devCard) {
                     case "Monopoly":
-                        String resource = request.getResource1();
-                        for (User user : game.get().getUsers()) {
-                            if (!user.equals(turnPlayer)) {
-                                Inventory x = game.get().getInventory(user);
-                                switch (resource) {
-                                    case "Lumber":
-                                        turnPlayerInventory.incCard(resource, x.lumber.getNumber());
-                                        x.lumber.decNumber(x.lumber.getNumber());
-                                        break;
-                                    case "Ore":
-                                        turnPlayerInventory.incCard(resource, x.ore.getNumber());
-                                        x.ore.decNumber(x.ore.getNumber());
-                                        break;
-                                    case "Wool":
-                                        turnPlayerInventory.incCard(resource, x.wool.getNumber());
-                                        x.wool.decNumber(x.wool.getNumber());
-                                        break;
-                                    case "Brick":
-                                        turnPlayerInventory.incCard(resource, x.brick.getNumber());
-                                        x.brick.decNumber(x.brick.getNumber());
-                                        break;
-                                    case "Grain":
-                                        turnPlayerInventory.incCard(resource, x.grain.getNumber());
-                                        x.grain.decNumber(x.grain.getNumber());
-                                        break;
-                                    default:
-                                        resolvedDevelopmentCardSuccessfully = false;
-                                        break;
+                        if (request instanceof ResolveDevelopmentCardMonopolyRequest) {
+                            ResolveDevelopmentCardMonopolyRequest monopolyRequest = (ResolveDevelopmentCardMonopolyRequest) request;
+                            String resource = monopolyRequest.getResource();
+                            for (User user : game.get().getUsers()) {
+                                if (!user.equals(turnPlayer)) {
+                                    Inventory x = game.get().getInventory(user);
+                                    switch (resource) {
+                                        case "Lumber":
+                                            turnPlayerInventory.incCard(resource, x.lumber.getNumber());
+                                            x.lumber.decNumber(x.lumber.getNumber());
+                                            resolvedDevelopmentCardSuccessfully = true;
+                                            break;
+                                        case "Ore":
+                                            turnPlayerInventory.incCard(resource, x.ore.getNumber());
+                                            x.ore.decNumber(x.ore.getNumber());
+                                            resolvedDevelopmentCardSuccessfully = true;
+                                            break;
+                                        case "Wool":
+                                            turnPlayerInventory.incCard(resource, x.wool.getNumber());
+                                            x.wool.decNumber(x.wool.getNumber());
+                                            resolvedDevelopmentCardSuccessfully = true;
+                                            break;
+                                        case "Brick":
+                                            turnPlayerInventory.incCard(resource, x.brick.getNumber());
+                                            x.brick.decNumber(x.brick.getNumber());
+                                            resolvedDevelopmentCardSuccessfully = true;
+                                            break;
+                                        case "Grain":
+                                            turnPlayerInventory.incCard(resource, x.grain.getNumber());
+                                            x.grain.decNumber(x.grain.getNumber());
+                                            resolvedDevelopmentCardSuccessfully = true;
+                                            break;
+                                        default:
+                                            resolvedDevelopmentCardSuccessfully = false;
+                                            break;
 
+                                    }
                                 }
                             }
                         }
@@ -794,30 +802,38 @@ public class GameService extends AbstractService {
                         break;
 
                     case "Road Building":
-                        // TODO: currently known bug, if only 1 of the streets can be built, the server will still build the street and make the user try again to build 2 streets
-                        // TODO: thus we need to check before actually building the streets if BOTH streets can be built
-                        ConstructionMessage constructionMessage1 = new ConstructionMessage((UserDTO) turnPlayer, gameName, request.getStreet1(), "StreetNode");
-                        ConstructionMessage constructionMessage2 = new ConstructionMessage((UserDTO) turnPlayer, gameName, request.getStreet2(), "StreetNode");
-                        boolean successful1 = onConstructionMessage(constructionMessage1);
-                        boolean successful2 = onConstructionMessage(constructionMessage2);
-                        if (!(successful1 && successful2)) {
-                            notSuccessfulResponse.initWithMessage(request);
-                            notSuccessfulResponse.setErrorDescription("Please select 2 valid building spots for the streets");
-                            post(notSuccessfulResponse);
+                        if (request instanceof ResolveDevelopmentCardRoadBuildingRequest) {
+                            ResolveDevelopmentCardRoadBuildingRequest roadBuildingRequest = (ResolveDevelopmentCardRoadBuildingRequest) request;
+                            // TODO: currently known bug, if only 1 of the streets can be built, the server will still build the street and make the user try again to build 2 streets
+                            // TODO: thus we need to check before actually building the streets if BOTH streets can be built
+                            ConstructionMessage constructionMessage1 = new ConstructionMessage((UserDTO) turnPlayer, gameName, roadBuildingRequest.getStreet1(), "StreetNode");
+                            ConstructionMessage constructionMessage2 = new ConstructionMessage((UserDTO) turnPlayer, gameName, roadBuildingRequest.getStreet2(), "StreetNode");
+                            boolean successful1 = onConstructionMessage(constructionMessage1);
+                            boolean successful2 = onConstructionMessage(constructionMessage2);
+                            if (!(successful1 && successful2)) {
+                                notSuccessfulResponse.initWithMessage(request);
+                                notSuccessfulResponse.setErrorDescription("Please select 2 valid building spots for the streets");
+                                post(notSuccessfulResponse);
+                            } else {
+                                sendToAllInGame(gameName, message);
+                                game.get().setCurrentCard("");
+                            }
                         } else {
-                            sendToAllInGame(gameName, message);
-                            game.get().setCurrentCard("");
+                            notSuccessfulResponse.initWithMessage(request);
+                            post(notSuccessfulResponse);
                         }
                         break;
 
                     case "Year of Plenty":
                         // TODO: implement bank resources and "not successful" functionality i.e. when the bank doesnt have enough resources
+                        if (request instanceof ResolveDevelopmentCardYearOfPlentyRequest) {
+                            ResolveDevelopmentCardYearOfPlentyRequest yearOfPlentyRequest = (ResolveDevelopmentCardYearOfPlentyRequest) request;
 
-                            successful1 = turnPlayerInventory.incCard(request.getResource1(), 1);
-                            successful2 = turnPlayerInventory.incCard(request.getResource2(), 1);
-                            if (!successful1 || !successful2) {
-                                turnPlayerInventory.decCard(request.getResource1(), 1);
-                                turnPlayerInventory.decCard(request.getResource2(), 1);
+                            boolean successful1 = turnPlayerInventory.incCard(yearOfPlentyRequest.getResource1(), 1);
+                            boolean successful2 = turnPlayerInventory.incCard(yearOfPlentyRequest.getResource2(), 1);
+                            if (!(successful1 && successful2)) {
+                                turnPlayerInventory.decCard(yearOfPlentyRequest.getResource1(), 1);
+                                turnPlayerInventory.decCard(yearOfPlentyRequest.getResource2(), 1);
                                 notSuccessfulResponse.initWithMessage(request);
                                 notSuccessfulResponse.setErrorDescription("Please select 2 valid resources");
                                 post(notSuccessfulResponse);
@@ -826,6 +842,10 @@ public class GameService extends AbstractService {
                             sendToAllInGame(gameName, message);
                             game.get().setCurrentCard("");
                             updateInventory(game);
+                        } else {
+                            notSuccessfulResponse.initWithMessage(request);
+                            post(notSuccessfulResponse);
+                        }
                         break;
 
                     case "Knight":

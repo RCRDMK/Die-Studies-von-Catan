@@ -62,10 +62,24 @@ public class ResolveDevelopmentCardNotSuccessfulResponse extends AbstractRespons
         return gameName;
     }
 
+    /**
+     * Getter for the error description.
+     *
+     * @return the String description of the error.
+     * @author Marc Hermes
+     * @since 2021-05-04
+     */
     public String getErrorDescription() {
         return errorDescription;
     }
 
+    /**
+     * Setter for the error description
+     *
+     * @param errorDescription the errorDescription describing what the server would except from the user
+     * @author Marc Hermes
+     * @since 2021-05-04
+     */
     public void setErrorDescription(String errorDescription) {
         this.errorDescription = errorDescription;
     }

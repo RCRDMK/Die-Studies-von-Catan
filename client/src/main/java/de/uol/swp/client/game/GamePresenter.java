@@ -103,7 +103,7 @@ public class GamePresenter extends AbstractPresenter {
     @FXML
     private Canvas canvas;
 
-    // Used for the DevelopmentCard alerts
+    // Used for the DevelopmentCard alerts and functionality
     private final ImagePattern brick = new ImagePattern(new Image("textures/resized/RES_Lehm.png"));
     private final ImagePattern ore = new ImagePattern(new Image("textures/resized/RES_Erz.png"));
     private final ImagePattern wool = new ImagePattern(new Image("textures/resized/RES_Wolle.png"));
@@ -284,8 +284,17 @@ public class GamePresenter extends AbstractPresenter {
 
     }
 
+
+    /**
+     * Method called when the buildStreet button is pressed.
+     * <p>
+     * makes all the buildings and streets visible that are occupied by players, as well as the empty streets spots.
+     *
+     * @author Marc Hermes
+     * @since 2021-05-04
+     */
     @FXML
-    public void onBuildStreet(ActionEvent event) {
+    public void onBuildStreet() {
         for (MapGraphNodeContainer container : mapGraphNodeContainers) {
             if (container.getMapGraphNode().getOccupiedByPlayer() == 666) {
                 container.getCircle().setVisible(container.getMapGraphNode() instanceof MapGraph.StreetNode);
@@ -294,8 +303,17 @@ public class GamePresenter extends AbstractPresenter {
         //TODO:...
     }
 
+
+    /**
+     * Method called when the buildSettlement button is pressed.
+     * <p>
+     * Makes all the buildings and streets visible that are occupied by players, as well as the empty building spots
+     *
+     * @author Marc Hermes
+     * @since 2021-05-04
+     */
     @FXML
-    public void onBuildSettlement(ActionEvent event) {
+    public void onBuildSettlement() {
         for (MapGraphNodeContainer container : mapGraphNodeContainers) {
             if (container.getMapGraphNode().getOccupiedByPlayer() == 666) {
                 container.getCircle().setVisible(container.getMapGraphNode() instanceof MapGraph.BuildingNode);
@@ -304,8 +322,16 @@ public class GamePresenter extends AbstractPresenter {
         //TODO:...
     }
 
+    /**
+     * Method called when the buildTown button is pressed.
+     * <p>
+     * makes all the buildings and streets visible that are occupied by players.
+     *
+     * @author Marc Hermes
+     * @since 2021-05-04
+     */
     @FXML
-    public void onBuildTown(ActionEvent event) {
+    public void onBuildTown() {
         for (MapGraphNodeContainer container : mapGraphNodeContainers) {
             container.getCircle().setVisible(container.getMapGraphNode().getOccupiedByPlayer() != 666);
         }
@@ -822,9 +848,12 @@ public class GamePresenter extends AbstractPresenter {
     /**
      * Method to draw buildings to the screen.
      * <p>
-     * Creates the Spots (Circles) for the Buildings. If a Circle is clicked, it changes it's colour.
+     * Creates the Spots (Circles) for the Buildings and streets. If a Circle is clicked, the gameService will be called to request the building of a street/building.
+     * If a circle is clicked during the resolution of the Road Building developmentCard, a bigger circle(black/red) will be temporarily placed above the street building spot.
+     *
      * <p>
      * enhanced by Marc Hermes 2021-03-31
+     * enhanced by Marc Hermes 2021-05-04
      *
      * @author Kirstin
      * @since 2021-03-28
@@ -979,6 +1008,15 @@ public class GamePresenter extends AbstractPresenter {
         });
     }
 
+    /**
+     * Method used for setting up the Alert for the ResolveDevelopmentCard functionality, as well as the pictures and functionality of the buttons and user interaction.
+     * <p>
+     * Depending on the current developmentCard the alert will show different elements. Pressing the "Ok" button will call the corresponding gameService method that sends the Request
+     * to resolve the developmentCard.
+     *
+     * @author Marc Hermes
+     * @since 2021-05-04
+     */
     public void setupResolveDevelopmentCardAlert() {
 
         EventHandler<MouseEvent> clickOnResourceRectangleHandler = mouseEvent -> {
@@ -1083,27 +1121,29 @@ public class GamePresenter extends AbstractPresenter {
         selectedResource2.setFill(Color.RED);
         selectedResource1.setRadius(5);
         selectedResource2.setRadius(5);
-        Rectangle lumberRectangle = new Rectangle(50, 100);
+        double rectHeight = 100.0;
+        double rectWidth = 50.0;
+        Rectangle lumberRectangle = new Rectangle(rectWidth, rectHeight);
         lumberRectangle.setFill(lumber);
         resourceRectangles.add(lumberRectangle);
-        Rectangle oreRectangle = new Rectangle(50, 100);
+        Rectangle oreRectangle = new Rectangle(rectWidth, rectHeight);
         oreRectangle.setFill(ore);
         resourceRectangles.add(oreRectangle);
-        Rectangle grainRectangle = new Rectangle(50, 100);
+        Rectangle grainRectangle = new Rectangle(rectWidth, rectHeight);
         grainRectangle.setFill(grain);
         resourceRectangles.add(grainRectangle);
-        Rectangle brickRectangle = new Rectangle(50, 100);
+        Rectangle brickRectangle = new Rectangle(rectWidth, rectHeight);
         brickRectangle.setFill(brick);
         resourceRectangles.add(brickRectangle);
-        Rectangle woolRectangle = new Rectangle(50, 100);
+        Rectangle woolRectangle = new Rectangle(rectWidth, rectHeight);
         woolRectangle.setFill(wool);
         resourceRectangles.add(woolRectangle);
         double position = 0;
         for (Rectangle rectangle : resourceRectangles) {
             rectangle.setOnMouseClicked(clickOnResourceRectangleHandler);
-            rectangle.setLayoutY(50);
+            rectangle.setLayoutY(rectWidth);
             rectangle.setLayoutX(position);
-            position = position + 50.0;
+            position = position + rectWidth;
         }
         resolveDevelopmentCardAlert.getButtonTypes().setAll(resolveButtonType);
         resolveButton = (Button) resolveDevelopmentCardAlert.getDialogPane().lookupButton(resolveButtonType);
@@ -1149,7 +1189,6 @@ public class GamePresenter extends AbstractPresenter {
         selectedStreet1.setFill(Color.BLACK);
         selectedStreet2.setFill(Color.RED);
     }
-
 
     /**
      * The method gets invoked when the Game Presenter is created.
@@ -1323,6 +1362,8 @@ public class GamePresenter extends AbstractPresenter {
 
     /**
      * The method called when a ResolveDevelopmentCardNotSuccessfulResponse is received
+     * <p>
+     * The resolveDevelopmentCardAlert will be shown in which the error description is displayed.
      *
      * @param rdcns the ResolveDevelopmentCardNotSuccessfulResponse received from the server
      * @author Marc Hermes
@@ -1346,6 +1387,12 @@ public class GamePresenter extends AbstractPresenter {
 
     /**
      * The method called when a PlayDevelopmentCardResponse is received
+     * <p>
+     * Depending on which developmentCard is played the resolveDevelopmentCardAlert is shown.
+     * Also if the currently played DevelopmentCard is "Year of Plenty" or "Monopoly" the visibility of the rectangles with the pictures of the resources is set to "true".
+     * Furthermore the circles displaying the empty building spots are hidden.
+     *
+     * In case the developmentCard is "Road Building", the resourceRectangles are hidden and the empty street building will be shown on the game field.
      *
      * @param pdcr the PlayDevelopmentCardResponse received from the server
      * @author Marc Hermes
@@ -1357,8 +1404,6 @@ public class GamePresenter extends AbstractPresenter {
             if (this.currentLobby.equals(pdcr.getGameName())) {
                 if (pdcr.isCanPlayCard()) {
                     LOG.debug("The card " + pdcr.getDevCard() + " was played by the user " + pdcr.getUserName());
-                    // TODO: implement way to make the user chose the way to resolve the card
-                    // TODO: currently the user will automatically resolve the development card Year of Plenty
                     this.currentDevelopmentCard = pdcr.getDevCard();
                     Platform.runLater(() -> {
                         this.resolveDevelopmentCardAlert.setTitle(currentDevelopmentCard + " in " + pdcr.getGameName());
