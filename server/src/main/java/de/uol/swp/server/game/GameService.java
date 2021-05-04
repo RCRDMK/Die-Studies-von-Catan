@@ -257,36 +257,36 @@ public class GameService extends AbstractService {
     public void onRollDiceRequest(RollDiceRequest rollDiceRequest) {
         LOG.debug("Got new RollDiceRequest from user: " + rollDiceRequest.getUser());
         Optional<Game> game = gameManagement.getGame(rollDiceRequest.getName());
-        if(game.isPresent()) {
+        if (game.isPresent()) {
             if (rollDiceRequest.getUser().equals(game.get().getUser(game.get().getTurn()))) {
-        Dice dice = new Dice();
-        dice.rollDice();
-        int addedEyes = dice.getDiceEyes1() + dice.getDiceEyes2();
-        // Check if cheatEyes number is provided in rollDiceRequest, if so -> set Eyes manually on dice
-        // for the roll cheat, else ignore and use rolledDice
-        if (rollDiceRequest.getCheatEyes() > 0) {
-            dice.setEyes(rollDiceRequest.getCheatEyes());
-        }
-        if (addedEyes == 7) {
-            //TODO Hier müsste der Räuber aktiviert werden.
-        } else {
-            distributeResources(addedEyes, rollDiceRequest.getName());
-        }
-        try {
-            String chatMessage;
-            var chatId = "game_" + rollDiceRequest.getName();
-            if (addedEyes == 8 || addedEyes == 11) {
-                chatMessage = "Player " + rollDiceRequest.getUser().getUsername() + " rolled an " + addedEyes;
-            } else {
-                chatMessage = "Player " + rollDiceRequest.getUser().getUsername() + " rolled a " + addedEyes;
-            }
-            ResponseChatMessage msg = new ResponseChatMessage(chatMessage, chatId,
-                    rollDiceRequest.getUser().getUsername(), System.currentTimeMillis());
-            post(msg);
-            LOG.debug("Posted ResponseChatMessage on eventBus");
-        } catch (Exception e) {
-            LOG.debug(e);
-        }
+                Dice dice = new Dice();
+                dice.rollDice();
+                int addedEyes = dice.getDiceEyes1() + dice.getDiceEyes2();
+                // Check if cheatEyes number is provided in rollDiceRequest, if so -> set Eyes manually on dice
+                // for the roll cheat, else ignore and use rolledDice
+                if (rollDiceRequest.getCheatEyes() > 0) {
+                    dice.setEyes(rollDiceRequest.getCheatEyes());
+                }
+                if (addedEyes == 7) {
+                    //TODO Hier müsste der Räuber aktiviert werden.
+                } else {
+                    distributeResources(addedEyes, rollDiceRequest.getName());
+                }
+                try {
+                    String chatMessage;
+                    var chatId = "game_" + rollDiceRequest.getName();
+                    if (addedEyes == 8 || addedEyes == 11) {
+                        chatMessage = "Player " + rollDiceRequest.getUser().getUsername() + " rolled an " + addedEyes;
+                    } else {
+                        chatMessage = "Player " + rollDiceRequest.getUser().getUsername() + " rolled a " + addedEyes;
+                    }
+                    ResponseChatMessage msg = new ResponseChatMessage(chatMessage, chatId,
+                            rollDiceRequest.getUser().getUsername(), System.currentTimeMillis());
+                    post(msg);
+                    LOG.debug("Posted ResponseChatMessage on eventBus");
+                } catch (Exception e) {
+                    LOG.debug(e);
+                }
                 try {
                     RollDiceResultMessage result = new RollDiceResultMessage(dice.getDiceEyes1(), dice.getDiceEyes2(), game.get().getTurn(), game.get().getName());
                     sendToAllInGame(game.get().getName(), result);
@@ -746,6 +746,7 @@ public class GameService extends AbstractService {
                 Inventory turnPlayerInventory = game.get().getInventory(turnPlayer);
                 ResolveDevelopmentCardMessage message = new ResolveDevelopmentCardMessage(devCard, (UserDTO) turnPlayer, gameName);
                 ResolveDevelopmentCardNotSuccessfulResponse notSuccessfulResponse = new ResolveDevelopmentCardNotSuccessfulResponse(devCard, turnPlayer.getUsername(), gameName);
+                boolean resolvedDevelopmentCardSuccessfully = true;
 
                 switch (devCard) {
                     case "Monopoly":
@@ -774,15 +775,26 @@ public class GameService extends AbstractService {
                                         turnPlayerInventory.incCard(resource, x.grain.getNumber());
                                         x.grain.decNumber(x.grain.getNumber());
                                         break;
+                                    default:
+                                        resolvedDevelopmentCardSuccessfully = false;
+                                        break;
+
                                 }
                             }
                         }
-                        sendToAllInGame(gameName, message);
-                        updateInventory(game);
-                        game.get().setCurrentCard("");
+                        if (resolvedDevelopmentCardSuccessfully) {
+                            sendToAllInGame(gameName, message);
+                            updateInventory(game);
+                            game.get().setCurrentCard("");
+                        } else {
+                            notSuccessfulResponse.initWithMessage(request);
+                            post(notSuccessfulResponse);
+                        }
                         break;
 
                     case "Road Building":
+                        // TODO: currently known bug, if only 1 of the streets can be built, the server will still build the street and make the user try again to build 2 streets
+                        // TODO: thus we need to check before actually building the streets if BOTH streets can be built
                         ConstructionMessage constructionMessage1 = new ConstructionMessage((UserDTO) turnPlayer, gameName, request.getStreet1(), "StreetNode");
                         ConstructionMessage constructionMessage2 = new ConstructionMessage((UserDTO) turnPlayer, gameName, request.getStreet2(), "StreetNode");
                         boolean successful1 = onConstructionMessage(constructionMessage1);
@@ -800,15 +812,23 @@ public class GameService extends AbstractService {
                     case "Year of Plenty":
                         // TODO: implement bank resources and "not successful" functionality i.e. when the bank doesnt have enough resources
 
-                        turnPlayerInventory.incCard(request.getResource1(), 1);
-                        turnPlayerInventory.incCard(request.getResource2(), 1);
-                        sendToAllInGame(gameName, message);
-                        game.get().setCurrentCard("");
-                        updateInventory(game);
+                            successful1 = turnPlayerInventory.incCard(request.getResource1(), 1);
+                            successful2 = turnPlayerInventory.incCard(request.getResource2(), 1);
+                            if (!successful1 || !successful2) {
+                                turnPlayerInventory.decCard(request.getResource1(), 1);
+                                turnPlayerInventory.decCard(request.getResource2(), 1);
+                                notSuccessfulResponse.initWithMessage(request);
+                                post(notSuccessfulResponse);
+                                break;
+                            }
+                            sendToAllInGame(gameName, message);
+                            game.get().setCurrentCard("");
+                            updateInventory(game);
                         break;
 
                     case "Knight":
                         // TODO: implement functionality of moving the robber/bandit
+                        sendToAllInGame(gameName, message);
                         break;
 
                     default:

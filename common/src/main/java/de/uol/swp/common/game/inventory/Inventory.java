@@ -200,23 +200,25 @@ public class Inventory {
      * @author Alexander Losse, Ricardo Mook
      * @since 2021-04-08
      */
-    public void incCard(String card, int amount) {
+    public boolean incCard(String card, int amount) {
         switch (card) {
             case "Lumber":
                 lumber.incNumber(amount);
-                break;
+                return true;
             case "Brick":
                 brick.incNumber(amount);
-                break;
+                return true;
             case "Grain":
                 grain.incNumber(amount);
-                break;
+                return true;
             case "Wool":
                 wool.incNumber(amount);
-                break;
+                return true;
             case "Ore":
                 ore.incNumber(amount);
-                break;
+                return true;
+            default:
+                return false;
         }
     }
 

@@ -1332,7 +1332,6 @@ public class GamePresenter extends AbstractPresenter {
     public void onResolveCardNotSuccessfulResponse(ResolveDevelopmentCardNotSuccessfulResponse rdcns) {
         if (this.currentLobby != null) {
             if (this.currentLobby.equals(rdcns.getGameName())) {
-                System.out.println(rdcns.getDevCard() + " didnt resolve Card successfully");
                 this.currentDevelopmentCard = rdcns.getDevCard();
                 Platform.runLater(() -> {
                     this.resolveDevelopmentCardAlert.setTitle(currentDevelopmentCard + " in " + rdcns.getGameName());
@@ -1408,7 +1407,6 @@ public class GamePresenter extends AbstractPresenter {
     public void onResolveDevelopmentCardMessage(ResolveDevelopmentCardMessage rdcm) {
         if (this.currentLobby != null) {
             if (this.currentLobby.equals(rdcm.getName())) {
-                resolveDevelopmentCardAlert.close();
                 LOG.debug("The user " + rdcm.getUser().getUsername() + " successfully resolved the card " + rdcm.getDevCard());
             }
         }
