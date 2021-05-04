@@ -327,7 +327,6 @@ public class GameService extends AbstractService {
                                 break;
                         }
                     }
-            updateInventory(game);
         }
     }
 
@@ -373,7 +372,6 @@ public class GameService extends AbstractService {
                             }
                         }
                 }
-            updateInventory(game);
         }
     }
 
@@ -391,27 +389,25 @@ public class GameService extends AbstractService {
      * @param amount of the resource
      *
      * @author Anton Nikiforov
-     * @see de.uol.swp.common.game.inventory
-     * @see de.uol.swp.common.message.ServerMessage
      * @since 2012-04-09
      */
     public void giveResource(Optional<Game> game, User user, String resourceTyp, int amount) {
         if (game.isPresent()) {
             Inventory bank = game.get().getBankInventory();
+            boolean firstTime = bank.getNumberFromCard(resourceTyp) == 1;
             for (int i = amount; i > 0; i--) {
                 if (bank.getNumberFromCard(resourceTyp) > 0) {
                     bank.decCard(resourceTyp, 1);
                     game.get().getInventory(user).incCard(resourceTyp, 1);
                 }
-                else {
-                    String chatMessage = resourceTyp + " storage is empty, resource cannot be distributed";
+                else break;
+            }
+            if (firstTime) {
+                    String chatMessage = resourceTyp + " storage is empty now";
                     String chatId = "game_" + game.get().getName();
                     ResponseChatMessage msg = new ResponseChatMessage(chatMessage, chatId, "Bank", System.currentTimeMillis());
                     post(msg);
-                    break;
-                }
             }
-            LOG.debug("\n Bank " + bank.getPrivateView());
         }
     }
 
@@ -420,6 +416,8 @@ public class GameService extends AbstractService {
      * <p>
      * It takes the resource from the user and gives them to the bank one by one until
      * the amount is reached or the inventory form user is empty.
+     * Than if the bank was empty for this resourceTyp, it posts a chat message in the game
+     * that the resource storage is now filled.
      *
      * @param game where we are
      * @param user who wants to give the resource
@@ -427,18 +425,24 @@ public class GameService extends AbstractService {
      * @param amount of the resource
      *
      * @author Anton Nikiforov
-     * @see de.uol.swp.common.game.inventory
      * @since 2012-04-09
      */
     public void takeResource(Optional<Game> game, User user, String resourceTyp, int amount) {
         if (game.isPresent()) {
             Inventory bank = game.get().getBankInventory();
+            boolean wasEmpty = bank.getNumberFromCard(resourceTyp) == 0;
             for (int i = amount; i > 0; i--) {
                 if (game.get().getInventory(user).getNumberFromCard(resourceTyp) > 0) {
                     game.get().getInventory(user).decCard(resourceTyp, 1);
                     bank.incCard(resourceTyp, 1);
                 }
                 else break;
+            }
+            if (wasEmpty) {
+                String chatMessage = resourceTyp + " storage is now filled";
+                String chatId = "game_" + game.get().getName();
+                ResponseChatMessage msg = new ResponseChatMessage(chatMessage, chatId, "Bank", System.currentTimeMillis());
+                post(msg);
             }
         }
     }
