@@ -7,6 +7,7 @@ import com.google.inject.Injector;
 import com.google.inject.assistedinject.Assisted;
 import de.uol.swp.client.account.UserSettingsPresenter;
 import de.uol.swp.client.account.event.LeaveUserSettingsEvent;
+import de.uol.swp.client.account.event.ChangeToCertainSizeEvent;
 import de.uol.swp.client.account.event.ShowUserSettingsViewEvent;
 import de.uol.swp.client.account.event.UserSettingsErrorEvent;
 import de.uol.swp.client.auth.LoginPresenter;
@@ -137,6 +138,9 @@ public class SceneManager {
      * <p>
      * enhanced by Alexander Losse and Marc Hermes - 2021-01-20
      *
+     * enhanced by Ricardo Mook - 2021-04-28
+     * added a CSS rule
+     *
      * @author Marco Grawunder
      * @see de.uol.swp.client.main.MainMenuPresenter
      * @since 2019-09-03
@@ -146,6 +150,7 @@ public class SceneManager {
             Parent rootPane = initPresenter(MainMenuPresenter.fxml);
             mainScene = new Scene(rootPane, 800, 600);
             mainScene.getStylesheets().add(styleSheet);
+            rootPane.getStyleClass().add("menuView");
             mainMenuTab = new Tab("Main Menu");
             mainMenuTab.setClosable(false);
             mainMenuTab.setContent(mainScene.getRoot());
@@ -161,6 +166,9 @@ public class SceneManager {
      * If the loginScene is null it gets set to a new scene containing the
      * a pane showing the login view as specified by the LoginView FXML file.
      *
+     * enhanced by Ricardo Mook - 2021-04-28
+     * added a CSS rule
+     *
      * @author Marco Grawunder
      * @see de.uol.swp.client.auth.LoginPresenter
      * @since 2019-09-03
@@ -168,8 +176,9 @@ public class SceneManager {
     private void initLoginView() {
         if (loginScene == null) {
             Parent rootPane = initPresenter(LoginPresenter.fxml);
-            loginScene = new Scene(rootPane, 400, 200);
+            loginScene = new Scene(rootPane, 400, 300);
             loginScene.getStylesheets().add(styleSheet);
+            rootPane.getStyleClass().add("login");
         }
     }
 
@@ -180,6 +189,9 @@ public class SceneManager {
      * a pane showing the registration view as specified by the RegistrationView
      * FXML file.
      *
+     * enhanced by Ricardo Mook - 2021-04-28
+     * added a CSS rule
+     *
      * @author Marco Grawunder
      * @see de.uol.swp.client.register.RegistrationPresenter
      * @since 2019-09-03
@@ -189,6 +201,7 @@ public class SceneManager {
             Parent rootPane = initPresenter(RegistrationPresenter.fxml);
             registrationScene = new Scene(rootPane, 400, 260);
             registrationScene.getStylesheets().add(styleSheet);
+            rootPane.getStyleClass().add("registration");
         }
     }
 
@@ -200,6 +213,9 @@ public class SceneManager {
      * <p>
      * enhanced by Alexander Losse and Marc Hermes - 2021-01-20
      *
+     * enhanced by Ricardo Mook - 2021-04-28
+     * added a CSS rule
+     *
      * @author Marc Hermes, Ricardo Mook
      * @see de.uol.swp.client.lobby.LobbyPresenter
      * @since 2020-11-19
@@ -208,6 +224,7 @@ public class SceneManager {
         Parent rootPane = initPresenter(LobbyPresenter.fxml);
         lobbyScene = new Scene(rootPane, 800, 600);
         lobbyScene.getStylesheets().add(styleSheet);
+        rootPane.getStyleClass().add("menuView");
         return lobbyScene;
     }
 
@@ -218,6 +235,9 @@ public class SceneManager {
      * a pane showing the game view as specified by the GameView
      * FXML file
      *
+     * enhanced by Ricardo Mook - 2021-04-28
+     * added a CSS rule
+     *
      * @author Kirstin Beyer
      * @see de.uol.swp.client.game.GamePresenter
      * @since 2021-01-14
@@ -226,6 +246,7 @@ public class SceneManager {
         Parent rootPane = initPresenter(GamePresenter.fxml);
         gameScene = new Scene(rootPane, 800, 600);
         gameScene.getStylesheets().add(styleSheet);
+        rootPane.getStyleClass().add("game");
         return gameScene;
     }
 
@@ -236,6 +257,9 @@ public class SceneManager {
      * a pane showing the game view as specified by the TradeView
      * FXML file
      *
+     * enhanced by Ricardo Mook - 2021-04-28
+     * added a CSS rule
+     *
      * @author Alexander Lossa, Ricardo Mook
      * @see de.uol.swp.client.game.TradePresenter
      * @since 2021-04-21
@@ -244,6 +268,7 @@ public class SceneManager {
         Parent rootPane = initPresenter(TradePresenter.fxml);
         tradeScene = new Scene(rootPane, 800, 600);
         tradeScene.getStylesheets().add(styleSheet);
+        rootPane.getStyleClass().add("trade");
         return tradeScene;
     }
 
@@ -254,6 +279,9 @@ public class SceneManager {
      * a pane showing the userSettings view as specified by the UserSettingsView
      * FXML file.
      *
+     * enhanced by Ricardo Mook - 2021-04-28
+     * added a CSS rule
+     *
      * @author Carsten Dekker
      * @see UserSettingsPresenter
      * @since 2021-03-04
@@ -261,10 +289,20 @@ public class SceneManager {
     private void initUserSettingsView() {
         if (userSettingsScene == null) {
             Parent rootPane = initPresenter(UserSettingsPresenter.fxml);
-            userSettingsScene = new Scene(rootPane, 400, 300);
+            userSettingsScene = new Scene(rootPane, 800, 500);
             userSettingsScene.getStylesheets().add(styleSheet);
+            rootPane.getStyleClass().add("settings");
         }
     }
+
+    /*
+    @Subscribe
+    public void onChangeToCertainSizeEvent(ChangeToCertainSizeEvent event) {
+       primaryStage.setWidth(event.getWidth());
+       primaryStage.setHeight(event.getHeight());
+    }
+     */
+
 
     /**
      * Handles ShowRegistrationViewEvent detected on the EventBus

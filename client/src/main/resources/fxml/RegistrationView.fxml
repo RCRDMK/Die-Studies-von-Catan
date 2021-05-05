@@ -4,7 +4,7 @@
 <?import javafx.scene.layout.*?>
 
 <AnchorPane prefHeight="300.0" prefWidth="407.0" xmlns="http://javafx.com/javafx/11.0.1"
-            xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.uol.swp.client.register.RegistrationPresenter">
+            xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.uol.swp.client.register.RegistrationPresenter" stylesheets="@../css/swp.css">
     <Label layoutX="44.0" layoutY="17.0" text="Login"/>
     <TextField id="loginField" fx:id="loginField" layoutX="142.0" layoutY="12.0" promptText="Enter Login">
         <tooltip>

@@ -5,15 +5,18 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<AnchorPane fx:id="gameAnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.uol.swp.client.game.GamePresenter">
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.RowConstraints?>
+
+<AnchorPane fx:id="gameAnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.uol.swp.client.game.GamePresenter" stylesheets="@../css/swp.css">
     <children>
         <TextArea fx:id="gameChatArea" editable="false" layoutX="370.0" layoutY="231.0" prefHeight="114.0" prefWidth="224.0" GridPane.rowIndex="2" />
         <Label fx:id="BuildingNotSuccessfulLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="370.0" layoutY="125.0" prefHeight="17.0" prefWidth="224.0" text="You are not allowed to build here" textAlignment="CENTER" visible="false" />
         <ListView fx:id="gameUsersView" layoutX="370.0" layoutY="30.0" prefHeight="90.0" prefWidth="224.0" />
-
         <ToolBar layoutY="-5.0" prefHeight="35.0" prefWidth="600.0">
             <items>
-                <Button mnemonicParsing="false" onAction="#onRollDice" text="Roll Dice"/>
+                <Button fx:id="rollDiceButton" mnemonicParsing="false" onAction="#onRollDice" text="Roll Dice"/>
                 <Text fx:id="DiceOutput" strokeType="OUTSIDE" strokeWidth="0.0" text="Text"/>
                 <Separator orientation="VERTICAL"/>
                 <Button fx:id="tradeButton" mnemonicParsing="false" onAction="#onTrade" text="Trade">
@@ -35,5 +38,45 @@
         <Button layoutX="534.0" layoutY="345.0" mnemonicParsing="false" onAction="#onSendMessage" prefHeight="25.0" prefWidth="59.0" text="Send" />
         <TextField fx:id="gameChatInput" layoutX="370.0" layoutY="345.0" onAction="#onSendMessage" prefHeight="25.0" prefWidth="161.0" promptText="Send Message.." />
       <Canvas id="inventory" fx:id="inventory" height="104.0" layoutX="370.0" layoutY="120.0" width="224.0" />
+      <Pane fx:id="picturePlayerView1" layoutX="600.0" layoutY="30.0" prefHeight="90.0" prefWidth="106.0" />
+      <Pane fx:id="picturePlayerView2" layoutX="600.0" layoutY="163.0" prefHeight="104.0" prefWidth="106.0" />
+      <Pane fx:id="picturePlayerView3" layoutX="722.0" layoutY="30.0" prefHeight="90.0" prefWidth="92.0" />
+      <Pane fx:id="picturePlayerView4" layoutX="706.0" layoutY="148.0" prefHeight="104.0" prefWidth="106.0" />
+      <GridPane fx:id="playerOneDiceView" layoutX="600.0" layoutY="14.0">
+        <columnConstraints>
+          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+        </columnConstraints>
+        <rowConstraints>
+          <RowConstraints minHeight="10.0" prefHeight="100.0" vgrow="SOMETIMES" />
+        </rowConstraints>
+      </GridPane>
+      <GridPane fx:id="playerTwoDiceView" layoutX="594.0" layoutY="122.0">
+         <columnConstraints>
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+         </columnConstraints>
+         <rowConstraints>
+            <RowConstraints minHeight="10.0" prefHeight="100.0" vgrow="SOMETIMES" />
+         </rowConstraints>
+      </GridPane>
+      <GridPane fx:id="playerThreeDiceView" layoutX="600.0" layoutY="222.0">
+         <columnConstraints>
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+         </columnConstraints>
+         <rowConstraints>
+            <RowConstraints minHeight="10.0" prefHeight="100.0" vgrow="SOMETIMES" />
+         </rowConstraints>
+      </GridPane>
+      <GridPane fx:id="playerFourDiceView" layoutX="600.0" layoutY="358.0">
+         <columnConstraints>
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+         </columnConstraints>
+         <rowConstraints>
+            <RowConstraints minHeight="10.0" prefHeight="100.0" vgrow="SOMETIMES" />
+         </rowConstraints>
+      </GridPane>
     </children>
 </AnchorPane>

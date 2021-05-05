@@ -32,9 +32,12 @@ import de.uol.swp.server.game.dice.Dice;
 import de.uol.swp.server.lobby.LobbyManagementException;
 import de.uol.swp.server.lobby.LobbyService;
 import de.uol.swp.server.usermanagement.AuthenticationService;
+import de.uol.swp.server.usermanagement.UserManagement;
+import de.uol.swp.server.usermanagement.UserService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -53,6 +56,7 @@ public class GameService extends AbstractService {
     private final GameManagement gameManagement;
     private final LobbyService lobbyService;
     private final AuthenticationService authenticationService;
+    private final UserService userService;
 
     /**
      * Constructor
@@ -64,11 +68,12 @@ public class GameService extends AbstractService {
      * @since 2021-01-07
      */
     @Inject
-    public GameService(GameManagement gameManagement, LobbyService lobbyService, AuthenticationService authenticationService, EventBus eventBus) {
+    public GameService(GameManagement gameManagement, LobbyService lobbyService, AuthenticationService authenticationService, EventBus eventBus, UserService userService) {
         super(eventBus);
         this.gameManagement = gameManagement;
         this.authenticationService = authenticationService;
         this.lobbyService = lobbyService;
+        this.userService = userService;
     }
 
     @Subscribe
@@ -234,8 +239,8 @@ public class GameService extends AbstractService {
      *
      * @param rollDiceRequest The RollDiceRequest found on the EventBus
      * @author Kirstin, Pieter
-     * @see de.uol.swp.common.game.request.RollDiceRequest
-     * @see de.uol.swp.common.chat.ResponseChatMessage
+     * @see RollDiceRequest
+     * @see ResponseChatMessage
      * @since 2021-01-07
      * <p>
      * enhanced by René Meyer, Sergej Tulnev
@@ -250,29 +255,29 @@ public class GameService extends AbstractService {
     @Subscribe
     public void onRollDiceRequest(RollDiceRequest rollDiceRequest) {
         LOG.debug("Got new RollDiceRequest from user: " + rollDiceRequest.getUser());
-
+        Optional<Game> game = gameManagement.getGame(rollDiceRequest.getName());
+        if(game.isPresent()) {
+            if (rollDiceRequest.getUser().equals(game.get().getUser(game.get().getTurn()))) {
         Dice dice = new Dice();
         dice.rollDice();
-
+        int addedEyes = dice.getDiceEyes1() + dice.getDiceEyes2();
         // Check if cheatEyes number is provided in rollDiceRequest, if so -> set Eyes manually on dice
         // for the roll cheat, else ignore and use rolledDice
         if (rollDiceRequest.getCheatEyes() > 0) {
             dice.setEyes(rollDiceRequest.getCheatEyes());
         }
-
-        if (dice.getEyes() == 7) {
+        if (addedEyes == 7) {
             //TODO Hier müsste der Räuber aktiviert werden.
         } else {
-            distributeResources(dice.getEyes(), rollDiceRequest.getName());
+            distributeResources(addedEyes, rollDiceRequest.getName());
         }
-
         try {
             String chatMessage;
             var chatId = "game_" + rollDiceRequest.getName();
-            if (dice.getEyes() == 8 || dice.getEyes() == 11) {
-                chatMessage = "Player " + rollDiceRequest.getUser().getUsername() + " rolled an " + dice.getEyes();
+            if (addedEyes == 8 || addedEyes == 11) {
+                chatMessage = "Player " + rollDiceRequest.getUser().getUsername() + " rolled an " + addedEyes;
             } else {
-                chatMessage = "Player " + rollDiceRequest.getUser().getUsername() + " rolled a " + dice.getEyes();
+                chatMessage = "Player " + rollDiceRequest.getUser().getUsername() + " rolled a " + addedEyes;
             }
             ResponseChatMessage msg = new ResponseChatMessage(chatMessage, chatId,
                     rollDiceRequest.getUser().getUsername(), System.currentTimeMillis());
@@ -280,6 +285,16 @@ public class GameService extends AbstractService {
             LOG.debug("Posted ResponseChatMessage on eventBus");
         } catch (Exception e) {
             LOG.debug(e);
+        }
+                try {
+                    RollDiceResultMessage result = new RollDiceResultMessage(dice.getDiceEyes1(), dice.getDiceEyes2(), game.get().getTurn(), game.get().getName());
+                    sendToAllInGame(game.get().getName(), result);
+                } catch (Exception e) {
+                    LOG.debug(e);
+                }
+            } else {
+                LOG.debug("It is not your turn. :) " + rollDiceRequest.getUser());
+            }
         }
     }
 
@@ -341,50 +356,52 @@ public class GameService extends AbstractService {
             for (MapGraph.Hexagon hexagon : game.get().getMapGraph().getHexagonHashSet()) {
                 if (hexagon.getDiceToken() == eyes) {
                     for (MapGraph.BuildingNode buildingNode : hexagon.getBuildingNodes()) {
-                        Inventory inventory = game.get().getInventory(game.get().getUser(buildingNode.getOccupiedByPlayer()));
-                        //"Ocean" = 0; "Forest" = 1; "Farmland" = 2; "Grassland" = 3; "Hillside" = 4; "Mountain" = 5; "Desert" = 6;
-                        switch (hexagon.getTerrainType()) {
-                            case 1:
-                                if (buildingNode.getSizeOfSettlement() == 1) {
-                                    inventory.lumber.incNumber();
-                                } else if (buildingNode.getSizeOfSettlement() == 2) {
-                                    inventory.lumber.incNumber();
-                                    inventory.lumber.incNumber();
-                                }
-                                break;
-                            case 2:
-                                if (buildingNode.getSizeOfSettlement() == 1) {
-                                    inventory.grain.incNumber();
-                                } else if (buildingNode.getSizeOfSettlement() == 2) {
-                                    inventory.grain.incNumber();
-                                    inventory.grain.incNumber();
-                                }
-                                break;
-                            case 3:
-                                if (buildingNode.getSizeOfSettlement() == 1) {
-                                    inventory.wool.incNumber();
-                                } else if (buildingNode.getSizeOfSettlement() == 2) {
-                                    inventory.wool.incNumber();
-                                    inventory.wool.incNumber();
-                                }
-                                break;
-                            case 4:
-                                if (buildingNode.getSizeOfSettlement() == 1) {
-                                    inventory.brick.incNumber();
-                                } else if (buildingNode.getSizeOfSettlement() == 2) {
-                                    inventory.brick.incNumber();
-                                    inventory.brick.incNumber();
-                                }
-                                break;
-                            case 5:
-                                if (buildingNode.getSizeOfSettlement() == 1) {
-                                    inventory.ore.incNumber();
-                                } else if (buildingNode.getSizeOfSettlement() == 2) {
-                                    inventory.ore.incNumber();
-                                    inventory.ore.incNumber();
-                                }
-                            default:
-                                break;
+                        if (buildingNode.getOccupiedByPlayer()!=666) {
+                            Inventory inventory = game.get().getInventory(game.get().getUser(buildingNode.getOccupiedByPlayer()));
+                            //"Ocean" = 0; "Forest" = 1; "Farmland" = 2; "Grassland" = 3; "Hillside" = 4; "Mountain" = 5; "Desert" = 6;
+                            switch (hexagon.getTerrainType()) {
+                                case 1:
+                                    if (buildingNode.getSizeOfSettlement() == 1) {
+                                        inventory.lumber.incNumber();
+                                    } else if (buildingNode.getSizeOfSettlement() == 2) {
+                                        inventory.lumber.incNumber();
+                                        inventory.lumber.incNumber();
+                                    }
+                                    break;
+                                case 2:
+                                    if (buildingNode.getSizeOfSettlement() == 1) {
+                                        inventory.grain.incNumber();
+                                    } else if (buildingNode.getSizeOfSettlement() == 2) {
+                                        inventory.grain.incNumber();
+                                        inventory.grain.incNumber();
+                                    }
+                                    break;
+                                case 3:
+                                    if (buildingNode.getSizeOfSettlement() == 1) {
+                                        inventory.wool.incNumber();
+                                    } else if (buildingNode.getSizeOfSettlement() == 2) {
+                                        inventory.wool.incNumber();
+                                        inventory.wool.incNumber();
+                                    }
+                                    break;
+                                case 4:
+                                    if (buildingNode.getSizeOfSettlement() == 1) {
+                                        inventory.brick.incNumber();
+                                    } else if (buildingNode.getSizeOfSettlement() == 2) {
+                                        inventory.brick.incNumber();
+                                        inventory.brick.incNumber();
+                                    }
+                                    break;
+                                case 5:
+                                    if (buildingNode.getSizeOfSettlement() == 1) {
+                                        inventory.ore.incNumber();
+                                    } else if (buildingNode.getSizeOfSettlement() == 2) {
+                                        inventory.ore.incNumber();
+                                        inventory.ore.incNumber();
+                                    }
+                                default:
+                                    break;
+                            }
                         }
                     }
                 }
@@ -434,7 +451,7 @@ public class GameService extends AbstractService {
     public void onStartGameRequest(StartGameRequest startGameRequest) {
         Optional<Lobby> lobby = lobbyService.getLobby(startGameRequest.getName());
         Set<User> usersInLobby = lobby.get().getUsers();
-        if (gameManagement.getGame(lobby.get().getName()).isEmpty() && usersInLobby.size() > 1 && startGameRequest.getUser().getUsername().equals(lobby.get().getOwner().getUsername())) {
+        if (gameManagement.getGame(lobby.get().getName()).isEmpty() && usersInLobby.size() > 1 && startGameRequest.getUser().getUsername().equals(lobby.get().getOwner().getUsername()) && !lobby.get().getGameShouldStart()) {
             lobby.get().setPlayersReadyToNull();
             lobby.get().setGameFieldVariant(startGameRequest.getGameFieldVariant());
             lobby.get().setGameShouldStart(true);
@@ -460,6 +477,7 @@ public class GameService extends AbstractService {
                     } else if (lobby.get().getPlayersReady().size() < 2 && lobby.get().getGameShouldStart()) {
                         sendToListOfUsers(users, lobby.get().getName(), new NotEnoughPlayersMessage(lobby.get().getName()));
                     }
+                    lobby.get().setGameShouldStart(false);
                     timer.cancel();
                 }
             }
@@ -493,6 +511,7 @@ public class GameService extends AbstractService {
             Optional<Game> game = gameManagement.getGame(lobby.get().getName());
             ArrayList<UserDTO> usersInGame = new ArrayList<>();
             for (User user : lobby.get().getPlayersReady()) {
+                user = userService.retrieveUserInformation(user);
                 game.get().joinUser(user);
                 usersInGame.add((UserDTO) user);
 
@@ -506,7 +525,7 @@ public class GameService extends AbstractService {
             }
             game.get().setUpUserArrayList();
             game.get().setUpInventories();
-            sendToAllInGame(game.get().getName(), new NextTurnMessage(game.get().getName(), game.get().getUser(game.get().getTurn()).getUsername(), game.get().getTurn()));
+            sendToAllInGame(game.get().getName(), new NextTurnMessage(game.get().getName(), game.get().getUser(game.get().getTurn()).getUsername(), game.get().getTurn(), game.get().isStartingTurns()));
         } else {
             throw new GameManagementException("Not enough Players ready!");
         }
@@ -569,7 +588,7 @@ public class GameService extends AbstractService {
                     distributeResources(request.getName());
                 }
                 sendToAllInGame(game.get().getName(), new NextTurnMessage(game.get().getName(),
-                        game.get().getUser(game.get().getTurn()).getUsername(), game.get().getTurn()));
+                        game.get().getUser(game.get().getTurn()).getUsername(), game.get().getTurn(), game.get().isStartingTurns()));
             } catch (GameManagementException e) {
                 LOG.debug(e);
                 System.out.println("Sender " + request.getUser().getUsername() + " was not player with current turn");
@@ -793,7 +812,7 @@ public class GameService extends AbstractService {
         if (game.isPresent()) {
             Trade trade = game.get().getTradeList().get(request.getTradeCode());
 
-            if (request.getTradeAccepted() == true) {
+            if (request.getTradeAccepted() == true && !request.getUser().getUsername().equals(trade.getSeller().getUsername())) {
                 Inventory inventorySeller = game.get().getInventory(trade.getSeller());
                 Inventory inventoryBidder = game.get().getInventory(request.getUser());
 

@@ -4,6 +4,7 @@ import de.uol.swp.common.message.AbstractRequestMessage;
 import de.uol.swp.common.user.User;
 
 
+
 /**
  * Request sent to the server when a user wants to roll the dice
  * or when the roll cheat is executed
