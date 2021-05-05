@@ -18,6 +18,7 @@ import de.uol.swp.common.user.Session;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.user.request.LoginRequest;
+import de.uol.swp.common.user.request.LogoutRequest;
 import de.uol.swp.server.lobby.LobbyManagement;
 import de.uol.swp.server.lobby.LobbyService;
 import de.uol.swp.server.usermanagement.AuthenticationService;
@@ -45,12 +46,10 @@ public class GameServiceTest {
     final AuthenticationService authenticationService = new AuthenticationService(bus, userManagement);
     GameService gameService = new GameService(gameManagement, lobbyService, authenticationService, bus, userService);
 
-
     UserDTO userDTO = new UserDTO("test1", "47b7d407c2e2f3aff0e21aa16802006ba1793fd47b2d3cacee7cf7360e751bff7b7d0c7946b42b97a5306c6708ab006d0d81ef41a0c9f94537a2846327c51236", "peter.lustig@uol.de");
     UserDTO userDTO1 = new UserDTO("test2", "994dac907995937160371992ecbdf9b34242db0abb3943807b5baa6be0c6908f72ea87b7dadd2bce6cf700c8dfb7d57b0566f544af8c30336a15d5f732d85613", "carsten.stahl@uol.de");
     UserDTO userDTO2 = new UserDTO("test3", "b74a37371ca548bfd937410737b27f383e03021766e90f1180169691b8b15fc50aef49932c7413c0450823777ba46a34fd649b4da20b2e701c394c582ff6df55", "peterlustig@uol.de");
     UserDTO userDTO3 = new UserDTO("test4", "65dfe56dd0e9117907b11e440d99a667527ddb13244aa38f79d3ae61ee0b2ab4047c1218c4fb05d84f88b914826c45de3ab27a611ea910a4b14733ab1e32b125", "test.lustig@uol.de");
-
 
     Object event;
 
@@ -79,6 +78,14 @@ public class GameServiceTest {
     @AfterEach
     void deregisterBus() {
         bus.unregister(this);
+    }
+
+    @AfterEach
+    void logOutAllUsers() {
+        userManagement.logout(userDTO);
+        userManagement.logout(userDTO1);
+        userManagement.logout(userDTO2);
+        userManagement.logout(userDTO3);
     }
 
     /**
@@ -491,7 +498,6 @@ public class GameServiceTest {
         assertTrue(game.get().getInventory(userDTO3).brick.getNumber() == 0);
         assertTrue(game.get().getInventory(userDTO3).wool.getNumber() == 10);
         assertTrue(event instanceof TradeEndedMessage);
-
 
 
     }
