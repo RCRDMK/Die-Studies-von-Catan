@@ -86,4 +86,3 @@ public class GameSerializableTest {
                 ResolveDevelopmentCardNotSuccessfulResponse.class));
     }
 }
-

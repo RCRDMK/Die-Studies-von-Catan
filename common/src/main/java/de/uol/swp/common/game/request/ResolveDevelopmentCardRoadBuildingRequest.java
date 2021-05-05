@@ -43,7 +43,6 @@ public class ResolveDevelopmentCardRoadBuildingRequest extends ResolveDevelopmen
         this.street2 = street2;
     }
 
-
     /**
      * Getter for the UUID of the first street
      *

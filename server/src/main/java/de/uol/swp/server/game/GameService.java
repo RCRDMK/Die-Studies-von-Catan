@@ -217,6 +217,7 @@ public class GameService extends AbstractService {
             List<Session> theList = new ArrayList<>();
             theList.add(authenticationService.getSession(user).get());
             message.setReceiver(theList);
+
             post(message);
         } else {
             throw new GameManagementException("Game unknown!");
@@ -718,6 +719,10 @@ public class GameService extends AbstractService {
                         break;
                 }
 
+            } else {
+                PlayDevelopmentCardResponse response = new PlayDevelopmentCardResponse(request.getDevCard(), false, request.getUser().getUsername(), game.get().getName());
+                response.initWithMessage(request);
+                post(response);
             }
         }
     }
