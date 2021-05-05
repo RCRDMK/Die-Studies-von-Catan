@@ -36,6 +36,8 @@ public class GameSerializableTest {
                 BuyDevelopmentCardMessage.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new NotEnoughRessourcesMessage(),
                 NotEnoughRessourcesMessage.class));
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new RollDiceResultMessage(),
+                RollDiceResultMessage.class));
     }
 
     @Test
