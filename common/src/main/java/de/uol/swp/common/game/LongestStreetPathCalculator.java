@@ -8,15 +8,35 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.UUID;
 
+/**
+ * Class that manages matrices of players and calculates street paths for each player.
+ * <p>
+ *
+ * @author Marc, Kirstin
+ * @since 2021-04-23
+ */
+
 public class LongestStreetPathCalculator implements Serializable {
     private final HashSet<MapGraph.StreetNode> streetNodeHashSet;
     // first dimension referencing the player
     // second dimension referencing the columns
     // third dimension referencing the rows, ultimately containing the UUIDs of the corresponding street nodes and the integer value indicating connectedness
     private final ArrayList<ArrayList<ArrayList<ConnectionClassIntegerWithUUID>>> adjacencyMatrixForAllPlayers = new ArrayList<>();
+    // ArrayList containing all possible street paths for each player
+    // first dimension referencing players
+    // second dimension referencing street paths
+    // third dimension referencing street UUIDs that make up the path
     private final ArrayList<ArrayList<ArrayList<UUID>>> pathArrayList = new ArrayList<>();
 
-    // Constructor which creates a new ArrayList of the adjacency matrices for each player in the first dimension.
+    /**
+     * Constructor
+     * <p>
+     * Creates a new ArrayList of the adjacency matrices in the first dimension and a pathArrayList for each player.
+     *
+     * @param streetNodeHashSet HashSet containing all street nodes of the MapGraph
+     * @author Marc, Kirstin
+     * @since 2021-04-23
+     */
     public LongestStreetPathCalculator(HashSet<MapGraph.StreetNode> streetNodeHashSet) {
         this.streetNodeHashSet = streetNodeHashSet;
         adjacencyMatrixForAllPlayers.add(new ArrayList<>());
@@ -30,6 +50,18 @@ public class LongestStreetPathCalculator implements Serializable {
     }
 
     // Called when a new street is placed on the map graph
+
+    /**
+     * Method called when a new street is placed on the MapGraph
+     * <p>
+     * Creates a new row and a new column in the players matrix for the new street with a 1 if the streets are connected and a 0 if they are not connected.
+     * Calls method recalculatePaths to recalculate all paths of this player at the end.
+     *
+     * @param streetUUID UUID of the new street
+     * @param playerIndex index of the corresponding player
+     * @author Marc, Kirstin
+     * @since 2021-04-23
+     */
     public void updateMatrixWithNewStreet(UUID streetUUID, int playerIndex) {
         // get the corresponding players matrix
         ArrayList<ArrayList<ConnectionClassIntegerWithUUID>> playerMatrix = adjacencyMatrixForAllPlayers.get(playerIndex);
@@ -74,6 +106,17 @@ public class LongestStreetPathCalculator implements Serializable {
         reCalculatePaths(playerIndex);
     }
 
+    /**
+     * Method called when a new building is placed on the MapGraph
+     * <p>
+     * Checks if a player (not the player who built the building) has two or more streets connected to this building.
+     * Updates players matrix accordingly and replaces 1 with 0, then calls method recalculatePathAtNewBuilding to recalculate paths for this player.
+     *
+     * @param buildingNode building node that was placed on the MapGraph
+     * @param playerIndex index of the corresponding player
+     * @author Marc, Kirstin
+     * @since 2021-04-23
+     */
     public void updateMatrixWithNewBuilding(MapGraph.BuildingNode buildingNode, int playerIndex) {
         HashSet<MapGraph.StreetNode> streetsOfBuilding = buildingNode.getConnectedStreetNodes();
         ArrayList<UUID>[] playerArray = new ArrayList[4];
@@ -104,14 +147,22 @@ public class LongestStreetPathCalculator implements Serializable {
                     }
 
                 }
-                printAdjacencyMatrix(p);
-                System.out.println("Amount of paths found " + pathArrayList.get(p).size());
-                System.out.println("Longest path " + getLongestPath(p));
             }
-
         }
     }
 
+    /**
+     * Method to recalculate paths when a new Building was placed on the MapGraph
+     * <p>
+     * Finds all paths in the ArrayList from the affected player, that are divided by the new building and splits these
+     * paths between street1 and street2. The second part containing street2 is added to the ArrayList.
+     *
+     * @param playerIndex indicates the player who's path lengths are affected by the new building
+     * @param street1 first street from player with playerIndex that is connected to the new building
+     * @param street2 second street from player with playerIndex that is connected to the new building
+     * @author Marc, Kirstin
+     * @since 2021-04-23
+     */
     public void reCalculatePathsAtNewBuilding(int playerIndex, UUID street1, UUID street2){
         ArrayList<ArrayList<UUID>> pathListForPlayer = pathArrayList.get(playerIndex);
         int size = pathListForPlayer.size();
@@ -129,6 +180,16 @@ public class LongestStreetPathCalculator implements Serializable {
 
     }
 
+    /**
+     * Method to recalculate all paths for one player
+     * <p>
+     * Calculates the number of the entries "1" in the last row of the matrix. When it contains only one "1" the method
+     * calculateAllPathsStartingAtNewStreet is called, otherwise the method calculateAllPathsFromStart.
+     *
+     * @param playerIndex indicates the player
+     * @author Marc, Kirstin
+     * @since 2021-04-23
+     */
     public void reCalculatePaths(int playerIndex) {
         ConnectionClassIntegerWithUUID[][] matrix = toArrayMatrix(playerIndex);
         ArrayList<UUID> neighborStreets = new ArrayList<>();
@@ -146,25 +207,59 @@ public class LongestStreetPathCalculator implements Serializable {
 
     }
 
-    // called when the street that was added is only connected to 1 other street
+    /**
+     * Method to calculate the paths when the new street is only connected to one street
+     * <p>
+     * Called when the street that was added is only connected to one other street. Calculates only the new paths by
+     * calling the method horizontal in the last row of the matrix.
+     *
+     * @param matrixOfPlayer adjacency matrix containing the street connections for the player
+     * @param playerIndex indicates the player
+     * @author Marc, Kirstin
+     * @since 2021-04-23
+     */
     public void calculateAllPathsStartingAtNewStreet(ConnectionClassIntegerWithUUID[][] matrixOfPlayer, int playerIndex) {
         ArrayList<UUID> path = new ArrayList<>();
         horizontal(path, matrixOfPlayer.length - 1, 666, matrixOfPlayer, playerIndex);
-        System.out.println("Amount of paths found " + pathArrayList.get(playerIndex).size());
-        System.out.println("Longest path " + getLongestPath(playerIndex));
     }
 
-    // called when the paths from all streets are to be calculated
+    /**
+     * Method to calculate all paths from one player from start
+     * <p>
+     * Called when all paths from the player have to be calculated. Calls the method horizontal in every row of the
+     * matrix.
+     *
+     * @param matrixOfPlayer adjacency matrix containing the street connections for the player
+     * @param playerIndex indicates the player
+     * @author Marc, Kirstin
+     * @since 2021-04-23
+     */
     public void calculateAllPathsFromStart(ConnectionClassIntegerWithUUID[][] matrixOfPlayer, int playerIndex) {
         pathArrayList.get(playerIndex).clear();
         for (int row = 0; row < matrixOfPlayer.length; row++) {
             ArrayList<UUID> path = new ArrayList<>();
             horizontal(path, row, 666, matrixOfPlayer, playerIndex);
         }
-        System.out.println("Amount of paths found " + pathArrayList.get(playerIndex).size());
-        System.out.println("Longest path " + getLongestPath(playerIndex));
     }
 
+    /**
+     * Method to go horizontal in the adjacency matrix
+     * <p>
+     * Goes through all row entries "1" for which the corresponding street in the column is not contained in the walked
+     * path yet.
+     * Then adds UUID of the corresponding street to the walked path and calls the method vertical in the column j and
+     * the considered row.
+     * Adds the walked path to the players path Array List and removes the last entry from walkedPath.
+     * Returns the walked path.
+     *
+     * @param walkedPath ArrayList that contains the UUIDs of the previous streets
+     * @param row corresponding row of the matrix
+     * @param lookUpColumn previous considered column of the matrix
+     * @param matrix adjacency matrix containing the street connections for the player
+     * @param playerIndex indicates the player
+     * @author Marc, Kirstin
+     * @since 2021-04-23
+     */
     public ArrayList<UUID> horizontal(ArrayList<UUID> walkedPath, int row, int lookUpColumn, ConnectionClassIntegerWithUUID[][] matrix, int playerIndex) {
         for (int j = 0; j < matrix.length; j++) {
             ConnectionClassIntegerWithUUID currentMatrixEntry = matrix[row][j];
@@ -193,6 +288,25 @@ public class LongestStreetPathCalculator implements Serializable {
         return walkedPath;
     }
 
+    /**
+     * Method to go vertical in the adjacency matrix
+     * <p>
+     * Goes through all column entries "1" for which the corresponding street in the row is not contained in the walked
+     * path yet.
+     * Then adds UUID of the corresponding street to the walked path and calls the method horizontal in the row i and
+     * the considered column.
+     * Adds the walked path to the players path Array List and removes the last entry from walkedPath.
+     * Returns the walked path.
+     *
+     *
+     * @param walkedPath ArrayList that contains the UUIDs of the previous streets
+     * @param column corresponding column of the matrix
+     * @param lookUpRow previous considered row of the matrix
+     * @param matrix adjacency matrix containing the street connections for the player
+     * @param playerIndex indicates the player
+     * @author Marc, Kirstin
+     * @since 2021-04-23
+     */
     public ArrayList<UUID> vertical(ArrayList<UUID> walkedPath, int column, int lookUpRow, ConnectionClassIntegerWithUUID[][] matrix, int playerIndex) {
         for (int i = 0; i < matrix.length; i++) {
             ConnectionClassIntegerWithUUID currentMatrixEntry = matrix[i][column];
@@ -219,6 +333,15 @@ public class LongestStreetPathCalculator implements Serializable {
         return walkedPath;
     }
 
+    /**
+     * Method to print adjacency matrix for one player
+     * <p>
+     * Prints adjacency matrix of the corresponding player row by row.
+     *
+     * @param playerIndex indicates the player
+     * @author Marc, Kirstin
+     * @since 2021-04-23
+     */
     public void printAdjacencyMatrix(int playerIndex) {
         ArrayList<ArrayList<ConnectionClassIntegerWithUUID>> playerMatrix = adjacencyMatrixForAllPlayers.get(playerIndex);
         for (int i = 0; i < playerMatrix.size(); i++) {
@@ -229,6 +352,15 @@ public class LongestStreetPathCalculator implements Serializable {
         }
     }
 
+    /**
+     * Method to convert adjacency matrix from an ArrayList to an array
+     * <p>
+     * Converts adjacency matrix of the corresponding player from ArrayList tp array.
+     *
+     * @param playerIndex indicates the player
+     * @author Marc, Kirstin
+     * @since 2021-04-23
+     */
     public ConnectionClassIntegerWithUUID[][] toArrayMatrix(int playerIndex) {
         ArrayList<ArrayList<ConnectionClassIntegerWithUUID>> playerMatrix = adjacencyMatrixForAllPlayers.get(playerIndex);
         int size = playerMatrix.size();
@@ -241,6 +373,15 @@ public class LongestStreetPathCalculator implements Serializable {
         return matrix;
     }
 
+    /**
+     * Method to return longest path from player
+     * <p>
+     * Gets longest path from the players path ArrayList and returns the size of this path.
+     *
+     * @param playerIndex indicates the player
+     * @author Marc, Kirstin
+     * @since 2021-04-23
+     */
     public int getLongestPath(int playerIndex) {
         int size = 0;
         for (ArrayList<UUID> list : pathArrayList.get(playerIndex)) {
@@ -248,7 +389,6 @@ public class LongestStreetPathCalculator implements Serializable {
                 size = list.size();
             }
             if (size == list.size()) {
-                System.out.println(list);
             }
         }
         return size;

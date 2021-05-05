@@ -76,7 +76,6 @@ public class MapGraph implements Serializable {
 
                 middle.generateNodesMiddle();
                 middle.expand();
-                //middle.interconnectOwnNodes();
                 middle.interconnectNeighbourHexagons();
 
                 middle.getHexTopLeft().expand();
@@ -127,13 +126,6 @@ public class MapGraph implements Serializable {
                 for (Hexagon hexagon : hexagonHashSet) {
                     hexagon.interconnectOwnNodes();
                 }
-                /*
-                middle.getHexTopLeft().interconnectNeighbourNodes();
-                middle.getHexTopRight().interconnectNeighbourNodes();
-                middle.getHexLeft().interconnectNeighbourNodes();
-                middle.getHexRight().interconnectNeighbourNodes();
-                middle.getHexBottomLeft().interconnectNeighbourNodes();
-                middle.getHexBottomRight().interconnectNeighbourNodes();*/
 
                 middle.getHexTopLeft().getHexTopLeft().updateHexagonList();
                 middle.getHexTopLeft().getHexTopRight().updateHexagonList();
@@ -325,7 +317,9 @@ public class MapGraph implements Serializable {
 
         /**
          * Builds a road for player with parsed index.
+         * Calls the function to update the matrix with new Street.
          *
+         * enhanced by Marc, Kirstin, 2021-04-23
          * @param playerIndex Index of the player who wants to build a road
          * @return True if construction was successful, false if not.
          * @author Pieter Vogt
@@ -334,9 +328,7 @@ public class MapGraph implements Serializable {
         public Boolean buildRoad(int playerIndex) {
             if (this.occupiedByPlayer == 666) {
                 this.occupiedByPlayer = playerIndex;
-                System.out.println("this streets ID " + this.getUuid());
                 longestStreetPathCalculator.updateMatrixWithNewStreet(this.getUuid(), playerIndex);
-                longestStreetPathCalculator.printAdjacencyMatrix(playerIndex);
                 return true;
             } else return false;
         }
@@ -426,7 +418,9 @@ public class MapGraph implements Serializable {
 
         /**
          * Builds or upgrades a settlement for player with parsed index.
+         * Calls the function to update the matrix with new building, if the building is not just a size increase.
          *
+         * enhanced by Marc, Kirstin, 2021-04-23
          * @param playerIndex Index of the player who wants to build or upgrade a building.
          * @return True if construction was successful, false if not.
          * @author Pieter Vogt
