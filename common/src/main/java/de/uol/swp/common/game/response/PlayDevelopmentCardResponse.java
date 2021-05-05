@@ -15,6 +15,19 @@ public class PlayDevelopmentCardResponse extends AbstractResponseMessage {
     final private String gameName;
 
     /**
+     * Constructor used for serialization
+     *
+     * @author Marc Hermes
+     * @since 2021-05-05
+     */
+    public PlayDevelopmentCardResponse() {
+        this.devCard = null;
+        this.canPlayCard = false;
+        this.userName = null;
+        this.gameName = null;
+    }
+
+    /**
      * Constructor
      *
      * @param devCard     the name of the DevelopmentCard

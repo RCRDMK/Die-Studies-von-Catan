@@ -137,7 +137,7 @@ public class GameService extends AbstractService {
      * @since 2021-04-15
      */
     @Subscribe
-    public boolean onConstructionMessage(ConstructionMessage message) {
+    public boolean onConstructionMessage(ConstructionRequest message) {
         LOG.debug("Recieved new ConstructionMessage from user " + message.getUser());
         Optional<Game> game = gameManagement.getGame(message.getGame());
         int playerIndex = 666;
@@ -806,10 +806,10 @@ public class GameService extends AbstractService {
                             ResolveDevelopmentCardRoadBuildingRequest roadBuildingRequest = (ResolveDevelopmentCardRoadBuildingRequest) request;
                             // TODO: currently known bug, if only 1 of the streets can be built, the server will still build the street and make the user try again to build 2 streets
                             // TODO: thus we need to check before actually building the streets if BOTH streets can be built
-                            ConstructionMessage constructionMessage1 = new ConstructionMessage((UserDTO) turnPlayer, gameName, roadBuildingRequest.getStreet1(), "StreetNode");
-                            ConstructionMessage constructionMessage2 = new ConstructionMessage((UserDTO) turnPlayer, gameName, roadBuildingRequest.getStreet2(), "StreetNode");
-                            boolean successful1 = onConstructionMessage(constructionMessage1);
-                            boolean successful2 = onConstructionMessage(constructionMessage2);
+                            ConstructionRequest constructionRequest1 = new ConstructionRequest((UserDTO) turnPlayer, gameName, roadBuildingRequest.getStreet1(), "StreetNode");
+                            ConstructionRequest constructionRequest2 = new ConstructionRequest((UserDTO) turnPlayer, gameName, roadBuildingRequest.getStreet2(), "StreetNode");
+                            boolean successful1 = onConstructionMessage(constructionRequest1);
+                            boolean successful2 = onConstructionMessage(constructionRequest2);
                             if (!(successful1 && successful2)) {
                                 notSuccessfulResponse.initWithMessage(request);
                                 notSuccessfulResponse.setErrorDescription("Please select 2 valid building spots for the streets");

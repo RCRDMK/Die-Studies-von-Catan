@@ -3,7 +3,7 @@ package de.uol.swp.client.game;
 
 import com.google.common.eventbus.EventBus;
 import com.google.inject.Inject;
-import de.uol.swp.common.game.message.ConstructionMessage;
+import de.uol.swp.common.game.request.ConstructionRequest;
 import de.uol.swp.common.game.message.TradeEndedMessage;
 import de.uol.swp.common.game.request.*;
 import de.uol.swp.common.game.trade.TradeItem;
@@ -117,7 +117,7 @@ public class GameService {
      * @since 2021-04-14
      */
     public void constructBuilding(UserDTO user, String gameName, UUID uuid, String typeOfNode) {
-        ConstructionMessage message = new ConstructionMessage(user, gameName, uuid, typeOfNode);
+        ConstructionRequest message = new ConstructionRequest(user, gameName, uuid, typeOfNode);
         eventBus.post(message);
     }
 

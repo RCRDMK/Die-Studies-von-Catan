@@ -15,6 +15,18 @@ public class ResolveDevelopmentCardNotSuccessfulResponse extends AbstractRespons
     private String errorDescription;
 
     /**
+     * Constructor used for serialization
+     *
+     * @author Marc Hermes
+     * @since 2021-05-05
+     */
+    public ResolveDevelopmentCardNotSuccessfulResponse() {
+        this.devCard = null;
+        this.userName = null;
+        this.gameName = null;
+    }
+
+    /**
      * Constructor
      *
      * @param devCard  the name of the DevelopmentCard that was not resolved successfully

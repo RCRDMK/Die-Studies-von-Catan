@@ -9,13 +9,22 @@ import de.uol.swp.common.game.MapGraph;
  * @see MapGraph
  * @since 2021-04-11
  */
-public class MapGraphChangedMessage {
+public class MapGraphChangedMessage extends AbstractGameMessage {
 
-    private MapGraph mapGraph;
-    private String gameName;
+    private final MapGraph mapGraph;
+
+    /**
+     * Constructor used for serialization
+     *
+     * @author Marc Hermes
+     * @since 2021-05-05
+     */
+    public MapGraphChangedMessage() {
+        mapGraph = null;
+    }
 
     public MapGraphChangedMessage(String gameName, MapGraph mapGraph) {
-        this.gameName = gameName;
+        this.name = gameName;
         this.mapGraph = mapGraph;
     }
 
@@ -24,6 +33,6 @@ public class MapGraphChangedMessage {
     }
 
     public String getGameName() {
-        return gameName;
+        return name;
     }
 }

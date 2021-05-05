@@ -10,7 +10,15 @@ package de.uol.swp.common.game.message;
 
 public class GameStartedMessage extends AbstractGameMessage {
 
-    private final String lobbyName;
+    /**
+     * Constructor used for serialization
+     *
+     * @quthor Marc Hermes
+     * @since 2021-05-05
+     */
+    public GameStartedMessage() {
+
+    }
 
     /**
      * Constructor
@@ -21,10 +29,10 @@ public class GameStartedMessage extends AbstractGameMessage {
      * @since 2021-04-08
      */
     public GameStartedMessage(String name) {
-        this.lobbyName = name;
+        this.name = name;
     }
 
     public String getLobbyName() {
-        return lobbyName;
+        return name;
     }
 }

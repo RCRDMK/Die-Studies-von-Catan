@@ -16,6 +16,17 @@ public class ResolveDevelopmentCardRoadBuildingRequest extends ResolveDevelopmen
     private final UUID street2;
 
     /**
+     * Constructor used for serialization
+     *
+     * @author Marc Hermes
+     * @since 2021-05-05
+     */
+    public ResolveDevelopmentCardRoadBuildingRequest() {
+        this.street1 = null;
+        this.street2 = null;
+    }
+
+    /**
      * Constructor used for the resolution of the Road Building DevelopmentCard
      *
      * @param devCard  the name of the DevelopmentCard, should be "Road Building"

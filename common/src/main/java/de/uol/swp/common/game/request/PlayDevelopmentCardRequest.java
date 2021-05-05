@@ -13,6 +13,16 @@ public class PlayDevelopmentCardRequest extends AbstractGameRequest {
     final private String devCard;
 
     /**
+     * Constructor used for serialization
+     *
+     * @author Marc Hermes
+     * @since 2021-05-05
+     */
+    public PlayDevelopmentCardRequest() {
+        this.devCard = null;
+    }
+
+    /**
      * Constructor
      *
      * @param devCard  the name of the DevelopmentCard the user wishes to play

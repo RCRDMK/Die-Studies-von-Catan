@@ -14,6 +14,17 @@ public class ResolveDevelopmentCardYearOfPlentyRequest extends ResolveDevelopmen
     private final String resource2;
 
     /**
+     * Constructor used for serialization
+     *
+     * @author Marc Hermes
+     * @since 2021-05-05
+     */
+    public ResolveDevelopmentCardYearOfPlentyRequest() {
+        this.resource1 = null;
+        this.resource2 = null;
+    }
+
+    /**
      * Constructor used for the resolution of the Year of Plenty DevelopmentCard
      *
      * @param devCard   the name of the DevelopmentCard, should be "Year of Plenty"

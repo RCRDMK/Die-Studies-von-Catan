@@ -10,10 +10,18 @@ import java.util.UUID;
  * @author Marc Hermes
  * @since 2021-05-03
  */
-public abstract class ResolveDevelopmentCardRequest extends AbstractGameRequest {
+public class ResolveDevelopmentCardRequest extends AbstractGameRequest {
     final private String devCard;
 
-    // TODO: neue klasse? abstrakte Klasse ResolveDevelopmentCardRequest
+    /**
+     * Constructor used for serialization
+     *
+     * @author Marc Hermes
+     * @since 2021-05-05
+     */
+    public ResolveDevelopmentCardRequest() {
+        this.devCard = null;
+    }
 
     /**
      * Abstract Constructor used for the resolution of DevelopmentCards

@@ -11,6 +11,17 @@ import de.uol.swp.common.user.UserDTO;
 public class ResolveDevelopmentCardMonopolyRequest extends ResolveDevelopmentCardRequest{
 
     private final String resource;
+
+    /**
+     * Constructor used for serialization
+     *
+     * @author Marc Hermes
+     * @since 2021-05-05
+     */
+    public ResolveDevelopmentCardMonopolyRequest() {
+        this.resource = null;
+    }
+
     /**
      * Constructor used for the resolution of the Monopoly DevelopmentCard
      *
