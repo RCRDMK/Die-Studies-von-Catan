@@ -13,7 +13,7 @@ public class GameStartedMessage extends AbstractGameMessage {
     /**
      * Constructor used for serialization
      *
-     * @quthor Marc Hermes
+     * @author Marc Hermes
      * @since 2021-05-05
      */
     public GameStartedMessage() {
