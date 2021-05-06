@@ -140,6 +140,35 @@ public class GamePresenter extends AbstractPresenter {
     @FXML
     private GridPane playerFourDiceView;
 
+    @FXML
+    private javafx.scene.image.ImageView privateLumber;
+    public Image lumber = new Image ("textures/resized/RES_Holz.png");
+    @FXML
+    private javafx.scene.image.ImageView privateBrick;
+    public Image brick = new Image ("textures/resized/RES_Lehm.png");
+    @FXML
+    private javafx.scene.image.ImageView privateGrain;
+    public Image grain = new Image ("textures/resized/RES_Getreide.png");
+    @FXML
+    private javafx.scene.image.ImageView privateWool;
+    public Image wool = new Image ("textures/resized/RES_Wolle.png");
+    @FXML
+    private javafx.scene.image.ImageView privateOre;
+    public Image ore = new Image ("textures/resized/RES_Erz.png");
+    @FXML
+    private javafx.scene.image.ImageView privateDevelopmentCard;
+    public Image devCard = new Image ("textures/resized/CARD_Ritter.png");
+    @FXML
+    private javafx.scene.image.ImageView privateCities;
+    public Image cities = new Image ("textures/resized/RES_Holz.png");
+    @FXML
+    private javafx.scene.image.ImageView privateRoads;
+    public Image roads = new Image ("textures/resized/RES_Holz.png");
+    @FXML
+    private javafx.scene.image.ImageView privateSettlements;
+    public Image settlements = new Image ("textures/resized/RES_Holz.png");
+
+
     final private ArrayList<ImagePattern> diceImages = new ArrayList<>();
 
     final private Rectangle rectangleDie1 = new Rectangle(100, 100);
@@ -346,6 +375,7 @@ public class GamePresenter extends AbstractPresenter {
             this.currentLobby = gcm.getName();
             updateGameUsersList(gcm.getUsers());
             initializeMatch(gcm.getMapGraph());
+            displayPrivateInventory();
             for (int i = 1; i <= 64; i++) {
                 Image image;
                 image = new Image("img/profilePictures/" + i + ".png");
@@ -1086,5 +1116,17 @@ public class GamePresenter extends AbstractPresenter {
                 });
             }
         }
+    }
+
+    public void displayPrivateInventory (){
+        privateLumber.setImage(lumber);
+        privateBrick.setImage(brick);
+        privateGrain.setImage(grain);
+        privateWool.setImage(wool);
+        privateOre.setImage(ore);
+        privateDevelopmentCard.setImage(devCard);
+        privateCities.setImage(cities);
+        privateRoads.setImage(roads);
+        privateSettlements.setImage(settlements);
     }
 }
