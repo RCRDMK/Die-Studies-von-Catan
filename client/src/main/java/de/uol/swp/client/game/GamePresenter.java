@@ -45,7 +45,6 @@ import org.apache.logging.log4j.Logger;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -130,9 +129,6 @@ public class GamePresenter extends AbstractPresenter {
 
     @FXML
     private Pane picturePlayerView4;
-
-    @FXML
-    private Button rollDiceButton;
 
     @FXML
     private GridPane playerOneDiceView;
@@ -476,96 +472,66 @@ public class GamePresenter extends AbstractPresenter {
     }
 
     public void initializedResourceButtons() {
-        choose[0].setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                if (Integer.parseInt(lumberLabelRobberMenu.getText()) > 0) {
-                    toDiscardLabel.setText(Integer.toString(Integer.parseInt(toDiscardLabel.getText())-1));
-                    lumberLabelRobberMenu.setText(Integer.toString(Integer.parseInt(lumberLabelRobberMenu.getText()) - 1));
-                }
+        choose[0].setOnAction(event -> {
+            if (Integer.parseInt(lumberLabelRobberMenu.getText()) > 0) {
+                toDiscardLabel.setText(Integer.toString(Integer.parseInt(toDiscardLabel.getText())-1));
+                lumberLabelRobberMenu.setText(Integer.toString(Integer.parseInt(lumberLabelRobberMenu.getText()) - 1));
             }
         });
 
-        choose[5].setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                if (privateInventory.get("Lumber") > Integer.parseInt(lumberLabelRobberMenu.getText())) {
-                    toDiscardLabel.setText(Integer.toString(Integer.parseInt(toDiscardLabel.getText())+1));
-                    lumberLabelRobberMenu.setText(Integer.toString(Integer.parseInt(lumberLabelRobberMenu.getText()) + 1));
-                }
+        choose[5].setOnAction(event -> {
+            if (privateInventory.get("Lumber") > Integer.parseInt(lumberLabelRobberMenu.getText())) {
+                toDiscardLabel.setText(Integer.toString(Integer.parseInt(toDiscardLabel.getText())+1));
+                lumberLabelRobberMenu.setText(Integer.toString(Integer.parseInt(lumberLabelRobberMenu.getText()) + 1));
             }
         });
 
-        choose[1].setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                if (Integer.parseInt(grainLabelRobberMenu.getText()) > 0) {
-                    toDiscardLabel.setText(Integer.toString(Integer.parseInt(toDiscardLabel.getText())-1));
-                    grainLabelRobberMenu.setText(Integer.toString(Integer.parseInt(grainLabelRobberMenu.getText()) - 1));
-                }
+        choose[1].setOnAction(event -> {
+            if (Integer.parseInt(grainLabelRobberMenu.getText()) > 0) {
+                toDiscardLabel.setText(Integer.toString(Integer.parseInt(toDiscardLabel.getText())-1));
+                grainLabelRobberMenu.setText(Integer.toString(Integer.parseInt(grainLabelRobberMenu.getText()) - 1));
             }
         });
-        choose[6].setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                if (privateInventory.get("Grain") > Integer.parseInt(grainLabelRobberMenu.getText())) {
-                    toDiscardLabel.setText(Integer.toString(Integer.parseInt(toDiscardLabel.getText())+1));
-                    grainLabelRobberMenu.setText(Integer.toString(Integer.parseInt(grainLabelRobberMenu.getText()) + 1));
-                }
+        choose[6].setOnAction(event -> {
+            if (privateInventory.get("Grain") > Integer.parseInt(grainLabelRobberMenu.getText())) {
+                toDiscardLabel.setText(Integer.toString(Integer.parseInt(toDiscardLabel.getText())+1));
+                grainLabelRobberMenu.setText(Integer.toString(Integer.parseInt(grainLabelRobberMenu.getText()) + 1));
             }
         });
-        choose[2].setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                if (Integer.parseInt(woolLabelRobberMenu.getText()) > 0) {
-                    toDiscardLabel.setText(Integer.toString(Integer.parseInt(toDiscardLabel.getText())-1));
-                    woolLabelRobberMenu.setText(Integer.toString(Integer.parseInt(woolLabelRobberMenu.getText()) - 1));
-                }
+        choose[2].setOnAction(event -> {
+            if (Integer.parseInt(woolLabelRobberMenu.getText()) > 0) {
+                toDiscardLabel.setText(Integer.toString(Integer.parseInt(toDiscardLabel.getText())-1));
+                woolLabelRobberMenu.setText(Integer.toString(Integer.parseInt(woolLabelRobberMenu.getText()) - 1));
             }
         });
-        choose[7].setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                if (privateInventory.get("Wool") > Integer.parseInt(woolLabelRobberMenu.getText())) {
-                    toDiscardLabel.setText(Integer.toString(Integer.parseInt(toDiscardLabel.getText())+1));
-                    woolLabelRobberMenu.setText(Integer.toString(Integer.parseInt(woolLabelRobberMenu.getText()) + 1));
-                }
+        choose[7].setOnAction(event -> {
+            if (privateInventory.get("Wool") > Integer.parseInt(woolLabelRobberMenu.getText())) {
+                toDiscardLabel.setText(Integer.toString(Integer.parseInt(toDiscardLabel.getText())+1));
+                woolLabelRobberMenu.setText(Integer.toString(Integer.parseInt(woolLabelRobberMenu.getText()) + 1));
             }
         });
-        choose[3].setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                if (Integer.parseInt(brickLabelRobberMenu.getText()) > 0) {
-                    toDiscardLabel.setText(Integer.toString(Integer.parseInt(toDiscardLabel.getText())-1));
-                    brickLabelRobberMenu.setText(Integer.toString(Integer.parseInt(brickLabelRobberMenu.getText()) - 1));
-                }
+        choose[3].setOnAction(event -> {
+            if (Integer.parseInt(brickLabelRobberMenu.getText()) > 0) {
+                toDiscardLabel.setText(Integer.toString(Integer.parseInt(toDiscardLabel.getText())-1));
+                brickLabelRobberMenu.setText(Integer.toString(Integer.parseInt(brickLabelRobberMenu.getText()) - 1));
             }
         });
-        choose[8].setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                if (privateInventory.get("Brick") > Integer.parseInt(brickLabelRobberMenu.getText())) {
-                    toDiscardLabel.setText(Integer.toString(Integer.parseInt(toDiscardLabel.getText())+1));
-                    brickLabelRobberMenu.setText(Integer.toString(Integer.parseInt(brickLabelRobberMenu.getText()) + 1));
-                }
+        choose[8].setOnAction(event -> {
+            if (privateInventory.get("Brick") > Integer.parseInt(brickLabelRobberMenu.getText())) {
+                toDiscardLabel.setText(Integer.toString(Integer.parseInt(toDiscardLabel.getText())+1));
+                brickLabelRobberMenu.setText(Integer.toString(Integer.parseInt(brickLabelRobberMenu.getText()) + 1));
             }
         });
-        choose[4].setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                if (Integer.parseInt(oreLabelRobberMenu.getText()) > 0) {
-                    toDiscardLabel.setText(Integer.toString(Integer.parseInt(toDiscardLabel.getText())-1));
-                    oreLabelRobberMenu.setText(Integer.toString(Integer.parseInt(oreLabelRobberMenu.getText()) - 1));
-                }
+        choose[4].setOnAction(event -> {
+            if (Integer.parseInt(oreLabelRobberMenu.getText()) > 0) {
+                toDiscardLabel.setText(Integer.toString(Integer.parseInt(toDiscardLabel.getText())-1));
+                oreLabelRobberMenu.setText(Integer.toString(Integer.parseInt(oreLabelRobberMenu.getText()) - 1));
             }
         });
-        choose[9].setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                if (privateInventory.get("Ore") > Integer.parseInt(oreLabelRobberMenu.getText())) {
-                    toDiscardLabel.setText(Integer.toString(Integer.parseInt(toDiscardLabel.getText())+1));
-                    oreLabelRobberMenu.setText(Integer.toString(Integer.parseInt(oreLabelRobberMenu.getText()) + 1));
-                }
+        choose[9].setOnAction(event -> {
+            if (privateInventory.get("Ore") > Integer.parseInt(oreLabelRobberMenu.getText())) {
+                toDiscardLabel.setText(Integer.toString(Integer.parseInt(toDiscardLabel.getText())+1));
+                oreLabelRobberMenu.setText(Integer.toString(Integer.parseInt(oreLabelRobberMenu.getText()) + 1));
             }
         });
     }
