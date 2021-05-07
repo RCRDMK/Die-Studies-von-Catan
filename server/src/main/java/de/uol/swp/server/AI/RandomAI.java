@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import de.uol.swp.common.game.dto.GameDTO;
 import de.uol.swp.server.AI.AIActions.AIAction;
 import de.uol.swp.server.AI.AIActions.EndTurnAction;
-import de.uol.swp.server.AI.AIActions.MoveBanditAction;
 
 
 import java.util.ArrayList;
@@ -15,6 +14,7 @@ public class RandomAI extends AbstractAISystem {
         Gson gson = new Gson();
         game = gson.fromJson(gson.toJson(thatGame), GameDTO.class);
         inventory = game.getInventory(game.getUser(game.getTurn()));
+        mapGraph = game.getMapGraph();
 
     }
 
@@ -51,8 +51,7 @@ public class RandomAI extends AbstractAISystem {
 
     @Override
     public void moveBandit() {
-        AIAction aiAction = new MoveBanditAction();
-        aiActions.add(aiAction);
+
     }
 
     @Override
