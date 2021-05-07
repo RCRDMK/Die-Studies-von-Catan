@@ -664,7 +664,7 @@ public class GamePresenter extends AbstractPresenter {
 
         tooMuchAlert.showAndWait();
 
-        if (tooMuchAlert.getResult().getText().equals("OK")) {
+        if (tooMuchAlert.getResult().getText().equals("OK") && Integer.parseInt(toDiscardLabel.getText())==0) {
             HashMap<String, Integer> inventory = new HashMap();
             inventory.put("Lumber", Integer.parseInt(lumberLabelRobberMenu.getText()));
             inventory.put("Grain", Integer.parseInt(grainLabelRobberMenu.getText()));
