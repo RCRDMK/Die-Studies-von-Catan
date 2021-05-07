@@ -52,9 +52,9 @@ public class AuthenticationService extends AbstractService {
     /**
      * Constructor
      *
-     * @author Marco Grawunder
      * @param bus            The EventBus used throughout the entire server
      * @param userManagement object of the UserManagement to use
+     * @author Marco Grawunder
      * @see de.uol.swp.server.usermanagement.UserManagement
      * @since 2019-08-30
      */
@@ -69,9 +69,9 @@ public class AuthenticationService extends AbstractService {
     /**
      * Searches the Session for a given user
      *
-     * @author Marco Grawunder
      * @param user user whose Session is to be searched
      * @return either empty Optional or Optional containing the Session
+     * @author Marco Grawunder
      * @see de.uol.swp.common.user.Session
      * @see de.uol.swp.common.user.User
      * @since 2019-09-04
@@ -84,9 +84,9 @@ public class AuthenticationService extends AbstractService {
     /**
      * Searches the Sessions for a Set of given users
      *
-     * @author Marco Grawunder
      * @param users Set of users whose Sessions are to be searched
      * @return List containing the Sessions that where found
+     * @author Marco Grawunder
      * @see de.uol.swp.common.user.Session
      * @see de.uol.swp.common.user.User
      * @since 2019-10-08
@@ -111,6 +111,7 @@ public class AuthenticationService extends AbstractService {
      * If a user is already logged in, a ServerExceptionMessage is posted on the bus. (René, Sergej)
      *
      * @param msg the LoginRequest
+     * @author René, Sergej
      * @author René, Sergej, Philip, Marc
      * @see de.uol.swp.common.user.request.LoginRequest
      * @see de.uol.swp.server.message.ClientAuthorizedMessage
@@ -192,8 +193,8 @@ public class AuthenticationService extends AbstractService {
      * is called. It posts a AllOnlineUsersResponse containing user objects for
      * every logged in user on the EventBus.
      *
-     * @author Marco Grawunder
      * @param msg RetrieveAllOnlineUsersRequest found on the EventBus
+     * @author Marco Grawunder
      * @see de.uol.swp.common.user.request.RetrieveAllOnlineUsersRequest
      * @see de.uol.swp.common.user.response.AllOnlineUsersResponse
      * @since 2019-08-30

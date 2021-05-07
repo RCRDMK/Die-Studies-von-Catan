@@ -4,14 +4,12 @@ import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
 import de.uol.swp.client.chat.ChatService;
-import de.uol.swp.client.game.GameObjects.BuildingField;
-import de.uol.swp.client.game.GameObjects.TerrainField;
+import de.uol.swp.client.game.HelperObjects.HexagonContainer;
+import de.uol.swp.client.game.HelperObjects.MapGraphNodeContainer;
 import de.uol.swp.client.game.HelperObjects.Vector;
-import de.uol.swp.client.lobby.LobbyService;
 import de.uol.swp.common.chat.RequestChatMessage;
 import de.uol.swp.common.chat.ResponseChatMessage;
-import de.uol.swp.common.game.GameField;
-import de.uol.swp.common.game.TerrainFieldContainer;
+import de.uol.swp.common.game.MapGraph;
 import de.uol.swp.common.game.message.*;
 import de.uol.swp.common.game.request.EndTurnRequest;
 import de.uol.swp.common.user.User;
@@ -27,17 +25,27 @@ import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.control.Button;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.ImagePattern;
+import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Manages the GameView
@@ -57,6 +65,12 @@ public class GamePresenter extends AbstractPresenter {
 
     private static final Logger LOG = LogManager.getLogger(GamePresenter.class);
 
+    @FXML
+    public TextField gameChatInput;
+
+    @FXML
+    public TextArea gameChatArea;
+
     private User joinedLobbyUser;
 
     private String currentLobby;
@@ -69,15 +83,11 @@ public class GamePresenter extends AbstractPresenter {
 
     private ObservableList<String> gameUsers;
 
-    //Container for TerrainFields
-    private TerrainField[] tfArray;
+    private ArrayList<HexagonContainer> hexagonContainers = new ArrayList<>();
 
-    //Container for BuildingFields
-    private BuildingField[] buildArray;
+    private ArrayList<MapGraphNodeContainer> mapGraphNodeContainers = new ArrayList<>();
 
-    //Container for StreetFields
-    private BuildingField[] streetArray;
-
+    private Boolean itsMyTurn = false;
 
     @Inject
     private GameService gameService;
@@ -86,25 +96,55 @@ public class GamePresenter extends AbstractPresenter {
     private ChatService chatService;
 
     @FXML
-    public TextField gameChatInput;
+    private Canvas canvas;
 
-    @FXML
-    public TextArea gameChatArea;
+    private ArrayList<ImagePattern> profilePicturePatterns = new ArrayList<>();
 
-    @FXML
-    private Canvas canvas = new Canvas();
+    private ArrayList<Rectangle> rectangles = new ArrayList<>();
 
     @FXML
     private AnchorPane gameAnchorPane;
-
-    @Inject
-    private LobbyService lobbyService;
 
     @FXML
     private ListView<String> gameUsersView;
 
     @FXML
     private Button EndTurnButton;
+    @FXML
+    Button tradeButton;
+
+    @FXML
+    private Pane picturePlayerView1;
+
+    @FXML
+    private Pane picturePlayerView2;
+
+    @FXML
+    private Pane picturePlayerView3;
+
+    @FXML
+    private Pane picturePlayerView4;
+
+    @FXML
+    private Button rollDiceButton;
+
+    @FXML
+    private GridPane playerOneDiceView;
+
+    @FXML
+    private GridPane playerTwoDiceView;
+
+    @FXML
+    private GridPane playerThreeDiceView;
+
+    @FXML
+    private GridPane playerFourDiceView;
+
+    final private ArrayList<ImagePattern> diceImages = new ArrayList<>();
+
+    final private Rectangle rectangleDie1 = new Rectangle(100, 100);
+
+    final private Rectangle rectangleDie2 = new Rectangle(100, 100);
 
     /**
      * Method called when the send Message button is pressed
@@ -124,7 +164,8 @@ public class GamePresenter extends AbstractPresenter {
             // ChatID = game_lobbyname so we have seperate lobby and game chat separated by id
             var chatId = "game_" + currentLobby;
             if (!chatMessage.isEmpty()) {
-                RequestChatMessage message = new RequestChatMessage(chatMessage, chatId, joinedLobbyUser.getUsername(), System.currentTimeMillis());
+                RequestChatMessage message = new RequestChatMessage(chatMessage, chatId, joinedLobbyUser.getUsername(),
+                        System.currentTimeMillis());
                 chatService.sendMessage(message);
             }
             this.gameChatInput.setText("");
@@ -201,9 +242,22 @@ public class GamePresenter extends AbstractPresenter {
         }
     }
 
+    /**
+     * This method is called when the Trade button is pressed
+     * <p>
+     * When the user presses the trade button a popup window appears. Within it the user can select which ressources
+     * he wants to trade and which amount of it. With a click on the Start a Trade button the startTrade method from the
+     * Gameservice on the client side gets called.
+     *
+     * @author Alexander Losse, Ricardo Mook
+     * @since 2021-04-07
+     */
+
     @FXML
     public void onTrade(ActionEvent event) {
-        //TODO:...
+        String tradeCode = UUID.randomUUID().toString().trim().substring(0, 7);
+        gameService.sendTradeStartedRequest((UserDTO) this.joinedLobbyUser, this.currentLobby, tradeCode);
+
     }
 
     @FXML
@@ -231,7 +285,6 @@ public class GamePresenter extends AbstractPresenter {
      * <p>
      * If the RollDice button is pressed, this methods tries to request the GameService to send a RollDiceRequest.
      *
-     * @param event The ActionEvent created by pressing the Roll Dice button
      * @author Kirstin, Pieter
      * @see de.uol.swp.client.game.GameService
      * @since 2021-01-07
@@ -242,14 +295,15 @@ public class GamePresenter extends AbstractPresenter {
      * I have changed the place of the method to the new GamePresenter.
      */
     @FXML
-    public void onRollDice(ActionEvent event) {
+    public void onRollDice() {
         if (this.currentLobby != null) {
-            gameService.rollDice(this.currentLobby, this.joinedLobbyUser);
+            gameService.rollDice(this.currentLobby, (UserDTO) this.joinedLobbyUser);
         }
     }
 
+    //TODO JavaDoc fehlt
     @FXML
-    public void onEndTurn(ActionEvent event) {
+    public void onEndTurn() {
         eventBus.post(new EndTurnRequest(this.currentLobby, (UserDTO) this.joinedLobbyUser));
     }
 
@@ -273,13 +327,17 @@ public class GamePresenter extends AbstractPresenter {
      * <p>
      * If the currentLobby is null, meaning this is an empty GamePresenter that is ready to be used for a new game tab,
      * the parameters of this GamePresenter are updated to the User and Lobby given by the gcm Message. An update of the
-     * Users in the currentLobby is also requested.
+     * Users in the currentLobby is also requested. After that the player pictures and the needed objects for the dice
+     * are created in the game.
      *
      * @param gcm the GameCreatedMessage given by the original subscriber method.
      * @author Alexander Losse, Ricardo Mook
      * @see GameCreatedMessage
      * @see de.uol.swp.common.game.GameField
      * @since 2021-03-05
+     * <p>
+     * Enhanced by Carsten Dekker
+     * @since 2021-04-22
      */
     public void gameStartedSuccessfulLogic(GameCreatedMessage gcm) {
         if (this.currentLobby == null) {
@@ -287,9 +345,44 @@ public class GamePresenter extends AbstractPresenter {
             this.joinedLobbyUser = gcm.getUser();
             this.currentLobby = gcm.getName();
             updateGameUsersList(gcm.getUsers());
-            initializeGameField(gcm.getGameField());
-            Platform.runLater(this::setupRessourceAlert);
+            initializeMatch(gcm.getMapGraph());
+            for (int i = 1; i <= 64; i++) {
+                Image image;
+                image = new Image("img/profilePictures/" + i + ".png");
+                ImagePattern imagePattern;
+                imagePattern = new ImagePattern(image);
+                profilePicturePatterns.add(imagePattern);
+            }
+            Platform.runLater(() -> {
+                setupPlayerPictures(gcm.getUsers());
+                setupRessourceAlert();
+                setupDicesAtGameStart();
+            });
         }
+    }
+
+    /**
+     * Handles the creation of the profile pictures at game start
+     * <p>
+     * At the start of a game this method gets called. It uses an arrayList, containing all the users in the game,
+     * and creates the right profile picture for each user.
+     *
+     * @param list an ArrayList with UserDTOs
+     * @author Carsten Dekker
+     * @since 2021-04-18
+     */
+    public void setupPlayerPictures(ArrayList<UserDTO> list) {
+        for (UserDTO userDTO : list) {
+            Rectangle rectangle = new Rectangle(100, 100);
+            rectangle.setFill(profilePicturePatterns.get(userDTO.getProfilePictureID() - 1));
+            rectangles.add(rectangle);
+        }
+        picturePlayerView1.getChildren().add(rectangles.get(0));
+        picturePlayerView2.getChildren().add(rectangles.get(1));
+        if (rectangles.size() > 2)
+            picturePlayerView3.getChildren().add(rectangles.get(2));
+        if (rectangles.size() > 3)
+            picturePlayerView4.getChildren().add(rectangles.get(3));
     }
 
     /**
@@ -312,17 +405,46 @@ public class GamePresenter extends AbstractPresenter {
      *
      * <p>This method checks, if the the games name equals the name of the game in the message. If so, and if you are
      * the player with the current turn (transported in message), your button for ending your turn gets clickable. If
-     * not, it becomes unclickable.</p>
+     * not, it becomes unclickable. It also invokes the passTheDice method and manages the visibility of the diceViews.</p>
      *
-     * @param response
+     * @param response //TODO JavaDoc
      * @author Pieter Vogt
+     *
+     * Enhanced by Carsten Dekker
+     * @since 2021-04-30
      */
     @Subscribe
     public void nextPlayerTurn(NextTurnMessage response) {
         if (response.getGameName().equals(currentLobby)) {
             if (response.getPlayerWithCurrentTurn().equals(joinedLobbyUser.getUsername())) {
+                itsMyTurn = true;
                 EndTurnButton.setDisable(false);
-            } else EndTurnButton.setDisable(true);
+                tradeButton.setDisable(false);
+            } else {
+                itsMyTurn = false;
+                EndTurnButton.setDisable(true);
+                itsMyTurn = false;
+                tradeButton.setDisable(true);
+            }
+            if (!response.isInStartingTurn()) {
+                if (response.getTurn() == 0) {
+                    passTheDice(playerFourDiceView, playerOneDiceView);
+                    playerOneDiceView.setVisible(true);
+                    playerFourDiceView.setVisible(false);
+                } else if (response.getTurn() == 1) {
+                    passTheDice(playerOneDiceView, playerTwoDiceView);
+                    playerOneDiceView.setVisible(false);
+                    playerTwoDiceView.setVisible(true);
+                } else if (response.getTurn() == 2) {
+                    passTheDice(playerTwoDiceView, playerThreeDiceView);
+                    playerTwoDiceView.setVisible(false);
+                    playerThreeDiceView.setVisible(true);
+                } else if (response.getTurn() == 3) {
+                    passTheDice(playerThreeDiceView, playerFourDiceView);
+                    playerThreeDiceView.setVisible(false);
+                    playerFourDiceView.setVisible(true);
+                }
+            }
         }
     }
 
@@ -346,13 +468,14 @@ public class GamePresenter extends AbstractPresenter {
         }
     }
 
+
     /**
      * Method called when the leaveGame Button is pressed
      * <p>
      * If the leaveGameButton is pressed, the method tries to call the GameService method leaveGame It throws a
      * GamePresenterException if joinedLobbyUser and currentLobby are not initialised
      *
-     * @param event
+     * @param event \\TODO JavaDoc fehlt hier
      * @author Ricardo Mook, Alexander Losse
      * @see de.uol.swp.client.game.GameService
      * @see de.uol.swp.client.game.GamePresenterException
@@ -462,7 +585,6 @@ public class GamePresenter extends AbstractPresenter {
         });
     }
 
-
     /**
      * This method holds the size of the terrainFields in pixels.
      * <p>
@@ -473,135 +595,88 @@ public class GamePresenter extends AbstractPresenter {
      * @author Pieter Vogt
      * @since 2021-01-24
      */
-
     public double cardSize() {
         double d = Math.min(canvas.getHeight(), canvas.getWidth()); //Determine minimum pixels in height and length of the canvas (we dont want the playfield to scale out of canvas, so we orient at the smaller axis)
         return d / 8; // Divide by 8 because the playfield is 7 cards wide and add 1/2 card each side for margin so the cards dont touch the boundaries of the canvas.
     }
 
     /**
-     * Method for generating an array of terrainFields, buildFields and streetFields
-     * that have the correct relative and absolute positions to one another
-     * <p>
-     * enhanced by Marc Hermes - 2021-03-13
-     * enhanced by Kirstin Beyer - 2021-03-28
+     * Determines the color to draw its host-object.
      *
-     * @return Object containing array with TerrainFields, array with BuildingFields (for streets), array with BuildingFields (for buildings) having the correct positions.
-     * @author Pieter Vogt, Kirstin Beyer
-     * @see <a href="https://confluence.swl.informatik.uni-oldenburg.de/display/SWP2020J/SpecCatan_1004+Spielfeld">Specification
-     * 1004</a>
-     * @since 2021-01-24
+     * @return the color for the host-object
+     * @author Pieter Vogt
+     * @since 2021-01-04
      */
-    public Object[] getCorrectPositionsOfFields() {
-
-        //TerrainFields
-
-        TerrainField[] tempArray;
-
-        //Array of cards get generated in same order as "spielfeld"-finespec in confluence.
-
-        //beginning of oceans
-        TerrainField f0 = new TerrainField(Vector.bottomLeft(cardSize()));
-        TerrainField f1 = new TerrainField(Vector.bottomLeft(cardSize()));
-        TerrainField f2 = new TerrainField(Vector.bottomLeft(cardSize()));
-        TerrainField f3 = new TerrainField(Vector.topLeft(cardSize()));
-        TerrainField f4 = new TerrainField(Vector.topLeft(cardSize()));
-        TerrainField f5 = new TerrainField(Vector.topLeft(cardSize()));
-        TerrainField f6 = new TerrainField(Vector.top((cardSize())));
-        TerrainField f7 = new TerrainField(Vector.top((cardSize())));
-        TerrainField f8 = new TerrainField(Vector.top((cardSize())));
-        TerrainField f9 = new TerrainField(Vector.topRight((cardSize())));
-        TerrainField f10 = new TerrainField(Vector.topRight((cardSize())));
-        TerrainField f11 = new TerrainField(Vector.topRight((cardSize())));
-        TerrainField f12 = new TerrainField(Vector.bottomRight((cardSize())));
-        TerrainField f13 = new TerrainField(Vector.bottomRight((cardSize())));
-        TerrainField f14 = new TerrainField(Vector.bottomRight((cardSize())));
-        TerrainField f15 = new TerrainField(Vector.bottom((cardSize())));
-        TerrainField f16 = new TerrainField(Vector.bottom((cardSize())));
-        TerrainField f17 = new TerrainField(Vector.bottomLeft((cardSize())));
-
-        //beginning of landmasses
-        TerrainField f18 = new TerrainField(Vector.bottomLeft(cardSize()));
-        TerrainField f19 = new TerrainField(Vector.bottomLeft(cardSize()));
-        TerrainField f20 = new TerrainField(Vector.topLeft(cardSize()));
-        TerrainField f21 = new TerrainField(Vector.topLeft(cardSize()));
-        TerrainField f22 = new TerrainField(Vector.top(cardSize()));
-        TerrainField f23 = new TerrainField(Vector.top(cardSize()));
-        TerrainField f24 = new TerrainField(Vector.topRight(cardSize()));
-        TerrainField f25 = new TerrainField(Vector.topRight(cardSize()));
-        TerrainField f26 = new TerrainField(Vector.bottomRight(cardSize()));
-        TerrainField f27 = new TerrainField(Vector.bottomRight(cardSize()));
-        TerrainField f28 = new TerrainField(Vector.bottom(cardSize()));
-        TerrainField f29 = new TerrainField(Vector.bottomLeft(cardSize()));
-        TerrainField f30 = new TerrainField(Vector.bottomLeft(cardSize()));
-        TerrainField f31 = new TerrainField(Vector.topLeft(cardSize()));
-        TerrainField f32 = new TerrainField(Vector.top(cardSize()));
-        TerrainField f33 = new TerrainField(Vector.topRight(cardSize()));
-        TerrainField f34 = new TerrainField(Vector.bottomRight(cardSize()));
-        TerrainField f35 = new TerrainField(Vector.bottomLeft(cardSize()));
-        TerrainField f36 = new TerrainField(new Vector(0, 0));
-        f36.setPosition(new Vector(((canvas.getWidth() / 2) - cardSize() / 2), ((canvas.getHeight() / 2)) - cardSize() / 2));
-
-        tempArray = new TerrainField[]{f0, f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, f15, f16, f17, f18, f19, f20, f21, f22, f23, f24, f25, f26, f27, f28, f29, f30, f31, f32, f33, f34, f35, f36};
-
-        for (int i = tempArray.length - 2; i >= 0; i--) { // TempArray.length - 2 because the desert-field (upmost "card") was already positioned, so we dont need to handle it again (index out of bounds when whe try to add tempArray[i+1]...)
-            tempArray[i].setPosition(Vector.addVector(tempArray[i + 1].getPosition(), tempArray[i].getPlacementVector())); //Add position of last terrainfield and current placement-vector to determine position.
+    public Color determineColorOfTerrain(MapGraph.Hexagon h) {
+        Color c;
+        //"Ocean" = 0; "Forest" = 1; "Farmland" = 2; "Grassland" = 3; "Hillside" = 4; "Mountain" = 5; "Desert" = 6;
+        switch (h.getTerrainType()) {
+            case 1:
+                c = Color.OLIVEDRAB;
+                break;
+            case 2:
+                c = Color.GOLDENROD;
+                break;
+            case 3:
+                c = Color.LAWNGREEN;
+                break;
+            case 4:
+                c = Color.LIGHTCORAL;
+                break;
+            case 5:
+                c = Color.GREY;
+                break;
+            case 0:
+                c = Color.DODGERBLUE;
+                break;
+            default:
+                c = Color.BLANCHEDALMOND;
+                break;
         }
+        return c;
+    }
 
-
-        //BuildingFields
-
-        BuildingField[] tempStreetArray = new BuildingField[72];
-        BuildingField[] tempBuildArray = new BuildingField[54];
-
-        int l = 0;
-        int m = 0;
-        Vector tempVec;
-
-        // loop over all terrainFields (except ocean)
-        for (int i = 18; i < 37; i++) {
-
-            // loop over 12 positions for each terrainField, even positions j mark buildFields, odd positions j mark streetFields
-            fieldLoop:
-            for (int j = 0; j < 12; j++) {
-                tempVec = Vector.addVector(tempArray[i].getPosition(), Vector.generalVector(cardSize() / Math.sqrt(2), 315));
-
-                if (j % 2 == 0) {
-                    tempVec = Vector.addVector(tempVec, Vector.generalVector(cardSize() / Math.sqrt(3), 30 * j));
-
-                    // check if field is already in array
-                    for (int k = 0; k < l; k++) {
-                        if (Math.abs(tempVec.getX() - tempBuildArray[k].getPosition().getX()) < (cardSize() / 100) && Math.abs(tempVec.getY() - tempBuildArray[k].getPosition().getY()) < (cardSize() / 100)) {
-                            continue fieldLoop;
-                        }
-                    }
-                    // add new BuildingField to buildArray
-                    BuildingField b = new BuildingField(tempVec);
-                    b.setName("Settlement");
-                    b.setUsed(false);
-                    tempBuildArray[l] = b;
-                    l++;
-
-                } else {
-                    tempVec = Vector.addVector(tempVec, Vector.generalVector(cardSize() * 0.5, 30 * j));
-
-                    // check if field is already in array
-                    for (int k = 0; k < m; k++) {
-                        if (Math.abs(tempVec.getX() - tempStreetArray[k].getPosition().getX()) < cardSize() / 100 && Math.abs(tempVec.getY() - tempStreetArray[k].getPosition().getY()) < cardSize() / 100) {
-                            continue fieldLoop;
-                        }
-                    }
-                    // add new BuildingField to streetArray
-                    BuildingField s = new BuildingField(tempVec);
-                    s.setName("Street");
-                    s.setUsed(false);
-                    tempStreetArray[m] = s;
-                    m++;
-                }
-            }
+    /**
+     * Determines the paint (image) to draw its host-object.
+     *
+     * @return the paint for the host-object
+     * @author Marc Hermes
+     * @since 2021-04-28
+     */
+    public Paint determinePictureOfTerrain(MapGraph.Hexagon h) {
+        ImagePattern imagePattern;
+        Paint paint;
+        //"Ocean" = 0; "Forest" = 1; "Farmland" = 2; "Grassland" = 3; "Hillside" = 4; "Mountain" = 5; "Desert" = 6;
+        switch (h.getTerrainType()) {
+            case 1:
+                imagePattern = new ImagePattern(new Image("textures/resized/HEX_Wald.png"));
+                paint = imagePattern;
+                break;
+            case 2:
+                imagePattern = new ImagePattern(new Image("textures/resized/HEX_Felder.png"));
+                paint = imagePattern;
+                break;
+            case 3:
+                imagePattern = new ImagePattern(new Image("textures/resized/HEX_Weideland.png"));
+                paint = imagePattern;
+                break;
+            case 4:
+                imagePattern = new ImagePattern(new Image("textures/resized/HEX_Lehm.png"));
+                paint = imagePattern;
+                break;
+            case 5:
+                imagePattern = new ImagePattern(new Image("textures/resized/HEX_Minen.png"));
+                paint = imagePattern;
+                break;
+            case 0:
+                paint = Color.DODGERBLUE;
+                break;
+            default:
+                imagePattern = new ImagePattern(new Image("/textures/resized/HEX_Wueste.png"));
+                paint = imagePattern;
+                break;
         }
-
-        return new Object[]{tempArray, tempStreetArray, tempBuildArray};
+        return paint;
     }
 
     /**
@@ -611,43 +686,99 @@ public class GamePresenter extends AbstractPresenter {
      * why the background is drawn first, etc.
      * </p>
      * <p>
-     * enhanced by Marc Hermes 2021-03-31
+     * enhanced by Marc Hermes 2021-03-31 enhanced by Pieter Vogt 2021-04-07
      *
      * @author Pieter Vogt
      * @since 2021-01-24
      */
     public void draw() {
 
-        //Setup
+        Vector centerOfCanvasVector = new Vector((canvas.getWidth() / 2 + canvas.getLayoutX()), canvas.getHeight() / 2 + canvas.getLayoutY());
         GraphicsContext g = this.canvas.getGraphicsContext2D(); //This is the object that is doing the drawing and has all the graphics related methods.
 
-        //Paint black background
-        g.setFill(Color.BLACK);
+        //Drawing background.
+
+        g.setFill(new ImagePattern(new Image("textures/blaues-meer-sicht-von-oben.jpg")));
         g.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
 
-        //Draw TerrainFields
-        for (int i = tfArray.length - 1; i >= 0; i--) {
-            Vector drawPosition = Vector.subVector(tfArray[i].getPosition(), Vector.generalVector(cardSize() / Math.sqrt(2), 135));
-            Circle terrainFieldNode = new Circle(cardSize() / 2);
-            terrainFieldNode.setLayoutX(drawPosition.getX());
-            terrainFieldNode.setLayoutY(drawPosition.getY() + canvas.getLayoutY());
-            terrainFieldNode.setFill(tfArray[i].determineColorOfTerrain());
-            tfArray[i].setNode(terrainFieldNode);
-            Platform.runLater(() -> gameAnchorPane.getChildren().add(terrainFieldNode));
-            if (tfArray[i].getDiceToken() != 0) {
-                Text text = new Text(drawPosition.getX(), drawPosition.getY() + canvas.getLayoutY(), Integer.toString(tfArray[i].getDiceToken()));
-                text.setFill(Color.WHITE);
+        //Drawing hexagons
+
+        for (HexagonContainer hexagonContainer : this.hexagonContainers) {
+
+            Vector placementVector = Vector.convertStringListToVector(hexagonContainer.getHexagon().getSelfPosition(), cardSize(), centerOfCanvasVector);
+
+            hexagonContainer.getHexagonShape().setLayoutX(placementVector.getX());
+            hexagonContainer.getHexagonShape().setLayoutY(placementVector.getY());
+            Platform.runLater(() -> {
+                hexagonContainer.getHexagonShape().setFill(determinePictureOfTerrain(hexagonContainer.getHexagon()));
+            });
+
+            if (hexagonContainer.getHexagon().getDiceToken() != 0) {
+                Text text = new Text(placementVector.getX(), placementVector.getY(), Integer.toString(hexagonContainer.getHexagon().getDiceToken()));
+                text.setFill(Color.BLACK);
                 Platform.runLater(() -> gameAnchorPane.getChildren().add(text));
             }
         }
 
-        //Draw Buildings
-        for (int i = 0; i < 72; i++) {
-            initializeBuildingSpots("Street", streetArray[i]);
+        //Draw buildings
+
+        for (MapGraphNodeContainer mapGraphNodeContainer : mapGraphNodeContainers) {
+
+            if (mapGraphNodeContainer.getMapGraphNode() instanceof MapGraph.BuildingNode) {
+                double itemSize = cardSize() / 10;
+                MapGraph.BuildingNode buildingNode = (MapGraph.BuildingNode) mapGraphNodeContainer.getMapGraphNode();
+
+                Vector parentVector = Vector.convertStringListToVector(buildingNode.getParent().getSelfPosition(), cardSize(), centerOfCanvasVector);
+                Vector selfVector = Vector.getVectorFromMapGraphNode(buildingNode, cardSize());
+                Vector drawVector = Vector.addVector(parentVector, selfVector);
+
+                Circle circle = mapGraphNodeContainer.getCircle();
+                circle.setRadius(itemSize);
+                circle.setLayoutX(drawVector.getX());
+
+                circle.setLayoutY(drawVector.getY());
+
+                mapGraphNodeContainer.getCircle().setFill(determinePlayerColorByIndex(mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer()));
+
+
+            } else {
+                double itemSize = cardSize() / 15;
+                MapGraph.StreetNode streetNode = (MapGraph.StreetNode) mapGraphNodeContainer.getMapGraphNode();
+
+                Vector parentVector = Vector.convertStringListToVector(streetNode.getParent().getSelfPosition(), cardSize(), centerOfCanvasVector);
+
+                Vector selfVector = Vector.getVectorFromMapGraphNode(streetNode, cardSize());
+                Vector drawVector = Vector.addVector(parentVector, selfVector);
+
+                Circle circle = mapGraphNodeContainer.getCircle();
+                circle.setRadius(itemSize);
+                circle.setLayoutX(drawVector.getX());
+                circle.setLayoutY(drawVector.getY());
+
+                circle.setFill(determinePlayerColorByIndex(mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer()));
+            }
         }
-        for (int i = 0; i < 54; i++) {
-            initializeBuildingSpots("Settlement", buildArray[i]);
+    }
+
+    /**
+     * Determine the right color for a drawn, player-owned object.
+     *
+     * @return Correct Color for a player-owned Object.
+     * @author Pieter Vogt
+     * @since 2021-04-15
+     */
+    public Color determinePlayerColorByIndex(int playerIndex) {
+        switch (playerIndex) {
+            case 0:
+                return Color.color(1.0, 0.4, 0.4);
+            case 1:
+                return Color.color(0.4, 0.5, 1.0);
+            case 2:
+                return Color.color(1.0, 1.0, 0.4);
+            case 3:
+                return Color.color(0.5, 1.0, 0.4);
         }
+        return Color.color(0.5, 0.5, 0.5);
     }
 
     /**
@@ -660,48 +791,28 @@ public class GamePresenter extends AbstractPresenter {
      * @author Kirstin
      * @since 2021-03-28
      */
-    public void initializeBuildingSpots(String building, BuildingField buildingField) {
-        EventHandler<MouseEvent> circleOnMousePressedEventHandler = t -> {
-            Circle circle = (Circle) t.getSource();
-            circle.setFill(Color.RED);
-        };
-        GraphicsContext g = this.canvas.getGraphicsContext2D();
-        g.setLineWidth(cardSize() / 10);
-        double x = buildingField.getPosition().getX();
-        double y = buildingField.getPosition().getY();
+    public void initializeNodeSpots(Object o) {
 
-        switch (building) {
-            case "Street":
-                double itemSize = cardSize() / 8;
-                Circle street = new Circle();
-                street.setRadius(itemSize / 2);
-                street.setLayoutX(x);
-                street.setLayoutY(y + canvas.getLayoutY());
-                street.setFill(Color.GHOSTWHITE);
-                street.setOnMouseClicked(circleOnMousePressedEventHandler);
-                buildingField.setNode(street);
-                Platform.runLater(() -> gameAnchorPane.getChildren().add(street));
-                break;
-            case "Settlement":
-                itemSize = cardSize() / 4;
-                Circle settlement = new Circle(itemSize / 2);
-                settlement.setLayoutX(x);
-                settlement.setLayoutY(y + canvas.getLayoutY());
-                settlement.setFill(Color.GHOSTWHITE);
-                settlement.setOnMouseClicked(circleOnMousePressedEventHandler);
-                buildingField.setNode(settlement);
-                Platform.runLater(() -> gameAnchorPane.getChildren().add(settlement));
-                break;
-            case "Town":
-                itemSize = cardSize() / 3;
-                Circle town = new Circle(itemSize / 2);
-                town.setLayoutX(x);
-                town.setLayoutY(y + canvas.getLayoutY());
-                town.setFill(Color.GHOSTWHITE);
-                town.setOnMouseClicked(circleOnMousePressedEventHandler);
-                buildingField.setNode(town);
-                Platform.runLater(() -> gameAnchorPane.getChildren().add(town));
-                break;
+        EventHandler<MouseEvent> clickOnCircleHandler = new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent mouseEvent) {
+                for (MapGraphNodeContainer container : mapGraphNodeContainers) {
+                    if (mouseEvent.getSource().equals(container.getCircle()) && itsMyTurn == true) {
+                        String typeOfNode;
+                        if (container.getMapGraphNode() instanceof MapGraph.BuildingNode) {
+                            typeOfNode = "BuildingNode";
+                        } else {
+                            typeOfNode = "StreetNode";
+                        }
+                        UserDTO user = new UserDTO(joinedLobbyUser.getUsername(), joinedLobbyUser.getPassword(), joinedLobbyUser.getEMail()); //Still sent with password because tight deadline. TODO: Change responsible Interface in future, to send Users without Passwords.
+                        gameService.constructBuilding(user, currentLobby, container.getMapGraphNode().getUuid(), typeOfNode);
+                    }
+                }
+            }
+        };
+
+        for (MapGraphNodeContainer container : mapGraphNodeContainers) {
+            container.getCircle().setOnMouseClicked(clickOnCircleHandler);
         }
     }
 
@@ -712,51 +823,44 @@ public class GamePresenter extends AbstractPresenter {
      * values and copies them to the tfArray of this GamePresenter. Then the values of the fieldTypes are checked and
      * translated into the correct String names of the tfArray TerrainFields.
      *
-     * @param gameField the gameField given by the Server
+     * @param mapGraph the MapGraph created by the Server
      * @author Marc Hermes
      * @see de.uol.swp.common.game.GameField
      * @see de.uol.swp.client.game.GameObjects.TerrainField
      * @see de.uol.swp.common.game.TerrainFieldContainer
      */
-    public void initializeGameField(GameField gameField) {
-        Object[] obj = getCorrectPositionsOfFields();
-        tfArray = (TerrainField[]) obj[0];
-        streetArray = (BuildingField[]) obj[1];
-        buildArray = (BuildingField[]) obj[2];
+    public void initializeMatch(MapGraph mapGraph) {
 
-        TerrainFieldContainer[] terrainFieldContainers = gameField.getTFCs();
-        for (int i = 0; i < terrainFieldContainers.length; i++) {
-            tfArray[i].setDiceToken(terrainFieldContainers[i].getDiceTokens());
-            int fieldType = terrainFieldContainers[i].getFieldType();
-            String translatedFieldType;
-            switch (fieldType) {
-                case 0:
-                    translatedFieldType = "Ocean";
-                    break;
-                case 1:
-                    translatedFieldType = "Forest";
-                    break;
-                case 2:
-                    translatedFieldType = "Farmland";
-                    break;
-                case 3:
-                    translatedFieldType = "Grassland";
-                    break;
-                case 4:
-                    translatedFieldType = "Hillside";
-                    break;
-                case 5:
-                    translatedFieldType = "Mountain";
-                    break;
-                default:
-                    translatedFieldType = "Desert";
-                    break;
-            }
-            tfArray[i].setName(translatedFieldType);
+        //Setting up the HexagonContainers
+        System.out.println("Setting up " + mapGraph.getHexagonHashSet().size() + " HexagonContainers...");
+
+        for (MapGraph.Hexagon hexagon : mapGraph.getHexagonHashSet()) {
+            HexagonContainer hexagonContainer = new HexagonContainer(hexagon, cardSize());
+            this.hexagonContainers.add(hexagonContainer);
+            Platform.runLater(() -> gameAnchorPane.getChildren().add(hexagonContainer.getHexagonShape()));
+        }
+
+        //Setting up the BuildingNodeContainers
+        System.out.println("Setting up " + mapGraph.getBuildingNodeHashSet().size() + " BuildingNodeContainers...");
+
+        for (MapGraph.BuildingNode buildingNode : mapGraph.getBuildingNodeHashSet()) {
+            MapGraphNodeContainer mapGraphNodeContainer = new MapGraphNodeContainer(new Circle(cardSize() / 6), buildingNode);
+            this.mapGraphNodeContainers.add(mapGraphNodeContainer);
+            initializeNodeSpots(mapGraphNodeContainer);
+            Platform.runLater(() -> gameAnchorPane.getChildren().add(mapGraphNodeContainer.getCircle()));
+        }
+
+        //Setting up the StreetNodeContainers
+        System.out.println("Setting up " + mapGraph.getStreetNodeHashSet().size() + " StreetNodeContainers...");
+
+        for (MapGraph.StreetNode streetNode : mapGraph.getStreetNodeHashSet()) {
+            MapGraphNodeContainer mapGraphNodeContainer = new MapGraphNodeContainer(new Circle(cardSize() / 8), streetNode);
+            this.mapGraphNodeContainers.add(mapGraphNodeContainer);
+            initializeNodeSpots(mapGraphNodeContainer);
+            Platform.runLater(() -> gameAnchorPane.getChildren().add(mapGraphNodeContainer.getCircle()));
         }
         draw();
     }
-
 
     @Subscribe
     public void onBuyDevelopmentCardMessage(BuyDevelopmentCardMessage buyDevelopmentCardMessage) {
@@ -799,8 +903,8 @@ public class GamePresenter extends AbstractPresenter {
     /**
      * The method invoked when the Game Presenter is first used.
      * <p>
-     * The Alert tells the user, that he doesn't have enough ressources to buy a development card.
-     * The user can only click the showed button to close the dialog.
+     * The Alert tells the user, that he doesn't have enough ressources to buy a development card. The user can only
+     * click the showed button to close the dialog.
      *
      * @author Marius Birk
      * @since 2021-04-03
@@ -814,5 +918,173 @@ public class GamePresenter extends AbstractPresenter {
             alert.close();
             event.consume();
         });
+    }
+
+    /**
+     * The method gets invoked when the Game Presenter is created.
+     * <p>
+     * This method creates six imagePatterns and adds them to the ArrayList diceImages. Then it fills rectangleDie1 and
+     * rectangleDie2 with the die picture one. Both rectangles are added to the playerOneDiceView.
+     *
+     * @author Carsten Dekker
+     * @since 2021-04-30
+     */
+    public void setupDicesAtGameStart() {
+        for (int i = 1; i <= 6; i++) {
+            Image image = new Image("img/dice/dice_" + i + ".png");
+            ImagePattern imagePattern = new ImagePattern(image);
+            diceImages.add(imagePattern);
+        }
+        rectangleDie1.setFill(diceImages.get(0));
+        playerOneDiceView.add(rectangleDie1, 0, 0);
+        rectangleDie2.setFill(diceImages.get(0));
+        playerOneDiceView.add(rectangleDie2, 1, 0);
+    }
+
+    /**
+     * Handles the removing and adding of the two rectangleDie from one gridPane to another
+     * <p>
+     * This method removes the rectangles from the current GridPane and adds them to the new GridPane. Then it fills
+     * both rectangles with the imagePatterns for the die with eyes one.
+     *
+     * @param oldGridPane the gridPane, where the rectangles currently are
+     * @param newGridPane the next gridPane, where the rectangles going to be added
+     * @author Carsten Dekker
+     * @since 2021-04-30
+     */
+    public void passTheDice(GridPane oldGridPane, GridPane newGridPane) {
+        Platform.runLater(() -> {
+            oldGridPane.getChildren().remove(rectangleDie1);
+            oldGridPane.getChildren().remove(rectangleDie2);
+            rectangleDie1.setFill(diceImages.get(0));
+            newGridPane.add(rectangleDie1, 0, 0);
+            rectangleDie2.setFill(diceImages.get(0));
+            newGridPane.add(rectangleDie2, 1, 0);
+        });
+    }
+
+    /**
+     * The method invoked by the RollDiceResultMessage
+     * <p>
+     * This method calls the shuffleTheDice method and passes the DiceEyes1 and DiceEyes2.
+     *
+     * @param message the RollDiceResultMessage object seen on the eventBus
+     * @author Carsten Dekker
+     * @since 2021-04-30
+     */
+    @Subscribe
+    public void onRollDiceResultMessage(RollDiceResultMessage message) {
+        if (this.currentLobby != null) {
+            if (message.getName().equals(currentLobby)) {
+                shuffleTheDice(message.getDiceEyes1(), message.getDiceEyes2());
+            }
+        }
+    }
+
+    /**
+     * This method handles the dice animation
+     * <p>
+     * This method uses an ExecutorService that can schedule commands to run after a given delay, or to execute
+     * periodically. With this service we can delay the for-loop for 125 milliseconds. For every iteration we generate two
+     * random numbers between zero and five. We use these numbers and the diceImages ArrayList to fill both rectangleDie
+     * with random imagePattern. In the 12th iteration the executorService gets shutdown and the imagePattern equal to
+     * the rollDiceResult are shown.
+     *
+     * @param diceEyes1 the eyes from die one
+     * @param diceEyes2 the eyes from die two
+     * @author Carsten Dekker
+     * @since 2021-04-30
+     */
+    public void shuffleTheDice(int diceEyes1, int diceEyes2) {
+        final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+        final int[] i = {0};
+        executorService.scheduleAtFixedRate(new Runnable() {
+            @Override
+            public void run() {
+                    i[0]++;
+                    int randomNumber = randomInt(0, 5);
+                    rectangleDie1.setFill(diceImages.get(randomNumber));
+                    randomNumber = randomInt(0, 5);
+                    rectangleDie2.setFill(diceImages.get(randomNumber));
+                    if (i[0] == 12) {
+                        executorService.shutdown();
+                        rectangleDie1.setFill(diceImages.get(diceEyes1 - 1));
+                        rectangleDie2.setFill(diceImages.get(diceEyes2 - 1));
+                    }
+            }
+        }, 0, 125, TimeUnit.MILLISECONDS);
+    }
+
+    /**
+     * Randomizer for an int
+     * <p>
+     * This method returns a random number between int min and int max.
+     *
+     * @author Carsten Dekker
+     * @since 2021-04-30
+     */
+    private int randomInt(int min, int max) {
+        return (int) (Math.random() * (max - min)) + min;
+    }
+
+    /**
+     * Updates the corresponding Node in the list of MapGraphNodes to represent the changes from the message.
+     *
+     * @param message The data about the changed properties of the MapGraph
+     * @author Pieter Vogt
+     * @since 2021-04-15
+     */
+    @Subscribe
+    public void onSuccessfulConstructionMessage(SuccessfulConstructionMessage message) {
+        if (message.getTypeOfNode().equals("BuildingNode")) {
+            for (MapGraphNodeContainer mapGraphNodeContainer : mapGraphNodeContainers) {
+                if (mapGraphNodeContainer.getMapGraphNode().getUuid().equals(message.getUuid())) {
+                    MapGraph.BuildingNode buildingNode = (MapGraph.BuildingNode) mapGraphNodeContainer.getMapGraphNode();
+                    buildingNode.buildOrDevelopSettlement(message.getPlayerIndex());
+                    mapGraphNodeContainer.getCircle().setFill(determinePlayerColorByIndex(mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer()));
+                    break;
+                }
+            }
+        } else {
+            for (MapGraphNodeContainer mapGraphNodeContainer : mapGraphNodeContainers) {
+                if (mapGraphNodeContainer.getMapGraphNode().getUuid().equals(message.getUuid())) {
+                    MapGraph.StreetNode streetNode = (MapGraph.StreetNode) mapGraphNodeContainer.getMapGraphNode();
+                    streetNode.buildRoad(message.getPlayerIndex());
+                    mapGraphNodeContainer.getCircle().setFill(determinePlayerColorByIndex(mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer()));
+                    break;
+                }
+            }
+        }
+    }
+
+    @Subscribe
+    public void onPrivateInventoryChangeMessage(PrivateInventoryChangeMessage privateInventoryChangeMessage) {
+        //TODO: Darstellung der Veränderung des Inventars
+    }
+
+    @Subscribe
+    public void onPublicInventoryChangeMessage(PublicInventoryChangeMessage publicInventoryChangeMessage) {
+        //TODO: Darstellung der Veränderung des Inventars
+    }
+
+
+    /**
+     * shows an alert if the trade user has not enough in inventory
+     *
+     * @param message TradeCardErrorMessage
+     * @author Alexander Losse, Ricardo Mook
+     * @since 2021-04-25
+     */
+    @Subscribe
+    public void notEnoughResTrade(TradeCardErrorMessage message) {
+        if (this.currentLobby != null) {
+            if (this.currentLobby.equals(message.getName())) {
+                Platform.runLater(() -> {
+                    this.alert.setTitle(message.getName());
+                    this.alert.setHeaderText("You have not enough Resources for the trade in: " + message.getTradeCode());
+                    this.alert.show();
+                });
+            }
+        }
     }
 }

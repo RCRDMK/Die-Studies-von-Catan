@@ -21,9 +21,9 @@ public interface ClientUserService {
     /**
      * Login with username and password
      *
-     * @author Marco Grawunder
      * @param username the name of the user
      * @param password the password of the user
+     * @author Marco Grawunder
      * @since 2017-03-17
      */
     void login(String username, String password) throws InvalidKeySpecException, NoSuchAlgorithmException;
@@ -41,8 +41,8 @@ public interface ClientUserService {
     /**
      * Create a new persistent user
      *
-     * @author Marco Grawunder
      * @param user The user to create
+     * @author Marco Grawunder
      * @implNote the User Object has to contain a unique identifier in order to
      * remove the correct user
      * @since 2019-09-02
@@ -54,8 +54,8 @@ public interface ClientUserService {
      * <p>
      * Remove the User specified by the User object.
      *
-     * @author Marco Grawunder
      * @param user The user to remove
+     * @author Marco Grawunder
      * @implNote the User Object has to contain a unique identifier in order to
      * remove the correct user
      * @since 2019-10-10
@@ -64,10 +64,10 @@ public interface ClientUserService {
 
     /**
      * Update the password from a user
-     *
+     * <p>
      * Updates the User specified by the User object.
      *
-     *
+     * @author Carsten Dekker
      * @implNote the User Object has to contain a unique identifier in order to
      * 			 update the correct user
      * @param user the user object containing all infos to
@@ -79,9 +79,10 @@ public interface ClientUserService {
 
     /**
      * Update the mail from a user
-     *
+     * <p>
      * Updates the User specified by the User object.
      *
+     * @author Carsten Dekker
      * @implNote the User Object has to contain a unique identifier in order to
      * 			 update the correct user
      * @param user the user object containing all infos to
@@ -92,13 +93,31 @@ public interface ClientUserService {
     void updateUserMail(User user);
 
     /**
+     * Update the profilePicture from a user
+     *
+     * Updates the user specified by the User object
+     *
+     * @author Carsten Dekker
+     * @implNote the User Object has to contain a unique identifier in order to
+     * update the correct user
+     * @param user the user object containing all infos to
+     * update, if some values are not set, (e.g. password is "")
+     * these fields are not updated
+     * @since 2021-04-15
+     */
+    void updateUserProfilePicture(User user);
+
+    /**
      * Retrieve the list of all current logged in users
      *
+     * @author Marco Grawunder
      * @since 2017-03-17
      */
     void retrieveAllUsers();
 
+    //TODO es fehlt JavaDoc
     void startTimerForPing(User user);
 
+    //TODO es fehlt JavaDoc
     void endTimerForPing();
 }

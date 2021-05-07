@@ -9,9 +9,9 @@ import java.util.List;
  * Base class of all server messages. Basic handling of notifications from the server
  * to a group of clients
  *
+ * @author Marco Grawunder
  * @see de.uol.swp.common.message.AbstractMessage
  * @see de.uol.swp.common.message.ServerMessage
- * @author Marco Grawunder
  * @since 2019-08-07
  */
 public class AbstractServerMessage extends AbstractMessage implements ServerMessage {

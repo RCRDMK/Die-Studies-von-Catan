@@ -33,11 +33,12 @@ public class ChatServiceTest {
 
     /**
      * Handles DeadEvents detected on the EventBus
-     *
+     * <p>
      * If a DeadEvent is detected the event variable of this class gets updated
      * to its event and its event is printed to the console output.
      *
      * @param e The DeadEvent detected on the EventBus
+     * @author Marco Grawunder
      * @since 2019-10-10
      */
     @Subscribe
@@ -49,10 +50,11 @@ public class ChatServiceTest {
 
     /**
      * Helper method run before each test case
-     *
+     * <p>
      * This method resets the variable event to null and registers the object of
      * this class to the EventBus.
      *
+     * @author Marco Grawunder
      * @since 2019-10-10
      */
     @BeforeEach
@@ -63,9 +65,10 @@ public class ChatServiceTest {
 
     /**
      * Helper method run after each test case
-     *
+     * <p>
      * This method only unregisters the object of this class from the EventBus.
      *
+     * @author Marco Grawunder
      * @since 2019-10-10
      */
     @AfterEach
@@ -75,7 +78,7 @@ public class ChatServiceTest {
 
     /**
      * Test for the ChatService
-     *
+     * <p>
      * This test first creates a new RequestChatMessage object. It then
      * calls the chatService sendMessage function and passes the object as parameter
      * and waits for it to post an RequestChatMessage object on the EventBus.
@@ -84,12 +87,13 @@ public class ChatServiceTest {
      * It also fails if the request object getTime() function doesn't return a valid double.
      *
      * @throws InterruptedException
+     * @author Marco Grawunder
      * @since 2020-12-16
      * @author René Meyer
      */
     @Test
     @DisplayName("Sends a normal Message")
-    void sendMessageTest() throws InterruptedException{
+    void sendMessageTest() throws InterruptedException {
         RequestChatMessage message = new RequestChatMessage("testMessage", "testLobby", defaultUser.getUsername(), System.currentTimeMillis());
         chatService.sendMessage(message);
 

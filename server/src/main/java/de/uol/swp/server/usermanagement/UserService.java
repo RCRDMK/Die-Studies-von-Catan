@@ -8,18 +8,18 @@ import de.uol.swp.common.message.ResponseMessage;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.exception.DropUserExceptionMessage;
 import de.uol.swp.common.user.exception.RegistrationExceptionMessage;
-import de.uol.swp.common.user.exception.RetrieveUserMailExceptionMessage;
+import de.uol.swp.common.user.exception.RetrieveUserInformationExceptionMessage;
 import de.uol.swp.common.user.exception.UpdateUserExceptionMessage;
 import de.uol.swp.common.user.request.*;
-import de.uol.swp.common.user.response.*;
+import de.uol.swp.common.user.response.DropUserSuccessfulResponse;
+import de.uol.swp.common.user.response.RegistrationSuccessfulResponse;
+import de.uol.swp.common.user.response.RetrieveUserInformationResponse;
+import de.uol.swp.common.user.response.UpdateUserSuccessfulResponse;
 import de.uol.swp.server.AbstractService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.sql.SQLException;
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 /**
  * Mapping vom event bus calls to user management calls
@@ -40,9 +40,9 @@ public class UserService extends AbstractService {
     /**
      * Constructor
      *
-     * @author Marco Grawunder
      * @param eventBus       the EventBus used throughout the entire server (injected)
      * @param userManagement object of the UserManagement to use
+     * @author Marco Grawunder
      * @see de.uol.swp.server.usermanagement.UserManagement
      * @since 2019-08-05
      */
@@ -61,8 +61,8 @@ public class UserService extends AbstractService {
      * RegistrationSuccessfulResponse is posted on the EventBus otherwise a RegistrationExceptionMessage
      * gets posted there.
      *
-     * @author Marco Grawunder
      * @param msg The RegisterUserRequest found on the EventBus
+     * @author Marco Grawunder
      * @see de.uol.swp.server.usermanagement.UserManagement#createUser(User)
      * @see de.uol.swp.common.user.request.RegisterUserRequest
      * @see de.uol.swp.common.user.response.RegistrationSuccessfulResponse
@@ -121,36 +121,90 @@ public class UserService extends AbstractService {
     }
 
     /**
-     * Handles RetrieveUserMailRequest found on the EventBus
+     * Handles RetrieveUserInformationRequest found on the EventBus
      * <p>
-     * If a RetrieveUserMailRequest is detected on the EventBus, this method is called.
+     * If a RetrieveUserInformationRequest is detected on the EventBus, this method is called.
      * It tries to get the eMail from the user via the UserManagement. If this succeeds a
-     * RetrieveUserInformationResponse is posted on the EventBus otherwise a RetrieveUserMailExceptionMessage
+     * RetrieveUserInformationResponse is posted on the EventBus otherwise a RetrieveUserInformationExceptionMessage
      * gets posted there.
      *
+     * @param retrieveUserInformationRequest The RetrieveUserInformationRequest found on the EventBus
      * @author Carsten Dekker
-     * @param retrieveUserMailRequest The RetrieveUserMailRequest found on the EventBus
-     * @see de.uol.swp.common.user.request.RetrieveUserMailRequest
+     * @see RetrieveUserInformationRequest
      * @since 2021-03-12
      */
     @Subscribe
-    private void onRetrieveUserMail(RetrieveUserMailRequest retrieveUserMailRequest) {
-        if (LOG.isDebugEnabled()){
-            LOG.debug("Got a new retrieveUserMail request with " + retrieveUserMailRequest.getUser());
+    private void onRetrieveUserInformation(RetrieveUserInformationRequest retrieveUserInformationRequest) {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Got a new retrieveUserMail request with " + retrieveUserInformationRequest.getUser());
         }
         ResponseMessage returnMessage;
         try {
-            returnMessage = new RetrieveUserMailResponse(userManagement.retrieveUserMail(retrieveUserMailRequest.getUser()));
+            returnMessage = new RetrieveUserInformationResponse(userManagement.retrieveUserInformation(retrieveUserInformationRequest.getUser()));
         } catch (Exception e) {
             LOG.error(e);
-            returnMessage = new RetrieveUserMailExceptionMessage("Cannot get user information "
-                    + retrieveUserMailRequest.getUser() + " " + e.getMessage());
+            returnMessage = new RetrieveUserInformationExceptionMessage("Cannot get user information "
+                    + retrieveUserInformationRequest.getUser() + " " + e.getMessage());
         }
-        if (retrieveUserMailRequest.getMessageContext().isPresent()) {
-            returnMessage.setMessageContext(retrieveUserMailRequest.getMessageContext().get());
+        if (retrieveUserInformationRequest.getMessageContext().isPresent()) {
+            returnMessage.setMessageContext(retrieveUserInformationRequest.getMessageContext().get());
         }
         post(returnMessage);
     }
+
+    /**
+     * This method gets invoked from the startGame method in the gameService
+     * <p>
+     * This method adds the profilePictureID to the users, that get added to the userInGame ArrayList
+     * in the GameService.
+     *
+     * @param user the user to get the profilePictureID from
+     * @return user with the profilePictureID
+     * @author Carsten Dekker
+     * @since 2021-04-18
+     */
+    public User retrieveUserInformation(User user) {
+        try {
+            return userManagement.retrieveUserInformation(user);
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+        return user;
+    }
+
+    /**
+     * Handles UpdateUserProfilePictureRequest found on the eventBus
+     * <p>
+     * If an UpdateUserProfilePictureRequest is detected on zhe eventBus, this method is called.
+     * It tries to update the users profilePictureID via the UserManagement. If this succeeds a
+     * UpdateUserSuccessfulResponse is posted on the EventBus otherwise a UpdateUserExceptionMessage
+     * gets posted there.
+     *
+     * @param uuppr the UpdateUserProfilePictureRequest found on the eventBus
+     * @author Carsten Dekker
+     * @see de.uol.swp.common.user.request.UpdateUserProfilePictureRequest
+     * @since 2021.04.15
+     */
+    @Subscribe
+    private void onUpdateUserPictureRequest(UpdateUserProfilePictureRequest uuppr) {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Got a new updateUserPictureRequest with " + uuppr.getUser());
+            ResponseMessage returnMessage;
+            try {
+                userManagement.updateUserPicture(uuppr.getUser());
+                returnMessage = new UpdateUserSuccessfulResponse();
+            } catch (Exception e) {
+                LOG.error(e);
+                returnMessage = new UpdateUserExceptionMessage("Cannot update user " + uuppr.getUser() + " " +
+                        e.getMessage());
+            }
+            if (uuppr.getMessageContext().isPresent()) {
+                returnMessage.setMessageContext(uuppr.getMessageContext().get());
+            }
+            post(returnMessage);
+        }
+    }
+
 
     /**
      * Handles UpdateUserMailRequest found on the EventBus
@@ -160,14 +214,15 @@ public class UserService extends AbstractService {
      * UpdateUserSuccessfulResponse is posted on the EventBus otherwise a UpdateUserExceptionMessage
      * gets posted there.
      *
-     * @author Carsten Dekker
      * @param updateUserMailRequest The UpdateUserRequest found on the EventBus
+     * @param updateUserMailRequest The UpdateUserRequest found on the EventBus
+     * @author Carsten Dekker
      * @see de.uol.swp.common.user.request.UpdateUserMailRequest
      * @since 2021-03-14
      */
     @Subscribe
     private void onUpdateUserMailRequest(UpdateUserMailRequest updateUserMailRequest) {
-        if (LOG.isDebugEnabled()){
+        if (LOG.isDebugEnabled()) {
             LOG.debug("Got a new updateUserMail request with " + updateUserMailRequest.getUser());
         }
         ResponseMessage returnMessage;
@@ -193,14 +248,15 @@ public class UserService extends AbstractService {
      * UpdateUserSuccessfulResponse is posted on the EventBus otherwise a UpdateUserExceptionMessage
      * gets posted there.
      *
-     * @author Carsten Dekker
      * @param updateUserPasswordRequest The UpdateUserRequest found on the EventBus
+     * @author Carsten Dekker
+     * @author Carsten Dekker
      * @see de.uol.swp.common.user.request.UpdateUserPasswordRequest
      * @since 2021-03-14
      */
     @Subscribe
     private void onUpdateUserPasswordRequest(UpdateUserPasswordRequest updateUserPasswordRequest) {
-        if (LOG.isDebugEnabled()){
+        if (LOG.isDebugEnabled()) {
             LOG.debug("Got a new updateUserPassword request with " + updateUserPasswordRequest.getUser());
         }
         ResponseMessage returnMessage;

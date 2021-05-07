@@ -2,14 +2,14 @@ package de.uol.swp.common.game.dto;
 
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.GameField;
+import de.uol.swp.common.game.MapGraph;
 import de.uol.swp.common.game.inventory.DevelopmentCardDeck;
 import de.uol.swp.common.game.inventory.Inventory;
+import de.uol.swp.common.game.trade.Trade;
 import de.uol.swp.common.user.User;
+import de.uol.swp.common.user.UserDTO;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 
 /**
@@ -18,8 +18,7 @@ import java.util.TreeSet;
  * This object is used to communicate the current state of games between the server and clients. It contains information
  * about the Name of the game, who owns the game.
  * <p>
- * enhanced by Pieter Vogt 2021-03-26
- * enhanced by Anton Nikiforov 2021-04-01
+ * enhanced by Pieter Vogt 2021-03-26 enhanced by Anton Nikiforov 2021-04-01
  *
  * @author Iskander Yusupov
  * @since 2021-01-15
@@ -27,21 +26,24 @@ import java.util.TreeSet;
 public class GameDTO implements Game {
 
     private final String name;
-    private User owner;
     private final Set<User> users = new TreeSet<>();
-    private GameField gameField;
+    private final int turn = 0; //this points to the index of the user who now makes his turn.
+    private MapGraph mapGraph;
     private int overallTurns = 0; //This just counts +1 every time a player ends his turn. (good for Summaryscreen for example)
-    private int turn = 0; //this points to the index of the user who now makes his turn.
-    private ArrayList<User> userArrayList = new ArrayList<User>();
+    private final ArrayList<User> userArrayList = new ArrayList<User>();
+    private User owner;
     private boolean startingTurns = true;
     private boolean countingUp = true;
     private boolean lastPlayerSecondTurn = false;
     private DevelopmentCardDeck developmentCardDeck = new DevelopmentCardDeck();
+    private final ArrayList<MapGraph.BuildingNode> lastBuildingOfOpeningTurn = new ArrayList<>();
 
     private Inventory inventory1;
     private Inventory inventory2;
     private Inventory inventory3;
     private Inventory inventory4;
+
+    private HashMap<String, Trade> tradeList = new HashMap<>();
 
     /**
      * Constructor
@@ -82,7 +84,8 @@ public class GameDTO implements Game {
     @Override
     public void updateOwner(User user) {
         if (!this.users.contains(user)) {
-            throw new IllegalArgumentException("User " + user.getUsername() + "not found. Owner must be member of game!");
+            throw new IllegalArgumentException("User " + user.getUsername() +
+                    "not found. Owner must be member of game!");
         }
         this.owner = user;
     }
@@ -115,16 +118,6 @@ public class GameDTO implements Game {
     @Override
     public User getUser(int index) {
         return userArrayList.get(index);
-    }
-
-    @Override
-    public GameField getGameField() {
-        return gameField;
-    }
-
-    @Override
-    public void setGameField(GameField gameField) {
-        this.gameField = gameField;
     }
 
     @Override
@@ -178,16 +171,32 @@ public class GameDTO implements Game {
     }
 
     /**
+     * Returns the last built Buildings.
+     *
+     * <p>Returns a Array List with the last built Buildings</p>
+     *
+     * @return Returns a Array List with the last built Buildings
+     * @author Philip Nitsche
+     * @since 2021-04-26
+     */
+
+    @Override
+    public ArrayList<MapGraph.BuildingNode> getLastBuildingOfOpeningTurn() {
+        return lastBuildingOfOpeningTurn;
+    }
+
+    /**
      * Organizing the opening-phase for the set amount of players.
      *
      * <p>
      * This is checking many different statements for boolean value to evaluate wich players turn is up next. It does
      * this until every player did his move according to the games rules. For n players, the opening-phase goes from
      * player 1 upwards to player n, then player n again and then backwards to player 1. After that, it disables the
-     * opening-phase for the rest of the game.
+     * opening-phase for the rest of the game. It also creates a list of the built buildings from which raw materials
+     * are distributed in the opening phase
      * </p>
      *
-     * @author Pieter Vogt
+     * @author Pieter Vogt, Philip Nitsche
      * @since 2021-03-30
      */
     @Override
@@ -207,8 +216,12 @@ public class GameDTO implements Game {
                     overallTurns--; // count one down.
                     countingUp = false; // dont count up anymore.
                     return;
-                } else
+                } else {
                     startingTurns = false; // 2b2) if we are at player 1 and were already counting backwards, end the openingphase.
+                    for (int i = 0; i < userArrayList.size(); i++) {
+                        lastBuildingOfOpeningTurn.add(mapGraph.getBuiltBuildings().get(mapGraph.getBuiltBuildings().size() - 1 - i));
+                    }
+                }
             }
         }
     }
@@ -216,8 +229,7 @@ public class GameDTO implements Game {
     /**
      * Gives the inventory 1-4 a User
      * <p>
-     * It gives the inventory 1-4 a User from the userArrayList if
-     * its not empty and the user exists in the ArrayList
+     * It gives the inventory 1-4 a User from the userArrayList if its not empty and the user exists in the ArrayList
      *
      * @author Anton Nikiforov
      * @since 2021-04-01
@@ -255,5 +267,63 @@ public class GameDTO implements Game {
     @Override
     public DevelopmentCardDeck getDevelopmentCardDeck() {
         return developmentCardDeck;
+    }
+
+    @Override
+    public MapGraph getMapGraph() {
+        return mapGraph;
+    }
+
+    @Override
+    public boolean isStartingTurns() {
+        return startingTurns;
+    }
+
+    @Override
+    public void setMapGraph(MapGraph mapGraph) {
+        this.mapGraph = mapGraph;
+    }
+
+    //TODO: This method needs to be deleted as soon as the dependencies to the obsolete classes are fixed!!!
+    @Override
+    public GameField getGameField() {
+        return null;
+    }
+
+    /**
+     * adds a Trade to the game
+     *
+     * @see Trade
+     * @param trade Trade to be added
+     * @param tradeCode String used to identify trade
+     * @author Alecander Losse, Ricardo Mook
+     * @since 2021-04-13
+     */
+    @Override
+    public void addTrades(Trade trade, String tradeCode){
+        tradeList.put(tradeCode,trade);
+    }
+    /**
+     * getter for the HashMap containing the Trades
+     *
+     * @return HashMap<String, Trade>
+     * @author Alecander Losse, Ricardo Mook
+     * @since 2021-04-13
+     */
+    @Override
+    public HashMap getTradeList(){
+        return tradeList;
+    }
+
+    /**
+     * removes a trade from the game
+     *
+     * @param tradeCode String used to identify trade
+     * @author Alecander Losse, Ricardo Mook
+     * @since 2021-04-13
+     */
+    @Override
+    public void removeTrade(String tradeCode){
+        tradeList.remove(tradeCode);
     }
 }

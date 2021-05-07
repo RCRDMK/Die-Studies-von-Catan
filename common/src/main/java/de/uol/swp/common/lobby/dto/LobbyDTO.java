@@ -13,7 +13,7 @@ import java.util.TreeSet;
  * This object is used to communicate the current state of game lobbies between
  * the server and clients. It contains information about the Name of the lobby,
  * who owns the lobby and who joined the lobby.
- *
+ * <p>
  * enhanced by Marc Hermes 2021-03-25
  *
  * @author Marco Grawunder
@@ -28,15 +28,16 @@ public class LobbyDTO implements Lobby {
     private int rdyResponsesReceived = 0;
     private boolean gameShouldStart = false;
     private String gameFieldVariant;
-
+    private boolean gameStarted = false;
 
     /**
      * Constructor
      *
-     * @author Marco Grawunder
      * @param name    The name the lobby should have
      * @param creator The user who created the lobby and therefore shall be the
      *                owner
+     * @author Marco Grawunder
+     * @author Marco Grawunder
      * @since 2019-10-08
      */
     public LobbyDTO(String name, User creator) {
@@ -134,6 +135,16 @@ public class LobbyDTO implements Lobby {
     @Override
     public void setGameFieldVariant(String gfv) {
         this.gameFieldVariant = gfv;
+    }
+
+    @Override
+    public boolean getGameStarted() {
+        return this.gameStarted;
+    }
+
+    @Override
+    public void setGameStarted(boolean value) {
+        this.gameStarted = value;
     }
 
 }

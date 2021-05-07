@@ -17,14 +17,15 @@ public class UserDTO implements User {
     private final String username;
     private final String password;
     private final String eMail;
+    private int profilePictureID;
 
     /**
      * Constructor
      *
-     * @author Marco Grawunder
      * @param username username of the user
      * @param password password the user uses
-     * @param eMail email address the user is registered to
+     * @param eMail    email address the user is registered to
+     * @author Marco Grawunder
      * @since 2019-08-13
      */
     public UserDTO(String username, String password, String eMail) {
@@ -34,6 +35,26 @@ public class UserDTO implements User {
         this.username = username;
         this.password = password;
         this.eMail = eMail;
+    }
+
+    /**
+     * Overloaded Constructor
+     * <p>
+     * @author Carsten Dekker
+     * @param username username of the user
+     * @param password password of the user
+     * @param eMail email address of the user
+     * @param pictureID pictureID of the chosen profilePicture
+     * @since 2021-04-15
+     */
+    public UserDTO(String username, String password, String eMail, int pictureID) {
+        assert Objects.nonNull(username);
+        assert Objects.nonNull(password);
+        assert Objects.nonNull(eMail);
+        this.username = username;
+        this.password = password;
+        this.eMail = eMail;
+        this.profilePictureID = pictureID;
     }
 
     /**
@@ -50,13 +71,13 @@ public class UserDTO implements User {
 
     /**
      * Copy constructor leaving password variable empty
-     *
+     * <p>
      * This constructor is used for the user list, because it would be a major security
      * flaw to send all user data including passwords to everyone connected.
      *
-     * @author Marco Grawunder
      * @param user User object to copy the values of
      * @return UserDTO copy of User object having the password variable left empty
+     * @author Marco Grawunder
      * @since 2019-08-13
      */
     public static UserDTO createWithoutPassword(User user) {
@@ -91,14 +112,20 @@ public class UserDTO implements User {
 
     @Override
     public boolean equals(Object obj) {
-        if (! (obj instanceof UserDTO)){
+        if (!(obj instanceof UserDTO)) {
             return false;
         }
-        return Objects.equals(this.username, ((UserDTO)obj).username);
+        return Objects.equals(this.username, ((UserDTO) obj).username);
     }
 
     @Override
     public int hashCode() {
         return Objects.hashCode(username);
     }
+
+    @Override
+    public int getProfilePictureID() {
+        return profilePictureID;
+    }
+
 }

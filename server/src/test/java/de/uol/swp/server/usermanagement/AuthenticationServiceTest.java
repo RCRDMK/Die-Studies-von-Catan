@@ -3,6 +3,7 @@ package de.uol.swp.server.usermanagement;
 import com.google.common.eventbus.DeadEvent;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
+import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.message.MessageContext;
 import de.uol.swp.common.message.ResponseMessage;
 import de.uol.swp.common.message.ServerMessage;
@@ -14,16 +15,19 @@ import de.uol.swp.common.user.request.LoginRequest;
 import de.uol.swp.common.user.request.LogoutRequest;
 import de.uol.swp.common.user.request.RetrieveAllOnlineUsersRequest;
 import de.uol.swp.common.user.response.AllOnlineUsersResponse;
+import de.uol.swp.server.game.GameManagement;
+import de.uol.swp.server.game.GameService;
 import de.uol.swp.server.lobby.LobbyManagement;
 import de.uol.swp.server.lobby.LobbyService;
 import de.uol.swp.server.message.ClientAuthorizedMessage;
 import de.uol.swp.server.message.ServerExceptionMessage;
-import de.uol.swp.server.usermanagement.store.MainMemoryBasedUserStore;
-import de.uol.swp.server.usermanagement.store.UserStore;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import de.uol.swp.server.usermanagement.store.MainMemoryBasedUserStore;
+import de.uol.swp.server.usermanagement.store.UserStore;
+import org.junit.jupiter.api.*;
 
 import javax.security.auth.login.LoginException;
 import java.sql.SQLException;
@@ -47,6 +51,9 @@ class AuthenticationServiceTest {
     final AuthenticationService authService = new AuthenticationService(bus, userManagement);
     final LobbyManagement lobbyManagement = new LobbyManagement();
     final LobbyService lobbyService = new LobbyService(lobbyManagement, authService, bus);
+    final UserService userService = new UserService(bus, userManagement);
+    final GameManagement gameManagement = new GameManagement();
+    final GameService gameService = new GameService(gameManagement, lobbyService, authService, bus, userService);
     private Object event;
 
     AuthenticationServiceTest() throws SQLException {
@@ -68,6 +75,20 @@ class AuthenticationServiceTest {
     @AfterEach
     void deregisterBus() {
         bus.unregister(this);
+    }
+
+    @BeforeEach
+    void testPreparation() throws SQLException {
+        if(userManagement.retrieveAllUsers().contains(user)) {
+            userManagement.logout(user);
+            userManagement.dropUser(user);
+        } else if (userManagement.retrieveAllUsers().contains(user2)) {
+            userManagement.logout(user2);
+            userManagement.dropUser(user2);
+        } else if (userManagement.retrieveAllUsers().contains(user3)) {
+            userManagement.logout(user3);
+            userManagement.dropUser(user3);
+        }
     }
 
     @Test
@@ -243,22 +264,52 @@ class AuthenticationServiceTest {
      * The user should be logged out and the lobby dropped, because he was the only one in the lobby.
      * If the lobbies count is 0 now, the test passed successfully
      *
+     * <p>
+     * enhanced 2021-04-08
+     *
      * @author René Meyer, Sergej Tulnev
      * @since 2021-01-17
      */
     @Test
     @DisplayName("X Button exit")
     void exitViaXButtonTest() throws SQLException, InterruptedException {
-        // Login User and create lobby
+        // Login User and check session
+        loginUser(user);
+        Optional<Session> sessionUser = authService.getSession(user);
+        assertTrue(sessionUser.isPresent());
+
+        // Login User2 and check session
         loginUser(user3);
-        Optional<Session> session = authService.getSession(user3);
-        assertTrue(session.isPresent());
-        lobbyManagement.createLobby("testLobby", user3);
+        Optional<Session> sessionUser2 = authService.getSession(user3);
+        assertTrue(sessionUser2.isPresent());
+
+        // Create testLobby with user as owner
+        lobbyManagement.createLobby("testLobby", user);
+
+        // Check if only 1 lobby exists
         var lobbies = lobbyManagement.getAllLobbies();
         assertEquals((long) lobbies.size(), 1);
-        // Prepare Logout Request
+
+        // Get lobby object and check if it is present
+        Optional<Lobby> lobby = lobbyManagement.getLobby("testLobby");
+        assertTrue(lobby.isPresent());
+
+        // User2 joins lobby and check if lobby size now = 2
+        lobby.get().joinUser(user3);
+        lobby = lobbyManagement.getLobby("testLobby");
+        assertEquals(lobby.get().getUsers().size(), 2);
+
+        // Create game and let user and user2 join and check if game size = 2
+        gameManagement.createGame("testGame", user, "random");
+        var game = gameManagement.getGame("testGame");
+        assertTrue(game.isPresent());
+        game.get().joinUser(user3);
+        game = gameManagement.getGame("testGame");
+        assertEquals(game.get().getUsers().size(), 2);
+
+        // Post LogoutRequest for user on eventBus
         final LogoutRequest logoutRequest = new LogoutRequest();
-        logoutRequest.setSession(session.get());
+        logoutRequest.setSession(sessionUser.get());
         MessageContext ctx = new MessageContext() {
             @Override
             public void writeAndFlush(ResponseMessage message) {
@@ -270,13 +321,34 @@ class AuthenticationServiceTest {
                 bus.post(message);
             }
         };
-        logoutRequest.setSession(session.get());
+        logoutRequest.setSession(sessionUser.get());
         logoutRequest.setMessageContext(ctx);
-        lobbyService.onLogoutRequest(logoutRequest);
-        // User logged out, lobbies count has to be zero
+        bus.post(logoutRequest);
+
+        // Post LogoutRequest for user2 on eventBus
+        final LogoutRequest logoutRequest2 = new LogoutRequest();
+        logoutRequest.setSession(sessionUser2.get());
+        MessageContext ctx2 = new MessageContext() {
+            @Override
+            public void writeAndFlush(ResponseMessage message) {
+                bus.post(message);
+            }
+
+            @Override
+            public void writeAndFlush(ServerMessage message) {
+                bus.post(message);
+            }
+        };
+        logoutRequest2.setSession(sessionUser2.get());
+        logoutRequest2.setMessageContext(ctx2);
+        bus.post(logoutRequest2);
+
+        // After logging out (simulating x button) both users, there has to be 0 lobbies and 0 games.
+        var games = gameManagement.getAllGames();
+        assertEquals(games.size(), 0);
         lobbies = lobbyManagement.getAllLobbies();
-        assertEquals((long) lobbies.size(), 0);
-        userManagement.logout(user3);
+        assertEquals(lobbies.size(), 0);
+        userManagement.dropUser(user);
         userManagement.dropUser(user3);
     }
 }

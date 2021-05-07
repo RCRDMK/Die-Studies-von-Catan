@@ -2,10 +2,10 @@ package de.uol.swp.client.user;
 
 import com.google.common.eventbus.EventBus;
 import com.google.inject.Inject;
-import de.uol.swp.client.ClientApp;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.user.request.*;
+import org.apache.commons.codec.binary.Hex;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -16,8 +16,6 @@ import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Timer;
 import java.util.TimerTask;
-
-import org.apache.commons.codec.binary.Hex;
 
 /**
  * This class is used to hide the communication details
@@ -39,6 +37,7 @@ public class UserService implements ClientUserService {
      *
      * @author Marco Grawunder
      * @param bus The  EventBus set in ClientModule
+     * @author Marco Grawunder
      * @see de.uol.swp.client.di.ClientModule
      * @since 2017-03-17
      */
@@ -55,6 +54,7 @@ public class UserService implements ClientUserService {
      * @author Marco Grawunder
      * @param username the name of the user
      * @param password the password of the user
+     * @author Marco Grawunder
      * @since 2017-03-17
      */
     @Override
@@ -64,12 +64,24 @@ public class UserService implements ClientUserService {
         bus.post(msg);
     }
 
+    /**
+     * Posts a logout request to the EventBus
+     *
+     * @param username the name of the user
+     */
 
     @Override
     public void logout(User username) {
         LogoutRequest msg = new LogoutRequest();
         bus.post(msg);
     }
+
+    /**
+     * Posts a create user request to the EventBus
+     *
+     * @param user the name of the user
+     */
+
 
     @Override
     public void createUser(User user) throws InvalidKeySpecException, NoSuchAlgorithmException {
@@ -133,12 +145,31 @@ public class UserService implements ClientUserService {
         bus.post(request);
     }
 
+    /**
+     * Method to update the profilePicture of the user
+     * <p>
+     * This method sends a request to update the profilePicture of the currently
+     * logged in user. The request is of the type UpdateUserProfilePictureRequest.
+     *
+     * @author Carsten Dekker
+     * @param user the user to update
+     * @see de.uol.swp.common.user.request.UpdateUserProfilePictureRequest
+     * @since 2021-04-15
+     */
+    @Override
+    public void updateUserProfilePicture(User user) {
+        UpdateUserProfilePictureRequest uuppr = new UpdateUserProfilePictureRequest(user);
+        bus.post(uuppr);
+    }
+
+
     @Override
     public void retrieveAllUsers() {
         RetrieveAllOnlineUsersRequest cmd = new RetrieveAllOnlineUsersRequest();
         bus.post(cmd);
     }
 
+    // TODO JavaDoc unvollständig
     /**
      * Method to return a hashed password. It creates a char array out of the original password and hands this over to the
      * hashPassword method.
@@ -154,6 +185,7 @@ public class UserService implements ClientUserService {
         return Hex.encodeHexString(hashPassword(password.toCharArray()));
     }
 
+    // TODO JavaDoc unvollständig
     /**
      * This method creates an byte array of the given Password. With help of the salt key and the keyfactory,
      * it creates a hashed password in form of a secretkey.
@@ -208,6 +240,7 @@ public class UserService implements ClientUserService {
         }, 30000, 30000);
     }
 
+    // TODO JavaDoc unvollständig
     /**
      * Method to send a Ping
      * <p>

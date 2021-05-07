@@ -30,10 +30,10 @@ import javafx.stage.Modality;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Manages the lobby menu
@@ -133,6 +133,13 @@ public class LobbyPresenter extends AbstractPresenter {
         notLobbyOwnerLabel.setVisible(false);
         notEnoughPlayersLabel.setVisible(false);
     }
+
+    /**
+     * Method called when the LeaveLobby button is pressed
+     *
+     * @param event The ActionEvent created by pressing the LeaveLobby button
+     * @see de.uol.swp.client.lobby.LobbyService
+     */
 
     @FXML
     public void onLeaveLobby(ActionEvent event) {
@@ -760,6 +767,5 @@ public class LobbyPresenter extends AbstractPresenter {
             }
         }
     }
-
 }
 

@@ -4,16 +4,24 @@
 <?import javafx.scene.layout.*?>
 
 <AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1"
-            xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.uol.swp.client.main.MainMenuPresenter">
-        <ListView fx:id="usersView" prefHeight="164.0" prefWidth="284.0" GridPane.rowIndex="1" />
-        <ListView fx:id="lobbiesView" layoutX="284.0" prefHeight="164.0" prefWidth="316.0" GridPane.rowIndex="3" />
-        <TextField fx:id="lobbyNameTextField" layoutX="284" layoutY="164" onAction="#onCreateLobby" prefWidth="223.0" promptText="Enter Lobby Name" />
-        <Button layoutX="506" layoutY="164.0" mnemonicParsing="false" onAction="#onCreateLobby" prefHeight="25.0" prefWidth="93.0" text="CreateLobby" />
-        <Label fx:id="lobbyNameInvalid" layoutX="350" layoutY="195" text="invalid character for Lobby Name!" visible="false" />
-        <Label fx:id="lobbyAlreadyExistsLabel" layoutX="350" layoutY="195" text="lobby already exists!" visible="false" />
-        <Button layoutX="546.0" layoutY="374.0" mnemonicParsing="false" onAction="#onLogout" text="Logout" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-        <TextArea fx:id="textArea" editable="false" layoutY="164.0" prefHeight="191.0" prefWidth="284.0" GridPane.rowIndex="2" />
-        <TextField fx:id="inputField" layoutY="355.0" onAction="#onSendMessage" prefHeight="25.0" prefWidth="207.0" promptText="Send your Message!" GridPane.rowIndex="3" />
-        <Button layoutX="207.0" layoutY="355.0" mnemonicParsing="false" onAction="#onSendMessage" prefHeight="25.0" prefWidth="77.0" text="Send" />
-        <Button layoutX="478.0" layoutY="374.0" mnemonicParsing="false" onAction="#onUserSettingsButtonPressed" text="Settings" />
+            xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.uol.swp.client.main.MainMenuPresenter" stylesheets="@../css/swp.css">
+    <ListView fx:id="usersView" prefHeight="164.0" prefWidth="284.0" GridPane.rowIndex="1"/>
+    <ListView fx:id="lobbiesView" layoutX="284.0" prefHeight="164.0" prefWidth="316.0" GridPane.rowIndex="3"/>
+    <TextField fx:id="lobbyNameTextField" layoutX="284" layoutY="164" onAction="#onCreateLobby" prefWidth="223.0"
+               promptText="Enter Lobby Name"/>
+    <Button layoutX="506" layoutY="164.0" mnemonicParsing="false" onAction="#onCreateLobby" prefHeight="25.0"
+            prefWidth="93.0" text="CreateLobby"/>
+    <Label fx:id="lobbyNameInvalid" layoutX="350" layoutY="195" text="invalid character for Lobby Name!"
+           visible="false"/>
+    <Label fx:id="lobbyAlreadyExistsLabel" layoutX="350" layoutY="195" text="lobby already exists!" visible="false"/>
+    <Button layoutX="546.0" layoutY="374.0" mnemonicParsing="false" onAction="#onLogout" text="Logout"
+            GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+    <TextArea fx:id="textArea" editable="false" layoutY="164.0" prefHeight="191.0" prefWidth="284.0"
+              GridPane.rowIndex="2"/>
+    <TextField fx:id="inputField" layoutY="355.0" onAction="#onSendMessage" prefHeight="25.0" prefWidth="207.0"
+               promptText="Send your Message!" GridPane.rowIndex="3"/>
+    <Button layoutX="207.0" layoutY="355.0" mnemonicParsing="false" onAction="#onSendMessage" prefHeight="25.0"
+            prefWidth="77.0" text="Send"/>
+    <Button layoutX="478.0" layoutY="374.0" mnemonicParsing="false" onAction="#onUserSettingsButtonPressed"
+            text="Settings"/>
 </AnchorPane>

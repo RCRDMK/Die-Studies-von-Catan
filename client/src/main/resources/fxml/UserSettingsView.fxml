@@ -1,31 +1,58 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.*?>
+<?import javafx.scene.effect.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.*?>
 
-<AnchorPane prefHeight="300.0" prefWidth="300.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.uol.swp.client.account.UserSettingsPresenter">
+<AnchorPane fx:id="userSettingsAnchorPane" prefHeight="300.0" prefWidth="300.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.uol.swp.client.account.UserSettingsPresenter" stylesheets="@../css/swp.css">
     <children>
       <MenuButton layoutX="27.0" layoutY="14.0" mnemonicParsing="false" text="Options">
         <items>
           <MenuItem id="changePassword" mnemonicParsing="false" onAction="#onChangePasswordButtonPressed" text="Change Password" />
           <MenuItem id="changeEmail" mnemonicParsing="false" onAction="#onChangeEmailButtonPressed" text="Change E-Mail" />
+            <MenuItem id="changeProfilePicture" mnemonicParsing="false" onAction="#onChangeProfilePictureButtonPressed" text="Change profile picture" />
         </items>
       </MenuButton>
-      <Label fx:id="currentPasswordLabel" layoutX="18.0" layoutY="78.0" text="Current Password" />
-      <Label fx:id="newPasswordLabel1" layoutX="25.0" layoutY="123.0" text="New Password" />
-      <Label fx:id="newPasswordLabel2" layoutX="26.0" layoutY="167.0" text="New Password" />
+      <Label fx:id="currentPasswordLabel" layoutX="18.0" layoutY="78.0" text="Current Password" textFill="white"/>
+      <Label fx:id="newPasswordLabel1" layoutX="25.0" layoutY="123.0" text="New Password" textFill="white"/>
+      <Label fx:id="newPasswordLabel2" layoutX="26.0" layoutY="167.0" text="New Password" textFill="white"/>
       <PasswordField id="passwordField" fx:id="currentPasswordField" layoutX="119.0" layoutY="74.0" promptText="Enter Current Password" />
       <PasswordField id="passwordField" fx:id="newPasswordField1" layoutX="119.0" layoutY="119.0" promptText="Enter New Password" />
       <PasswordField id="passwordField" fx:id="newPasswordField2" layoutX="119.0" layoutY="163.0" promptText="Repeat New Password" />
-      <Label fx:id="currentEmailLabel" layoutX="25.0" layoutY="78.0" text="Current E-Mail" visible="false" />
-      <Label fx:id="newEmailLabel1" layoutX="35.0" layoutY="123.0" text="New E-Mail" visible="false" />
-      <Label fx:id="newEmailLabel2" layoutX="35.0" layoutY="167.0" text="New E-Mail" visible="false" />
+      <Label fx:id="currentEmailLabel" layoutX="25.0" layoutY="78.0" text="Current E-Mail" visible="false" textFill="white"/>
+      <Label fx:id="newEmailLabel1" layoutX="35.0" layoutY="123.0" text="New E-Mail" visible="false" textFill="white"/>
+      <Label fx:id="newEmailLabel2" layoutX="35.0" layoutY="167.0" text="New E-Mail" visible="false" textFill="white"/>
       <TextField id="emailField" fx:id="currentEmailField" layoutX="119.0" layoutY="74.0" visible="false" />
       <TextField id="emailField" fx:id="newEmailField1" layoutX="119.0" layoutY="119.0" promptText="Enter New Email" visible="false" />
       <TextField id="emailField" fx:id="newEmailField2" layoutX="119.0" layoutY="163.0" promptText="Repeat New Email" visible="false" />
       <Button fx:id="confirmPasswordButton" layoutX="34.0" layoutY="219.0" mnemonicParsing="false" onAction="#onConfirmPasswordButtonPressed" text="Confirm" />
       <Button fx:id="confirmEmailButton" layoutX="34.0" layoutY="219.0" mnemonicParsing="false" onAction="#onConfirmEmailButtonPressed" text="Confirm" visible="false" />
+      <Button fx:id="confirmProfilePictureButton" layoutX="34.0" layoutY="261.0" mnemonicParsing="false" onAction="#onConfirmProfilePictureButtonPressed" text="Confirm" visible="false" />
        <Button id="dropUserButton" layoutX="223.0" layoutY="14.0" mnemonicParsing="false" onAction="#onDropUserButtonPressed" text="DropUser" />
-       <Button id="leaveButton" layoutX="234.0" layoutY="219.0" mnemonicParsing="false" onAction="#onLeaveButtonPressed" text="Close" />
+       <Button fx:id="leaveButton" layoutX="234.0" layoutY="219.0" mnemonicParsing="false" onAction="#onLeaveButtonPressed" text="Close" />
+      <Rectangle fx:id="profilePictureRectangle" arcHeight="5.0" arcWidth="5.0" fill="DODGERBLUE" height="200.0" layoutX="600.0" layoutY="170.0" stroke="BLACK" strokeType="INSIDE" visible="false" width="200.0" />
+      <GridPane fx:id="profilePicturesView" gridLinesVisible="true" layoutX="100.0" layoutY="70.0" prefWidth="404.0" visible="false">
+        <columnConstraints>
+          <ColumnConstraints hgrow="SOMETIMES" minWidth="50.0" prefWidth="50.0" />
+          <ColumnConstraints hgrow="SOMETIMES" minWidth="50.0" prefWidth="50.0" />
+          <ColumnConstraints hgrow="SOMETIMES" minWidth="50.0" prefWidth="50.0" />
+          <ColumnConstraints hgrow="SOMETIMES" minWidth="50.0" prefWidth="50.0" />
+          <ColumnConstraints hgrow="SOMETIMES" minWidth="50.0" prefWidth="50.0" />
+          <ColumnConstraints hgrow="SOMETIMES" minWidth="50.0" prefWidth="50.0" />
+          <ColumnConstraints hgrow="SOMETIMES" minWidth="50.0" prefWidth="50.0" />
+          <ColumnConstraints hgrow="SOMETIMES" minWidth="50.0" prefWidth="50.0" />
+        </columnConstraints>
+        <rowConstraints>
+          <RowConstraints minHeight="50.0" prefHeight="50.0" vgrow="SOMETIMES" />
+          <RowConstraints minHeight="50.0" prefHeight="50.0" vgrow="SOMETIMES" />
+          <RowConstraints minHeight="50.0" prefHeight="50.0" vgrow="SOMETIMES" />
+          <RowConstraints minHeight="50.0" prefHeight="50.0" vgrow="SOMETIMES" />
+          <RowConstraints minHeight="50.0" prefHeight="50.0" vgrow="SOMETIMES" />
+          <RowConstraints minHeight="50.0" prefHeight="50.0" vgrow="SOMETIMES" />
+          <RowConstraints minHeight="50.0" prefHeight="50.0" vgrow="SOMETIMES" />
+          <RowConstraints minHeight="50.0" prefHeight="50.0" vgrow="SOMETIMES" />
+        </rowConstraints>
+      </GridPane>
     </children>
 </AnchorPane>

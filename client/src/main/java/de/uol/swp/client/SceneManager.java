@@ -5,19 +5,22 @@ import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.assistedinject.Assisted;
-import de.uol.swp.client.account.event.ShowUserSettingsViewEvent;
-import de.uol.swp.client.account.event.LeaveUserSettingsEvent;
 import de.uol.swp.client.account.UserSettingsPresenter;
+import de.uol.swp.client.account.event.LeaveUserSettingsEvent;
+import de.uol.swp.client.account.event.ChangeToCertainSizeEvent;
+import de.uol.swp.client.account.event.ShowUserSettingsViewEvent;
 import de.uol.swp.client.account.event.UserSettingsErrorEvent;
 import de.uol.swp.client.auth.LoginPresenter;
 import de.uol.swp.client.auth.events.ShowLoginViewEvent;
 import de.uol.swp.client.game.GamePresenter;
+import de.uol.swp.client.game.TradePresenter;
 import de.uol.swp.client.lobby.LobbyPresenter;
 import de.uol.swp.client.main.MainMenuPresenter;
 import de.uol.swp.client.register.RegistrationPresenter;
 import de.uol.swp.client.register.event.RegistrationCanceledEvent;
 import de.uol.swp.client.register.event.RegistrationErrorEvent;
 import de.uol.swp.client.register.event.ShowRegistrationViewEvent;
+import de.uol.swp.common.game.message.TradeEndedMessage;
 import de.uol.swp.common.user.User;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -30,11 +33,13 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
 import java.net.URL;
 
 /**
  * Class that manages which window/scene is currently shown
- *<p>
+ * <p>
+ *
  * @author Marco Grawunder
  * @since 2019-09-03
  */
@@ -52,15 +57,18 @@ public class SceneManager {
     private Scene currentScene = null;
     private Scene lobbyScene;
     private Scene gameScene;
+    private Scene tradeScene;
     private Tab mainMenuTab;
     private VBox vBox;
     private Scene tabScene;
     private Scene nextLobbyScene;
     private Scene nextGameScene;
+    private Scene nextTradeScene;
     private final Injector injector;
     private TabPane tabPane = new TabPane();
     private TabHelper tabHelper;
     private Scene userSettingsScene;
+
 
     @Inject
     public SceneManager(EventBus eventBus, Injector injected, @Assisted Stage primaryStage) {
@@ -74,7 +82,7 @@ public class SceneManager {
      * Subroutine to initialize all views
      * <p>
      * This is a subroutine of the constructor to initialize all views, as well as creating the TabPane
-     *
+     * <p>
      * enhanced by Alexander Losse and Marc Hermes - 2021-01-20
      *
      * @author Marco Grawunder
@@ -90,6 +98,7 @@ public class SceneManager {
         initUserSettingsView();
         nextLobbyScene = initLobbyView();
         nextGameScene = initGameView();
+        nextTradeScene = initTradeView();
     }
 
     /**
@@ -126,11 +135,14 @@ public class SceneManager {
      * a pane showing the main menu view as specified by the MainMenuView
      * FXML file. ALso a mainMenuTab is created which cannot be closed.
      * This mainMenuTab is then added to the tabPane.
-     *
+     * <p>
      * enhanced by Alexander Losse and Marc Hermes - 2021-01-20
      *
-     * @see de.uol.swp.client.main.MainMenuPresenter
+     * enhanced by Ricardo Mook - 2021-04-28
+     * added a CSS rule
+     *
      * @author Marco Grawunder
+     * @see de.uol.swp.client.main.MainMenuPresenter
      * @since 2019-09-03
      */
     private void initMainView() {
@@ -138,11 +150,12 @@ public class SceneManager {
             Parent rootPane = initPresenter(MainMenuPresenter.fxml);
             mainScene = new Scene(rootPane, 800, 600);
             mainScene.getStylesheets().add(styleSheet);
+            rootPane.getStyleClass().add("menuView");
             mainMenuTab = new Tab("Main Menu");
             mainMenuTab.setClosable(false);
             mainMenuTab.setContent(mainScene.getRoot());
             Platform.runLater(() ->
-                tabHelper.getTabPane().getTabs().add(mainMenuTab)
+                    tabHelper.getTabPane().getTabs().add(mainMenuTab)
             );
         }
     }
@@ -153,15 +166,19 @@ public class SceneManager {
      * If the loginScene is null it gets set to a new scene containing the
      * a pane showing the login view as specified by the LoginView FXML file.
      *
-     * @see de.uol.swp.client.auth.LoginPresenter
+     * enhanced by Ricardo Mook - 2021-04-28
+     * added a CSS rule
+     *
      * @author Marco Grawunder
+     * @see de.uol.swp.client.auth.LoginPresenter
      * @since 2019-09-03
      */
     private void initLoginView() {
         if (loginScene == null) {
             Parent rootPane = initPresenter(LoginPresenter.fxml);
-            loginScene = new Scene(rootPane, 400, 200);
+            loginScene = new Scene(rootPane, 400, 300);
             loginScene.getStylesheets().add(styleSheet);
+            rootPane.getStyleClass().add("login");
         }
     }
 
@@ -172,8 +189,11 @@ public class SceneManager {
      * a pane showing the registration view as specified by the RegistrationView
      * FXML file.
      *
-     * @see de.uol.swp.client.register.RegistrationPresenter
+     * enhanced by Ricardo Mook - 2021-04-28
+     * added a CSS rule
+     *
      * @author Marco Grawunder
+     * @see de.uol.swp.client.register.RegistrationPresenter
      * @since 2019-09-03
      */
     private void initRegistrationView() {
@@ -181,44 +201,75 @@ public class SceneManager {
             Parent rootPane = initPresenter(RegistrationPresenter.fxml);
             registrationScene = new Scene(rootPane, 400, 260);
             registrationScene.getStylesheets().add(styleSheet);
+            rootPane.getStyleClass().add("registration");
         }
     }
 
     /**
      * Initializes the lobby view
      * <p>
-     *  If a new lobbyScene is needed this method will return a new lobbyScene containing the
-     *  pane showing the lobby view as specified by the LobbyView FXML file
+     * If a new lobbyScene is needed this method will return a new lobbyScene containing the
+     * pane showing the lobby view as specified by the LobbyView FXML file
+     * <p>
+     * enhanced by Alexander Losse and Marc Hermes - 2021-01-20
      *
-     *  enhanced by Alexander Losse and Marc Hermes - 2021-01-20
+     * enhanced by Ricardo Mook - 2021-04-28
+     * added a CSS rule
      *
-     * @see de.uol.swp.client.lobby.LobbyPresenter
      * @author Marc Hermes, Ricardo Mook
+     * @see de.uol.swp.client.lobby.LobbyPresenter
      * @since 2020-11-19
      */
     private Scene initLobbyView() {
-            Parent rootPane = initPresenter(LobbyPresenter.fxml);
-            lobbyScene = new Scene(rootPane, 800, 600);
-            lobbyScene.getStylesheets().add(styleSheet);
-            return lobbyScene;
+        Parent rootPane = initPresenter(LobbyPresenter.fxml);
+        lobbyScene = new Scene(rootPane, 800, 600);
+        lobbyScene.getStylesheets().add(styleSheet);
+        rootPane.getStyleClass().add("menuView");
+        return lobbyScene;
     }
 
     /**
      * Initializes the game view
      * <p>
-     *  If the gameScene is null it gets set to a new scene containing the
-     *  a pane showing the game view as specified by the GameView
-     *  FXML file
+     * If the gameScene is null it gets set to a new scene containing the
+     * a pane showing the game view as specified by the GameView
+     * FXML file
      *
-     * @see de.uol.swp.client.game.GamePresenter
+     * enhanced by Ricardo Mook - 2021-04-28
+     * added a CSS rule
+     *
      * @author Kirstin Beyer
+     * @see de.uol.swp.client.game.GamePresenter
      * @since 2021-01-14
      */
     private Scene initGameView() {
-            Parent rootPane = initPresenter(GamePresenter.fxml);
-            gameScene = new Scene(rootPane, 800, 600);
-            gameScene.getStylesheets().add(styleSheet);
-            return gameScene;
+        Parent rootPane = initPresenter(GamePresenter.fxml);
+        gameScene = new Scene(rootPane, 800, 600);
+        gameScene.getStylesheets().add(styleSheet);
+        rootPane.getStyleClass().add("game");
+        return gameScene;
+    }
+
+    /**
+     * Initializes the trade view
+     * <p>
+     * If the tradeScene is null it gets set to a new scene containing the
+     * a pane showing the game view as specified by the TradeView
+     * FXML file
+     *
+     * enhanced by Ricardo Mook - 2021-04-28
+     * added a CSS rule
+     *
+     * @author Alexander Lossa, Ricardo Mook
+     * @see de.uol.swp.client.game.TradePresenter
+     * @since 2021-04-21
+     */
+    private Scene initTradeView() {
+        Parent rootPane = initPresenter(TradePresenter.fxml);
+        tradeScene = new Scene(rootPane, 800, 600);
+        tradeScene.getStylesheets().add(styleSheet);
+        rootPane.getStyleClass().add("trade");
+        return tradeScene;
     }
 
     /**
@@ -228,17 +279,29 @@ public class SceneManager {
      * a pane showing the userSettings view as specified by the UserSettingsView
      * FXML file.
      *
-     * @see UserSettingsPresenter
+     * enhanced by Ricardo Mook - 2021-04-28
+     * added a CSS rule
+     *
      * @author Carsten Dekker
+     * @see UserSettingsPresenter
      * @since 2021-03-04
      */
     private void initUserSettingsView() {
         if (userSettingsScene == null) {
             Parent rootPane = initPresenter(UserSettingsPresenter.fxml);
-            userSettingsScene = new Scene(rootPane, 400, 300);
+            userSettingsScene = new Scene(rootPane, 800, 500);
             userSettingsScene.getStylesheets().add(styleSheet);
+            rootPane.getStyleClass().add("settings");
         }
     }
+
+    /*
+    @Subscribe
+    public void onChangeToCertainSizeEvent(ChangeToCertainSizeEvent event) {
+       primaryStage.setWidth(event.getWidth());
+       primaryStage.setHeight(event.getHeight());
+    }
+     */
 
 
     /**
@@ -249,8 +312,8 @@ public class SceneManager {
      * screen.
      *
      * @param event The ShowRegistrationViewEvent detected on the EventBus
-     * @see de.uol.swp.client.register.event.ShowRegistrationViewEvent
      * @author Marco Grawunder
+     * @see de.uol.swp.client.register.event.ShowRegistrationViewEvent
      * @since 2019-09-03
      */
     @Subscribe
@@ -265,8 +328,8 @@ public class SceneManager {
      * called. It calls a method to switch the current screen to the login screen.
      *
      * @param event The ShowLoginViewEvent detected on the EventBus
-     * @see de.uol.swp.client.auth.events.ShowLoginViewEvent
      * @author Marco Grawunder
+     * @see de.uol.swp.client.auth.events.ShowLoginViewEvent
      * @since 2019-09-03
      */
     @Subscribe
@@ -282,8 +345,8 @@ public class SceneManager {
      * called. It calls a method to show the screen shown before registration.
      *
      * @param event The RegistrationCanceledEvent detected on the EventBus
-     * @see de.uol.swp.client.register.event.RegistrationCanceledEvent
      * @author Marco Grawunder
+     * @see de.uol.swp.client.register.event.RegistrationCanceledEvent
      * @since 2019-09-03
      */
 
@@ -300,8 +363,8 @@ public class SceneManager {
      * called. It shows the error message of the event in a error alert.
      *
      * @param event The RegistrationErrorEvent detected on the EventBus
-     * @see de.uol.swp.client.register.event.RegistrationErrorEvent
      * @author Marco Grawunder
+     * @see de.uol.swp.client.register.event.RegistrationErrorEvent
      * @since 2019-09-03
      */
     @Subscribe
@@ -316,14 +379,15 @@ public class SceneManager {
      * called. It calls a method to switch the current screen to the showUserSettings screen.
      *
      * @param event The ShowUserSettingsViewEvent detected on the EventBus
-     * @see de.uol.swp.client.account.event.ShowUserSettingsViewEvent
      * @author Carsten Dekker
+     * @see de.uol.swp.client.account.event.ShowUserSettingsViewEvent
      * @since 2021-04-03
      */
     @Subscribe
     public void onShowUserSettingsViewEvent(ShowUserSettingsViewEvent event) {
         showUserSettingsScreen();
     }
+
 
     /**
      * Handles LeaveUserSettingsEvent detected on the EventBus
@@ -332,8 +396,8 @@ public class SceneManager {
      * called. It calls a method to show the screen shown before userSettings.
      *
      * @param event The LeaveUserSettingsEvent detected on the EventBus
-     * @see de.uol.swp.client.account.event.LeaveUserSettingsEvent
      * @author Carsten Dekker
+     * @see de.uol.swp.client.account.event.LeaveUserSettingsEvent
      * @since 2021-03-04
      */
     @Subscribe
@@ -348,8 +412,8 @@ public class SceneManager {
      * called. It shows the error message of the event in a error alert.
      *
      * @param event The UserSettingsErrorEvent detected on the EventBus
-     * @see de.uol.swp.client.account.event.UserSettingsErrorEvent
      * @author Carsten Dekker
+     * @see de.uol.swp.client.account.event.UserSettingsErrorEvent
      * @since 2021-03-06
      */
     @Subscribe
@@ -360,6 +424,7 @@ public class SceneManager {
     /**
      * Shows an error message inside an error alert
      * <p>
+     *
      * @param message The type of error to be shown
      * @param e       The error message
      * @author Marco Grawunder
@@ -375,6 +440,7 @@ public class SceneManager {
     /**
      * Shows a server error message inside an error alert
      * <p>
+     *
      * @param e The error message
      * @author Marco Grawunder
      * @since 2019-09-03
@@ -386,6 +452,7 @@ public class SceneManager {
     /**
      * Shows an error message inside an error alert
      * <p>
+     *
      * @param e The error message
      * @author Marco Grawunder
      * @since 2019-09-03
@@ -420,6 +487,7 @@ public class SceneManager {
      * Shows the login error alert
      * <p>
      * Opens an ErrorAlert popup saying "Error logging in to server"
+     *
      * @author Marco Grawunder
      * @since 2019-09-03
      */
@@ -435,7 +503,7 @@ public class SceneManager {
      * Shows the main menu
      * <p>
      * Invokes the Method showMainTab instead of switching the Scene to the MainScene
-     *
+     * <p>
      * enhanced by Alexander Losse and Marc Hermes - 2021-01-20
      *
      * @author Marco Grawunder
@@ -461,7 +529,8 @@ public class SceneManager {
         Platform.runLater(() -> {
             primaryStage.setTitle("Catan");
             primaryStage.setScene(tabScene);
-            primaryStage.show();});
+            primaryStage.show();
+        });
     }
 
     /**
@@ -469,6 +538,7 @@ public class SceneManager {
      * <p>
      * Switches the current Scene to the loginScene and sets the title of
      * the window to "Login"
+     *
      * @author Marco Grawunder
      * @since 2019-09-03
      */
@@ -481,6 +551,7 @@ public class SceneManager {
      * <p>
      * Switches the current Scene to the registrationScene and sets the title of
      * the window to "Registration"
+     *
      * @author Marco Grawunder
      * @since 2019-09-03
      */
@@ -492,7 +563,7 @@ public class SceneManager {
      * Shows the lobby screen
      * <p>
      * This method invokes the newLobbyTab() method resulting in the creation of a new lobby tab
-     *
+     * <p>
      * enhanced by Alexander Losse and Marc Hermes - 2021-01-20
      *
      * @author Marc Hermes, Ricardo Mook
@@ -507,11 +578,23 @@ public class SceneManager {
      * <p>
      * Switches the current Scene to the userSettingsScene and sets the title of
      * the window to "UserSettings"
+     *
      * @author Carsten Dekker
      * @since 2021-04-03
      */
     public void showUserSettingsScreen() {
         showScene(userSettingsScene, "UserSettings");
+    }
+
+    /**
+     * calls newTradeTab()
+     *
+     * @param tradeCode AbstractMessage(either TradeOfferInformBiddersMessage, or TradeStartedMessage)
+     * @author Alexander Losse, Ricardo Mook
+     * @since 2021-04-21
+     */
+    public void showTradeScreen(String tradeCode) {
+        newTradeTab(tradeCode);
     }
 
     /**
@@ -553,6 +636,7 @@ public class SceneManager {
             tabHelper.removeTab("Lobby " + lobbyname);
         });
     }
+
     /**
      * Shows the game screen
      * <p>
@@ -561,8 +645,8 @@ public class SceneManager {
      * @author Kirstin Beyer
      * @since 2021-01-14
      */
-    public void showGameScreen(User currentUser, String gamename) {
-        newGameTab(currentUser, gamename);
+    public void showGameScreen(String gamename) {
+        newGameTab(gamename);
     }
 
     /**
@@ -578,7 +662,7 @@ public class SceneManager {
      * @author Marc Hermes
      * @since 2021-01-21
      */
-    public void newGameTab(User currentUser, String gamename) {
+    public void newGameTab(String gamename) {
         Tab gameTab = new Tab("Game " + gamename);
         gameTab.setContent(nextGameScene.getRoot());
         gameTab.setClosable(false);
@@ -590,11 +674,29 @@ public class SceneManager {
     }
 
     /**
+     * Opens a new trade tab on call
+     *
+     * @param tradeID the tradeCode for the trade
+     * @author Alexander Losse, Ricardo Mook
+     * @since 2021-04-21
+     */
+    public void newTradeTab(String tradeID) {
+        Tab tradeTab = new Tab("Trade " + tradeID);
+        tradeTab.setContent(nextTradeScene.getRoot());
+        tradeTab.setClosable(false);
+        Platform.runLater(() -> {
+            tabHelper.addTab(tradeTab);
+            tabHelper.getTabPane().getSelectionModel().select(tradeTab);
+        });
+        nextTradeScene = initTradeView();
+    }
+
+    /**
      * Removes an old game tab
      * <p>
      * When this method is invoked a game tab with a specific name is removed from
      * the TabPane.
-     *
+     * <p>
      * enhanced by Alexander Losse, Ricardo Mook - 2021-03-05
      *
      * @param gamename the name of the game that corresponds to the tab that is to be deleted
@@ -608,13 +710,27 @@ public class SceneManager {
     }
 
     /**
+     * Removes an old trade tab
+     * <p>
+     * When this method is invoked a trade tab with a specific tradeCode is removed from
+     *
+     * @author Alexander Losse, Ricardo Mook - 2021-03-05
+     * @since 2021-04-21
+     */
+    public void removeTradeTab(TradeEndedMessage tem) {
+        Platform.runLater(() -> {
+            tabHelper.removeTab("Trade " + tem.getTradeCode());
+        });
+    }
+
+    /**
      * Suspends a certain lobby Tab
      * <p>
      * When this method is invoked the tabHelper is used to suspend a lobby Tab.
      * Suspended Tabs are removed from tabPane but not deleted.
      *
-     * @author Marc Hermes
      * @param lobbyName the name of the Lobby corresponding to the lobby Tab
+     * @author Marc Hermes
      * @since 2021-03-16
      */
     public void suspendLobbyTab(String lobbyName) {
@@ -628,8 +744,8 @@ public class SceneManager {
      * <p>
      * When this method is invoked the tabHelper is used to unsuspend a lobby Tab.
      *
-     * @author Marc Hermes
      * @param lobbyName the name of the Lobby corresponding to the lobby Tab
+     * @author Marc Hermes
      * @since 2021-03-16
      */
     public void unsuspendLobbyTab(String lobbyName) {

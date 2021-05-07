@@ -18,7 +18,13 @@ public class AlreadyJoinedThisLobbyResponse extends AbstractResponseMessage {
 
     private String lobbyName;
 
-    public AlreadyJoinedThisLobbyResponse(String lobbyName){
+    /**
+     * Constructor
+     *
+     * @param lobbyName Name form the Lobby
+     */
+
+    public AlreadyJoinedThisLobbyResponse(String lobbyName) {
         this.lobbyName = lobbyName;
     }
 

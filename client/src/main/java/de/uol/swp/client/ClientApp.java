@@ -7,9 +7,9 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import de.uol.swp.client.di.ClientModule;
 import de.uol.swp.client.user.ClientUserService;
+import de.uol.swp.common.game.message.*;
 import de.uol.swp.common.game.message.GameCreatedMessage;
 import de.uol.swp.common.game.message.GameDroppedMessage;
-import de.uol.swp.client.user.UserService;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.exception.RegistrationExceptionMessage;
 import de.uol.swp.common.user.exception.UpdateUserExceptionMessage;
@@ -172,8 +172,8 @@ public class ClientApp extends Application implements ConnectionListener {
      * @since 2021-03-14
      */
     @Subscribe
-    public void onRetrieveUserMailResponse(RetrieveUserMailResponse response) {
-        LOG.debug("Got the response with the Mail from User " + response.getUser().getUsername());
+    public void onRetrieveUserInformationResponse(RetrieveUserInformationResponse response) {
+        LOG.debug("Got the response with the Information from User " + response.getUser().getUsername());
         this.user = response.getUser();
     }
 
@@ -260,8 +260,34 @@ public class ClientApp extends Application implements ConnectionListener {
     @Subscribe
     public void userStartedGame(GameCreatedMessage message) {
         LOG.debug(" Started a game " + message.getName());
-        sceneManager.showGameScreen(user, message.getName());
+        sceneManager.showGameScreen(message.getName());
         sceneManager.suspendLobbyTab(message.getName());
+    }
+
+    /**
+     * reacts to TradeStartedMessage
+     *
+     * @param message TradeStartedMessage
+     * @author Alexander Losse, Ricardo Mook
+     * @since 2021-04-21
+     */
+    @Subscribe
+    public void userStartedTrade(TradeStartedMessage message) {
+        LOG.debug("Started a trade " + message.getGame());
+        sceneManager.showTradeScreen(message.getTradeCode());
+    }
+
+    /**
+     * reacts to TradeOfferInformBiddersMessage
+     *
+     * @param message TradeStartedMessage
+     * @author Alexander Losse, Ricardo Mook
+     * @since 2021-04-21
+     */
+    @Subscribe
+    public void tradeRegistered(TradeOfferInformBiddersMessage message) {
+        LOG.debug("A trade request was registered");
+        sceneManager.showTradeScreen(message.getTradeCode());
     }
 
     /**
@@ -333,8 +359,8 @@ public class ClientApp extends Application implements ConnectionListener {
      * If the loglevel is set to DEBUG or higher "Registration error " and the
      * error message are written to the log.
      *
-     * @author Marco Grawunder
      * @param message The RegistrationExceptionMessage object detected on the EventBus
+     * @author Marco Grawunder
      * @see de.uol.swp.client.SceneManager
      * @since 2019-09-02
      */
@@ -371,8 +397,8 @@ public class ClientApp extends Application implements ConnectionListener {
      * the loglevel is set to INFO or higher "Registration Successful." is written
      * to the log.
      *
-     * @author Marco Grawunder
      * @param message The RegistrationSuccessfulResponse object detected on the EventBus
+     * @author Marco Grawunder
      * @see de.uol.swp.client.SceneManager
      * @since 2019-09-02
      */
@@ -421,8 +447,8 @@ public class ClientApp extends Application implements ConnectionListener {
      * It writes "DeadEvent detected " and the error message of the detected DeadEvent
      * object to the log, if the loglevel is set to ERROR or higher.
      *
-     * @author Marco Grawunder
      * @param deadEvent The DeadEvent object found on the EventBus
+     * @author Marco Grawunder
      * @since 2019-08-07
      */
     @Subscribe
@@ -456,8 +482,8 @@ public class ClientApp extends Application implements ConnectionListener {
     /**
      * Default startup method for javafx applications
      *
-     * @author Marco Grawunder
      * @param args Any arguments given when starting the application
+     * @author Marco Grawunder
      * @since 2017-03-17
      */
     public static void main(String[] args) {
@@ -488,7 +514,6 @@ public class ClientApp extends Application implements ConnectionListener {
      * @author Philip, Marc
      * @since 2021-01-22
      */
-
     private void checkForTimeout() {
         timer.schedule(new TimerTask() {
             @Override
@@ -500,5 +525,17 @@ public class ClientApp extends Application implements ConnectionListener {
         }, 60000, 60000);
     }
 
+    /**
+     * Removes the trade tab, when the trade ended
+     *
+     * @param message
+     * @author Alexander Lossa, Ricardo Mook
+     * @since 2021-04-21
+     */
+    @Subscribe
+    public void onTradeEndedMessage(TradeEndedMessage message) {
+        LOG.info("TradeEndedMessage");
+        sceneManager.removeTradeTab(message);
+    }
 
 }

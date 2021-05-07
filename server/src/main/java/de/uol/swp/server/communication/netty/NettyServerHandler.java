@@ -13,8 +13,8 @@ import org.apache.logging.log4j.Logger;
  * This handler is called from netty when communications happens e.g. a new connection
  * is established or data is received
  *
- * @see io.netty.channel.ChannelInboundHandler
  * @author Marco Grawunder
+ * @see io.netty.channel.ChannelInboundHandler
  * @since 2019-11-20
  */
 
@@ -30,6 +30,7 @@ class NettyServerHandler implements ChannelInboundHandler {
      *
      * @author Marco Grawunder
      * @param delegate handler who handles all communication
+     * @author Marco Grawunder
      * @see de.uol.swp.server.communication.ServerHandler
      * @since 2019-11-20
      */
