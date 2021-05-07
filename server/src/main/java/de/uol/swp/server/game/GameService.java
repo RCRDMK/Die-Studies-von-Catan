@@ -650,13 +650,16 @@ public class GameService extends AbstractService {
     public void updateInventory(Optional<Game> game) {
         if (game.isPresent()) {
             for (User user : game.get().getUsers()) {
-                HashMap privateInventory = game.get().getInventory(user).getPrivateView();
-                HashMap publicInventory = game.get().getInventory(user).getPublicView();
-                PrivateInventoryChangeMessage privateInventoryChangeMessage = new PrivateInventoryChangeMessage(privateInventory);
+                HashMap<String, Integer> privateInventory = game.get().getInventory(user).getPrivateView();
+                PrivateInventoryChangeMessage privateInventoryChangeMessage = new PrivateInventoryChangeMessage(game.get().getName(), (UserDTO) user, privateInventory);
                 sendToSpecificUserInGame(game, privateInventoryChangeMessage, user);
-                PublicInventoryChangeMessage publicInventoryChangeMessage = new PublicInventoryChangeMessage(publicInventory, user);
-                sendToAllInGame(game.get().getName(), publicInventoryChangeMessage);
             }
+            ArrayList<HashMap<String, Integer>> publicInventories = new ArrayList<>();
+            for (User user : game.get().getUsersList()){
+                publicInventories.add(game.get().getInventory(user).getPublicView());
+            }
+            PublicInventoryChangeMessage publicInventoryChangeMessage = new PublicInventoryChangeMessage(game.get().getName(), publicInventories);
+            sendToAllInGame(game.get().getName(), publicInventoryChangeMessage);
         }
     }
 

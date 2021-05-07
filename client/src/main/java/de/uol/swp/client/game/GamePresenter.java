@@ -7,11 +7,13 @@ import de.uol.swp.client.chat.ChatService;
 import de.uol.swp.client.game.HelperObjects.HexagonContainer;
 import de.uol.swp.client.game.HelperObjects.MapGraphNodeContainer;
 import de.uol.swp.client.game.HelperObjects.Vector;
+import de.uol.swp.client.lobby.LobbyCell;
 import de.uol.swp.common.chat.RequestChatMessage;
 import de.uol.swp.common.chat.ResponseChatMessage;
 import de.uol.swp.common.game.MapGraph;
 import de.uol.swp.common.game.message.*;
 import de.uol.swp.common.game.request.EndTurnRequest;
+import de.uol.swp.common.lobby.dto.LobbyDTO;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.user.response.game.AllThisGameUsersResponse;
@@ -171,9 +173,9 @@ public class GamePresenter extends AbstractPresenter {
 
     final private ArrayList<ImagePattern> diceImages = new ArrayList<>();
 
-    final private Rectangle rectangleDie1 = new Rectangle(100, 100);
+    final private Rectangle rectangleDie1 = new Rectangle(50, 50);
 
-    final private Rectangle rectangleDie2 = new Rectangle(100, 100);
+    final private Rectangle rectangleDie2 = new Rectangle(50, 50);
 
     /**
      * Method called when the send Message button is pressed
@@ -403,7 +405,7 @@ public class GamePresenter extends AbstractPresenter {
      */
     public void setupPlayerPictures(ArrayList<UserDTO> list) {
         for (UserDTO userDTO : list) {
-            Rectangle rectangle = new Rectangle(100, 100);
+            Rectangle rectangle = new Rectangle(68, 68);
             rectangle.setFill(profilePicturePatterns.get(userDTO.getProfilePictureID() - 1));
             rectangles.add(rectangle);
         }
@@ -614,6 +616,17 @@ public class GamePresenter extends AbstractPresenter {
             l.forEach(u -> gameUsers.add(u.getUsername()));
         });
     }
+
+ /*   private void updatePrivateInventory(ArrayList<HashMap <String, Integer>> publicInventories) {
+        // Attention: This must be done on the FX Thread!
+        Platform.runLater(() -> {
+            if (publicInventories == null) {
+                publicInventories = FXCollections.observableArrayList();
+                publicInventories.setItems();
+            }
+
+        });
+    }*/
 
     /**
      * This method holds the size of the terrainFields in pixels.
@@ -1089,12 +1102,11 @@ public class GamePresenter extends AbstractPresenter {
 
     @Subscribe
     public void onPrivateInventoryChangeMessage(PrivateInventoryChangeMessage privateInventoryChangeMessage) {
-        //TODO: Darstellung der Veränderung des Inventars
     }
 
     @Subscribe
     public void onPublicInventoryChangeMessage(PublicInventoryChangeMessage publicInventoryChangeMessage) {
-        //TODO: Darstellung der Veränderung des Inventars
+
     }
 
 
