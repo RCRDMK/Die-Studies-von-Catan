@@ -5,6 +5,6 @@ import de.uol.swp.common.user.User;
 public class BuyDevelopmentCardAction extends AIAction{
 
     public BuyDevelopmentCardAction(User user, String gameName) {
-
+        super("BuyDevelopmentCard",user, gameName);
     }
 }

@@ -4,11 +4,11 @@ import de.uol.swp.common.user.User;
 
 import java.util.UUID;
 
-public class MoveBanditAction extends AIAction{
-
+public class PlayDevelopmentCardKnightAction extends PlayDevelopmentCardAction{
     private final UUID field;
-    public MoveBanditAction(User user, String gameName, UUID field) {
-        super("MoveBandit", user, gameName);
+    public PlayDevelopmentCardKnightAction(User user, String gameName, String devCard, UUID field) {
+        super(user, gameName, devCard);
+
         this.field = field;
     }
 

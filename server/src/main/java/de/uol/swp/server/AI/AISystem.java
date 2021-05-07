@@ -1,8 +1,12 @@
 package de.uol.swp.server.AI;
 
+import de.uol.swp.common.game.trade.Trade;
+import de.uol.swp.common.game.trade.TradeItem;
+import de.uol.swp.common.user.User;
 import de.uol.swp.server.AI.AIActions.AIAction;
 
 import java.util.ArrayList;
+import java.util.UUID;
 
 public interface AISystem {
 
@@ -10,15 +14,29 @@ public interface AISystem {
 
     void buyDevelopmentCard();
 
-    void placeStreet();
+    void placeStreet(UUID field);
 
-    void placeTown();
+    void placeTown(UUID field);
 
-    void placeCity();
+    void placeCity(UUID field);
 
-    void trade();
+    void tradeStart(ArrayList<TradeItem> wishList, ArrayList<TradeItem> offerList);
 
-    void moveBandit();
+    void tradeBid(ArrayList<TradeItem> bidList, String tradeCode);
 
-    ArrayList<AIAction> doAction(int eyes);
+    void tradeOfferAccept(String tradeCode, boolean tradeAccepted, User acceptedBidder);
+
+    void playDevelopmentCardKnight(UUID field);
+
+    void playDevelopmentCardMonopoly(String resource);
+
+    void playDevelopmentCardRoadBuilding(UUID street1, UUID street2);
+
+    void playDevelopmentCardYearOfPlenty(String resource1, String resource2);
+
+    void moveBandit(UUID field);
+
+    ArrayList<AIAction> startTurnAction(int eyes);
+
+    ArrayList<AIAction> continueTurnAction(Trade trade, String tradeCode);
 }

@@ -4,9 +4,9 @@ import de.uol.swp.common.user.User;
 
 public abstract class AIAction {
 
-    String actionType;
-    User user;
-    String gameName;
+    private final String actionType;
+    private final User user;
+    private final  String gameName;
 
     public AIAction(String actionType, User user, String gameName) {
         this.actionType = actionType;
@@ -18,7 +18,11 @@ public abstract class AIAction {
         return actionType;
     }
 
-    public void setActionType(String actionType) {
-        this.actionType = actionType;
+    public User getUser() {
+        return user;
+    }
+
+    public String getGameName() {
+        return gameName;
     }
 }
