@@ -3,6 +3,7 @@ package de.uol.swp.server.AI;
 import de.uol.swp.common.game.MapGraph;
 import de.uol.swp.common.game.dto.GameDTO;
 import de.uol.swp.common.game.inventory.Inventory;
+import de.uol.swp.common.user.User;
 import de.uol.swp.server.AI.AIActions.AIAction;
 
 import java.util.ArrayList;
@@ -14,6 +15,8 @@ public abstract class AbstractAISystem implements AISystem{
     Inventory inventory;
 
     MapGraph mapGraph;
+
+    User user;
 
     ArrayList<AIAction> aiActions;
 
@@ -41,4 +44,19 @@ public abstract class AbstractAISystem implements AISystem{
         this.aiActions = aiActions;
     }
 
+    public MapGraph getMapGraph() {
+        return mapGraph;
+    }
+
+    public void setMapGraph(MapGraph mapGraph) {
+        this.mapGraph = mapGraph;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
 }
