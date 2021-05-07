@@ -494,6 +494,9 @@ public class GameService extends AbstractService {
         Optional<Game> game = gameManagement.getGame(robbersNewFieldMessage.getName());
         if (game.isPresent()) {
             List<String> userList = new ArrayList<>();
+            if(!userList.isEmpty()){
+                userList.removeAll(game.get().getUsersList());
+            }
             //Indicate the old robbers place and "deactivate" the occupiedByRobber option.
             for (MapGraph.Hexagon hexagon : game.get().getMapGraph().getHexagonHashSet()) {
                 if (hexagon.isOccupiedByRobber()) {
@@ -502,17 +505,14 @@ public class GameService extends AbstractService {
                 if (hexagon.getUuid().equals(robbersNewFieldMessage.getNewField())) {
                     //If the UUIDs match, the new field is set to occupied
                     hexagon.setOccupiedByRobber(true);
-                    sendToAllInGame(robbersNewFieldMessage.getName(), new SuccessfullMovedRobberMessage(hexagon.getUuid()));
-                }
-                //check if the building nodes at the hexagon are occupied by players
-                for (int i = 0; i < hexagon.getBuildingNodes().size(); i++) {
-                    if (hexagon.getBuildingNodes().get(i).getOccupiedByPlayer() != 666) {
-                        if (!userList.contains(game.get().getUser(hexagon.getBuildingNodes().get(i).getOccupiedByPlayer()).getUsername())) {
-                            if(!robbersNewFieldMessage.getUser().getUsername().equals(game.get().getUser(hexagon.getBuildingNodes().get(i).getOccupiedByPlayer()).getUsername())){
-                                userList.add(game.get().getUser(hexagon.getBuildingNodes().get(i).getOccupiedByPlayer()).getUsername());
+                    for(MapGraph.BuildingNode node: hexagon.getBuildingNodes()){
+                        if(node.getOccupiedByPlayer()!=666){
+                            if (!userList.contains(game.get().getUser(node.getOccupiedByPlayer()).getUsername()) && !robbersNewFieldMessage.getUser().getUsername().equals(game.get().getUser(node.getOccupiedByPlayer()).getUsername())) {
+                                userList.add(game.get().getUser(node.getOccupiedByPlayer()).getUsername());
                             }
                         }
                     }
+                    sendToAllInGame(robbersNewFieldMessage.getName(), new SuccessfullMovedRobberMessage(hexagon.getUuid()));
                 }
             }
             ChoosePlayerMessage choosePlayerMessage = new ChoosePlayerMessage(game.get().getName(), robbersNewFieldMessage.getUser(), userList);
