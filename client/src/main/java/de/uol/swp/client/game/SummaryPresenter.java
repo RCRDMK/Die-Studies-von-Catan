@@ -3,9 +3,9 @@ package de.uol.swp.client.game;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
-import de.uol.swp.client.game.HelperObjects.StatsDTO;
+import de.uol.swp.client.game.HelperObjects.TableStats;
 import de.uol.swp.client.lobby.LobbyService;
-import de.uol.swp.common.game.Game;
+import de.uol.swp.common.game.dto.StatsDTO;
 import de.uol.swp.common.game.message.GameCreatedMessage;
 import de.uol.swp.common.game.message.GameFinishedMessage;
 import de.uol.swp.common.game.message.SummaryConfirmedMessage;
@@ -23,8 +23,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import java.util.Optional;
 
 /**
  * Manages the SummaryView
@@ -54,8 +52,7 @@ public class SummaryPresenter extends AbstractPresenter {
     public TableView statsTable;
 
     private User currentUser;
-    private String gameName;
-    private Game game;
+    private StatsDTO statsDTO;
 
     /**
      * Gets triggered when the back to main menu button gets pressed
@@ -71,9 +68,9 @@ public class SummaryPresenter extends AbstractPresenter {
      */
     @FXML
     public void onBackToMainMenu(ActionEvent event) {
-        gameService.leaveGame(this.gameName, currentUser);
-        lobbyService.leaveLobby(this.gameName, (UserDTO) currentUser);
-        eventBus.post(new SummaryConfirmedMessage(this.gameName));
+        gameService.leaveGame(statsDTO.getGameName(), currentUser);
+        lobbyService.leaveLobby(statsDTO.getGameName(), (UserDTO) currentUser);
+        eventBus.post(new SummaryConfirmedMessage(statsDTO.getGameName()));
     }
 
     /**
@@ -104,8 +101,7 @@ public class SummaryPresenter extends AbstractPresenter {
      */
     @Subscribe
     public void onGameFinishedMessage(GameFinishedMessage message) {
-        this.gameName = message.GetGame().getName();
-        this.game = message.GetGame();
+        this.statsDTO = message.getStatsDTO();
         setStatistics();
     }
 
@@ -124,7 +120,7 @@ public class SummaryPresenter extends AbstractPresenter {
         var profilePictureId = currentUser.getProfilePictureID();
         var profilePictureString = String.format("/img/profilePictures/%d.png", profilePictureId);
         Platform.runLater(() -> {
-            if (this.currentUser.getUsername().equals(getWinner().getUsername())) {
+            if (this.currentUser.getUsername().equals(statsDTO.getWinner())) {
                 this.winnerImage.setImage(new Image("/textures/summaryscreen/badge_winScreenBg.png"));
                 this.winnerImage.toBack();
                 this.profileImage.setImage(new Image(profilePictureString));
@@ -136,7 +132,7 @@ public class SummaryPresenter extends AbstractPresenter {
                 this.winnerImage.toBack();
                 this.profileImage.setImage(new Image(profilePictureString));
                 this.profileImage.toFront();
-                winnerLabel.setText("Sorry, you lost! User " + getWinner().getUsername() + " won!");
+                winnerLabel.setText("Sorry, you lost! User " + statsDTO.getWinner() + " won!");
                 winnerLabel.setTextFill(Color.ORANGERED);
             }
             initTable();
@@ -170,42 +166,17 @@ public class SummaryPresenter extends AbstractPresenter {
         statsTable.getColumns().addAll(userColumn, roadsColumn, knightsColumn, victoryPointsColumn);
 
         // Get all User Data from game to display it in the tableView
-        var usersFromGame = game.getUsersList();
+        var inventories = statsDTO.getInventoryArrayList();
         // Loop users to add table items for stats
-        usersFromGame.forEach((user) -> {
-            var inventory = game.getInventory(user);
+        inventories.forEach((inventory) -> {
             String thisUser;
-            if (currentUser.getUsername().equals(user.getUsername())) {
+            if (currentUser.getUsername().equals(inventory.getUser().getUsername())) {
                 thisUser = "You";
             } else {
-                thisUser = user.getUsername();
+                thisUser = inventory.getUser().getUsername();
             }
-            var item = new StatsDTO(thisUser, inventory.getContinuousRoad(), inventory.getPlayedKnights(), inventory.getVictoryPoints());
+            var item = new TableStats(thisUser, inventory.getContinuousRoad(), inventory.getPlayedKnights(), inventory.getVictoryPoints());
             statsTable.getItems().add(item);
         });
-    }
-
-    /**
-     * Gets the Winner
-     * <p>
-     * This function loops the users from the game and then returns the winner (player with >= 10 victory points)
-     * Since this function is readonly it is safe from possible malicious attacks and client-sided to reduce server-client traffic and code readability.
-     *
-     * @return winner as User object
-     * @author René Meyer, Sergej Tulnev
-     * @see de.uol.swp.common.game.inventory.Inventory
-     * @since 2021-05-01
-     */
-    private User getWinner() {
-        var users = game.getUsersList();
-        Optional<User> winner = users.stream().filter(user -> {
-            var inventory = game.getInventory(user);
-            if (inventory.getVictoryPoints() >= 10) {
-                return true;
-            } else {
-                return false;
-            }
-        }).findFirst();
-        return winner.get();
     }
 }

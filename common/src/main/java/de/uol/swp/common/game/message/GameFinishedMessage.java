@@ -1,6 +1,6 @@
 package de.uol.swp.common.game.message;
 
-import de.uol.swp.common.game.Game;
+import de.uol.swp.common.game.dto.StatsDTO;
 
 /**
  * Message sent by the server when a game is finished
@@ -11,7 +11,7 @@ import de.uol.swp.common.game.Game;
  * @since 2021-04-18
  */
 public class GameFinishedMessage extends AbstractGameMessage {
-    private Game game;
+    private StatsDTO statsDTO;
 
     /**
      * Constructor
@@ -20,19 +20,19 @@ public class GameFinishedMessage extends AbstractGameMessage {
      * @author René Meyer, Sergej Tulnev
      * @since 2021-04-18
      */
-    public GameFinishedMessage(Game game) {
-        this.game = game;
+    public GameFinishedMessage(StatsDTO statsDTO) {
+        this.statsDTO = statsDTO;
     }
 
     /**
-     * Getter for the gameName
+     * Getter for the winner
      * <p>
      *
      * @return gameName
      * @author René Meyer, Sergej Tulnev
      * @since 2021-04-18
      */
-    public Game GetGame() {
-        return this.game;
+    public StatsDTO getStatsDTO() {
+        return this.statsDTO;
     }
 }

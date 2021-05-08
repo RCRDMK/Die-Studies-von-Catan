@@ -4,7 +4,6 @@ import de.uol.swp.common.game.inventory.DevelopmentCardDeck;
 import de.uol.swp.common.game.inventory.Inventory;
 import de.uol.swp.common.game.trade.Trade;
 import de.uol.swp.common.user.User;
-import de.uol.swp.common.user.UserDTO;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -81,6 +80,17 @@ public interface Game extends Serializable {
      * @since 2021-03-26
      */
     ArrayList<User> getUsersList();
+
+    /**
+     * Getter for the inventories
+     *
+     * <p>Returns the inventories from all users</p>
+     *
+     * @return List of Users
+     * @author Pieter Vogt
+     * @since 2021-03-26
+     */
+    ArrayList<Inventory> getInventoriesArrayList();
 
     /**
      * Getter for a single user.

@@ -375,7 +375,7 @@ public class SceneManager {
      */
     @Subscribe
     public void onFinishedGameMessage(GameFinishedMessage message) {
-        var gameName = message.GetGame().getName();
+        var gameName = message.getStatsDTO().getGameName();
         removeGameTab(gameName);
         showSummaryScreen(gameName);
     }

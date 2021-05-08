@@ -7,7 +7,6 @@ import de.uol.swp.common.game.inventory.DevelopmentCardDeck;
 import de.uol.swp.common.game.inventory.Inventory;
 import de.uol.swp.common.game.trade.Trade;
 import de.uol.swp.common.user.User;
-import de.uol.swp.common.user.UserDTO;
 
 import java.util.*;
 
@@ -264,6 +263,13 @@ public class GameDTO implements Game {
         if (user.equals(inventory3.getUser())) return inventory3;
         if (user.equals(inventory4.getUser())) return inventory4;
         return null;
+    }
+
+    public ArrayList<Inventory> getInventoriesArrayList() {
+        ArrayList<Inventory> inventories = new ArrayList<Inventory>();
+        var users = this.getUsersList();
+        users.forEach((user) -> inventories.add(getInventory(user)));
+        return inventories;
     }
 
     @Override
