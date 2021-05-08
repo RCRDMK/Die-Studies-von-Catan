@@ -604,7 +604,7 @@ public class GameService extends AbstractService {
             }
         }
 
-        //@Todo: Check Victory Points, when user won redirect all to Summary Screen
+        //@Todo: Check Victory Points, when user won redirect all to Summary Screen - Later trigger when inventory changes and not when user ends turn
         if(game.isPresent()){
             var user = request.getUser();
             var inventory = game.get().getInventory(user);
@@ -613,7 +613,9 @@ public class GameService extends AbstractService {
                 //Retrieve all stats
                 //Retrieve inventories from all users
                 var inventories = game.get().getInventoriesArrayList();
+                //Create statsDTO object
                 var statsDTO = new StatsDTO(game.get().getName(), user.getUsername(), game.get().getTradeList().size(), game.get().getOverallTurns(), inventories);
+                //Send GameFinishedMessage to all users in game
                 sendToAllInGame(game.get().getName(), new GameFinishedMessage(statsDTO));
                 LOG.debug("User " + user.getUsername() + " has atleast 10 victory points and won.");
             }

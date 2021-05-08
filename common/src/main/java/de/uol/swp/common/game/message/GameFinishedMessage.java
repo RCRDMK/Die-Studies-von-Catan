@@ -17,6 +17,7 @@ public class GameFinishedMessage extends AbstractGameMessage {
      * Constructor
      * <p>
      *
+     * @param statsDTO statsDTO to show stats in summaryScreen
      * @author René Meyer, Sergej Tulnev
      * @since 2021-04-18
      */
@@ -25,14 +26,26 @@ public class GameFinishedMessage extends AbstractGameMessage {
     }
 
     /**
-     * Getter for the winner
+     * Getter for StatsDTO
      * <p>
      *
-     * @return gameName
+     * @return statsDTO
      * @author René Meyer, Sergej Tulnev
      * @since 2021-04-18
      */
     public StatsDTO getStatsDTO() {
         return this.statsDTO;
+    }
+
+    /**
+     * Setter for StatsDTO
+     * <p>
+     *
+     * @param statsDTO statsDTO to show stats in summaryScreen
+     * @author René Meyer, Sergej Tulnev
+     * @since 2021-04-18
+     */
+    public void setStatsDTO(StatsDTO statsDTO) {
+        this.statsDTO = statsDTO;
     }
 }

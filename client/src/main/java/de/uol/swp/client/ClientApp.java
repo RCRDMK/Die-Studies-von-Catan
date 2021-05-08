@@ -8,8 +8,6 @@ import com.google.inject.Injector;
 import de.uol.swp.client.di.ClientModule;
 import de.uol.swp.client.user.ClientUserService;
 import de.uol.swp.common.game.message.*;
-import de.uol.swp.common.game.message.GameCreatedMessage;
-import de.uol.swp.common.game.message.GameDroppedMessage;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.exception.RegistrationExceptionMessage;
 import de.uol.swp.common.user.exception.UpdateUserExceptionMessage;
@@ -536,6 +534,43 @@ public class ClientApp extends Application implements ConnectionListener {
     public void onTradeEndedMessage(TradeEndedMessage message) {
         LOG.info("TradeEndedMessage");
         sceneManager.removeTradeTab(message);
+    }
+
+    /**
+     * Handles GameFinishedMessage detected on the EventBus
+     * <p>
+     * If a GameFinishedMessage is detected on the EventBus, this method gets
+     * called. It calls a method to add a Summary tab and removes the gameTab
+     *
+     * @param message ShowSummaryEvent that contains the GameName
+     * @author René Meyer, Sergej Tulnev
+     * @see GameFinishedMessage
+     * @since 2021-04-18
+     */
+    @Subscribe
+    public void onFinishedGameMessage(GameFinishedMessage message) {
+        var gameName = message.getStatsDTO().getGameName();
+        sceneManager.removeGameTab(gameName);
+        sceneManager.showSummaryScreen(gameName);
+    }
+
+    /**
+     * Handles SummaryConfirmedMessage detected on the EventBus
+     * <p>
+     * If a SummaryConfirmedMessage is detected on the EventBus, this method gets
+     * called. It removes the summaryTab and shows the MainTab.
+     *
+     * @param message SummaryConfirmedMessage that contains the GameName and user
+     * @author René Meyer, Sergej Tulnev
+     * @see SummaryConfirmedMessage
+     * @since 2021-05-01
+     */
+    @Subscribe
+    public void onConfirmedSummaryMessage(SummaryConfirmedMessage message) {
+        var gameName = message.getGameName();
+        var user = message.getUser();
+        sceneManager.removeSummaryTab(gameName);
+        sceneManager.showMainTab(user);
     }
 
 }

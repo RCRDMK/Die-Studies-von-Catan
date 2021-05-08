@@ -31,7 +31,7 @@ public class SummaryConfirmedMessage extends AbstractGameMessage {
      * @author René Meyer, Sergej Tulnev
      * @since 2021-05-01
      */
-    public String GetGameName() {
+    public String getGameName() {
         return this.gameName;
     }
 }

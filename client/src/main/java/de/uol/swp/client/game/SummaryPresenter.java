@@ -8,11 +8,9 @@ import de.uol.swp.client.lobby.LobbyService;
 import de.uol.swp.common.game.dto.StatsDTO;
 import de.uol.swp.common.game.message.GameCreatedMessage;
 import de.uol.swp.common.game.message.GameFinishedMessage;
-import de.uol.swp.common.game.message.SummaryConfirmedMessage;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import javafx.application.Platform;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
@@ -55,22 +53,19 @@ public class SummaryPresenter extends AbstractPresenter {
     private StatsDTO statsDTO;
 
     /**
-     * Gets triggered when the back to main menu button gets pressed
+     * Gets triggered when the back to main menu button is pressed
      * <p>
-     * Posts a new SummaryConfirmedMessage on the eventBus.
-     * SummaryConfirmedMessage gets subscribed in SceneManager
+     * Calls the returnFromSummaryScreen function in the gameService
      * Also leaves the specific lobby and game so the game and lobby get removed
      *
-     * @param event actionEvent
      * @author René Meyer, Sergej Tulnev
      * @see de.uol.swp.client.SceneManager
      * @since 2021-05-01
      */
     @FXML
-    public void onBackToMainMenu(ActionEvent event) {
-        gameService.leaveGame(statsDTO.getGameName(), currentUser);
+    public void onBackToMainMenu() {
+        gameService.returnFromSummaryScreen(statsDTO, currentUser);
         lobbyService.leaveLobby(statsDTO.getGameName(), (UserDTO) currentUser);
-        eventBus.post(new SummaryConfirmedMessage(statsDTO.getGameName()));
     }
 
     /**

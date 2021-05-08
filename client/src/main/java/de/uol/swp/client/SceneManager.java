@@ -20,8 +20,6 @@ import de.uol.swp.client.register.RegistrationPresenter;
 import de.uol.swp.client.register.event.RegistrationCanceledEvent;
 import de.uol.swp.client.register.event.RegistrationErrorEvent;
 import de.uol.swp.client.register.event.ShowRegistrationViewEvent;
-import de.uol.swp.common.game.message.GameFinishedMessage;
-import de.uol.swp.common.game.message.SummaryConfirmedMessage;
 import de.uol.swp.common.game.message.TradeEndedMessage;
 import de.uol.swp.common.user.User;
 import javafx.application.Platform;
@@ -360,43 +358,6 @@ public class SceneManager {
     @Subscribe
     public void onShowLoginViewEvent(ShowLoginViewEvent event) {
         showLoginScreen();
-    }
-
-    /**
-     * Handles GameFinishedMessage detected on the EventBus
-     * <p>
-     * If a GameFinishedMessage is detected on the EventBus, this method gets
-     * called. It calls a method to add a Summary tab and removes the gameTab
-     *
-     * @param message ShowSummaryEvent that contains the GameName
-     * @author René Meyer, Sergej Tulnev
-     * @see GameFinishedMessage
-     * @since 2021-04-18
-     */
-    @Subscribe
-    public void onFinishedGameMessage(GameFinishedMessage message) {
-        var gameName = message.getStatsDTO().getGameName();
-        removeGameTab(gameName);
-        showSummaryScreen(gameName);
-    }
-
-    /**
-     * Handles SummaryConfirmedMessage detected on the EventBus
-     * <p>
-     * If a SummaryConfirmedMessage is detected on the EventBus, this method gets
-     * called. It removes the summaryTab and shows the MainTab.
-     *
-     * @param message SummaryConfirmedMessage that contains the GameName and user
-     * @author René Meyer, Sergej Tulnev
-     * @see SummaryConfirmedMessage
-     * @since 2021-05-01
-     */
-    @Subscribe
-    public void onConfirmedSummaryMessage(SummaryConfirmedMessage message) {
-        var gameName = message.GetGameName();
-        var user = message.getUser();
-        removeSummaryTab(gameName);
-        showMainTab(user);
     }
 
     /**

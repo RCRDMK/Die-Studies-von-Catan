@@ -86,9 +86,9 @@ public interface Game extends Serializable {
      *
      * <p>Returns the inventories from all users</p>
      *
-     * @return List of Users
-     * @author Pieter Vogt
-     * @since 2021-03-26
+     * @return ArrayList from game inventories
+     * @author René Meyer
+     * @since 2021-05-08
      */
     ArrayList<Inventory> getInventoriesArrayList();
 

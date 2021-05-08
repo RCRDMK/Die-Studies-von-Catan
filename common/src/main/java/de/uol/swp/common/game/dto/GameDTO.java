@@ -265,6 +265,17 @@ public class GameDTO implements Game {
         return null;
     }
 
+    /**
+     * Getter for all inventories as ArrayList
+     * <p>
+     * Retrieves all inventories from the game to show the stats in summary Screen
+     *
+     * @return all game inventories
+     * @author René Meyer
+     * @see ArrayList
+     * @see Inventory
+     * @since 2021-05-08
+     */
     public ArrayList<Inventory> getInventoriesArrayList() {
         ArrayList<Inventory> inventories = new ArrayList<Inventory>();
         var users = this.getUsersList();
