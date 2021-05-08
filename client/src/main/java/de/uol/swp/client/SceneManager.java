@@ -425,12 +425,25 @@ public class SceneManager {
     public void onUserSettingsErrorEvent(UserSettingsErrorEvent event) {
         showError(event.getMessage());
     }
-
+/**
+ * Pauses the background music when a MuteMusicMessage on the Eventbus is detected
+ *
+ * @param mmm The MuteMusicMessage on the Eventbus
+ * @author Ricardo Mook
+ * @since 2021-05-08
+ */
     @Subscribe
     public void onMuteMusicEvent(MuteMusicMessage mmm){
         player.pause();
     }
 
+    /**
+     * Continues the background music when a UnmuteMusicMessage on the Eventbus is detected
+     *
+     * @param umm The UnmuteMusicMessage on the Eventbus
+     * @author Ricardo Mook
+     * @since 2021-05-08
+     */
     @Subscribe
     public void onUnmuteMusicEvent(UnmuteMusicMessage umm){
         player.play();
@@ -482,6 +495,9 @@ public class SceneManager {
      * The current scene and title are saved in the lastScene and lastTitle variables,
      * before the new scene and title are set and shown.
      *
+     * enhanced by Ricardo Mook, 2021-05-04
+     * added the abilty to have background music playing
+     *
      * @param scene New scene to show
      * @param title New window title
      * @author Marco Grawunder
@@ -498,9 +514,9 @@ public class SceneManager {
 
             //Royalty free music from Pixabay was used. For more information see https://pixabay.com/service/license/.
             String musicFile = "client/src/main/resources/backgroundMusic/the-last-october-day-3915.mp3";
-            Media sound = new Media(new File(musicFile).toURI().toString());
-            player = new MediaPlayer(sound);
-            player.setCycleCount(MediaPlayer.INDEFINITE);
+            Media backgroundMusic = new Media(new File(musicFile).toURI().toString());
+            player = new MediaPlayer(backgroundMusic);
+            player.setCycleCount(MediaPlayer.INDEFINITE);//loops the musicFile indefinitely
             player.play();
 
         });

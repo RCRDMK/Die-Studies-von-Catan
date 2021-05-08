@@ -586,8 +586,15 @@ public class MainMenuPresenter extends AbstractPresenter {
         LOG.debug("Received GameStartedMessage from game: " + message.getLobbyName());
         lobbyService.retrieveAllLobbies();
     }
-/*
-
+/**
+ * Method called when the user has clicked on the MuteMusicButton.
+ * <p>
+ * When this method gets called a MuteMusicMessage gets send to the SceneManager to pause the background music.
+ * Futhermore will the MuteMusicButton become invisible and in its place a UnmuteMusicButton will appear.
+ *
+ * @param actionEvent the click on the MuteMusicButton
+ * @author Ricardo Mook
+ * @since 2021-05-08
  */
     @FXML
     public void onMuteMusicButtonPressed(ActionEvent actionEvent) {
@@ -597,6 +604,16 @@ public class MainMenuPresenter extends AbstractPresenter {
         unmuteMusicButton.setVisible(true);
     }
 
+    /**
+     * Method called when the user has clicked on the UnmuteMusicButton.
+     * <p>
+     * When this method gets called a UnmuuteMusicMessage gets send to the SceneManager to continue the background music.
+     * Futhermore will the UnmuteMusicButton become invisible and in its place a MuteMusicButton will appear.
+     *
+     * @param actionEvent the click on the UnmuteMusicButton
+     * @author Ricardo Mook
+     * @since 2021-05-08
+     */
     @FXML
     public void onUnmuteMusicButtonPressed(ActionEvent actionEvent) {
         LOG.debug("User unmuted the game music.");
