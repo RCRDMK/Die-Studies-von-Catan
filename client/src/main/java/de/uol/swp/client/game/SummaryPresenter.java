@@ -3,7 +3,9 @@ package de.uol.swp.client.game;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
-import de.uol.swp.client.game.HelperObjects.TableStats;
+import de.uol.swp.client.game.HelperObjects.DetailedTableStats;
+import de.uol.swp.client.game.HelperObjects.GeneralTableStats;
+import de.uol.swp.client.game.HelperObjects.InventoryTableStats;
 import de.uol.swp.client.lobby.LobbyService;
 import de.uol.swp.common.game.dto.StatsDTO;
 import de.uol.swp.common.game.message.GameCreatedMessage;
@@ -47,7 +49,11 @@ public class SummaryPresenter extends AbstractPresenter {
     @FXML
     public ImageView profileImage;
     @FXML
-    public TableView statsTable;
+    public TableView generalTableStats;
+    @FXML
+    public TableView detailedTableStats;
+    @FXML
+    public TableView ressourceTableStats;
 
     private User currentUser;
     private StatsDTO statsDTO;
@@ -130,7 +136,9 @@ public class SummaryPresenter extends AbstractPresenter {
                 winnerLabel.setText("Sorry, you lost! User " + statsDTO.getWinner() + " won!");
                 winnerLabel.setTextFill(Color.ORANGERED);
             }
-            initTable();
+            initGeneralTable();
+            initDetailedTable();
+            initRessourceTable();
         });
     }
 
@@ -144,21 +152,15 @@ public class SummaryPresenter extends AbstractPresenter {
      * @see TableColumn
      * @since 2021-05-01
      */
-    private void initTable() {
+    private void initGeneralTable() {
         // Init Table
-        TableColumn userColumn = new TableColumn("User");
+        TableColumn userColumn = new TableColumn("User - Stat");
         userColumn.setCellValueFactory(new PropertyValueFactory<>("user"));
-        userColumn.setPrefWidth(100);
-        TableColumn roadsColumn = new TableColumn("Roads");
-        roadsColumn.setPrefWidth(100);
-        roadsColumn.setCellValueFactory(new PropertyValueFactory<>("roads"));
-        TableColumn knightsColumn = new TableColumn("Knights");
-        knightsColumn.setCellValueFactory(new PropertyValueFactory<>("knights"));
-        knightsColumn.setPrefWidth(100);
-        TableColumn victoryPointsColumn = new TableColumn("VictoryPoints");
-        victoryPointsColumn.setCellValueFactory(new PropertyValueFactory<>("victoryPoints"));
-        victoryPointsColumn.setPrefWidth(100);
-        statsTable.getColumns().addAll(userColumn, roadsColumn, knightsColumn, victoryPointsColumn);
+        userColumn.setPrefWidth(200);
+        TableColumn achievementColumn = new TableColumn("Achievement");
+        achievementColumn.setPrefWidth(200);
+        achievementColumn.setCellValueFactory(new PropertyValueFactory<>("achievement"));
+        generalTableStats.getColumns().addAll(userColumn, achievementColumn);
 
         // Get all User Data from game to display it in the tableView
         var inventories = statsDTO.getInventoryArrayList();
@@ -170,8 +172,89 @@ public class SummaryPresenter extends AbstractPresenter {
             } else {
                 thisUser = inventory.getUser().getUsername();
             }
-            var item = new TableStats(thisUser, inventory.getContinuousRoad(), inventory.getPlayedKnights(), inventory.getVictoryPoints());
-            statsTable.getItems().add(item);
+            var achievement = "";
+            if (inventory.isLargestArmy()) {
+                achievement = achievement + "Largest Army";
+
+            } else if (inventory.isLongestRoad()) {
+                achievement = achievement + "Longest Road";
+            } else {
+                achievement = "-";
+            }
+            var item = new GeneralTableStats(thisUser, achievement);
+            generalTableStats.getItems().add(item);
+        });
+        var item = new GeneralTableStats("Overall Trades", Integer.toString(statsDTO.getOverallTrades()));
+        generalTableStats.getItems().add(item);
+        item = new GeneralTableStats("Overall Turns", Integer.toString(statsDTO.getOverallTurns()));
+        generalTableStats.getItems().add(item);
+    }
+
+    private void initDetailedTable() {
+        // Init Table
+        TableColumn userColumn = new TableColumn("User");
+        userColumn.setCellValueFactory(new PropertyValueFactory<>("user"));
+        userColumn.setPrefWidth(100);
+        TableColumn roadsColumn = new TableColumn("Roads");
+        roadsColumn.setPrefWidth(100);
+        roadsColumn.setCellValueFactory(new PropertyValueFactory<>("roads"));
+        TableColumn knightsColumn = new TableColumn("Played Knights");
+        knightsColumn.setCellValueFactory(new PropertyValueFactory<>("knights"));
+        knightsColumn.setPrefWidth(100);
+        TableColumn victoryPointsColumn = new TableColumn("VictoryPoints");
+        victoryPointsColumn.setCellValueFactory(new PropertyValueFactory<>("victoryPoints"));
+        victoryPointsColumn.setPrefWidth(100);
+        detailedTableStats.getColumns().addAll(userColumn, roadsColumn, knightsColumn, victoryPointsColumn);
+
+        // Get all User Data from game to display it in the tableView
+        var inventories = statsDTO.getInventoryArrayList();
+        // Loop users to add table items for stats
+        inventories.forEach((inventory) -> {
+            String thisUser;
+            if (currentUser.getUsername().equals(inventory.getUser().getUsername())) {
+                thisUser = "You";
+            } else {
+                thisUser = inventory.getUser().getUsername();
+            }
+            var item = new DetailedTableStats(thisUser, inventory.getContinuousRoad(), inventory.getPlayedKnights(), inventory.getVictoryPoints());
+            detailedTableStats.getItems().add(item);
+        });
+    }
+
+    private void initRessourceTable() {
+        // Init Table
+        TableColumn userColumn = new TableColumn("User");
+        userColumn.setCellValueFactory(new PropertyValueFactory<>("user"));
+        userColumn.setPrefWidth(100);
+        TableColumn lumberColumn = new TableColumn("Lumber");
+        lumberColumn.setPrefWidth(100);
+        lumberColumn.setCellValueFactory(new PropertyValueFactory<>("lumber"));
+        TableColumn brickColumn = new TableColumn("Brick");
+        brickColumn.setCellValueFactory(new PropertyValueFactory<>("brick"));
+        brickColumn.setPrefWidth(100);
+        TableColumn grainColumn = new TableColumn("Grain");
+        grainColumn.setCellValueFactory(new PropertyValueFactory<>("grain"));
+        grainColumn.setPrefWidth(100);
+        TableColumn woolColumn = new TableColumn("Wool");
+        woolColumn.setCellValueFactory(new PropertyValueFactory<>("wool"));
+        woolColumn.setPrefWidth(100);
+        TableColumn oreColumn = new TableColumn("Ore");
+        oreColumn.setCellValueFactory(new PropertyValueFactory<>("ore"));
+        oreColumn.setPrefWidth(100);
+        ressourceTableStats.getColumns().addAll(userColumn, lumberColumn, brickColumn, grainColumn, woolColumn, oreColumn);
+
+        // Get all User Data from game to display it in the tableView
+        var inventories = statsDTO.getInventoryArrayList();
+        // Loop users to add table items for stats
+        inventories.forEach((inventory) -> {
+            String thisUser;
+            if (currentUser.getUsername().equals(inventory.getUser().getUsername())) {
+                thisUser = "You";
+            } else {
+                thisUser = inventory.getUser().getUsername();
+            }
+            var item = new InventoryTableStats(thisUser, inventory.lumber.getNumber(), inventory.brick.getNumber(), inventory.grain.getNumber(), inventory.wool.getNumber(), inventory.ore.getNumber());
+            ressourceTableStats.getItems().add(item);
         });
     }
 }

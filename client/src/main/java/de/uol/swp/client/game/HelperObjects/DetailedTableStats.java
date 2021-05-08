@@ -10,7 +10,7 @@ package de.uol.swp.client.game.HelperObjects;
  * @see de.uol.swp.client.game.SummaryPresenter
  * @since 2021-05-01
  */
-public class TableStats {
+public class DetailedTableStats {
     private String user;
     private int roadAmount;
     private int knightAmount;
@@ -28,7 +28,7 @@ public class TableStats {
      * @author René Meyer, Sergej Tulnev
      * @since 2021-05-01
      */
-    public TableStats(String user, int roadAmount, int knightAmount, int victoryPoints) {
+    public DetailedTableStats(String user, int roadAmount, int knightAmount, int victoryPoints) {
         this.user = user;
         this.roadAmount = roadAmount;
         this.knightAmount = knightAmount;
