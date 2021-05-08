@@ -12,7 +12,13 @@ import de.uol.swp.server.AI.AIActions.*;
 import java.util.ArrayList;
 import java.util.UUID;
 
-public abstract class AbstractAISystem implements AISystem{
+/**
+ * Abstract class used for the AISystems
+ *
+ * @author Marc Hermes
+ * @since 2021-05-08
+ */
+public abstract class AbstractAISystem implements AISystem {
 
     GameDTO game;
 
@@ -24,6 +30,15 @@ public abstract class AbstractAISystem implements AISystem{
 
     ArrayList<AIAction> aiActions;
 
+    /**
+     * Abstract constructor
+     * <p>
+     * Creates a Deep Copy of the game so that the values of the original game are not overwritten by the AI.
+     *
+     * @param thatGame the game that this AISystem will have to work with and of which a deep copy will be created
+     * @author Marc Hermes
+     * @since 2021-05-08
+     */
     public AbstractAISystem(GameDTO thatGame) {
         Gson gson = new Gson();
         game = gson.fromJson(gson.toJson(thatGame), GameDTO.class);
@@ -87,28 +102,28 @@ public abstract class AbstractAISystem implements AISystem{
 
     @Override
     public void buildStreet(UUID field) {
-        PlaceAction pa = new PlaceAction("PlaceStreet", user, game.getName(), field);
+        BuildAction pa = new BuildAction("BuildStreet", user, game.getName(), field);
         aiActions.add(pa);
 
     }
 
     @Override
     public void buildTown(UUID field) {
-        PlaceAction pa = new PlaceAction("PlaceTown", user, game.getName(), field);
+        BuildAction pa = new BuildAction("BuildTown", user, game.getName(), field);
         aiActions.add(pa);
 
     }
 
     @Override
     public void buildCity(UUID field) {
-        PlaceAction pa = new PlaceAction("PlaceCity", user, game.getName(), field);
+        BuildAction pa = new BuildAction("BuildCity", user, game.getName(), field);
         aiActions.add(pa);
 
     }
 
     @Override
     public void tradeStart(ArrayList<TradeItem> wishList, ArrayList<TradeItem> offerList) {
-        TradeStartAction ta = new TradeStartAction(user, game.getName(),wishList, offerList);
+        TradeStartAction ta = new TradeStartAction(user, game.getName(), wishList, offerList);
         aiActions.add(ta);
     }
 
@@ -138,13 +153,13 @@ public abstract class AbstractAISystem implements AISystem{
 
     @Override
     public void playDevelopmentCardRoadBuilding(UUID street1, UUID street2) {
-        PlayDevelopmentCardRoadBuildingAction pa = new PlayDevelopmentCardRoadBuildingAction(user, game.getName(),"Road Building", street1, street2);
+        PlayDevelopmentCardRoadBuildingAction pa = new PlayDevelopmentCardRoadBuildingAction(user, game.getName(), "Road Building", street1, street2);
         aiActions.add(pa);
     }
 
     @Override
     public void playDevelopmentCardYearOfPlenty(String resource1, String resource2) {
-        PlayDevelopmentCardYearOfPlentyAction pa = new PlayDevelopmentCardYearOfPlentyAction(user, game.getName(),"Year Of Plenty", resource1, resource2);
+        PlayDevelopmentCardYearOfPlentyAction pa = new PlayDevelopmentCardYearOfPlentyAction(user, game.getName(), "Year Of Plenty", resource1, resource2);
         aiActions.add(pa);
     }
 

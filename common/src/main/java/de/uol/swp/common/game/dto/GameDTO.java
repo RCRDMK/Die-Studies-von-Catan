@@ -11,7 +11,6 @@ import de.uol.swp.common.user.UserDTO;
 
 import java.util.*;
 
-
 /**
  * Object to transfer the information of a game
  * <p>

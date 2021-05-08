@@ -1,23 +1,25 @@
 package de.uol.swp.server.AI;
 
-import com.google.gson.Gson;
 import de.uol.swp.common.game.dto.GameDTO;
-import de.uol.swp.common.game.trade.Trade;
-import de.uol.swp.common.game.trade.TradeItem;
-import de.uol.swp.common.user.User;
-import de.uol.swp.server.AI.AIActions.*;
 
-
-import java.util.ArrayList;
-import java.util.UUID;
-
+/**
+ * AI which makes choices randomly
+ * <p>
+ * //TODO: Work in progress
+ *
+ * @author Marc Hermes
+ * @since 2021-05-08
+ */
 public class RandomAI extends AbstractAISystem {
 
+    /**
+     * Constructor
+     *
+     * @param thatGame the game of this AI
+     * @author Marc Hermes
+     * @since 2021-05-08
+     */
     public RandomAI(GameDTO thatGame) {
         super(thatGame);
     }
-
-
-
-
 }
