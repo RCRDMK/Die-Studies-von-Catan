@@ -86,21 +86,21 @@ public abstract class AbstractAISystem implements AISystem{
     }
 
     @Override
-    public void placeStreet(UUID field) {
+    public void buildStreet(UUID field) {
         PlaceAction pa = new PlaceAction("PlaceStreet", user, game.getName(), field);
         aiActions.add(pa);
 
     }
 
     @Override
-    public void placeTown(UUID field) {
+    public void buildTown(UUID field) {
         PlaceAction pa = new PlaceAction("PlaceTown", user, game.getName(), field);
         aiActions.add(pa);
 
     }
 
     @Override
-    public void placeCity(UUID field) {
+    public void buildCity(UUID field) {
         PlaceAction pa = new PlaceAction("PlaceCity", user, game.getName(), field);
         aiActions.add(pa);
 
