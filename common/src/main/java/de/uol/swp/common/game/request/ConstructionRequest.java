@@ -1,4 +1,4 @@
-package de.uol.swp.common.game.message;
+package de.uol.swp.common.game.request;
 
 import de.uol.swp.common.game.request.AbstractGameRequest;
 import de.uol.swp.common.user.UserDTO;
@@ -11,7 +11,7 @@ import java.util.UUID;
  * @author Pieter Vogt
  * @since 2021-04-14
  */
-public class ConstructionMessage extends AbstractGameRequest {
+public class ConstructionRequest extends AbstractGameRequest {
 
     UserDTO user;
     String game;
@@ -28,7 +28,7 @@ public class ConstructionMessage extends AbstractGameRequest {
      * @author Pieter Vogt
      * @since 2021-04-14
      */
-    public ConstructionMessage(UserDTO user, String game, UUID uuid, String typeOfNode) {
+    public ConstructionRequest(UserDTO user, String game, UUID uuid, String typeOfNode) {
         this.user = user;
         this.game = game;
         this.uuid = uuid;

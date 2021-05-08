@@ -35,7 +35,6 @@ public interface Game extends Serializable {
      * Changes the owner of the game
      *
      * @param user The user who should be the new owner
-     *
      * @since 2021-01-15
      */
     void updateOwner(User user);
@@ -52,7 +51,6 @@ public interface Game extends Serializable {
      * Adds a new user to the game
      *
      * @param user The new user to add to the game
-     *
      * @since 2021-01-25
      */
     void joinUser(User user);
@@ -61,7 +59,6 @@ public interface Game extends Serializable {
      * Removes an user from the game
      *
      * @param user The user to remove from the game
-     *
      * @since 2021-01-15
      */
     void leaveUser(User user);
@@ -206,10 +203,10 @@ public interface Game extends Serializable {
     /**
      * adds a Trade to the game
      *
-     * @see Trade
-     * @param trade Trade to be added
+     * @param trade     Trade to be added
      * @param tradeCode String used to identify trade
      * @author Alecander Losse, Ricardo Mook
+     * @see Trade
      * @since 2021-04-13
      */
     void addTrades(Trade trade, String tradeCode);
@@ -232,4 +229,40 @@ public interface Game extends Serializable {
      */
     void removeTrade(String tradeCode);
 
+    /**
+     * getter for the String of the card that is currently being played in the game
+     *
+     * @return The name of the card currently being played
+     * @author Marc Hermes
+     * @since 2021-05-03
+     */
+    String getCurrentCard();
+
+    /**
+     * setter for the String of the card that is currently being played in the game
+     *
+     * @param currentCard the card that is currently being played
+     * @author Marc Hermes
+     * @since 2021-05-03
+     */
+    void setCurrentCard(String currentCard);
+
+    /**
+     * getter for the boolean value whether or not a card was already played this turn.
+     * useful, as only 1 card may be played each turn
+     *
+     * @return
+     * @author Marc Hermes
+     * @since 2021-05-03
+     */
+    boolean playedCardThisTurn();
+
+    /**
+     * setter for the boolean value whether or not a card was already played this turn.
+     *
+     * @param value the boolean value being set to
+     * @author Marc Hermes
+     * @since 2021-05-03
+     */
+    void setPlayedCardThisTurn(boolean value);
 }
