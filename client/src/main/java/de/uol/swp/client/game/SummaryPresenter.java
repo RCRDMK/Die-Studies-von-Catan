@@ -110,8 +110,8 @@ public class SummaryPresenter extends AbstractPresenter {
      * Sets all ui elements
      * <p>
      * This method sets all ui elements for the SummaryPresenter
-     * e.g. the winner label, profile picture and calls the initTable() function to
-     * initialize the statsTable on the fx thread
+     * e.g. the winner label, profile picture and calls the initTable() functions to
+     * initialize the tables on the fx thread
      *
      * @author René Meyer, Sergej Tulnev
      * @see ImageView
@@ -143,14 +143,14 @@ public class SummaryPresenter extends AbstractPresenter {
     }
 
     /**
-     * Initializes the statsTable
+     * Initializes the generalTable
      * <p>
-     * This method prepares the statsTable and loops the users from the game
-     * to add their stats to the table.
+     * This method prepares the generalTable and loops the users from the game
+     * to add general Stats to the first table
      *
      * @author René Meyer, Sergej Tulnev
      * @see TableColumn
-     * @since 2021-05-01
+     * @since 2021-05-08
      */
     private void initGeneralTable() {
         // Init Table
@@ -190,6 +190,16 @@ public class SummaryPresenter extends AbstractPresenter {
         generalTableStats.getItems().add(item);
     }
 
+    /**
+     * Initializes the detailedTable
+     * <p>
+     * This method prepares the detailedTable and loops the users from the game
+     * to add detailed Stats to the 2nd table
+     *
+     * @author René Meyer, Sergej Tulnev
+     * @see TableColumn
+     * @since 2021-05-08
+     */
     private void initDetailedTable() {
         // Init Table
         TableColumn userColumn = new TableColumn("User");
@@ -221,6 +231,16 @@ public class SummaryPresenter extends AbstractPresenter {
         });
     }
 
+    /**
+     * Initializes the ressource Table
+     * <p>
+     * This method prepares the ressourceTable and loops the users from the game
+     * to add ressource Stats to the 3rd table
+     *
+     * @author René Meyer, Sergej Tulnev
+     * @see TableColumn
+     * @since 2021-05-08
+     */
     private void initRessourceTable() {
         // Init Table
         TableColumn userColumn = new TableColumn("User");
