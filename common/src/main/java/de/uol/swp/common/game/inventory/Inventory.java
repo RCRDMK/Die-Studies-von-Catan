@@ -3,7 +3,6 @@ package de.uol.swp.common.game.inventory;
 import de.uol.swp.common.user.User;
 
 import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Creates and manages the Inventory
@@ -129,9 +128,9 @@ public class Inventory {
      *
      * @return privateInventory
      */
-    public HashMap getPrivateView() {
+    public HashMap<String, Integer> getPrivateView() {
 
-        Map<String, Integer> privateInventory = new HashMap<>();
+        HashMap<String, Integer> privateInventory = new HashMap<>();
 
         // Resource Cards
         privateInventory.put("Lumber", lumber.getNumber());
@@ -155,7 +154,7 @@ public class Inventory {
         // Achievement
         privateInventory.put("Victory Points", victoryPoints);
 
-        return (HashMap) privateInventory;
+        return privateInventory;
     }
 
     /**
@@ -167,9 +166,9 @@ public class Inventory {
      *
      * @return publicInventory
      */
-    public HashMap getPublicView() {
+    public HashMap<String, Integer> getPublicView() {
 
-        Map<String, Integer> publicInventory = new HashMap<>();
+        HashMap<String, Integer> publicInventory = new HashMap<>();
 
         publicInventory.put("Resource", getResource());
         publicInventory.put("Development Cards", getDevelopmentCards());
@@ -186,7 +185,7 @@ public class Inventory {
         if (victoryPoints < cardVictoryPoint) publicInventory.put("Public Victory Points", 0);
         else publicInventory.put("Public Victory Points", victoryPoints - cardVictoryPoint);
 
-        return (HashMap) publicInventory;
+        return publicInventory;
     }
 
     /**
@@ -196,28 +195,31 @@ public class Inventory {
      * String Card specifies the Ressource Card
      * valid Strings: Lumber, Brick, Grain, Wool, Ore
      *
+     * @return true if valid resource name, false if not
      * @param card   the name of the Ressource Card
      * @param amount how much of the Card should be increased
      * @author Alexander Losse, Ricardo Mook
      * @since 2021-04-08
      */
-    public void incCard(String card, int amount) {
+    public boolean incCard(String card, int amount) {
         switch (card) {
             case "Lumber":
                 lumber.incNumber(amount);
-                break;
+                return true;
             case "Brick":
                 brick.incNumber(amount);
-                break;
+                return true;
             case "Grain":
                 grain.incNumber(amount);
-                break;
+                return true;
             case "Wool":
                 wool.incNumber(amount);
-                break;
+                return true;
             case "Ore":
                 ore.incNumber(amount);
-                break;
+                return true;
+            default:
+                return false;
         }
     }
 

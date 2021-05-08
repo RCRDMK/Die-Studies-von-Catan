@@ -18,8 +18,8 @@ public class InventoryTest {
     User user = new UserDTO("test1", "", "");
 
     Inventory inventory = new Inventory(user);
-    HashMap privateInventory = inventory.getPrivateView();
-    HashMap publicInventory = inventory.getPublicView();
+    HashMap<String, Integer> privateInventory = inventory.getPrivateView();
+    HashMap<String, Integer> publicInventory = inventory.getPublicView();
 
     /**
      * This test analyzes the Private Inventory View
