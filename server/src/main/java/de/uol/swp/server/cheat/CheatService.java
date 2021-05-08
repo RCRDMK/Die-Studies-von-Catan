@@ -4,9 +4,7 @@ import com.google.common.eventbus.EventBus;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import de.uol.swp.common.chat.RequestChatMessage;
-import de.uol.swp.common.game.request.EndTurnRequest;
 import de.uol.swp.common.game.request.RollDiceRequest;
-import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.server.AbstractService;
 import de.uol.swp.server.game.GameService;
 import de.uol.swp.server.usermanagement.UserService;
@@ -54,7 +52,6 @@ public class CheatService extends AbstractService {
      * @since 2021-04-17
      * @param cheatMessage
      */
-    //@Todo: Maybe add in Future onPrivateInventoryChangeMessage from Ticket 169 to trigger a win or make inventory change visible?
     public void parseExecuteCheat(RequestChatMessage cheatMessage) {
         // parse CheatPrefix
         var cheatMessageSplit = cheatMessage.getMessage().split("\\s");
@@ -93,10 +90,8 @@ public class CheatService extends AbstractService {
                         var inventory = game.get().getInventory(user);
                         // Set User Victory Points to 10
                         inventory.setVictoryPoints(10);
-                        // End Turn to trigger the Win
-                        var endTurnRequest = new EndTurnRequest(gameName, (UserDTO) user);
-                        //@Todo: Maybe change onEndTurnRequest in Future to onPrivateInventoryChangeMessage from Ticket 169?
-                        gameService.onEndTurnRequest(endTurnRequest);
+                        // Update Inventory to trigger the Win
+                        gameService.updateInventory(game);
                     } else {
                         LOG.debug("Wrong endgame command! Make sure to use endgame 1!");
                     }
@@ -127,6 +122,7 @@ public class CheatService extends AbstractService {
                         inventory.cardMonopoly.incNumber();
                         inventory.cardRoadBuilding.incNumber();
                         inventory.cardYearOfPlenty.incNumber();
+                        gameService.updateInventory(game);
                         LOG.debug(inventory.getPrivateView());
                     } else {
                         LOG.debug("Game not present!");
@@ -180,6 +176,7 @@ public class CheatService extends AbstractService {
                                 inventory.incCardVictoryPoint(cardAmount);
                                 break;
                         }
+                        gameService.updateInventory(game);
                         LOG.debug(inventory.getPrivateView());
                     } else {
                         LOG.debug("Game not present!");
