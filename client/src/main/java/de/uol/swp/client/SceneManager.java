@@ -484,11 +484,9 @@ public class SceneManager {
             primaryStage.setScene(scene);
             primaryStage.show();
 
-            //Royalty free music from Pixabay was used. For more information see https://pixabay.com/service/license/
+            //Royalty free music from Pixabay was used. For more information see https://pixabay.com/service/license/.
             String musicFile = "client/src/main/resources/backgroundMusic/the-last-october-day-3915.mp3";
-            String music = "client/src/main/resources/backgroundMusic/sea-swell-on-iona-intro-outro-4089.mp3";
             Media sound = new Media(new File(musicFile).toURI().toString());
-            Media sfx = new Media(new File(music).toURI().toString());
             player = new MediaPlayer(sound);
             player.setCycleCount(MediaPlayer.INDEFINITE);
             player.play();
