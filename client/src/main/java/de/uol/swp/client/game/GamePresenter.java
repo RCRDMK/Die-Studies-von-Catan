@@ -12,6 +12,8 @@ import de.uol.swp.common.chat.ResponseChatMessage;
 import de.uol.swp.common.game.MapGraph;
 import de.uol.swp.common.game.message.*;
 import de.uol.swp.common.game.request.EndTurnRequest;
+import de.uol.swp.common.game.response.PlayDevelopmentCardResponse;
+import de.uol.swp.common.game.response.ResolveDevelopmentCardNotSuccessfulResponse;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.user.response.game.AllThisGameUsersResponse;
@@ -25,29 +27,29 @@ import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import javafx.scene.image.Image;
-import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.ImagePattern;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
+import javafx.stage.Modality;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Manages the GameView
@@ -66,31 +68,61 @@ public class GamePresenter extends AbstractPresenter {
     public static final String fxml = "/fxml/GameView.fxml";
 
     private static final Logger LOG = LogManager.getLogger(GamePresenter.class);
+
     @FXML
     public TextField gameChatInput;
+
     @FXML
     public TextArea gameChatArea;
+
     private User joinedLobbyUser;
+
     private String currentLobby;
+
     private Alert alert;
+    private Alert resolveDevelopmentCardAlert;
+
     private ButtonType buttonTypeOkay;
+
     private Button btnOkay;
+
     private ObservableList<String> gameUsers;
 
+    private final ArrayList<HexagonContainer> hexagonContainers = new ArrayList<>();
 
-    private ArrayList<HexagonContainer> hexagonContainers = new ArrayList<>();
-    private ArrayList<MapGraphNodeContainer> mapGraphNodeContainers = new ArrayList<>();
+    private final ArrayList<MapGraphNodeContainer> mapGraphNodeContainers = new ArrayList<>();
+
     private Boolean itsMyTurn = false;
+
     @Inject
     private GameService gameService;
+
     @Inject
     private ChatService chatService;
+
     @FXML
     private Canvas canvas;
 
-    private ArrayList<ImagePattern> profilePicturePatterns = new ArrayList<>();
+    // Used for the DevelopmentCard alerts and functionality
+    private final ImagePattern brick = new ImagePattern(new Image("textures/resized/RES_Lehm.png"));
+    private final ImagePattern ore = new ImagePattern(new Image("textures/resized/RES_Erz.png"));
+    private final ImagePattern wool = new ImagePattern(new Image("textures/resized/RES_Wolle.png"));
+    private final ImagePattern grain = new ImagePattern(new Image("textures/resized/RES_Getreide.png"));
+    private final ImagePattern lumber = new ImagePattern(new Image("textures/resized/RES_Holz.png"));
+    private final ArrayList<Rectangle> resourceRectangles = new ArrayList<>();
+    private String currentDevelopmentCard = "";
+    private String resource1 = "";
+    private String resource2 = "";
+    private UUID street1 = null;
+    private UUID street2 = null;
+    private final Circle selectedStreet1 = new Circle();
+    private final Circle selectedStreet2 = new Circle();
+    private final Circle selectedResource1 = new Circle();
+    private final Circle selectedResource2 = new Circle();
 
-    private ArrayList<Rectangle> rectangles = new ArrayList<>();
+    private final ArrayList<ImagePattern> profilePicturePatterns = new ArrayList<>();
+
+    private final ArrayList<Rectangle> rectangles = new ArrayList<>();
 
     @FXML
     private AnchorPane gameAnchorPane;
@@ -115,6 +147,27 @@ public class GamePresenter extends AbstractPresenter {
     @FXML
     private Pane picturePlayerView4;
 
+    @FXML
+    private Button rollDiceButton;
+
+    @FXML
+    private GridPane playerOneDiceView;
+
+    @FXML
+    private GridPane playerTwoDiceView;
+
+    @FXML
+    private GridPane playerThreeDiceView;
+
+    @FXML
+    private GridPane playerFourDiceView;
+
+    final private ArrayList<ImagePattern> diceImages = new ArrayList<>();
+
+    final private Rectangle rectangleDie1 = new Rectangle(100, 100);
+
+    final private Rectangle rectangleDie2 = new Rectangle(100, 100);
+
     /**
      * Method called when the send Message button is pressed
      * <p>
@@ -136,6 +189,8 @@ public class GamePresenter extends AbstractPresenter {
                 RequestChatMessage message = new RequestChatMessage(chatMessage, chatId, joinedLobbyUser.getUsername(),
                         System.currentTimeMillis());
                 chatService.sendMessage(message);
+                // TODO: das muss entfernt werden sobald der Spieler selbst aussuchen kann, welche Karte er spielen möchte
+                gameService.playDevelopmentCard((UserDTO) joinedLobbyUser, currentLobby, chatMessage);
             }
             this.gameChatInput.setText("");
         } catch (Exception e) {
@@ -229,18 +284,57 @@ public class GamePresenter extends AbstractPresenter {
 
     }
 
+
+    /**
+     * Method called when the buildStreet button is pressed.
+     * <p>
+     * makes all the buildings and streets visible that are occupied by players, as well as the empty streets spots.
+     *
+     * @author Marc Hermes
+     * @since 2021-05-04
+     */
     @FXML
-    public void onBuildStreet(ActionEvent event) {
+    public void onBuildStreet() {
+        for (MapGraphNodeContainer container : mapGraphNodeContainers) {
+            if (container.getMapGraphNode().getOccupiedByPlayer() == 666) {
+                container.getCircle().setVisible(container.getMapGraphNode() instanceof MapGraph.StreetNode);
+            }
+        }
         //TODO:...
     }
 
+
+    /**
+     * Method called when the buildSettlement button is pressed.
+     * <p>
+     * Makes all the buildings and streets visible that are occupied by players, as well as the empty building spots
+     *
+     * @author Marc Hermes
+     * @since 2021-05-04
+     */
     @FXML
-    public void onBuildSettlement(ActionEvent event) {
+    public void onBuildSettlement() {
+        for (MapGraphNodeContainer container : mapGraphNodeContainers) {
+            if (container.getMapGraphNode().getOccupiedByPlayer() == 666) {
+                container.getCircle().setVisible(container.getMapGraphNode() instanceof MapGraph.BuildingNode);
+            }
+        }
         //TODO:...
     }
 
+    /**
+     * Method called when the buildTown button is pressed.
+     * <p>
+     * makes all the buildings and streets visible that are occupied by players.
+     *
+     * @author Marc Hermes
+     * @since 2021-05-04
+     */
     @FXML
-    public void onBuildTown(ActionEvent event) {
+    public void onBuildTown() {
+        for (MapGraphNodeContainer container : mapGraphNodeContainers) {
+            container.getCircle().setVisible(container.getMapGraphNode().getOccupiedByPlayer() != 666);
+        }
         //TODO:...
     }
 
@@ -266,11 +360,11 @@ public class GamePresenter extends AbstractPresenter {
     @FXML
     public void onRollDice() {
         if (this.currentLobby != null) {
-            gameService.rollDice(this.currentLobby, this.joinedLobbyUser);
+            gameService.rollDice(this.currentLobby, (UserDTO) this.joinedLobbyUser);
         }
     }
 
-    //TODO JavaDoc fehlt
+    //TODO JavaDoc fehlt, außerdem darf der Presenter nicht dazu genutzt werden nachrichten zu posten, das macht der gameService
     @FXML
     public void onEndTurn() {
         eventBus.post(new EndTurnRequest(this.currentLobby, (UserDTO) this.joinedLobbyUser));
@@ -296,14 +390,15 @@ public class GamePresenter extends AbstractPresenter {
      * <p>
      * If the currentLobby is null, meaning this is an empty GamePresenter that is ready to be used for a new game tab,
      * the parameters of this GamePresenter are updated to the User and Lobby given by the gcm Message. An update of the
-     * Users in the currentLobby is also requested. After that the player pictures are created in the game.
+     * Users in the currentLobby is also requested. After that the player pictures and the needed objects for the dice
+     * are created in the game.
      *
      * @param gcm the GameCreatedMessage given by the original subscriber method.
      * @author Alexander Losse, Ricardo Mook
      * @see GameCreatedMessage
      * @see de.uol.swp.common.game.GameField
      * @since 2021-03-05
-     *
+     * <p>
      * Enhanced by Carsten Dekker
      * @since 2021-04-22
      */
@@ -324,6 +419,8 @@ public class GamePresenter extends AbstractPresenter {
             Platform.runLater(() -> {
                 setupPlayerPictures(gcm.getUsers());
                 setupRessourceAlert();
+                setupDicesAtGameStart();
+                setupResolveDevelopmentCardAlert();
             });
         }
     }
@@ -372,10 +469,13 @@ public class GamePresenter extends AbstractPresenter {
      *
      * <p>This method checks, if the the games name equals the name of the game in the message. If so, and if you are
      * the player with the current turn (transported in message), your button for ending your turn gets clickable. If
-     * not, it becomes unclickable.</p>
+     * not, it becomes unclickable. It also invokes the passTheDice method and manages the visibility of the diceViews.</p>
      *
-     * @param response
+     * @param response //TODO JavaDoc
      * @author Pieter Vogt
+     * <p>
+     * Enhanced by Carsten Dekker
+     * @since 2021-04-30
      */
     @Subscribe
     public void nextPlayerTurn(NextTurnMessage response) {
@@ -388,6 +488,25 @@ public class GamePresenter extends AbstractPresenter {
                 itsMyTurn = false;
                 EndTurnButton.setDisable(true);
                 tradeButton.setDisable(true);
+            }
+            if (!response.isInStartingTurn()) {
+                if (response.getTurn() == 0) {
+                    passTheDice(playerFourDiceView, playerOneDiceView);
+                    playerOneDiceView.setVisible(true);
+                    playerFourDiceView.setVisible(false);
+                } else if (response.getTurn() == 1) {
+                    passTheDice(playerOneDiceView, playerTwoDiceView);
+                    playerOneDiceView.setVisible(false);
+                    playerTwoDiceView.setVisible(true);
+                } else if (response.getTurn() == 2) {
+                    passTheDice(playerTwoDiceView, playerThreeDiceView);
+                    playerTwoDiceView.setVisible(false);
+                    playerThreeDiceView.setVisible(true);
+                } else if (response.getTurn() == 3) {
+                    passTheDice(playerThreeDiceView, playerFourDiceView);
+                    playerThreeDiceView.setVisible(false);
+                    playerFourDiceView.setVisible(true);
+                }
             }
         }
     }
@@ -420,7 +539,6 @@ public class GamePresenter extends AbstractPresenter {
      * GamePresenterException if joinedLobbyUser and currentLobby are not initialised
      *
      * @param event \\TODO JavaDoc fehlt hier
-     *
      * @author Ricardo Mook, Alexander Losse
      * @see de.uol.swp.client.game.GameService
      * @see de.uol.swp.client.game.GamePresenterException
@@ -680,8 +798,8 @@ public class GamePresenter extends AbstractPresenter {
                 Circle circle = mapGraphNodeContainer.getCircle();
                 circle.setRadius(itemSize);
                 circle.setLayoutX(drawVector.getX());
-
                 circle.setLayoutY(drawVector.getY());
+                circle.setVisible(false);
 
                 mapGraphNodeContainer.getCircle().setFill(determinePlayerColorByIndex(mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer()));
 
@@ -699,6 +817,7 @@ public class GamePresenter extends AbstractPresenter {
                 circle.setRadius(itemSize);
                 circle.setLayoutX(drawVector.getX());
                 circle.setLayoutY(drawVector.getY());
+                circle.setVisible(false);
 
                 circle.setFill(determinePlayerColorByIndex(mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer()));
             }
@@ -729,9 +848,12 @@ public class GamePresenter extends AbstractPresenter {
     /**
      * Method to draw buildings to the screen.
      * <p>
-     * Creates the Spots (Circles) for the Buildings. If a Circle is clicked, it changes it's colour.
+     * Creates the Spots (Circles) for the Buildings and streets. If a Circle is clicked, the gameService will be called to request the building of a street/building.
+     * If a circle is clicked during the resolution of the Road Building developmentCard, a bigger circle(black/red) will be temporarily placed above the street building spot.
+     *
      * <p>
      * enhanced by Marc Hermes 2021-03-31
+     * enhanced by Marc Hermes 2021-05-04
      *
      * @author Kirstin
      * @since 2021-03-28
@@ -742,15 +864,36 @@ public class GamePresenter extends AbstractPresenter {
             @Override
             public void handle(MouseEvent mouseEvent) {
                 for (MapGraphNodeContainer container : mapGraphNodeContainers) {
-                    if (mouseEvent.getSource().equals(container.getCircle()) && itsMyTurn == true) {
+                    if (mouseEvent.getSource().equals(container.getCircle()) && itsMyTurn) {
                         String typeOfNode;
                         if (container.getMapGraphNode() instanceof MapGraph.BuildingNode) {
                             typeOfNode = "BuildingNode";
                         } else {
                             typeOfNode = "StreetNode";
                         }
-                        UserDTO user = new UserDTO(joinedLobbyUser.getUsername(), joinedLobbyUser.getPassword(), joinedLobbyUser.getEMail()); //Still sent with password because tight deadline. TODO: Change responsible Interface in future, to send Users without Passwords.
-                        gameService.constructBuilding(user, currentLobby, container.getMapGraphNode().getUuid(), typeOfNode);
+                        if (currentDevelopmentCard.equals("")) {
+                            gameService.constructBuilding((UserDTO) joinedLobbyUser.getWithoutPassword(), currentLobby, container.getMapGraphNode().getUuid(), typeOfNode);
+                        } else if (currentDevelopmentCard.equals("Road Building") && typeOfNode.equals("StreetNode")) {
+                            if (street1 == null) {
+                                street1 = container.getMapGraphNode().getUuid();
+                                selectedStreet1.setLayoutX(container.getCircle().getLayoutX());
+                                selectedStreet1.setLayoutY(container.getCircle().getLayoutY());
+                                selectedStreet1.setRadius(container.getCircle().getRadius() * 2);
+                                selectedStreet1.setVisible(true);
+                            } else if (street2 == null) {
+                                street2 = container.getMapGraphNode().getUuid();
+                                selectedStreet2.setLayoutX(container.getCircle().getLayoutX());
+                                selectedStreet2.setLayoutY(container.getCircle().getLayoutY());
+                                selectedStreet2.setRadius(container.getCircle().getRadius() * 2);
+                                selectedStreet2.setVisible(true);
+                            } else {
+                                street2 = null;
+                                street1 =container.getMapGraphNode().getUuid();
+                                selectedStreet2.setVisible(false);
+                                selectedStreet1.setLayoutX(container.getCircle().getLayoutX());
+                                selectedStreet1.setLayoutY(container.getCircle().getLayoutY());
+                            }
+                        }
                     }
                 }
             }
@@ -866,6 +1009,295 @@ public class GamePresenter extends AbstractPresenter {
     }
 
     /**
+     * Method used for setting up the Alert for the ResolveDevelopmentCard functionality, as well as the pictures and functionality of the buttons and user interaction.
+     * <p>
+     * Depending on the current developmentCard the alert will show different elements. Pressing the "Ok" button will call the corresponding gameService method that sends the Request
+     * to resolve the developmentCard.
+     *
+     * @author Marc Hermes
+     * @since 2021-05-04
+     */
+    public void setupResolveDevelopmentCardAlert() {
+
+        EventHandler<MouseEvent> clickOnResourceRectangleHandler = mouseEvent -> {
+            Rectangle rect = (Rectangle) mouseEvent.getSource();
+            if (rect.getFill().equals(lumber)) {
+                if (resource1.equals("")) {
+                    resource1 = "Lumber";
+                    selectedResource1.setLayoutX(rect.getLayoutX() + selectedResource1.getRadius());
+                    selectedResource1.setLayoutY(rect.getLayoutY() + selectedResource1.getRadius());
+                    selectedResource1.setVisible(true);
+                } else if (resource2.equals("") && currentDevelopmentCard.equals("Year of Plenty")) {
+                    resource2 = "Lumber";
+                    selectedResource2.setLayoutX(rect.getLayoutX() + selectedResource2.getRadius() / 2 + rect.getWidth() - selectedResource2.getRadius());
+                    selectedResource2.setLayoutY(rect.getLayoutY() + selectedResource2.getRadius());
+                    selectedResource2.setVisible(true);
+                } else {
+                    resource1 = "Lumber";
+                    resource2 = "";
+                    selectedResource1.setLayoutX(rect.getLayoutX() + selectedResource1.getRadius());
+                    selectedResource1.setLayoutY(rect.getLayoutY() + selectedResource1.getRadius());
+                    selectedResource2.setVisible(false);
+                }
+            } else if (rect.getFill().equals(ore)) {
+                if (resource1.equals("")) {
+                    resource1 = "Ore";
+                    selectedResource1.setLayoutX(rect.getLayoutX() + selectedResource1.getRadius());
+                    selectedResource1.setLayoutY(rect.getLayoutY() + selectedResource1.getRadius());
+                    selectedResource1.setVisible(true);
+                } else if (resource2.equals("") && currentDevelopmentCard.equals("Year of Plenty")) {
+                    resource2 = "Ore";
+                    selectedResource2.setLayoutX(rect.getLayoutX() + selectedResource2.getRadius() / 2 + rect.getWidth() - selectedResource2.getRadius());
+                    selectedResource2.setLayoutY(rect.getLayoutY() + selectedResource2.getRadius());
+                    selectedResource2.setVisible(true);
+                } else {
+                    resource1 = "Ore";
+                    resource2 = "";
+                    selectedResource1.setLayoutX(rect.getLayoutX() + selectedResource1.getRadius());
+                    selectedResource1.setLayoutY(rect.getLayoutY() + selectedResource1.getRadius());
+                    selectedResource2.setVisible(false);
+                }
+            } else if (rect.getFill().equals(brick)) {
+                if (resource1.equals("")) {
+                    resource1 = "Brick";
+                    selectedResource1.setLayoutX(rect.getLayoutX() + selectedResource1.getRadius());
+                    selectedResource1.setLayoutY(rect.getLayoutY() + selectedResource1.getRadius());
+                    selectedResource1.setVisible(true);
+                } else if (resource2.equals("") && currentDevelopmentCard.equals("Year of Plenty")) {
+                    resource2 = "Brick";
+                    selectedResource2.setLayoutX(rect.getLayoutX() + selectedResource2.getRadius() / 2 + rect.getWidth() - selectedResource2.getRadius());
+                    selectedResource2.setLayoutY(rect.getLayoutY() + selectedResource2.getRadius());
+                    selectedResource2.setVisible(true);
+                } else {
+                    resource1 = "Brick";
+                    resource2 = "";
+                    selectedResource1.setLayoutX(rect.getLayoutX() + selectedResource1.getRadius());
+                    selectedResource1.setLayoutY(rect.getLayoutY() + selectedResource1.getRadius());
+                    selectedResource2.setVisible(false);
+                }
+            } else if (rect.getFill().equals(grain)) {
+                if (resource1.equals("")) {
+                    resource1 = "Grain";
+                    selectedResource1.setLayoutX(rect.getLayoutX() + selectedResource1.getRadius());
+                    selectedResource1.setLayoutY(rect.getLayoutY() + selectedResource1.getRadius());
+                    selectedResource1.setVisible(true);
+                } else if (resource2.equals("") && currentDevelopmentCard.equals("Year of Plenty")) {
+                    resource2 = "Grain";
+                    selectedResource2.setLayoutX(rect.getLayoutX() + selectedResource2.getRadius() / 2 + rect.getWidth() - selectedResource2.getRadius());
+                    selectedResource2.setLayoutY(rect.getLayoutY() + selectedResource2.getRadius());
+                    selectedResource2.setVisible(true);
+                } else {
+                    resource1 = "Grain";
+                    resource2 = "";
+                    selectedResource1.setLayoutX(rect.getLayoutX() + selectedResource1.getRadius());
+                    selectedResource1.setLayoutY(rect.getLayoutY() + selectedResource1.getRadius());
+                    selectedResource2.setVisible(false);
+                }
+            } else if (rect.getFill().equals(wool)) {
+                if (resource1.equals("")) {
+                    resource1 = "Wool";
+                    selectedResource1.setLayoutX(rect.getLayoutX() + selectedResource1.getRadius());
+                    selectedResource1.setLayoutY(rect.getLayoutY() + selectedResource1.getRadius());
+                    selectedResource1.setVisible(true);
+                } else if (resource2.equals("") && currentDevelopmentCard.equals("Year of Plenty")) {
+                    resource2 = "Wool";
+                    selectedResource2.setLayoutX(rect.getLayoutX() + selectedResource2.getRadius() / 2 + rect.getWidth() - selectedResource2.getRadius());
+                    selectedResource2.setLayoutY(rect.getLayoutY() + selectedResource2.getRadius());
+                    selectedResource2.setVisible(true);
+                } else {
+                    resource1 = "Wool";
+                    resource2 = "";
+                    selectedResource1.setLayoutX(rect.getLayoutX() + selectedResource1.getRadius());
+                    selectedResource1.setLayoutY(rect.getLayoutY() + selectedResource1.getRadius());
+                    selectedResource2.setVisible(false);
+                }
+            }
+        };
+
+        this.resolveDevelopmentCardAlert = new Alert(javafx.scene.control.Alert.AlertType.CONFIRMATION);
+        ButtonType resolveButtonType = new ButtonType("Okay", ButtonBar.ButtonData.OK_DONE);
+        Button resolveButton;
+        selectedResource1.setFill(Color.BLACK);
+        selectedResource2.setFill(Color.RED);
+        selectedResource1.setRadius(5);
+        selectedResource2.setRadius(5);
+        double rectHeight = 100.0;
+        double rectWidth = 50.0;
+        Rectangle lumberRectangle = new Rectangle(rectWidth, rectHeight);
+        lumberRectangle.setFill(lumber);
+        resourceRectangles.add(lumberRectangle);
+        Rectangle oreRectangle = new Rectangle(rectWidth, rectHeight);
+        oreRectangle.setFill(ore);
+        resourceRectangles.add(oreRectangle);
+        Rectangle grainRectangle = new Rectangle(rectWidth, rectHeight);
+        grainRectangle.setFill(grain);
+        resourceRectangles.add(grainRectangle);
+        Rectangle brickRectangle = new Rectangle(rectWidth, rectHeight);
+        brickRectangle.setFill(brick);
+        resourceRectangles.add(brickRectangle);
+        Rectangle woolRectangle = new Rectangle(rectWidth, rectHeight);
+        woolRectangle.setFill(wool);
+        resourceRectangles.add(woolRectangle);
+        double position = 0;
+        for (Rectangle rectangle : resourceRectangles) {
+            rectangle.setOnMouseClicked(clickOnResourceRectangleHandler);
+            rectangle.setLayoutY(rectWidth);
+            rectangle.setLayoutX(position);
+            position = position + rectWidth;
+        }
+        resolveDevelopmentCardAlert.getButtonTypes().setAll(resolveButtonType);
+        resolveButton = (Button) resolveDevelopmentCardAlert.getDialogPane().lookupButton(resolveButtonType);
+        resolveButton.setOnAction(event -> {
+            switch (this.currentDevelopmentCard) {
+                case "Year of Plenty":
+                        gameService.resolveDevelopmentCardYearOfPlenty((UserDTO) joinedLobbyUser.getWithoutPassword(), currentLobby, currentDevelopmentCard, resource1, resource2);
+                        resource1 = "";
+                        resource2 = "";
+                        selectedResource1.setVisible(false);
+                        selectedResource2.setVisible(false);
+                        currentDevelopmentCard = "";
+                    break;
+                case "Monopoly":
+                        gameService.resolveDevelopmentCardMonopoly((UserDTO) joinedLobbyUser.getWithoutPassword(), currentLobby, currentDevelopmentCard, resource1);
+                        resource1 = "";
+                        selectedResource1.setVisible(false);
+                        currentDevelopmentCard = "";
+                    break;
+                case "Road Building":
+                        gameService.resolveDevelopmentCardRoadBuilding((UserDTO) joinedLobbyUser.getWithoutPassword(), currentLobby, currentDevelopmentCard, street1, street2);
+                        street1 = null;
+                        street2 = null;
+                        selectedStreet1.setVisible(false);
+                        selectedStreet2.setVisible(false);
+                        currentDevelopmentCard = "";
+                    break;
+                case "Knight":
+                    // TODO: implement knight functionality
+                    break;
+            }
+            event.consume();
+        });
+        resolveDevelopmentCardAlert.initModality(Modality.NONE);
+        resolveDevelopmentCardAlert.getDialogPane().getChildren().addAll(resourceRectangles);
+        resolveDevelopmentCardAlert.getDialogPane().getChildren().addAll(selectedResource1, selectedResource2);
+        gameAnchorPane.getChildren().add(selectedStreet1);
+        gameAnchorPane.getChildren().add(selectedStreet2);
+        selectedResource1.setVisible(false);
+        selectedResource2.setVisible(false);
+        selectedStreet1.setVisible(false);
+        selectedStreet2.setVisible(false);
+        selectedStreet1.setFill(Color.BLACK);
+        selectedStreet2.setFill(Color.RED);
+    }
+
+    /**
+     * The method gets invoked when the Game Presenter is created.
+     * <p>
+     * This method creates six imagePatterns and adds them to the ArrayList diceImages. Then it fills rectangleDie1 and
+     * rectangleDie2 with the die picture one. Both rectangles are added to the playerOneDiceView.
+     *
+     * @author Carsten Dekker
+     * @since 2021-04-30
+     */
+    public void setupDicesAtGameStart() {
+        for (int i = 1; i <= 6; i++) {
+            Image image = new Image("img/dice/dice_" + i + ".png");
+            ImagePattern imagePattern = new ImagePattern(image);
+            diceImages.add(imagePattern);
+        }
+        rectangleDie1.setFill(diceImages.get(0));
+        playerOneDiceView.add(rectangleDie1, 0, 0);
+        rectangleDie2.setFill(diceImages.get(0));
+        playerOneDiceView.add(rectangleDie2, 1, 0);
+    }
+
+    /**
+     * Handles the removing and adding of the two rectangleDie from one gridPane to another
+     * <p>
+     * This method removes the rectangles from the current GridPane and adds them to the new GridPane. Then it fills
+     * both rectangles with the imagePatterns for the die with eyes one.
+     *
+     * @param oldGridPane the gridPane, where the rectangles currently are
+     * @param newGridPane the next gridPane, where the rectangles going to be added
+     * @author Carsten Dekker
+     * @since 2021-04-30
+     */
+    public void passTheDice(GridPane oldGridPane, GridPane newGridPane) {
+        Platform.runLater(() -> {
+            oldGridPane.getChildren().remove(rectangleDie1);
+            oldGridPane.getChildren().remove(rectangleDie2);
+            rectangleDie1.setFill(diceImages.get(0));
+            newGridPane.add(rectangleDie1, 0, 0);
+            rectangleDie2.setFill(diceImages.get(0));
+            newGridPane.add(rectangleDie2, 1, 0);
+        });
+    }
+
+    /**
+     * The method invoked by the RollDiceResultMessage
+     * <p>
+     * This method calls the shuffleTheDice method and passes the DiceEyes1 and DiceEyes2.
+     *
+     * @param message the RollDiceResultMessage object seen on the eventBus
+     * @author Carsten Dekker
+     * @since 2021-04-30
+     */
+    @Subscribe
+    public void onRollDiceResultMessage(RollDiceResultMessage message) {
+        if (this.currentLobby != null) {
+            if (message.getName().equals(currentLobby)) {
+                shuffleTheDice(message.getDiceEyes1(), message.getDiceEyes2());
+            }
+        }
+    }
+
+    /**
+     * This method handles the dice animation
+     * <p>
+     * This method uses an ExecutorService that can schedule commands to run after a given delay, or to execute
+     * periodically. With this service we can delay the for-loop for 125 milliseconds. For every iteration we generate two
+     * random numbers between zero and five. We use these numbers and the diceImages ArrayList to fill both rectangleDie
+     * with random imagePattern. In the 12th iteration the executorService gets shutdown and the imagePattern equal to
+     * the rollDiceResult are shown.
+     *
+     * @param diceEyes1 the eyes from die one
+     * @param diceEyes2 the eyes from die two
+     * @author Carsten Dekker
+     * @since 2021-04-30
+     */
+    public void shuffleTheDice(int diceEyes1, int diceEyes2) {
+        final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+        final int[] i = {0};
+        executorService.scheduleAtFixedRate(new Runnable() {
+            @Override
+            public void run() {
+                i[0]++;
+                int randomNumber = randomInt(0, 5);
+                rectangleDie1.setFill(diceImages.get(randomNumber));
+                randomNumber = randomInt(0, 5);
+                rectangleDie2.setFill(diceImages.get(randomNumber));
+                if (i[0] == 12) {
+                    executorService.shutdown();
+                    rectangleDie1.setFill(diceImages.get(diceEyes1 - 1));
+                    rectangleDie2.setFill(diceImages.get(diceEyes2 - 1));
+                }
+            }
+        }, 0, 125, TimeUnit.MILLISECONDS);
+    }
+
+    /**
+     * Randomizer for an int
+     * <p>
+     * This method returns a random number between int min and int max.
+     *
+     * @author Carsten Dekker
+     * @since 2021-04-30
+     */
+    private int randomInt(int min, int max) {
+        return (int) (Math.random() * (max - min)) + min;
+    }
+
+    /**
      * Updates the corresponding Node in the list of MapGraphNodes to represent the changes from the message.
      *
      * @param message The data about the changed properties of the MapGraph
@@ -874,29 +1306,52 @@ public class GamePresenter extends AbstractPresenter {
      */
     @Subscribe
     public void onSuccessfulConstructionMessage(SuccessfulConstructionMessage message) {
-        if (message.getTypeOfNode().equals("BuildingNode")) {
-            for (MapGraphNodeContainer mapGraphNodeContainer : mapGraphNodeContainers) {
-                if (mapGraphNodeContainer.getMapGraphNode().getUuid().equals(message.getUuid())) {
-                    MapGraph.BuildingNode buildingNode = (MapGraph.BuildingNode) mapGraphNodeContainer.getMapGraphNode();
-                    buildingNode.buildOrDevelopSettlement(message.getPlayerIndex());
-                    mapGraphNodeContainer.getCircle().setFill(determinePlayerColorByIndex(mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer()));
-                    break;
-                }
-            }
-        } else {
-            for (MapGraphNodeContainer mapGraphNodeContainer : mapGraphNodeContainers) {
-                if (mapGraphNodeContainer.getMapGraphNode().getUuid().equals(message.getUuid())) {
-                    MapGraph.StreetNode streetNode = (MapGraph.StreetNode) mapGraphNodeContainer.getMapGraphNode();
-                    streetNode.buildRoad(message.getPlayerIndex());
-                    mapGraphNodeContainer.getCircle().setFill(determinePlayerColorByIndex(mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer()));
-                    break;
+        if (this.currentLobby != null) {
+            if (this.currentLobby.equals(message.getName())) {
+                if (message.getTypeOfNode().equals("BuildingNode")) {
+                    for (MapGraphNodeContainer mapGraphNodeContainer : mapGraphNodeContainers) {
+                        if (mapGraphNodeContainer.getMapGraphNode().getUuid().equals(message.getUuid())) {
+                            MapGraph.BuildingNode buildingNode = (MapGraph.BuildingNode) mapGraphNodeContainer.getMapGraphNode();
+                            buildingNode.buildOrDevelopSettlement(message.getPlayerIndex());
+                            mapGraphNodeContainer.getCircle().setFill(determinePlayerColorByIndex(mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer()));
+                            mapGraphNodeContainer.getCircle().setVisible(true);
+                            break;
+                        }
+                    }
+                } else {
+                    for (MapGraphNodeContainer mapGraphNodeContainer : mapGraphNodeContainers) {
+                        if (mapGraphNodeContainer.getMapGraphNode().getUuid().equals(message.getUuid())) {
+                            MapGraph.StreetNode streetNode = (MapGraph.StreetNode) mapGraphNodeContainer.getMapGraphNode();
+                            streetNode.buildRoad(message.getPlayerIndex());
+                            mapGraphNodeContainer.getCircle().setFill(determinePlayerColorByIndex(mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer()));
+                            mapGraphNodeContainer.getCircle().setVisible(true);
+                            break;
+                        }
+                    }
                 }
             }
         }
     }
 
+    /**
+     * The method called when a PrivateInventoryChangeMessage is received
+     *
+     * @param privateInventoryChangeMessage the PrivateInventoryChangeMessage received from the server
+     * @author Marc Hermes
+     * @since 2021-05-02
+     */
     @Subscribe
     public void onPrivateInventoryChangeMessage(PrivateInventoryChangeMessage privateInventoryChangeMessage) {
+        if (this.currentLobby != null) {
+            if (this.currentLobby.equals(privateInventoryChangeMessage.getName())) {
+                // TODO: dient nur zu Testzwecken, muss später richtig dargestellt werden
+                System.out.println("Lumber " + privateInventoryChangeMessage.getPrivateInventory().get("Lumber"));
+                System.out.println("Brick " + privateInventoryChangeMessage.getPrivateInventory().get("Brick"));
+                System.out.println("Ore " + privateInventoryChangeMessage.getPrivateInventory().get("Ore"));
+                System.out.println("Grain " + privateInventoryChangeMessage.getPrivateInventory().get("Grain"));
+                System.out.println("Wool " + privateInventoryChangeMessage.getPrivateInventory().get("Wool"));
+            }
+        }
         //TODO: Darstellung der Veränderung des Inventars
     }
 
@@ -905,6 +1360,100 @@ public class GamePresenter extends AbstractPresenter {
         //TODO: Darstellung der Veränderung des Inventars
     }
 
+    /**
+     * The method called when a ResolveDevelopmentCardNotSuccessfulResponse is received
+     * <p>
+     * The resolveDevelopmentCardAlert will be shown in which the error description is displayed.
+     *
+     * @param rdcns the ResolveDevelopmentCardNotSuccessfulResponse received from the server
+     * @author Marc Hermes
+     * @since 2021-05-02
+     */
+    @Subscribe
+    public void onResolveCardNotSuccessfulResponse(ResolveDevelopmentCardNotSuccessfulResponse rdcns) {
+        if (this.currentLobby != null) {
+            if (this.currentLobby.equals(rdcns.getGameName())) {
+                this.currentDevelopmentCard = rdcns.getDevCard();
+                Platform.runLater(() -> {
+                    this.resolveDevelopmentCardAlert.setTitle(currentDevelopmentCard + " in " + rdcns.getGameName());
+                    this.resolveDevelopmentCardAlert.setHeaderText(rdcns.getErrorDescription());
+                    this.resolveDevelopmentCardAlert.show();
+                });
+
+            }
+        }
+
+    }
+
+    /**
+     * The method called when a PlayDevelopmentCardResponse is received
+     * <p>
+     * Depending on which developmentCard is played the resolveDevelopmentCardAlert is shown.
+     * Also if the currently played DevelopmentCard is "Year of Plenty" or "Monopoly" the visibility of the rectangles with the pictures of the resources is set to "true".
+     * Furthermore the circles displaying the empty building spots are hidden.
+     *
+     * In case the developmentCard is "Road Building", the resourceRectangles are hidden and the empty street building will be shown on the game field.
+     *
+     * @param pdcr the PlayDevelopmentCardResponse received from the server
+     * @author Marc Hermes
+     * @since 2021-05-02
+     */
+    @Subscribe
+    public void onPlayDevelopmentCardResponse(PlayDevelopmentCardResponse pdcr) {
+        if (this.currentLobby != null) {
+            if (this.currentLobby.equals(pdcr.getGameName())) {
+                if (pdcr.isCanPlayCard()) {
+                    LOG.debug("The card " + pdcr.getDevCard() + " was played by the user " + pdcr.getUserName());
+                    this.currentDevelopmentCard = pdcr.getDevCard();
+                    Platform.runLater(() -> {
+                        this.resolveDevelopmentCardAlert.setTitle(currentDevelopmentCard + " in " + pdcr.getGameName());
+                        if (this.currentDevelopmentCard.equals("Year of Plenty") || this.currentDevelopmentCard.equals("Monopoly")) {
+                            this.resolveDevelopmentCardAlert.setHeaderText("Select Resource/s");
+                            for (Rectangle rect : resourceRectangles) {
+                                rect.setVisible(true);
+                            }
+                            for (MapGraphNodeContainer container : mapGraphNodeContainers) {
+                                if (container.getMapGraphNode().getOccupiedByPlayer() == 666) {
+                                    container.getCircle().setVisible(false);
+                                }
+                            }
+                        } else if (this.currentDevelopmentCard.equals("Road Building")) {
+                            for (MapGraphNodeContainer container : mapGraphNodeContainers) {
+                                if (container.getMapGraphNode().getOccupiedByPlayer() == 666) {
+                                    container.getCircle().setVisible(container.getMapGraphNode() instanceof MapGraph.StreetNode);
+                                }
+                            }
+                            this.resolveDevelopmentCardAlert.setHeaderText("Select 2 building spots for the streets");
+                            for (Rectangle rect : resourceRectangles) {
+                                rect.setVisible(false);
+                            }
+                        }
+                        this.resolveDevelopmentCardAlert.show();
+
+                    });
+
+                } else {
+                    LOG.debug("The user " + pdcr.getUserName() + " cannot play the card " + pdcr.getDevCard());
+                }
+            }
+        }
+    }
+
+    /**
+     * The method called when a ResolveDevelopmentCardMessage is received
+     *
+     * @param rdcm the ResolveDevelopmentCardMessage received from the server
+     * @author Marc Hermes
+     * @since 2021-05-02
+     */
+    @Subscribe
+    public void onResolveDevelopmentCardMessage(ResolveDevelopmentCardMessage rdcm) {
+        if (this.currentLobby != null) {
+            if (this.currentLobby.equals(rdcm.getName())) {
+                LOG.debug("The user " + rdcm.getUser().getUsername() + " successfully resolved the card " + rdcm.getDevCard());
+            }
+        }
+    }
 
     /**
      * shows an alert if the trade user has not enough in inventory

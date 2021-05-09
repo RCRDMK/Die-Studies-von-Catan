@@ -26,6 +26,9 @@
     -fx-text-fill: white;
 }
 
+/*Besides the "Siedler von Catan Logo" all images are from the royalty-free websides pexels.com and unsplash.com.
+For more information see https://www.pexels.com/license/ and https://unsplash.com/license.*/
+
 .login {/* Sets a new rule with the name login. When this rule is called the behaviour down below gets executed*/
     -fx-background-image: url("../textures/images/LoginBackground.jpg"), url("../textures/images/Siedler_von_Catan_Logo.jpg");
     -fx-background-size: cover, 45%; /* Sets the size for the images. Cover fills the entire screen*/
