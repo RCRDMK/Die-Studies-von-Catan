@@ -3,21 +3,17 @@ package de.uol.swp.client.game;
 
 import com.google.common.eventbus.EventBus;
 import com.google.inject.Inject;
-import de.uol.swp.common.game.request.ConstructionRequest;
-import de.uol.swp.common.game.message.ConstructionMessage;
 import de.uol.swp.common.game.message.DrawRandomResourceFromPlayerMessage;
 import de.uol.swp.common.game.message.RobbersNewFieldMessage;
 import de.uol.swp.common.game.message.TradeEndedMessage;
 import de.uol.swp.common.game.request.*;
 import de.uol.swp.common.game.trade.TradeItem;
-import de.uol.swp.common.message.MessageContext;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
-import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -178,6 +174,7 @@ public class GameService {
 
     /**
      * This method sends a RobbersNewFieldMessage to the server and updates the position of the robber.
+     *
      * @param game String of the gameName
      * @param user String of the userName that invoked the method.
      * @param uuid UUID of the hexagon, where the user wants to move the robber.
@@ -190,13 +187,14 @@ public class GameService {
 
     /**
      * This method will be invoked if the robber is moved to a field, where a user has occupied a buildingNode.
+     *
      * @param gameName String of the gameName
-     * @param user String of the userName that invoked the method.
-     * @param result String of the userName from that the card will be drawn.
+     * @param user     String of the userName that invoked the method.
+     * @param result   String of the userName from that the card will be drawn.
      * @author Marius Birk
      * @since 2021-04-24
      */
-    public void drawRandomCardFromPlayer(String gameName, User user, String result){
+    public void drawRandomCardFromPlayer(String gameName, User user, String result) {
         DrawRandomResourceFromPlayerMessage drawRandomResourceFromPlayerMessage = new DrawRandomResourceFromPlayerMessage(gameName, (UserDTO) user, result);
         eventBus.post(drawRandomResourceFromPlayerMessage);
     }

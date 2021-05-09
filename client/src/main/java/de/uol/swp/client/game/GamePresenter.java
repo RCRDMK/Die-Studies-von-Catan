@@ -23,6 +23,7 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
@@ -653,12 +654,29 @@ public class GamePresenter extends AbstractPresenter {
      * @since 2021-04-19
      */
     public void showRobberResourceMenu(TooMuchResourceCardsMessage tooMuchResourceCardsMessage) {
-        Alert tooMuchAlert = new Alert(Alert.AlertType.INFORMATION);
+        Dialog tooMuchAlert = new Dialog();
         tooMuchAlert.initStyle(StageStyle.UNDECORATED);
+
+        tooMuchAlert.setOnCloseRequest((EventHandler<DialogEvent>) dialogEvent -> {
+            if (Integer.parseInt(toDiscardLabel.getText()) == 0) {
+                HashMap<String, Integer> inventory = new HashMap();
+                inventory.put("Lumber", Integer.parseInt(lumberLabelRobberMenu.getText()));
+                inventory.put("Grain", Integer.parseInt(grainLabelRobberMenu.getText()));
+                inventory.put("Brick", Integer.parseInt(brickLabelRobberMenu.getText()));
+                inventory.put("Ore", Integer.parseInt(oreLabelRobberMenu.getText()));
+                inventory.put("Wool", Integer.parseInt(woolLabelRobberMenu.getText()));
+
+                ResourcesToDiscardRequest resourcesToDiscard = new ResourcesToDiscardRequest(tooMuchResourceCardsMessage.getName(), (UserDTO) tooMuchResourceCardsMessage.getUser(), inventory);
+                eventBus.post(resourcesToDiscard);
+            } else {
+                dialogEvent.consume();
+            }
+        });
 
         tooMuchAlert.setHeaderText("Choose the resources you want to discard!");
         tooMuchAlert.setTitle(tooMuchResourceCardsMessage.getName());
         toDiscardLabel.setText(Integer.toString(tooMuchResourceCardsMessage.getCards()));
+        tooMuchAlert.getDialogPane().getButtonTypes().add(new ButtonType("Send"));
         tooMuchAlert.getDialogPane().setContent(chooseResource);
 
         if (this.privateInventory.containsKey("Lumber")) {
@@ -725,19 +743,7 @@ public class GamePresenter extends AbstractPresenter {
         oreLabelRobberMenu.setText(Integer.toString(privateInventory.get("Ore")));
         woolLabelRobberMenu.setText(Integer.toString(privateInventory.get("Wool")));
 
-        tooMuchAlert.showAndWait();
-
-        if (tooMuchAlert.getResult().getText().equals("OK") && Integer.parseInt(toDiscardLabel.getText())==0) {
-            HashMap<String, Integer> inventory = new HashMap();
-            inventory.put("Lumber", Integer.parseInt(lumberLabelRobberMenu.getText()));
-            inventory.put("Grain", Integer.parseInt(grainLabelRobberMenu.getText()));
-            inventory.put("Brick", Integer.parseInt(brickLabelRobberMenu.getText()));
-            inventory.put("Ore", Integer.parseInt(oreLabelRobberMenu.getText()));
-            inventory.put("Wool", Integer.parseInt(woolLabelRobberMenu.getText()));
-
-            ResourcesToDiscardRequest resourcesToDiscard = new ResourcesToDiscardRequest(tooMuchResourceCardsMessage.getName(), (UserDTO) tooMuchResourceCardsMessage.getUser(), inventory);
-            eventBus.post(resourcesToDiscard);
-        }
+        tooMuchAlert.show();
     }
 
 
