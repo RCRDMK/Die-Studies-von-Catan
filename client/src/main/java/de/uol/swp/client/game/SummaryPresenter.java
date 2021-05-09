@@ -43,17 +43,19 @@ public class SummaryPresenter extends AbstractPresenter {
     private LobbyService lobbyService;
 
     @FXML
+    public TableView<GeneralTableStats> generalTableStats;
+    @FXML
+    public TableView<DetailedTableStats> detailedTableStats;
+    @FXML
     public Label winnerLabel;
     @FXML
     public ImageView winnerImage;
     @FXML
     public ImageView profileImage;
     @FXML
-    public TableView generalTableStats;
-    @FXML
-    public TableView detailedTableStats;
-    @FXML
-    public TableView ressourceTableStats;
+    public TableView<InventoryTableStats> ressourceTableStats;
+    private String gameName;
+    private int counter = 0;
 
     private User currentUser;
     private StatsDTO statsDTO;
@@ -86,7 +88,12 @@ public class SummaryPresenter extends AbstractPresenter {
      */
     @Subscribe
     public void onGameCreated(GameCreatedMessage gcm) {
-        this.currentUser = gcm.getUser();
+        if (currentUser == null) {
+            this.currentUser = gcm.getUser();
+        }
+        if (gameName == null) {
+            this.gameName = gcm.getName();
+        }
     }
 
     /**
@@ -102,8 +109,10 @@ public class SummaryPresenter extends AbstractPresenter {
      */
     @Subscribe
     public void onGameFinishedMessage(GameFinishedMessage message) {
-        this.statsDTO = message.getStatsDTO();
-        setStatistics();
+        if (this.gameName.equals(message.getStatsDTO().getGameName())) {
+            this.statsDTO = message.getStatsDTO();
+            setStatistics();
+        }
     }
 
     /**
@@ -126,14 +135,14 @@ public class SummaryPresenter extends AbstractPresenter {
                 this.winnerImage.toBack();
                 this.profileImage.setImage(new Image(profilePictureString));
                 this.profileImage.toFront();
-                winnerLabel.setText("Congratulations, you won!");
+                winnerLabel.setText("Congratulations, you won game " + gameName + "!");
                 winnerLabel.setTextFill(Color.LIGHTGREEN);
             } else {
                 this.winnerImage.setImage(new Image("/textures/summaryscreen/badge_loseScreenBg.png"));
                 this.winnerImage.toBack();
                 this.profileImage.setImage(new Image(profilePictureString));
                 this.profileImage.toFront();
-                winnerLabel.setText("Sorry, you lost! User " + statsDTO.getWinner() + " won!");
+                winnerLabel.setText("Sorry, you lost game " + gameName + " - User " + statsDTO.getWinner() + " won!");
                 winnerLabel.setTextFill(Color.ORANGERED);
             }
             initGeneralTable();
@@ -154,10 +163,10 @@ public class SummaryPresenter extends AbstractPresenter {
      */
     private void initGeneralTable() {
         // Init Table
-        TableColumn userColumn = new TableColumn("User - Stat");
+        TableColumn<GeneralTableStats, String> userColumn = new TableColumn<>("User - Stat");
         userColumn.setCellValueFactory(new PropertyValueFactory<>("user"));
         userColumn.setPrefWidth(200);
-        TableColumn achievementColumn = new TableColumn("Achievement");
+        TableColumn<GeneralTableStats, String> achievementColumn = new TableColumn<>("Achievement");
         achievementColumn.setPrefWidth(200);
         achievementColumn.setCellValueFactory(new PropertyValueFactory<>("achievement"));
         generalTableStats.getColumns().addAll(userColumn, achievementColumn);
@@ -202,16 +211,16 @@ public class SummaryPresenter extends AbstractPresenter {
      */
     private void initDetailedTable() {
         // Init Table
-        TableColumn userColumn = new TableColumn("User");
+        TableColumn<DetailedTableStats, String> userColumn = new TableColumn<>("User");
         userColumn.setCellValueFactory(new PropertyValueFactory<>("user"));
         userColumn.setPrefWidth(100);
-        TableColumn roadsColumn = new TableColumn("Roads");
+        TableColumn<DetailedTableStats, Integer> roadsColumn = new TableColumn<>("Roads");
         roadsColumn.setPrefWidth(100);
         roadsColumn.setCellValueFactory(new PropertyValueFactory<>("roads"));
-        TableColumn knightsColumn = new TableColumn("Played Knights");
+        TableColumn<DetailedTableStats, Integer> knightsColumn = new TableColumn<>("Played Knights");
         knightsColumn.setCellValueFactory(new PropertyValueFactory<>("knights"));
         knightsColumn.setPrefWidth(100);
-        TableColumn victoryPointsColumn = new TableColumn("VictoryPoints");
+        TableColumn<DetailedTableStats, Integer> victoryPointsColumn = new TableColumn<>("VictoryPoints");
         victoryPointsColumn.setCellValueFactory(new PropertyValueFactory<>("victoryPoints"));
         victoryPointsColumn.setPrefWidth(100);
         detailedTableStats.getColumns().addAll(userColumn, roadsColumn, knightsColumn, victoryPointsColumn);
@@ -243,24 +252,25 @@ public class SummaryPresenter extends AbstractPresenter {
      */
     private void initRessourceTable() {
         // Init Table
-        TableColumn userColumn = new TableColumn("User");
+        TableColumn<InventoryTableStats, String> userColumn = new TableColumn<>("User");
         userColumn.setCellValueFactory(new PropertyValueFactory<>("user"));
-        userColumn.setPrefWidth(100);
-        TableColumn lumberColumn = new TableColumn("Lumber");
-        lumberColumn.setPrefWidth(100);
+        userColumn.setPrefWidth(66);
+        TableColumn<InventoryTableStats, Integer> lumberColumn = new TableColumn<>("Lumber");
+        lumberColumn.setPrefWidth(66);
         lumberColumn.setCellValueFactory(new PropertyValueFactory<>("lumber"));
-        TableColumn brickColumn = new TableColumn("Brick");
+        TableColumn<InventoryTableStats, Integer> brickColumn = new TableColumn<>("Brick");
         brickColumn.setCellValueFactory(new PropertyValueFactory<>("brick"));
-        brickColumn.setPrefWidth(100);
-        TableColumn grainColumn = new TableColumn("Grain");
+        brickColumn.setPrefWidth(66);
+        TableColumn<InventoryTableStats, Integer> grainColumn = new TableColumn<>("Grain");
         grainColumn.setCellValueFactory(new PropertyValueFactory<>("grain"));
-        grainColumn.setPrefWidth(100);
-        TableColumn woolColumn = new TableColumn("Wool");
+        grainColumn.setPrefWidth(66);
+        TableColumn<InventoryTableStats, Integer> woolColumn = new TableColumn<>("Wool");
         woolColumn.setCellValueFactory(new PropertyValueFactory<>("wool"));
-        woolColumn.setPrefWidth(100);
-        TableColumn oreColumn = new TableColumn("Ore");
+        woolColumn.setPrefWidth(66);
+        TableColumn<InventoryTableStats, Integer> oreColumn = new TableColumn<>("Ore");
         oreColumn.setCellValueFactory(new PropertyValueFactory<>("ore"));
-        oreColumn.setPrefWidth(100);
+        oreColumn.setPrefWidth(66);
+        var columns = ressourceTableStats.getColumns();
         ressourceTableStats.getColumns().addAll(userColumn, lumberColumn, brickColumn, grainColumn, woolColumn, oreColumn);
 
         // Get all User Data from game to display it in the tableView

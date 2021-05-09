@@ -6,6 +6,7 @@ import com.google.common.eventbus.Subscribe;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import de.uol.swp.client.di.ClientModule;
+import de.uol.swp.client.game.event.SummaryConfirmedEvent;
 import de.uol.swp.client.user.ClientUserService;
 import de.uol.swp.common.game.message.*;
 import de.uol.swp.common.user.User;
@@ -560,15 +561,15 @@ public class ClientApp extends Application implements ConnectionListener {
      * If a SummaryConfirmedMessage is detected on the EventBus, this method gets
      * called. It removes the summaryTab and shows the MainTab.
      *
-     * @param message SummaryConfirmedMessage that contains the GameName and user
+     * @param event SummaryConfirmedEvent that contains the GameName and user
      * @author René Meyer, Sergej Tulnev
-     * @see SummaryConfirmedMessage
+     * @see de.uol.swp.client.game.event.SummaryConfirmedEvent
      * @since 2021-05-01
      */
     @Subscribe
-    public void onConfirmedSummaryMessage(SummaryConfirmedMessage message) {
-        var gameName = message.getGameName();
-        var user = message.getUser();
+    public void onConfirmedSummaryMessage(SummaryConfirmedEvent event) {
+        var gameName = event.getGameName();
+        var user = event.getUser();
         sceneManager.removeSummaryTab(gameName);
         sceneManager.showMainTab(user);
     }
