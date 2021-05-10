@@ -73,6 +73,7 @@ public abstract class AbstractAISystem implements AISystem {
         aiActions = new ArrayList<>();
     }
 
+    // https://www.journaldev.com/17129/java-deep-copy-object
     private static Object deepCopy(Object object) {
         try {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
