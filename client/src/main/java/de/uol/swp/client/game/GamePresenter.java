@@ -43,6 +43,7 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.Executors;
@@ -84,6 +85,11 @@ public class GamePresenter extends AbstractPresenter {
     private Button btnOkay;
 
     private ObservableList<String> gameUsers;
+
+    private ObservableList<String> publicInventory1;
+    private ObservableList<String> publicInventory2;
+    private ObservableList<String> publicInventory3;
+    private ObservableList<String> publicInventory4;
 
     private ArrayList<HexagonContainer> hexagonContainers = new ArrayList<>();
 
@@ -143,32 +149,41 @@ public class GamePresenter extends AbstractPresenter {
     private GridPane playerFourDiceView;
 
     @FXML
+    private ListView<String> publicInventory1View;
+    @FXML
+    private ListView<String> publicInventory2View;
+    @FXML
+    private ListView<String> publicInventory3View;
+    @FXML
+    private ListView<String> publicInventory4View;
+
+    @FXML
     private javafx.scene.image.ImageView privateLumber;
-    public Image lumber = new Image ("textures/resized/RES_Holz.png");
+    public Image lumber = new Image("textures/resized/RES_Holz.png");
     @FXML
     private javafx.scene.image.ImageView privateBrick;
-    public Image brick = new Image ("textures/resized/RES_Lehm.png");
+    public Image brick = new Image("textures/resized/RES_Lehm.png");
     @FXML
     private javafx.scene.image.ImageView privateGrain;
-    public Image grain = new Image ("textures/resized/RES_Getreide.png");
+    public Image grain = new Image("textures/resized/RES_Getreide.png");
     @FXML
     private javafx.scene.image.ImageView privateWool;
-    public Image wool = new Image ("textures/resized/RES_Wolle.png");
+    public Image wool = new Image("textures/resized/RES_Wolle.png");
     @FXML
     private javafx.scene.image.ImageView privateOre;
-    public Image ore = new Image ("textures/resized/RES_Erz.png");
+    public Image ore = new Image("textures/resized/RES_Erz.png");
     @FXML
     private javafx.scene.image.ImageView privateDevelopmentCard;
-    public Image devCard = new Image ("textures/resized/CARD_Ritter.png");
+    public Image devCard = new Image("textures/resized/CARD_Ritter.png");
     @FXML
     private javafx.scene.image.ImageView privateCities;
-    public Image cities = new Image ("textures/resized/RES_Holz.png");
+    public Image cities = new Image("textures/resized/RES_Holz.png");
     @FXML
     private javafx.scene.image.ImageView privateRoads;
-    public Image roads = new Image ("textures/resized/RES_Holz.png");
+    public Image roads = new Image("textures/resized/RES_Holz.png");
     @FXML
     private javafx.scene.image.ImageView privateSettlements;
-    public Image settlements = new Image ("textures/resized/RES_Holz.png");
+    public Image settlements = new Image("textures/resized/RES_Holz.png");
 
 
     final private ArrayList<ImagePattern> diceImages = new ArrayList<>();
@@ -441,7 +456,7 @@ public class GamePresenter extends AbstractPresenter {
      *
      * @param response //TODO JavaDoc
      * @author Pieter Vogt
-     *
+     * <p>
      * Enhanced by Carsten Dekker
      * @since 2021-04-30
      */
@@ -614,6 +629,68 @@ public class GamePresenter extends AbstractPresenter {
             }
             gameUsers.clear();
             l.forEach(u -> gameUsers.add(u.getUsername()));
+        });
+    }
+
+    private void updatePublicInventory(ArrayList<HashMap<String, Integer>> publicInventoryList) {
+        updatePublicInventoryLogic(publicInventoryList);
+    }
+
+    public void updatePublicInventoryLogic(ArrayList<HashMap<String, Integer>> p) {
+        // Attention: This must be done on the FX Thread!
+        Platform.runLater(() -> {
+            if (publicInventory1 == null) {
+                publicInventory1 = FXCollections.observableArrayList();
+                publicInventory1View.setItems(publicInventory1);
+            }
+            if (publicInventory2 == null) {
+                publicInventory2 = FXCollections.observableArrayList();
+                publicInventory2View.setItems(publicInventory2);
+            }
+            if (publicInventory3 == null) {
+                publicInventory3 = FXCollections.observableArrayList();
+                publicInventory3View.setItems(publicInventory3);
+            }
+            if (publicInventory4 == null) {
+                publicInventory4 = FXCollections.observableArrayList();
+                publicInventory4View.setItems(publicInventory4);
+            }
+            publicInventory1.clear();
+            publicInventory1.add(0, p.get(0).get("Resource").toString());
+            publicInventory1.add(0, p.get(0).get("Development Cards").toString());
+            publicInventory1.add(0, p.get(0).get("Played Knights").toString());
+            publicInventory1.add(0, p.get(0).get("Continuous Road").toString());
+            publicInventory1.add(0, p.get(0).get("Largest Army").toString());
+            publicInventory1.add(0, p.get(0).get("Longest Road").toString());
+            publicInventory1.add(0, p.get(0).get("PublicVictoryPoints").toString());
+            publicInventory1View.setCellFactory(x -> new PublicInventoryCell());
+            publicInventory2.clear();
+            publicInventory2.add(1, p.get(1).get("Resource").toString());
+            publicInventory2.add(1, p.get(1).get("Development Cards").toString());
+            publicInventory2.add(1, p.get(1).get("Played Knights").toString());
+            publicInventory2.add(1, p.get(1).get("Continuous Road").toString());
+            publicInventory2.add(1, p.get(1).get("Largest Army").toString());
+            publicInventory2.add(1, p.get(1).get("Longest Road").toString());
+            publicInventory2.add(1, p.get(1).get("PublicVictoryPoints").toString());
+            publicInventory2View.setCellFactory(x -> new PublicInventoryCell());
+            publicInventory3.clear();
+            publicInventory3.add(2, p.get(2).get("Resource").toString());
+            publicInventory3.add(2, p.get(2).get("Development Cards").toString());
+            publicInventory3.add(2, p.get(2).get("Played Knights").toString());
+            publicInventory3.add(2, p.get(2).get("Continuous Road").toString());
+            publicInventory3.add(2, p.get(2).get("Largest Army").toString());
+            publicInventory3.add(2, p.get(2).get("Longest Road").toString());
+            publicInventory3.add(2, p.get(2).get("PublicVictoryPoints").toString());
+            publicInventory3View.setCellFactory(x -> new PublicInventoryCell());
+            publicInventory4.clear();
+            publicInventory4.add(3, p.get(3).get("Resource").toString());
+            publicInventory4.add(3, p.get(3).get("Development Cards").toString());
+            publicInventory4.add(3, p.get(3).get("Played Knights").toString());
+            publicInventory4.add(3, p.get(3).get("Continuous Road").toString());
+            publicInventory4.add(3, p.get(3).get("Largest Army").toString());
+            publicInventory4.add(3, p.get(3).get("Longest Road").toString());
+            publicInventory4.add(3, p.get(3).get("PublicVictoryPoints").toString());
+            publicInventory4View.setCellFactory(x -> new PublicInventoryCell());
         });
     }
 
@@ -1044,16 +1121,16 @@ public class GamePresenter extends AbstractPresenter {
         executorService.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
-                    i[0]++;
-                    int randomNumber = randomInt(0, 5);
-                    rectangleDie1.setFill(diceImages.get(randomNumber));
-                    randomNumber = randomInt(0, 5);
-                    rectangleDie2.setFill(diceImages.get(randomNumber));
-                    if (i[0] == 12) {
-                        executorService.shutdown();
-                        rectangleDie1.setFill(diceImages.get(diceEyes1 - 1));
-                        rectangleDie2.setFill(diceImages.get(diceEyes2 - 1));
-                    }
+                i[0]++;
+                int randomNumber = randomInt(0, 5);
+                rectangleDie1.setFill(diceImages.get(randomNumber));
+                randomNumber = randomInt(0, 5);
+                rectangleDie2.setFill(diceImages.get(randomNumber));
+                if (i[0] == 12) {
+                    executorService.shutdown();
+                    rectangleDie1.setFill(diceImages.get(diceEyes1 - 1));
+                    rectangleDie2.setFill(diceImages.get(diceEyes2 - 1));
+                }
             }
         }, 0, 125, TimeUnit.MILLISECONDS);
     }
@@ -1101,12 +1178,21 @@ public class GamePresenter extends AbstractPresenter {
     }
 
     @Subscribe
-    public void onPrivateInventoryChangeMessage(PrivateInventoryChangeMessage privateInventoryChangeMessage) {
+    public void privateInventoryChanged(PrivateInventoryChangeMessage privateInventoryChangeMessage) {
+        privateInventoryChangedLogic(privateInventoryChangeMessage);
+    }
+
+    private void privateInventoryChangedLogic(PrivateInventoryChangeMessage picm) {
+        //
     }
 
     @Subscribe
-    public void onPublicInventoryChangeMessage(PublicInventoryChangeMessage publicInventoryChangeMessage) {
+    public void publicInventoryChanged(PublicInventoryChangeMessage publicInventoryChangeMessage) {
+        publicInventoryChangedLogic(publicInventoryChangeMessage);
+    }
 
+    private void publicInventoryChangedLogic(PublicInventoryChangeMessage puicm) {
+        //   updatePublicInventory(puicm);
     }
 
 
@@ -1130,7 +1216,7 @@ public class GamePresenter extends AbstractPresenter {
         }
     }
 
-    public void displayPrivateInventory (){
+    public void displayPrivateInventory() {
         privateLumber.setImage(lumber);
         privateBrick.setImage(brick);
         privateGrain.setImage(grain);
