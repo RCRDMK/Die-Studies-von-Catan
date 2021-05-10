@@ -303,7 +303,17 @@ public class GameService extends AbstractService {
                     if (game.isPresent()) {
                         MoveRobberMessage moveRobberMessage = new MoveRobberMessage(rollDiceRequest.getName(), (UserDTO) rollDiceRequest.getUser());
                         sendToSpecificUserInGame(gameManagement.getGame(rollDiceRequest.getName()), moveRobberMessage, rollDiceRequest.getUser());
-
+                        for (User user : game.get().getUsers()) {
+                            if (game.get().getInventory(user).getResource() >= 7) {
+                                if (game.get().getInventory(user).getResource() % 2 != 0) {
+                                    TooMuchResourceCardsMessage tooMuchResourceCardsMessage = new TooMuchResourceCardsMessage(game.get().getName(), (UserDTO) user, ((game.get().getInventory(user).getResource() - 1) / 2), game.get().getInventory(user).getPrivateView());
+                                    sendToSpecificUserInGame(game, tooMuchResourceCardsMessage, user);
+                                } else {
+                                    TooMuchResourceCardsMessage tooMuchResourceCardsMessage = new TooMuchResourceCardsMessage(game.get().getName(), (UserDTO) user, (game.get().getInventory(user).getResource() / 2), game.get().getInventory(user).getPrivateView());
+                                    sendToSpecificUserInGame(game, tooMuchResourceCardsMessage, user);
+                                }
+                            }
+                        }
                     }
                 } else {
                     distributeResources(addedEyes, rollDiceRequest.getName());
@@ -506,9 +516,9 @@ public class GameService extends AbstractService {
                     sendToAllInGame(robbersNewFieldMessage.getName(), new SuccessfullMovedRobberMessage(hexagon.getUuid()));
                 }
             }
+
             ChoosePlayerMessage choosePlayerMessage = new ChoosePlayerMessage(game.get().getName(), robbersNewFieldMessage.getUser(), userList);
             sendToSpecificUserInGame(game, choosePlayerMessage, robbersNewFieldMessage.getUser());
-
         }
     }
 
@@ -1216,17 +1226,6 @@ public class GameService extends AbstractService {
                 }
             });
             updateInventory(game);
-            for (User user : game.get().getUsers()) {
-                if (game.get().getInventory(user).getResource() >= 7) {
-                    if (game.get().getInventory(user).getResource() % 2 != 0) {
-                        TooMuchResourceCardsMessage tooMuchResourceCardsMessage = new TooMuchResourceCardsMessage(game.get().getName(), (UserDTO) user, ((game.get().getInventory(user).getResource() - 1) / 2), game.get().getInventory(user).getPrivateView());
-                        sendToSpecificUserInGame(game, tooMuchResourceCardsMessage, user);
-                    } else {
-                        TooMuchResourceCardsMessage tooMuchResourceCardsMessage = new TooMuchResourceCardsMessage(game.get().getName(), (UserDTO) user, (game.get().getInventory(user).getResource() / 2), game.get().getInventory(user).getPrivateView());
-                        sendToSpecificUserInGame(game, tooMuchResourceCardsMessage, user);
-                    }
-                }
-            }
         }
     }
 

@@ -30,8 +30,6 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
@@ -80,6 +78,8 @@ public class GamePresenter extends AbstractPresenter {
     public MenuButton buildMenu;
     @FXML
     public TextArea gameChatArea;
+
+    public Dialog tooMuchAlert;
 
     private User joinedLobbyUser;
 
@@ -208,13 +208,12 @@ public class GamePresenter extends AbstractPresenter {
      * If the send Message button is pressed, this methods tries to request the chatService to send a specified message.
      * The message is of type RequestChatMessage If this will result in an exception, go log the exception
      *
-     * @param event The ActionEvent created by pressing the send Message button
      * @author René, Sergej
      * @see de.uol.swp.client.chat.ChatService
      * @since 2021-03-08
      */
     @FXML
-    void onSendMessage(ActionEvent event) {
+    void onSendMessage() {
         try {
             var chatMessage = gameChatInput.getCharacters().toString();
             // ChatID = game_lobbyname so we have seperate lobby and game chat separated by id
@@ -657,118 +656,127 @@ public class GamePresenter extends AbstractPresenter {
      * @since 2021-04-19
      */
     public void showRobberResourceMenu(TooMuchResourceCardsMessage tooMuchResourceCardsMessage) {
-        Dialog tooMuchAlert = new Dialog();
-        tooMuchAlert.initStyle(StageStyle.UNDECORATED);
+        if (tooMuchAlert == null || !tooMuchAlert.isShowing()) {
+            tooMuchAlert = new Dialog();
+            tooMuchAlert.initStyle(StageStyle.UNDECORATED);
 
-        Rectangle2D center = Screen.getPrimary().getVisualBounds();
-        tooMuchAlert.setX(center.getWidth() / 4);
-        tooMuchAlert.setY(center.getHeight() / 3);
-        Platform.setImplicitExit(false);
+            Rectangle2D center = Screen.getPrimary().getVisualBounds();
+            tooMuchAlert.setX(center.getWidth() / 4);
+            tooMuchAlert.setY(center.getHeight() / 3);
+            Platform.setImplicitExit(false);
 
-        tooMuchAlert.setOnCloseRequest(windowEvent -> {
-            if (Integer.parseInt(toDiscardLabel.getText()) == 0) {
-                HashMap<String, Integer> inventory = new HashMap();
-                inventory.put("Lumber", Integer.parseInt(lumberLabelRobberMenu.getText()));
-                inventory.put("Grain", Integer.parseInt(grainLabelRobberMenu.getText()));
-                inventory.put("Brick", Integer.parseInt(brickLabelRobberMenu.getText()));
-                inventory.put("Ore", Integer.parseInt(oreLabelRobberMenu.getText()));
-                inventory.put("Wool", Integer.parseInt(woolLabelRobberMenu.getText()));
+            tooMuchAlert.setOnCloseRequest(windowEvent -> {
+                if (Integer.parseInt(toDiscardLabel.getText()) == 0) {
+                    HashMap<String, Integer> inventory = new HashMap();
+                    inventory.put("Lumber", Integer.parseInt(lumberLabelRobberMenu.getText()));
+                    inventory.put("Grain", Integer.parseInt(grainLabelRobberMenu.getText()));
+                    inventory.put("Brick", Integer.parseInt(brickLabelRobberMenu.getText()));
+                    inventory.put("Ore", Integer.parseInt(oreLabelRobberMenu.getText()));
+                    inventory.put("Wool", Integer.parseInt(woolLabelRobberMenu.getText()));
 
-                if (itsMyTurn == true) {
-                    tradeButton.setDisable(false);
-                    rollDice.setDisable(false);
-                    buildMenu.setDisable(false);
-                    buyDevCard.setDisable(false);
-                    EndTurnButton.setDisable(false);
+                    if (itsMyTurn == true) {
+                        tradeButton.setDisable(false);
+                        rollDice.setDisable(false);
+                        buildMenu.setDisable(false);
+                        buyDevCard.setDisable(false);
+                        EndTurnButton.setDisable(false);
+                    }
+
+                    ResourcesToDiscardRequest resourcesToDiscard = new ResourcesToDiscardRequest(tooMuchResourceCardsMessage.getName(), (UserDTO) tooMuchResourceCardsMessage.getUser(), inventory);
+                    eventBus.post(resourcesToDiscard);
+                } else {
+                    windowEvent.consume();
                 }
+            });
 
-                ResourcesToDiscardRequest resourcesToDiscard = new ResourcesToDiscardRequest(tooMuchResourceCardsMessage.getName(), (UserDTO) tooMuchResourceCardsMessage.getUser(), inventory);
-                eventBus.post(resourcesToDiscard);
-            } else {
-                windowEvent.consume();
+            tooMuchAlert.setHeaderText("Choose the resources you want to discard in the " + tooMuchResourceCardsMessage.getName() + " lobby!");
+            tooMuchAlert.setTitle(tooMuchResourceCardsMessage.getName());
+            toDiscardLabel.setText(Integer.toString(tooMuchResourceCardsMessage.getCards()));
+            tooMuchAlert.getDialogPane().getButtonTypes().add(new ButtonType("Send"));
+            tooMuchAlert.getDialogPane().setContent(chooseResource);
+
+            if (this.privateInventory.containsKey("Lumber")) {
+                this.privateInventory.remove("Lumber");
             }
-        });
-
-        tooMuchAlert.setHeaderText("Choose the resources you want to discard in the " + tooMuchResourceCardsMessage.getName() + " lobby!");
-        tooMuchAlert.setTitle(tooMuchResourceCardsMessage.getName());
-        toDiscardLabel.setText(Integer.toString(tooMuchResourceCardsMessage.getCards()));
-        tooMuchAlert.getDialogPane().getButtonTypes().add(new ButtonType("Send"));
-        tooMuchAlert.getDialogPane().setContent(chooseResource);
-
-        if (this.privateInventory.containsKey("Lumber")) {
-            this.privateInventory.remove("Lumber");
-        }
-        if (this.privateInventory.containsKey("Grain")) {
-            this.privateInventory.remove("Grain");
-        }
-        if (this.privateInventory.containsKey("Wool")) {
-            this.privateInventory.remove("Wool");
-        }
-        if (this.privateInventory.containsKey("Brick")) {
-            this.privateInventory.remove("Brick");
-        }
-        if (this.privateInventory.containsKey("Ore")) {
-            this.privateInventory.remove("Ore");
-        }
-        this.privateInventory.put("Lumber", tooMuchResourceCardsMessage.getInventory().get("Lumber"));
-        this.privateInventory.put("Grain", tooMuchResourceCardsMessage.getInventory().get("Grain"));
-        this.privateInventory.put("Wool", tooMuchResourceCardsMessage.getInventory().get("Wool"));
-        this.privateInventory.put("Brick", tooMuchResourceCardsMessage.getInventory().get("Brick"));
-        this.privateInventory.put("Ore", tooMuchResourceCardsMessage.getInventory().get("Ore"));
+            if (this.privateInventory.containsKey("Grain")) {
+                this.privateInventory.remove("Grain");
+            }
+            if (this.privateInventory.containsKey("Wool")) {
+                this.privateInventory.remove("Wool");
+            }
+            if (this.privateInventory.containsKey("Brick")) {
+                this.privateInventory.remove("Brick");
+            }
+            if (this.privateInventory.containsKey("Ore")) {
+                this.privateInventory.remove("Ore");
+            }
+            this.privateInventory.put("Lumber", tooMuchResourceCardsMessage.getInventory().get("Lumber"));
+            this.privateInventory.put("Grain", tooMuchResourceCardsMessage.getInventory().get("Grain"));
+            this.privateInventory.put("Wool", tooMuchResourceCardsMessage.getInventory().get("Wool"));
+            this.privateInventory.put("Brick", tooMuchResourceCardsMessage.getInventory().get("Brick"));
+            this.privateInventory.put("Ore", tooMuchResourceCardsMessage.getInventory().get("Ore"));
 
 
-        if (privateInventory.get("Lumber") != 0) {
-            choose[0].setDisable(false);
-            choose[5].setDisable(false);
+            if (privateInventory.get("Lumber") != 0) {
+                choose[0].setDisable(false);
+                choose[5].setDisable(false);
+            } else {
+                choose[0].setDisable(true);
+                choose[5].setDisable(true);
+            }
+            if (privateInventory.get("Grain") != 0) {
+                choose[1].setDisable(false);
+                choose[6].setDisable(false);
+            } else {
+                choose[1].setDisable(true);
+                choose[6].setDisable(true);
+            }
+            if (privateInventory.get("Wool") != 0) {
+                choose[2].setDisable(false);
+                choose[7].setDisable(false);
+            } else {
+                choose[2].setDisable(true);
+                choose[7].setDisable(true);
+            }
+            if (privateInventory.get("Brick") != 0) {
+                choose[3].setDisable(false);
+                choose[8].setDisable(false);
+            } else {
+                choose[3].setDisable(true);
+                choose[8].setDisable(true);
+            }
+            if (privateInventory.get("Ore") != 0) {
+                choose[4].setDisable(false);
+                choose[9].setDisable(false);
+            } else {
+                choose[4].setDisable(true);
+                choose[9].setDisable(true);
+            }
+
+            lumberLabelRobberMenu.setText(Integer.toString(privateInventory.get("Lumber")));
+            grainLabelRobberMenu.setText(Integer.toString(privateInventory.get("Grain")));
+            brickLabelRobberMenu.setText(Integer.toString(privateInventory.get("Brick")));
+            oreLabelRobberMenu.setText(Integer.toString(privateInventory.get("Ore")));
+            woolLabelRobberMenu.setText(Integer.toString(privateInventory.get("Wool")));
+
+            Window window = tooMuchAlert.getDialogPane().getScene().getWindow();
+            window.setOnCloseRequest(e -> e.consume());
+
+            tooMuchAlert.initModality(Modality.APPLICATION_MODAL);
+            tooMuchAlert.show();
+            tradeButton.setDisable(true);
+            rollDice.setDisable(true);
+            buildMenu.setDisable(true);
+            buyDevCard.setDisable(true);
+            EndTurnButton.setDisable(true);
         } else {
-            choose[0].setDisable(true);
-            choose[5].setDisable(true);
+            lumberLabelRobberMenu.setText(Integer.toString(privateInventory.get("Lumber")));
+            grainLabelRobberMenu.setText(Integer.toString(privateInventory.get("Grain")));
+            brickLabelRobberMenu.setText(Integer.toString(privateInventory.get("Brick")));
+            oreLabelRobberMenu.setText(Integer.toString(privateInventory.get("Ore")));
+            woolLabelRobberMenu.setText(Integer.toString(privateInventory.get("Wool")));
+            toDiscardLabel.setText(String.valueOf((tooMuchResourceCardsMessage.getCards())));
         }
-        if (privateInventory.get("Grain") != 0) {
-            choose[1].setDisable(false);
-            choose[6].setDisable(false);
-        } else {
-            choose[1].setDisable(true);
-            choose[6].setDisable(true);
-        }
-        if (privateInventory.get("Wool") != 0) {
-            choose[2].setDisable(false);
-            choose[7].setDisable(false);
-        } else {
-            choose[2].setDisable(true);
-            choose[7].setDisable(true);
-        }
-        if (privateInventory.get("Brick") != 0) {
-            choose[3].setDisable(false);
-            choose[8].setDisable(false);
-        } else {
-            choose[3].setDisable(true);
-            choose[8].setDisable(true);
-        }
-        if (privateInventory.get("Ore") != 0) {
-            choose[4].setDisable(false);
-            choose[9].setDisable(false);
-        } else {
-            choose[4].setDisable(true);
-            choose[9].setDisable(true);
-        }
-
-        lumberLabelRobberMenu.setText(Integer.toString(privateInventory.get("Lumber")));
-        grainLabelRobberMenu.setText(Integer.toString(privateInventory.get("Grain")));
-        brickLabelRobberMenu.setText(Integer.toString(privateInventory.get("Brick")));
-        oreLabelRobberMenu.setText(Integer.toString(privateInventory.get("Ore")));
-        woolLabelRobberMenu.setText(Integer.toString(privateInventory.get("Wool")));
-
-        Window window = tooMuchAlert.getDialogPane().getScene().getWindow();
-        window.setOnCloseRequest(e-> e.consume());
-
-        tooMuchAlert.initModality(Modality.APPLICATION_MODAL);
-        tooMuchAlert.show();
-        tradeButton.setDisable(true);
-        rollDice.setDisable(true);
-        buildMenu.setDisable(true);
-        buyDevCard.setDisable(true);
-        EndTurnButton.setDisable(true);
     }
 
 
@@ -1439,6 +1447,7 @@ public class GamePresenter extends AbstractPresenter {
                 chooseAlert.getButtonTypes().add(new ButtonType(choosePlayerMessage.getUserList().get(i)));
             }
         }
+
         chooseAlert.showAndWait();
         gameService.drawRandomCardFromPlayer(choosePlayerMessage.getName(), choosePlayerMessage.getUser(), chooseAlert.getResult().getText());
         chooseAlert.close();
@@ -1803,6 +1812,15 @@ public class GamePresenter extends AbstractPresenter {
     public void onPrivateInventoryChangeMessage(PrivateInventoryChangeMessage privateInventoryChangeMessage) {
         if (this.currentLobby != null) {
             if (this.currentLobby.equals(privateInventoryChangeMessage.getName())) {
+                if(tooMuchAlert.isShowing()){
+                    lumberLabelRobberMenu.setText(String.valueOf(privateInventoryChangeMessage.getPrivateInventory().get("Lumber")));
+                    grainLabelRobberMenu.setText(String.valueOf(privateInventoryChangeMessage.getPrivateInventory().get("Grain")));
+                    woolLabelRobberMenu.setText(String.valueOf(privateInventoryChangeMessage.getPrivateInventory().get("Wool")));
+                    brickLabelRobberMenu.setText(String.valueOf(privateInventoryChangeMessage.getPrivateInventory().get("Brick")));
+                    oreLabelRobberMenu.setText(String.valueOf(privateInventoryChangeMessage.getPrivateInventory().get("Ore")));
+                    int toDiscard = privateInventoryChangeMessage.getPrivateInventory().get("Lumber")+privateInventoryChangeMessage.getPrivateInventory().get("Grain")+privateInventoryChangeMessage.getPrivateInventory().get("Wool")+privateInventoryChangeMessage.getPrivateInventory().get("Brick")+privateInventoryChangeMessage.getPrivateInventory().get("Ore");
+                    toDiscardLabel.setText(String.valueOf(toDiscard));
+                }
                 // TODO: dient nur zu Testzwecken, muss später richtig dargestellt werden
                 System.out.println("Lumber " + privateInventoryChangeMessage.getPrivateInventory().get("Lumber"));
                 System.out.println("Brick " + privateInventoryChangeMessage.getPrivateInventory().get("Brick"));
