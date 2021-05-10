@@ -22,7 +22,7 @@
                 <Separator orientation="VERTICAL"/>
                 <Button fx:id="tradeButton" mnemonicParsing="false" onAction="#onTrade" text="Trade">
                 </Button>
-                <MenuButton layoutX="103.0" layoutY="11.0" mnemonicParsing="false" text="Build">
+                <MenuButton fx:id="buildMenu" layoutX="103.0" layoutY="11.0" mnemonicParsing="false" text="Build">
                     <items>
                         <MenuItem mnemonicParsing="false" onAction="#onBuildStreet" text="Street"/>
                         <MenuItem mnemonicParsing="false" onAction="#onBuildSettlement" text="Settlement"/>

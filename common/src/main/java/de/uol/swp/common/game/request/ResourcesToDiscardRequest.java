@@ -5,7 +5,7 @@ import de.uol.swp.common.user.UserDTO;
 
 import java.util.HashMap;
 
-public class ResourcesToDiscardRequest extends AbstractGameMessage {
+public class ResourcesToDiscardRequest extends AbstractGameRequest {
     private HashMap<String, Integer> inventory;
     public ResourcesToDiscardRequest(String name, UserDTO user, HashMap inventory) {
         super(name, user);

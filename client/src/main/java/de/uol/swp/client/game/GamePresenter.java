@@ -26,6 +26,7 @@ import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
@@ -44,7 +45,9 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import javafx.stage.Modality;
+import javafx.stage.Screen;
 import javafx.stage.StageStyle;
+import javafx.stage.Window;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -75,6 +78,8 @@ public class GamePresenter extends AbstractPresenter {
     @FXML
     public TextField gameChatInput;
 
+    @FXML
+    public MenuButton buildMenu;
     @FXML
     public TextArea gameChatArea;
 
@@ -520,8 +525,8 @@ public class GamePresenter extends AbstractPresenter {
         chooseResource.add(woolLabelRobberMenu, 2, 2);
         chooseResource.add(brickLabelRobberMenu, 3, 2);
         chooseResource.add(oreLabelRobberMenu, 4, 2);
-        chooseResource.add(new Label("Amount of Cards to discard:"), 0, 4);
-        chooseResource.add(toDiscardLabel, 1, 4);
+        chooseResource.add(new Label("Amount of Cards to discard:"), 0, 4, 3, 1);
+        chooseResource.add(toDiscardLabel, 3, 4);
 
         chooseResource.setVgap(40);
         chooseResource.setHgap(30);
@@ -657,6 +662,10 @@ public class GamePresenter extends AbstractPresenter {
         Dialog tooMuchAlert = new Dialog();
         tooMuchAlert.initStyle(StageStyle.UNDECORATED);
 
+        Rectangle2D center = Screen.getPrimary().getVisualBounds();
+        tooMuchAlert.setX(center.getWidth()/4);
+        tooMuchAlert.setY(center.getHeight()/3);
+
         tooMuchAlert.setOnCloseRequest((EventHandler<DialogEvent>) dialogEvent -> {
             if (Integer.parseInt(toDiscardLabel.getText()) == 0) {
                 HashMap<String, Integer> inventory = new HashMap();
@@ -666,6 +675,12 @@ public class GamePresenter extends AbstractPresenter {
                 inventory.put("Ore", Integer.parseInt(oreLabelRobberMenu.getText()));
                 inventory.put("Wool", Integer.parseInt(woolLabelRobberMenu.getText()));
 
+                tradeButton.setDisable(false);
+                rollDice.setDisable(false);
+                buildMenu.setDisable(false);
+                buyDevCard.setDisable(false);
+                EndTurnButton.setDisable(false);
+
                 ResourcesToDiscardRequest resourcesToDiscard = new ResourcesToDiscardRequest(tooMuchResourceCardsMessage.getName(), (UserDTO) tooMuchResourceCardsMessage.getUser(), inventory);
                 eventBus.post(resourcesToDiscard);
             } else {
@@ -673,7 +688,7 @@ public class GamePresenter extends AbstractPresenter {
             }
         });
 
-        tooMuchAlert.setHeaderText("Choose the resources you want to discard!");
+        tooMuchAlert.setHeaderText("Choose the resources you want to discard in the "+ tooMuchResourceCardsMessage.getName()+" lobby!");
         tooMuchAlert.setTitle(tooMuchResourceCardsMessage.getName());
         toDiscardLabel.setText(Integer.toString(tooMuchResourceCardsMessage.getCards()));
         tooMuchAlert.getDialogPane().getButtonTypes().add(new ButtonType("Send"));
@@ -743,7 +758,13 @@ public class GamePresenter extends AbstractPresenter {
         oreLabelRobberMenu.setText(Integer.toString(privateInventory.get("Ore")));
         woolLabelRobberMenu.setText(Integer.toString(privateInventory.get("Wool")));
 
+        tooMuchAlert.initModality(Modality.APPLICATION_MODAL);
         tooMuchAlert.show();
+        tradeButton.setDisable(true);
+        rollDice.setDisable(true);
+        buildMenu.setDisable(true);
+        buyDevCard.setDisable(true);
+        EndTurnButton.setDisable(true);
     }
 
 
@@ -1345,6 +1366,9 @@ public class GamePresenter extends AbstractPresenter {
                 Platform.runLater(() -> {
                     this.alert.setTitle(moveRobberMessage.getName());
                     this.alert.setHeaderText("Click on a field to move the Robber!");
+                    Rectangle2D center = Screen.getPrimary().getVisualBounds();
+                    this.alert.setX(center.getWidth()/4);
+                    this.alert.setY(center.getHeight()/5);
                     this.alert.show();
                 });
 

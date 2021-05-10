@@ -33,7 +33,6 @@ import de.uol.swp.server.usermanagement.AuthenticationService;
 import de.uol.swp.server.usermanagement.UserService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.checkerframework.checker.nullness.Opt;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -228,29 +227,31 @@ public class GameService extends AbstractService {
     /**
      * This method is invoked, when a ResourcesToDiscardRequest is posted on the eventbus.
      * <p>
-     *     If a ResourcesToDiscardRequest is posted on the eventbus this method is invoked. First it checks if the game is present
-     *     or not. After that it iterates over the list of users in the game to get the right one. If the method found the right user,
-     *     it sets the new inventory for the user. At the end we call the updateInventory method, to get the right inventory
-     *     back to the client.
+     * If a ResourcesToDiscardRequest is posted on the eventbus this method is invoked. First it checks if the game is present
+     * or not. After that it iterates over the list of users in the game to get the right one. If the method found the right user,
+     * it sets the new inventory for the user. At the end we call the updateInventory method, to get the right inventory
+     * back to the client.
+     *
      * @param resourcesToDiscardRequest request with a hashmap(inventory), the game name and the user, that send it.
      * @author Marius Birk
      * @since 2021-05-03
      */
     @Subscribe
-    public void onResourcesToDiscard(ResourcesToDiscardRequest resourcesToDiscardRequest){
+    public void onResourcesToDiscard(ResourcesToDiscardRequest resourcesToDiscardRequest) {
         //TODO Hier muss nach Implementierung der Bank nochmal etwas ergänzt werden.
         Optional<Game> game = gameManagement.getGame(resourcesToDiscardRequest.getName());
-        if(game.isPresent()){
-            for(User user: game.get().getUsers()){
-                if(user.equals(resourcesToDiscardRequest.getUser())){
-                    game.get().getInventory(user).lumber.decNumber(resourcesToDiscardRequest.getInventory().get("Lumber"));
-                    game.get().getInventory(user).grain.decNumber(resourcesToDiscardRequest.getInventory().get("Grain"));
-                    game.get().getInventory(user).wool.decNumber(resourcesToDiscardRequest.getInventory().get("Wool"));
-                    game.get().getInventory(user).brick.decNumber(resourcesToDiscardRequest.getInventory().get("Brick"));
-                    game.get().getInventory(user).ore.decNumber(resourcesToDiscardRequest.getInventory().get("Ore"));
+        if (game.isPresent()) {
+            for (User user : game.get().getUsers()) {
+                if (user.equals(resourcesToDiscardRequest.getUser())) {
+                    Inventory inventory = game.get().getInventory(user);
+                    inventory.lumber.decNumber(inventory.lumber.getNumber() - resourcesToDiscardRequest.getInventory().get("Lumber"));
+                    inventory.grain.decNumber(inventory.grain.getNumber() - resourcesToDiscardRequest.getInventory().get("Grain"));
+                    inventory.wool.decNumber(inventory.wool.getNumber() - resourcesToDiscardRequest.getInventory().get("Wool"));
+                    inventory.brick.decNumber(inventory.brick.getNumber() - resourcesToDiscardRequest.getInventory().get("Brick"));
+                    inventory.ore.decNumber(inventory.ore.getNumber() - resourcesToDiscardRequest.getInventory().get("Ore"));
                 }
             }
-            //updateInventory(game);
+            updateInventory(game);
         }
     }
 
@@ -403,7 +404,7 @@ public class GameService extends AbstractService {
             for (MapGraph.Hexagon hexagon : game.get().getMapGraph().getHexagonHashSet()) {
                 if (hexagon.getDiceToken() == eyes) {
                     for (MapGraph.BuildingNode buildingNode : hexagon.getBuildingNodes()) {
-                        if (buildingNode.getOccupiedByPlayer() != 666 && hexagon.isOccupiedByRobber()==false) {
+                        if (buildingNode.getOccupiedByPlayer() != 666 && hexagon.isOccupiedByRobber() == false) {
                             Inventory inventory = game.get().getInventory(game.get().getUser(buildingNode.getOccupiedByPlayer()));
                             //"Ocean" = 0; "Forest" = 1; "Farmland" = 2; "Grassland" = 3; "Hillside" = 4; "Mountain" = 5; "Desert" = 6;
                             switch (hexagon.getTerrainType()) {
@@ -479,12 +480,12 @@ public class GameService extends AbstractService {
     /**
      * This method is invoked if a RobbersNewFieldMessage is detected on the event bus.
      * <p>
-     *     First the method checks if the game is present or not. If it is present, a list of usernames is initialized.
-     *     After that, the method iterates over every hexagon in the MapGraph to detect the old place of the robber and to
-     *     set it on false. Now the method checks if the new fields UUID is the same as the UUID of the hexagon and set the
-     *     occupiedByRobber attribute on true. The new position is now send to all in the game.
-     *     Next, the method checks if the new places buildingspots are occupied by players and put their names in the freshly instantiated
-     *     list of usernames. If all buildingspots are checked, a ChoosePlayerMessage is send to the user who rolled a 7.
+     * First the method checks if the game is present or not. If it is present, a list of usernames is initialized.
+     * After that, the method iterates over every hexagon in the MapGraph to detect the old place of the robber and to
+     * set it on false. Now the method checks if the new fields UUID is the same as the UUID of the hexagon and set the
+     * occupiedByRobber attribute on true. The new position is now send to all in the game.
+     * Next, the method checks if the new places buildingspots are occupied by players and put their names in the freshly instantiated
+     * list of usernames. If all buildingspots are checked, a ChoosePlayerMessage is send to the user who rolled a 7.
      *
      * @param robbersNewFieldMessage The message, that will be send, if a user rolled a 7.
      * @autor Marius Birk
@@ -495,7 +496,7 @@ public class GameService extends AbstractService {
         Optional<Game> game = gameManagement.getGame(robbersNewFieldMessage.getName());
         if (game.isPresent()) {
             List<String> userList = new ArrayList<>();
-            if(!userList.isEmpty()){
+            if (!userList.isEmpty()) {
                 userList.removeAll(game.get().getUsersList());
             }
             //Indicate the old robbers place and "deactivate" the occupiedByRobber option.
@@ -506,8 +507,8 @@ public class GameService extends AbstractService {
                 if (hexagon.getUuid().equals(robbersNewFieldMessage.getNewField())) {
                     //If the UUIDs match, the new field is set to occupied
                     hexagon.setOccupiedByRobber(true);
-                    for(MapGraph.BuildingNode node: hexagon.getBuildingNodes()){
-                        if(node.getOccupiedByPlayer()!=666){
+                    for (MapGraph.BuildingNode node : hexagon.getBuildingNodes()) {
+                        if (node.getOccupiedByPlayer() != 666) {
                             if (!userList.contains(game.get().getUser(node.getOccupiedByPlayer()).getUsername()) && !robbersNewFieldMessage.getUser().getUsername().equals(game.get().getUser(node.getOccupiedByPlayer()).getUsername())) {
                                 userList.add(game.get().getUser(node.getOccupiedByPlayer()).getUsername());
                             }
@@ -521,6 +522,7 @@ public class GameService extends AbstractService {
 
         }
     }
+
     /**
      * Handles StartGameRequest found on the EventBus
      * <p>
@@ -1064,7 +1066,7 @@ public class GameService extends AbstractService {
     public void onTradeItemRequest(TradeItemRequest request) {
         System.out.println("Got message " + request.getUser().getUsername());
         Optional<Game> game = gameManagement.getGame(request.getName());
-     // TODO: Wird nur zum testen verwendet
+        // TODO: Wird nur zum testen verwendet
       /*  game.get().getInventory(request.getUser()).incCard("Lumber", 10);
         game.get().getInventory(request.getUser()).incCard("Ore", 10);
         game.get().getInventory(request.getUser()).incCard("Wool", 10);
@@ -1231,9 +1233,9 @@ public class GameService extends AbstractService {
     /**
      * The method chosses a random resource and returns it.
      * <p>
-     *   This method will be invoked, if the name of a random resource is needed. For that, it creates a List of resources
-     *   and initializes a random number between 1 and 5. To get now a random name of resource, we substrate 1 and
-     *   invoke the get() method of the List and return that value.
+     * This method will be invoked, if the name of a random resource is needed. For that, it creates a List of resources
+     * and initializes a random number between 1 and 5. To get now a random name of resource, we substrate 1 and
+     * invoke the get() method of the List and return that value.
      *
      * @return the name of a resource
      * @author Marius Birk
@@ -1247,7 +1249,7 @@ public class GameService extends AbstractService {
         resources.add("Grain");
         resources.add("Ore");
 
-        int random = (int) Math.floor(Math.random() * (4 - 0 +1)) + 0;
+        int random = (int) Math.floor(Math.random() * (4 - 0 + 1)) + 0;
         return resources.get(random);
     }
 }
