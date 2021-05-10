@@ -660,6 +660,17 @@ public class SceneManager {
         newGameTab(gamename);
     }
 
+    public void newGameRulesTab() {
+        Tab gameRulesTab = new Tab("GameRules ");
+        gameRulesTab.setContent(userGameRulesScene.getRoot());
+        gameRulesTab.setClosable(true);
+        Platform.runLater(() -> {
+            tabHelper.addTab(gameRulesTab);
+            tabHelper.getTabPane().getSelectionModel().select(gameRulesTab);
+        });
+
+    }
+
     /**
      * Creates a new game tab
      * <p>
