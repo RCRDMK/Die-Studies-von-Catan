@@ -35,6 +35,7 @@ public class GameDTO implements Game {
     private boolean countingUp = true;
     private boolean lastPlayerSecondTurn = false;
     private boolean playedCardThisTurn = false;
+    private int lastRolledDiceValue = 0;
     private final DevelopmentCardDeck developmentCardDeck = new DevelopmentCardDeck();
     private final ArrayList<MapGraph.BuildingNode> lastBuildingOfOpeningTurn = new ArrayList<>();
 
@@ -348,6 +349,16 @@ public class GameDTO implements Game {
     @Override
     public void setPlayedCardThisTurn(boolean value) {
         playedCardThisTurn = value;
+    }
+
+    @Override
+    public void setLastRolledDiceValue(int eyes) {
+        this.lastRolledDiceValue = eyes;
+    }
+
+    @Override
+    public int getLastRolledDiceValue() {
+        return lastRolledDiceValue;
     }
 
 }

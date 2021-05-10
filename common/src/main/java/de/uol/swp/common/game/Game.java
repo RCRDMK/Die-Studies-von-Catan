@@ -265,4 +265,8 @@ public interface Game extends Serializable {
      * @since 2021-05-03
      */
     void setPlayedCardThisTurn(boolean value);
+
+    void setLastRolledDiceValue(int eyes);
+
+    int getLastRolledDiceValue();
 }

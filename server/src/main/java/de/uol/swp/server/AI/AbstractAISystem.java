@@ -170,7 +170,7 @@ public abstract class AbstractAISystem implements AISystem {
     }
 
     @Override
-    public ArrayList<AIAction> startTurnAction(int eyes) {
+    public ArrayList<AIAction> startTurnAction() {
 
         return this.aiActions;
     }

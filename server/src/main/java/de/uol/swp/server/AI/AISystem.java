@@ -147,7 +147,7 @@ public interface AISystem {
      * @author Marc Hermes
      * @since 2021-05-08
      */
-    ArrayList<AIAction> startTurnAction(int eyes);
+    ArrayList<AIAction> startTurnAction();
 
     /**
      * Method used to continue the turn of the AI.

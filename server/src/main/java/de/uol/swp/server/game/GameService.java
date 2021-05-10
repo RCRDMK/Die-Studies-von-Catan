@@ -7,6 +7,7 @@ import com.google.inject.Singleton;
 import de.uol.swp.common.chat.ResponseChatMessage;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.MapGraph;
+import de.uol.swp.common.game.dto.GameDTO;
 import de.uol.swp.common.game.inventory.Inventory;
 import de.uol.swp.common.game.message.*;
 import de.uol.swp.common.game.request.*;
@@ -25,6 +26,7 @@ import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.user.request.LogoutRequest;
 import de.uol.swp.common.user.response.game.AllThisGameUsersResponse;
 import de.uol.swp.common.user.response.game.GameLeftSuccessfulResponse;
+import de.uol.swp.server.AI.RandomAI;
 import de.uol.swp.server.AbstractService;
 import de.uol.swp.server.game.dice.Dice;
 import de.uol.swp.server.lobby.LobbyManagementException;
@@ -262,16 +264,17 @@ public class GameService extends AbstractService {
             if (rollDiceRequest.getUser().equals(game.get().getUser(game.get().getTurn()))) {
                 Dice dice = new Dice();
                 dice.rollDice();
-                int addedEyes = dice.getDiceEyes1() + dice.getDiceEyes2();
                 // Check if cheatEyes number is provided in rollDiceRequest, if so -> set Eyes manually on dice
                 // for the roll cheat, else ignore and use rolledDice
                 if (rollDiceRequest.getCheatEyes() > 0) {
                     dice.setEyes(rollDiceRequest.getCheatEyes());
                 }
+                int addedEyes = dice.getDiceEyes1() + dice.getDiceEyes2();
                 if (addedEyes == 7) {
                     //TODO Hier müsste der Räuber aktiviert werden.
                 } else {
                     distributeResources(addedEyes, rollDiceRequest.getName());
+                    game.get().setLastRolledDiceValue(addedEyes);
                 }
                 try {
                     String chatMessage;
@@ -582,20 +585,34 @@ public class GameService extends AbstractService {
     @Subscribe
     public void onEndTurnRequest(EndTurnRequest request) {
         Optional<Game> game = gameManagement.getGame(request.getName());
-        if (request.getUser().getUsername().equals(game.get().getUser(game.get().getTurn()).getUsername()) && game.get().getCurrentCard().equals("")) {
-            try {
-                boolean priorGamePhase = game.get().isStartingTurns();
-                game.get().nextRound();
-                if (priorGamePhase == true && game.get().isStartingTurns() == false) {
-                    distributeResources(request.getName());
+        if (game.isPresent()) {
+            if (request.getUser().getUsername().equals(game.get().getUser(game.get().getTurn()).getUsername()) && game.get().getCurrentCard().equals("")) {
+                try {
+                    boolean priorGamePhase = game.get().isStartingTurns();
+                    game.get().nextRound();
+                    if (priorGamePhase == true && game.get().isStartingTurns() == false) {
+                        distributeResources(request.getName());
+                    }
+                    sendToAllInGame(game.get().getName(), new NextTurnMessage(game.get().getName(),
+                            game.get().getUser(game.get().getTurn()).getUsername(), game.get().getTurn(), game.get().isStartingTurns()));
+                    // Check if the size of actual players is smaller than the size of intended players, then activate AI
+                    if (game.get().getUsers().size() < game.get().getUsersList().size()) {
+                        RollDiceRequest rdr = new RollDiceRequest(game.get().getName(), game.get().getUser(game.get().getTurn()));
+                        onRollDiceRequest(rdr);
+                        useAI((GameDTO) game.get());
+                    }
+                } catch (GameManagementException e) {
+                    LOG.debug(e);
+                    System.out.println("Sender " + request.getUser().getUsername() + " was not player with current turn");
                 }
-                sendToAllInGame(game.get().getName(), new NextTurnMessage(game.get().getName(),
-                        game.get().getUser(game.get().getTurn()).getUsername(), game.get().getTurn(), game.get().isStartingTurns()));
-            } catch (GameManagementException e) {
-                LOG.debug(e);
-                System.out.println("Sender " + request.getUser().getUsername() + " was not player with current turn");
             }
         }
+    }
+
+    public void useAI(GameDTO game) {
+        RandomAI randomAI = new RandomAI(game);
+        randomAI.startTurnAction();
+
     }
 
     /**
@@ -975,7 +992,7 @@ public class GameService extends AbstractService {
     public void onTradeItemRequest(TradeItemRequest request) {
         System.out.println("Got message " + request.getUser().getUsername());
         Optional<Game> game = gameManagement.getGame(request.getName());
-     // TODO: Wird nur zum testen verwendet
+        // TODO: Wird nur zum testen verwendet
       /*  game.get().getInventory(request.getUser()).incCard("Lumber", 10);
         game.get().getInventory(request.getUser()).incCard("Ore", 10);
         game.get().getInventory(request.getUser()).incCard("Wool", 10);
