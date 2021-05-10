@@ -6,8 +6,10 @@ import de.uol.swp.client.AbstractPresenter;
 import de.uol.swp.client.account.UserSettingsService;
 import de.uol.swp.client.account.event.ShowUserSettingsViewEvent;
 import de.uol.swp.client.chat.ChatService;
+import de.uol.swp.client.game.GameRulesService;
 import de.uol.swp.client.lobby.LobbyCell;
 import de.uol.swp.client.lobby.LobbyService;
+import de.uol.swp.client.register.event.ShowGameRulesEvent;
 import de.uol.swp.common.chat.RequestChatMessage;
 import de.uol.swp.common.chat.ResponseChatMessage;
 import de.uol.swp.common.game.message.GameDroppedMessage;
@@ -36,7 +38,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import javafx.scene.image.Image;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -59,6 +60,8 @@ public class MainMenuPresenter extends AbstractPresenter {
     private static final Logger LOG = LogManager.getLogger(MainMenuPresenter.class);
 
     private static final ShowUserSettingsViewEvent showSetViewMessage = new ShowUserSettingsViewEvent();
+
+    private static final ShowGameRulesEvent showGameViewMessage = new ShowGameRulesEvent();
 
     private ObservableList<String> users;
 
@@ -89,6 +92,9 @@ public class MainMenuPresenter extends AbstractPresenter {
 
     @Inject
     private UserSettingsService userSettingsService;
+
+    @Inject
+    private GameRulesService gameRulesService;
 
     @FXML
     private ListView<String> usersView;
@@ -543,6 +549,13 @@ public class MainMenuPresenter extends AbstractPresenter {
         eventBus.post(showSetViewMessage);
         userSettingsService.retrieveUserMail(this.loggedInUser);
     }
+
+    @FXML
+    void onGameRulesPressed(ActionEvent event) {
+        eventBus.post(showGameViewMessage);
+
+    }
+
 
     /**
      * Method called when a GameDroppedMessage was posted on the eventBus.

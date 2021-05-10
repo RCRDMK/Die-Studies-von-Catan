@@ -7,12 +7,12 @@ import com.google.inject.Injector;
 import com.google.inject.assistedinject.Assisted;
 import de.uol.swp.client.account.UserSettingsPresenter;
 import de.uol.swp.client.account.event.LeaveUserSettingsEvent;
-import de.uol.swp.client.account.event.ChangeToCertainSizeEvent;
 import de.uol.swp.client.account.event.ShowUserSettingsViewEvent;
 import de.uol.swp.client.account.event.UserSettingsErrorEvent;
 import de.uol.swp.client.auth.LoginPresenter;
 import de.uol.swp.client.auth.events.ShowLoginViewEvent;
 import de.uol.swp.client.game.GamePresenter;
+import de.uol.swp.client.game.GameRulesPresenter;
 import de.uol.swp.client.game.TradePresenter;
 import de.uol.swp.client.lobby.LobbyPresenter;
 import de.uol.swp.client.main.MainMenuPresenter;
@@ -68,6 +68,7 @@ public class SceneManager {
     private TabPane tabPane = new TabPane();
     private TabHelper tabHelper;
     private Scene userSettingsScene;
+    private Scene userGameRulesScene;
 
 
     @Inject
@@ -96,6 +97,7 @@ public class SceneManager {
         initMainView();
         initRegistrationView();
         initUserSettingsView();
+        initGameRulesView();
         nextLobbyScene = initLobbyView();
         nextGameScene = initGameView();
         nextTradeScene = initTradeView();
@@ -292,6 +294,15 @@ public class SceneManager {
             userSettingsScene = new Scene(rootPane, 800, 500);
             userSettingsScene.getStylesheets().add(styleSheet);
             rootPane.getStyleClass().add("settings");
+        }
+    }
+
+    private void initGameRulesView() {
+        if (userGameRulesScene == null) {
+            Parent rootPane = initPresenter(GameRulesPresenter.fxml);
+            userGameRulesScene = new Scene(rootPane, 800, 500);
+            userGameRulesScene.getStylesheets().add(styleSheet);
+            rootPane.getStyleClass().add("Game Rules");
         }
     }
 
