@@ -664,4 +664,23 @@ public class GameServiceTest {
         assertEquals(street2.getOccupiedByPlayer(), 2);
 
     }
+
+    @Test
+    void AITest() {
+        loginUsers();
+        gameManagement.createGame("test", userDTO, "Standard");
+        Optional<Game> game = gameManagement.getGame("test");
+        assertTrue(game.isPresent());
+
+        game.get().joinUser(userDTO1);
+        game.get().joinUser(userDTO2);
+        game.get().joinUser(userDTO3);
+
+        game.get().setUpUserArrayList();
+        game.get().setUpInventories();
+
+        game.get().leaveUser(userDTO1);
+        EndTurnRequest etr = new EndTurnRequest(game.get().getName(), userDTO);
+        gameService.onEndTurnRequest(etr);
+    }
 }

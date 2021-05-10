@@ -1,12 +1,15 @@
 package de.uol.swp.common.game.inventory;
 
+import javax.naming.directory.SearchResult;
+import java.io.Serializable;
+
 /**
  * Class for the units in the game
  *
  * @author Anton Nikiforov
  * @since 2020-03-04
  */
-public class Unit {
+public class Unit implements Serializable {
 
     private int number;
 

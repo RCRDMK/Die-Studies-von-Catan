@@ -26,6 +26,7 @@ import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.user.request.LogoutRequest;
 import de.uol.swp.common.user.response.game.AllThisGameUsersResponse;
 import de.uol.swp.common.user.response.game.GameLeftSuccessfulResponse;
+import de.uol.swp.server.AI.AIToServerTranslator;
 import de.uol.swp.server.AI.RandomAI;
 import de.uol.swp.server.AbstractService;
 import de.uol.swp.server.game.dice.Dice;
@@ -596,7 +597,7 @@ public class GameService extends AbstractService {
                     sendToAllInGame(game.get().getName(), new NextTurnMessage(game.get().getName(),
                             game.get().getUser(game.get().getTurn()).getUsername(), game.get().getTurn(), game.get().isStartingTurns()));
                     // Check if the size of actual players is smaller than the size of intended players, then activate AI
-                    if (game.get().getUsers().size() < game.get().getUsersList().size()) {
+                    if (!game.get().getUsers().contains(game.get().getUser(game.get().getTurn()))) {
                         RollDiceRequest rdr = new RollDiceRequest(game.get().getName(), game.get().getUser(game.get().getTurn()));
                         onRollDiceRequest(rdr);
                         useAI((GameDTO) game.get());
@@ -611,8 +612,7 @@ public class GameService extends AbstractService {
 
     public void useAI(GameDTO game) {
         RandomAI randomAI = new RandomAI(game);
-        randomAI.startTurnAction();
-
+        AIToServerTranslator.translate(randomAI.startTurnAction(), this);
     }
 
     /**

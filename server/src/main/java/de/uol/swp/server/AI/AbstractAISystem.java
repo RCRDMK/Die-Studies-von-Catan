@@ -1,6 +1,9 @@
 package de.uol.swp.server.AI;
 
+import com.google.gson.ExclusionStrategy;
+import com.google.gson.FieldAttributes;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import de.uol.swp.common.game.MapGraph;
 import de.uol.swp.common.game.dto.GameDTO;
 import de.uol.swp.common.game.inventory.Inventory;
@@ -9,6 +12,10 @@ import de.uol.swp.common.game.trade.TradeItem;
 import de.uol.swp.common.user.User;
 import de.uol.swp.server.AI.AIActions.*;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.UUID;
 
@@ -40,11 +47,45 @@ public abstract class AbstractAISystem implements AISystem {
      * @since 2021-05-08
      */
     public AbstractAISystem(GameDTO thatGame) {
-        Gson gson = new Gson();
-        game = gson.fromJson(gson.toJson(thatGame), GameDTO.class);
+        /*Gson gson = new GsonBuilder()
+                .setExclusionStrategies(new ExclusionStrategy() {
+                    @Override
+                    public boolean shouldSkipField(FieldAttributes f) {
+                        if(f.getName().equals("uuid") ||
+                                f.getName().equals("positionToParent") ||
+                                f.getName().equals("occupiedByPlayer") ||
+                                f.getName().equals("parent") ||){
+                            return true;
+                        }
+                        return false;
+                    }
+
+                    @Override
+                    public boolean shouldSkipClass(Class<?> clazz) {
+                        return false;
+                    }
+                }).create();*/
+        //game = gson.fromJson(gson.toJson(thatGame), GameDTO.class);
+        game = (GameDTO) deepCopy(thatGame);
         inventory = game.getInventory(game.getUser(game.getTurn()));
         mapGraph = game.getMapGraph();
         user = game.getUser(game.getTurn());
+        aiActions = new ArrayList<>();
+    }
+
+    private static Object deepCopy(Object object) {
+        try {
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            ObjectOutputStream outputStrm = new ObjectOutputStream(outputStream);
+            outputStrm.writeObject(object);
+            ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
+            ObjectInputStream objInputStream = new ObjectInputStream(inputStream);
+            return objInputStream.readObject();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     public Inventory getInventory() {
@@ -159,7 +200,7 @@ public abstract class AbstractAISystem implements AISystem {
 
     @Override
     public void playDevelopmentCardYearOfPlenty(String resource1, String resource2) {
-        PlayDevelopmentCardYearOfPlentyAction pa = new PlayDevelopmentCardYearOfPlentyAction(user, game.getName(), "Year Of Plenty", resource1, resource2);
+        PlayDevelopmentCardYearOfPlentyAction pa = new PlayDevelopmentCardYearOfPlentyAction(user, game.getName(), "Year of Plenty", resource1, resource2);
         aiActions.add(pa);
     }
 
