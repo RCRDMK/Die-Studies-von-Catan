@@ -16,6 +16,8 @@ import de.uol.swp.client.game.GamePresenter;
 import de.uol.swp.client.game.TradePresenter;
 import de.uol.swp.client.lobby.LobbyPresenter;
 import de.uol.swp.client.main.MainMenuPresenter;
+import de.uol.swp.client.message.MuteMusicMessage;
+import de.uol.swp.client.message.UnmuteMusicMessage;
 import de.uol.swp.client.register.RegistrationPresenter;
 import de.uol.swp.client.register.event.RegistrationCanceledEvent;
 import de.uol.swp.client.register.event.RegistrationErrorEvent;
@@ -33,7 +35,9 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
+import java.io.File;
 import java.net.URL;
 
 /**
@@ -68,6 +72,7 @@ public class SceneManager {
     private TabPane tabPane = new TabPane();
     private TabHelper tabHelper;
     private Scene userSettingsScene;
+    private MediaPlayer player;
 
 
     @Inject
@@ -420,6 +425,29 @@ public class SceneManager {
     public void onUserSettingsErrorEvent(UserSettingsErrorEvent event) {
         showError(event.getMessage());
     }
+/**
+ * Pauses the background music when a MuteMusicMessage on the Eventbus is detected
+ *
+ * @param mmm The MuteMusicMessage on the Eventbus
+ * @author Ricardo Mook
+ * @since 2021-05-08
+ */
+    @Subscribe
+    public void onMuteMusicEvent(MuteMusicMessage mmm){
+        player.pause();
+    }
+
+    /**
+     * Continues the background music when a UnmuteMusicMessage on the Eventbus is detected
+     *
+     * @param umm The UnmuteMusicMessage on the Eventbus
+     * @author Ricardo Mook
+     * @since 2021-05-08
+     */
+    @Subscribe
+    public void onUnmuteMusicEvent(UnmuteMusicMessage umm){
+        player.play();
+    }
 
     /**
      * Shows an error message inside an error alert
@@ -467,6 +495,9 @@ public class SceneManager {
      * The current scene and title are saved in the lastScene and lastTitle variables,
      * before the new scene and title are set and shown.
      *
+     * enhanced by Ricardo Mook, 2021-05-04
+     * added the abilty to have background music playing
+     *
      * @param scene New scene to show
      * @param title New window title
      * @author Marco Grawunder
@@ -480,6 +511,14 @@ public class SceneManager {
             primaryStage.setTitle(title);
             primaryStage.setScene(scene);
             primaryStage.show();
+
+            //Royalty free music from Pixabay was used. For more information see https://pixabay.com/service/license/.
+            String musicFile = "client/src/main/resources/backgroundMusic/the-last-october-day-3915.mp3";
+            Media backgroundMusic = new Media(new File(musicFile).toURI().toString());
+            player = new MediaPlayer(backgroundMusic);
+            player.setCycleCount(MediaPlayer.INDEFINITE);//loops the musicFile indefinitely
+            player.play();
+
         });
     }
 
