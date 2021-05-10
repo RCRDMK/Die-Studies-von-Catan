@@ -23,7 +23,6 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
-import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Rectangle2D;
@@ -31,9 +30,8 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
-import javafx.scene.control.Button;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
@@ -663,10 +661,11 @@ public class GamePresenter extends AbstractPresenter {
         tooMuchAlert.initStyle(StageStyle.UNDECORATED);
 
         Rectangle2D center = Screen.getPrimary().getVisualBounds();
-        tooMuchAlert.setX(center.getWidth()/4);
-        tooMuchAlert.setY(center.getHeight()/3);
+        tooMuchAlert.setX(center.getWidth() / 4);
+        tooMuchAlert.setY(center.getHeight() / 3);
+        Platform.setImplicitExit(false);
 
-        tooMuchAlert.setOnCloseRequest((EventHandler<DialogEvent>) dialogEvent -> {
+        tooMuchAlert.setOnCloseRequest(windowEvent -> {
             if (Integer.parseInt(toDiscardLabel.getText()) == 0) {
                 HashMap<String, Integer> inventory = new HashMap();
                 inventory.put("Lumber", Integer.parseInt(lumberLabelRobberMenu.getText()));
@@ -675,20 +674,22 @@ public class GamePresenter extends AbstractPresenter {
                 inventory.put("Ore", Integer.parseInt(oreLabelRobberMenu.getText()));
                 inventory.put("Wool", Integer.parseInt(woolLabelRobberMenu.getText()));
 
-                tradeButton.setDisable(false);
-                rollDice.setDisable(false);
-                buildMenu.setDisable(false);
-                buyDevCard.setDisable(false);
-                EndTurnButton.setDisable(false);
+                if (itsMyTurn == true) {
+                    tradeButton.setDisable(false);
+                    rollDice.setDisable(false);
+                    buildMenu.setDisable(false);
+                    buyDevCard.setDisable(false);
+                    EndTurnButton.setDisable(false);
+                }
 
                 ResourcesToDiscardRequest resourcesToDiscard = new ResourcesToDiscardRequest(tooMuchResourceCardsMessage.getName(), (UserDTO) tooMuchResourceCardsMessage.getUser(), inventory);
                 eventBus.post(resourcesToDiscard);
             } else {
-                dialogEvent.consume();
+                windowEvent.consume();
             }
         });
 
-        tooMuchAlert.setHeaderText("Choose the resources you want to discard in the "+ tooMuchResourceCardsMessage.getName()+" lobby!");
+        tooMuchAlert.setHeaderText("Choose the resources you want to discard in the " + tooMuchResourceCardsMessage.getName() + " lobby!");
         tooMuchAlert.setTitle(tooMuchResourceCardsMessage.getName());
         toDiscardLabel.setText(Integer.toString(tooMuchResourceCardsMessage.getCards()));
         tooMuchAlert.getDialogPane().getButtonTypes().add(new ButtonType("Send"));
@@ -757,6 +758,9 @@ public class GamePresenter extends AbstractPresenter {
         brickLabelRobberMenu.setText(Integer.toString(privateInventory.get("Brick")));
         oreLabelRobberMenu.setText(Integer.toString(privateInventory.get("Ore")));
         woolLabelRobberMenu.setText(Integer.toString(privateInventory.get("Wool")));
+
+        Window window = tooMuchAlert.getDialogPane().getScene().getWindow();
+        window.setOnCloseRequest(e-> e.consume());
 
         tooMuchAlert.initModality(Modality.APPLICATION_MODAL);
         tooMuchAlert.show();
@@ -1211,7 +1215,7 @@ public class GamePresenter extends AbstractPresenter {
                                 selectedStreet2.setVisible(true);
                             } else {
                                 street2 = null;
-                                street1 =container.getMapGraphNode().getUuid();
+                                street1 = container.getMapGraphNode().getUuid();
                                 selectedStreet2.setVisible(false);
                                 selectedStreet1.setLayoutX(container.getCircle().getLayoutX());
                                 selectedStreet1.setLayoutY(container.getCircle().getLayoutY());
@@ -1367,8 +1371,8 @@ public class GamePresenter extends AbstractPresenter {
                     this.alert.setTitle(moveRobberMessage.getName());
                     this.alert.setHeaderText("Click on a field to move the Robber!");
                     Rectangle2D center = Screen.getPrimary().getVisualBounds();
-                    this.alert.setX(center.getWidth()/4);
-                    this.alert.setY(center.getHeight()/5);
+                    this.alert.setX(center.getWidth() / 4);
+                    this.alert.setY(center.getHeight() / 5);
                     this.alert.show();
                 });
 
@@ -1582,26 +1586,26 @@ public class GamePresenter extends AbstractPresenter {
         resolveButton.setOnAction(event -> {
             switch (this.currentDevelopmentCard) {
                 case "Year of Plenty":
-                        gameService.resolveDevelopmentCardYearOfPlenty((UserDTO) joinedLobbyUser.getWithoutPassword(), currentLobby, currentDevelopmentCard, resource1, resource2);
-                        resource1 = "";
-                        resource2 = "";
-                        selectedResource1.setVisible(false);
-                        selectedResource2.setVisible(false);
-                        currentDevelopmentCard = "";
+                    gameService.resolveDevelopmentCardYearOfPlenty((UserDTO) joinedLobbyUser.getWithoutPassword(), currentLobby, currentDevelopmentCard, resource1, resource2);
+                    resource1 = "";
+                    resource2 = "";
+                    selectedResource1.setVisible(false);
+                    selectedResource2.setVisible(false);
+                    currentDevelopmentCard = "";
                     break;
                 case "Monopoly":
-                        gameService.resolveDevelopmentCardMonopoly((UserDTO) joinedLobbyUser.getWithoutPassword(), currentLobby, currentDevelopmentCard, resource1);
-                        resource1 = "";
-                        selectedResource1.setVisible(false);
-                        currentDevelopmentCard = "";
+                    gameService.resolveDevelopmentCardMonopoly((UserDTO) joinedLobbyUser.getWithoutPassword(), currentLobby, currentDevelopmentCard, resource1);
+                    resource1 = "";
+                    selectedResource1.setVisible(false);
+                    currentDevelopmentCard = "";
                     break;
                 case "Road Building":
-                        gameService.resolveDevelopmentCardRoadBuilding((UserDTO) joinedLobbyUser.getWithoutPassword(), currentLobby, currentDevelopmentCard, street1, street2);
-                        street1 = null;
-                        street2 = null;
-                        selectedStreet1.setVisible(false);
-                        selectedStreet2.setVisible(false);
-                        currentDevelopmentCard = "";
+                    gameService.resolveDevelopmentCardRoadBuilding((UserDTO) joinedLobbyUser.getWithoutPassword(), currentLobby, currentDevelopmentCard, street1, street2);
+                    street1 = null;
+                    street2 = null;
+                    selectedStreet1.setVisible(false);
+                    selectedStreet2.setVisible(false);
+                    currentDevelopmentCard = "";
                     break;
                 case "Knight":
                     // TODO: implement knight functionality
@@ -1846,7 +1850,7 @@ public class GamePresenter extends AbstractPresenter {
      * Depending on which developmentCard is played the resolveDevelopmentCardAlert is shown.
      * Also if the currently played DevelopmentCard is "Year of Plenty" or "Monopoly" the visibility of the rectangles with the pictures of the resources is set to "true".
      * Furthermore the circles displaying the empty building spots are hidden.
-     *
+     * <p>
      * In case the developmentCard is "Road Building", the resourceRectangles are hidden and the empty street building will be shown on the game field.
      *
      * @param pdcr the PlayDevelopmentCardResponse received from the server

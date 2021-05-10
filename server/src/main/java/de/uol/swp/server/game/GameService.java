@@ -244,11 +244,11 @@ public class GameService extends AbstractService {
             for (User user : game.get().getUsers()) {
                 if (user.equals(resourcesToDiscardRequest.getUser())) {
                     Inventory inventory = game.get().getInventory(user);
-                    inventory.lumber.decNumber(inventory.lumber.getNumber() - resourcesToDiscardRequest.getInventory().get("Lumber"));
-                    inventory.grain.decNumber(inventory.grain.getNumber() - resourcesToDiscardRequest.getInventory().get("Grain"));
-                    inventory.wool.decNumber(inventory.wool.getNumber() - resourcesToDiscardRequest.getInventory().get("Wool"));
-                    inventory.brick.decNumber(inventory.brick.getNumber() - resourcesToDiscardRequest.getInventory().get("Brick"));
-                    inventory.ore.decNumber(inventory.ore.getNumber() - resourcesToDiscardRequest.getInventory().get("Ore"));
+                    inventory.lumber.decNumber(resourcesToDiscardRequest.getInventory().get("Lumber"));
+                    inventory.grain.decNumber(resourcesToDiscardRequest.getInventory().get("Grain"));
+                    inventory.wool.decNumber(resourcesToDiscardRequest.getInventory().get("Wool"));
+                    inventory.brick.decNumber(resourcesToDiscardRequest.getInventory().get("Brick"));
+                    inventory.ore.decNumber(resourcesToDiscardRequest.getInventory().get("Ore"));
                 }
             }
             updateInventory(game);
@@ -304,17 +304,6 @@ public class GameService extends AbstractService {
                         MoveRobberMessage moveRobberMessage = new MoveRobberMessage(rollDiceRequest.getName(), (UserDTO) rollDiceRequest.getUser());
                         sendToSpecificUserInGame(gameManagement.getGame(rollDiceRequest.getName()), moveRobberMessage, rollDiceRequest.getUser());
 
-                        for (User user : game.get().getUsers()) {
-                            if (game.get().getInventory(user).getResource() >= 7) {
-                                if (game.get().getInventory(user).getResource() % 2 != 0) {
-                                    TooMuchResourceCardsMessage tooMuchResourceCardsMessage = new TooMuchResourceCardsMessage(game.get().getName(), (UserDTO) user, ((game.get().getInventory(user).getResource() - 1) / 2), game.get().getInventory(user).getPrivateView());
-                                    sendToSpecificUserInGame(game, tooMuchResourceCardsMessage, user);
-                                } else {
-                                    TooMuchResourceCardsMessage tooMuchResourceCardsMessage = new TooMuchResourceCardsMessage(game.get().getName(), (UserDTO) user, (game.get().getInventory(user).getResource() / 2), game.get().getInventory(user).getPrivateView());
-                                    sendToSpecificUserInGame(game, tooMuchResourceCardsMessage, user);
-                                }
-                            }
-                        }
                     }
                 } else {
                     distributeResources(addedEyes, rollDiceRequest.getName());
@@ -1227,6 +1216,17 @@ public class GameService extends AbstractService {
                 }
             });
             updateInventory(game);
+            for (User user : game.get().getUsers()) {
+                if (game.get().getInventory(user).getResource() >= 7) {
+                    if (game.get().getInventory(user).getResource() % 2 != 0) {
+                        TooMuchResourceCardsMessage tooMuchResourceCardsMessage = new TooMuchResourceCardsMessage(game.get().getName(), (UserDTO) user, ((game.get().getInventory(user).getResource() - 1) / 2), game.get().getInventory(user).getPrivateView());
+                        sendToSpecificUserInGame(game, tooMuchResourceCardsMessage, user);
+                    } else {
+                        TooMuchResourceCardsMessage tooMuchResourceCardsMessage = new TooMuchResourceCardsMessage(game.get().getName(), (UserDTO) user, (game.get().getInventory(user).getResource() / 2), game.get().getInventory(user).getPrivateView());
+                        sendToSpecificUserInGame(game, tooMuchResourceCardsMessage, user);
+                    }
+                }
+            }
         }
     }
 

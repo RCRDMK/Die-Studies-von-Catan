@@ -29,6 +29,7 @@ import de.uol.swp.server.lobby.LobbyService;
 import de.uol.swp.server.usermanagement.AuthenticationService;
 import de.uol.swp.server.usermanagement.UserManagement;
 import de.uol.swp.server.usermanagement.UserService;
+import org.checkerframework.checker.nullness.Opt;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -677,6 +678,8 @@ public class GameServiceTest {
         Optional<Game> game = gameManagement.getGame("test");
         assertTrue(game.isPresent());
 
+        loginUsers();
+
         game.get().joinUser(userDTO1);
         game.get().joinUser(userDTO2);
         game.get().joinUser(userDTO3);
@@ -696,7 +699,9 @@ public class GameServiceTest {
         assertEquals(inventoryEmpty.get("Wool"), 0);
         assertEquals(inventoryEmpty.get("Ore"), 0);
 
-        gameService2.distributeResources(5, "test");
+        game.get().getInventory(userDTO1).lumber.setNumber(6);
+        game.get().getInventory(userDTO1).grain.setNumber(5);
+
         HashMap<String, Integer> inventoryChosen = new HashMap<>();
         inventoryChosen.put("Lumber", 3);
         inventoryChosen.put("Wool", 0);
@@ -706,10 +711,9 @@ public class GameServiceTest {
 
         ResourcesToDiscardRequest resources = new ResourcesToDiscardRequest("test", userDTO1, inventoryChosen);
         gameService2.onResourcesToDiscard(resources);
-        game = gameManagement.getGame("test");
 
         assertEquals(game.get().getInventory(userDTO1).lumber.getNumber(), 3);
-        assertEquals(game.get().getInventory(userDTO1).grain.getNumber(), 2);
+        assertEquals(game.get().getInventory(userDTO1).grain.getNumber(), 1);
 
 
     }
