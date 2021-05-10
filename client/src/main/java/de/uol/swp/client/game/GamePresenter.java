@@ -80,7 +80,6 @@ public class GamePresenter extends AbstractPresenter {
     private String currentLobby;
 
     private Alert alert;
-    private Alert resolveDevelopmentCardAlert;
 
     private ButtonType buttonTypeOkay;
 
@@ -104,6 +103,7 @@ public class GamePresenter extends AbstractPresenter {
     private Canvas canvas;
 
     // Used for the DevelopmentCard alerts and functionality
+    private Alert resolveDevelopmentCardAlert;
     private final ImagePattern brick = new ImagePattern(new Image("textures/resized/RES_Lehm.png"));
     private final ImagePattern ore = new ImagePattern(new Image("textures/resized/RES_Erz.png"));
     private final ImagePattern wool = new ImagePattern(new Image("textures/resized/RES_Wolle.png"));

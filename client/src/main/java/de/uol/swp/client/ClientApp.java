@@ -244,9 +244,9 @@ public class ClientApp extends Application implements ConnectionListener {
     /**
      * Handles successful start of a game
      * <p>
-     * If a StartGameResponse object is detected on the EventBus this
-     * method is called. It tells the SceneManager to show the lobby menu and suspend
-     * the corresponding LobbyTab. If the loglevel is set
+     * If a GameCreatedMessage object is detected on the EventBus this
+     * method is called. It tells the SceneManager to show the game menu and suspend
+     * the corresponding LobbyTab. Also a new summaryTab is created. If the loglevel is set
      * to DEBUG or higher "user joined lobby " is written to the log.
      * <p>
      * enhanced by Marc Hermes - 2021-03-15
@@ -261,6 +261,7 @@ public class ClientApp extends Application implements ConnectionListener {
         LOG.debug(" Started a game " + message.getName());
         sceneManager.showGameScreen(message.getName());
         sceneManager.suspendLobbyTab(message.getName());
+        sceneManager.createSummaryTab(message.getName());
     }
 
     /**
@@ -541,7 +542,7 @@ public class ClientApp extends Application implements ConnectionListener {
      * Handles GameFinishedMessage detected on the EventBus
      * <p>
      * If a GameFinishedMessage is detected on the EventBus, this method gets
-     * called. It calls a method to add a Summary tab and removes the gameTab
+     * called. It calls a method to show a Summary tab and removes the gameTab
      *
      * @param message ShowSummaryEvent that contains the GameName
      * @author René Meyer, Sergej Tulnev
@@ -552,7 +553,7 @@ public class ClientApp extends Application implements ConnectionListener {
     public void onFinishedGameMessage(GameFinishedMessage message) {
         var gameName = message.getStatsDTO().getGameName();
         sceneManager.removeGameTab(gameName);
-        sceneManager.showSummaryScreen(gameName);
+        sceneManager.showSummaryTab(gameName);
     }
 
     /**

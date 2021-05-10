@@ -53,9 +53,8 @@ public class SummaryPresenter extends AbstractPresenter {
     @FXML
     public ImageView profileImage;
     @FXML
-    public TableView<InventoryTableStats> ressourceTableStats;
+    public TableView<InventoryTableStats> resourceTableStats;
     private String gameName;
-    private int counter = 0;
 
     private User currentUser;
     private StatsDTO statsDTO;
@@ -77,9 +76,9 @@ public class SummaryPresenter extends AbstractPresenter {
     }
 
     /**
-     * Subscribe to GameCreatedMessage to get the actual current user
+     * Subscribe to GameCreatedMessage to get the actual current user and corresponding game
      * <p>
-     * This is needed so we have the currentUser in the SummaryPresenter
+     * This is needed so we have the currentUser and the gameName in the SummaryPresenter
      *
      * @param gcm GameCreatedMessage
      * @author René Meyer, Sergej Tulnev
@@ -88,10 +87,8 @@ public class SummaryPresenter extends AbstractPresenter {
      */
     @Subscribe
     public void onGameCreated(GameCreatedMessage gcm) {
-        if (currentUser == null) {
+        if (this.gameName == null) {
             this.currentUser = gcm.getUser();
-        }
-        if (gameName == null) {
             this.gameName = gcm.getName();
         }
     }
@@ -109,9 +106,11 @@ public class SummaryPresenter extends AbstractPresenter {
      */
     @Subscribe
     public void onGameFinishedMessage(GameFinishedMessage message) {
-        if (this.gameName.equals(message.getStatsDTO().getGameName())) {
-            this.statsDTO = message.getStatsDTO();
-            setStatistics();
+        if (this.gameName != null) {
+            if (this.gameName.equals(message.getStatsDTO().getGameName())) {
+                this.statsDTO = message.getStatsDTO();
+                setStatistics();
+            }
         }
     }
 
@@ -270,8 +269,8 @@ public class SummaryPresenter extends AbstractPresenter {
         TableColumn<InventoryTableStats, Integer> oreColumn = new TableColumn<>("Ore");
         oreColumn.setCellValueFactory(new PropertyValueFactory<>("ore"));
         oreColumn.setPrefWidth(66);
-        var columns = ressourceTableStats.getColumns();
-        ressourceTableStats.getColumns().addAll(userColumn, lumberColumn, brickColumn, grainColumn, woolColumn, oreColumn);
+        var columns = resourceTableStats.getColumns();
+        resourceTableStats.getColumns().addAll(userColumn, lumberColumn, brickColumn, grainColumn, woolColumn, oreColumn);
 
         // Get all User Data from game to display it in the tableView
         var inventories = statsDTO.getInventoryArrayList();
@@ -284,7 +283,7 @@ public class SummaryPresenter extends AbstractPresenter {
                 thisUser = inventory.getUser().getUsername();
             }
             var item = new InventoryTableStats(thisUser, inventory.lumber.getNumber(), inventory.brick.getNumber(), inventory.grain.getNumber(), inventory.wool.getNumber(), inventory.ore.getNumber());
-            ressourceTableStats.getItems().add(item);
+            resourceTableStats.getItems().add(item);
         });
     }
 }

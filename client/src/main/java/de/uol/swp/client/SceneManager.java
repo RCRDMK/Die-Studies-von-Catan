@@ -74,7 +74,7 @@ public class SceneManager {
     private Scene userSettingsScene;
     private MediaPlayer player;
     private Scene summaryScene;
-
+    private Scene nextSummaryScene;
 
 
     @Inject
@@ -103,7 +103,7 @@ public class SceneManager {
         initMainView();
         initRegistrationView();
         initUserSettingsView();
-        summaryScene = initSummaryView();
+        nextSummaryScene = initSummaryView();
         nextLobbyScene = initLobbyView();
         nextGameScene = initGameView();
         nextTradeScene = initTradeView();
@@ -591,6 +591,7 @@ public class SceneManager {
             primaryStage.setTitle("Catan");
             primaryStage.setScene(tabScene);
             primaryStage.show();
+            tabPane.getSelectionModel().select(tabHelper.getTabByText("Main Menu"));
         });
     }
 
@@ -630,7 +631,7 @@ public class SceneManager {
      * @author René Meyer, Sergej Tulnev
      * @since 2021-04-18
      */
-    public void showSummaryScreen(String gameName) {
+    public void createSummaryTab(String gameName) {
         newSummaryTab(gameName);
     }
 
@@ -795,13 +796,14 @@ public class SceneManager {
      */
     public void newSummaryTab(String gamename) {
         Tab summaryTab = new Tab("Summary of Game " + gamename);
-        summaryTab.setContent(summaryScene.getRoot());
+        summaryTab.setContent(nextSummaryScene.getRoot());
         summaryTab.setClosable(false);
         Platform.runLater(() -> {
             tabHelper.addTab(summaryTab);
             tabHelper.getTabPane().getSelectionModel().select(summaryTab);
         });
-        summaryScene = initSummaryView();
+        hideSummaryTab(gamename);
+        nextSummaryScene = initSummaryView();
     }
 
     /**
@@ -866,4 +868,32 @@ public class SceneManager {
             tabHelper.unsuspendTab("Lobby " + lobbyName);
         });
     }
+
+    /**
+     * Hides a summaryTab
+     *
+     * @param gameName the String name of the game
+     * @author Marc Hermes
+     * @since 2021-05-10
+     */
+    public void hideSummaryTab(String gameName) {
+        Platform.runLater(() -> {
+            tabHelper.suspendTab("Summary of Game " + gameName);
+        });
+    }
+
+    /**
+     * Shows a summaryTab
+     *
+     * @param gameName the String name of the game
+     * @author Marc Hermes
+     * @since 2021-05-10
+     */
+    public void showSummaryTab(String gameName) {
+        Platform.runLater(() -> {
+            tabHelper.unsuspendTab("Summary of Game " + gameName);
+            tabPane.getSelectionModel().select(tabHelper.getTabByText("Summary of Game " + gameName));
+        });
+    }
+
 }
