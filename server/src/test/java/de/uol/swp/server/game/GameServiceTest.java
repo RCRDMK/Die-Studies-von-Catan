@@ -717,8 +717,17 @@ public class GameServiceTest {
         assertEquals(userDTO2.getUsername(), ((NextTurnMessage) event).getPlayerWithCurrentTurn());
     }
 
+    /**
+     * This test checks if the AI is used when the player whose turn
+     * it is right now leaves the game.
+     *
+     * The AI will build a town and a street and then end his own turn.
+     *
+     * @author Marc Hermes
+     * @since 2021-05-11
+     */
     @Test
-    void replacePlayerDuringOwnTurn() {
+    void replacePlayerDuringOwnTurnAITest() {
         loginUsers();
         gameManagement.createGame("test", userDTO, "Standard");
         Optional<Game> game = gameManagement.getGame("test");
