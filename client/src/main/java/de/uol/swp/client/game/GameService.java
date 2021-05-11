@@ -3,6 +3,8 @@ package de.uol.swp.client.game;
 
 import com.google.common.eventbus.EventBus;
 import com.google.inject.Inject;
+import de.uol.swp.client.game.event.SummaryConfirmedEvent;
+import de.uol.swp.common.game.dto.StatsDTO;
 import de.uol.swp.common.game.message.DrawRandomResourceFromPlayerMessage;
 import de.uol.swp.common.game.message.RobbersNewFieldMessage;
 import de.uol.swp.common.game.message.TradeEndedMessage;
@@ -94,6 +96,21 @@ public class GameService {
     public void leaveGame(String game, User user) {
         GameLeaveUserRequest leaveRequest = new GameLeaveUserRequest(game, (UserDTO) user);
         eventBus.post(leaveRequest);
+    }
+
+    /**
+     * Return from Summary Screen to main Screen
+     * <p>
+     * Leaves the current game and posts a new SummaryConfirmedMessage on the eventbus
+     *
+     * @param statsDTO    needed for the gamename
+     * @param currentUser needed for the userobject
+     * @author René Meyer
+     * @since 2021-05-08
+     */
+    public void returnFromSummaryScreen(StatsDTO statsDTO, User currentUser) {
+        this.leaveGame(statsDTO.getGameName(), currentUser);
+        eventBus.post(new SummaryConfirmedEvent(statsDTO.getGameName(), currentUser));
     }
 
     /**

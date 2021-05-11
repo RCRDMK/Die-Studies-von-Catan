@@ -1,12 +1,14 @@
 package de.uol.swp.common.game.inventory;
 
+import java.io.Serializable;
+
 /**
  * Class for the cards in the game
  *
  * @author Anton Nikiforov
  * @since 2020-03-04
  */
-public class Card {
+public class Card implements Serializable {
 
     private int number = 0;
 

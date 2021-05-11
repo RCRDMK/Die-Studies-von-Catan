@@ -172,6 +172,36 @@ public class MapGraph implements Serializable {
 
                 middle.getHexTopLeft().getHexTopRight().configureTerrainTypeAndDiceToken(3, 3);
                 middle.getHexTopLeft().getHexTopLeft().configureTerrainTypeAndDiceToken(1, 6);
+
+                /*Setting Harbors
+                 0 = no harbor, 1 = 2:1 Sheep, 2 = 2:1 Clay, 3 = 2:1 Wood, 4 = 2:1 Grain, 5 = 2:1 Ore, 6 = 3:1 Any*/
+
+                middle.getHexLeft().getHexTopLeft().getBuildingTopLeft().setTypeOfHarbor(5);
+                middle.getHexLeft().getHexTopLeft().getBuildingBottomLeft().setTypeOfHarbor(5);
+
+                middle.getHexBottomLeft().getHexLeft().getBuildingTopLeft().setTypeOfHarbor(4);
+                middle.getHexBottomLeft().getHexLeft().getBuildingBottomLeft().setTypeOfHarbor(4);
+
+                middle.getHexBottomLeft().getHexBottomLeft().getBuildingBottomLeft().setTypeOfHarbor(6);
+                middle.getHexBottomLeft().getHexBottomLeft().getBuildingBottom().setTypeOfHarbor(6);
+
+                middle.getHexBottomRight().getHexBottomLeft().getBuildingBottom().setTypeOfHarbor(3);
+                middle.getHexBottomRight().getHexBottomLeft().getBuildingBottomRight().setTypeOfHarbor(3);
+
+                middle.getHexRight().getHexBottomRight().getBuildingBottom().setTypeOfHarbor(2);
+                middle.getHexRight().getHexBottomRight().getBuildingBottomRight().setTypeOfHarbor(2);
+
+                middle.getHexRight().getHexRight().getBuildingTopRight().setTypeOfHarbor(6);
+                middle.getHexRight().getHexRight().getBuildingBottomRight().setTypeOfHarbor(6);
+
+                middle.getHexRight().getHexTopRight().getBuildingTop().setTypeOfHarbor(6);
+                middle.getHexRight().getHexTopRight().getBuildingTopRight().setTypeOfHarbor(6);
+
+                middle.getHexTopRight().getHexTopLeft().getBuildingTop().setTypeOfHarbor(1);
+                middle.getHexTopRight().getHexTopLeft().getBuildingTopRight().setTypeOfHarbor(1);
+
+                middle.getHexTopLeft().getHexTopLeft().getBuildingTopLeft().setTypeOfHarbor(6);
+                middle.getHexTopLeft().getHexTopLeft().getBuildingTop().setTypeOfHarbor(6);
             }
         }
     }

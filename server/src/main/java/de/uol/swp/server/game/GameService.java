@@ -7,6 +7,7 @@ import com.google.inject.Singleton;
 import de.uol.swp.common.chat.ResponseChatMessage;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.MapGraph;
+import de.uol.swp.common.game.dto.StatsDTO;
 import de.uol.swp.common.game.inventory.Inventory;
 import de.uol.swp.common.game.message.*;
 import de.uol.swp.common.game.request.*;
@@ -664,9 +665,15 @@ public class GameService extends AbstractService {
      * current turn. If so, the method calls the nextRound method to increment the turncount. After that, the method
      * sends a NextTurnMessage to all participants of the current game, telling them in wich turn they are now, in wich
      * game and whos turn is up now.</p>
+     * Additionally the server here checks if a player has achieved the minimum 10 vitory points to trigger the summary screen
+     * <p>
+     * enhanced by René Meyer, Sergej Tulnev
      *
      * @param request Transports the games name and the senders UserDTO.
      * @author Pieter Vogt, Philip Nitsche
+     *
+     * @author Pieter Vogt
+     * @since 2021-04-18
      * @since 2021-03-26
      */
     @Subscribe
@@ -684,6 +691,23 @@ public class GameService extends AbstractService {
             } catch (GameManagementException e) {
                 LOG.debug(e);
                 System.out.println("Sender " + request.getUser().getUsername() + " was not player with current turn");
+            }
+        }
+
+        //@Todo: Check Victory Points, when user won redirect all to Summary Screen - Later trigger when inventory changes and not when user ends turn
+        if(game.isPresent()){
+            var user = request.getUser();
+            var inventory = game.get().getInventory(user);
+            // If user has 10 victory points, he wins and the Summary Screen gets shown for every user in the game.
+            if (inventory.getVictoryPoints() >= 10) {
+                //Retrieve all stats
+                //Retrieve inventories from all users
+                var inventories = game.get().getInventoriesArrayList();
+                //Create statsDTO object
+                var statsDTO = new StatsDTO(game.get().getName(), user.getUsername(), game.get().getTradeList().size(), game.get().getOverallTurns(), inventories);
+                //Send GameFinishedMessage to all users in game
+                sendToAllInGame(game.get().getName(), new GameFinishedMessage(statsDTO));
+                LOG.debug("User " + user.getUsername() + " has atleast 10 victory points and won.");
             }
         }
     }
