@@ -665,8 +665,17 @@ public class GameServiceTest {
 
     }
 
+    /**
+     * This test checks if the AI is used when the player whose turn
+     * it is right now is not in the game anymore.
+     *
+     * The AI will build a town and a street and then end his own turn.
+     *
+     * @author Marc Hermes
+     * @since 2021-05-11
+     */
     @Test
-    void AITest() {
+    void missingPlayerAITest() {
         loginUsers();
         gameManagement.createGame("test", userDTO, "Standard");
         Optional<Game> game = gameManagement.getGame("test");
@@ -679,8 +688,73 @@ public class GameServiceTest {
         game.get().setUpUserArrayList();
         game.get().setUpInventories();
 
-        game.get().leaveUser(userDTO1);
+        // Player 1 leaves the game
+        GameLeaveUserRequest glur = new GameLeaveUserRequest(game.get().getName(), userDTO1);
+        gameService.onGameLeaveUserRequest(glur);
+
+        // Player 0 ends his turn
         EndTurnRequest etr = new EndTurnRequest(game.get().getName(), userDTO);
         gameService.onEndTurnRequest(etr);
+
+        int buildingCounter = 0;
+        int streetCounter = 0;
+        for(MapGraph.BuildingNode bn : game.get().getMapGraph().getBuildingNodeHashSet()) {
+            if(bn.getOccupiedByPlayer() == 1) {
+                buildingCounter++;
+            }
+        }
+        for(MapGraph.StreetNode sn : game.get().getMapGraph().getStreetNodeHashSet()) {
+            if (sn.getOccupiedByPlayer() == 1) {
+                streetCounter++;
+            }
+        }
+        // Check if the AI built the building and street
+        assertEquals(buildingCounter, 1);
+        assertEquals(streetCounter, 1);
+
+        // Check if the turn started for the correct player (and thus the AI ended the turn)
+        assertTrue(event instanceof NextTurnMessage);
+        assertEquals(userDTO2.getUsername(), ((NextTurnMessage) event).getPlayerWithCurrentTurn());
     }
+
+    @Test
+    void replacePlayerDuringOwnTurn() {
+        loginUsers();
+        gameManagement.createGame("test", userDTO, "Standard");
+        Optional<Game> game = gameManagement.getGame("test");
+        assertTrue(game.isPresent());
+
+        game.get().joinUser(userDTO1);
+        game.get().joinUser(userDTO2);
+        game.get().joinUser(userDTO3);
+
+        game.get().setUpUserArrayList();
+        game.get().setUpInventories();
+
+        // Player 0 (the turn player) leaves the game
+        GameLeaveUserRequest glur = new GameLeaveUserRequest(game.get().getName(), userDTO);
+        gameService.onGameLeaveUserRequest(glur);
+
+        int buildingCounter = 0;
+        int streetCounter = 0;
+        for(MapGraph.BuildingNode bn : game.get().getMapGraph().getBuildingNodeHashSet()) {
+            if(bn.getOccupiedByPlayer() == 0) {
+                buildingCounter++;
+            }
+        }
+        for(MapGraph.StreetNode sn : game.get().getMapGraph().getStreetNodeHashSet()) {
+            if (sn.getOccupiedByPlayer() == 0) {
+                streetCounter++;
+            }
+        }
+        // Check if the AI built the building and street
+        assertEquals(buildingCounter, 1);
+        assertEquals(streetCounter, 1);
+
+        // Check if the turn started for the correct player (and thus the AI ended the turn)
+        assertTrue(event instanceof NextTurnMessage);
+        assertEquals(userDTO1.getUsername(), ((NextTurnMessage) event).getPlayerWithCurrentTurn());
+
+    }
+
 }
