@@ -304,17 +304,6 @@ public class GameService extends AbstractService {
                     if (game.isPresent()) {
                         MoveRobberMessage moveRobberMessage = new MoveRobberMessage(rollDiceRequest.getName(), (UserDTO) rollDiceRequest.getUser());
                         sendToSpecificUserInGame(gameManagement.getGame(rollDiceRequest.getName()), moveRobberMessage, rollDiceRequest.getUser());
-                        for (User user : game.get().getUsers()) {
-                            if (game.get().getInventory(user).getResource() >= 7) {
-                                if (game.get().getInventory(user).getResource() % 2 != 0) {
-                                    TooMuchResourceCardsMessage tooMuchResourceCardsMessage = new TooMuchResourceCardsMessage(game.get().getName(), (UserDTO) user, ((game.get().getInventory(user).getResource() - 1) / 2), game.get().getInventory(user).getPrivateView());
-                                    sendToSpecificUserInGame(game, tooMuchResourceCardsMessage, user);
-                                } else {
-                                    TooMuchResourceCardsMessage tooMuchResourceCardsMessage = new TooMuchResourceCardsMessage(game.get().getName(), (UserDTO) user, (game.get().getInventory(user).getResource() / 2), game.get().getInventory(user).getPrivateView());
-                                    sendToSpecificUserInGame(game, tooMuchResourceCardsMessage, user);
-                                }
-                            }
-                        }
                     }
                 } else {
                     distributeResources(addedEyes, rollDiceRequest.getName());
@@ -345,6 +334,7 @@ public class GameService extends AbstractService {
             }
         }
     }
+
 
     /**
      * Handles the distribution of resources to the users in the opening turn
@@ -671,7 +661,6 @@ public class GameService extends AbstractService {
      *
      * @param request Transports the games name and the senders UserDTO.
      * @author Pieter Vogt, Philip Nitsche
-     *
      * @author Pieter Vogt
      * @since 2021-04-18
      * @since 2021-03-26
@@ -695,7 +684,7 @@ public class GameService extends AbstractService {
         }
 
         //@Todo: Check Victory Points, when user won redirect all to Summary Screen - Later trigger when inventory changes and not when user ends turn
-        if(game.isPresent()){
+        if (game.isPresent()) {
             var user = request.getUser();
             var inventory = game.get().getInventory(user);
             // If user has 10 victory points, he wins and the Summary Screen gets shown for every user in the game.
@@ -1249,6 +1238,22 @@ public class GameService extends AbstractService {
                     game.get().getInventory(new UserDTO(drawRandomResourceFromPlayerMessage.getChosenName(), "", "")).decCard(random, 1);
                 }
             });
+
+            //Nach dem eine Karte gezogen wurde darf jeder mit mehr als 7 Resourcen die Hälfte ablegen
+
+            for (User user : game.get().getUsers()) {
+                if (game.get().getInventory(user).getResource() >=7) {
+                    if (game.get().getInventory(user).getResource() % 2 != 0) {
+                        TooMuchResourceCardsMessage tooMuchResourceCardsMessage = new TooMuchResourceCardsMessage(game.get().getName(), (UserDTO) user, ((game.get().getInventory(user).getResource() - 1) / 2), game.get().getInventory(user).getPrivateView());
+                        sendToSpecificUserInGame(game, tooMuchResourceCardsMessage, user);
+                    } else {
+                        TooMuchResourceCardsMessage tooMuchResourceCardsMessage = new TooMuchResourceCardsMessage(game.get().getName(), (UserDTO) user, (game.get().getInventory(user).getResource() / 2), game.get().getInventory(user).getPrivateView());
+                        sendToSpecificUserInGame(game, tooMuchResourceCardsMessage, user);
+                    }
+
+                }
+            }
+
             updateInventory(game);
         }
     }

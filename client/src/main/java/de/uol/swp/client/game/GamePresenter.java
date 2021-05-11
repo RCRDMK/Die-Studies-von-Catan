@@ -1812,13 +1812,21 @@ public class GamePresenter extends AbstractPresenter {
     public void onPrivateInventoryChangeMessage(PrivateInventoryChangeMessage privateInventoryChangeMessage) {
         if (this.currentLobby != null) {
             if (this.currentLobby.equals(privateInventoryChangeMessage.getName())) {
-                lumberLabelRobberMenu.setText(String.valueOf(privateInventoryChangeMessage.getPrivateInventory().get("Lumber")));
-                grainLabelRobberMenu.setText(String.valueOf(privateInventoryChangeMessage.getPrivateInventory().get("Grain")));
-                woolLabelRobberMenu.setText(String.valueOf(privateInventoryChangeMessage.getPrivateInventory().get("Wool")));
-                brickLabelRobberMenu.setText(String.valueOf(privateInventoryChangeMessage.getPrivateInventory().get("Brick")));
-                oreLabelRobberMenu.setText(String.valueOf(privateInventoryChangeMessage.getPrivateInventory().get("Ore")));
-                int toDiscard = privateInventoryChangeMessage.getPrivateInventory().get("Lumber") + privateInventoryChangeMessage.getPrivateInventory().get("Grain") + privateInventoryChangeMessage.getPrivateInventory().get("Wool") + privateInventoryChangeMessage.getPrivateInventory().get("Brick") + privateInventoryChangeMessage.getPrivateInventory().get("Ore");
-                toDiscardLabel.setText(String.valueOf(toDiscard));
+                if(tooMuchAlert != null){
+                    Platform.runLater(()->{
+                        lumberLabelRobberMenu.setText(String.valueOf(privateInventoryChangeMessage.getPrivateInventory().get("Lumber")));
+                        grainLabelRobberMenu.setText(String.valueOf(privateInventoryChangeMessage.getPrivateInventory().get("Grain")));
+                        woolLabelRobberMenu.setText(String.valueOf(privateInventoryChangeMessage.getPrivateInventory().get("Wool")));
+                        brickLabelRobberMenu.setText(String.valueOf(privateInventoryChangeMessage.getPrivateInventory().get("Brick")));
+                        oreLabelRobberMenu.setText(String.valueOf(privateInventoryChangeMessage.getPrivateInventory().get("Ore")));
+                        int toDiscard = Integer.parseInt(lumberLabelRobberMenu.getText()) + Integer.parseInt(grainLabelRobberMenu.getText()) + Integer.parseInt(woolLabelRobberMenu.getText()) + Integer.parseInt(brickLabelRobberMenu.getText()) + Integer.parseInt(oreLabelRobberMenu.getText());
+                        if(toDiscard%2==0){
+                            toDiscardLabel.setText(String.valueOf(toDiscard/2));
+                        }else{
+                            toDiscardLabel.setText(String.valueOf((toDiscard-1)/2));
+                        }
+                    });
+                }
 
                 // TODO: dient nur zu Testzwecken, muss später richtig dargestellt werden
                 System.out.println("Lumber " + privateInventoryChangeMessage.getPrivateInventory().get("Lumber"));
