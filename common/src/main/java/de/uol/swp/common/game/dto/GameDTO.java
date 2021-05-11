@@ -235,7 +235,7 @@ public class GameDTO implements Game {
      * <p>
      * It gives the inventory 1-4 a User from the userArrayList if
      * its not empty and the user exists in the ArrayList.
-     * Then its creates the Bank and loads them with resources
+     * Then it creates the Bank and loads them with resources
      *
      * @author Anton Nikiforov
      * @since 2021-04-01

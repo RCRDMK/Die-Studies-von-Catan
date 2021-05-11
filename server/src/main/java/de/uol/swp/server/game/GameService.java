@@ -183,6 +183,28 @@ public class GameService extends AbstractService {
         return false;
     }
 
+    /**
+     * Prepares a given ServerMessage to be send to all players in the lobby and posts it on the EventBus
+     * <p>
+     *
+     * @param lobbyName Name of the lobby the players are in
+     * @param message   the message to be send to the users
+     *
+     * @author Marco Grawunder
+     * @see de.uol.swp.common.message.ServerMessage
+     * @since 2019-10-08
+     */
+    public void sendToAllInLobby(String lobbyName, ServerMessage message) {
+        Optional<Lobby> lobby = lobbyService.getLobby(lobbyName);
+
+        if (lobby.isPresent()) {
+            message.setReceiver(authenticationService.getSessions(lobby.get().getUsers()));
+            post(message);
+        } else {
+            throw new LobbyManagementException("Lobby unknown!");
+        }
+    }
+
     public void sendToAllInGame(String gameName, ServerMessage message) {
         Optional<Game> game = gameManagement.getGame(gameName);
 
@@ -458,26 +480,6 @@ public class GameService extends AbstractService {
                 ResponseChatMessage msg = new ResponseChatMessage(chatMessage, chatId, "Bank", System.currentTimeMillis());
                 post(msg);
             }
-        }
-    }
-
-    /**
-     * Prepares a given ServerMessage to be send to all players in the lobby and posts it on the EventBus
-     * <p>
-     *
-     * @param lobbyName Name of the lobby the players are in
-     * @param message   the message to be send to the users
-     * @author Marco Grawunder
-     * @see de.uol.swp.common.message.ServerMessage
-     * @since 2019-10-08
-     */
-    public void sendToAllInLobby(String lobbyName, ServerMessage message) {
-        Optional<Lobby> lobby = lobbyService.getLobby(lobbyName);
-        if (lobby.isPresent()) {
-            message.setReceiver(authenticationService.getSessions(lobby.get().getUsers()));
-            post(message);
-        } else {
-            throw new LobbyManagementException("Lobby unknown!");
         }
     }
 
@@ -805,6 +807,7 @@ public class GameService extends AbstractService {
      * if the DevelopmentCard that is currently being played equals the one in this request,
      * then try to resolve the DevelopmentCard accordingly and inform players of this game that the
      * resolution was successful. If something went wrong, inform the turnPlayer so that he may try again.
+     * enhanced by Anton Nikiforov "Year of Plenty" bank 2021-05-11
      *
      * @param request the ResolveDevelopmentCardRequest sent from the client
      * @author Marc Hermes
@@ -901,15 +904,16 @@ public class GameService extends AbstractService {
                         break;
 
                     case "Year of Plenty":
-                        // TODO: implement bank resources and "not successful" functionality i.e. when the bank doesnt have enough resources
                         if (request instanceof ResolveDevelopmentCardYearOfPlentyRequest) {
                             ResolveDevelopmentCardYearOfPlentyRequest yearOfPlentyRequest = (ResolveDevelopmentCardYearOfPlentyRequest) request;
-
-                            boolean successful1 = turnPlayerInventory.incCard(yearOfPlentyRequest.getResource1(), 1);
-                            boolean successful2 = turnPlayerInventory.incCard(yearOfPlentyRequest.getResource2(), 1);
+                            Inventory bank = game.get().getBankInventory();
+                            boolean successful1 = bank.getNumberFromCard(yearOfPlentyRequest.getResource1()) >= 1;
+                            giveResource(game, turnPlayer, yearOfPlentyRequest.getResource1(), 1);
+                            boolean successful2 = bank.getNumberFromCard(yearOfPlentyRequest.getResource1()) >= 1;
+                            giveResource(game, turnPlayer, yearOfPlentyRequest.getResource2(), 1);
                             if (!(successful1 && successful2)) {
-                                turnPlayerInventory.decCard(yearOfPlentyRequest.getResource1(), 1);
-                                turnPlayerInventory.decCard(yearOfPlentyRequest.getResource2(), 1);
+                                if (successful1) takeResource(game, turnPlayer, yearOfPlentyRequest.getResource1(), 1);
+                                if (successful2) takeResource(game, turnPlayer, yearOfPlentyRequest.getResource2(), 1);
                                 notSuccessfulResponse.initWithMessage(request);
                                 notSuccessfulResponse.setErrorDescription("Please select 2 valid resources");
                                 post(notSuccessfulResponse);
