@@ -21,7 +21,7 @@ public class AIToServerTranslator {
      * Depending on the class of the aiAction different messages and requests will be created.
      * These messages will then be used as parameters for the corresponding gameService method calls.
      *
-     * @param aiActions the ArrayList of AIActions the AI wants to do
+     * @param aiActions   the ArrayList of AIActions the AI wants to do
      * @param gameService the GameService of the Server
      * @author Marc Hermes
      * @since 2021-05-11

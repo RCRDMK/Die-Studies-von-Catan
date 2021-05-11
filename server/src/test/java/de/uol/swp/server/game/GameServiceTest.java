@@ -11,14 +11,10 @@ import de.uol.swp.common.game.message.*;
 import de.uol.swp.common.game.MapGraph;
 import de.uol.swp.common.game.request.*;
 import de.uol.swp.common.game.response.PlayDevelopmentCardResponse;
-import de.uol.swp.common.game.response.ResolveDevelopmentCardNotSuccessfulResponse;
 import de.uol.swp.common.game.trade.TradeItem;
-import de.uol.swp.common.lobby.Lobby;
-import de.uol.swp.common.user.Session;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.user.request.LoginRequest;
-import de.uol.swp.common.user.request.LogoutRequest;
 import de.uol.swp.server.lobby.LobbyManagement;
 import de.uol.swp.server.lobby.LobbyService;
 import de.uol.swp.server.usermanagement.AuthenticationService;
@@ -503,7 +499,6 @@ public class GameServiceTest {
     }
 
 
-
     /**
      * This test checks if the distributeResource method works as intendet.
      * <p>
@@ -595,7 +590,7 @@ public class GameServiceTest {
         inv2.incCard("Brick", 2);
 
         // Check if player 1 is allowed to play his decCard
-        PlayDevelopmentCardRequest pdcr = new PlayDevelopmentCardRequest("Year of Plenty","test", (UserDTO) userThatPlaysTheCard);
+        PlayDevelopmentCardRequest pdcr = new PlayDevelopmentCardRequest("Year of Plenty", "test", (UserDTO) userThatPlaysTheCard);
         gameService.onPlayDevelopmentCardRequest(pdcr);
         assertTrue(event instanceof PlayDevelopmentCardResponse);
         assertTrue(((PlayDevelopmentCardResponse) event).isCanPlayCard());
@@ -613,12 +608,12 @@ public class GameServiceTest {
         MapGraph.StreetNode street1 = null;
         MapGraph.StreetNode street2 = null;
         for (MapGraph.StreetNode street : game.get().getMapGraph().getStreetNodeHashSet()) {
-            if(i==0) street1 = street;
-            if(i==1) street2 = street;
+            if (i == 0) street1 = street;
+            if (i == 1) street2 = street;
             else i++;
-            if(i==2) break;
+            if (i == 2) break;
         }
-        ResolveDevelopmentCardRoadBuildingRequest rdcrbr = new ResolveDevelopmentCardRoadBuildingRequest("Road Building", (UserDTO) userThatPlaysTheCard, game.get().getName(),street1.getUuid(), street2.getUuid());
+        ResolveDevelopmentCardRoadBuildingRequest rdcrbr = new ResolveDevelopmentCardRoadBuildingRequest("Road Building", (UserDTO) userThatPlaysTheCard, game.get().getName(), street1.getUuid(), street2.getUuid());
         gameService.onResolveDevelopmentCardRequest(rdcrbr);
         assertFalse(event instanceof ResolveDevelopmentCardMessage);
 
@@ -641,10 +636,10 @@ public class GameServiceTest {
         ResolveDevelopmentCardMonopolyRequest rdcMr = new ResolveDevelopmentCardMonopolyRequest("Monopoly", (UserDTO) userThatPlaysTheCard, game.get().getName(), "Lumber");
         gameService.onResolveDevelopmentCardRequest(rdcMr);
         assertTrue(event instanceof PublicInventoryChangeMessage);
-        assertEquals(inv0.lumber.getNumber(),0);
-        assertEquals(inv1.lumber.getNumber(),4);
-        assertEquals(inv2.lumber.getNumber(),0);
-        assertEquals(inv3.lumber.getNumber(),0);
+        assertEquals(inv0.lumber.getNumber(), 0);
+        assertEquals(inv1.lumber.getNumber(), 4);
+        assertEquals(inv2.lumber.getNumber(), 0);
+        assertEquals(inv3.lumber.getNumber(), 0);
 
         // End the turn and let player 3 try to play the Road Building card
         endTurnRequest = new EndTurnRequest(game.get().getName(), (UserDTO) userThatPlaysTheCard);
@@ -655,7 +650,7 @@ public class GameServiceTest {
         gameService.onPlayDevelopmentCardRequest(pdcr);
         assertTrue(event instanceof PlayDevelopmentCardResponse);
 
-        rdcrbr = new ResolveDevelopmentCardRoadBuildingRequest("Road Building", (UserDTO) userThatPlaysTheCard, game.get().getName(),street1.getUuid(), street2.getUuid());
+        rdcrbr = new ResolveDevelopmentCardRoadBuildingRequest("Road Building", (UserDTO) userThatPlaysTheCard, game.get().getName(), street1.getUuid(), street2.getUuid());
         gameService.onResolveDevelopmentCardRequest(rdcrbr);
         assertTrue(event instanceof ResolveDevelopmentCardMessage);
 
@@ -668,7 +663,7 @@ public class GameServiceTest {
     /**
      * This test checks if the AI is used when the player whose turn
      * it is right now is not in the game anymore.
-     *
+     * <p>
      * The AI will build a town and a street and then end his own turn.
      *
      * @author Marc Hermes
@@ -688,6 +683,24 @@ public class GameServiceTest {
         game.get().setUpUserArrayList();
         game.get().setUpInventories();
 
+        // give the AI enough resources to buy a development card
+        Inventory aiInventory = game.get().getInventory(userDTO1);
+        aiInventory.grain.incNumber();
+        aiInventory.wool.incNumber();
+        aiInventory.ore.incNumber();
+
+        // give player 4 some grain so that it may be taken by the AIs monopoly card
+        game.get().getInventory(userDTO3).grain.incNumber();
+
+        // give the AI the developmentCards to play
+        aiInventory.cardRoadBuilding.incNumber();
+        aiInventory.cardMonopoly.incNumber();
+        aiInventory.cardYearOfPlenty.incNumber();
+        aiInventory.cardKnight.incNumber();
+
+        // the TestAI class will now be used
+        game.get().setIsUsedForTest(true);
+
         // Player 1 leaves the game
         GameLeaveUserRequest glur = new GameLeaveUserRequest(game.get().getName(), userDTO1);
         gameService.onGameLeaveUserRequest(glur);
@@ -698,19 +711,35 @@ public class GameServiceTest {
 
         int buildingCounter = 0;
         int streetCounter = 0;
-        for(MapGraph.BuildingNode bn : game.get().getMapGraph().getBuildingNodeHashSet()) {
-            if(bn.getOccupiedByPlayer() == 1) {
+        MapGraph.BuildingNode b = null;
+
+        for (MapGraph.BuildingNode bn : game.get().getMapGraph().getBuildingNodeHashSet()) {
+            if (bn.getOccupiedByPlayer() == 1) {
                 buildingCounter++;
             }
-        }
-        for(MapGraph.StreetNode sn : game.get().getMapGraph().getStreetNodeHashSet()) {
-            if (sn.getOccupiedByPlayer() == 1) {
-                streetCounter++;
+            if (bn.getSizeOfSettlement() == 2) {
+                b = bn;
             }
         }
+
+        for (MapGraph.StreetNode sn : game.get().getMapGraph().getStreetNodeHashSet()) {
+            if (sn.getOccupiedByPlayer() == 1) {
+                streetCounter++;
+
+            }
+        }
+
         // Check if the AI built the building and street
         assertEquals(buildingCounter, 1);
-        assertEquals(streetCounter, 1);
+        assert b != null;
+        assertEquals(b.getSizeOfSettlement(), 2);
+        assertEquals(streetCounter, 3);
+
+        // Check if the AI played monopoly and year of plenty correctly
+        assertEquals(aiInventory.lumber.getNumber(), 1);
+        assertEquals(aiInventory.grain.getNumber(), 1);
+        assertEquals(aiInventory.brick.getNumber(), 1);
+
 
         // Check if the turn started for the correct player (and thus the AI ended the turn)
         assertTrue(event instanceof NextTurnMessage);
@@ -720,7 +749,7 @@ public class GameServiceTest {
     /**
      * This test checks if the AI is used when the player whose turn
      * it is right now leaves the game.
-     *
+     * <p>
      * The AI will build a town and a street and then end his own turn.
      *
      * @author Marc Hermes
@@ -740,29 +769,92 @@ public class GameServiceTest {
         game.get().setUpUserArrayList();
         game.get().setUpInventories();
 
+        // give the AI enough resources to buy a development card
+        Inventory aiInventory = game.get().getInventory(userDTO);
+        aiInventory.grain.incNumber();
+        aiInventory.wool.incNumber();
+        aiInventory.ore.incNumber();
+
+        // give the AI the developmentCards to play
+        aiInventory.cardRoadBuilding.incNumber();
+        aiInventory.cardMonopoly.incNumber();
+        aiInventory.cardYearOfPlenty.incNumber();
+        aiInventory.cardKnight.incNumber();
+
+        // give player 4 some grain so that it may be taken by the AIs monopoly card
+        game.get().getInventory(userDTO3).grain.incNumber();
+
+        // the TestAI class will now be used
+        game.get().setIsUsedForTest(true);
+
         // Player 0 (the turn player) leaves the game
         GameLeaveUserRequest glur = new GameLeaveUserRequest(game.get().getName(), userDTO);
         gameService.onGameLeaveUserRequest(glur);
 
         int buildingCounter = 0;
         int streetCounter = 0;
-        for(MapGraph.BuildingNode bn : game.get().getMapGraph().getBuildingNodeHashSet()) {
-            if(bn.getOccupiedByPlayer() == 0) {
+        MapGraph.BuildingNode b = null;
+        for (MapGraph.BuildingNode bn : game.get().getMapGraph().getBuildingNodeHashSet()) {
+            if (bn.getOccupiedByPlayer() == 0) {
                 buildingCounter++;
+                if (bn.getSizeOfSettlement() == 2) {
+                    b = bn;
+                }
             }
         }
-        for(MapGraph.StreetNode sn : game.get().getMapGraph().getStreetNodeHashSet()) {
+        for (MapGraph.StreetNode sn : game.get().getMapGraph().getStreetNodeHashSet()) {
             if (sn.getOccupiedByPlayer() == 0) {
                 streetCounter++;
             }
         }
+
         // Check if the AI built the building and street
         assertEquals(buildingCounter, 1);
-        assertEquals(streetCounter, 1);
+        assert b != null;
+        assertEquals(b.getSizeOfSettlement(), 2);
+        assertEquals(streetCounter, 3);
+
+        // Check if the AI played monopoly and year of plenty correctly
+        assertEquals(aiInventory.lumber.getNumber(), 1);
+        assertEquals(aiInventory.grain.getNumber(), 1);
+        assertEquals(aiInventory.brick.getNumber(), 1);
 
         // Check if the turn started for the correct player (and thus the AI ended the turn)
         assertTrue(event instanceof NextTurnMessage);
         assertEquals(userDTO1.getUsername(), ((NextTurnMessage) event).getPlayerWithCurrentTurn());
+
+    }
+
+    /**
+     * Test used for checking the general functionality of the randomAI (only check if it will end its turn)
+     *
+     * @author Marc Hermes
+     * @since 2021-05-12
+     */
+    @Test
+    void randomAITest() {
+
+
+        loginUsers();
+        gameManagement.createGame("test", userDTO, "Standard");
+        Optional<Game> game = gameManagement.getGame("test");
+        assertTrue(game.isPresent());
+
+        game.get().joinUser(userDTO1);
+        game.get().joinUser(userDTO2);
+        game.get().joinUser(userDTO3);
+
+        game.get().setUpUserArrayList();
+        game.get().setUpInventories();
+
+        // Player 0 (the turn player) leaves the game
+        GameLeaveUserRequest glur = new GameLeaveUserRequest(game.get().getName(), userDTO);
+        gameService.onGameLeaveUserRequest(glur);
+
+        // Check if the turn started for the correct player (and thus the AI ended the turn)
+        assertTrue(event instanceof NextTurnMessage);
+        assertEquals(userDTO1.getUsername(), ((NextTurnMessage) event).getPlayerWithCurrentTurn());
+
 
     }
 

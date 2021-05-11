@@ -28,12 +28,15 @@ public class RandomAI extends AbstractAISystem {
     }
 
     public ArrayList<AIAction> startTurnAction() {
+
         playDevelopmentCardYearOfPlenty("Lumber", "Brick");
-        for(MapGraph.StreetNode street : game.getMapGraph().getStreetNodeHashSet()) {
-            buildStreet(street.getUuid()); break;
+        for (MapGraph.StreetNode street : game.getMapGraph().getStreetNodeHashSet()) {
+            buildStreet(street.getUuid());
+            break;
         }
-        for(MapGraph.BuildingNode building : game.getMapGraph().getBuildingNodeHashSet()) {
-            buildTown(building.getUuid()); break;
+        for (MapGraph.BuildingNode building : game.getMapGraph().getBuildingNodeHashSet()) {
+            buildTown(building.getUuid());
+            break;
         }
         endTurn();
         return this.aiActions;

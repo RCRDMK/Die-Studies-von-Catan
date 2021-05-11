@@ -266,7 +266,39 @@ public interface Game extends Serializable {
      */
     void setPlayedCardThisTurn(boolean value);
 
+    /**
+     * Setter for the current Dice value of the game
+     *
+     * @param eyes the number that was last rolled
+     * @author Marc Hermes
+     * @since 2021-05-12
+     */
     void setLastRolledDiceValue(int eyes);
 
+    /**
+     * Getter for the current Dice value of the game
+     *
+     * @return the integer value representation of the dice
+     * @author Marc Hermes
+     * @since 2021-05-12
+     */
     int getLastRolledDiceValue();
+
+    /**
+     * Getter for the boolean value if this game is used for the JUNIT tests (and thus uses a different AI potentially)
+     *
+     * @return boolean value, true if yes, false if not
+     * @author Marc Hermes
+     * @since 2021-05-12
+     */
+    boolean isUsedForTest();
+
+    /**
+     * Setter for the boolean value if this game is used for the JUNIT tests (and thus uses a different AI potentially)
+     *
+     * @param value the boolean value
+     * @author Marc Hermes
+     * @since 2021-05-12
+     */
+    void setIsUsedForTest(boolean value);
 }

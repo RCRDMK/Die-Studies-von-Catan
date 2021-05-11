@@ -46,6 +46,7 @@ public class GameDTO implements Game {
 
     private final HashMap<String, Trade> tradeList = new HashMap<>();
     private String currentCard = "";
+    private boolean isTest;
 
     /**
      * Constructor
@@ -359,6 +360,16 @@ public class GameDTO implements Game {
     @Override
     public int getLastRolledDiceValue() {
         return lastRolledDiceValue;
+    }
+
+    @Override
+    public boolean isUsedForTest() {
+        return this.isTest;
+    }
+
+    @Override
+    public void setIsUsedForTest(boolean value) {
+        this.isTest = value;
     }
 
 }

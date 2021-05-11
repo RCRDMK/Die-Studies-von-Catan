@@ -1,9 +1,5 @@
 package de.uol.swp.server.AI;
 
-import com.google.gson.ExclusionStrategy;
-import com.google.gson.FieldAttributes;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import de.uol.swp.common.game.MapGraph;
 import de.uol.swp.common.game.dto.GameDTO;
 import de.uol.swp.common.game.inventory.Inventory;
@@ -47,26 +43,8 @@ public abstract class AbstractAISystem implements AISystem {
      * @since 2021-05-08
      */
     public AbstractAISystem(GameDTO thatGame) {
-        /*Gson gson = new GsonBuilder()
-                .setExclusionStrategies(new ExclusionStrategy() {
-                    @Override
-                    public boolean shouldSkipField(FieldAttributes f) {
-                        if(f.getName().equals("uuid") ||
-                                f.getName().equals("positionToParent") ||
-                                f.getName().equals("occupiedByPlayer") ||
-                                f.getName().equals("parent") ||){
-                            return true;
-                        }
-                        return false;
-                    }
-
-                    @Override
-                    public boolean shouldSkipClass(Class<?> clazz) {
-                        return false;
-                    }
-                }).create();*/
-        //game = gson.fromJson(gson.toJson(thatGame), GameDTO.class);
         game = (GameDTO) deepCopy(thatGame);
+        assert game != null;
         inventory = game.getInventory(game.getUser(game.getTurn()));
         mapGraph = game.getMapGraph();
         user = game.getUser(game.getTurn());
@@ -82,8 +60,7 @@ public abstract class AbstractAISystem implements AISystem {
             ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
             ObjectInputStream objInputStream = new ObjectInputStream(inputStream);
             return objInputStream.readObject();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             return null;
         }

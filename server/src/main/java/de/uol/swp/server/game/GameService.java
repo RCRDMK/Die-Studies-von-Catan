@@ -28,6 +28,7 @@ import de.uol.swp.common.user.response.game.AllThisGameUsersResponse;
 import de.uol.swp.common.user.response.game.GameLeftSuccessfulResponse;
 import de.uol.swp.server.AI.AIToServerTranslator;
 import de.uol.swp.server.AI.RandomAI;
+import de.uol.swp.server.AI.TestAI;
 import de.uol.swp.server.AbstractService;
 import de.uol.swp.server.game.dice.Dice;
 import de.uol.swp.server.lobby.LobbyManagementException;
@@ -626,8 +627,13 @@ public class GameService extends AbstractService {
      * @since 2021-05-11
      */
     public void startTurnForAI(GameDTO game) {
-        RandomAI randomAI = new RandomAI(game);
-        AIToServerTranslator.translate(randomAI.startTurnAction(), this);
+        if (game.isUsedForTest()) {
+            TestAI testAI = new TestAI(game);
+            AIToServerTranslator.translate(testAI.startTurnAction(), this);
+        } else {
+            RandomAI randomAI = new RandomAI(game);
+            AIToServerTranslator.translate(randomAI.startTurnAction(), this);
+        }
     }
 
     /**
@@ -697,7 +703,7 @@ public class GameService extends AbstractService {
                 switch (devCard) {
 
                     case "Monopoly":
-                        if (inventory.cardMonopoly.getNumber() > 0 && currentCardOfGame.equals("") && !alreadyPlayedCard) {
+                        if (inventory.cardMonopoly.getNumber() > 0 && currentCardOfGame.equals("") && (!alreadyPlayedCard || game.get().isUsedForTest())) {
                             game.get().setCurrentCard("Monopoly");
                             game.get().setPlayedCardThisTurn(true);
                             PlayDevelopmentCardResponse response = new PlayDevelopmentCardResponse(devCard, true, turnPlayer.getUsername(), game.get().getName());
@@ -708,7 +714,7 @@ public class GameService extends AbstractService {
                         }
 
                     case "Road Building":
-                        if (inventory.cardRoadBuilding.getNumber() > 0 && currentCardOfGame.equals("") && !alreadyPlayedCard && inventory.road.getNumber() > 1) {
+                        if (inventory.cardRoadBuilding.getNumber() > 0 && currentCardOfGame.equals("") && (!alreadyPlayedCard || game.get().isUsedForTest()) && inventory.road.getNumber() > 1) {
                             // TODO: check if the player is allowed to even attempt to build 2 streets i.e. not possible when there are no legal spaces to build 2 streets
                             // TODO: probs very complicated to check that, so maybe just ignore that fringe scenario???
                             game.get().setCurrentCard("Road Building");
@@ -721,7 +727,7 @@ public class GameService extends AbstractService {
                         }
 
                     case "Year of Plenty":
-                        if (inventory.cardYearOfPlenty.getNumber() > 0 && currentCardOfGame.equals("") && !alreadyPlayedCard) {
+                        if (inventory.cardYearOfPlenty.getNumber() > 0 && currentCardOfGame.equals("") && (!alreadyPlayedCard || game.get().isUsedForTest())) {
                             // TODO: Check if there theoretically are resources left in the bank that could be obtained for the player
                             game.get().setCurrentCard("Year of Plenty");
                             game.get().setPlayedCardThisTurn(true);
@@ -733,7 +739,7 @@ public class GameService extends AbstractService {
                         }
 
                     case "Knight":
-                        if (inventory.cardKnight.getNumber() > 0 && currentCardOfGame.equals("") && !alreadyPlayedCard) {
+                        if (inventory.cardKnight.getNumber() > 0 && currentCardOfGame.equals("") && (!alreadyPlayedCard || game.get().isUsedForTest())) {
                             game.get().setCurrentCard("Knight");
                             game.get().setPlayedCardThisTurn(true);
                             PlayDevelopmentCardResponse response = new PlayDevelopmentCardResponse(devCard, true, turnPlayer.getUsername(), game.get().getName());
