@@ -674,7 +674,7 @@ public class GameServiceTest {
      * @since 2021-04-26
      */
     @Test
-    void giveAndTakeResourceTest() {
+    void onGiveAndTakeResourceTest() {
         GameService gameService2 = new GameService(gameManagement, lobbyService, authenticationService, bus, userService);
 
         gameManagement.createGame("test", userDTO, "Standard");
