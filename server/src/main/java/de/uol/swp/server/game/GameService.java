@@ -103,6 +103,10 @@ public class GameService extends AbstractService {
                 ArrayList<UserDTO> usersInGame = new ArrayList<>();
                 for (User user : game.get().getUsers()) usersInGame.add((UserDTO) user);
                 sendToAllInGame(gameLeaveUserRequest.getName(), new UserLeftGameMessage(gameLeaveUserRequest.getName(), gameLeaveUserRequest.getUser(), usersInGame));
+                // Check if the player leaving the game is the turnPlayer, so that the AI may replace him now
+                if (gameLeaveUserRequest.getUser().equals(game.get().getUser(game.get().getTurn()))) {
+                    startTurnForAI((GameDTO) game.get());
+                }
             }
         } else {
             throw new GameManagementException("Game unknown!");
@@ -600,7 +604,7 @@ public class GameService extends AbstractService {
                     if (!game.get().getUsers().contains(game.get().getUser(game.get().getTurn()))) {
                         RollDiceRequest rdr = new RollDiceRequest(game.get().getName(), game.get().getUser(game.get().getTurn()));
                         onRollDiceRequest(rdr);
-                        useAI((GameDTO) game.get());
+                        startTurnForAI((GameDTO) game.get());
                     }
                 } catch (GameManagementException e) {
                     LOG.debug(e);
@@ -610,7 +614,18 @@ public class GameService extends AbstractService {
         }
     }
 
-    public void useAI(GameDTO game) {
+    /**
+     * Method used to call the AI and start it's turn
+     * <p>
+     * When this method is called, a new randomAI object is created.
+     * Also the AIToServerTranslator is used to translate the AIActions given by
+     * the startTurnAction() call.
+     *
+     * @param game the game that the AI is supposed to play in
+     * @author Marc Hermes
+     * @since 2021-05-11
+     */
+    public void startTurnForAI(GameDTO game) {
         RandomAI randomAI = new RandomAI(game);
         AIToServerTranslator.translate(randomAI.startTurnAction(), this);
     }
@@ -1032,6 +1047,8 @@ public class GameService extends AbstractService {
                     if (trade.getBids().size() == game.get().getUsers().size() - 1) {
                         System.out.println("bids full");
                         TradeInformSellerAboutBidsMessage tisabm = new TradeInformSellerAboutBidsMessage(trade.getSeller(), request.getName(), tradeCode, trade.getBidders(), trade.getBids());
+                        // TODO: everything trade related for the AI
+                        // useAI((GameDTO) game.get());
                         sendToSpecificUserInGame(game, tisabm, trade.getSeller());
                         System.out.println("Send TradeInformSellerAboutBidsMessage to " + trade.getSeller().getUsername());
                     }

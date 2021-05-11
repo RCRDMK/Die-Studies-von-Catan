@@ -7,9 +7,25 @@ import de.uol.swp.server.game.GameService;
 
 import java.util.ArrayList;
 
+/**
+ * Class used for translating between the AI and the Server
+ *
+ * @author Marc Hermes
+ * @since 2021-05-11
+ */
 public class AIToServerTranslator {
 
-
+    /**
+     * This method is used to translate a list of AIActions into messages and requests the gameService can interpret
+     * <p>
+     * Depending on the class of the aiAction different messages and requests will be created.
+     * These messages will then be used as parameters for the corresponding gameService method calls.
+     *
+     * @param aiActions the ArrayList of AIActions the AI wants to do
+     * @param gameService the GameService of the Server
+     * @author Marc Hermes
+     * @since 2021-05-11
+     */
     public static void translate(ArrayList<AIAction> aiActions, GameService gameService) {
 
         for (AIAction aiAction : aiActions) {

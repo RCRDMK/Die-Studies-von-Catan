@@ -1227,8 +1227,10 @@ public class GamePresenter extends AbstractPresenter {
             oldGridPane.getChildren().remove(rectangleDie1);
             oldGridPane.getChildren().remove(rectangleDie2);
             rectangleDie1.setFill(diceImages.get(0));
-            newGridPane.add(rectangleDie1, 0, 0);
             rectangleDie2.setFill(diceImages.get(0));
+            if(!newGridPane.getChildren().contains(rectangleDie1))
+            newGridPane.add(rectangleDie1, 0, 0);
+            if(!newGridPane.getChildren().contains(rectangleDie2))
             newGridPane.add(rectangleDie2, 1, 0);
         });
     }
