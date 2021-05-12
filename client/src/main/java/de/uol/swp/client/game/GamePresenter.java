@@ -1431,8 +1431,12 @@ public class GamePresenter extends AbstractPresenter {
     /**
      * The method invoked when the Game Presenter is first used.
      * <p>
-     * The Alert tells the user, that he has to move the robber to a new field. The user can only
-     * click the showed button to close the dialog.
+     *The alert is setup and show, when the ChoosePlayerMessage is detected on the eventbus. The method runs on an JavaFX Thread.
+     * At first the alert will be created and gets the type "warning", after that all buttons get set and a title is chosen. Now,
+     * the list of users in the game will be check if one of the user is the one user, who created the message. This user will be ignored.
+     * The rest is added to the alert and the alert shows and waits for result. If one user is chosen the drawRandomCardFromPlayer method is invoked.
+     * The alert closes.
+     * @param choosePlayerMessage message from the eventbus, to choose a player to draw a card from
      *
      * @author Marius Birk
      * @since 2021-04-20

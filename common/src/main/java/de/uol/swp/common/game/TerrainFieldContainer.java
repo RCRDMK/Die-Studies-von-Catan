@@ -13,7 +13,6 @@ public class TerrainFieldContainer implements Serializable {
     public int fieldType;
     public int diceTokens;
     public BuildingSpot[] buildingSpots = new BuildingSpot[12];
-    public boolean occupiedByRobber;
 
     /**
      * Constructor
@@ -31,11 +30,6 @@ public class TerrainFieldContainer implements Serializable {
     public TerrainFieldContainer(int fieldType, int diceTokens) {
         this.fieldType = fieldType;
         this.diceTokens = diceTokens;
-        if (this.fieldType == 6) {
-            this.occupiedByRobber = true;
-        } else {
-            this.occupiedByRobber = false;
-        }
     }
 
     /**
@@ -80,28 +74,6 @@ public class TerrainFieldContainer implements Serializable {
      */
     public void setDiceTokens(int diceTokens) {
         this.diceTokens = diceTokens;
-    }
-
-    /**
-     * Getter for the occupiedByRobber variable
-     *
-     * @return boolean value of the occupiedByRobber attribute
-     * @author Marius Birk
-     * @since 2021-04-07
-     */
-    public boolean isOccupiedByRobber() {
-        return occupiedByRobber;
-    }
-
-    /**
-     * Setter for the occupiedByRobber variable
-     *
-     * @param occupiedByRobber
-     * @author Marius Birk
-     * @since 2021-04-07
-     */
-    public void setOccupiedByRobber(boolean occupiedByRobber) {
-        this.occupiedByRobber = occupiedByRobber;
     }
 
     /**
