@@ -1251,6 +1251,17 @@ public class GameService extends AbstractService {
         }
     }
 
+    /**
+     * This method checks if the users have more than 7 resources.
+     * <p>
+     * This method checks if the users have more than 7 resources and sends the user a tooMuchResourceCardMessage.
+     * For every user in the game, the method checks if the user has more than 7 resource cards. If this is true,
+     * it checks if the number of resources is even or uneven and sends a TooMuchResourceCardsMessage to every specfic user.
+     *
+     * @param game Game that the users play
+     * @author Marius Birk
+     * @since 2021-05-13
+     */
     public void tooMuchResources(Optional<Game> game) {
         for (User user : game.get().getUsers()) {
             if (game.get().getInventory(user).getResource() >= 7) {
