@@ -37,7 +37,6 @@ public class GameDTO implements Game {
     private boolean playedCardThisTurn = false;
     private final DevelopmentCardDeck developmentCardDeck = new DevelopmentCardDeck();
     private final ArrayList<MapGraph.BuildingNode> lastBuildingOfOpeningTurn = new ArrayList<>();
-    private User bank = new UserDTO("Banker", "password", "rich@man.net");
 
     private Inventory inventory1;
     private Inventory inventory2;
@@ -248,7 +247,7 @@ public class GameDTO implements Game {
             if (userArrayList.size() > 2) inventory3 = new Inventory(userArrayList.get(2));
             if (userArrayList.size() > 3) inventory4 = new Inventory(userArrayList.get(3));
         }
-        bankInventory = new Inventory(bank);
+        bankInventory = new Inventory(new UserDTO("Bank", "password", "rich@man.net"));
         bankInventory.lumber.setNumber(19);
         bankInventory.brick.setNumber(19);
         bankInventory.grain.setNumber(19);
