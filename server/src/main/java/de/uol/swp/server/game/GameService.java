@@ -603,9 +603,13 @@ public class GameService extends AbstractService {
                             game.get().getUser(game.get().getTurn()).getUsername(), game.get().getTurn(), game.get().isStartingTurns()));
                     // Check if the size of actual players is smaller than the size of intended players, then activate AI
                     if (!game.get().getUsers().contains(game.get().getUser(game.get().getTurn()))) {
-                        RollDiceRequest rdr = new RollDiceRequest(game.get().getName(), game.get().getUser(game.get().getTurn()));
-                        onRollDiceRequest(rdr);
-                        startTurnForAI((GameDTO) game.get());
+                        boolean rollNecessary = !game.get().isStartingTurns();
+                        if (rollNecessary) {
+                            RollDiceRequest rdr = new RollDiceRequest(game.get().getName(), game.get().getUser(game.get().getTurn()));
+                            onRollDiceRequest(rdr);
+                            //TODO: if user leaves without rolling the dice, the AIplayer doesnt get resources this turn.
+                            //TODO: needs a check if a die was rolled
+                        }
                     }
                 } catch (GameManagementException e) {
                     LOG.debug(e);
