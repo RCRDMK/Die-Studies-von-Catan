@@ -1,6 +1,5 @@
 package de.uol.swp.common.game.inventory;
 
-import javax.naming.directory.SearchResult;
 import java.io.Serializable;
 
 /**
@@ -13,7 +12,7 @@ public class Unit implements Serializable {
 
     private int number;
 
-    public Unit (int number) {
+    public Unit(int number) {
         this.number = number;
     }
 

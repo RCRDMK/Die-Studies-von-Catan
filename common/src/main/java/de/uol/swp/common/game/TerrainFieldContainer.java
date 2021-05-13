@@ -21,6 +21,11 @@ public class TerrainFieldContainer implements Serializable {
      * @param diceTokens the int value representing the amount of diceTokens on this TerrainField
      * @author Pieter Vogt, Marc Hermes
      * @since 2021-03-13
+     * <p>
+     * Enhanced by Marius Birk
+     * @since 2021-04-07
+     * <p>
+     * Added the occupied by Robber attribute to check if the field is occupied by the robber.
      */
     public TerrainFieldContainer(int fieldType, int diceTokens) {
         this.fieldType = fieldType;
@@ -69,5 +74,27 @@ public class TerrainFieldContainer implements Serializable {
      */
     public void setDiceTokens(int diceTokens) {
         this.diceTokens = diceTokens;
+    }
+
+    /**
+     * Getter for the buildingSpots variable
+     *
+     * @return the buildingSpots Array
+     * @author Marius Birk
+     * @since 2021-04-07
+     */
+    public BuildingSpot[] getBuildingSpots() {
+        return buildingSpots;
+    }
+
+    /**
+     * Setter for the buildingSpots variable
+     *
+     * @param buildingSpots
+     * @author Marius Birk
+     * @since 2021-04-07
+     */
+    public void setBuildingSpots(BuildingSpot[] buildingSpots) {
+        this.buildingSpots = buildingSpots;
     }
 }

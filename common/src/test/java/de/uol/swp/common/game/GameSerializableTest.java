@@ -6,15 +6,22 @@ import de.uol.swp.common.game.message.*;
 import de.uol.swp.common.game.request.*;
 import de.uol.swp.common.game.response.*;
 import de.uol.swp.common.user.UserDTO;
+import org.checkerframework.checker.units.qual.A;
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class GameSerializableTest {
     private static final UserDTO defaultUser = new UserDTO("marco", "marco", "marco@grawunder.de");
     private static final ArrayList<Game> defaultCollection = new ArrayList<>();
+    private static final ArrayList<String> defaultUserList = new ArrayList<>();
+    private static final HashMap<String, Integer> defaultHashMap = new HashMap<>();
+    private static final UUID defaultUuid = UUID.randomUUID();
 
     @Test
     void testGameMessagesSerializable() {
@@ -42,6 +49,18 @@ public class GameSerializableTest {
                 NotEnoughRessourcesMessage.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new RollDiceResultMessage(),
                 RollDiceResultMessage.class));
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new ChoosePlayerMessage("test", defaultUser, defaultUserList),
+                ChoosePlayerMessage.class));
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new DrawRandomResourceFromPlayerMessage("test", defaultUser, "test1"),
+                DrawRandomResourceFromPlayerMessage.class));
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new MoveRobberMessage("test", defaultUser),
+                MoveRobberMessage.class));
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new RobbersNewFieldMessage("test", defaultUser, defaultUuid),
+                RobbersNewFieldMessage.class));
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new SuccessfullMovedRobberMessage(defaultUuid),
+                SuccessfullMovedRobberMessage.class));
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new TooMuchResourceCardsMessage("test", defaultUser, 5, defaultHashMap),
+                TooMuchResourceCardsMessage.class));
     }
 
     @Test
@@ -62,6 +81,10 @@ public class GameSerializableTest {
                 RetrieveAllThisGameUsersRequest.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new RollDiceRequest("test", defaultUser),
                 RollDiceRequest.class));
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new BuyDevelopmentCardRequest(),
+                BuyDevelopmentCardRequest.class));
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new ResourcesToDiscardRequest("test", defaultUser, defaultHashMap),
+                ResourcesToDiscardRequest.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new ResolveDevelopmentCardMonopolyRequest(),
                 ResolveDevelopmentCardMonopolyRequest.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new ResolveDevelopmentCardRequest(),
