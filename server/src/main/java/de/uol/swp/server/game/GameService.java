@@ -1316,12 +1316,12 @@ public class GameService extends AbstractService {
      */
     public void tooMuchResources(Optional<Game> game) {
         for (User user : game.get().getUsers()) {
-            if (game.get().getInventory(user).getResource() >= 7) {
-                if (game.get().getInventory(user).getResource() % 2 != 0) {
-                    TooMuchResourceCardsMessage tooMuchResourceCardsMessage = new TooMuchResourceCardsMessage(game.get().getName(), (UserDTO) user, ((game.get().getInventory(user).getResource() - 1) / 2), game.get().getInventory(user).getPrivateView());
+            if (game.get().getInventory(user).sumResource() >= 7) {
+                if (game.get().getInventory(user).sumResource() % 2 != 0) {
+                    TooMuchResourceCardsMessage tooMuchResourceCardsMessage = new TooMuchResourceCardsMessage(game.get().getName(), (UserDTO) user, ((game.get().getInventory(user).sumResource() - 1) / 2), game.get().getInventory(user).getPrivateView());
                     sendToSpecificUserInGame(game, tooMuchResourceCardsMessage, user);
                 } else {
-                    TooMuchResourceCardsMessage tooMuchResourceCardsMessage = new TooMuchResourceCardsMessage(game.get().getName(), (UserDTO) user, (game.get().getInventory(user).getResource() / 2), game.get().getInventory(user).getPrivateView());
+                    TooMuchResourceCardsMessage tooMuchResourceCardsMessage = new TooMuchResourceCardsMessage(game.get().getName(), (UserDTO) user, (game.get().getInventory(user).sumResource() / 2), game.get().getInventory(user).getPrivateView());
                     sendToSpecificUserInGame(game, tooMuchResourceCardsMessage, user);
                 }
             }
