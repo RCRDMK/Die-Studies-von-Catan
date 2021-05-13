@@ -11,14 +11,10 @@ import de.uol.swp.common.game.message.*;
 import de.uol.swp.common.game.MapGraph;
 import de.uol.swp.common.game.request.*;
 import de.uol.swp.common.game.response.PlayDevelopmentCardResponse;
-import de.uol.swp.common.game.response.ResolveDevelopmentCardNotSuccessfulResponse;
 import de.uol.swp.common.game.trade.TradeItem;
-import de.uol.swp.common.lobby.Lobby;
-import de.uol.swp.common.user.Session;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.user.request.LoginRequest;
-import de.uol.swp.common.user.request.LogoutRequest;
 import de.uol.swp.server.lobby.LobbyManagement;
 import de.uol.swp.server.lobby.LobbyService;
 import de.uol.swp.server.usermanagement.AuthenticationService;
@@ -662,6 +658,53 @@ public class GameServiceTest {
         assertEquals(street2.getOccupiedByPlayer(), 2);
 
     }
+
+    @Test
+    public void ResourcesToDiscardTest(){
+        GameService gameService2 = new GameService(gameManagement, lobbyService, authenticationService, bus, userService);
+        gameManagement.createGame("test", userDTO, "Standard");
+        Optional<Game> game = gameManagement.getGame("test");
+        assertTrue(game.isPresent());
+
+        loginUsers();
+
+        game.get().joinUser(userDTO1);
+        game.get().joinUser(userDTO2);
+        game.get().joinUser(userDTO3);
+
+        game.get().setUpUserArrayList();
+        game.get().setUpInventories();
+
+        for (MapGraph.BuildingNode b : game.get().getMapGraph().getBuildingNodeHashSet()) {
+            b.buildOrDevelopSettlement(1);
+        }
+
+        Map<String, Integer> inventoryEmpty = new HashMap<>();
+        inventoryEmpty = game.get().getInventory(game.get().getUser(1)).getPrivateView();
+        assertEquals(inventoryEmpty.get("Lumber"), 0);
+        assertEquals(inventoryEmpty.get("Brick"), 0);
+        assertEquals(inventoryEmpty.get("Grain"), 0);
+        assertEquals(inventoryEmpty.get("Wool"), 0);
+        assertEquals(inventoryEmpty.get("Ore"), 0);
+
+        game.get().getInventory(userDTO1).lumber.setNumber(6);
+        game.get().getInventory(userDTO1).grain.setNumber(5);
+
+        HashMap<String, Integer> inventoryChosen = new HashMap<>();
+        inventoryChosen.put("Lumber", 3);
+        inventoryChosen.put("Wool", 0);
+        inventoryChosen.put("Ore", 0);
+        inventoryChosen.put("Brick", 0);
+        inventoryChosen.put("Grain", 4);
+
+        ResourcesToDiscardRequest resources = new ResourcesToDiscardRequest("test", userDTO1, inventoryChosen);
+        gameService2.onResourcesToDiscard(resources);
+
+        assertEquals(game.get().getInventory(userDTO1).lumber.getNumber(), 3);
+        assertEquals(game.get().getInventory(userDTO1).grain.getNumber(), 1);
+
+
+    }
     /**
      * This test checks if the giveResource and the takeResource method works as intended
      * <p>
@@ -675,7 +718,7 @@ public class GameServiceTest {
      */
     @Test
     void onGiveAndTakeResourceTest() {
-        GameService gameService2 = new GameService(gameManagement, lobbyService, authenticationService, bus, userService);
+        GameService gameService3 = new GameService(gameManagement, lobbyService, authenticationService, bus, userService);
 
         gameManagement.createGame("test", userDTO, "Standard");
         Optional<Game> game = gameManagement.getGame("test");
@@ -712,11 +755,11 @@ public class GameServiceTest {
         assertEquals(inventory2.getNumberFromCard("Ore"), 0);
 
         // giveResourceTest
-        gameService2.giveResource(game, userDTO1, "Lumber", 15);
-        gameService2.giveResource(game, userDTO1, "Brick", 15);
-        gameService2.giveResource(game, userDTO1, "Grain", 15);
-        gameService2.giveResource(game, userDTO1, "Wool", 15);
-        gameService2.giveResource(game, userDTO1, "Ore", 15);
+        gameService3.giveResource(game, userDTO1, "Lumber", 15);
+        gameService3.giveResource(game, userDTO1, "Brick", 15);
+        gameService3.giveResource(game, userDTO1, "Grain", 15);
+        gameService3.giveResource(game, userDTO1, "Wool", 15);
+        gameService3.giveResource(game, userDTO1, "Ore", 15);
 
         assertEquals(bank.getNumberFromCard("Lumber"), 4);
         assertEquals(bank.getNumberFromCard("Brick"), 4);
@@ -737,11 +780,11 @@ public class GameServiceTest {
         assertEquals(inventory2.getNumberFromCard("Ore"), 0);
 
 
-        gameService2.giveResource(game, userDTO2, "Lumber", 10);
-        gameService2.giveResource(game, userDTO2, "Brick", 10);
-        gameService2.giveResource(game, userDTO2, "Grain", 10);
-        gameService2.giveResource(game, userDTO2, "Wool", 10);
-        gameService2.giveResource(game, userDTO2, "Ore", 10);
+        gameService3.giveResource(game, userDTO2, "Lumber", 10);
+        gameService3.giveResource(game, userDTO2, "Brick", 10);
+        gameService3.giveResource(game, userDTO2, "Grain", 10);
+        gameService3.giveResource(game, userDTO2, "Wool", 10);
+        gameService3.giveResource(game, userDTO2, "Ore", 10);
 
         assertEquals(bank.getNumberFromCard("Lumber"), 0);
         assertEquals(bank.getNumberFromCard("Brick"), 0);
@@ -763,11 +806,11 @@ public class GameServiceTest {
 
 
         // takeResourceTest
-        gameService2.takeResource(game, userDTO1, "Lumber", 15);
-        gameService2.takeResource(game, userDTO1, "Brick", 15);
-        gameService2.takeResource(game, userDTO1, "Grain", 15);
-        gameService2.takeResource(game, userDTO1, "Wool", 15);
-        gameService2.takeResource(game, userDTO1, "Ore", 15);
+        gameService3.takeResource(game, userDTO1, "Lumber", 15);
+        gameService3.takeResource(game, userDTO1, "Brick", 15);
+        gameService3.takeResource(game, userDTO1, "Grain", 15);
+        gameService3.takeResource(game, userDTO1, "Wool", 15);
+        gameService3.takeResource(game, userDTO1, "Ore", 15);
 
         assertEquals(bank.getNumberFromCard("Lumber"), 15);
         assertEquals(bank.getNumberFromCard("Brick"), 15);
@@ -788,11 +831,11 @@ public class GameServiceTest {
         assertEquals(inventory2.getNumberFromCard("Ore"), 4);
 
 
-        gameService2.takeResource(game, userDTO2, "Lumber", 10);
-        gameService2.takeResource(game, userDTO2, "Brick", 10);
-        gameService2.takeResource(game, userDTO2, "Grain", 10);
-        gameService2.takeResource(game, userDTO2, "Wool", 10);
-        gameService2.takeResource(game, userDTO2, "Ore", 10);
+        gameService3.takeResource(game, userDTO2, "Lumber", 10);
+        gameService3.takeResource(game, userDTO2, "Brick", 10);
+        gameService3.takeResource(game, userDTO2, "Grain", 10);
+        gameService3.takeResource(game, userDTO2, "Wool", 10);
+        gameService3.takeResource(game, userDTO2, "Ore", 10);
 
         assertEquals(bank.getNumberFromCard("Lumber"), 19);
         assertEquals(bank.getNumberFromCard("Brick"), 19);
