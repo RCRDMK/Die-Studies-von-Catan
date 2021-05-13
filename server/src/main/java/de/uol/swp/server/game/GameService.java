@@ -508,6 +508,10 @@ public class GameService extends AbstractService {
                 }
             }
 
+            if(userList.isEmpty()){
+                tooMuchResources(game);
+            }
+
             ChoosePlayerMessage choosePlayerMessage = new ChoosePlayerMessage(game.get().getName(), robbersNewFieldMessage.getUser(), userList);
             sendToSpecificUserInGame(game, choosePlayerMessage, robbersNewFieldMessage.getUser());
         }
@@ -1241,20 +1245,23 @@ public class GameService extends AbstractService {
 
             //Nach dem eine Karte gezogen wurde darf jeder mit mehr als 7 Resourcen die Hälfte ablegen
 
-            for (User user : game.get().getUsers()) {
-                if (game.get().getInventory(user).getResource() >=7) {
-                    if (game.get().getInventory(user).getResource() % 2 != 0) {
-                        TooMuchResourceCardsMessage tooMuchResourceCardsMessage = new TooMuchResourceCardsMessage(game.get().getName(), (UserDTO) user, ((game.get().getInventory(user).getResource() - 1) / 2), game.get().getInventory(user).getPrivateView());
-                        sendToSpecificUserInGame(game, tooMuchResourceCardsMessage, user);
-                    } else {
-                        TooMuchResourceCardsMessage tooMuchResourceCardsMessage = new TooMuchResourceCardsMessage(game.get().getName(), (UserDTO) user, (game.get().getInventory(user).getResource() / 2), game.get().getInventory(user).getPrivateView());
-                        sendToSpecificUserInGame(game, tooMuchResourceCardsMessage, user);
-                    }
-
-                }
-            }
+            tooMuchResources(game);
 
             updateInventory(game);
+        }
+    }
+
+    public void tooMuchResources(Optional<Game> game) {
+        for (User user : game.get().getUsers()) {
+            if (game.get().getInventory(user).getResource() >= 7) {
+                if (game.get().getInventory(user).getResource() % 2 != 0) {
+                    TooMuchResourceCardsMessage tooMuchResourceCardsMessage = new TooMuchResourceCardsMessage(game.get().getName(), (UserDTO) user, ((game.get().getInventory(user).getResource() - 1) / 2), game.get().getInventory(user).getPrivateView());
+                    sendToSpecificUserInGame(game, tooMuchResourceCardsMessage, user);
+                } else {
+                    TooMuchResourceCardsMessage tooMuchResourceCardsMessage = new TooMuchResourceCardsMessage(game.get().getName(), (UserDTO) user, (game.get().getInventory(user).getResource() / 2), game.get().getInventory(user).getPrivateView());
+                    sendToSpecificUserInGame(game, tooMuchResourceCardsMessage, user);
+                }
+            }
         }
     }
 

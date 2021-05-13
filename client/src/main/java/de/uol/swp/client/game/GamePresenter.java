@@ -1393,6 +1393,11 @@ public class GamePresenter extends AbstractPresenter {
                                 if (container.getHexagon().getTerrainType() != 6) {
                                     for (HexagonContainer container1 : hexagonContainers) {
                                         container1.getHexagonShape().removeEventHandler(MouseEvent.MOUSE_PRESSED, this);
+
+                                        rollDice.setDisable(false);
+                                        buildMenu.setDisable(false);
+                                        EndTurnButton.setDisable(false);
+                                        buyDevCard.setDisable(false);
                                     }
                                     gameService.movedRobber(moveRobberMessage.getName(), moveRobberMessage.getUser(), container.getHexagon().getUuid());
                                 }
@@ -1403,6 +1408,10 @@ public class GamePresenter extends AbstractPresenter {
                 };
                 for (HexagonContainer container : hexagonContainers) {
                     container.getHexagonShape().addEventHandler(MouseEvent.MOUSE_PRESSED, clickOnHexagonHandler);
+                    rollDice.setDisable(true);
+                    buildMenu.setDisable(true);
+                    EndTurnButton.setDisable(true);
+                    buyDevCard.setDisable(true);
                 }
             }
         }
@@ -1431,13 +1440,13 @@ public class GamePresenter extends AbstractPresenter {
     /**
      * The method invoked when the Game Presenter is first used.
      * <p>
-     *The alert is setup and show, when the ChoosePlayerMessage is detected on the eventbus. The method runs on an JavaFX Thread.
+     * The alert is setup and show, when the ChoosePlayerMessage is detected on the eventbus. The method runs on an JavaFX Thread.
      * At first the alert will be created and gets the type "warning", after that all buttons get set and a title is chosen. Now,
      * the list of users in the game will be check if one of the user is the one user, who created the message. This user will be ignored.
      * The rest is added to the alert and the alert shows and waits for result. If one user is chosen the drawRandomCardFromPlayer method is invoked.
      * The alert closes.
-     * @param choosePlayerMessage message from the eventbus, to choose a player to draw a card from
      *
+     * @param choosePlayerMessage message from the eventbus, to choose a player to draw a card from
      * @author Marius Birk
      * @since 2021-04-20
      */
@@ -1816,18 +1825,18 @@ public class GamePresenter extends AbstractPresenter {
     public void onPrivateInventoryChangeMessage(PrivateInventoryChangeMessage privateInventoryChangeMessage) {
         if (this.currentLobby != null) {
             if (this.currentLobby.equals(privateInventoryChangeMessage.getName())) {
-                if(tooMuchAlert != null){
-                    Platform.runLater(()->{
+                if (tooMuchAlert != null) {
+                    Platform.runLater(() -> {
                         lumberLabelRobberMenu.setText(String.valueOf(privateInventoryChangeMessage.getPrivateInventory().get("Lumber")));
                         grainLabelRobberMenu.setText(String.valueOf(privateInventoryChangeMessage.getPrivateInventory().get("Grain")));
                         woolLabelRobberMenu.setText(String.valueOf(privateInventoryChangeMessage.getPrivateInventory().get("Wool")));
                         brickLabelRobberMenu.setText(String.valueOf(privateInventoryChangeMessage.getPrivateInventory().get("Brick")));
                         oreLabelRobberMenu.setText(String.valueOf(privateInventoryChangeMessage.getPrivateInventory().get("Ore")));
                         int toDiscard = Integer.parseInt(lumberLabelRobberMenu.getText()) + Integer.parseInt(grainLabelRobberMenu.getText()) + Integer.parseInt(woolLabelRobberMenu.getText()) + Integer.parseInt(brickLabelRobberMenu.getText()) + Integer.parseInt(oreLabelRobberMenu.getText());
-                        if(toDiscard%2==0){
-                            toDiscardLabel.setText(String.valueOf(toDiscard/2));
-                        }else{
-                            toDiscardLabel.setText(String.valueOf((toDiscard-1)/2));
+                        if (toDiscard % 2 == 0) {
+                            toDiscardLabel.setText(String.valueOf(toDiscard / 2));
+                        } else {
+                            toDiscardLabel.setText(String.valueOf((toDiscard - 1) / 2));
                         }
                     });
                 }
@@ -1993,6 +2002,8 @@ public class GamePresenter extends AbstractPresenter {
             if (this.currentLobby.equals(choosePlayerMessage.getName())) {
                 if (!choosePlayerMessage.getUserList().isEmpty()) {
                     Platform.runLater(() -> setupChoosePlayerAlert(choosePlayerMessage));
+                } else {
+
                 }
             }
         }
