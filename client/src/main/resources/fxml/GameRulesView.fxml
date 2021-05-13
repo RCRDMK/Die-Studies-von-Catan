@@ -7,9 +7,10 @@
 <AnchorPane xmlns:fx="http://javafx.com/fxml/1" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/16"
             fx:controller="de.uol.swp.client.game.GameRulesPresenter">
     <children>
-        <ScrollPane hbarPolicy="ALWAYS" layoutX="66.0" layoutY="69.0" prefHeight="306.0" prefWidth="478.0">
+        <ScrollPane hbarPolicy="NEVER" layoutX="66.0" layoutY="69.0" prefHeight="306.0" prefWidth="478.0"
+                    vbarPolicy="ALWAYS">
             <content>
-                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="595.0" prefWidth="527.0">
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="758.0" prefWidth="482.0">
                     <children>
                         <Label layoutX="299.0" layoutY="7.0" prefHeight="31.0" prefWidth="100.0" text="The Matchfield"/>
                         <ImageView fitHeight="239.0" fitWidth="247.0" layoutX="210.0" layoutY="38.0" pickOnBounds="true"
@@ -18,9 +19,16 @@
                                 <Image url="@../textures/resized/Matchfield.JPG"/>
                             </image>
                         </ImageView>
-                        <Label layoutX="46.0" layoutY="231.0" prefHeight="202.0" prefWidth="113.0" text="Label"/>
-                        <TextArea editable="false" layoutX="34.0" layoutY="38.0" prefHeight="209.0" prefWidth="163.0"
-                                  text="Here  can you see the &#10;Matchfield.&#10;&#10;"/>
+                        <TextArea editable="false" layoutX="13.0" layoutY="41.0" prefHeight="276.0" prefWidth="184.0"
+                                  text="Here  can you see the &#10;Matchfield.&#10;Each field has a number.&#10;If you roll the number, you&#10;get the resources.&#10;(Brick, Ore, Lumber, Wool or &#10;Gran) except you roll a 7 than &#10;all players must discard &#10;hallf of your Resource cards. &#10;(When they have more than&#10;10 resource cards.)&#10;After that you offset the &#10;Robber on any field.&#10;Have a player on this field&#10;where you the Robber a&#10;settlement or a city you can&#10;pick a Random card.&#10;&#10;When you have a  settlement&#10;you get one resource, with &#10;city you get two ressources&#10;If a Robber is in the field&#10;there ae no resources &#10;for you."/>
+                        <ImageView fitHeight="242.0" fitWidth="258.0" layoutX="231.0" layoutY="331.0"
+                                   pickOnBounds="true" preserveRatio="true">
+                            <image>
+                                <Image url="@../textures/originals/Baukosten.png"/>
+                            </image>
+                        </ImageView>
+                        <TextArea layoutX="14.0" layoutY="340.0" prefHeight="232.0" prefWidth="200.0"
+                                  text="With the resources received&#10;you can get roads, settlements&#10;and build cities..&#10;To build a settlement you must&#10;two streets away from the next&#10;settlement/ city.&#10;For every settlement you build&#10;you get 1 Victory Point.&#10;For every City you Build you get&#10;2 Vitory Points.&#10;Who first have 10 Victory Points&#10;Wins the Game&#10;&#10;With the resources cards &#10;you can buy special cards.&#10;There are following special &#10;cards:&#10;&#10;One Victory Point: you get one&#10;Victory Point.&#10;road construction: you can&#10;build two Streets for free.&#10;greatest Knightpower: you can&#10;move the robber on any field&#10;you want.&#10;technological lead: you chosse&#10;a resource and all players must&#10;give you all there cards with &#10;from this resource."/>
                     </children>
                 </AnchorPane>
             </content>
