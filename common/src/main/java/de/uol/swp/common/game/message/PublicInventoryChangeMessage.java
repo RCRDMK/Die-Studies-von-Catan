@@ -13,7 +13,7 @@ import java.util.HashMap;
  * @since 2021-04-08
  */
 public class PublicInventoryChangeMessage extends AbstractGameMessage {
-    private ArrayList <HashMap <String, Integer>> publicInventories;
+    final private ArrayList <HashMap <String, Integer>> publicInventories;
 
 
     /**
@@ -23,8 +23,8 @@ public class PublicInventoryChangeMessage extends AbstractGameMessage {
      * @since 2021-04-08
      */
 
-    public PublicInventoryChangeMessage(String name, ArrayList<HashMap<String, Integer>> publicInventories) {
-        super(name, new UserDTO("","",""));
+    public PublicInventoryChangeMessage(String gameName, ArrayList<HashMap<String, Integer>> publicInventories) {
+        super(gameName, new UserDTO("","",""));
         this.publicInventories = publicInventories;
     }
 }

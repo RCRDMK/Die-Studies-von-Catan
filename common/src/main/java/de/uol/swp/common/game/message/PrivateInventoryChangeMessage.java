@@ -1,5 +1,6 @@
 package de.uol.swp.common.game.message;
 
+import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 
 import java.util.HashMap;
@@ -12,7 +13,7 @@ import java.util.HashMap;
  */
 public class PrivateInventoryChangeMessage extends AbstractGameMessage {
 
-    private HashMap<String, Integer> privateInventory;
+    private final HashMap<String, Integer> privateInventory;
 
     /**
      * Default constructor
@@ -21,9 +22,20 @@ public class PrivateInventoryChangeMessage extends AbstractGameMessage {
      * @since 2021-04-08
      */
 
-
-    public PrivateInventoryChangeMessage(String name, UserDTO user, HashMap<String, Integer> privateInventory) {
-        super(name, user);
+    public PrivateInventoryChangeMessage(String gameName, User user, HashMap<String, Integer> privateInventory) {
+        super(gameName, (UserDTO) user);
         this.privateInventory = privateInventory;
+
+    }
+
+    /**
+     * Getter for the hashMap of the privateInventory
+     *
+     * @return the HashMap representing the private View of the user
+     * @author Marc Hermes
+     * @since 2021-05-03
+     */
+    public HashMap<String, Integer> getPrivateInventory() {
+        return privateInventory;
     }
 }
