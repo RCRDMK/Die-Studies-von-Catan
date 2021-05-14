@@ -19,16 +19,16 @@
                                 <Image url="@../textures/resized/Matchfield.JPG"/>
                             </image>
                         </ImageView>
-                        <TextArea editable="false" layoutX="13.0" layoutY="41.0" prefHeight="276.0" prefWidth="184.0"
-                                  text="Here  can you see the &#10;Matchfield.&#10;Each field has a number.&#10;If you roll the number, you&#10;get the resources.&#10;(Brick, Ore, Lumber, Wool or &#10;Gran) except you roll a 7 than &#10;all players must discard &#10;hallf of your Resource cards. &#10;(When they have more than&#10;10 resource cards.)&#10;After that you offset the &#10;Robber on any field.&#10;Have a player on this field&#10;where you the Robber a&#10;settlement or a city you can&#10;pick a Random card.&#10;&#10;When you have a  settlement&#10;you get one resource, with &#10;city you get two ressources&#10;If a Robber is in the field&#10;there ae no resources &#10;for you."/>
-                        <ImageView fitHeight="242.0" fitWidth="258.0" layoutX="231.0" layoutY="331.0"
+                        <TextArea editable="false" layoutX="13.0" layoutY="41.0" prefHeight="374.0" prefWidth="184.0"
+                                  text="Here you can see the &#10;match field.&#10;Each field has a number.&#10;If you roll the number, you&#10;get the resources.&#10;(Brick, Ore, Lumber, Wool or &#10;Gran) unless you roll a 7 &#10;than  all players must &#10;discard half of your resource &#10;cards. &#10;(When they have more than&#10;10 resource cards)&#10;After that you offset the &#10;robber on any field.&#10;Have a player on this field&#10;where you the robber a&#10;settlement or a city you can&#10;pick a random card.&#10;&#10;When you have a settlement&#10;you get one resource, with &#10;city you get two resources&#10;If a robber is in the field&#10;there are no resources &#10;for you.&#10;With the resources received&#10;you can get roads, &#10;settlements&#10;and build cities.&#10;To build a settlement you &#10;must be two streets away &#10;from the next settlement or &#10;city.&#10;For every settlement you &#10;build you get 1 victory Point.&#10;For every city you build you &#10;get 2 victory points.&#10;Who first have 10 victory &#10;points wins the Game"/>
+                        <ImageView fitHeight="242.0" fitWidth="258.0" layoutX="231.0" layoutY="467.0"
                                    pickOnBounds="true" preserveRatio="true">
                             <image>
                                 <Image url="@../textures/originals/Baukosten.png"/>
                             </image>
                         </ImageView>
-                        <TextArea layoutX="14.0" layoutY="340.0" prefHeight="232.0" prefWidth="200.0"
-                                  text="With the resources received&#10;you can get roads, settlements&#10;and build cities..&#10;To build a settlement you must&#10;two streets away from the next&#10;settlement/ city.&#10;For every settlement you build&#10;you get 1 Victory Point.&#10;For every City you Build you get&#10;2 Vitory Points.&#10;Who first have 10 Victory Points&#10;Wins the Game&#10;&#10;With the resources cards &#10;you can buy special cards.&#10;There are following special &#10;cards:&#10;&#10;One Victory Point: you get one&#10;Victory Point.&#10;road construction: you can&#10;build two Streets for free.&#10;greatest Knightpower: you can&#10;move the robber on any field&#10;you want.&#10;technological lead: you chosse&#10;a resource and all players must&#10;give you all there cards with &#10;from this resource."/>
+                        <TextArea layoutX="13.0" layoutY="467.0" prefHeight="232.0" prefWidth="200.0"
+                                  text="With the resource cards &#10;you can buy special cards.&#10;There are following special &#10;cards:&#10;&#10;one victory point: you get one&#10;victory point.&#10;road construction: you can&#10;build two streets for free.&#10;greatest knight power: you can&#10;move the robber on any field&#10;you want.&#10;technological lead: you choose&#10;a resource and all players must&#10;give you all their cards from&#10;that resource."/>
                     </children>
                 </AnchorPane>
             </content>
