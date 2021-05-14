@@ -4,7 +4,7 @@
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.AnchorPane?>
-<AnchorPane xmlns:fx="http://javafx.com/fxml/1" prefHeight="525.0" prefWidth="583.0" xmlns="http://javafx.com/javafx/16"
+<AnchorPane xmlns:fx="http://javafx.com/fxml/1" prefHeight="525.0" prefWidth="779.0" xmlns="http://javafx.com/javafx/16"
             fx:controller="de.uol.swp.client.game.GameRulesPresenter">
     <children>
         <ScrollPane hbarPolicy="NEVER" layoutX="17.0" layoutY="77.0" prefHeight="430.0" prefWidth="566.0"
