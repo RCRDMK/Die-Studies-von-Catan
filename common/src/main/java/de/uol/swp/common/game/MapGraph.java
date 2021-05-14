@@ -3,10 +3,7 @@ package de.uol.swp.common.game;
 import de.uol.swp.common.game.exception.ListFullException;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Manages the logic behind the playfield.
@@ -24,6 +21,8 @@ public class MapGraph implements Serializable {
     private final HashSet<BuildingNode> buildingNodeHashSet = new HashSet<>();
     private final HashSet<Hexagon> hexagonHashSet = new HashSet<>();
     private final ArrayList<BuildingNode> builtBuildings = new ArrayList<>();
+    // middle hexagon for reference
+    private final Hexagon middle = new Hexagon("middle");
 
     /**
      * Creates the interconnected Grid of StreetNodes and BuildingNodes.
@@ -64,84 +63,68 @@ public class MapGraph implements Serializable {
             //Here is some space for future mapTypes//
             //                                      //
             //                                      //
+
+            case "Random":
+                generateStandardField();
+                ArrayList<Hexagon> hexagons = new ArrayList<>();
+                for (Hexagon hexagon : hexagonHashSet) {
+                    if (!hexagon.equals(middle)) {
+                        hexagons.add(hexagon);
+                    }
+                }
+                ArrayList<Integer> diceTokenList = new ArrayList<>();
+                diceTokenList.add(5);
+                diceTokenList.add(2);
+                diceTokenList.add(6);
+                diceTokenList.add(3);
+                diceTokenList.add(8);
+                diceTokenList.add(10);
+                diceTokenList.add(9);
+                diceTokenList.add(12);
+                diceTokenList.add(11);
+                diceTokenList.add(4);
+                diceTokenList.add(8);
+                diceTokenList.add(10);
+                diceTokenList.add(9);
+                diceTokenList.add(4);
+                diceTokenList.add(5);
+                diceTokenList.add(6);
+                diceTokenList.add(3);
+                diceTokenList.add(3);
+
+
+                ArrayList<Integer> terrainType = new ArrayList<>();
+                terrainType.add(1);
+                terrainType.add(2);
+                terrainType.add(1);
+                terrainType.add(3);
+                terrainType.add(3);
+                terrainType.add(1);
+                terrainType.add(2);
+                terrainType.add(3);
+                terrainType.add(4);
+                terrainType.add(3);
+                terrainType.add(4);
+                terrainType.add(2);
+                terrainType.add(4);
+                terrainType.add(5);
+                terrainType.add(2);
+                terrainType.add(5);
+                terrainType.add(1);
+                terrainType.add(5);
+
+                middle.configureTerrainTypeAndDiceToken(6, 0);
+                for (int i = 0; i < 18; i++) {
+                    int rand1 = randomInt(0, 17 - i);
+                    int rand2 = randomInt(0, 17 - i);
+                    hexagons.get(i).configureTerrainTypeAndDiceToken(terrainType.get(rand1), diceTokenList.get(rand2));
+                    terrainType.remove(rand1);
+                    diceTokenList.remove(rand2);
+                }
+                break;
+
             default: {
-                //Generating the first Hexagon in the middle.
-                Hexagon middle = new Hexagon("middle");
-
-                middle.generateNodesMiddle();
-                middle.expand();
-                middle.interconnectOwnNodes();
-                middle.interconnectNeighbourHexagons();
-
-                middle.getHexTopLeft().expand();
-                middle.getHexTopLeft().interconnectNeighbourHexagons();
-
-                middle.getHexTopRight().expand();
-                middle.getHexTopRight().interconnectNeighbourHexagons();
-
-                middle.getHexLeft().expand();
-                middle.getHexLeft().interconnectNeighbourHexagons();
-
-                middle.getHexRight().expand();
-                middle.getHexRight().interconnectNeighbourHexagons();
-
-                middle.getHexBottomLeft().expand();
-                middle.getHexBottomLeft().interconnectNeighbourHexagons();
-
-                middle.getHexBottomRight().expand();
-                middle.getHexBottomRight().interconnectNeighbourHexagons();
-
-
-                middle.getHexTopLeft().generateNodes();
-                middle.getHexTopRight().generateNodes();
-                middle.getHexLeft().generateNodes();
-                middle.getHexRight().generateNodes();
-                middle.getHexBottomLeft().generateNodes();
-                middle.getHexBottomRight().generateNodes();
-
-                middle.getHexTopLeft().getHexTopLeft().generateNodes();
-                middle.getHexTopLeft().getHexTopRight().generateNodes();
-
-                middle.getHexTopRight().getHexTopRight().generateNodes();
-                middle.getHexTopRight().getHexRight().generateNodes();
-
-                middle.getHexRight().getHexRight().generateNodes();
-                middle.getHexRight().getHexBottomRight().generateNodes();
-
-                middle.getHexBottomRight().getHexBottomRight().generateNodes();
-                middle.getHexBottomRight().getHexBottomLeft().generateNodes();
-
-                middle.getHexBottomLeft().getHexBottomLeft().generateNodes();
-                middle.getHexBottomLeft().getHexLeft().generateNodes();
-
-                middle.getHexLeft().getHexLeft().generateNodes();
-                middle.getHexLeft().getHexTopLeft().generateNodes();
-
-
-                middle.getHexTopLeft().interconnectNeighbourNodes();
-                middle.getHexTopRight().interconnectNeighbourNodes();
-                middle.getHexLeft().interconnectNeighbourNodes();
-                middle.getHexRight().interconnectNeighbourNodes();
-                middle.getHexBottomLeft().interconnectNeighbourNodes();
-                middle.getHexBottomRight().interconnectNeighbourNodes();
-
-                middle.getHexTopLeft().getHexTopLeft().updateHexagonList();
-                middle.getHexTopLeft().getHexTopRight().updateHexagonList();
-
-                middle.getHexTopRight().getHexTopRight().updateHexagonList();
-                middle.getHexTopRight().getHexRight().updateHexagonList();
-
-                middle.getHexRight().getHexRight().updateHexagonList();
-                middle.getHexRight().getHexBottomRight().updateHexagonList();
-
-                middle.getHexBottomRight().getHexBottomRight().updateHexagonList();
-                middle.getHexBottomRight().getHexBottomLeft().updateHexagonList();
-
-                middle.getHexBottomLeft().getHexBottomLeft().updateHexagonList();
-                middle.getHexBottomLeft().getHexLeft().updateHexagonList();
-
-                middle.getHexLeft().getHexLeft().updateHexagonList();
-                middle.getHexLeft().getHexTopLeft().updateHexagonList();
+                generateStandardField();
 
                 //einfgügen der dicetoken und terraintypes
 
@@ -204,6 +187,90 @@ public class MapGraph implements Serializable {
                 middle.getHexTopLeft().getHexTopLeft().getBuildingTop().setTypeOfHarbor(6);
             }
         }
+
+    }
+
+    private void generateStandardField() {
+        //Generating the first Hexagon in the middle.
+        middle.generateNodesMiddle();
+        middle.expand();
+        middle.interconnectOwnNodes();
+        middle.interconnectNeighbourHexagons();
+
+        middle.getHexTopLeft().expand();
+        middle.getHexTopLeft().interconnectNeighbourHexagons();
+
+        middle.getHexTopRight().expand();
+        middle.getHexTopRight().interconnectNeighbourHexagons();
+
+        middle.getHexLeft().expand();
+        middle.getHexLeft().interconnectNeighbourHexagons();
+
+        middle.getHexRight().expand();
+        middle.getHexRight().interconnectNeighbourHexagons();
+
+        middle.getHexBottomLeft().expand();
+        middle.getHexBottomLeft().interconnectNeighbourHexagons();
+
+        middle.getHexBottomRight().expand();
+        middle.getHexBottomRight().interconnectNeighbourHexagons();
+
+
+        middle.getHexTopLeft().generateNodes();
+        middle.getHexTopRight().generateNodes();
+        middle.getHexLeft().generateNodes();
+        middle.getHexRight().generateNodes();
+        middle.getHexBottomLeft().generateNodes();
+        middle.getHexBottomRight().generateNodes();
+
+        middle.getHexTopLeft().getHexTopLeft().generateNodes();
+        middle.getHexTopLeft().getHexTopRight().generateNodes();
+
+        middle.getHexTopRight().getHexTopRight().generateNodes();
+        middle.getHexTopRight().getHexRight().generateNodes();
+
+        middle.getHexRight().getHexRight().generateNodes();
+        middle.getHexRight().getHexBottomRight().generateNodes();
+
+        middle.getHexBottomRight().getHexBottomRight().generateNodes();
+        middle.getHexBottomRight().getHexBottomLeft().generateNodes();
+
+        middle.getHexBottomLeft().getHexBottomLeft().generateNodes();
+        middle.getHexBottomLeft().getHexLeft().generateNodes();
+
+        middle.getHexLeft().getHexLeft().generateNodes();
+        middle.getHexLeft().getHexTopLeft().generateNodes();
+
+
+        middle.getHexTopLeft().interconnectNeighbourNodes();
+        middle.getHexTopRight().interconnectNeighbourNodes();
+        middle.getHexLeft().interconnectNeighbourNodes();
+        middle.getHexRight().interconnectNeighbourNodes();
+        middle.getHexBottomLeft().interconnectNeighbourNodes();
+        middle.getHexBottomRight().interconnectNeighbourNodes();
+
+        middle.getHexTopLeft().getHexTopLeft().updateHexagonList();
+        middle.getHexTopLeft().getHexTopRight().updateHexagonList();
+
+        middle.getHexTopRight().getHexTopRight().updateHexagonList();
+        middle.getHexTopRight().getHexRight().updateHexagonList();
+
+        middle.getHexRight().getHexRight().updateHexagonList();
+        middle.getHexRight().getHexBottomRight().updateHexagonList();
+
+        middle.getHexBottomRight().getHexBottomRight().updateHexagonList();
+        middle.getHexBottomRight().getHexBottomLeft().updateHexagonList();
+
+        middle.getHexBottomLeft().getHexBottomLeft().updateHexagonList();
+        middle.getHexBottomLeft().getHexLeft().updateHexagonList();
+
+        middle.getHexLeft().getHexLeft().updateHexagonList();
+        middle.getHexLeft().getHexTopLeft().updateHexagonList();
+
+    }
+
+    private int randomInt(int min, int max) {
+        return (int) (Math.random() * (max - min)) + min;
     }
 
     /**
