@@ -34,6 +34,10 @@ public class MapGraph implements Serializable {
         initializeMapGraph(mapTypeToGenerate);
     }
 
+    public static void main(String[] args) {
+        MapGraph mapGraph = new MapGraph("Random");
+    }
+
     public HashSet<StreetNode> getStreetNodeHashSet() {
         return streetNodeHashSet;
     }
@@ -65,6 +69,66 @@ public class MapGraph implements Serializable {
             //                                      //
 
             case "Random":
+                generateRandomField();
+                ArrayList<Hexagon> hexagons1 = new ArrayList<>();
+                for (Hexagon hexagon : hexagonHashSet) {
+                    if (!hexagon.equals(middle)) {
+                        hexagons1.add(hexagon);
+                    }
+                }
+                ArrayList<Integer> diceTokenList1 = new ArrayList<>();
+                diceTokenList1.add(5);
+                diceTokenList1.add(2);
+                diceTokenList1.add(6);
+                diceTokenList1.add(3);
+                diceTokenList1.add(8);
+                diceTokenList1.add(10);
+                diceTokenList1.add(9);
+                diceTokenList1.add(12);
+                diceTokenList1.add(11);
+                diceTokenList1.add(4);
+                diceTokenList1.add(8);
+                diceTokenList1.add(10);
+                diceTokenList1.add(9);
+                diceTokenList1.add(4);
+                diceTokenList1.add(5);
+                diceTokenList1.add(6);
+                diceTokenList1.add(3);
+                diceTokenList1.add(3);
+
+
+                ArrayList<Integer> terrainType1 = new ArrayList<>();
+                terrainType1.add(1);
+                terrainType1.add(2);
+                terrainType1.add(1);
+                terrainType1.add(3);
+                terrainType1.add(3);
+                terrainType1.add(1);
+                terrainType1.add(2);
+                terrainType1.add(3);
+                terrainType1.add(4);
+                terrainType1.add(3);
+                terrainType1.add(4);
+                terrainType1.add(2);
+                terrainType1.add(4);
+                terrainType1.add(5);
+                terrainType1.add(2);
+                terrainType1.add(5);
+                terrainType1.add(1);
+                terrainType1.add(5);
+
+                middle.configureTerrainTypeAndDiceToken(6, 0);
+                for (int i = 0; i < 18; i++) {
+                    int rand1 = randomInt(0, 17 - i);
+                    int rand2 = randomInt(0, 17 - i);
+                    hexagons1.get(i).configureTerrainTypeAndDiceToken(terrainType1.get(rand1), diceTokenList1.get(rand2));
+                    terrainType1.remove(rand1);
+                    diceTokenList1.remove(rand2);
+                }
+                break;
+
+
+            case "no":
                 generateStandardField();
                 ArrayList<Hexagon> hexagons = new ArrayList<>();
                 for (Hexagon hexagon : hexagonHashSet) {
@@ -266,6 +330,91 @@ public class MapGraph implements Serializable {
 
         middle.getHexLeft().getHexLeft().updateHexagonList();
         middle.getHexLeft().getHexTopLeft().updateHexagonList();
+
+    }
+
+    private void generateRandomField() {
+        middle.generateNodesMiddle();
+        //middle.expand();
+        middle.interconnectOwnNodes();
+        //middle.interconnectNeighbourHexagons();
+
+        ArrayList<Hexagon> placedHexagons = new ArrayList<>();
+        placedHexagons.add(middle);
+        while (hexagonHashSet.size() < 19) {
+            expandRandomly(placedHexagons, randomInt(0, placedHexagons.size() - 1), randomInt(0, 5));
+            hexagonHashSet.forEach(Hexagon::updateHexagonList);
+            hexagonHashSet.forEach(Hexagon::interconnectNeighbourHexagons);
+
+        }
+        //hexagonHashSet.forEach(Hexagon::interconnectNeighbourHexagons);
+        for (Hexagon hexagon : placedHexagons) {
+            if(!hexagon.equals(middle))
+            hexagon.generateNodes();
+        }
+        for (Hexagon hexagon : placedHexagons) {
+            if(!hexagon.equals(middle))
+            hexagon.interconnectOwnNodes();
+        }
+
+    }
+
+    private void expandRandomly(ArrayList<Hexagon> list, int rand, int direction) {
+        switch (direction) {
+            case 0:
+                if (list.get(rand).getSelfPosition().size() < 4) {
+                    Hexagon hex = list.get(rand).dockTopLeft();
+                    list.clear();
+                    list.addAll(hexagonHashSet);
+                    hex.updateHexagonList();
+
+                }
+                break;
+            case 1:
+                if (list.get(rand).getSelfPosition().size() < 4) {
+                    Hexagon hex = list.get(rand).dockLeft();
+                    list.clear();
+                    list.addAll(hexagonHashSet);
+                    hex.updateHexagonList();
+
+                }
+                break;
+            case 2:
+                if (list.get(rand).getSelfPosition().size() < 4) {
+                    Hexagon hex = list.get(rand).dockRight();
+                    list.clear();
+                    list.addAll(hexagonHashSet);
+                    hex.updateHexagonList();
+
+                }
+                break;
+            case 3:
+                if (list.get(rand).getSelfPosition().size() < 4) {
+                    Hexagon hex = list.get(rand).dockBottomLeft();
+                    list.clear();
+                    list.addAll(hexagonHashSet);
+                    hex.updateHexagonList();
+
+                }
+                break;
+            case 4:
+                if (list.get(rand).getSelfPosition().size() < 4) {
+                    Hexagon hex = list.get(rand).dockBottomRight();
+                    list.clear();
+                    list.addAll(hexagonHashSet);
+                    hex.updateHexagonList();
+
+                }
+                break;
+            case 5:
+                if (list.get(rand).getSelfPosition().size() < 4) {
+                    Hexagon hex = list.get(rand).dockTopRight();
+                    list.clear();
+                    list.addAll(hexagonHashSet);
+                    hex.updateHexagonList();
+                }
+                break;
+        }
 
     }
 
@@ -838,23 +987,28 @@ public class MapGraph implements Serializable {
          * @since 2021-04-08
          */
         public void updateHexagonList() {
-            if (hexTopLeft != null) {
+            /*ArrayList<Hexagon> bleb = new ArrayList<>(Arrays.asList(hexTopLeft, hexTopRight, hexRight, hexLeft, hexBottomLeft, hexBottomRight));
+            bleb.forEach(hexagon -> {
+                if (hexagon != null && !hexagons.contains(hexagon)) {
+                    hexagons.add(hexagon);
+                }
+            });*/
+            if (hexTopLeft != null && !hexagons.contains(hexTopLeft)) {
                 hexagons.add(hexTopLeft);
             }
-
-            if (hexTopRight != null) {
+            if (hexTopRight != null && !hexagons.contains(hexTopRight)) {
                 hexagons.add(hexTopRight);
             }
-            if (hexRight != null) {
+            if (hexRight != null && !hexagons.contains(hexRight)) {
                 hexagons.add(hexRight);
             }
-            if (hexLeft != null) {
+            if (hexLeft != null && !hexagons.contains(hexLeft)) {
                 hexagons.add(hexLeft);
             }
-            if (hexBottomLeft != null) {
+            if (hexBottomLeft != null && !hexagons.contains(hexBottomLeft)) {
                 hexagons.add(hexBottomLeft);
             }
-            if (hexBottomRight != null) {
+            if (hexBottomRight != null && !hexagons.contains(hexBottomRight)) {
                 hexagons.add(hexBottomRight);
             }
         }
@@ -1308,11 +1462,12 @@ public class MapGraph implements Serializable {
          * @author Pieter Vogt
          * @since 2021-04-08
          */
-        public void dockRight() {
+        public Hexagon dockRight() {
             if (hexRight == null) {
                 this.hexRight = new Hexagon("right", selfPosition);
                 hexRight.setHexLeft(this);
             }
+            return hexRight;
         }
 
         /**
@@ -1322,11 +1477,12 @@ public class MapGraph implements Serializable {
          * @author Pieter Vogt
          * @since 2021-04-08
          */
-        public void dockLeft() {
+        public Hexagon dockLeft() {
             if (hexLeft == null) {
                 this.hexLeft = new Hexagon("left", selfPosition);
                 hexLeft.setHexRight(this);
             }
+            return hexLeft;
         }
 
         /**
@@ -1336,11 +1492,12 @@ public class MapGraph implements Serializable {
          * @author Pieter Vogt
          * @since 2021-04-08
          */
-        public void dockTopRight() {
+        public Hexagon dockTopRight() {
             if (hexTopRight == null) {
                 this.hexTopRight = new Hexagon("topRight", selfPosition);
                 hexTopRight.setHexBottomLeft(this);
             }
+            return hexTopRight;
         }
 
         /**
@@ -1350,11 +1507,12 @@ public class MapGraph implements Serializable {
          * @author Pieter Vogt
          * @since 2021-04-08
          */
-        public void dockBottomRight() {
+        public Hexagon dockBottomRight() {
             if (hexBottomRight == null) {
                 this.hexBottomRight = new Hexagon("bottomRight", selfPosition);
                 hexBottomRight.setHexTopLeft(this);
             }
+            return hexBottomRight;
         }
 
         /**
@@ -1364,11 +1522,12 @@ public class MapGraph implements Serializable {
          * @author Pieter Vogt
          * @since 2021-04-08
          */
-        public void dockTopLeft() {
+        public Hexagon dockTopLeft() {
             if (hexTopLeft == null) {
                 this.hexTopLeft = new Hexagon("topLeft", selfPosition);
                 hexTopLeft.setHexBottomRight(this);
             }
+            return hexTopLeft;
         }
 
         /**
@@ -1378,11 +1537,12 @@ public class MapGraph implements Serializable {
          * @author Pieter Vogt
          * @since 2021-04-08
          */
-        public void dockBottomLeft() {
+        public Hexagon dockBottomLeft() {
             if (hexBottomLeft == null) {
                 this.hexBottomLeft = new Hexagon("bottomLeft", selfPosition);
                 hexBottomLeft.setHexTopRight(this);
             }
+            return hexBottomLeft;
         }
     }
 }

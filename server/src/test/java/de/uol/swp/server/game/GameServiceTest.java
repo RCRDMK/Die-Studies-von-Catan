@@ -717,4 +717,20 @@ public class GameServiceTest {
 
 
     }
+
+    @Test
+    void randomGameFieldGenerate() {
+
+        loginUsers();
+        gameManagement.createGame("test", userDTO, "Random");
+        Optional<Game> game = gameManagement.getGame("test");
+        assertTrue(game.isPresent());
+
+        game.get().joinUser(userDTO1);
+        game.get().joinUser(userDTO2);
+        game.get().joinUser(userDTO3);
+
+        game.get().setUpUserArrayList();
+        game.get().setUpInventories();
+    }
 }
