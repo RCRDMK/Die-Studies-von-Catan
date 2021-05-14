@@ -3,15 +3,15 @@ package de.uol.swp.server.usermanagement;
 import com.google.common.base.Strings;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
+import de.uol.swp.server.usermanagement.store.MainMemoryBasedUserStore;
+import de.uol.swp.server.usermanagement.store.SQLBasedUserStore;
+import de.uol.swp.server.usermanagement.store.UserStore;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.inject.Inject;
 import java.sql.*;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import java.util.*;
 
 
 /**
@@ -32,12 +32,11 @@ import java.util.TreeMap;
  */
 public class UserManagement extends AbstractUserManagement {
 
-    private final String CONNECTION = "jdbc:mysql://134.106.11.89:50102";
-    private Connection connection;
-    private Statement statement;
     private static final Logger LOG = LogManager.getLogger(UserManagement.class);
     private static final SortedMap<String, User> loggedInUsers = new TreeMap<>();
 
+    private SQLBasedUserStore storeInUse = new SQLBasedUserStore();
+    //private MainMemoryBasedUserStore storeInUse = new MainMemoryBasedUserStore();
 
     /**
      * Constructor
@@ -50,40 +49,19 @@ public class UserManagement extends AbstractUserManagement {
      * @since 2021-01-19
      */
     @Inject
-    public UserManagement() {
+    public UserManagement(SQLBasedUserStore storeInUse) {
+        this.storeInUse = storeInUse;
     }
 
-    /**
-     * Build Connection
-     * <p>
-     * This method will build up a connection to our database at the University Servers.
-     * It can be used everywhere, where the usermanagement is used and needed. But most times
-     * the connection is already opened and would only close if the server is going to shut down.
-     *
-     * @author Marius Birk
-     * @since 2021-01-15
-     */
-
-    public void buildConnection() throws SQLException {
-        DriverManager.registerDriver(new com.mysql.cj.jdbc.Driver());
-        connection = DriverManager.getConnection(CONNECTION, "root", "SWP2020j");
-        statement = connection.createStatement();
-        statement.execute("use user_store;");
-    }
-
-    /**
-     * Closes Connection
-     * <p>
-     * This method will be closing the connection between database and server application.
-     * If the server is going to be shut down,
-     * it will close the connection to the database.
-     *
-     * @author Marius Birk
-     * @since 2021-01-15
-     */
-    public void closeConnection() throws SQLException {
-        statement.close();
-        connection.close();
+    @Override
+    public User login(String username, String password) {
+        Optional<User> user = storeInUse.findUser(username, password);
+        if (user.isPresent()){
+            loggedInUsers.put(username, user.get());
+            return user.get();
+        }else{
+            throw new SecurityException("Cannot auth user " + username);
+        }
     }
 
     @Override
@@ -405,5 +383,78 @@ public class UserManagement extends AbstractUserManagement {
         else {
             return null;
         }
+    }
+
+
+    @Override
+    public User login(String username, String password) {
+        Optional<User> user = userStore.findUser(username, password);
+        if (user.isPresent()){
+            this.loggedInUsers.put(username, user.get());
+            return user.get();
+        }else{
+            throw new SecurityException("Cannot auth user " + username);
+        }
+    }
+
+    @Override
+    public boolean isLoggedIn(User username) {
+        return loggedInUsers.containsKey(username.getUsername());
+    }
+
+    @Override
+    public User createUser(User userToCreate){
+        Optional<User> user = userStore.findUser(userToCreate.getUsername());
+        if (user.isPresent()){
+            throw new UserManagementException("Username already used!");
+        }
+        return userStore.createUser(userToCreate.getUsername(), userToCreate.getPassword(), userToCreate.getEMail());
+    }
+
+    @Override
+    public User updateUser(User userToUpdate){
+        Optional<User> user = userStore.findUser(userToUpdate.getUsername());
+        if (!user.isPresent()){
+            throw new UserManagementException("Username unknown!");
+        }
+        // Only update if there are new values
+        String newPassword = firstNotNull(userToUpdate.getPassword(), user.get().getPassword());
+        String newEMail = firstNotNull(userToUpdate.getEMail(), user.get().getEMail());
+        return userStore.updateUser(userToUpdate.getUsername(), newPassword, newEMail);
+
+    }
+
+    @Override
+    public void dropUser(User userToDrop) {
+        Optional<User> user = userStore.findUser(userToDrop.getUsername());
+        if (!user.isPresent()) {
+            throw new UserManagementException("Username unknown!");
+        }
+        userStore.removeUser(userToDrop.getUsername());
+    }
+
+    /**
+     * Sub-function of update user
+     *
+     * This method is used to set the new user values to the old ones if the values
+     * in the update request were empty.
+     *
+     * @param firstValue value to update to, empty String or null
+     * @param secondValue the old value
+     * @return String containing the value to be used in the update command
+     * @since 2019-08-05
+     */
+    private String firstNotNull(String firstValue, String secondValue) {
+        return Strings.isNullOrEmpty(firstValue)?secondValue:firstValue;
+    }
+
+    @Override
+    public void logout(User user) {
+        loggedInUsers.remove(user.getUsername());
+    }
+
+    @Override
+    public List<User> retrieveAllUsers() {
+        return userStore.getAllUsers();
     }
 }

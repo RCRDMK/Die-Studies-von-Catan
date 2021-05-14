@@ -59,10 +59,9 @@ public class AuthenticationService extends AbstractService {
      * @since 2019-08-30
      */
     @Inject
-    public AuthenticationService(EventBus bus, UserManagement userManagement) throws SQLException {
+    public AuthenticationService(EventBus bus, UserManagement userManagement) {
         super(bus);
         this.userManagement = userManagement;
-        this.userManagement.buildConnection();
         startTimerForActiveUserList();
     }
 

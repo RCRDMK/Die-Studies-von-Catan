@@ -50,7 +50,6 @@ public class UserService extends AbstractService {
     public UserService(EventBus eventBus, UserManagement userManagement) throws SQLException {
         super(eventBus);
         this.userManagement = userManagement;
-        this.userManagement.buildConnection();
     }
 
     /**
