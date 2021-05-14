@@ -1,44 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.canvas.*?>
 <?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.text.Text?>
-<?import javafx.scene.layout.Pane?>
-<?import javafx.scene.layout.ColumnConstraints?>
-<?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<AnchorPane xmlns:fx="http://javafx.com/fxml/1" fx:id="gameAnchorPane" maxHeight="-Infinity" maxWidth="-Infinity"
-            prefHeight="400.0"
-            prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1"
-            fx:controller="de.uol.swp.client.game.GamePresenter" stylesheets="@../css/swp.css">
+<AnchorPane fx:id="gameAnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" stylesheets="@../css/swp.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.uol.swp.client.game.GamePresenter">
 
     <children>
         <TextArea fx:id="gameChatArea" editable="false" layoutX="370.0" layoutY="279.0" prefHeight="96.0" prefWidth="356.0" GridPane.rowIndex="2" />
         <ListView fx:id="gameUsersView" layoutX="439.0" layoutY="30.0" prefHeight="69.0" prefWidth="109.0" />
         <ToolBar layoutY="-5.0" prefHeight="35.0" prefWidth="600.0">
             <items>
-                <Button fx:id="rollDice" mnemonicParsing="false" onAction="#onRollDice" text="Roll Dice"/>
-                <Text fx:id="DiceOutput" strokeType="OUTSIDE" strokeWidth="0.0" text="Text"/>
-                <Separator orientation="VERTICAL"/>
+                <Button fx:id="rollDice" mnemonicParsing="false" onAction="#onRollDice" text="Roll Dice" />
+                <Text fx:id="DiceOutput" strokeType="OUTSIDE" strokeWidth="0.0" text="Text" />
+                <Separator orientation="VERTICAL" />
                 <Button fx:id="tradeButton" mnemonicParsing="false" onAction="#onTrade" text="Trade">
                 </Button>
                 <MenuButton fx:id="buildMenu" layoutX="103.0" layoutY="11.0" mnemonicParsing="false" text="Build">
                     <items>
-                        <MenuItem mnemonicParsing="false" onAction="#onBuildStreet" text="Street"/>
-                        <MenuItem mnemonicParsing="false" onAction="#onBuildSettlement" text="Settlement"/>
-                        <MenuItem mnemonicParsing="false" onAction="#onBuildTown" text="Town"/>
+                        <MenuItem mnemonicParsing="false" onAction="#onBuildStreet" text="Street" />
+                        <MenuItem mnemonicParsing="false" onAction="#onBuildSettlement" text="Settlement" />
+                        <MenuItem mnemonicParsing="false" onAction="#onBuildTown" text="Town" />
                     </items>
                 </MenuButton>
-                <Button fx:id="buyDevCard" layoutX="153.0" layoutY="11.0" mnemonicParsing="false"
-                        onAction="#onBuyDevelopmentCard" text="Buy DevelopmentCard"/>
-                <Button fx:id="EndTurnButton" layoutX="10.0" layoutY="10.0" mnemonicParsing="false"
-                        onAction="#onEndTurn" text="End Turn"/>
-                <Region prefHeight="25.0" prefWidth="73.0"/>
-                <Button mnemonicParsing="false" onAction="#onLeaveGame" text="Leave Game"/>
+                <Button fx:id="buyDevCard" layoutX="153.0" layoutY="11.0" mnemonicParsing="false" onAction="#onBuyDevelopmentCard" text="Buy DevelopmentCard" />
+                <Button fx:id="EndTurnButton" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onAction="#onEndTurn" text="End Turn" />
+                <Region prefHeight="25.0" prefWidth="73.0" />
+                <Button mnemonicParsing="false" onAction="#onLeaveGame" text="Leave Game" />
             </items>
         </ToolBar>
         <Canvas fx:id="canvas" height="370.0" layoutX="0.0" layoutY="30.0" width="370" />
@@ -97,5 +87,26 @@
       <ListView fx:id="gameUsersView1" layoutX="618.0" layoutY="30.0" prefHeight="69.0" prefWidth="109.0" />
       <ListView fx:id="gameUsersView2" layoutX="439.0" layoutY="153.0" prefHeight="69.0" prefWidth="109.0" />
       <ListView fx:id="gameUsersView21" layoutX="618.0" layoutY="153.0" prefHeight="69.0" prefWidth="109.0" />
+      <GridPane fx:id="privateInventoryView" layoutX="-5.0" layoutY="397.0" prefHeight="81.0" prefWidth="770.0">
+        <columnConstraints>
+          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+        </columnConstraints>
+        <rowConstraints>
+          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+        </rowConstraints>
+      </GridPane>
+
     </children>
 </AnchorPane>

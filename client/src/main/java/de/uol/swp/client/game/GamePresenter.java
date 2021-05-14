@@ -185,33 +185,20 @@ public class GamePresenter extends AbstractPresenter {
     private ListView<String> publicInventory4View;
 
     @FXML
-    private javafx.scene.image.ImageView privateLumber;
-    public Image lumberInv = new Image("textures/resized/RES_Holz.png");
-    @FXML
-    private javafx.scene.image.ImageView privateBrick;
-    public Image brickInv = new Image("textures/resized/RES_Lehm.png");
-    @FXML
-    private javafx.scene.image.ImageView privateGrain;
-    public Image grainInv = new Image("textures/resized/RES_Getreide.png");
-    @FXML
-    private javafx.scene.image.ImageView privateWool;
-    public Image woolInv = new Image("textures/resized/RES_Wolle.png");
-    @FXML
-    private javafx.scene.image.ImageView privateOre;
-    public Image oreInv = new Image("textures/resized/RES_Erz.png");
-    @FXML
-    private javafx.scene.image.ImageView privateDevelopmentCard;
-    public Image devCardInv = new Image("textures/resized/CARD_Ritter.png");
-    @FXML
-    private javafx.scene.image.ImageView privateCities;
-    public Image citiesInv = new Image("textures/resized/RES_Holz.png");
-    @FXML
-    private javafx.scene.image.ImageView privateRoads;
-    public Image roadsInv = new Image("textures/resized/RES_Holz.png");
-    @FXML
-    private javafx.scene.image.ImageView privateSettlements;
-    public Image settlementsInv = new Image("textures/resized/RES_Holz.png");
-
+    private GridPane privateInventoryView;
+    Label privateLumberLabel = new Label("0");
+    Label privateBrickLabel = new Label("0");
+    Label privateGrainLabel = new Label("0");
+    Label privateWoolLabel = new Label("0");
+    Label privateOreLabel = new Label("0");
+    Label privateKnightCardLabel = new Label("0");
+    Label privateMonopolyCardLabel = new Label("0");
+    Label privateRoadBuildingCardLabel = new Label("0");
+    Label privateYearOfPlentyCardLabel = new Label("0");
+    Label privateVictoryPointCardLabel = new Label("0");
+    Label privateCitiesLabel = new Label("0");
+    Label privateRoadsLabel = new Label("0");
+    Label privateSettlementsLabel = new Label("0");
 
     final private ArrayList<ImagePattern> diceImages = new ArrayList<>();
 
@@ -487,7 +474,6 @@ public class GamePresenter extends AbstractPresenter {
             this.currentLobby = gcm.getName();
             updateGameUsersList(gcm.getUsers());
             initializeMatch(gcm.getMapGraph());
-            displayPrivateInventory();
             for (int i = 1; i <= 64; i++) {
                 Image image;
                 image = new Image("img/profilePictures/" + i + ".png");
@@ -501,6 +487,7 @@ public class GamePresenter extends AbstractPresenter {
                 initializeRobberResourceMenu();
                 setupRobberAlert();
                 setupDicesAtGameStart();
+                setUpPrivateInventoryView();
                 setupResolveDevelopmentCardAlert();
             });
         }
@@ -1091,16 +1078,15 @@ public class GamePresenter extends AbstractPresenter {
         });
     }
 
- /*   private void updatePrivateInventory(ArrayList<HashMap <String, Integer>> publicInventories) {
-        // Attention: This must be done on the FX Thread!
-        Platform.runLater(() -> {
-            if (publicInventories == null) {
-                publicInventories = FXCollections.observableArrayList();
-                publicInventories.setItems();
-            }
+  /*  private void updatePrivateInventory(PrivateInventoryChangeMessage pricm) {
+        HashMap<String, Integer> p = new HashMap<>();
+        p = pricm.getPrivateInventory();
+        p.
+        if (privateLumberLabel.getText().equals(p)
+        {
+        }
 
-        });
-    }*/
+    } */
 
     /**
      * This method holds the size of the terrainFields in pixels.
@@ -1980,6 +1966,14 @@ public class GamePresenter extends AbstractPresenter {
         //   updatePublicInventory(puicm);
     }
 
+    @Subscribe
+    public void privateInventoryChanged(PrivateInventoryChangeMessage privateInventoryChangeMessage) {
+        privateInventoryChangedLogic(privateInventoryChangeMessage);
+    }
+
+    private void privateInventoryChangedLogic(PrivateInventoryChangeMessage pricm) {
+     //   updatePrivateInventory(pricm);
+    }
     /**
      * The method called when a ResolveDevelopmentCardNotSuccessfulResponse is received
      * <p>
@@ -2095,16 +2089,26 @@ public class GamePresenter extends AbstractPresenter {
         }
     }
 
-    public void displayPrivateInventory() {
-        privateLumber.setImage(lumberInv);
-        privateBrick.setImage(brickInv);
-        privateGrain.setImage(grainInv);
-        privateWool.setImage(woolInv);
-        privateOre.setImage(oreInv);
-        privateDevelopmentCard.setImage(devCardInv);
-        privateCities.setImage(citiesInv);
-        privateRoads.setImage(roadsInv);
-        privateSettlements.setImage(settlementsInv);
+    public void setUpPrivateInventoryView() {
+        for(int i = 1; i<14; i++) {
+            Image image = new Image("textures/privateInventory/privateInventoryImage" + i + ".png");
+            Rectangle r = new Rectangle(42, 60);
+            r.setFill(new ImagePattern(image));
+            privateInventoryView.add(r,i-1, 0 );
+        }
+        privateInventoryView.add(privateLumberLabel,0, 1);
+        privateInventoryView.add(privateBrickLabel,1, 1);
+        privateInventoryView.add(privateGrainLabel,2, 1);
+        privateInventoryView.add(privateWoolLabel,3, 1);
+        privateInventoryView.add(privateOreLabel,4, 1);
+        privateInventoryView.add(privateKnightCardLabel,5, 1);
+        privateInventoryView.add(privateMonopolyCardLabel,6, 1);
+        privateInventoryView.add(privateRoadBuildingCardLabel,7, 1);
+        privateInventoryView.add(privateYearOfPlentyCardLabel,8, 1);
+        privateInventoryView.add(privateVictoryPointCardLabel,9, 1);
+        privateInventoryView.add(privateCitiesLabel,10, 1);
+        privateInventoryView.add(privateRoadsLabel,11, 1);
+        privateInventoryView.add(privateSettlementsLabel,12, 1);
     }
 
     /**
