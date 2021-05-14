@@ -668,7 +668,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void ResourcesToDiscardTest(){
+    public void ResourcesToDiscardTest() {
         GameService gameService2 = new GameService(gameManagement, lobbyService, authenticationService, bus, userService);
         gameManagement.createGame("test", userDTO, "Standard");
         Optional<Game> game = gameManagement.getGame("test");
@@ -908,7 +908,6 @@ public class GameServiceTest {
         // Check if the turn started for the correct player (and thus the AI ended the turn)
         assertTrue(event instanceof NextTurnMessage);
         assertEquals(userDTO1.getUsername(), ((NextTurnMessage) event).getPlayerWithCurrentTurn());
-
 
     }
 

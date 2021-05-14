@@ -311,4 +311,13 @@ public interface Game extends Serializable {
      * @since 2021-05-12
      */
     void setIsUsedForTest(boolean value);
+
+    /**
+     * Getter for the boolean value showing whether the dice were already rolled this turn or not.
+     *
+     * @return true if yes, false if not
+     * @author Marc Hermes
+     * @since 2021-05-14
+     */
+    boolean rolledDiceThisTurn();
 }

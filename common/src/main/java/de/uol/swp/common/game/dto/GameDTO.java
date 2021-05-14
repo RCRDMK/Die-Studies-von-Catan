@@ -46,6 +46,7 @@ public class GameDTO implements Game {
     private final HashMap<String, Trade> tradeList = new HashMap<>();
     private String currentCard = "";
     private boolean isTest;
+    private boolean rolledDiceThisTurn = false;
 
     /**
      * Constructor
@@ -171,6 +172,7 @@ public class GameDTO implements Game {
             openingPhase();
         } else overallTurns++;
         playedCardThisTurn = false;
+        rolledDiceThisTurn = false;
     }
 
     /**
@@ -371,6 +373,7 @@ public class GameDTO implements Game {
 
     @Override
     public void setLastRolledDiceValue(int eyes) {
+        this.rolledDiceThisTurn = true;
         this.lastRolledDiceValue = eyes;
     }
 
@@ -387,6 +390,11 @@ public class GameDTO implements Game {
     @Override
     public void setIsUsedForTest(boolean value) {
         this.isTest = value;
+    }
+
+    @Override
+    public boolean rolledDiceThisTurn() {
+        return this.rolledDiceThisTurn;
     }
 
 }

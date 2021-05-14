@@ -61,6 +61,17 @@ public class TestAI extends AbstractAISystem {
             buildCity(building.getUuid());
             break;
         }
+        i = 0;
+        for (MapGraph.Hexagon hexagon : game.getMapGraph().getHexagonHashSet()) {
+            if (i == 0) {
+                moveBandit(hexagon.getUuid());
+            }
+            if (i == 1) {
+                playDevelopmentCardKnight(hexagon.getUuid());
+                break;
+            }
+            i++;
+        }
         endTurn();
 
         return this.aiActions;

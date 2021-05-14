@@ -1,5 +1,6 @@
 package de.uol.swp.server.AI;
 
+import de.uol.swp.common.game.message.RobbersNewFieldMessage;
 import de.uol.swp.common.game.request.*;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.server.AI.AIActions.*;
@@ -60,7 +61,8 @@ public class AIToServerTranslator {
 
             } else if (aiAction instanceof MoveBanditAction) {
                 MoveBanditAction mba = (MoveBanditAction) aiAction;
-                //TODO: move bandit stuff
+                RobbersNewFieldMessage rnfm = new RobbersNewFieldMessage(gameName, user, mba.getField());
+                gameService.onRobbersNewFieldRequest(rnfm);
 
             } else if (aiAction instanceof PlayDevelopmentCardAction) {
                 PlayDevelopmentCardAction pda = (PlayDevelopmentCardAction) aiAction;
@@ -69,7 +71,8 @@ public class AIToServerTranslator {
 
                 if (aiAction instanceof PlayDevelopmentCardKnightAction) {
                     PlayDevelopmentCardKnightAction pka = (PlayDevelopmentCardKnightAction) aiAction;
-                    //TODO: resolveDevelopmentCardKnight stuff
+                    ResolveDevelopmentCardKnightRequest rkr = new ResolveDevelopmentCardKnightRequest(pka.getDevCard(), user, gameName, pka.getField());
+                    gameService.onResolveDevelopmentCardRequest(rkr);
 
                 } else if (aiAction instanceof PlayDevelopmentCardMonopolyAction) {
                     PlayDevelopmentCardMonopolyAction pma = (PlayDevelopmentCardMonopolyAction) aiAction;
