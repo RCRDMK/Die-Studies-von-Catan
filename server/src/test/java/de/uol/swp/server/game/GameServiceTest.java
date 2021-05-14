@@ -12,6 +12,11 @@ import de.uol.swp.common.game.MapGraph;
 import de.uol.swp.common.game.request.*;
 import de.uol.swp.common.game.response.PlayDevelopmentCardResponse;
 import de.uol.swp.common.game.response.ResolveDevelopmentCardNotSuccessfulResponse;
+import de.uol.swp.common.game.request.GameLeaveUserRequest;
+import de.uol.swp.common.game.request.ResourcesToDiscardRequest;
+import de.uol.swp.common.game.request.RetrieveAllThisGameUsersRequest;
+import de.uol.swp.common.game.request.TradeChoiceRequest;
+import de.uol.swp.common.game.request.TradeItemRequest;
 import de.uol.swp.common.game.trade.TradeItem;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.user.Session;
@@ -24,6 +29,7 @@ import de.uol.swp.server.lobby.LobbyService;
 import de.uol.swp.server.usermanagement.AuthenticationService;
 import de.uol.swp.server.usermanagement.UserManagement;
 import de.uol.swp.server.usermanagement.UserService;
+import org.checkerframework.checker.nullness.Opt;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -662,6 +668,53 @@ public class GameServiceTest {
         // check if player 3 (index 2) is the occupier of the streets that were built with the Road Building decCard
         assertEquals(street1.getOccupiedByPlayer(), 2);
         assertEquals(street2.getOccupiedByPlayer(), 2);
+
+    }
+
+    @Test
+    public void ResourcesToDiscardTest(){
+        GameService gameService2 = new GameService(gameManagement, lobbyService, authenticationService, bus, userService);
+        gameManagement.createGame("test", userDTO, "Standard");
+        Optional<Game> game = gameManagement.getGame("test");
+        assertTrue(game.isPresent());
+
+        loginUsers();
+
+        game.get().joinUser(userDTO1);
+        game.get().joinUser(userDTO2);
+        game.get().joinUser(userDTO3);
+
+        game.get().setUpUserArrayList();
+        game.get().setUpInventories();
+
+        for (MapGraph.BuildingNode b : game.get().getMapGraph().getBuildingNodeHashSet()) {
+            b.buildOrDevelopSettlement(1);
+        }
+
+        Map<String, Integer> inventoryEmpty = new HashMap<>();
+        inventoryEmpty = game.get().getInventory(game.get().getUser(1)).getPrivateView();
+        assertEquals(inventoryEmpty.get("Lumber"), 0);
+        assertEquals(inventoryEmpty.get("Brick"), 0);
+        assertEquals(inventoryEmpty.get("Grain"), 0);
+        assertEquals(inventoryEmpty.get("Wool"), 0);
+        assertEquals(inventoryEmpty.get("Ore"), 0);
+
+        game.get().getInventory(userDTO1).lumber.setNumber(6);
+        game.get().getInventory(userDTO1).grain.setNumber(5);
+
+        HashMap<String, Integer> inventoryChosen = new HashMap<>();
+        inventoryChosen.put("Lumber", 3);
+        inventoryChosen.put("Wool", 0);
+        inventoryChosen.put("Ore", 0);
+        inventoryChosen.put("Brick", 0);
+        inventoryChosen.put("Grain", 4);
+
+        ResourcesToDiscardRequest resources = new ResourcesToDiscardRequest("test", userDTO1, inventoryChosen);
+        gameService2.onResourcesToDiscard(resources);
+
+        assertEquals(game.get().getInventory(userDTO1).lumber.getNumber(), 3);
+        assertEquals(game.get().getInventory(userDTO1).grain.getNumber(), 1);
+
 
     }
 }
