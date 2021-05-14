@@ -1,34 +1,112 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.*?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.image.*?>
 <?import javafx.scene.layout.AnchorPane?>
-<AnchorPane xmlns:fx="http://javafx.com/fxml/1" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/16"
+<AnchorPane xmlns:fx="http://javafx.com/fxml/1" prefHeight="525.0" prefWidth="583.0" xmlns="http://javafx.com/javafx/16"
             fx:controller="de.uol.swp.client.game.GameRulesPresenter">
     <children>
-        <ScrollPane hbarPolicy="NEVER" layoutX="66.0" layoutY="69.0" prefHeight="306.0" prefWidth="478.0"
+        <ScrollPane hbarPolicy="NEVER" layoutX="17.0" layoutY="77.0" prefHeight="430.0" prefWidth="566.0"
                     vbarPolicy="ALWAYS">
             <content>
-                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="758.0" prefWidth="482.0">
+                <AnchorPane prefHeight="5392.0" prefWidth="557.0">
                     <children>
-                        <Label layoutX="299.0" layoutY="7.0" prefHeight="31.0" prefWidth="100.0" text="The Matchfield"/>
-                        <ImageView fitHeight="239.0" fitWidth="247.0" layoutX="210.0" layoutY="38.0" pickOnBounds="true"
+                        <ImageView fitHeight="722.0" fitWidth="573.0" layoutY="7.0" pickOnBounds="true"
                                    preserveRatio="true">
                             <image>
-                                <Image url="@../textures/resized/Matchfield.JPG"/>
+                                <Image url="@../img/GameRules/0002.jpg"/>
                             </image>
                         </ImageView>
-                        <TextArea editable="false" layoutX="13.0" layoutY="41.0" prefHeight="374.0" prefWidth="184.0"
-                                  text="Here you can see the &#10;match field.&#10;Each field has a number.&#10;If you roll the number, you&#10;get the resources.&#10;(Brick, Ore, Lumber, Wool or &#10;Gran) unless you roll a 7 &#10;than  all players must &#10;discard half of your resource &#10;cards. &#10;(When they have more than&#10;10 resource cards)&#10;After that you offset the &#10;robber on any field.&#10;Have a player on this field&#10;where you the robber a&#10;settlement or a city you can&#10;pick a random card.&#10;&#10;When you have a settlement&#10;you get one resource, with &#10;city you get two resources&#10;If a robber is in the field&#10;there are no resources &#10;for you.&#10;With the resources received&#10;you can get roads, &#10;settlements&#10;and build cities.&#10;To build a settlement you &#10;must be two streets away &#10;from the next settlement or &#10;city.&#10;For every settlement you &#10;build you get 1 victory Point.&#10;For every city you build you &#10;get 2 victory points.&#10;Who first have 10 victory &#10;points wins the Game"/>
-                        <ImageView fitHeight="242.0" fitWidth="258.0" layoutX="231.0" layoutY="467.0"
+                        <ImageView fitHeight="722.0" fitWidth="565.0" layoutX="-3.0" layoutY="726.0" pickOnBounds="true"
+                                   preserveRatio="true">
+                            <image>
+                                <Image url="@../img/GameRules/0003.jpg"/>
+                            </image>
+                        </ImageView>
+                        <ImageView fitHeight="722.0" fitWidth="565.0" layoutX="-13.0" layoutY="726.0"
                                    pickOnBounds="true" preserveRatio="true">
                             <image>
-                                <Image url="@../textures/originals/Baukosten.png"/>
+                                <Image url="@../img/GameRules/0003.jpg"/>
                             </image>
                         </ImageView>
-                        <TextArea layoutX="13.0" layoutY="467.0" prefHeight="232.0" prefWidth="200.0"
-                                  text="With the resource cards &#10;you can buy special cards.&#10;There are following special &#10;cards:&#10;&#10;one victory point: you get one&#10;victory point.&#10;road construction: you can&#10;build two streets for free.&#10;greatest knight power: you can&#10;move the robber on any field&#10;you want.&#10;technological lead: you choose&#10;a resource and all players must&#10;give you all their cards from&#10;that resource."/>
+                        <ImageView fitHeight="722.0" fitWidth="565.0" layoutY="1436.0" pickOnBounds="true"
+                                   preserveRatio="true">
+                            <image>
+                                <Image url="@../img/GameRules/0004.jpg"/>
+                            </image>
+                        </ImageView>
+                        <ImageView fitHeight="722.0" fitWidth="565.0" layoutY="2157.0" pickOnBounds="true"
+                                   preserveRatio="true">
+                            <image>
+                                <Image url="@../img/GameRules/0005.jpg"/>
+                            </image>
+                        </ImageView>
+                        <ImageView fitHeight="722.0" fitWidth="565.0" pickOnBounds="true" preserveRatio="true">
+                            <image>
+                                <Image url="@../img/GameRules/0005.jpg"/>
+                            </image>
+                        </ImageView>
+                        <ImageView fitHeight="722.0" fitWidth="565.0" layoutY="2875.0" pickOnBounds="true"
+                                   preserveRatio="true">
+                            <image>
+                                <Image url="@../img/GameRules/0006.jpg"/>
+                            </image>
+                        </ImageView>
+                        <ImageView fitHeight="722.0" fitWidth="565.0" layoutY="3593.0" pickOnBounds="true"
+                                   preserveRatio="true">
+                            <image>
+                                <Image url="@../img/GameRules/0007.jpg"/>
+                            </image>
+                        </ImageView>
+                        <ImageView fitHeight="722.0" fitWidth="565.0" layoutX="-1.0" layoutY="4311.0"
+                                   pickOnBounds="true" preserveRatio="true">
+                            <image>
+                                <Image url="@../img/GameRules/0008.jpg"/>
+                            </image>
+                        </ImageView>
+                        <ImageView fitHeight="722.0" fitWidth="565.0" layoutY="5032.0" pickOnBounds="true"
+                                   preserveRatio="true">
+                            <image>
+                                <Image url="@../img/GameRules/0009.jpg"/>
+                            </image>
+                        </ImageView>
+                        <ImageView fitHeight="722.0" fitWidth="565.0" layoutY="5749.0" pickOnBounds="true"
+                                   preserveRatio="true">
+                            <image>
+                                <Image url="@../img/GameRules/0010.jpg"/>
+                            </image>
+                        </ImageView>
+                        <ImageView fitHeight="722.0" fitWidth="565.0" layoutX="-1.0" layoutY="6462.0"
+                                   pickOnBounds="true" preserveRatio="true">
+                            <image>
+                                <Image url="@../img/GameRules/0011.jpg"/>
+                            </image>
+                        </ImageView>
+                        <ImageView fitHeight="722.0" fitWidth="565.0" layoutX="-6.0" layoutY="7171.0"
+                                   pickOnBounds="true" preserveRatio="true">
+                            <image>
+                                <Image url="@../img/GameRules/0012.jpg"/>
+                            </image>
+                        </ImageView>
+                        <ImageView fitHeight="722.0" fitWidth="565.0" layoutY="7878.0" pickOnBounds="true"
+                                   preserveRatio="true">
+                            <image>
+                                <Image url="@../img/GameRules/0013.jpg"/>
+                            </image>
+                        </ImageView>
+                        <ImageView fitHeight="722.0" fitWidth="565.0" layoutX="2.0" layoutY="8581.0" pickOnBounds="true"
+                                   preserveRatio="true">
+                            <image>
+                                <Image url="@../img/GameRules/0014.jpg"/>
+                            </image>
+                        </ImageView>
+                        <ImageView fitHeight="722.0" fitWidth="565.0" layoutX="2.0" layoutY="9288.0" pickOnBounds="true"
+                                   preserveRatio="true">
+                            <image>
+                                <Image url="@../img/GameRules/0016.jpg"/>
+                            </image>
+                        </ImageView>
                     </children>
                 </AnchorPane>
             </content>
