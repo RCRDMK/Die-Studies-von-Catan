@@ -41,4 +41,10 @@
             <fx:reference source="gameFieldToggleButtons"/>
         </toggleGroup>
     </RadioButton>
+    <RadioButton fx:id="veryRandomGameField" layoutX="14.0" layoutY="363.0" mnemonicParsing="false"
+                 onAction="#onVeryRandomGameField" text="VeryRandom">
+        <toggleGroup>
+            <fx:reference source="gameFieldToggleButtons"/>
+        </toggleGroup>
+    </RadioButton>
 </AnchorPane>

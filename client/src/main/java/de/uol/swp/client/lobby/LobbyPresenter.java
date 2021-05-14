@@ -116,6 +116,9 @@ public class LobbyPresenter extends AbstractPresenter {
         gameFieldVariant = "Random";
     }
 
+    @FXML
+    public void onVeryRandomGameField() { gameFieldVariant = "VeryRandom";}
+
     /**
      * Method called when the StartGame button is pressed
      * <p>
