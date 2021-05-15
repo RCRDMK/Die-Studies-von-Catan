@@ -25,6 +25,7 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -187,6 +188,7 @@ public class GamePresenter extends AbstractPresenter {
     @FXML
     private GridPane privateInventoryView;
     Label privateLumberLabel = new Label("0");
+
     Label privateBrickLabel = new Label("0");
     Label privateGrainLabel = new Label("0");
     Label privateWoolLabel = new Label("0");
@@ -2096,18 +2098,31 @@ public class GamePresenter extends AbstractPresenter {
             r.setFill(new ImagePattern(image));
             privateInventoryView.add(r,i-1, 0 );
         }
+        privateLumberLabel.setAlignment(Pos.BASELINE_CENTER);
         privateInventoryView.add(privateLumberLabel,0, 1);
+        privateBrickLabel.setAlignment(Pos.BASELINE_CENTER);
         privateInventoryView.add(privateBrickLabel,1, 1);
+        privateGrainLabel.setAlignment(Pos.BASELINE_CENTER);
         privateInventoryView.add(privateGrainLabel,2, 1);
+        privateWoolLabel.setAlignment(Pos.BASELINE_CENTER);
         privateInventoryView.add(privateWoolLabel,3, 1);
+        privateOreLabel.setAlignment(Pos.BASELINE_CENTER);
         privateInventoryView.add(privateOreLabel,4, 1);
+        privateKnightCardLabel.setAlignment(Pos.BASELINE_CENTER);
         privateInventoryView.add(privateKnightCardLabel,5, 1);
+        privateMonopolyCardLabel.setAlignment(Pos.BASELINE_CENTER);
         privateInventoryView.add(privateMonopolyCardLabel,6, 1);
+        privateRoadBuildingCardLabel.setAlignment(Pos.BASELINE_CENTER);
         privateInventoryView.add(privateRoadBuildingCardLabel,7, 1);
+        privateYearOfPlentyCardLabel.setAlignment(Pos.BASELINE_CENTER);
         privateInventoryView.add(privateYearOfPlentyCardLabel,8, 1);
+        privateVictoryPointCardLabel.setAlignment(Pos.BASELINE_CENTER);
         privateInventoryView.add(privateVictoryPointCardLabel,9, 1);
+        privateCitiesLabel.setAlignment(Pos.BASELINE_CENTER);
         privateInventoryView.add(privateCitiesLabel,10, 1);
+        privateRoadsLabel.setAlignment(Pos.BASELINE_CENTER);
         privateInventoryView.add(privateRoadsLabel,11, 1);
+        privateSettlementsLabel.setAlignment(Pos.BASELINE_CENTER);
         privateInventoryView.add(privateSettlementsLabel,12, 1);
     }
 
