@@ -11,6 +11,9 @@
     <children>
         <TextArea fx:id="gameChatArea" editable="false" layoutX="370.0" layoutY="279.0" prefHeight="96.0" prefWidth="356.0" GridPane.rowIndex="2" />
         <ListView fx:id="gameUsersView" layoutX="439.0" layoutY="30.0" prefHeight="69.0" prefWidth="109.0" />
+        <ListView  layoutX="618.0" layoutY="30.0" prefHeight="69.0" prefWidth="109.0" />
+        <ListView  layoutX="439.0" layoutY="153.0" prefHeight="69.0" prefWidth="109.0" />
+        <ListView  layoutX="618.0" layoutY="153.0" prefHeight="69.0" prefWidth="109.0" />
         <ToolBar layoutY="-5.0" prefHeight="35.0" prefWidth="735.0">
             <items>
                 <Button fx:id="rollDice" mnemonicParsing="false" onAction="#onRollDice" text="Roll Dice" />
@@ -84,9 +87,6 @@
             <RowConstraints minHeight="10.0" prefHeight="100.0" vgrow="SOMETIMES" />
          </rowConstraints>
       </GridPane>
-      <ListView fx:id="gameUsersView1" layoutX="618.0" layoutY="30.0" prefHeight="69.0" prefWidth="109.0" />
-      <ListView fx:id="gameUsersView2" layoutX="439.0" layoutY="153.0" prefHeight="69.0" prefWidth="109.0" />
-      <ListView fx:id="gameUsersView21" layoutX="618.0" layoutY="153.0" prefHeight="69.0" prefWidth="109.0" />
       <GridPane fx:id="privateInventoryView" layoutX="5.0" layoutY="400.0" prefHeight="96.0" prefWidth="710.0">
         <columnConstraints>
             <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />

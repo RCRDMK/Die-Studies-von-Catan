@@ -139,7 +139,7 @@ public class GameService extends AbstractService {
      */
     @Subscribe
     public boolean onConstructionMessage(ConstructionRequest message) {
-        LOG.debug("Recieved new ConstructionMessage from user " + message.getUser());
+        LOG.debug("Received new ConstructionMessage from user " + message.getUser());
         Optional<Game> game = gameManagement.getGame(message.getGame());
         int playerIndex = 666;
         if (message.getUuid() != null) {
@@ -301,10 +301,10 @@ public class GameService extends AbstractService {
                     dice.setEyes(rollDiceRequest.getCheatEyes());
                 }
                 if (addedEyes == 7) {
-                    if (game.isPresent()) {
+                   /* if (game.isPresent()) {
                         MoveRobberMessage moveRobberMessage = new MoveRobberMessage(rollDiceRequest.getName(), (UserDTO) rollDiceRequest.getUser());
                         sendToSpecificUserInGame(gameManagement.getGame(rollDiceRequest.getName()), moveRobberMessage, rollDiceRequest.getUser());
-                    }
+                    } */
                 } else {
                     distributeResources(addedEyes, rollDiceRequest.getName());
                 }
@@ -510,7 +510,7 @@ public class GameService extends AbstractService {
                 }
             }
 
-            if(userList.isEmpty()){
+            if (userList.isEmpty()) {
                 tooMuchResources(game);
             }
 
@@ -614,6 +614,7 @@ public class GameService extends AbstractService {
             }
             game.get().setUpUserArrayList();
             game.get().setUpInventories();
+            updateInventory(game);
             sendToAllInGame(game.get().getName(), new NextTurnMessage(game.get().getName(), game.get().getUser(game.get().getTurn()).getUsername(), game.get().getTurn(), game.get().isStartingTurns()));
         } else {
             throw new GameManagementException("Not enough Players ready!");
@@ -729,18 +730,27 @@ public class GameService extends AbstractService {
                 Inventory inventory = game.get().getInventory(request.getUser());
                 if (inventory.wool.getNumber() >= 1 && inventory.ore.getNumber() >= 1 && inventory.grain.getNumber() >= 1) {
                     String devCard = game.get().getDevelopmentCardDeck().drawnCard();
-
-                    inventory.wool.decNumber();
-                    inventory.ore.decNumber();
-                    inventory.grain.decNumber();
-                    BuyDevelopmentCardMessage response = new BuyDevelopmentCardMessage(devCard);
-                    sendToSpecificUserInGame(game, response, request.getUser());
+                    if (devCard != null) {
+                        inventory.wool.decNumber();
+                        inventory.ore.decNumber();
+                        inventory.grain.decNumber();
+                        inventory.incCard(devCard, 1);
+                        BuyDevelopmentCardMessage response = new BuyDevelopmentCardMessage(devCard);
+                        sendToSpecificUserInGame(game, response, request.getUser());
+                    } else {
+                        String chatMessage;
+                        var chatId = "game_" + game.get().getName();
+                        ResponseChatMessage msg = new ResponseChatMessage("No development cards are available.", chatId, "Bank", System.currentTimeMillis());
+                        post(msg);
+                        LOG.debug("Posted ResponseChatMessage on eventBus");
+                    }
                 } else {
                     NotEnoughRessourcesMessage nerm = new NotEnoughRessourcesMessage();
                     nerm.setName(game.get().getName());
                     sendToSpecificUserInGame(game, nerm, request.getUser());
                 }
             }
+            updateInventory(game);
         }
     }
 
@@ -833,6 +843,7 @@ public class GameService extends AbstractService {
                 response.initWithMessage(request);
                 post(response);
             }
+            updateInventory(game);
         }
     }
 
@@ -974,6 +985,7 @@ public class GameService extends AbstractService {
                         break;
                 }
             }
+            updateInventory(game);
         }
     }
 
@@ -998,7 +1010,7 @@ public class GameService extends AbstractService {
                 sendToSpecificUserInGame(game, privateInventoryChangeMessage, user);
             }
             ArrayList<HashMap<String, Integer>> publicInventories = new ArrayList<>();
-            for (User user : game.get().getUsersList()){
+            for (User user : game.get().getUsersList()) {
                 publicInventories.add(game.get().getInventory(user).getPublicView());
             }
             PublicInventoryChangeMessage publicInventoryChangeMessage = new PublicInventoryChangeMessage(game.get().getName(), publicInventories);
@@ -1136,6 +1148,7 @@ public class GameService extends AbstractService {
                 TradeCardErrorMessage tcem = new TradeCardErrorMessage(request.getUser(), request.getName(), request.getTradeCode());
                 sendToSpecificUserInGame(game, tcem, request.getUser());
             }
+            updateInventory(game);
         }
     }
 
@@ -1176,6 +1189,7 @@ public class GameService extends AbstractService {
             tradeEndedChatMessageHelper(game.get().getName(), request.getTradeCode(), request.getUser().getUsername(), request.getTradeAccepted());
             sendToAllInGame(request.getName(), new TradeEndedMessage(request.getTradeCode()));
             game.get().removeTrade(request.getTradeCode());
+            updateInventory(game);
         }
     }
 
@@ -1251,7 +1265,6 @@ public class GameService extends AbstractService {
             //Nach dem eine Karte gezogen wurde darf jeder mit mehr als 7 Resourcen die Hälfte ablegen
 
             tooMuchResources(game);
-
             updateInventory(game);
         }
     }

@@ -18,7 +18,7 @@ public class DevelopmentCardDeck implements Serializable {
 
     public DevelopmentCardDeck() {
 
-        for (int i = 0; i < 5; i++) deck.push("Victory Point");
+        for (int i = 0; i < 5; i++) deck.push("Victory Point Card");
         for (int i = 0; i < 14; i++) deck.push("Knight");
 
         for (int i = 0; i < 2; i++) {

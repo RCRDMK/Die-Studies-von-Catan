@@ -219,6 +219,21 @@ public class Inventory implements Serializable {
             case "Ore":
                 ore.incNumber(amount);
                 return true;
+            case "Knight":
+                cardKnight.incNumber(amount);
+                return true;
+            case "Monopoly":
+                cardMonopoly.incNumber(amount);
+                return true;
+            case "Road Building":
+                cardRoadBuilding.incNumber(amount);
+                return true;
+            case "Year of Plenty":
+                cardYearOfPlenty.incNumber(amount);
+                return true;
+            case "Victory Point Card":
+                incCardVictoryPoint();
+                return true;
             default:
                 return false;
         }
