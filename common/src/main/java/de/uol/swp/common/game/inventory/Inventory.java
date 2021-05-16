@@ -131,7 +131,7 @@ public class Inventory implements Serializable {
      */
     public HashMap<String, Integer> getPrivateView() {
 
-        HashMap <String, Integer> privateInventory = new HashMap<>();
+        HashMap<String, Integer> privateInventory = new HashMap<>();
 
         // Resource Cards
         privateInventory.put("Lumber", lumber.getNumber());
@@ -196,9 +196,9 @@ public class Inventory implements Serializable {
      * String Card specifies the Ressource Card
      * valid Strings: Lumber, Brick, Grain, Wool, Ore
      *
-     * @return true if valid resource name, false if not
      * @param card   the name of the Ressource Card
      * @param amount how much of the Card should be increased
+     * @return true if valid resource name, false if not
      * @author Alexander Losse, Ricardo Mook
      * @since 2021-04-08
      */

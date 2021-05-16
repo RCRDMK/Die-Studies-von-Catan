@@ -1019,78 +1019,6 @@ public class GamePresenter extends AbstractPresenter {
         });
     }
 
-    private void updatePublicInventory(ArrayList<HashMap<String, Integer>> publicInventoryList) {
-        updatePublicInventoryLogic(publicInventoryList);
-    }
-
-    public void updatePublicInventoryLogic(ArrayList<HashMap<String, Integer>> p) {
-        // Attention: This must be done on the FX Thread!
-        Platform.runLater(() -> {
-            if (publicInventory1 == null) {
-                publicInventory1 = FXCollections.observableArrayList();
-                publicInventory1View.setItems(publicInventory1);
-            }
-            if (publicInventory2 == null) {
-                publicInventory2 = FXCollections.observableArrayList();
-                publicInventory2View.setItems(publicInventory2);
-            }
-            if (publicInventory3 == null) {
-                publicInventory3 = FXCollections.observableArrayList();
-                publicInventory3View.setItems(publicInventory3);
-            }
-            if (publicInventory4 == null) {
-                publicInventory4 = FXCollections.observableArrayList();
-                publicInventory4View.setItems(publicInventory4);
-            }
-            publicInventory1.clear();
-            publicInventory1.add(0, p.get(0).get("Resource").toString());
-            publicInventory1.add(0, p.get(0).get("Development Cards").toString());
-            publicInventory1.add(0, p.get(0).get("Played Knights").toString());
-            publicInventory1.add(0, p.get(0).get("Continuous Road").toString());
-            publicInventory1.add(0, p.get(0).get("Largest Army").toString());
-            publicInventory1.add(0, p.get(0).get("Longest Road").toString());
-            publicInventory1.add(0, p.get(0).get("PublicVictoryPoints").toString());
-            publicInventory1View.setCellFactory(x -> new PublicInventoryCell());
-            publicInventory2.clear();
-            publicInventory2.add(1, p.get(1).get("Resource").toString());
-            publicInventory2.add(1, p.get(1).get("Development Cards").toString());
-            publicInventory2.add(1, p.get(1).get("Played Knights").toString());
-            publicInventory2.add(1, p.get(1).get("Continuous Road").toString());
-            publicInventory2.add(1, p.get(1).get("Largest Army").toString());
-            publicInventory2.add(1, p.get(1).get("Longest Road").toString());
-            publicInventory2.add(1, p.get(1).get("PublicVictoryPoints").toString());
-            publicInventory2View.setCellFactory(x -> new PublicInventoryCell());
-            publicInventory3.clear();
-            publicInventory3.add(2, p.get(2).get("Resource").toString());
-            publicInventory3.add(2, p.get(2).get("Development Cards").toString());
-            publicInventory3.add(2, p.get(2).get("Played Knights").toString());
-            publicInventory3.add(2, p.get(2).get("Continuous Road").toString());
-            publicInventory3.add(2, p.get(2).get("Largest Army").toString());
-            publicInventory3.add(2, p.get(2).get("Longest Road").toString());
-            publicInventory3.add(2, p.get(2).get("PublicVictoryPoints").toString());
-            publicInventory3View.setCellFactory(x -> new PublicInventoryCell());
-            publicInventory4.clear();
-            publicInventory4.add(3, p.get(3).get("Resource").toString());
-            publicInventory4.add(3, p.get(3).get("Development Cards").toString());
-            publicInventory4.add(3, p.get(3).get("Played Knights").toString());
-            publicInventory4.add(3, p.get(3).get("Continuous Road").toString());
-            publicInventory4.add(3, p.get(3).get("Largest Army").toString());
-            publicInventory4.add(3, p.get(3).get("Longest Road").toString());
-            publicInventory4.add(3, p.get(3).get("PublicVictoryPoints").toString());
-            publicInventory4View.setCellFactory(x -> new PublicInventoryCell());
-        });
-    }
-
-  /*  private void updatePrivateInventory(PrivateInventoryChangeMessage pricm) {
-        HashMap<String, Integer> p = new HashMap<>();
-        p = pricm.getPrivateInventory();
-        p.
-        if (privateLumberLabel.getText().equals(p)
-        {
-        }
-
-    } */
-
     /**
      * This method holds the size of the terrainFields in pixels.
      * <p>
@@ -1948,6 +1876,7 @@ public class GamePresenter extends AbstractPresenter {
                         }
                     });
                 }
+                updatePrivateInventory(privateInventoryChangeMessage.getPrivateInventory());
 
                 // TODO: dient nur zu Testzwecken, muss später richtig dargestellt werden
                 System.out.println("Lumber " + privateInventoryChangeMessage.getPrivateInventory().get("Lumber"));
@@ -1957,25 +1886,129 @@ public class GamePresenter extends AbstractPresenter {
                 System.out.println("Wool " + privateInventoryChangeMessage.getPrivateInventory().get("Wool"));
             }
         }
+
         //TODO: Darstellung der Veränderung des Inventars
     }
 
+    private void updatePrivateInventory(HashMap<String, Integer> privateInventoryList) {
+        //  updateGameUsersListLogic(privateInventoryList);
+    }
+
+    private void updatePrivateInventoryLogic(HashMap<String, Integer> pr) {
+        if (!privateLumberLabel.getText().equals(pr.get("Lumber").toString())) {
+            privateLumberLabel.setText(String.valueOf(pr.get("Lumber")));
+        }
+        if (!privateBrickLabel.getText().equals(pr.get("Brick").toString())) {
+            privateBrickLabel.setText(String.valueOf(pr.get("Brick")));
+        }
+        if (!privateGrainLabel.getText().equals(pr.get("Grain").toString())) {
+            privateGrainLabel.setText(String.valueOf(pr.get("Grain")));
+        }
+        if (!privateWoolLabel.getText().equals(pr.get("Wool").toString())) {
+            privateWoolLabel.setText(String.valueOf(pr.get("Wool")));
+        }
+        if (!privateOreLabel.getText().equals(pr.get("Ore").toString())) {
+            privateOreLabel.setText(String.valueOf(pr.get("Ore")));
+        }
+        if (!privateKnightCardLabel.getText().equals(pr.get("Knight").toString())) {
+            privateKnightCardLabel.setText(String.valueOf(pr.get("Knight")));
+        }
+        if (!privateMonopolyCardLabel.getText().equals(pr.get("Monopoly").toString())) {
+            privateMonopolyCardLabel.setText(String.valueOf(pr.get("Monopoly")));
+        }
+        if (!privateRoadBuildingCardLabel.getText().equals(pr.get("Road Building").toString())) {
+            privateRoadBuildingCardLabel.setText(String.valueOf(pr.get("Road Building")));
+        }
+        if (!privateYearOfPlentyCardLabel.getText().equals(pr.get("Year of Plenty").toString())) {
+            privateYearOfPlentyCardLabel.setText(String.valueOf(pr.get("Year of Plenty")));
+        }
+        if (!privateVictoryPointCardLabel.getText().equals(pr.get("Victory Point Card").toString())) {
+            privateVictoryPointCardLabel.setText(String.valueOf(pr.get("Victory Point Card")));
+        }
+        if (!privateCitiesLabel.getText().equals(pr.get("Cities").toString())) {
+            privateCitiesLabel.setText(String.valueOf(pr.get("Cities")));
+        }
+        if (!privateRoadsLabel.getText().equals(pr.get("Roads").toString())) {
+            privateRoadsLabel.setText(String.valueOf(pr.get("Roads")));
+        }
+        if (!privateSettlementsLabel.getText().equals(pr.get("Settlements").toString())) {
+            privateSettlementsLabel.setText(String.valueOf(pr.get("Settlements")));
+        }
+    }
+
     @Subscribe
-    public void publicInventoryChanged(PublicInventoryChangeMessage publicInventoryChangeMessage) {
-        publicInventoryChangedLogic(publicInventoryChangeMessage);
+    public void onPublicInventoryChangeMessage(PublicInventoryChangeMessage publicInventoryChangeMessage) {
+        onPublicInventoryChangeMessageLogic(publicInventoryChangeMessage);
     }
 
-    private void publicInventoryChangedLogic(PublicInventoryChangeMessage puicm) {
-        //   updatePublicInventory(puicm);
+    private void onPublicInventoryChangeMessageLogic(PublicInventoryChangeMessage puicm) {
+        if (this.currentLobby != null) {
+            if (this.currentLobby.equals(puicm.getName())) {
+                updatePublicInventory(puicm.getPublicInventories());
+            }
+        }
     }
 
-    @Subscribe
-    public void privateInventoryChanged(PrivateInventoryChangeMessage privateInventoryChangeMessage) {
-        privateInventoryChangedLogic(privateInventoryChangeMessage);
+    private void updatePublicInventory(ArrayList<HashMap<String, Integer>> publicInventoryList) {
+        updatePublicInventoryLogic(publicInventoryList);
     }
 
-    private void privateInventoryChangedLogic(PrivateInventoryChangeMessage pricm) {
-        //   updatePrivateInventory(pricm);
+    public void updatePublicInventoryLogic(ArrayList<HashMap<String, Integer>> p) {
+        // Attention: This must be done on the FX Thread!
+        Platform.runLater(() -> {
+            if (publicInventory1 == null) {
+                publicInventory1 = FXCollections.observableArrayList();
+                publicInventory1View.setItems(publicInventory1);
+            }
+            if (publicInventory2 == null) {
+                publicInventory2 = FXCollections.observableArrayList();
+                publicInventory2View.setItems(publicInventory2);
+            }
+            if (publicInventory3 == null) {
+                publicInventory3 = FXCollections.observableArrayList();
+                publicInventory3View.setItems(publicInventory3);
+            }
+            if (publicInventory4 == null) {
+                publicInventory4 = FXCollections.observableArrayList();
+                publicInventory4View.setItems(publicInventory4);
+            }
+            publicInventory1.clear();
+            publicInventory1.add(0, p.get(0).get("Resource").toString());
+            publicInventory1.add(0, p.get(0).get("Development Cards").toString());
+            publicInventory1.add(0, p.get(0).get("Played Knights").toString());
+            publicInventory1.add(0, p.get(0).get("Continuous Road").toString());
+            publicInventory1.add(0, p.get(0).get("Largest Army").toString());
+            publicInventory1.add(0, p.get(0).get("Longest Road").toString());
+            publicInventory1.add(0, p.get(0).get("PublicVictoryPoints").toString());
+            publicInventory1View.setCellFactory(x -> new PublicInventoryCell());
+            publicInventory2.clear();
+            publicInventory2.add(1, p.get(1).get("Resource").toString());
+            publicInventory2.add(1, p.get(1).get("Development Cards").toString());
+            publicInventory2.add(1, p.get(1).get("Played Knights").toString());
+            publicInventory2.add(1, p.get(1).get("Continuous Road").toString());
+            publicInventory2.add(1, p.get(1).get("Largest Army").toString());
+            publicInventory2.add(1, p.get(1).get("Longest Road").toString());
+            publicInventory2.add(1, p.get(1).get("PublicVictoryPoints").toString());
+            publicInventory2View.setCellFactory(x -> new PublicInventoryCell());
+            publicInventory3.clear();
+            publicInventory3.add(2, p.get(2).get("Resource").toString());
+            publicInventory3.add(2, p.get(2).get("Development Cards").toString());
+            publicInventory3.add(2, p.get(2).get("Played Knights").toString());
+            publicInventory3.add(2, p.get(2).get("Continuous Road").toString());
+            publicInventory3.add(2, p.get(2).get("Largest Army").toString());
+            publicInventory3.add(2, p.get(2).get("Longest Road").toString());
+            publicInventory3.add(2, p.get(2).get("PublicVictoryPoints").toString());
+            publicInventory3View.setCellFactory(x -> new PublicInventoryCell());
+            publicInventory4.clear();
+            publicInventory4.add(3, p.get(3).get("Resource").toString());
+            publicInventory4.add(3, p.get(3).get("Development Cards").toString());
+            publicInventory4.add(3, p.get(3).get("Played Knights").toString());
+            publicInventory4.add(3, p.get(3).get("Continuous Road").toString());
+            publicInventory4.add(3, p.get(3).get("Largest Army").toString());
+            publicInventory4.add(3, p.get(3).get("Longest Road").toString());
+            publicInventory4.add(3, p.get(3).get("PublicVictoryPoints").toString());
+            publicInventory4View.setCellFactory(x -> new PublicInventoryCell());
+        });
     }
 
     /**
