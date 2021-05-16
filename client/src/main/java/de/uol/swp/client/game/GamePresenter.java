@@ -188,19 +188,31 @@ public class GamePresenter extends AbstractPresenter {
 
     @FXML
     private GridPane privateInventoryView;
+    @FXML
     Label privateLumberLabel = new Label("0");
-
+    @FXML
     Label privateBrickLabel = new Label("0");
+    @FXML
     Label privateGrainLabel = new Label("0");
+    @FXML
     Label privateWoolLabel = new Label("0");
+    @FXML
     Label privateOreLabel = new Label("0");
+    @FXML
     Label privateKnightCardLabel = new Label("0");
+    @FXML
     Label privateMonopolyCardLabel = new Label("0");
+    @FXML
     Label privateRoadBuildingCardLabel = new Label("0");
+    @FXML
     Label privateYearOfPlentyCardLabel = new Label("0");
+    @FXML
     Label privateVictoryPointCardLabel = new Label("0");
+    @FXML
     Label privateCitiesLabel = new Label("0");
+    @FXML
     Label privateRoadsLabel = new Label("0");
+    @FXML
     Label privateSettlementsLabel = new Label("0");
 
     final private ArrayList<ImagePattern> diceImages = new ArrayList<>();
@@ -1877,7 +1889,6 @@ public class GamePresenter extends AbstractPresenter {
                     });
                 }
                 updatePrivateInventory(privateInventoryChangeMessage.getPrivateInventory());
-
                 // TODO: dient nur zu Testzwecken, muss später richtig dargestellt werden
                 System.out.println("Lumber " + privateInventoryChangeMessage.getPrivateInventory().get("Lumber"));
                 System.out.println("Brick " + privateInventoryChangeMessage.getPrivateInventory().get("Brick"));
@@ -1890,25 +1901,29 @@ public class GamePresenter extends AbstractPresenter {
         //TODO: Darstellung der Veränderung des Inventars
     }
 
-    private void updatePrivateInventory(HashMap<String, Integer> privateInventoryList) {
-        //  updateGameUsersListLogic(privateInventoryList);
-    }
-
-    private void updatePrivateInventoryLogic(HashMap<String, Integer> pr) {
+    private void updatePrivateInventory(HashMap<String, Integer> pr) {
+        LOG.debug("Hallllo");
+        System.out.println(privateLumberLabel.getText());
+        System.out.println(pr.get("Lumber").toString());
+        System.out.println(!privateLumberLabel.getText().equals(pr.get("Lumber").toString()));
         if (!privateLumberLabel.getText().equals(pr.get("Lumber").toString())) {
-            privateLumberLabel.setText(String.valueOf(pr.get("Lumber")));
+            privateLumberLabel.setText(pr.get("Lumber").toString());
         }
         if (!privateBrickLabel.getText().equals(pr.get("Brick").toString())) {
-            privateBrickLabel.setText(String.valueOf(pr.get("Brick")));
+            privateBrickLabel.setText(pr.get("Brick").toString());
+            System.out.println("Brick" + privateBrickLabel.getText());
+            System.out.println(pr.get("Brick").toString());
         }
         if (!privateGrainLabel.getText().equals(pr.get("Grain").toString())) {
-            privateGrainLabel.setText(String.valueOf(pr.get("Grain")));
+            privateGrainLabel.setText(pr.get("Grain").toString());
+            System.out.println("Grain" + privateGrainLabel.getText());
+            System.out.println(pr.get("Grain").toString());
         }
         if (!privateWoolLabel.getText().equals(pr.get("Wool").toString())) {
-            privateWoolLabel.setText(String.valueOf(pr.get("Wool")));
+            privateWoolLabel.setText(pr.get("Wool").toString());
         }
         if (!privateOreLabel.getText().equals(pr.get("Ore").toString())) {
-            privateOreLabel.setText(String.valueOf(pr.get("Ore")));
+            privateOreLabel.setText(pr.get("Ore").toString());
         }
         if (!privateKnightCardLabel.getText().equals(pr.get("Knight").toString())) {
             privateKnightCardLabel.setText(String.valueOf(pr.get("Knight")));
@@ -1944,11 +1959,11 @@ public class GamePresenter extends AbstractPresenter {
     private void onPublicInventoryChangeMessageLogic(PublicInventoryChangeMessage puicm) {
         if (this.currentLobby != null) {
             if (this.currentLobby.equals(puicm.getName())) {
-                updatePublicInventory(puicm.getPublicInventories());
+              //  updatePublicInventory(puicm.getPublicInventories());
             }
         }
     }
-
+/*
     private void updatePublicInventory(ArrayList<HashMap<String, Integer>> publicInventoryList) {
         updatePublicInventoryLogic(publicInventoryList);
     }
@@ -2009,7 +2024,7 @@ public class GamePresenter extends AbstractPresenter {
             publicInventory4.add(3, p.get(3).get("PublicVictoryPoints").toString());
             publicInventory4View.setCellFactory(x -> new PublicInventoryCell());
         });
-    }
+    } */
 
     /**
      * The method called when a ResolveDevelopmentCardNotSuccessfulResponse is received
@@ -2132,7 +2147,6 @@ public class GamePresenter extends AbstractPresenter {
             Rectangle r = new Rectangle(42, 60);
             r.setFill(new ImagePattern(image));
             privateInventoryView.add(r, i - 1, 0);
-
         }
         privateInventoryView.add(privateLumberLabel, 0, 1);
         privateInventoryView.add(privateBrickLabel, 1, 1);

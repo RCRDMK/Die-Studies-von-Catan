@@ -373,6 +373,7 @@ public class GameService extends AbstractService {
                                 break;
                         }
                     }
+            updateInventory(game);
         }
     }
 
@@ -444,6 +445,7 @@ public class GameService extends AbstractService {
                     }
                 }
             }
+            updateInventory(game);
         }
     }
 
