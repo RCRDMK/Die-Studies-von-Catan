@@ -1863,10 +1863,14 @@ public class GamePresenter extends AbstractPresenter {
     }
 
     /**
-     * The method called when a PrivateInventoryChangeMessage is received
+     * The method called when a PrivateInventoryChangeMessage is received.
+     * If lobby is not null and if current lobby is equal to lobby from received message,
+     * updates privateInventory.
+     * enhanced by Anton Nikiforov, Alexander Losse, Iskander Yusupov
      *
      * @param privateInventoryChangeMessage the PrivateInventoryChangeMessage received from the server
      * @author Marc Hermes
+     * @since 2021-05-16
      * @since 2021-05-02
      */
     @Subscribe
@@ -1892,6 +1896,17 @@ public class GamePresenter extends AbstractPresenter {
             }
         }
     }
+
+    /**
+     * Checks whether each value of each label is equal to the value from received HashMap,
+     * if it is not, then replaces existing value of label with the value from the HashMap.
+     * <p>
+     * enhanced by Anton Nikiforov, Alexander Losse, Iskander Yusupov
+     * @since 2021-05-16
+     * @param pr HashMap<String, Integer>, which was provided by onPrivateInventoryChangeMessage
+     * @author Carsten Dekker, Iskander Yusupov
+     * @since 2021-05-14
+     */
 
     private void updatePrivateInventory(HashMap<String, Integer> pr) {
         Platform.runLater(() -> {
@@ -1941,7 +1956,7 @@ public class GamePresenter extends AbstractPresenter {
     public void onPublicInventoryChangeMessage(PublicInventoryChangeMessage publicInventoryChangeMessage) {
         onPublicInventoryChangeMessageLogic(publicInventoryChangeMessage);
     }
-
+        // TODO: public inventory implementieren
     private void onPublicInventoryChangeMessageLogic(PublicInventoryChangeMessage puicm) {
         if (this.currentLobby != null) {
             if (this.currentLobby.equals(puicm.getName())) {
@@ -2119,6 +2134,16 @@ public class GamePresenter extends AbstractPresenter {
         }
     }
 
+    /**
+     * The method gets invoked when the Game Presenter is created.
+     * <p>
+     * This method creates thirteen images and rectangles. Then it creates and fills imagePatterns
+     * with the images from first to thirteens. Every imagePattern is added to the privateInventoryView.
+     * Then adds thirteen corresponding labels to the privateInventoryView.
+     *
+     * @author Carsten Dekker, Iskander Yusupov
+     * @since 2021-05-14
+     */
     public void setUpPrivateInventoryView() {
         for (int i = 1; i < 14; i++) {
             Image image = new Image("textures/privateInventory/privateInventoryImage" + i + ".png");

@@ -717,7 +717,10 @@ public class GameService extends AbstractService {
      * development card from the development card deck and sends a message with the development card to the user. If
      * there are not enough ressources a NoEnoughRessourcesMessage is send to the user.
      * </p>
-     *
+     * Checks if enough development cards are still available to be bought.
+     * If not, then sends corresponding message in the game chat.
+     * enhanced by Anton Nikiforov, Alexander Lossa, Iskander Yusupov
+     * @since 2021-05-16
      * @param request Transports the senders UserDTO
      * @author Marius Birk
      * @since 2021-04-03
@@ -997,7 +1000,8 @@ public class GameService extends AbstractService {
      * PrivateInventoryChangeMessage is send to specific player in the game. PublicInventoryChangeMessage is send to all
      * players in the game.
      * <p>
-     *
+     * enhanced by Carsten Dekker ,Marc Johannes Hermes, Marius Birk, Iskander Yusupov
+     * @since 2021-05-07
      * @param game game that wants to update private and public inventories
      * @author Iskander Yusupov, Anton Nikiforov
      * @since 2021-04-08

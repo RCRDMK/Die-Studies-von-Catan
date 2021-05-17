@@ -193,9 +193,12 @@ public class Inventory implements Serializable {
      * increases a specific Ressource Card by a specific amount
      * <p>
      * this method calls the Method incNumber(int) of the class Card
-     * String Card specifies the Ressource Card
-     * valid Strings: Lumber, Brick, Grain, Wool, Ore
+     * String Card specifies the Ressource Card and Development Cards
+     * valid Strings: Lumber, Brick, Grain, Wool, Ore, Knight, Monopoly, Road Building,
+     * Year of Plenty, Victory Point Card.
      *
+     * enhanced by Anton Nikiforov, Alexander Lossa, Iskander Yusupov
+     * @since 2021-05-16
      * @param card   the name of the Ressource Card
      * @param amount how much of the Card should be increased
      * @return true if valid resource name, false if not

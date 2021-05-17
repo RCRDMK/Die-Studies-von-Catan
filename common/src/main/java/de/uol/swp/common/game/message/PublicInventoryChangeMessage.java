@@ -19,6 +19,8 @@ public class PublicInventoryChangeMessage extends AbstractGameMessage {
     /**
      * Default constructor
      *
+     * enhanced by Carsten Dekker ,Marc Johannes Hermes, Marius Birk, Iskander Yusupov
+     * @since 2021-05-07
      * @author Iskander Yusupov, Anton Nikiforov
      * @since 2021-04-08
      */
