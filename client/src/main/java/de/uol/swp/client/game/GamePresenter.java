@@ -1043,7 +1043,7 @@ public class GamePresenter extends AbstractPresenter {
      */
     public double cardSize() {
         double d = Math.min(canvas.getHeight(), canvas.getWidth()); //Determine minimum pixels in height and length of the canvas (we dont want the playfield to scale out of canvas, so we orient at the smaller axis)
-        return d / 8; // Divide by 8 because the playfield is 7 cards wide and add 1/2 card each side for margin so the cards dont touch the boundaries of the canvas.
+        return d / 5.5; // Divide by 8 because the playfield is 7 cards wide and add 1/2 card each side for margin so the cards dont touch the boundaries of the canvas.
     }
 
     /**
@@ -1337,7 +1337,7 @@ public class GamePresenter extends AbstractPresenter {
 
         //Draw robber
         //Initialize the robber graphics
-        robber = new Rectangle(15, 15);
+        robber = new Rectangle(25, 25);
         robber.setFill(new ImagePattern(new Image("textures/originals/robbers.png")));
         robber.setVisible(true);
 
