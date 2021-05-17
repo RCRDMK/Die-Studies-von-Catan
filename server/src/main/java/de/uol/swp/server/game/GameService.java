@@ -141,6 +141,7 @@ public class GameService extends AbstractService {
     public boolean onConstructionMessage(ConstructionRequest message) {
         LOG.debug("Received new ConstructionMessage from user " + message.getUser());
         Optional<Game> game = gameManagement.getGame(message.getGame());
+        Inventory inventory = game.get().getInventory(message.getUser());
         int playerIndex = 666;
         if (message.getUuid() != null) {
             for (int i = 0; i < game.get().getUsersList().size(); i++) {
@@ -153,23 +154,52 @@ public class GameService extends AbstractService {
                 if (message.getTypeOfNode().equals("BuildingNode")) { //If the node from the message is a building node...
                     for (MapGraph.BuildingNode buildingNode : game.get().getMapGraph().getBuildingNodeHashSet()) {
                         if (message.getUuid().equals(buildingNode.getUuid())) { // ... and if the node in the message is a node in the MapGraph BuildingNodeSet...
-                            if (buildingNode.buildOrDevelopSettlement(playerIndex)) {
-                                game.get().getMapGraph().addBuiltBuilding(buildingNode);
-                                sendToAllInGame(game.get().getName(), new SuccessfulConstructionMessage(game.get().getName(), message.getUser().getWithoutPassword(), playerIndex,
-                                        message.getUuid(), "BuildingNode"));
-                                return true;
+                            if ((buildingNode.getSizeOfSettlement() == 0 && inventory.lumber.getNumber() > 0 && inventory.brick.getNumber()>0
+                                    && inventory.wool.getNumber() > 0 && inventory.grain.getNumber()>0) ||
+                                    (buildingNode.getSizeOfSettlement() == 1 && inventory.ore.getNumber() > 2 && inventory.grain.getNumber()>2)) {
+                                if (buildingNode.tryBuildOrDevelopSettlement(playerIndex, game.get().getStartingPhase())) {
+                                    game.get().getMapGraph().addBuiltBuilding(buildingNode);
+                                    sendToAllInGame(game.get().getName(), new SuccessfulConstructionMessage(game.get().getName(), message.getUser().getWithoutPassword(), playerIndex,
+                                            message.getUuid(), "BuildingNode"));
+                                    if (game.get().isStartingTurns() && game.get().getMapGraph().getNumOfRoads()[playerIndex] == game.get().getStartingPhase()
+                                            && game.get().getMapGraph().getNumOfRoads()[playerIndex] == game.get().getMapGraph().getNumOfBuildings()[playerIndex]) {
+                                        post(new EndTurnRequest(message.getName(), (UserDTO) message.getUser()));
+                                    }
+                                    if (buildingNode.getSizeOfSettlement() == 0) {
+                                        inventory.lumber.decNumber(1);
+                                        inventory.brick.decNumber(1);
+                                        inventory.wool.decNumber(1);
+                                        inventory.grain.decNumber(1);
+                                        inventory.settlement.decNumber();
+                                        inventory.incCardVictoryPoint();
+                                    } else if (buildingNode.getSizeOfSettlement() == 1) {
+                                        inventory.ore.decNumber(3);
+                                        inventory.grain.decNumber(2);
+                                        inventory.city.decNumber();
+                                        inventory.incCardVictoryPoint();
+                                    }
+                                    return true;
+                                }
                             }
                         }
                     }
                 } else {
                     for (MapGraph.StreetNode streetNode : game.get().getMapGraph().getStreetNodeHashSet()) {
                         if (message.getUuid().equals(streetNode.getUuid())) {
-                            if (streetNode.buildRoad(playerIndex)) {
-                                sendToAllInGame(game.get().getName(), new SuccessfulConstructionMessage(game.get().getName(), message.getUser().getWithoutPassword(), playerIndex,
-                                        message.getUuid(), "StreetNode"));
-                                return true;
+                            if (inventory.lumber.getNumber() > 0 && inventory.brick.getNumber()>0) {
+                                if (streetNode.tryBuildRoad(playerIndex, game.get().getStartingPhase())) {
+                                    sendToAllInGame(game.get().getName(), new SuccessfulConstructionMessage(game.get().getName(), message.getUser().getWithoutPassword(), playerIndex,
+                                            message.getUuid(), "StreetNode"));
+                                    if (game.get().isStartingTurns() && game.get().getMapGraph().getNumOfRoads()[playerIndex] == game.get().getStartingPhase()
+                                            && game.get().getMapGraph().getNumOfRoads()[playerIndex] == game.get().getMapGraph().getNumOfBuildings()[playerIndex]) {
+                                        post(new EndTurnRequest(message.getName(), (UserDTO) message.getUser()));
+                                    }
+                                    inventory.lumber.decNumber(1);
+                                    inventory.brick.decNumber(1);
+                                    inventory.road.decNumber();
+                                    return true;
+                                }
                             }
-
                         }
                     }
                 }

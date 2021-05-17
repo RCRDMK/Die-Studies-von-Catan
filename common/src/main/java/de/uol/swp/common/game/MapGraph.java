@@ -49,6 +49,9 @@ public class MapGraph implements Serializable {
         return hexagonHashSet;
     }
 
+    public int[] getNumOfRoads() {return numOfRoads; }
+    public int[] getNumOfBuildings() {return numOfBuildings; }
+
     /**
      * Initializes MapGraph
      * <p>Creates the Hexagons, BuildingNodes and StreetNodes, interconnects them and updates the Lists to store
