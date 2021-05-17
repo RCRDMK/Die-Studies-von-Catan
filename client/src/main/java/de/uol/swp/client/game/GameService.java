@@ -3,7 +3,10 @@ package de.uol.swp.client.game;
 
 import com.google.common.eventbus.EventBus;
 import com.google.inject.Inject;
-import de.uol.swp.common.game.message.ConstructionMessage;
+import de.uol.swp.client.game.event.SummaryConfirmedEvent;
+import de.uol.swp.common.game.dto.StatsDTO;
+import de.uol.swp.common.game.message.DrawRandomResourceFromPlayerMessage;
+import de.uol.swp.common.game.message.RobbersNewFieldMessage;
 import de.uol.swp.common.game.message.TradeEndedMessage;
 import de.uol.swp.common.game.request.*;
 import de.uol.swp.common.game.trade.TradeItem;
@@ -96,6 +99,21 @@ public class GameService {
     }
 
     /**
+     * Return from Summary Screen to main Screen
+     * <p>
+     * Leaves the current game and posts a new SummaryConfirmedMessage on the eventbus
+     *
+     * @param statsDTO    needed for the gamename
+     * @param currentUser needed for the userobject
+     * @author René Meyer
+     * @since 2021-05-08
+     */
+    public void returnFromSummaryScreen(StatsDTO statsDTO, User currentUser) {
+        this.leaveGame(statsDTO.getGameName(), currentUser);
+        eventBus.post(new SummaryConfirmedEvent(statsDTO.getGameName(), currentUser));
+    }
+
+    /**
      * Posts a request to buy a development card on the eventbus
      *
      * @author Marius Birk
@@ -117,10 +135,9 @@ public class GameService {
      * @since 2021-04-14
      */
     public void constructBuilding(UserDTO user, String gameName, UUID uuid, String typeOfNode) {
-        ConstructionMessage message = new ConstructionMessage(user, gameName, uuid, typeOfNode);
+        ConstructionRequest message = new ConstructionRequest(user, gameName, uuid, typeOfNode);
         eventBus.post(message);
     }
-
 
     /**
      * this methods sends the added trade items to the server via an TradeItemRequest
@@ -163,12 +180,96 @@ public class GameService {
      * @author Alexander Losse, Ricardo Mook
      * @since 2021-04-21
      */
-    public void endTradeBeforeItStarted(UserDTO user, String gameName,String tradeCode) {
+    public void endTradeBeforeItStarted(UserDTO user, String gameName, String tradeCode) {
         TradeEndedMessage tem = new TradeEndedMessage(tradeCode);
         eventBus.post(tem);
     }
 
-    public void sendTradeStartedRequest(UserDTO joinedLobbyUser, String currentLobby, String tradeCode){
+    public void sendTradeStartedRequest(UserDTO joinedLobbyUser, String currentLobby, String tradeCode) {
         eventBus.post(new TradeStartRequest(joinedLobbyUser, currentLobby, tradeCode));
+    }
+
+    /**
+     * This method sends a RobbersNewFieldMessage to the server and updates the position of the robber.
+     *
+     * @param game String of the gameName
+     * @param user String of the userName that invoked the method.
+     * @param uuid UUID of the hexagon, where the user wants to move the robber.
+     * @author Marius Birk
+     * @since 2021-04-24
+     */
+    public void movedRobber(String game, User user, UUID uuid) {
+        eventBus.post(new RobbersNewFieldMessage(game, (UserDTO) user, uuid));
+    }
+
+    /**
+     * This method will be invoked if the robber is moved to a field, where a user has occupied a buildingNode.
+     *
+     * @param gameName String of the gameName
+     * @param user     String of the userName that invoked the method.
+     * @param result   String of the userName from that the card will be drawn.
+     * @author Marius Birk
+     * @since 2021-04-24
+     */
+    public void drawRandomCardFromPlayer(String gameName, User user, String result) {
+        DrawRandomResourceFromPlayerMessage drawRandomResourceFromPlayerMessage = new DrawRandomResourceFromPlayerMessage(gameName, (UserDTO) user, result);
+        eventBus.post(drawRandomResourceFromPlayerMessage);
+    }
+
+    /**
+     * sends a request to play a certain DevelopmentCard to the server
+     *
+     * @param joinedLobbyUser the user who wants to play the card
+     * @param currentLobby    the name of the game in which the card is to be played
+     * @param devCard         the name of the DevelopmentCard
+     * @author Marc Hermes
+     * @since 2021-05-03
+     */
+    public void playDevelopmentCard(UserDTO joinedLobbyUser, String currentLobby, String devCard) {
+        eventBus.post(new PlayDevelopmentCardRequest(devCard, currentLobby, joinedLobbyUser));
+    }
+
+    /**
+     * sends a request to resolve the Monopoly DevelopmentCard to the server
+     *
+     * @param joinedLobbyUser the user who wants to resolve the Monopoly card
+     * @param currentLobby    the name of the game in which the card is to be resolved
+     * @param devCard         the name of the DevelopmentCard, should be Monopoly
+     * @param resource        the name of the resource for the Monopoly card
+     * @author Marc Hermes
+     * @since 2021-05-03
+     */
+    public void resolveDevelopmentCardMonopoly(UserDTO joinedLobbyUser, String currentLobby, String devCard, String resource) {
+        eventBus.post(new ResolveDevelopmentCardMonopolyRequest(devCard, joinedLobbyUser, currentLobby, resource));
+    }
+
+    /**
+     * sends a request to resolve the Year of Plenty DevelopmentCard to the server
+     *
+     * @param joinedLobbyUser the user who wants to resolve the Year of Plenty card
+     * @param currentLobby    the name of the game in which the card is to be resolved
+     * @param devCard         the name of the DevelopmentCard, should be Year of Plenty
+     * @param resource1       the name of the first resource for the Year of Plenty card
+     * @param resource2       the name of the second resource for the Year of Plenty card
+     * @author Marc Hermes
+     * @since 2021-05-03
+     */
+    public void resolveDevelopmentCardYearOfPlenty(UserDTO joinedLobbyUser, String currentLobby, String devCard, String resource1, String resource2) {
+        eventBus.post(new ResolveDevelopmentCardYearOfPlentyRequest(devCard, joinedLobbyUser, currentLobby, resource1, resource2));
+    }
+
+    /**
+     * sends a request to resolve the Road Building DevelopmentCard to the server
+     *
+     * @param joinedLobbyUser the user who wants to resolve the Road Building card
+     * @param currentLobby    the name of the game in which the card is to be resolved
+     * @param devCard         the name of the DevelopmentCard, should be Road Building
+     * @param street1         the UUID of the first street for the Road Building card
+     * @param street2         the UUID of the second street for the Road Building card
+     * @author Marc Hermes
+     * @since 2021-05-03
+     */
+    public void resolveDevelopmentCardRoadBuilding(UserDTO joinedLobbyUser, String currentLobby, String devCard, UUID street1, UUID street2) {
+        eventBus.post(new ResolveDevelopmentCardRoadBuildingRequest(devCard, joinedLobbyUser, currentLobby, street1, street2));
     }
 }

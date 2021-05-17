@@ -7,7 +7,6 @@ import de.uol.swp.common.game.inventory.DevelopmentCardDeck;
 import de.uol.swp.common.game.inventory.Inventory;
 import de.uol.swp.common.game.trade.Trade;
 import de.uol.swp.common.user.User;
-import de.uol.swp.common.user.UserDTO;
 
 import java.util.*;
 
@@ -35,7 +34,8 @@ public class GameDTO implements Game {
     private int startingPhase = 1;
     private boolean countingUp = true;
     private boolean lastPlayerSecondTurn = false;
-    private DevelopmentCardDeck developmentCardDeck = new DevelopmentCardDeck();
+    private boolean playedCardThisTurn = false;
+    private final DevelopmentCardDeck developmentCardDeck = new DevelopmentCardDeck();
     private final ArrayList<MapGraph.BuildingNode> lastBuildingOfOpeningTurn = new ArrayList<>();
 
     private Inventory inventory1;
@@ -43,7 +43,8 @@ public class GameDTO implements Game {
     private Inventory inventory3;
     private Inventory inventory4;
 
-    private HashMap<String, Trade> tradeList = new HashMap<>();
+    private final HashMap<String, Trade> tradeList = new HashMap<>();
+    private String currentCard = "";
 
     /**
      * Constructor
@@ -168,6 +169,7 @@ public class GameDTO implements Game {
         if (startingTurns) {
             openingPhase();
         } else overallTurns++;
+        playedCardThisTurn = false;
     }
 
     /**
@@ -268,6 +270,24 @@ public class GameDTO implements Game {
         return null;
     }
 
+    /**
+     * Getter for all inventories as ArrayList
+     * <p>
+     * Retrieves all inventories from the game to show the stats in summary Screen
+     *
+     * @return all game inventories
+     * @author René Meyer
+     * @see ArrayList
+     * @see Inventory
+     * @since 2021-05-08
+     */
+    public ArrayList<Inventory> getInventoriesArrayList() {
+        ArrayList<Inventory> inventories = new ArrayList<Inventory>();
+        var users = this.getUsersList();
+        users.forEach((user) -> inventories.add(getInventory(user)));
+        return inventories;
+    }
+
     @Override
     public DevelopmentCardDeck getDevelopmentCardDeck() {
         return developmentCardDeck;
@@ -302,16 +322,17 @@ public class GameDTO implements Game {
     /**
      * adds a Trade to the game
      *
-     * @see Trade
-     * @param trade Trade to be added
+     * @param trade     Trade to be added
      * @param tradeCode String used to identify trade
      * @author Alecander Losse, Ricardo Mook
+     * @see Trade
      * @since 2021-04-13
      */
     @Override
-    public void addTrades(Trade trade, String tradeCode){
-        tradeList.put(tradeCode,trade);
+    public void addTrades(Trade trade, String tradeCode) {
+        tradeList.put(tradeCode, trade);
     }
+
     /**
      * getter for the HashMap containing the Trades
      *
@@ -320,7 +341,7 @@ public class GameDTO implements Game {
      * @since 2021-04-13
      */
     @Override
-    public HashMap getTradeList(){
+    public HashMap getTradeList() {
         return tradeList;
     }
 
@@ -332,7 +353,28 @@ public class GameDTO implements Game {
      * @since 2021-04-13
      */
     @Override
-    public void removeTrade(String tradeCode){
+    public void removeTrade(String tradeCode) {
         tradeList.remove(tradeCode);
     }
+
+    @Override
+    public String getCurrentCard() {
+        return this.currentCard;
+    }
+
+    @Override
+    public void setCurrentCard(String currentCard) {
+        this.currentCard = currentCard;
+    }
+
+    @Override
+    public boolean playedCardThisTurn() {
+        return this.playedCardThisTurn;
+    }
+
+    @Override
+    public void setPlayedCardThisTurn(boolean value) {
+        playedCardThisTurn = value;
+    }
+
 }
