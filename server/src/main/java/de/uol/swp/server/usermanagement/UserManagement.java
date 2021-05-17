@@ -49,8 +49,9 @@ public class UserManagement extends AbstractUserManagement {
      * @since 2021-01-19
      */
     @Inject
-    public UserManagement(SQLBasedUserStore storeInUse) {
+    public UserManagement(SQLBasedUserStore storeInUse) throws SQLException {
         this.storeInUse = storeInUse;
+        storeInUse.buildConnection();
     }
 
     @Override
@@ -388,18 +389,13 @@ public class UserManagement extends AbstractUserManagement {
 
     @Override
     public User login(String username, String password) {
-        Optional<User> user = userStore.findUser(username, password);
+        Optional<User> user = storeInUse.findUser(username, password);
         if (user.isPresent()){
-            this.loggedInUsers.put(username, user.get());
+            loggedInUsers.put(username, user.get());
             return user.get();
         }else{
             throw new SecurityException("Cannot auth user " + username);
         }
-    }
-
-    @Override
-    public boolean isLoggedIn(User username) {
-        return loggedInUsers.containsKey(username.getUsername());
     }
 
     @Override

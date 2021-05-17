@@ -2,9 +2,11 @@ package de.uol.swp.server.usermanagement.store;
 
 import de.uol.swp.common.user.User;
 
+import de.uol.swp.common.user.UserDTO;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import java.sql.*;
+import java.util.Objects;
 import java.util.Optional;
 
 public class SQLBasedUserStore extends AbstractUserStore implements UserStore {
@@ -47,7 +49,45 @@ public class SQLBasedUserStore extends AbstractUserStore implements UserStore {
         connection.close();
     }
 
+    @Override
     public Optional<User> findUser(String username, String password) {
+
+    }
+
+
+    @Override
+    public Optional<User> findUser(String username, String password) {
+        User usr = users.get(username);
+        if (usr != null && Objects.equals(usr.getPassword(), hash(password))) {
+            return Optional.of(usr.getWithoutPassword());
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public User login(String username, String password) throws SQLException {
+        if (!password.isEmpty() && !password.isBlank()) {
+            String login = "select name, mail, pictureID from userData where name=? and password=?;";
+            ResultSet resultSet = null;
+            try {
+                PreparedStatement loginUser = connection.prepareStatement(login);
+                loginUser.setString(1, username);
+                loginUser.setString(2, password);
+                resultSet = loginUser.executeQuery();
+            } catch (SQLException e) {
+                LOG.debug("Fehler bei der Datenbankabfrage");
+                e.printStackTrace();
+            }
+            if (resultSet.next()) {
+                User user = new UserDTO(username, password, resultSet.getString(2), resultSet.getInt(3));
+                this.loggedInUsers.put(username, user);
+                return user;
+            } else {
+                throw new SecurityException("Cannot auth user " + username);
+            }
+        } else {
+            throw new SecurityException("Cannot auth user " + username);
+        }
 
     }
 
