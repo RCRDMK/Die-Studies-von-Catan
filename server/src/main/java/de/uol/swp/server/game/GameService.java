@@ -154,22 +154,24 @@ public class GameService extends AbstractService {
                 if (message.getTypeOfNode().equals("BuildingNode")) { //If the node from the message is a building node...
                     for (MapGraph.BuildingNode buildingNode : game.get().getMapGraph().getBuildingNodeHashSet()) {
                         if (message.getUuid().equals(buildingNode.getUuid())) { // ... and if the node in the message is a node in the MapGraph BuildingNodeSet...
-                            if ((buildingNode.getSizeOfSettlement() == 0 && inventory.lumber.getNumber() > 0 && inventory.brick.getNumber()>0
+                            if (game.get().isStartingTurns() || ((buildingNode.getSizeOfSettlement() == 0 && inventory.lumber.getNumber() > 0 && inventory.brick.getNumber()>0
                                     && inventory.wool.getNumber() > 0 && inventory.grain.getNumber()>0) ||
-                                    (buildingNode.getSizeOfSettlement() == 1 && inventory.ore.getNumber() > 2 && inventory.grain.getNumber()>2)) {
+                                    (buildingNode.getSizeOfSettlement() == 1 && inventory.ore.getNumber() > 2 && inventory.grain.getNumber()>2))) {
                                 if (buildingNode.tryBuildOrDevelopSettlement(playerIndex, game.get().getStartingPhase())) {
                                     game.get().getMapGraph().addBuiltBuilding(buildingNode);
                                     sendToAllInGame(game.get().getName(), new SuccessfulConstructionMessage(game.get().getName(), message.getUser().getWithoutPassword(), playerIndex,
                                             message.getUuid(), "BuildingNode"));
                                     if (game.get().isStartingTurns() && game.get().getMapGraph().getNumOfRoads()[playerIndex] == game.get().getStartingPhase()
                                             && game.get().getMapGraph().getNumOfRoads()[playerIndex] == game.get().getMapGraph().getNumOfBuildings()[playerIndex]) {
-                                        post(new EndTurnRequest(message.getName(), (UserDTO) message.getUser()));
+                                        endTurn(game, message.getUser());
                                     }
                                     if (buildingNode.getSizeOfSettlement() == 0) {
-                                        inventory.lumber.decNumber(1);
-                                        inventory.brick.decNumber(1);
-                                        inventory.wool.decNumber(1);
-                                        inventory.grain.decNumber(1);
+                                        if (!game.get().isStartingTurns()){
+                                            inventory.lumber.decNumber(1);
+                                            inventory.brick.decNumber(1);
+                                            inventory.wool.decNumber(1);
+                                            inventory.grain.decNumber(1);
+                                        }
                                         inventory.settlement.decNumber();
                                         inventory.incCardVictoryPoint();
                                     } else if (buildingNode.getSizeOfSettlement() == 1) {
@@ -186,16 +188,18 @@ public class GameService extends AbstractService {
                 } else {
                     for (MapGraph.StreetNode streetNode : game.get().getMapGraph().getStreetNodeHashSet()) {
                         if (message.getUuid().equals(streetNode.getUuid())) {
-                            if (inventory.lumber.getNumber() > 0 && inventory.brick.getNumber()>0) {
+                            if (game.get().isStartingTurns() || (inventory.lumber.getNumber() > 0 && inventory.brick.getNumber()>0)) {
                                 if (streetNode.tryBuildRoad(playerIndex, game.get().getStartingPhase())) {
                                     sendToAllInGame(game.get().getName(), new SuccessfulConstructionMessage(game.get().getName(), message.getUser().getWithoutPassword(), playerIndex,
                                             message.getUuid(), "StreetNode"));
                                     if (game.get().isStartingTurns() && game.get().getMapGraph().getNumOfRoads()[playerIndex] == game.get().getStartingPhase()
                                             && game.get().getMapGraph().getNumOfRoads()[playerIndex] == game.get().getMapGraph().getNumOfBuildings()[playerIndex]) {
-                                        post(new EndTurnRequest(message.getName(), (UserDTO) message.getUser()));
+                                        endTurn(game, message.getUser());
                                     }
-                                    inventory.lumber.decNumber(1);
-                                    inventory.brick.decNumber(1);
+                                    if (!game.get().isStartingTurns()){
+                                        inventory.lumber.decNumber(1);
+                                        inventory.brick.decNumber(1);
+                                    }
                                     inventory.road.decNumber();
                                     return true;
                                 }
@@ -706,24 +710,27 @@ public class GameService extends AbstractService {
     @Subscribe
     public void onEndTurnRequest(EndTurnRequest request) {
         Optional<Game> game = gameManagement.getGame(request.getName());
-        if (request.getUser().getUsername().equals(game.get().getUser(game.get().getTurn()).getUsername()) && game.get().getCurrentCard().equals("")) {
+        endTurn(game, request.getUser());
+    }
+
+    public void endTurn(Optional<Game> game, UserDTO user){
+        if (user.getUsername().equals(game.get().getUser(game.get().getTurn()).getUsername()) && game.get().getCurrentCard().equals("")) {
             try {
                 boolean priorGamePhase = game.get().isStartingTurns();
                 game.get().nextRound();
-                if (priorGamePhase == true && game.get().isStartingTurns() == false) {
-                    distributeResources(request.getName());
+                if (priorGamePhase && !game.get().isStartingTurns()) {
+                    distributeResources(game.get().getName());
                 }
                 sendToAllInGame(game.get().getName(), new NextTurnMessage(game.get().getName(),
                         game.get().getUser(game.get().getTurn()).getUsername(), game.get().getTurn(), game.get().isStartingTurns()));
             } catch (GameManagementException e) {
                 LOG.debug(e);
-                System.out.println("Sender " + request.getUser().getUsername() + " was not player with current turn");
+                System.out.println("Sender " + user.getUsername() + " was not player with current turn");
             }
         }
 
         //@Todo: Check Victory Points, when user won redirect all to Summary Screen - Later trigger when inventory changes and not when user ends turn
         if (game.isPresent()) {
-            var user = request.getUser();
             var inventory = game.get().getInventory(user);
             // If user has 10 victory points, he wins and the Summary Screen gets shown for every user in the game.
             if (inventory.getVictoryPoints() >= 10) {
@@ -738,6 +745,7 @@ public class GameService extends AbstractService {
             }
         }
     }
+
 
     /**
      * Handles BuyDevelopmentCardRequest found on the eventbus.
