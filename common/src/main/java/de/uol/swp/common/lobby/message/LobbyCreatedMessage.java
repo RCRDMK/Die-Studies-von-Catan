@@ -8,6 +8,7 @@ import java.util.List;
 /**
  * Message sent by the server when a user successfully creates a lobby
  * <p>
+ *
  * @author Ricardo Mook, Marc Hermes
  * @since 2020-11-19
  */
@@ -20,18 +21,18 @@ public class LobbyCreatedMessage extends AbstractLobbyMessage {
 
     /**
      * Constructor
-     *<p>
+     * <p>
+     *
      * @param name name of the lobby
      * @param user user who joined the lobby
      * @author Ricardo Mook, Marc Hermes
      * @since 2020-11-19
      */
-
     public LobbyCreatedMessage(String name, UserDTO user) {
         super(name, user);
     }
 
-    public LobbyCreatedMessage(String username){
+    public LobbyCreatedMessage(String username) {
         this.username = username;
     }
 

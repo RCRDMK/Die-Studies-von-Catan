@@ -2,47 +2,116 @@ package de.uol.swp.server.usermanagement;
 
 import com.google.common.base.Strings;
 import de.uol.swp.common.user.User;
-import de.uol.swp.server.usermanagement.store.UserStore;
+import de.uol.swp.common.user.UserDTO;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.inject.Inject;
+import java.sql.*;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
 import java.util.SortedMap;
 import java.util.TreeMap;
+
 
 /**
  * Handles most user related issues e.g. login/logout
  *
- * @see de.uol.swp.server.usermanagement.AbstractUserManagement
  * @author Marco Grawunder
+ * @author Marius Birk
+ * @see de.uol.swp.server.usermanagement.AbstractUserManagement
  * @since 2019-08-05
+ * <p>
+ * Enhanced this class to make it possible to work with our database at the servers of the university.
+ * With that it is possible to retrieve, update, delete or insert users. Also it is possible to login/logout.
+ * @since 2021-01-19
+ * <p>
+ * Enhanced the complete class with PreparedStatements. PreparedStatements do not affect the functionality, but they secure our database
+ * from unwanted usernames for example.
+ * @since 2021-02-26
  */
 public class UserManagement extends AbstractUserManagement {
+//TODO: Hier wurde übergangsweise ein anderer Server eingetragen
+    private final String CONNECTION = "jdbc:mysql://178.238.232.242:3306";
+    private Connection connection;
+    private Statement statement;
+    private static final Logger LOG = LogManager.getLogger(UserManagement.class);
+    private static final SortedMap<String, User> loggedInUsers = new TreeMap<>();
 
-    private final UserStore userStore;
-    private final SortedMap<String, User> loggedInUsers = new TreeMap<>();
 
     /**
      * Constructor
      *
-     * @param userStore object of the UserStore to be used
+     * @author Marius Birk
      * @see de.uol.swp.server.usermanagement.store.UserStore
      * @since 2019-08-05
+     * <p>
+     * The constructor changed to an empty constructor. The usual store is not longer needed.
+     * @since 2021-01-19
      */
     @Inject
-    public UserManagement(UserStore userStore){
-        this.userStore = userStore;
+    public UserManagement() {
+    }
+
+    /**
+     * Build Connection
+     * <p>
+     * This method will build up a connection to our database at the University Servers.
+     * It can be used everywhere, where the usermanagement is used and needed. But most times
+     * the connection is already opened and would only close if the server is going to shut down.
+     *
+     * @author Marius Birk
+     * @since 2021-01-15
+     */
+
+    public void buildConnection() throws SQLException {
+        DriverManager.registerDriver(new com.mysql.cj.jdbc.Driver());
+        //TODO: Dies ist nicht der Nutzer für die ARBI Datenbank
+        connection = DriverManager.getConnection(CONNECTION, "swpJ", "Uz3FLt2cgMmFCALY");
+        statement = connection.createStatement();
+        statement.execute("use swpJ;");
+    }
+
+    /**
+     * Closes Connection
+     * <p>
+     * This method will be closing the connection between database and server application.
+     * If the server is going to be shut down,
+     * it will close the connection to the database.
+     *
+     * @author Marius Birk
+     * @since 2021-01-15
+     */
+    public void closeConnection() throws SQLException {
+        statement.close();
+        connection.close();
     }
 
     @Override
-    public User login(String username, String password) {
-        Optional<User> user = userStore.findUser(username, password);
-        if (user.isPresent()){
-            this.loggedInUsers.put(username, user.get());
-            return user.get();
-        }else{
+    public User login(String username, String password) throws SQLException {
+        if (!password.isEmpty() && !password.isBlank()) {
+            String login = "select name, mail, pictureID from userData where name=? and password=?;";
+            ResultSet resultSet = null;
+            try {
+                PreparedStatement loginUser = connection.prepareStatement(login);
+                loginUser.setString(1, username);
+                loginUser.setString(2, password);
+                resultSet = loginUser.executeQuery();
+            } catch (SQLException e) {
+                LOG.debug("Fehler bei der Datenbankabfrage");
+                e.printStackTrace();
+            }
+            if (resultSet.next()) {
+                User user = new UserDTO(username, password, resultSet.getString(2), resultSet.getInt(3));
+                this.loggedInUsers.put(username, user);
+                return user;
+            } else {
+                throw new SecurityException("Cannot auth user " + username);
+            }
+        } else {
             throw new SecurityException("Cannot auth user " + username);
         }
+
     }
 
     @Override
@@ -50,50 +119,226 @@ public class UserManagement extends AbstractUserManagement {
         return loggedInUsers.containsKey(username.getUsername());
     }
 
+    /**
+     * Creates a New User
+     * <p>
+     * This method creates a new User in the Database. It throws an exception if the username is already used in
+     * the database.
+     *
+     * @return A new UserDTO with the username, password and the mail address
+     * @see java.sql.SQLException
+     */
+
     @Override
-    public User createUser(User userToCreate){
-        Optional<User> user = userStore.findUser(userToCreate.getUsername());
-        if (user.isPresent()){
-            throw new UserManagementException("Username already used!");
+    public User createUser(User userToCreate) {
+        String getUsername = "select name from userData where name = ?;";
+        ResultSet resultSet;
+        try {
+            PreparedStatement userName = connection.prepareStatement(getUsername);
+            userName.setString(1, userToCreate.getUsername());
+            resultSet = userName.executeQuery();
+
+            if (!resultSet.next()) {
+                String insertUser = "insert into userData(name, password, mail) values (?,?,?);";
+                userName = connection.prepareStatement(insertUser);
+                userName.setString(1, userToCreate.getUsername());
+                userName.setString(2, userToCreate.getPassword());
+                userName.setString(3, userToCreate.getEMail());
+
+                userName.executeUpdate();
+            } else {
+                throw new UserManagementException("Username already used!");
+            }
+        } catch (SQLException e) {
+            LOG.error("Fehler bei der Datenbankabfrage");
+            e.printStackTrace();
         }
-        return userStore.createUser(userToCreate.getUsername(), userToCreate.getPassword(), userToCreate.getEMail());
+        return new UserDTO(userToCreate.getUsername(), userToCreate.getPassword(), userToCreate.getEMail());
     }
 
+    /**
+     * Updates the users email.
+     * <p>
+     * This method updates the mail from the User in the database. It throws an exception if the user is not present in
+     * the database.
+     *
+     * @return A new UserDTO with the username and the mail address
+     * @author Carsten Dekker
+     * @see java.sql.SQLException
+     * @since 2021-03-12
+     */
     @Override
-    public User updateUser(User userToUpdate){
-        Optional<User> user = userStore.findUser(userToUpdate.getUsername());
-        if (!user.isPresent()){
+    public User updateUserMail(User toUpdateMail) throws SQLException {
+        ResultSet resultSet;
+        PreparedStatement updateUserMail;
+        try {
+            String getUser = "select * from userData where name=?;";
+            updateUserMail = connection.prepareStatement(getUser);
+            updateUserMail.setString(1, toUpdateMail.getUsername());
+            resultSet = updateUserMail.executeQuery();
+        } catch (SQLException e) {
+            LOG.debug(e);
             throw new UserManagementException("Username unknown!");
         }
-        // Only update if there are new values
-        String newPassword = firstNotNull(userToUpdate.getPassword(), user.get().getPassword());
-        String newEMail = firstNotNull(userToUpdate.getEMail(), user.get().getEMail());
-        return userStore.updateUser(userToUpdate.getUsername(), newPassword, newEMail);
-
+        String newEMail = "";
+        if (resultSet.next()) {
+            try {
+                newEMail = firstNotNull(toUpdateMail.getEMail(), resultSet.getString("mail"));
+                String updateUserString = "update userData set mail=? where name=?;";
+                updateUserMail = connection.prepareStatement(updateUserString);
+                updateUserMail.setString(1, toUpdateMail.getEMail());
+                updateUserMail.setString(2, toUpdateMail.getUsername());
+                updateUserMail.executeUpdate();
+            } catch (SQLException e) {
+                LOG.debug(e);
+                throw new UserManagementException("Username unknown!");
+            }
+        } else {
+            throw new UserManagementException("Username unknown!");
+        }
+        return new UserDTO(toUpdateMail.getUsername(), toUpdateMail.getPassword(), newEMail);
     }
 
+    /**
+     * Updates the users password.
+     * <p>
+     * This method updates the password from the User in the database. It throws an exception if the user is not present
+     * in the database or if the password, that the user entered in the UserSettingsView, is not the same as the
+     * currently used password.
+     *
+     * @return A new UserDTO with the username and the mail address
+     * @author Carsten Dekker
+     * @see java.sql.SQLException
+     * @since 2021-03-12
+     */
     @Override
-    public void dropUser(User userToDrop) {
-        Optional<User> user = userStore.findUser(userToDrop.getUsername());
-        if (!user.isPresent()) {
+    public User updateUserPassword(User toUpdatePassword, String currentPassword) throws SQLException {
+        ResultSet resultSet;
+        PreparedStatement updateUserPassword;
+        try {
+            String getUser = "select * from userData where name=?;";
+            updateUserPassword = connection.prepareStatement(getUser);
+            updateUserPassword.setString(1, toUpdatePassword.getUsername());
+            resultSet = updateUserPassword.executeQuery();
+        } catch (SQLException e) {
+            LOG.debug(e);
             throw new UserManagementException("Username unknown!");
         }
-        userStore.removeUser(userToDrop.getUsername());
+        String newPassword = "";
+        if (resultSet.next()) {
+            if (resultSet.getString(2).equals(currentPassword)) {
+                try {
+                    newPassword = firstNotNull(toUpdatePassword.getPassword(), resultSet.getString("password"));
+                    String updateUserString = "update userData set password=? where name=?;";
+                    updateUserPassword = connection.prepareStatement(updateUserString);
+                    updateUserPassword.setString(1, toUpdatePassword.getPassword());
+                    updateUserPassword.setString(2, toUpdatePassword.getUsername());
+                    updateUserPassword.executeUpdate();
+                } catch (SQLException e) {
+                    LOG.debug(e);
+                    throw new UserManagementException("Username unknown!");
+                }
+            } else {
+                throw new UserManagementException("The Send Password is not equal to the current password!");
+            }
+        } else {
+            throw new UserManagementException("Username unknown!");
+        }
+        return new UserDTO(toUpdatePassword.getUsername(), newPassword, toUpdatePassword.getEMail());
+    }
+
+    /**
+     * Updates the users pictureID
+     * <p>
+     * This method updates the pictureID from the user in the database. It shows an exception, if the user is not
+     * present in the database.
+     *
+     * @author Carsten Dekker
+     * @param toUpdatePicture the new user object that contains the new profilePictureID
+     * @return A new UserDTO with the username and the profile pictureID
+     * @see java.sql.SQLException
+     * @since 2021-04-15
+     */
+    @Override
+    public User updateUserPicture(User toUpdatePicture) throws SQLException {
+        ResultSet resultSet;
+        PreparedStatement updateUserPicture;
+        try {
+            String getUser = "select * from userData where name=?;";
+            updateUserPicture = connection.prepareStatement(getUser);
+            updateUserPicture.setString(1, toUpdatePicture.getUsername());
+            resultSet = updateUserPicture.executeQuery();
+        } catch (SQLException e) {
+            LOG.debug(e);
+            throw new UserManagementException("Username unknown!");
+        }
+        int newPictureID = 1;
+        if (resultSet.next()) {
+            try {
+                newPictureID = resultSet.getInt("pictureID");
+                String updateUserString = "update userData set pictureID=? where name=?;";
+                updateUserPicture = connection.prepareStatement(updateUserString);
+                updateUserPicture.setInt(1, toUpdatePicture.getProfilePictureID());
+                updateUserPicture.setString(2, toUpdatePicture.getUsername());
+                updateUserPicture.executeUpdate();
+            } catch (SQLException e) {
+                LOG.debug(e);
+                throw new UserManagementException("Username unknown!");
+            }
+        } else {
+            throw new UserManagementException("Username unknown!");
+        }
+        return new UserDTO(toUpdatePicture.getUsername(), toUpdatePicture.getPassword(), toUpdatePicture.getEMail(), toUpdatePicture.getProfilePictureID());
+    }
+
+    /**
+     * Deletes the user in the database.
+     * <p>
+     * This method drops the user from the database.
+     * If the user is still logged in, he/she will be logged out before being deleted.
+     *
+     * @author Carsten Dekker
+     * @see java.sql.SQLException
+     * @since 2021-03-12
+     */
+    @Override
+    public void dropUser(User userToDrop) throws SQLException {
+        String selectUserString = "select name from userData where name =?;";
+        if (isLoggedIn(userToDrop)) {
+            logout(userToDrop);
+        }
+        try {
+            PreparedStatement dropUser = connection.prepareStatement(selectUserString);
+            dropUser.setString(1, userToDrop.getUsername());
+            ResultSet resultSet = dropUser.executeQuery();
+            if (!resultSet.next()) {
+                throw new UserManagementException("Username unknown!");
+            } else {
+                dropUser = connection.prepareStatement("delete from userData where name=?;");
+                dropUser.setString(1, userToDrop.getUsername());
+                dropUser.executeUpdate();
+            }
+
+        } catch (SQLException e) {
+            LOG.debug(e);
+            throw new UserManagementException("User could not be dropped!");
+        }
     }
 
     /**
      * Sub-function of update user
-     *
+     * <p>
      * This method is used to set the new user values to the old ones if the values
      * in the update request were empty.
      *
-     * @param firstValue value to update to, empty String or null
+     * @param firstValue  value to update to, empty String or null
      * @param secondValue the old value
      * @return String containing the value to be used in the update command
+     * @author Marco Grawunder
      * @since 2019-08-05
      */
     private String firstNotNull(String firstValue, String secondValue) {
-        return Strings.isNullOrEmpty(firstValue)?secondValue:firstValue;
+        return Strings.isNullOrEmpty(firstValue) ? secondValue : firstValue;
     }
 
     @Override
@@ -101,8 +346,65 @@ public class UserManagement extends AbstractUserManagement {
         loggedInUsers.remove(user.getUsername());
     }
 
+    /**
+     * Enhanced/Changed method
+     * <p>
+     * Changed some parts of this method to make it possible to work with our SQL database.
+     * Now we are handeling a List of Users and retrieving all users out of our database.
+     * The next step is to copy all of the retrieved users in a LinkedList and to return it.
+     *
+     * @return List of Users out of the database
+     * @author Marius Birk
+     * @see java.sql.SQLException
+     * @see java.util.LinkedList
+     */
     @Override
-    public List<User> retrieveAllUsers() {
-        return userStore.getAllUsers();
+    public List<User> retrieveAllUsers() throws SQLException {
+        List<User> userList = new LinkedList<>();
+        ResultSet resultSet;
+        PreparedStatement preparedStatement;
+        try {
+            String selectAllUsers = "select * from userData;";
+            preparedStatement = connection.prepareStatement(selectAllUsers);
+            resultSet = preparedStatement.executeQuery();
+        } catch (Exception e) {
+            LOG.debug(e);
+            throw new UserManagementException("Could not retrieve all users.");
+        }
+        while (resultSet.next()) {
+            userList.add(new UserDTO(resultSet.getString(1), resultSet.getString(2), resultSet.getString(3)));
+        }
+        return userList;
+    }
+
+    /**
+     * Selects the Mail and the profilePictureId from the database.
+     * <p>
+     * This method selects the mail and the profilePictureID from the User and creates a new UserDTO with the information
+     * and an empty password. The UserDTO gets returned to the UserService.
+     *
+     * @return A new UserDTO with the username, the mail address and the profilePictureID
+     * @author Carsten Dekker
+     * @see java.sql.SQLException
+     * @since 2021-03-12
+     */
+    @Override
+    public User retrieveUserInformation(User toGetInformation) throws SQLException {
+        ResultSet resultSet;
+        PreparedStatement preparedStatement;
+        try {
+            String selectMail = "select mail, pictureID from userData where name = ? ;";
+            preparedStatement = connection.prepareStatement(selectMail);
+            preparedStatement.setString(1, toGetInformation.getUsername());
+            resultSet = preparedStatement.executeQuery();
+        } catch (Exception e) {
+            LOG.debug(e);
+            throw new UserManagementException("Username unknown");
+        }
+        if (resultSet.next())
+            return new UserDTO(toGetInformation.getUsername(), "", resultSet.getString(1), resultSet.getInt(2));
+        else {
+            return null;
+        }
     }
 }

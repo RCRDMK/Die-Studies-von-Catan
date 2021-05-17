@@ -7,16 +7,19 @@ import com.google.inject.Singleton;
 import de.uol.swp.common.chat.RequestChatMessage;
 import de.uol.swp.common.chat.ResponseChatMessage;
 import de.uol.swp.server.AbstractService;
+import de.uol.swp.server.cheat.CheatService;
 import de.uol.swp.server.usermanagement.UserService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
 import java.util.LinkedList;
 
 /**
- * Mapping vom event bus calls to chat service calls
+ * Service that handles the chat
+ * <p>
  *
- * @see de.uol.swp.server.AbstractService
  * @author René, Anton, Sergej
+ * @see de.uol.swp.server.AbstractService
  * @since 2020-11-22
  */
 @SuppressWarnings("UnstableApiUsage")
@@ -24,31 +27,55 @@ import java.util.LinkedList;
 public class ChatService extends AbstractService {
     private static final Logger LOG = LogManager.getLogger(UserService.class);
     private final LinkedList<RequestChatMessage> messageList = new LinkedList();
+    private final CheatService cheatService;
+
+
     /**
-     * Constructor
+     * ChatService Constructor
+     * <p>
      *
-     * @param bus the EvenBus used throughout the server
+     * @param bus          the EvenBus used throughout the server
+     * @param cheatService cheatService to check the ChatMessages for cheats
+     * @author René Meyer, Sergej Tulnev
+     * @see EventBus
+     * @see CheatService
      * @since 2019-10-08
      */
     @Inject
-    public ChatService(EventBus bus) {
+    public ChatService(CheatService cheatService, EventBus bus) {
         super(bus);
+        this.cheatService = cheatService;
     }
 
     /**
-     * Handles RequestChatMessages found on the EventBus
+     * Handles RequestChatMessages detected on the EventBus
+     * <p>
      * If a RequestChatMessage is detected on the EventBus, this method is called.
-     * It will store the received Message in the chatList HashMap and post a ResponseChatMessage on the EventBus
+     * It will store the received Message in the chatList HashMap and post a ResponseChatMessage on the EventBus if the chatMessage isnt a cheat
+     * If the chatMessage is a cheat, it calls the cheatServce.parseExecuteCheat function and passes the
+     * RequestChatMessage as argument
      *
      * @param message The RequestChatMessage found on the EventBus
+     * @author René Meyer, Sergej Tulnev
+     * @see RequestChatMessage
+     * @see CheatService
+     * @since 2020-11-30
      */
     @Subscribe
-    private void onRequestChatMessage(RequestChatMessage message){
-        // Store Message in chatList
-        this.messageList.add(message);
-        LOG.debug("Got new chat message from user: " + message.getUsername() + " with content: '" + message.getMessage() +"' and added it to the messageList");
-        ResponseChatMessage msg = new ResponseChatMessage(message.getMessage(), message.getChat(), message.getUsername(), message.getTime());
-        post(msg);
-        LOG.debug("Posted ResponseChatMessage on eventBus");
+    private void onRequestChatMessage(RequestChatMessage message) {
+        //  Proceed when message isn't a cheat
+        if (!cheatService.isCheat(message)) {
+            // Store Message in chatList
+            this.messageList.add(message);
+            LOG.debug("Got new chat message from user: " + message.getUsername() + " with content: '" + message.getMessage() + "' and added it to the messageList");
+            ResponseChatMessage msg = new ResponseChatMessage(message.getMessage(), message.getChat(), message.getUsername(), message.getTime());
+            post(msg);
+            LOG.debug("Posted ResponseChatMessage on eventBus");
+        } else {
+            // Parse & Execute Cheatcodes
+            LOG.debug("Cheatmessage " + message.getMessage() + " sent by " + message.getUsername());
+            cheatService.parseExecuteCheat(message);
+        }
     }
+
 }

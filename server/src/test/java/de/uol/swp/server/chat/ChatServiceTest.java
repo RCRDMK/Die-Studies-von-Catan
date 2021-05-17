@@ -7,31 +7,55 @@ import de.uol.swp.common.chat.RequestChatMessage;
 import de.uol.swp.common.chat.ResponseChatMessage;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
+import de.uol.swp.server.cheat.CheatService;
+import de.uol.swp.server.game.GameManagement;
+import de.uol.swp.server.game.GameService;
+import de.uol.swp.server.lobby.LobbyManagement;
+import de.uol.swp.server.lobby.LobbyService;
+import de.uol.swp.server.usermanagement.AuthenticationService;
+import de.uol.swp.server.usermanagement.UserManagement;
+import de.uol.swp.server.usermanagement.UserService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.sql.SQLException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- *  @author René, Anton, Sergej
- *  @since 2020-11-22
+ * Class for the ChatService Test
+ * <p>
+ * Contains sendRequestChatMessageTest and onResponseChatMessageTest
+ *
+ * @author René, Anton, Sergej
+ * @see ChatService
+ * @since 2020-11-22
  */
 
 public class ChatServiceTest {
     final EventBus bus = new EventBus();
-    final ChatService chatService = new ChatService(bus);
+    final UserManagement userManagement = new UserManagement();
+    final AuthenticationService authenticationService = new AuthenticationService(bus, userManagement);
+    UserService userService = new UserService(bus, userManagement);
+    GameManagement gameManagement = new GameManagement();
+    LobbyManagement lobbyManagement = new LobbyManagement();
+    LobbyService lobbyService = new LobbyService(lobbyManagement, new AuthenticationService(bus, new UserManagement()), bus);
+    GameService gameService = new GameService(gameManagement, lobbyService, new AuthenticationService(bus, new UserManagement()), bus, userService);
     final User defaultUser = new UserDTO("Marco", "test", "marco@test.de");
-
+    final CheatService cheatService = new CheatService(gameService, bus);
+    final ChatService chatService = new ChatService(cheatService, bus);
     final CountDownLatch lock = new CountDownLatch(1);
     Object event;
 
+    public ChatServiceTest() throws SQLException {
+    }
+
     /**
      * Handles DeadEvents detected on the EventBus
-     *
+     * <p>
      * If a DeadEvent is detected the event variable of this class gets updated
      * to its event and its event is printed to the console output.
      *
@@ -45,7 +69,7 @@ public class ChatServiceTest {
 
     /**
      * Helper method run before each test case
-     *
+     * <p>
      * This method resets the variable event to null and registers the object of
      * this class to the EventBus.
      *
@@ -59,7 +83,7 @@ public class ChatServiceTest {
 
     /**
      * Helper method run after each test case
-     *
+     * <p>
      * This method only unregisters the object of this class from the EventBus.
      *
      * @since 2019-10-10
@@ -71,18 +95,20 @@ public class ChatServiceTest {
 
     /**
      * Test for the ChatService
-     *
+     * <p>
      * This test first creates a new RequestChatMessage object. It then
      * posts the RequestChatMessage object on the EventBus. After testing the RequestChatMessage
      * it creates a ResponseChatMessage with the parameters from the RequestChatMessage and posts that
      * on the eventbus. Then it tests the ResponseChatMessage object.
      * So this test covers the full Client-Server Communication for a sent Chatmessage
      *
+     * @author René Meyer, Sergej Tulnev
      * @since 2020-12-10
      */
     @Test
-    void sendRequestChatMessageTest(){
-        RequestChatMessage message = new RequestChatMessage("testMessage", "testLobby", defaultUser.getUsername(), System.currentTimeMillis());
+    void sendRequestChatMessageTest() {
+        RequestChatMessage message = new RequestChatMessage("testMessage", "testLobby", defaultUser.getUsername(),
+                System.currentTimeMillis());
         bus.post(message);
     }
 
@@ -91,7 +117,8 @@ public class ChatServiceTest {
         lock.await(1000, TimeUnit.MILLISECONDS);
         assertNotNull(message);
 
-        ResponseChatMessage response = new ResponseChatMessage(message.getMessage(),message.getChat(),message.getUsername(),message.getTime());
+        ResponseChatMessage response = new ResponseChatMessage(message.getMessage(), message.getChat(),
+                message.getUsername(), message.getTime());
         assertEquals(response.getMessage(), "testMessage");
         assertEquals(response.getChat(), "testLobby");
         assertEquals(response.getUsername(), defaultUser.getUsername());
@@ -100,7 +127,7 @@ public class ChatServiceTest {
     }
 
     @Subscribe
-    void onResponseChatMessageTest(ResponseChatMessage message) throws InterruptedException{
+    void onResponseChatMessageTest(ResponseChatMessage message) throws InterruptedException {
         lock.await(1000, TimeUnit.MILLISECONDS);
         assertNotNull(message);
 

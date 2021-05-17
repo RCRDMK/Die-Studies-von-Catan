@@ -8,7 +8,7 @@ import de.uol.swp.common.user.User;
  * account
  *
  * @author Carsten Dekker
- * @since  2020-12-15
+ * @since 2020-12-15
  */
 public class DropUserRequest extends AbstractRequestMessage {
 
@@ -18,7 +18,7 @@ public class DropUserRequest extends AbstractRequestMessage {
      * Constructor
      *
      * @param user the deleted user
-     * @since  2020-12-15
+     * @since 2020-12-15
      */
     public DropUserRequest(User user) {
         this.user = user;
@@ -28,7 +28,7 @@ public class DropUserRequest extends AbstractRequestMessage {
      * Getter for the user
      *
      * @return user that gets deleted
-     * @since  2020-12-15
+     * @since 2020-12-15
      */
 
     public User getUser() {

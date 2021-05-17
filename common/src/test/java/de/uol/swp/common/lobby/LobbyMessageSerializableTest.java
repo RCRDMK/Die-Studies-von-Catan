@@ -6,8 +6,8 @@ import de.uol.swp.common.lobby.request.*;
 import de.uol.swp.common.lobby.response.AllCreatedLobbiesResponse;
 import de.uol.swp.common.lobby.response.LobbyAlreadyExistsResponse;
 import de.uol.swp.common.user.UserDTO;
-import de.uol.swp.common.user.response.JoinDeletedLobbyResponse;
-import de.uol.swp.common.user.response.LobbyFullResponse;
+import de.uol.swp.common.user.response.lobby.JoinDeletedLobbyResponse;
+import de.uol.swp.common.user.response.lobby.LobbyFullResponse;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -24,11 +24,11 @@ public class LobbyMessageSerializableTest {
                 LobbyJoinUserRequest.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new LobbyLeaveUserRequest("test", defaultUser),
                 LobbyLeaveUserRequest.class));
-        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new UserJoinedLobbyMessage("test", defaultUser),
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new UserJoinedLobbyMessage(),
                 UserJoinedLobbyMessage.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new LobbyFullResponse("test"), LobbyFullResponse.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new JoinDeletedLobbyResponse("test"),JoinDeletedLobbyResponse.class));
-        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new UserLeftLobbyMessage("test", defaultUser),
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new UserLeftLobbyMessage(),
                 UserLeftLobbyMessage.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new LobbyAlreadyExistsResponse(),
                 LobbyAlreadyExistsResponse.class));

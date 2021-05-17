@@ -13,6 +13,7 @@ public class SecurityException extends RuntimeException {
 	/**
 	 * Constructor
 	 *
+	 * @author Marco Grawunder
 	 * @param message Text the Exception should contain
 	 * @since 2017-03-17
 	 */

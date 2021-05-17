@@ -10,8 +10,8 @@ import java.util.Objects;
 /**
  * This class is used to encapsulate a netty channel handler context
  *
- * @see de.uol.swp.common.message.MessageContext
  * @author Marco Grawunder
+ * @see de.uol.swp.common.message.MessageContext
  * @since 2019-11-20
  */
 class NettyMessageContext implements MessageContext {
@@ -21,7 +21,9 @@ class NettyMessageContext implements MessageContext {
     /**
      * Constructor
      *
+     * @author Marco Grawunder
      * @param ctx the ChannelHandlerContext encapsulated by this
+     * @author Marco Grawunder
      * @since 2019-11-20
      */
     public NettyMessageContext(ChannelHandlerContext ctx) {
@@ -31,7 +33,9 @@ class NettyMessageContext implements MessageContext {
     /**
      * Getter for the ChannelHandlerContext encapsulated by this class
      *
+     * @author Marco Grawunder
      * @return the ChannelHandlerContext
+     * @author Marco Grawunder
      * @see io.netty.channel.ChannelHandlerContext
      * @since 2019-11-20
      */

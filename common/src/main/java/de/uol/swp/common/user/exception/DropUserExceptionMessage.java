@@ -21,13 +21,13 @@ public class DropUserExceptionMessage extends AbstractResponseMessage {
      * @param message String containing the reason why the registration failed
      * @since 2020-12-15
      */
-    public DropUserExceptionMessage(String message){
+    public DropUserExceptionMessage(String message) {
         this.message = message;
     }
 
     @Override
     public String toString() {
-        return "DropUserExceptionMessage "+message;
+        return "DropUserExceptionMessage " + message;
     }
 
     @Override

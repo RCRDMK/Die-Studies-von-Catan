@@ -8,9 +8,9 @@ import java.util.Objects;
 /**
  * Base class of all lobby request messages. Basic handling of lobby data.
  *
+ * @author Marco Grawunder
  * @see de.uol.swp.common.user.User
  * @see de.uol.swp.common.message.AbstractRequestMessage
- * @author Marco Grawunder
  * @since 2019-10-08
  */
 public class AbstractLobbyRequest extends AbstractRequestMessage {
@@ -21,6 +21,7 @@ public class AbstractLobbyRequest extends AbstractRequestMessage {
     /**
      * Default constructor
      *
+     * @author Marco Grawunder
      * @implNote this constructor is needed for serialization
      * @since 2019-10-08
      */
@@ -32,6 +33,7 @@ public class AbstractLobbyRequest extends AbstractRequestMessage {
      *
      * @param name name of the lobby
      * @param user user responsible for the creation of this message
+     * @author Marco Grawunder
      * @since 2019-10-08
      */
     public AbstractLobbyRequest(String name, UserDTO user) {
@@ -43,6 +45,7 @@ public class AbstractLobbyRequest extends AbstractRequestMessage {
      * Getter for the name variable
      *
      * @return String containing the lobby's name
+     * @author Marco Grawunder
      * @since 2019-10-08
      */
     public String getName() {
@@ -52,7 +55,8 @@ public class AbstractLobbyRequest extends AbstractRequestMessage {
     /**
      * Setter for the name variable
      *
-     * @param name  String containing the lobby's name
+     * @param name String containing the lobby's name
+     * @author Marco Grawunder
      * @since 2019-10-08
      */
     public void setName(String name) {
@@ -63,6 +67,7 @@ public class AbstractLobbyRequest extends AbstractRequestMessage {
      * Getter for the user variable
      *
      * @return User responsible for the creation of this message
+     * @author Marco Grawunder
      * @since 2019-10-08
      */
     public UserDTO getUser() {
@@ -72,7 +77,8 @@ public class AbstractLobbyRequest extends AbstractRequestMessage {
     /**
      * Setter for the user variable
      *
-     * @param user  User responsible for the creation of this message
+     * @param user User responsible for the creation of this message
+     * @author Marco Grawunder
      * @since 2019-10-08
      */
     public void setUser(UserDTO user) {

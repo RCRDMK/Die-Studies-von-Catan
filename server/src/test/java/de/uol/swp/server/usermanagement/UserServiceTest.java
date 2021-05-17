@@ -1,16 +1,16 @@
 package de.uol.swp.server.usermanagement;
 
 import com.google.common.eventbus.EventBus;
-import com.google.common.eventbus.Subscribe;
+import de.uol.swp.common.message.MessageContext;
+import de.uol.swp.common.message.ResponseMessage;
+import de.uol.swp.common.message.ServerMessage;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.user.request.DropUserRequest;
-import de.uol.swp.common.user.request.LoginRequest;
 import de.uol.swp.common.user.request.RegisterUserRequest;
-import de.uol.swp.common.user.response.DropUserSuccessfulResponse;
-import de.uol.swp.server.usermanagement.store.MainMemoryBasedUserStore;
 import org.junit.jupiter.api.Test;
 
+import java.sql.SQLException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -26,11 +26,14 @@ class UserServiceTest {
     final CountDownLatch lock = new CountDownLatch(1);
 
     final EventBus bus = new EventBus();
-    final UserManagement userManagement = new UserManagement(new MainMemoryBasedUserStore());
+    final UserManagement userManagement = new UserManagement();
     final UserService userService = new UserService(bus, userManagement);
 
+    UserServiceTest() throws SQLException {
+    }
+
     @Test
-    void registerUserTest() {
+    void registerUserTest() throws SQLException {
         final RegisterUserRequest request = new RegisterUserRequest(userToRegister);
 
         // The post will lead to a call of a UserService function
@@ -41,10 +44,11 @@ class UserServiceTest {
 
         assertNotNull(loggedInUser);
         assertEquals(loggedInUser, userToRegister);
+        userManagement.dropUser(userToRegister);
     }
 
     @Test
-    void registerSecondUserWithSameName() {
+    void registerSecondUserWithSameName() throws SQLException {
         final RegisterUserRequest request = new RegisterUserRequest(userToRegister);
         final RegisterUserRequest request2 = new RegisterUserRequest(userWithSameName);
 
@@ -60,11 +64,13 @@ class UserServiceTest {
         // old user should not be overwritten!
         assertNotEquals(loggedInUser.getEMail(), userWithSameName.getEMail());
 
+        userManagement.dropUser(userToRegister);
+
     }
 
     /**
-    * Test for the dropUser routine on the server
-     *
+     * Test for the dropUser routine on the server
+     * <p>
      * This test method posts two Requests on the bus. The First request is a RegisterRequest and the
      * second one is a dropUserRequest.
      * First we expect the user userToDrop to be registered and then to get dropped.
@@ -72,12 +78,24 @@ class UserServiceTest {
      *
      * @author Marius Birk und Carsten Dekker
      * @since 2020-12-15
-    */
+     */
     @Test
-    void dropUserTest() throws InterruptedException {
+    void dropUserTest() throws InterruptedException, SQLException {
 
         final RegisterUserRequest registerRequest = new RegisterUserRequest(userToDrop);
         final DropUserRequest dropUserRequest = new DropUserRequest(userToDrop);
+        //TODO kurzfristige Lösung, Testfix needed
+        dropUserRequest.setMessageContext(new MessageContext() {
+            @Override
+            public void writeAndFlush(ResponseMessage message) {
+
+            }
+
+            @Override
+            public void writeAndFlush(ServerMessage message) {
+
+            }
+        });
 
         bus.post(registerRequest);
         lock.await(1000, TimeUnit.MILLISECONDS);

@@ -3,15 +3,18 @@ package de.uol.swp.common.lobby.response;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.dto.LobbyDTO;
 import de.uol.swp.common.message.AbstractResponseMessage;
+import de.uol.swp.common.user.User;
+import de.uol.swp.common.user.UserDTO;
 
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Response message for the RetrieveAllLobbiesRequest
- *
+ * <p>
  * This message gets sent to the client that sent an RetrieveAllLobbiesRequest.
  * It contains a List with Lobby objects of every lobby currently existing on the
  * server.
@@ -27,7 +30,6 @@ import java.util.List;
 public class AllCreatedLobbiesResponse extends AbstractResponseMessage {
 
 
-
     final private ArrayList<LobbyDTO> lobbies = new ArrayList<>();
 
     /**
@@ -37,23 +39,32 @@ public class AllCreatedLobbiesResponse extends AbstractResponseMessage {
      * @since 2020-04-12
      */
 
-    public  AllCreatedLobbiesResponse(){
+    public AllCreatedLobbiesResponse() {
         // needed for serialization
     }
 
     /**
      * Constructor
-     *
+     * <p>
      * This constructor generates a new List of currently existing lobbies in LobbyDTO from the given
      * Collection. The significant difference between the two being that the new
      * List contains copies of the LobbyDTO objects.
      *
      * @param lobbyCollection Collection of all lobbies currently existing
      * @since 2020-04-12
+     *
+     * Enhanced by Carsten Dekker and Marc Hermes
+     * @since 2021-04-08
      */
     public AllCreatedLobbiesResponse(Collection<Lobby> lobbyCollection) {
         for (Lobby lobby : lobbyCollection) {
-            this.lobbies.add(new LobbyDTO(lobby.getName(), lobby.getOwner()));
+            LobbyDTO tempLobby = new LobbyDTO(lobby.getName(), lobby.getOwner());
+            tempLobby.setGameStarted(lobby.getGameStarted());
+            for (User user : lobby.getUsers()) {
+                tempLobby.joinUser(new UserDTO(user.getUsername(), "", ""));
+
+            }
+            this.lobbies.add(tempLobby);
         }
     }
 

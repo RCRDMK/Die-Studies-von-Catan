@@ -18,16 +18,18 @@ public class RegistrationExceptionMessage extends AbstractResponseMessage {
     /**
      * Constructor
      *
+     * @author Marco Grawunder
      * @param message String containing the reason why the registration failed
+     * @author Marco Grawunder
      * @since 2019-09-02
      */
-    public RegistrationExceptionMessage(String message){
+    public RegistrationExceptionMessage(String message) {
         this.message = message;
     }
 
     @Override
     public String toString() {
-        return "RegistrationExceptionMessage "+message;
+        return "RegistrationExceptionMessage " + message;
     }
 
     @Override
