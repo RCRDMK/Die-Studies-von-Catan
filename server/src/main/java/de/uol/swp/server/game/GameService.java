@@ -250,7 +250,6 @@ public class GameService extends AbstractService {
                     inventory.wool.setNumber(resourcesToDiscardRequest.getInventory().get("Wool"));
                     inventory.brick.setNumber(resourcesToDiscardRequest.getInventory().get("Brick"));
                     inventory.ore.setNumber(resourcesToDiscardRequest.getInventory().get("Ore"));
-
                 }
             }
             updateInventory(game);
