@@ -719,7 +719,7 @@ public class GameService extends AbstractService {
      * </p>
      * Checks if enough development cards are still available to be bought.
      * If not, then sends corresponding message in the game chat.
-     * enhanced by Anton Nikiforov, Alexander Lossa, Iskander Yusupov
+     * enhanced by Anton Nikiforov, Alexander Losse, Iskander Yusupov
      * @since 2021-05-16
      * @param request Transports the senders UserDTO
      * @author Marius Birk

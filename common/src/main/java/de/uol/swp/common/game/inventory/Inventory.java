@@ -197,7 +197,7 @@ public class Inventory implements Serializable {
      * valid Strings: Lumber, Brick, Grain, Wool, Ore, Knight, Monopoly, Road Building,
      * Year of Plenty, Victory Point Card.
      *
-     * enhanced by Anton Nikiforov, Alexander Lossa, Iskander Yusupov
+     * enhanced by Anton Nikiforov, Alexander Losse, Iskander Yusupov
      * @since 2021-05-16
      * @param card   the name of the Ressource Card
      * @param amount how much of the Card should be increased
