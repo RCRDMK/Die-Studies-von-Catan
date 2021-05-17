@@ -9,9 +9,9 @@
 
     <children>
         <TextArea fx:id="gameChatArea" editable="false" layoutX="370.0" layoutY="279.0" prefHeight="96.0" prefWidth="356.0" GridPane.rowIndex="2" />
-        <Label fx:id="BuildingNotSuccessfulLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="370.0" layoutY="125.0" prefHeight="17.0" prefWidth="224.0" text="You are not allowed to build here" textAlignment="CENTER" textFill="WHITE" visible="false">
+        <Label fx:id="BuildingNotSuccessfulLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="547.0" layoutY="115.0" prefHeight="16.0" prefWidth="182.0" text="You are not allowed to build here" textAlignment="CENTER" textFill="WHITE" visible="false">
          <font>
-            <Font size="16.0" />
+            <Font size="10.0" />
          </font></Label>
         <ListView fx:id="gameUsersView" layoutX="439.0" layoutY="30.0" prefHeight="69.0" prefWidth="109.0" />
         <ListView layoutX="618.0" layoutY="30.0" prefHeight="69.0" prefWidth="109.0" />

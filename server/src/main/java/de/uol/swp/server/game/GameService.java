@@ -181,7 +181,7 @@ public class GameService extends AbstractService {
                                         inventory.incCardVictoryPoint();
                                     }
                                     return true;
-                                }
+                                } else sendToAllInGame(game.get().getName(), new NotSuccessfulConstructionMessage(playerIndex, message.getUuid(), "BuildingNode"));
                             }
                         }
                     }
@@ -202,7 +202,7 @@ public class GameService extends AbstractService {
                                     }
                                     inventory.road.decNumber();
                                     return true;
-                                }
+                                } else sendToAllInGame(game.get().getName(), new NotSuccessfulConstructionMessage(playerIndex, message.getUuid(), "StreetNode"));
                             }
                         }
                     }
