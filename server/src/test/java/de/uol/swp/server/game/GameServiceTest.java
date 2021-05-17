@@ -712,7 +712,7 @@ public class GameServiceTest {
         gameService2.onResourcesToDiscard(resources);
 
         assertEquals(game.get().getInventory(userDTO1).lumber.getNumber(), 3);
-        assertEquals(game.get().getInventory(userDTO1).grain.getNumber(), 1);
+        assertEquals(game.get().getInventory(userDTO1).grain.getNumber(), 4);
 
 
     }

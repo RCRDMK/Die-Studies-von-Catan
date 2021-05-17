@@ -245,11 +245,11 @@ public class GameService extends AbstractService {
             for (User user : game.get().getUsers()) {
                 if (user.equals(resourcesToDiscardRequest.getUser())) {
                     Inventory inventory = game.get().getInventory(user);
-                    inventory.lumber.decNumber(resourcesToDiscardRequest.getInventory().get("Lumber"));
-                    inventory.grain.decNumber(resourcesToDiscardRequest.getInventory().get("Grain"));
-                    inventory.wool.decNumber(resourcesToDiscardRequest.getInventory().get("Wool"));
-                    inventory.brick.decNumber(resourcesToDiscardRequest.getInventory().get("Brick"));
-                    inventory.ore.decNumber(resourcesToDiscardRequest.getInventory().get("Ore"));
+                    inventory.lumber.setNumber(resourcesToDiscardRequest.getInventory().get("Lumber"));
+                    inventory.grain.setNumber(resourcesToDiscardRequest.getInventory().get("Grain"));
+                    inventory.wool.setNumber(resourcesToDiscardRequest.getInventory().get("Wool"));
+                    inventory.brick.setNumber(resourcesToDiscardRequest.getInventory().get("Brick"));
+                    inventory.ore.setNumber(resourcesToDiscardRequest.getInventory().get("Ore"));
                 }
             }
             updateInventory(game);
