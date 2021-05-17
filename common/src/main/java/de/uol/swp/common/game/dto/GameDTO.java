@@ -50,14 +50,16 @@ public class GameDTO implements Game {
     /**
      * Constructor
      *
-     * @param name    The name the game should have
-     * @param creator The user who created the game and therefore shall be the owner
+     * @param name              The name the game should have
+     * @param creator           The user who created the game and therefore shall be the owner
+     * @param gameFieldVariant  The variant that the game field should have
      * @since 2021-01-15
      */
-    public GameDTO(String name, User creator) {
+    public GameDTO(String name, User creator, String gameFieldVariant) {
         this.name = name;
         this.owner = creator;
         this.users.add(creator);
+        this.mapGraph = new MapGraph(gameFieldVariant);
     }
 
     @Override

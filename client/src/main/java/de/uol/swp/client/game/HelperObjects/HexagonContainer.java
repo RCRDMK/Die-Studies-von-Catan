@@ -58,7 +58,6 @@ public class HexagonContainer {
         double resizingFactor = cardSize/Math.sqrt(3);
 
         Vector direction = Vector.right(resizingFactor);
-
         hexagonShape.getPoints().add(direction.getY());
         hexagonShape.getPoints().add(direction.getX());
 
