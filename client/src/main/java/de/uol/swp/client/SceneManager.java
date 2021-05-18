@@ -7,12 +7,12 @@ import com.google.inject.Injector;
 import com.google.inject.assistedinject.Assisted;
 import de.uol.swp.client.account.UserSettingsPresenter;
 import de.uol.swp.client.account.event.LeaveUserSettingsEvent;
-import de.uol.swp.client.account.event.ChangeToCertainSizeEvent;
 import de.uol.swp.client.account.event.ShowUserSettingsViewEvent;
 import de.uol.swp.client.account.event.UserSettingsErrorEvent;
 import de.uol.swp.client.auth.LoginPresenter;
 import de.uol.swp.client.auth.events.ShowLoginViewEvent;
 import de.uol.swp.client.game.GamePresenter;
+import de.uol.swp.client.game.SummaryPresenter;
 import de.uol.swp.client.game.TradePresenter;
 import de.uol.swp.client.lobby.LobbyPresenter;
 import de.uol.swp.client.main.MainMenuPresenter;
@@ -73,6 +73,8 @@ public class SceneManager {
     private TabHelper tabHelper;
     private Scene userSettingsScene;
     private MediaPlayer player;
+    private Scene summaryScene;
+    private Scene nextSummaryScene;
 
 
     @Inject
@@ -89,6 +91,9 @@ public class SceneManager {
      * This is a subroutine of the constructor to initialize all views, as well as creating the TabPane
      * <p>
      * enhanced by Alexander Losse and Marc Hermes - 2021-01-20
+     * <p>
+     * enhanced by Ricardo Mook, 2021-05-13
+     * added the abilty to have background music playing
      *
      * @author Marco Grawunder
      * @since 2019-09-03
@@ -101,9 +106,19 @@ public class SceneManager {
         initMainView();
         initRegistrationView();
         initUserSettingsView();
+        nextSummaryScene = initSummaryView();
         nextLobbyScene = initLobbyView();
         nextGameScene = initGameView();
         nextTradeScene = initTradeView();
+
+
+        //Royalty free music from Pixabay was used. For more information see https://pixabay.com/service/license/.
+        String musicFile = "client/src/main/resources/backgroundMusic/the-last-october-day-3915.mp3";
+        Media backgroundMusic = new Media(new File(musicFile).toURI().toString());
+        player = new MediaPlayer(backgroundMusic);
+        player.setCycleCount(MediaPlayer.INDEFINITE);//loops the musicFile indefinitely
+        player.setVolume(0.4);
+        player.play();
     }
 
     /**
@@ -277,6 +292,26 @@ public class SceneManager {
         return tradeScene;
     }
 
+
+    /**
+     * Initializes the SummaryView
+     * <p>
+     * If the SummaryScene is null it gets set to a new scene containing the
+     * a pane showing the Summary view as specified by the SummaryView
+     * FXML file
+     *
+     * @return summaryScene
+     * @author René Meyer, Sergej Tulnev
+     * @see de.uol.swp.client.game.GamePresenter
+     * @since 2021-04-18
+     */
+    private Scene initSummaryView() {
+        Parent rootPane = initPresenter(SummaryPresenter.fxml);
+        summaryScene = new Scene(rootPane, 800, 600);
+        summaryScene.getStylesheets().add(styleSheet);
+        return summaryScene;
+    }
+
     /**
      * Initializes the userSettings view
      * <p>
@@ -341,7 +376,6 @@ public class SceneManager {
     public void onShowLoginViewEvent(ShowLoginViewEvent event) {
         showLoginScreen();
     }
-
 
     /**
      * Handles RegistrationCanceledEvent detected on the EventBus
@@ -495,8 +529,6 @@ public class SceneManager {
      * The current scene and title are saved in the lastScene and lastTitle variables,
      * before the new scene and title are set and shown.
      *
-     * enhanced by Ricardo Mook, 2021-05-04
-     * added the abilty to have background music playing
      *
      * @param scene New scene to show
      * @param title New window title
@@ -511,13 +543,6 @@ public class SceneManager {
             primaryStage.setTitle(title);
             primaryStage.setScene(scene);
             primaryStage.show();
-
-            //Royalty free music from Pixabay was used. For more information see https://pixabay.com/service/license/.
-            String musicFile = "client/src/main/resources/backgroundMusic/the-last-october-day-3915.mp3";
-            Media backgroundMusic = new Media(new File(musicFile).toURI().toString());
-            player = new MediaPlayer(backgroundMusic);
-            player.setCycleCount(MediaPlayer.INDEFINITE);//loops the musicFile indefinitely
-            player.play();
 
         });
     }
@@ -569,6 +594,7 @@ public class SceneManager {
             primaryStage.setTitle("Catan");
             primaryStage.setScene(tabScene);
             primaryStage.show();
+            tabPane.getSelectionModel().select(tabHelper.getTabByText("Main Menu"));
         });
     }
 
@@ -596,6 +622,20 @@ public class SceneManager {
      */
     public void showRegistrationScreen() {
         showScene(registrationScene, "Registration");
+    }
+
+    /**
+     * Shows the summary screen
+     * <p>
+     * Switches the current Scene to the SummaryScene and sets the title of
+     * the window to the gamename.
+     *
+     * @param gameName name of the game
+     * @author René Meyer, Sergej Tulnev
+     * @since 2021-04-18
+     */
+    public void createSummaryTab(String gameName) {
+        newSummaryTab(gameName);
     }
 
     /**
@@ -677,6 +717,21 @@ public class SceneManager {
     }
 
     /**
+     * Removes an old summary tab
+     * <p>
+     * When this method is invoked a summarytab with a specific name is removed from the TabPane.
+     *
+     * @param gamename the name of the game that corresponds to the tab that is to be deleted
+     * @author René Meyer, Sergej Tulnev
+     * @since 2021-05-01
+     */
+    public void removeSummaryTab(String gamename) {
+        Platform.runLater(() -> {
+            tabHelper.removeTab("Summary of Game " + gamename);
+        });
+    }
+
+    /**
      * Shows the game screen
      * <p>
      * This method invokes the newGameTab() method resulting in the creation of a new game tab
@@ -728,6 +783,30 @@ public class SceneManager {
             tabHelper.getTabPane().getSelectionModel().select(tradeTab);
         });
         nextTradeScene = initTradeView();
+    }
+
+    /**
+     * Creates a new summary tab
+     * <p>
+     * When this method is invoked a new summary tab with a specific name is created.
+     * The content of the new summary tab is set to the root of the summaryScene
+     * The game tab is then added to the TabPane.
+     * Also the new Tab is shown immediately
+     *
+     * @param gamename the name of the game for which a tab is created
+     * @author René Meyer, Sergej Tulnev
+     * @since 2021-04-18
+     */
+    public void newSummaryTab(String gamename) {
+        Tab summaryTab = new Tab("Summary of Game " + gamename);
+        summaryTab.setContent(nextSummaryScene.getRoot());
+        summaryTab.setClosable(false);
+        Platform.runLater(() -> {
+            tabHelper.addTab(summaryTab);
+            tabHelper.getTabPane().getSelectionModel().select(summaryTab);
+        });
+        hideSummaryTab(gamename);
+        nextSummaryScene = initSummaryView();
     }
 
     /**
@@ -792,4 +871,32 @@ public class SceneManager {
             tabHelper.unsuspendTab("Lobby " + lobbyName);
         });
     }
+
+    /**
+     * Hides a summaryTab
+     *
+     * @param gameName the String name of the game
+     * @author Marc Hermes
+     * @since 2021-05-10
+     */
+    public void hideSummaryTab(String gameName) {
+        Platform.runLater(() -> {
+            tabHelper.suspendTab("Summary of Game " + gameName);
+        });
+    }
+
+    /**
+     * Shows a summaryTab
+     *
+     * @param gameName the String name of the game
+     * @author Marc Hermes
+     * @since 2021-05-10
+     */
+    public void showSummaryTab(String gameName) {
+        Platform.runLater(() -> {
+            tabHelper.unsuspendTab("Summary of Game " + gameName);
+            tabPane.getSelectionModel().select(tabHelper.getTabByText("Summary of Game " + gameName));
+        });
+    }
+
 }

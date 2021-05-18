@@ -2,6 +2,7 @@ package de.uol.swp.common.game.inventory;
 
 import de.uol.swp.common.user.User;
 
+import java.io.Serializable;
 import java.util.HashMap;
 
 /**
@@ -10,7 +11,7 @@ import java.util.HashMap;
  * @author Anton
  * @since 2021-02-01
  */
-public class Inventory {
+public class Inventory implements Serializable {
 
     private User user;
 
@@ -147,7 +148,7 @@ public class Inventory {
         privateInventory.put("Victory Point Card", cardVictoryPoint);
 
         // Building Units
-        privateInventory.put("Citys", city.getNumber());
+        privateInventory.put("Cities", city.getNumber());
         privateInventory.put("Roads", road.getNumber());
         privateInventory.put("Settlements", settlement.getNumber());
 
@@ -192,12 +193,15 @@ public class Inventory {
      * increases a specific Ressource Card by a specific amount
      * <p>
      * this method calls the Method incNumber(int) of the class Card
-     * String Card specifies the Ressource Card
-     * valid Strings: Lumber, Brick, Grain, Wool, Ore
+     * String Card specifies the Ressource Card and Development Cards
+     * valid Strings: Lumber, Brick, Grain, Wool, Ore, Knight, Monopoly, Road Building,
+     * Year of Plenty, Victory Point Card.
      *
-     * @return true if valid resource name, false if not
+     * enhanced by Anton Nikiforov, Alexander Losse, Iskander Yusupov
+     * @since 2021-05-16
      * @param card   the name of the Ressource Card
      * @param amount how much of the Card should be increased
+     * @return true if valid resource name, false if not
      * @author Alexander Losse, Ricardo Mook
      * @since 2021-04-08
      */
@@ -217,6 +221,21 @@ public class Inventory {
                 return true;
             case "Ore":
                 ore.incNumber(amount);
+                return true;
+            case "Knight":
+                cardKnight.incNumber(amount);
+                return true;
+            case "Monopoly":
+                cardMonopoly.incNumber(amount);
+                return true;
+            case "Road Building":
+                cardRoadBuilding.incNumber(amount);
+                return true;
+            case "Year of Plenty":
+                cardYearOfPlenty.incNumber(amount);
+                return true;
+            case "Victory Point Card":
+                incCardVictoryPoint();
                 return true;
             default:
                 return false;

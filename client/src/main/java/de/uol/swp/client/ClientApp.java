@@ -6,10 +6,9 @@ import com.google.common.eventbus.Subscribe;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import de.uol.swp.client.di.ClientModule;
+import de.uol.swp.client.game.event.SummaryConfirmedEvent;
 import de.uol.swp.client.user.ClientUserService;
 import de.uol.swp.common.game.message.*;
-import de.uol.swp.common.game.message.GameCreatedMessage;
-import de.uol.swp.common.game.message.GameDroppedMessage;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.exception.RegistrationExceptionMessage;
 import de.uol.swp.common.user.exception.UpdateUserExceptionMessage;
@@ -245,9 +244,9 @@ public class ClientApp extends Application implements ConnectionListener {
     /**
      * Handles successful start of a game
      * <p>
-     * If a StartGameResponse object is detected on the EventBus this
-     * method is called. It tells the SceneManager to show the lobby menu and suspend
-     * the corresponding LobbyTab. If the loglevel is set
+     * If a GameCreatedMessage object is detected on the EventBus this
+     * method is called. It tells the SceneManager to show the game menu and suspend
+     * the corresponding LobbyTab. Also a new summaryTab is created. If the loglevel is set
      * to DEBUG or higher "user joined lobby " is written to the log.
      * <p>
      * enhanced by Marc Hermes - 2021-03-15
@@ -262,6 +261,7 @@ public class ClientApp extends Application implements ConnectionListener {
         LOG.debug(" Started a game " + message.getName());
         sceneManager.showGameScreen(message.getName());
         sceneManager.suspendLobbyTab(message.getName());
+        sceneManager.createSummaryTab(message.getName());
     }
 
     /**
@@ -536,6 +536,43 @@ public class ClientApp extends Application implements ConnectionListener {
     public void onTradeEndedMessage(TradeEndedMessage message) {
         LOG.info("TradeEndedMessage");
         sceneManager.removeTradeTab(message);
+    }
+
+    /**
+     * Handles GameFinishedMessage detected on the EventBus
+     * <p>
+     * If a GameFinishedMessage is detected on the EventBus, this method gets
+     * called. It calls a method to show a Summary tab and removes the gameTab
+     *
+     * @param message ShowSummaryEvent that contains the GameName
+     * @author René Meyer, Sergej Tulnev
+     * @see GameFinishedMessage
+     * @since 2021-04-18
+     */
+    @Subscribe
+    public void onFinishedGameMessage(GameFinishedMessage message) {
+        var gameName = message.getStatsDTO().getGameName();
+        sceneManager.removeGameTab(gameName);
+        sceneManager.showSummaryTab(gameName);
+    }
+
+    /**
+     * Handles SummaryConfirmedMessage detected on the EventBus
+     * <p>
+     * If a SummaryConfirmedMessage is detected on the EventBus, this method gets
+     * called. It removes the summaryTab and shows the MainTab.
+     *
+     * @param event SummaryConfirmedEvent that contains the GameName and user
+     * @author René Meyer, Sergej Tulnev
+     * @see de.uol.swp.client.game.event.SummaryConfirmedEvent
+     * @since 2021-05-01
+     */
+    @Subscribe
+    public void onConfirmedSummaryMessage(SummaryConfirmedEvent event) {
+        var gameName = event.getGameName();
+        var user = event.getUser();
+        sceneManager.removeSummaryTab(gameName);
+        sceneManager.showMainTab(user);
     }
 
 }

@@ -23,7 +23,7 @@ public class DevelopmentCardDeckTest {
         DevelopmentCardDeck developmentCardDeck = new DevelopmentCardDeck();
         for (int i = 0; i < 25; i++) {
             String result = developmentCardDeck.drawnCard();
-            assertTrue(result.equals("Victory Point") ||
+            assertTrue(result.equals("Victory Point Card") ||
                     result.equals("Knight") ||
                     result.equals("Monopoly") ||
                     result.equals("Road Building") ||
