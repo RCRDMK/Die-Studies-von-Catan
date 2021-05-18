@@ -13,31 +13,21 @@ import java.util.HashMap;
  * @since 2021-04-08
  */
 public class PublicInventoryChangeMessage extends AbstractGameMessage {
-    final private ArrayList<HashMap<String, Integer>> publicInventories;
-
+    final private HashMap<String, Integer> publicInventory;
 
     /**
      * Default constructor
-     *
+     * <p>
      * enhanced by Carsten Dekker ,Marc Johannes Hermes, Marius Birk, Iskander Yusupov
-     * @since 2021-05-07
+     *
      * @author Iskander Yusupov, Anton Nikiforov
+     * @since 2021-05-07
      * @since 2021-04-08
      */
 
-    public PublicInventoryChangeMessage(String gameName, ArrayList<HashMap<String, Integer>> publicInventories) {
-        super(gameName, new UserDTO("", "", ""));
-        this.publicInventories = publicInventories;
-    }
+    public PublicInventoryChangeMessage(HashMap<String, Integer> publicInventory, User user, String gameName) {
+        super(gameName, (UserDTO) user.getWithoutPassword());
+        this.publicInventory = publicInventory;
 
-    /**
-     * Getter for the hashMap of publicInventories
-     *
-     * @return the HashMap representing the public View of the user
-     * @author Iskander Yusupov
-     * @since 2021-05-16
-     */
-    public ArrayList<HashMap<String, Integer>> getPublicInventories() {
-        return publicInventories;
     }
 }

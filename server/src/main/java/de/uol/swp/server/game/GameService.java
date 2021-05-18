@@ -7,6 +7,7 @@ import com.google.inject.Singleton;
 import de.uol.swp.common.chat.ResponseChatMessage;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.MapGraph;
+import de.uol.swp.common.game.dto.GameDTO;
 import de.uol.swp.common.game.dto.StatsDTO;
 import de.uol.swp.common.game.inventory.Inventory;
 import de.uol.swp.common.game.message.*;
@@ -26,6 +27,9 @@ import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.user.request.LogoutRequest;
 import de.uol.swp.common.user.response.game.AllThisGameUsersResponse;
 import de.uol.swp.common.user.response.game.GameLeftSuccessfulResponse;
+import de.uol.swp.server.AI.AIToServerTranslator;
+import de.uol.swp.server.AI.RandomAI;
+import de.uol.swp.server.AI.TestAI;
 import de.uol.swp.server.AbstractService;
 import de.uol.swp.server.game.dice.Dice;
 import de.uol.swp.server.lobby.LobbyManagementException;
@@ -101,6 +105,14 @@ public class GameService extends AbstractService {
                 ArrayList<UserDTO> usersInGame = new ArrayList<>();
                 for (User user : game.get().getUsers()) usersInGame.add((UserDTO) user);
                 sendToAllInGame(gameLeaveUserRequest.getName(), new UserLeftGameMessage(gameLeaveUserRequest.getName(), gameLeaveUserRequest.getUser(), usersInGame));
+                // Check if the player leaving the game is the turnPlayer, so that the AI may replace him now
+                if (gameLeaveUserRequest.getUser().equals(game.get().getUser(game.get().getTurn()))) {
+                    if (!game.get().rolledDiceThisTurn() && !game.get().isStartingTurns()) {
+                        RollDiceRequest rdr = new RollDiceRequest(game.get().getName(), game.get().getUser(game.get().getTurn()));
+                        onRollDiceRequest(rdr);
+                    }
+                    startTurnForAI((GameDTO) game.get());
+                }
             }
         } else {
             throw new GameManagementException("Game unknown!");
@@ -302,10 +314,8 @@ public class GameService extends AbstractService {
                 int addedEyes = dice.getDiceEyes1() + dice.getDiceEyes2();
                 game.get().setLastRolledDiceValue(addedEyes);
                 if (addedEyes == 7) {
-                    if (game.isPresent()) {
-                        MoveRobberMessage moveRobberMessage = new MoveRobberMessage(rollDiceRequest.getName(), (UserDTO) rollDiceRequest.getUser());
-                        sendToSpecificUserInGame(gameManagement.getGame(rollDiceRequest.getName()), moveRobberMessage, rollDiceRequest.getUser());
-                    }
+                    MoveRobberMessage moveRobberMessage = new MoveRobberMessage(rollDiceRequest.getName(), (UserDTO) rollDiceRequest.getUser());
+                    sendToSpecificUserInGame(gameManagement.getGame(rollDiceRequest.getName()), moveRobberMessage, rollDiceRequest.getUser());
                 } else {
                     distributeResources(addedEyes, rollDiceRequest.getName());
                 }
@@ -509,7 +519,7 @@ public class GameService extends AbstractService {
                 }
             }
 
-            if(userList.isEmpty()){
+            if (userList.isEmpty()) {
                 tooMuchResources(game);
             }
 
@@ -673,23 +683,32 @@ public class GameService extends AbstractService {
     @Subscribe
     public void onEndTurnRequest(EndTurnRequest request) {
         Optional<Game> game = gameManagement.getGame(request.getName());
-        if (request.getUser().getUsername().equals(game.get().getUser(game.get().getTurn()).getUsername()) && game.get().getCurrentCard().equals("")) {
-            try {
-                boolean priorGamePhase = game.get().isStartingTurns();
-                game.get().nextRound();
-                if (priorGamePhase == true && game.get().isStartingTurns() == false) {
-                    distributeResources(request.getName());
-                }
-                sendToAllInGame(game.get().getName(), new NextTurnMessage(game.get().getName(),
-                        game.get().getUser(game.get().getTurn()).getUsername(), game.get().getTurn(), game.get().isStartingTurns()));
-            } catch (GameManagementException e) {
-                LOG.debug(e);
-                System.out.println("Sender " + request.getUser().getUsername() + " was not player with current turn");
-            }
-        }
-
-        //@Todo: Check Victory Points, when user won redirect all to Summary Screen - Later trigger when inventory changes and not when user ends turn
         if (game.isPresent()) {
+            if (request.getUser().getUsername().equals(game.get().getUser(game.get().getTurn()).getUsername()) && game.get().getCurrentCard().equals("") && (game.get().rolledDiceThisTurn() || game.get().isStartingTurns())) {
+                try {
+                    boolean priorGamePhase = game.get().isStartingTurns();
+                    game.get().nextRound();
+                    if (priorGamePhase == true && game.get().isStartingTurns() == false) {
+                        distributeResources(request.getName());
+                    }
+                    sendToAllInGame(game.get().getName(), new NextTurnMessage(game.get().getName(),
+                            game.get().getUser(game.get().getTurn()).getUsername(), game.get().getTurn(), game.get().isStartingTurns()));
+                    // Check if the size of actual players is smaller than the size of intended players, then activate AI
+                    if (!game.get().getUsers().contains(game.get().getUser(game.get().getTurn()))) {
+                        if (!game.get().isStartingTurns()) {
+                            RollDiceRequest rdr = new RollDiceRequest(game.get().getName(), game.get().getUser(game.get().getTurn()));
+                            onRollDiceRequest(rdr);
+                        }
+                        startTurnForAI((GameDTO) game.get());
+
+                    }
+                } catch (GameManagementException e) {
+                    LOG.debug(e);
+                    System.out.println("Sender " + request.getUser().getUsername() + " was not player with current turn");
+                }
+            }
+
+            //@Todo: Check Victory Points, when user won redirect all to Summary Screen - Later trigger when inventory changes and not when user ends turn
             var user = request.getUser();
             var inventory = game.get().getInventory(user);
             // If user has 10 victory points, he wins and the Summary Screen gets shown for every user in the game.
@@ -703,6 +722,27 @@ public class GameService extends AbstractService {
                 sendToAllInGame(game.get().getName(), new GameFinishedMessage(statsDTO));
                 LOG.debug("User " + user.getUsername() + " has atleast 10 victory points and won.");
             }
+        }
+    }
+
+    /**
+     * Method used to call the AI and start it's turn
+     * <p>
+     * When this method is called, a new randomAI object is created.
+     * Also the AIToServerTranslator is used to translate the AIActions given by
+     * the startTurnAction() call.
+     *
+     * @param game the game that the AI is supposed to play in
+     * @author Marc Hermes
+     * @since 2021-05-11
+     */
+    public void startTurnForAI(GameDTO game) {
+        if (game.isUsedForTest()) {
+            TestAI testAI = new TestAI(game);
+            AIToServerTranslator.translate(testAI.startTurnOrder(), this);
+        } else {
+            RandomAI randomAI = new RandomAI(game);
+            AIToServerTranslator.translate(randomAI.startTurnOrder(), this);
         }
     }
 
@@ -765,15 +805,16 @@ public class GameService extends AbstractService {
                 String devCard = request.getDevCard();
                 String currentCardOfGame = game.get().getCurrentCard();
                 boolean alreadyPlayedCard = game.get().playedCardThisTurn();
-                //TODO: delete these 3, only used for testing
+                //TODO: delete these 4, only used for testing
                 inventory.cardMonopoly.incNumber();
                 inventory.cardRoadBuilding.incNumber();
                 inventory.cardYearOfPlenty.incNumber();
+                inventory.cardKnight.incNumber();
                 // TODO: Check if the card was bought THIS turn, because it cannot be used then
                 switch (devCard) {
 
                     case "Monopoly":
-                        if (inventory.cardMonopoly.getNumber() > 0 && currentCardOfGame.equals("") && !alreadyPlayedCard) {
+                        if (inventory.cardMonopoly.getNumber() > 0 && currentCardOfGame.equals("") && (!alreadyPlayedCard || game.get().isUsedForTest())) {
                             game.get().setCurrentCard("Monopoly");
                             game.get().setPlayedCardThisTurn(true);
                             PlayDevelopmentCardResponse response = new PlayDevelopmentCardResponse(devCard, true, turnPlayer.getUsername(), game.get().getName());
@@ -784,7 +825,7 @@ public class GameService extends AbstractService {
                         }
 
                     case "Road Building":
-                        if (inventory.cardRoadBuilding.getNumber() > 0 && currentCardOfGame.equals("") && !alreadyPlayedCard && inventory.road.getNumber() > 1) {
+                        if (inventory.cardRoadBuilding.getNumber() > 0 && currentCardOfGame.equals("") && (!alreadyPlayedCard || game.get().isUsedForTest()) && inventory.road.getNumber() > 1) {
                             // TODO: check if the player is allowed to even attempt to build 2 streets i.e. not possible when there are no legal spaces to build 2 streets
                             // TODO: probs very complicated to check that, so maybe just ignore that fringe scenario???
                             game.get().setCurrentCard("Road Building");
@@ -797,7 +838,7 @@ public class GameService extends AbstractService {
                         }
 
                     case "Year of Plenty":
-                        if (inventory.cardYearOfPlenty.getNumber() > 0 && currentCardOfGame.equals("") && !alreadyPlayedCard) {
+                        if (inventory.cardYearOfPlenty.getNumber() > 0 && currentCardOfGame.equals("") && (!alreadyPlayedCard || game.get().isUsedForTest())) {
                             // TODO: Check if there theoretically are resources left in the bank that could be obtained for the player
                             game.get().setCurrentCard("Year of Plenty");
                             game.get().setPlayedCardThisTurn(true);
@@ -809,10 +850,12 @@ public class GameService extends AbstractService {
                         }
 
                     case "Knight":
-                        if (inventory.cardKnight.getNumber() > 0 && currentCardOfGame.equals("") && !alreadyPlayedCard) {
+                        if (inventory.cardKnight.getNumber() > 0 && currentCardOfGame.equals("") && (!alreadyPlayedCard || game.get().isUsedForTest())) {
                             game.get().setCurrentCard("Knight");
                             game.get().setPlayedCardThisTurn(true);
                             PlayDevelopmentCardResponse response = new PlayDevelopmentCardResponse(devCard, true, turnPlayer.getUsername(), game.get().getName());
+                            MoveRobberMessage moveRobberMessage = new MoveRobberMessage(request.getName(), request.getUser());
+                            sendToSpecificUserInGame(gameManagement.getGame(request.getName()), moveRobberMessage, request.getUser());
                             response.initWithMessage(request);
                             post(response);
                             inventory.setPlayedKnights(inventory.getPlayedKnights() + 1);
@@ -962,8 +1005,14 @@ public class GameService extends AbstractService {
                         break;
 
                     case "Knight":
-                        // TODO: implement functionality of moving the robber/bandit
-                        sendToAllInGame(gameName, message);
+                        if (request instanceof ResolveDevelopmentCardKnightRequest) {
+                            ResolveDevelopmentCardKnightRequest knightRequest = (ResolveDevelopmentCardKnightRequest) request;
+
+                            RobbersNewFieldMessage rnfm = new RobbersNewFieldMessage(gameName, (UserDTO) turnPlayer, knightRequest.getField());
+                            onRobbersNewFieldRequest(rnfm);
+                            game.get().setCurrentCard("");
+                            sendToAllInGame(gameName, message);
+                        }
                         break;
 
                     default:
@@ -1123,6 +1172,8 @@ public class GameService extends AbstractService {
                     if (trade.getBids().size() == game.get().getUsers().size() - 1) {
                         System.out.println("bids full");
                         TradeInformSellerAboutBidsMessage tisabm = new TradeInformSellerAboutBidsMessage(trade.getSeller(), request.getName(), tradeCode, trade.getBidders(), trade.getBids());
+                        // TODO: everything trade related for the AI
+                        // useAI((GameDTO) game.get());
                         sendToSpecificUserInGame(game, tisabm, trade.getSeller());
                         System.out.println("Send TradeInformSellerAboutBidsMessage to " + trade.getSeller().getUsername());
                     }

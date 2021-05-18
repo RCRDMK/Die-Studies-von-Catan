@@ -22,7 +22,7 @@ public class PrivateInventoryChangeMessage extends AbstractGameMessage {
      * @since 2021-04-08
      */
 
-    public PrivateInventoryChangeMessage(String gameName, User user, HashMap<String, Integer> privateInventory) {
+    public PrivateInventoryChangeMessage(User user, String gameName, HashMap<String, Integer> privateInventory) {
         super(gameName, (UserDTO) user);
         this.privateInventory = privateInventory;
 
