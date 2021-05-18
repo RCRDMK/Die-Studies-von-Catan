@@ -5,6 +5,7 @@ import de.uol.swp.common.user.User;
 
 import java.util.Collections;
 import java.util.Set;
+import java.util.Timer;
 import java.util.TreeSet;
 
 /**
@@ -29,6 +30,8 @@ public class LobbyDTO implements Lobby {
     private boolean gameShouldStart = false;
     private String gameFieldVariant;
     private boolean gameStarted = false;
+    private transient final Timer timerForGameStart = new Timer();
+    private boolean timerStarted = false;
 
     /**
      * Constructor
@@ -147,4 +150,22 @@ public class LobbyDTO implements Lobby {
         this.gameStarted = value;
     }
 
+    @Override
+    public Timer startTimerForGameStart(){
+        timerStarted = true;
+        return this.timerForGameStart;
+    }
+
+    @Override
+    public void stopTimerForGameStart() {
+        if (timerStarted) {
+            timerForGameStart.cancel();
+        }
+        timerStarted = false;
+    }
+
+    @Override
+    public void setTimerStarted(boolean value) {
+        this.timerStarted = value;
+    }
 }

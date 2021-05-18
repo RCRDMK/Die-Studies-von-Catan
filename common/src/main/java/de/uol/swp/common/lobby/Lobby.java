@@ -4,6 +4,7 @@ import de.uol.swp.common.user.User;
 
 import java.io.Serializable;
 import java.util.Set;
+import java.util.Timer;
 
 
 /**
@@ -162,4 +163,10 @@ public interface Lobby extends Serializable {
      * @since 2021-04-08
      */
     void setGameStarted(boolean value);
+
+    Timer startTimerForGameStart();
+
+    void stopTimerForGameStart();
+
+    void setTimerStarted(boolean value);
 }
