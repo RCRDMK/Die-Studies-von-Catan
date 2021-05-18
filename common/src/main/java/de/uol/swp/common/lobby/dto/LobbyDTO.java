@@ -27,7 +27,6 @@ public class LobbyDTO implements Lobby {
     private final Set<User> users = new TreeSet<>();
     private final Set<User> playersReady = new TreeSet<>();
     private int rdyResponsesReceived = 0;
-    private boolean gameShouldStart = false;
     private String gameFieldVariant;
     private boolean gameStarted = false;
     private transient final Timer timerForGameStart = new Timer();
@@ -107,7 +106,7 @@ public class LobbyDTO implements Lobby {
 
     @Override
     public void setPlayersReadyToNull() {
-        this.playersReady.removeAll(playersReady);
+        this.playersReady.clear();
     }
 
     @Override
@@ -126,16 +125,6 @@ public class LobbyDTO implements Lobby {
     }
 
     @Override
-    public boolean getGameShouldStart() {
-        return this.gameShouldStart;
-    }
-
-    @Override
-    public void setGameShouldStart(boolean value) {
-        this.gameShouldStart = value;
-    }
-
-    @Override
     public void setGameFieldVariant(String gfv) {
         this.gameFieldVariant = gfv;
     }
@@ -151,7 +140,7 @@ public class LobbyDTO implements Lobby {
     }
 
     @Override
-    public Timer startTimerForGameStart(){
+    public Timer startTimerForGameStart() {
         timerStarted = true;
         return this.timerForGameStart;
     }
@@ -164,8 +153,4 @@ public class LobbyDTO implements Lobby {
         timerStarted = false;
     }
 
-    @Override
-    public void setTimerStarted(boolean value) {
-        this.timerStarted = value;
-    }
 }
