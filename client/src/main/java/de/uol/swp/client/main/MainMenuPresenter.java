@@ -6,12 +6,11 @@ import de.uol.swp.client.AbstractPresenter;
 import de.uol.swp.client.account.UserSettingsService;
 import de.uol.swp.client.account.event.ShowUserSettingsViewEvent;
 import de.uol.swp.client.chat.ChatService;
-import de.uol.swp.client.game.GameRulesService;
 import de.uol.swp.client.lobby.LobbyCell;
 import de.uol.swp.client.lobby.LobbyService;
-import de.uol.swp.client.register.event.ShowGameRulesEvent;
 import de.uol.swp.client.message.MuteMusicMessage;
 import de.uol.swp.client.message.UnmuteMusicMessage;
+import de.uol.swp.client.register.event.ShowGameRulesEvent;
 import de.uol.swp.common.chat.RequestChatMessage;
 import de.uol.swp.common.chat.ResponseChatMessage;
 import de.uol.swp.common.game.message.GameDroppedMessage;
@@ -91,9 +90,6 @@ public class MainMenuPresenter extends AbstractPresenter {
 
     @Inject
     private UserSettingsService userSettingsService;
-
-    @Inject
-    private GameRulesService gameRulesService;
 
     @FXML
     private ListView<String> usersView;
