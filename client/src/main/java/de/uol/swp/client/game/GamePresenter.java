@@ -451,6 +451,7 @@ public class GamePresenter extends AbstractPresenter {
     //TODO JavaDoc fehlt, außerdem darf der Presenter nicht dazu genutzt werden nachrichten zu posten, das macht der gameService
     @FXML
     public void onEndTurn() {
+        eventBus.post(new EndTurnRequest(this.currentLobby, (UserDTO) this.joinedLobbyUser));
     }
 
     /**
