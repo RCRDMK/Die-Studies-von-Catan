@@ -739,10 +739,10 @@ public class GameService extends AbstractService {
     public void startTurnForAI(GameDTO game) {
         if (game.isUsedForTest()) {
             TestAI testAI = new TestAI(game);
-            AIToServerTranslator.translate(testAI.startTurnAction(), this);
+            AIToServerTranslator.translate(testAI.startTurnOrder(), this);
         } else {
             RandomAI randomAI = new RandomAI(game);
-            AIToServerTranslator.translate(randomAI.startTurnAction(), this);
+            AIToServerTranslator.translate(randomAI.startTurnOrder(), this);
         }
     }
 

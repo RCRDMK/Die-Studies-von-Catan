@@ -64,6 +64,11 @@ public class AIToServerTranslator {
                 RobbersNewFieldMessage rnfm = new RobbersNewFieldMessage(gameName, user, mba.getField());
                 gameService.onRobbersNewFieldRequest(rnfm);
 
+            } else if (aiAction instanceof DiscardResourcesAction) {
+                DiscardResourcesAction dra = (DiscardResourcesAction) aiAction;
+                ResourcesToDiscardRequest rdr = new ResourcesToDiscardRequest(gameName, user, dra.getResourcesToDiscard());
+                gameService.onResourcesToDiscard(rdr);
+
             } else if (aiAction instanceof PlayDevelopmentCardAction) {
                 PlayDevelopmentCardAction pda = (PlayDevelopmentCardAction) aiAction;
                 PlayDevelopmentCardRequest pdcr = new PlayDevelopmentCardRequest(pda.getDevCard(), gameName, user);

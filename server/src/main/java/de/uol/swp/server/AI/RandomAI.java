@@ -27,10 +27,10 @@ public class RandomAI extends AbstractAISystem {
         super(thatGame);
     }
 
-    public ArrayList<AIAction> startTurnAction() {
+    public ArrayList<AIAction> startTurnOrder() {
 
         playDevelopmentCardYearOfPlenty("Lumber", "Brick");
-        for(MapGraph.Hexagon hexagon : game.getMapGraph().getHexagonHashSet()) {
+        for (MapGraph.Hexagon hexagon : game.getMapGraph().getHexagonHashSet()) {
             moveBandit(hexagon.getUuid());
             break;
         }

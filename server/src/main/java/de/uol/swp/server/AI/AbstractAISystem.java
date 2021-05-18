@@ -3,6 +3,9 @@ package de.uol.swp.server.AI;
 import de.uol.swp.common.game.MapGraph;
 import de.uol.swp.common.game.dto.GameDTO;
 import de.uol.swp.common.game.inventory.Inventory;
+import de.uol.swp.common.game.message.TooMuchResourceCardsMessage;
+import de.uol.swp.common.game.message.TradeInformSellerAboutBidsMessage;
+import de.uol.swp.common.game.message.TradeOfferInformBiddersMessage;
 import de.uol.swp.common.game.trade.Trade;
 import de.uol.swp.common.game.trade.TradeItem;
 import de.uol.swp.common.user.User;
@@ -13,6 +16,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.UUID;
 
 /**
@@ -189,13 +193,33 @@ public abstract class AbstractAISystem implements AISystem {
     }
 
     @Override
-    public ArrayList<AIAction> startTurnAction() {
+    public void discardResources(HashMap<String, Integer> resourcesToDiscard) {
+        DiscardResourcesAction dra = new DiscardResourcesAction(user, game.getName(), resourcesToDiscard);
+        aiActions.add(dra);
+    }
+
+    @Override
+    public ArrayList<AIAction> discardResourcesOrder(TooMuchResourceCardsMessage tmrcm) {
+        aiActions.clear();
 
         return this.aiActions;
     }
 
     @Override
-    public ArrayList<AIAction> continueTurnAction(Trade trade, String tradeCode) {
+    public ArrayList<AIAction> tradeBidOrder(TradeOfferInformBiddersMessage toibm) {
+        aiActions.clear();
+
+        return this.aiActions;
+    }
+
+    @Override
+    public ArrayList<AIAction> startTurnOrder() {
+
+        return this.aiActions;
+    }
+
+    @Override
+    public ArrayList<AIAction> continueTurnOrder(TradeInformSellerAboutBidsMessage tisabm) {
         aiActions.clear();
 
         return this.aiActions;

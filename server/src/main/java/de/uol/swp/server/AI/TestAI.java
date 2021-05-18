@@ -34,7 +34,7 @@ public class TestAI extends AbstractAISystem {
      * @author Marc Hermes
      * @since 2021-05-12
      */
-    public ArrayList<AIAction> startTurnAction() {
+    public ArrayList<AIAction> startTurnOrder() {
         buyDevelopmentCard();
         playDevelopmentCardMonopoly("Grain");
         playDevelopmentCardYearOfPlenty("Lumber", "Brick");
