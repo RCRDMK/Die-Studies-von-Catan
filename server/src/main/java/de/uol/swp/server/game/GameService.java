@@ -173,15 +173,19 @@ public class GameService extends AbstractService {
                                             inventory.grain.decNumber(1);
                                         }
                                         inventory.settlement.decNumber();
-                                        inventory.incCardVictoryPoint();
+                                        inventory.setVictoryPoints(inventory.getVictoryPoints()+1);
                                     } else if (buildingNode.getSizeOfSettlement() == 1) {
                                         inventory.ore.decNumber(3);
                                         inventory.grain.decNumber(2);
                                         inventory.city.decNumber();
-                                        inventory.incCardVictoryPoint();
+                                        inventory.setVictoryPoints(inventory.getVictoryPoints()+1);
                                     }
                                     return true;
                                 } else sendToAllInGame(game.get().getName(), new NotSuccessfulConstructionMessage(playerIndex, message.getUuid(), "BuildingNode"));
+                            } else {
+                                NotEnoughRessourcesMessage nerm = new NotEnoughRessourcesMessage();
+                                nerm.setName(game.get().getName());
+                                sendToSpecificUserInGame(game, nerm, message.getUser());
                             }
                         }
                     }
@@ -203,6 +207,10 @@ public class GameService extends AbstractService {
                                     inventory.road.decNumber();
                                     return true;
                                 } else sendToAllInGame(game.get().getName(), new NotSuccessfulConstructionMessage(playerIndex, message.getUuid(), "StreetNode"));
+                            } else {
+                                NotEnoughRessourcesMessage nerm = new NotEnoughRessourcesMessage();
+                                nerm.setName(game.get().getName());
+                                sendToSpecificUserInGame(game, nerm, message.getUser());
                             }
                         }
                     }

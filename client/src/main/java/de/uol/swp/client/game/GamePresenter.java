@@ -865,12 +865,14 @@ public class GamePresenter extends AbstractPresenter {
         if (response.getGameName().equals(currentLobby)) {
             if (response.getPlayerWithCurrentTurn().equals(joinedLobbyUser.getUsername())) {
                 itsMyTurn = true;
+                buildMenu.setDisable(false);
                 EndTurnButton.setDisable(false);
                 rollDice.setDisable(false);
                 buyDevCard.setDisable(false);
                 tradeButton.setDisable(false);
             } else {
                 itsMyTurn = false;
+                buildMenu.setDisable(true);
                 EndTurnButton.setDisable(true);
                 rollDice.setDisable(true);
                 buyDevCard.setDisable(true);
