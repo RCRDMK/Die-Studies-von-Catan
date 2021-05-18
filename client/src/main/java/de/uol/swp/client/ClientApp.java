@@ -6,12 +6,9 @@ import com.google.common.eventbus.Subscribe;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import de.uol.swp.client.di.ClientModule;
-import de.uol.swp.client.register.event.ShowGameRulesEvent;
 import de.uol.swp.client.game.event.SummaryConfirmedEvent;
 import de.uol.swp.client.user.ClientUserService;
 import de.uol.swp.common.game.message.*;
-import de.uol.swp.common.game.message.GameCreatedMessage;
-import de.uol.swp.common.game.message.GameDroppedMessage;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.exception.RegistrationExceptionMessage;
 import de.uol.swp.common.user.exception.UpdateUserExceptionMessage;
@@ -539,12 +536,6 @@ public class ClientApp extends Application implements ConnectionListener {
     public void onTradeEndedMessage(TradeEndedMessage message) {
         LOG.info("TradeEndedMessage");
         sceneManager.removeTradeTab(message);
-    }
-
-    @Subscribe
-    public void onShowGameViewMessage(ShowGameRulesEvent event) {
-        LOG.info("ShowGameRulesEvent");
-        sceneManager.newGameRulesTab();
     }
 
     /**

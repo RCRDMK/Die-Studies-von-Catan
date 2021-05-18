@@ -22,6 +22,7 @@ import de.uol.swp.client.message.UnmuteMusicMessage;
 import de.uol.swp.client.register.RegistrationPresenter;
 import de.uol.swp.client.register.event.RegistrationCanceledEvent;
 import de.uol.swp.client.register.event.RegistrationErrorEvent;
+import de.uol.swp.client.register.event.ShowGameRulesEvent;
 import de.uol.swp.client.register.event.ShowRegistrationViewEvent;
 import de.uol.swp.common.game.message.TradeEndedMessage;
 import de.uol.swp.common.user.User;
@@ -33,11 +34,12 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import javafx.scene.media.Media;
-import javafx.scene.media.MediaPlayer;
+
 import java.io.File;
 import java.net.URL;
 
@@ -338,6 +340,17 @@ public class SceneManager {
         }
     }
 
+    /**
+     * Initializes the userGameRules view
+     * <p>
+     * If the userGameRules is null it gets set to a new scene containing the
+     * a pane showing the GameRules view as specified by the UserGameRulesView
+     * FXML file.
+     *
+     * @author Sergej Tulnev
+     * @see GameRulesPresenter
+     * @since 2021-05-18
+     */
     private void initGameRulesView() {
         if (userGameRulesScene == null) {
             Parent rootPane = initPresenter(GameRulesPresenter.fxml);
@@ -437,6 +450,23 @@ public class SceneManager {
     @Subscribe
     public void onShowUserSettingsViewEvent(ShowUserSettingsViewEvent event) {
         showUserSettingsScreen();
+    }
+
+    /**
+     * Handles ShowGameRulesEvent detected on the EventBus
+     * <p>
+     * If a ShowGameRules is detected on the EventBus, this method gets
+     * called. It calls a method to switch the current screen to the Game Rules screen.
+     *
+     * @param event The ShowGameRules detected on the EventBus
+     * @author Sergej Tulnev
+     * @see de.uol.swp.client.auth.events.ShowLoginViewEvent
+     * @since 2020-05-18
+     */
+    @Subscribe
+    public void onShowGameViewMessage(ShowGameRulesEvent event) {
+        LOG.info("ShowGameRulesEvent");
+        newGameRulesTab();
     }
 
 
@@ -755,6 +785,14 @@ public class SceneManager {
         newGameTab(gamename);
     }
 
+    /**
+     * Creates a new Tab
+     * <p>
+     * This method invokes the newGameRulesTab method resulting in the creation of a new gameRules tab
+     *
+     * @author Sergej Tulnev
+     * @since 2021-05-18
+     */
     public void newGameRulesTab() {
         Tab gameRulesTab = new Tab("GameRules ");
         gameRulesTab.setContent(userGameRulesScene.getRoot());
