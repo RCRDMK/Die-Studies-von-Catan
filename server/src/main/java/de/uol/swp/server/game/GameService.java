@@ -139,7 +139,7 @@ public class GameService extends AbstractService {
      */
     @Subscribe
     public boolean onConstructionMessage(ConstructionRequest message) {
-        LOG.debug("Received new ConstructionMessage from user " + message.getUser());
+        LOG.debug("Recieved new ConstructionMessage from user " + message.getUser());
         Optional<Game> game = gameManagement.getGame(message.getGame());
         int playerIndex = 666;
         if (message.getUuid() != null) {
@@ -245,11 +245,11 @@ public class GameService extends AbstractService {
             for (User user : game.get().getUsers()) {
                 if (user.equals(resourcesToDiscardRequest.getUser())) {
                     Inventory inventory = game.get().getInventory(user);
-                    inventory.lumber.setNumber(resourcesToDiscardRequest.getInventory().get("Lumber"));
-                    inventory.grain.setNumber(resourcesToDiscardRequest.getInventory().get("Grain"));
-                    inventory.wool.setNumber(resourcesToDiscardRequest.getInventory().get("Wool"));
-                    inventory.brick.setNumber(resourcesToDiscardRequest.getInventory().get("Brick"));
-                    inventory.ore.setNumber(resourcesToDiscardRequest.getInventory().get("Ore"));
+                    inventory.lumber.decNumber(resourcesToDiscardRequest.getInventory().get("Lumber"));
+                    inventory.grain.decNumber(resourcesToDiscardRequest.getInventory().get("Grain"));
+                    inventory.wool.decNumber(resourcesToDiscardRequest.getInventory().get("Wool"));
+                    inventory.brick.decNumber(resourcesToDiscardRequest.getInventory().get("Brick"));
+                    inventory.ore.decNumber(resourcesToDiscardRequest.getInventory().get("Ore"));
                 }
             }
             updateInventory(game);
@@ -294,13 +294,13 @@ public class GameService extends AbstractService {
             if (rollDiceRequest.getUser().equals(game.get().getUser(game.get().getTurn()))) {
                 Dice dice = new Dice();
                 dice.rollDice();
-
                 // Check if cheatEyes number is provided in rollDiceRequest, if so -> set Eyes manually on dice
                 // for the roll cheat, else ignore and use rolledDice
                 if (rollDiceRequest.getCheatEyes() > 0) {
                     dice.setEyes(rollDiceRequest.getCheatEyes());
                 }
                 int addedEyes = dice.getDiceEyes1() + dice.getDiceEyes2();
+                game.get().setLastRolledDiceValue(addedEyes);
                 if (addedEyes == 7) {
                     if (game.isPresent()) {
                         MoveRobberMessage moveRobberMessage = new MoveRobberMessage(rollDiceRequest.getName(), (UserDTO) rollDiceRequest.getUser());
@@ -374,7 +374,6 @@ public class GameService extends AbstractService {
                                 break;
                         }
                     }
-            updateInventory(game);
         }
     }
 
@@ -446,7 +445,6 @@ public class GameService extends AbstractService {
                     }
                 }
             }
-            updateInventory(game);
         }
     }
 
@@ -511,7 +509,7 @@ public class GameService extends AbstractService {
                 }
             }
 
-            if (userList.isEmpty()) {
+            if(userList.isEmpty()){
                 tooMuchResources(game);
             }
 
@@ -615,7 +613,6 @@ public class GameService extends AbstractService {
             }
             game.get().setUpUserArrayList();
             game.get().setUpInventories();
-            updateInventory(game);
             sendToAllInGame(game.get().getName(), new NextTurnMessage(game.get().getName(), game.get().getUser(game.get().getTurn()).getUsername(), game.get().getTurn(), game.get().isStartingTurns()));
         } else {
             throw new GameManagementException("Not enough Players ready!");
@@ -718,10 +715,7 @@ public class GameService extends AbstractService {
      * development card from the development card deck and sends a message with the development card to the user. If
      * there are not enough ressources a NoEnoughRessourcesMessage is send to the user.
      * </p>
-     * Checks if enough development cards are still available to be bought.
-     * If not, then sends corresponding message in the game chat.
-     * enhanced by Anton Nikiforov, Alexander Losse, Iskander Yusupov
-     * @since 2021-05-16
+     *
      * @param request Transports the senders UserDTO
      * @author Marius Birk
      * @since 2021-04-03
@@ -734,27 +728,18 @@ public class GameService extends AbstractService {
                 Inventory inventory = game.get().getInventory(request.getUser());
                 if (inventory.wool.getNumber() >= 1 && inventory.ore.getNumber() >= 1 && inventory.grain.getNumber() >= 1) {
                     String devCard = game.get().getDevelopmentCardDeck().drawnCard();
-                    if (devCard != null) {
-                        inventory.wool.decNumber();
-                        inventory.ore.decNumber();
-                        inventory.grain.decNumber();
-                        inventory.incCard(devCard, 1);
-                        BuyDevelopmentCardMessage response = new BuyDevelopmentCardMessage(devCard);
-                        sendToSpecificUserInGame(game, response, request.getUser());
-                    } else {
-                        String chatMessage;
-                        var chatId = "game_" + game.get().getName();
-                        ResponseChatMessage msg = new ResponseChatMessage("No development cards are available.", chatId, "Bank", System.currentTimeMillis());
-                        post(msg);
-                        LOG.debug("Posted ResponseChatMessage on eventBus");
-                    }
+
+                    inventory.wool.decNumber();
+                    inventory.ore.decNumber();
+                    inventory.grain.decNumber();
+                    BuyDevelopmentCardMessage response = new BuyDevelopmentCardMessage(devCard);
+                    sendToSpecificUserInGame(game, response, request.getUser());
                 } else {
                     NotEnoughRessourcesMessage nerm = new NotEnoughRessourcesMessage();
                     nerm.setName(game.get().getName());
                     sendToSpecificUserInGame(game, nerm, request.getUser());
                 }
             }
-            updateInventory(game);
         }
     }
 
@@ -847,7 +832,6 @@ public class GameService extends AbstractService {
                 response.initWithMessage(request);
                 post(response);
             }
-            updateInventory(game);
         }
     }
 
@@ -989,7 +973,6 @@ public class GameService extends AbstractService {
                         break;
                 }
             }
-            updateInventory(game);
         }
     }
 
@@ -1001,8 +984,7 @@ public class GameService extends AbstractService {
      * PrivateInventoryChangeMessage is send to specific player in the game. PublicInventoryChangeMessage is send to all
      * players in the game.
      * <p>
-     * enhanced by Carsten Dekker ,Marc Johannes Hermes, Marius Birk, Iskander Yusupov
-     * @since 2021-05-07
+     *
      * @param game game that wants to update private and public inventories
      * @author Iskander Yusupov, Anton Nikiforov
      * @since 2021-04-08
@@ -1011,15 +993,12 @@ public class GameService extends AbstractService {
         if (game.isPresent()) {
             for (User user : game.get().getUsers()) {
                 HashMap<String, Integer> privateInventory = game.get().getInventory(user).getPrivateView();
-                PrivateInventoryChangeMessage privateInventoryChangeMessage = new PrivateInventoryChangeMessage(game.get().getName(), (UserDTO) user, privateInventory);
+                HashMap<String, Integer> publicInventory = game.get().getInventory(user).getPublicView();
+                PrivateInventoryChangeMessage privateInventoryChangeMessage = new PrivateInventoryChangeMessage(user.getWithoutPassword(), game.get().getName(), privateInventory);
                 sendToSpecificUserInGame(game, privateInventoryChangeMessage, user);
+                PublicInventoryChangeMessage publicInventoryChangeMessage = new PublicInventoryChangeMessage(publicInventory, user, game.get().getName());
+                sendToAllInGame(game.get().getName(), publicInventoryChangeMessage);
             }
-            ArrayList<HashMap<String, Integer>> publicInventories = new ArrayList<>();
-            for (User user : game.get().getUsersList()) {
-                publicInventories.add(game.get().getInventory(user).getPublicView());
-            }
-            PublicInventoryChangeMessage publicInventoryChangeMessage = new PublicInventoryChangeMessage(game.get().getName(), publicInventories);
-            sendToAllInGame(game.get().getName(), publicInventoryChangeMessage);
         }
     }
 
@@ -1153,7 +1132,6 @@ public class GameService extends AbstractService {
                 TradeCardErrorMessage tcem = new TradeCardErrorMessage(request.getUser(), request.getName(), request.getTradeCode());
                 sendToSpecificUserInGame(game, tcem, request.getUser());
             }
-            updateInventory(game);
         }
     }
 
@@ -1194,7 +1172,6 @@ public class GameService extends AbstractService {
             tradeEndedChatMessageHelper(game.get().getName(), request.getTradeCode(), request.getUser().getUsername(), request.getTradeAccepted());
             sendToAllInGame(request.getName(), new TradeEndedMessage(request.getTradeCode()));
             game.get().removeTrade(request.getTradeCode());
-            updateInventory(game);
         }
     }
 
@@ -1270,6 +1247,7 @@ public class GameService extends AbstractService {
             //Nach dem eine Karte gezogen wurde darf jeder mit mehr als 7 Resourcen die Hälfte ablegen
 
             tooMuchResources(game);
+
             updateInventory(game);
         }
     }
