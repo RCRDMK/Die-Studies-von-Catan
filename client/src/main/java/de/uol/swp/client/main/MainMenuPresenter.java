@@ -570,7 +570,6 @@ public class MainMenuPresenter extends AbstractPresenter {
     @FXML
     void onGameRulesPressed(ActionEvent event) {
         eventBus.post(showGameViewMessage);
-
     }
 
 

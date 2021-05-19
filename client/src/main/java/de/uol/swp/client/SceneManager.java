@@ -75,6 +75,7 @@ public class SceneManager {
     private TabHelper tabHelper;
     private Scene userSettingsScene;
     private Scene userGameRulesScene;
+    private Scene nextUserGameRulesScene;
     private MediaPlayer player;
     private Scene summaryScene;
     private Scene nextSummaryScene;
@@ -114,7 +115,7 @@ public class SceneManager {
         nextLobbyScene = initLobbyView();
         nextGameScene = initGameView();
         nextTradeScene = initTradeView();
-
+        nextUserGameRulesScene = initGameRulesView();
 
         //Royalty free music from Pixabay was used. For more information see https://pixabay.com/service/license/.
         String musicFile = "client/src/main/resources/backgroundMusic/the-last-october-day-3915.mp3";
@@ -450,23 +451,6 @@ public class SceneManager {
         showUserSettingsScreen();
     }
 
-    /**
-     * Handles ShowGameRulesEvent detected on the EventBus
-     * <p>
-     * If a ShowGameRules is detected on the EventBus, this method gets
-     * called. It calls a method to switch the current screen to the Game Rules screen.
-     *
-     * @param event The ShowGameRules detected on the EventBus
-     * @author Sergej Tulnev
-     * @see de.uol.swp.client.auth.events.ShowLoginViewEvent
-     * @since 2020-05-18
-     */
-    @Subscribe
-    public void onShowGameViewMessage(ShowGameRulesEvent event) {
-        LOG.info("ShowGameRulesEvent");
-        newGameRulesTab();
-    }
-
 
     /**
      * Handles LeaveUserSettingsEvent detected on the EventBus
@@ -799,7 +783,7 @@ public class SceneManager {
             tabHelper.addTab(gameRulesTab);
             tabHelper.getTabPane().getSelectionModel().select(gameRulesTab);
         });
-
+        nextUserGameRulesScene = initGameRulesView();
     }
 
     /**
@@ -897,6 +881,20 @@ public class SceneManager {
     public void removeTradeTab(TradeEndedMessage tem) {
         Platform.runLater(() -> {
             tabHelper.removeTab("Trade " + tem.getTradeCode());
+        });
+    }
+
+    /**
+     * Removes an old GameRules tab
+     * <p>
+     * When this method is invoked a GameRules tab, is removed the old GameRules tab
+     *
+     * @author Sergej Tulnev
+     * @since 2021-05-19
+     */
+    public void removeGameRulesTab() {
+        Platform.runLater(() -> {
+            tabHelper.removeTab("GameRules ");
         });
     }
 
