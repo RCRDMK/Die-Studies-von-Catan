@@ -8,7 +8,7 @@ import java.io.Serializable;
  * @author Anton Nikiforov
  * @since 2020-03-04
  */
-public class Card implements Serializable {
+public class CardStack implements Serializable {
 
     private int number = 0;
 

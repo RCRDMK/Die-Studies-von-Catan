@@ -811,8 +811,6 @@ public class GameService extends AbstractService {
                         post(msg);
                         LOG.debug("Posted ResponseChatMessage on eventBus");
                     }
-                    BuyDevelopmentCardMessage response = new BuyDevelopmentCardMessage(devCard);
-                    sendToSpecificUserInGame(game, response, request.getUser());
                 } else {
                     NotEnoughRessourcesMessage nerm = new NotEnoughRessourcesMessage();
                     nerm.setName(game.get().getName());

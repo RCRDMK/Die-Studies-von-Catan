@@ -28,22 +28,22 @@ public class Inventory implements Serializable {
     }
 
     // Resource Cards
-    public Card lumber = new Card();
-    public Card brick = new Card();
-    public Card grain = new Card();
-    public Card wool = new Card();
-    public Card ore = new Card();
+    public CardStack lumber = new CardStack();
+    public CardStack brick = new CardStack();
+    public CardStack grain = new CardStack();
+    public CardStack wool = new CardStack();
+    public CardStack ore = new CardStack();
 
     // Development Cards
-    public Card cardKnight = new Card();
-    public Card cardMonopoly = new Card();
-    public Card cardRoadBuilding = new Card();
-    public Card cardYearOfPlenty = new Card();
+    public CardStack cardKnight = new CardStack();
+    public CardStack cardMonopoly = new CardStack();
+    public CardStack cardRoadBuilding = new CardStack();
+    public CardStack cardYearOfPlenty = new CardStack();
 
     // Building Units
-    public Unit city = new Unit(4);
-    public Unit road = new Unit(15);
-    public Unit settlement = new Unit(5);
+    public UnitStack city = new UnitStack(4);
+    public UnitStack road = new UnitStack(15);
+    public UnitStack settlement = new UnitStack(5);
 
     // Achievements
     private int victoryPoints = 0;
@@ -214,10 +214,10 @@ public class Inventory implements Serializable {
      *
      * @return Card with entered cardName
      * @author Anton Nikiforov
-     * @see de.uol.swp.common.game.inventory.Card
+     * @see CardStack
      * @since 2021-04-06
      */
-    public Card getCard(String card) {
+    public CardStack getCard(String card) {
         switch (card) {
             case "Lumber" : return lumber;
             case "Brick" : return brick;
@@ -243,7 +243,7 @@ public class Inventory implements Serializable {
      *
      * @return number for Card with entered cardName
      * @author Anton Nikiforov
-     * @see de.uol.swp.common.game.inventory.Card
+     * @see CardStack
      * @since
      */
     public int getNumberFromCard(String card) {
