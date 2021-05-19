@@ -98,7 +98,7 @@ public class Inventory implements Serializable {
 
 
     //Increment the Victory Point Card and increase the victoryPoints by one
-    public void incCardVictoryPoint() {
+    public void incCardStackVictoryPoint() {
         this.cardVictoryPoint++;
         this.victoryPoints++;
     }
@@ -217,7 +217,7 @@ public class Inventory implements Serializable {
      * @see CardStack
      * @since 2021-04-06
      */
-    public CardStack getCard(String card) {
+    public CardStack getCardStack(String card) {
         switch (card) {
             case "Lumber" : return lumber;
             case "Brick" : return brick;
@@ -241,13 +241,13 @@ public class Inventory implements Serializable {
      *
      * @param card to get the number from
      *
-     * @return number for Card with entered cardName
+     * @return number for CardStack with entered cardStackName
      * @author Anton Nikiforov
      * @see CardStack
-     * @since
+     * @since 2021-05-19
      */
-    public int getNumberFromCard(String card) {
-        return getCard(card).getNumber();
+    public int getNumberFromCardStack(String card) {
+        return getCardStack(card).getNumber();
     }
 
     /**
@@ -262,44 +262,41 @@ public class Inventory implements Serializable {
      * @since 2021-05-16
      * @param card   the name of the Ressource Card
      * @param amount how much of the Card should be increased
-     * @return true if valid resource name, false if not
      * @author Alexander Losse, Ricardo Mook
      * @since 2021-04-08
      */
-    public boolean incCard(String card, int amount) {
+    public void incCardStack(String card, int amount) {
         switch (card) {
             case "Lumber":
                 lumber.incNumber(amount);
-                return true;
+                break;
             case "Brick":
                 brick.incNumber(amount);
-                return true;
+                break;
             case "Grain":
                 grain.incNumber(amount);
-                return true;
+                break;
             case "Wool":
                 wool.incNumber(amount);
-                return true;
+                break;
             case "Ore":
                 ore.incNumber(amount);
-                return true;
+                break;
             case "Knight":
                 cardKnight.incNumber(amount);
-                return true;
+                break;
             case "Monopoly":
                 cardMonopoly.incNumber(amount);
-                return true;
+                break;
             case "Road Building":
                 cardRoadBuilding.incNumber(amount);
-                return true;
+                break;
             case "Year of Plenty":
                 cardYearOfPlenty.incNumber(amount);
-                return true;
+                break;
             case "Victory Point Card":
-                incCardVictoryPoint();
-                return true;
-            default:
-                return false;
+                incCardStackVictoryPoint();
+                break;
         }
     }
 
@@ -315,7 +312,7 @@ public class Inventory implements Serializable {
      * @author Alexander Losse, Ricardo Mook
      * @since 2021-04-08
      */
-    public void decCard(String card, int amount) {
+    public void decCardStack(String card, int amount) {
         switch (card) {
             case "Lumber":
                 lumber.decNumber(amount);
@@ -331,6 +328,18 @@ public class Inventory implements Serializable {
                 break;
             case "Ore":
                 ore.decNumber(amount);
+                break;
+            case "Knight":
+                cardKnight.decNumber(amount);
+                break;
+            case "Monopoly":
+                cardMonopoly.decNumber(amount);
+                break;
+            case "Road Building":
+                cardRoadBuilding.decNumber(amount);
+                break;
+            case "Year of Plenty":
+                cardYearOfPlenty.decNumber(amount);
                 break;
         }
     }

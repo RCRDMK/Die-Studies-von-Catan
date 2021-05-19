@@ -265,11 +265,11 @@ public class GameService extends AbstractService {
     public void onResourcesToDiscard(ResourcesToDiscardRequest resourcesToDiscardRequest) {
         Optional<Game> game = gameManagement.getGame(resourcesToDiscardRequest.getName());
         if (game.isPresent()) {
-            takeResource(game, resourcesToDiscardRequest.getUser(), "Lumber", game.get().getInventory(resourcesToDiscardRequest.getUser()).getNumberFromCard("Lumber") - resourcesToDiscardRequest.getInventory().get("Lumber"));
-            takeResource(game, resourcesToDiscardRequest.getUser(), "Brick", game.get().getInventory(resourcesToDiscardRequest.getUser()).getNumberFromCard("Brick") - resourcesToDiscardRequest.getInventory().get("Brick"));
-            takeResource(game, resourcesToDiscardRequest.getUser(), "Grain", game.get().getInventory(resourcesToDiscardRequest.getUser()).getNumberFromCard("Grain") - resourcesToDiscardRequest.getInventory().get("Grain"));
-            takeResource(game, resourcesToDiscardRequest.getUser(), "Wool", game.get().getInventory(resourcesToDiscardRequest.getUser()).getNumberFromCard("Wool") - resourcesToDiscardRequest.getInventory().get("Wool"));
-            takeResource(game, resourcesToDiscardRequest.getUser(), "Ore", game.get().getInventory(resourcesToDiscardRequest.getUser()).getNumberFromCard("Ore") - resourcesToDiscardRequest.getInventory().get("Ore"));
+            takeResource(game, resourcesToDiscardRequest.getUser(), "Lumber", game.get().getInventory(resourcesToDiscardRequest.getUser()).getNumberFromCardStack("Lumber") - resourcesToDiscardRequest.getInventory().get("Lumber"));
+            takeResource(game, resourcesToDiscardRequest.getUser(), "Brick", game.get().getInventory(resourcesToDiscardRequest.getUser()).getNumberFromCardStack("Brick") - resourcesToDiscardRequest.getInventory().get("Brick"));
+            takeResource(game, resourcesToDiscardRequest.getUser(), "Grain", game.get().getInventory(resourcesToDiscardRequest.getUser()).getNumberFromCardStack("Grain") - resourcesToDiscardRequest.getInventory().get("Grain"));
+            takeResource(game, resourcesToDiscardRequest.getUser(), "Wool", game.get().getInventory(resourcesToDiscardRequest.getUser()).getNumberFromCardStack("Wool") - resourcesToDiscardRequest.getInventory().get("Wool"));
+            takeResource(game, resourcesToDiscardRequest.getUser(), "Ore", game.get().getInventory(resourcesToDiscardRequest.getUser()).getNumberFromCardStack("Ore") - resourcesToDiscardRequest.getInventory().get("Ore"));
 
             updateInventory(game);
         }
@@ -328,7 +328,7 @@ public class GameService extends AbstractService {
                 } else {
                     distributeResources(addedEyes, rollDiceRequest.getName());
                 }
-                try {
+                /*try {
                     String chatMessage;
                     var chatId = "game_" + rollDiceRequest.getName();
                     if (addedEyes == 8 || addedEyes == 11) {
@@ -342,7 +342,7 @@ public class GameService extends AbstractService {
                     LOG.debug("Posted ResponseChatMessage on eventBus");
                 } catch (Exception e) {
                     LOG.debug(e);
-                }
+                }*/
                 try {
                     RollDiceResultMessage result = new RollDiceResultMessage(dice.getDiceEyes1(), dice.getDiceEyes2(), game.get().getTurn(), game.get().getName());
                     sendToAllInGame(game.get().getName(), result);
@@ -472,12 +472,12 @@ public class GameService extends AbstractService {
     public boolean giveResource(Optional<Game> game, User user, String resourceTyp, int amount) {
         if (game.isPresent()) {
             Inventory bank = game.get().getBankInventory();
-            boolean success = bank.getNumberFromCard(resourceTyp) >= amount;
-            boolean firstTime = bank.getNumberFromCard(resourceTyp) == 1;
+            boolean success = bank.getNumberFromCardStack(resourceTyp) >= amount;
+            boolean firstTime = bank.getNumberFromCardStack(resourceTyp) == 1 && amount > 0;
             for (int i = amount; i > 0; i--) {
-                if (bank.getNumberFromCard(resourceTyp) > 0) {
-                    bank.decCard(resourceTyp, 1);
-                    game.get().getInventory(user).incCard(resourceTyp, 1);
+                if (bank.getNumberFromCardStack(resourceTyp) > 0) {
+                    bank.decCardStack(resourceTyp, 1);
+                    game.get().getInventory(user).incCardStack(resourceTyp, 1);
                 }
                 else break;
             }
@@ -513,12 +513,12 @@ public class GameService extends AbstractService {
     public boolean takeResource(Optional<Game> game, User user, String resourceTyp, int amount) {
         if (game.isPresent()) {
             Inventory bank = game.get().getBankInventory();
-            boolean success = game.get().getInventory(user).getNumberFromCard(resourceTyp)  >= amount;
-            boolean wasEmpty = bank.getNumberFromCard(resourceTyp) == 0;
+            boolean success = game.get().getInventory(user).getNumberFromCardStack(resourceTyp)  >= amount;
+            boolean wasEmpty = bank.getNumberFromCardStack(resourceTyp) == 0 && amount > 0;
             for (int i = amount; i > 0; i--) {
-                if (game.get().getInventory(user).getNumberFromCard(resourceTyp) > 0) {
-                    game.get().getInventory(user).decCard(resourceTyp, 1);
-                    bank.incCard(resourceTyp, 1);
+                if (game.get().getInventory(user).getNumberFromCardStack(resourceTyp) > 0) {
+                    game.get().getInventory(user).decCardStack(resourceTyp, 1);
+                    bank.incCardStack(resourceTyp, 1);
                 }
                 else break;
             }
@@ -801,7 +801,7 @@ public class GameService extends AbstractService {
                         takeResource(game, request.getUser(), "Wool", 1);
                         takeResource(game, request.getUser(), "Ore", 1);
                         takeResource(game, request.getUser(), "Grain", 1);
-                        inventory.incCard(devCard, 1);
+                        inventory.incCardStack(devCard, 1);
                         BuyDevelopmentCardMessage response = new BuyDevelopmentCardMessage(devCard);
                         sendToSpecificUserInGame(game, response, request.getUser());
                     } else {
@@ -950,27 +950,27 @@ public class GameService extends AbstractService {
                                     Inventory x = game.get().getInventory(user);
                                     switch (resource) {
                                         case "Lumber":
-                                            turnPlayerInventory.incCard(resource, x.lumber.getNumber());
+                                            turnPlayerInventory.incCardStack(resource, x.lumber.getNumber());
                                             x.lumber.decNumber(x.lumber.getNumber());
                                             resolvedDevelopmentCardSuccessfully = true;
                                             break;
                                         case "Ore":
-                                            turnPlayerInventory.incCard(resource, x.ore.getNumber());
+                                            turnPlayerInventory.incCardStack(resource, x.ore.getNumber());
                                             x.ore.decNumber(x.ore.getNumber());
                                             resolvedDevelopmentCardSuccessfully = true;
                                             break;
                                         case "Wool":
-                                            turnPlayerInventory.incCard(resource, x.wool.getNumber());
+                                            turnPlayerInventory.incCardStack(resource, x.wool.getNumber());
                                             x.wool.decNumber(x.wool.getNumber());
                                             resolvedDevelopmentCardSuccessfully = true;
                                             break;
                                         case "Brick":
-                                            turnPlayerInventory.incCard(resource, x.brick.getNumber());
+                                            turnPlayerInventory.incCardStack(resource, x.brick.getNumber());
                                             x.brick.decNumber(x.brick.getNumber());
                                             resolvedDevelopmentCardSuccessfully = true;
                                             break;
                                         case "Grain":
-                                            turnPlayerInventory.incCard(resource, x.grain.getNumber());
+                                            turnPlayerInventory.incCardStack(resource, x.grain.getNumber());
                                             x.grain.decNumber(x.grain.getNumber());
                                             resolvedDevelopmentCardSuccessfully = true;
                                             break;
@@ -1167,11 +1167,11 @@ public class GameService extends AbstractService {
         System.out.println("Got message " + request.getUser().getUsername());
         Optional<Game> game = gameManagement.getGame(request.getName());
         // TODO: Wird nur zum testen verwendet
-      /*  game.get().getInventory(request.getUser()).incCard("Lumber", 10);
-        game.get().getInventory(request.getUser()).incCard("Ore", 10);
-        game.get().getInventory(request.getUser()).incCard("Wool", 10);
-        game.get().getInventory(request.getUser()).incCard("Grain", 10);
-        game.get().getInventory(request.getUser()).incCard("Brick", 10);
+      /*  game.get().getInventory(request.getUser()).incCardStack("Lumber", 10);
+        game.get().getInventory(request.getUser()).incCardStack("Ore", 10);
+        game.get().getInventory(request.getUser()).incCardStack("Wool", 10);
+        game.get().getInventory(request.getUser()).incCardStack("Grain", 10);
+        game.get().getInventory(request.getUser()).incCardStack("Brick", 10);
         Inventory easyPrüfen = game.get().getInventory(request.getUser());
 */
         if (game.isPresent()) {
@@ -1245,12 +1245,12 @@ public class GameService extends AbstractService {
                 Inventory inventoryBidder = game.get().getInventory(request.getUser());
 
                 for (TradeItem soldItem : trade.getSellingItems()) {
-                    inventorySeller.decCard(soldItem.getName(), soldItem.getCount());
-                    inventoryBidder.incCard(soldItem.getName(), soldItem.getCount());
+                    inventorySeller.decCardStack(soldItem.getName(), soldItem.getCount());
+                    inventoryBidder.incCardStack(soldItem.getName(), soldItem.getCount());
                 }
                 for (TradeItem bidItem : trade.getBids().get(request.getUser())) {
-                    inventorySeller.incCard(bidItem.getName(), bidItem.getCount());
-                    inventoryBidder.decCard(bidItem.getName(), bidItem.getCount());
+                    inventorySeller.incCardStack(bidItem.getName(), bidItem.getCount());
+                    inventoryBidder.decCardStack(bidItem.getName(), bidItem.getCount());
                 }
             }
             tradeEndedChatMessageHelper(game.get().getName(), request.getTradeCode(), request.getUser().getUsername(), request.getTradeAccepted());
@@ -1324,8 +1324,8 @@ public class GameService extends AbstractService {
             String random = randomResource();
             inventory.keySet().forEach(e -> {
                 if (e.equals(random)) {
-                    game.get().getInventory(drawRandomResourceFromPlayerMessage.getUser()).incCard(random, 1);
-                    game.get().getInventory(new UserDTO(drawRandomResourceFromPlayerMessage.getChosenName(), "", "")).decCard(random, 1);
+                    game.get().getInventory(drawRandomResourceFromPlayerMessage.getUser()).incCardStack(random, 1);
+                    game.get().getInventory(new UserDTO(drawRandomResourceFromPlayerMessage.getChosenName(), "", "")).decCardStack(random, 1);
                 }
             });
 
