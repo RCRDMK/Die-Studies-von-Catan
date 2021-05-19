@@ -4,20 +4,13 @@ import com.google.common.eventbus.DeadEvent;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import de.uol.swp.common.game.Game;
-
 import de.uol.swp.common.game.inventory.Inventory;
 import de.uol.swp.common.game.message.*;
-
 import de.uol.swp.common.game.MapGraph;
 import de.uol.swp.common.game.request.*;
-import de.uol.swp.common.game.response.PlayDevelopmentCardResponse;
-import de.uol.swp.common.game.response.ResolveDevelopmentCardNotSuccessfulResponse;
-import de.uol.swp.common.game.request.GameLeaveUserRequest;
-import de.uol.swp.common.game.request.ResourcesToDiscardRequest;
-import de.uol.swp.common.game.request.RetrieveAllThisGameUsersRequest;
-import de.uol.swp.common.game.request.TradeChoiceRequest;
-import de.uol.swp.common.game.request.TradeItemRequest;
 import de.uol.swp.common.game.trade.TradeItem;
+import de.uol.swp.common.lobby.Lobby;
+import de.uol.swp.common.user.Session;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.user.request.LoginRequest;
@@ -583,8 +576,9 @@ public class GameServiceTest {
         inv0.cardYearOfPlenty.incNumber();
         inv0.cardRoadBuilding.incNumber();
         inv1.cardMonopoly.incNumber();
-        inv3.incCard("Lumber", 3);
-        inv2.incCard("Brick", 2);
+        inv2.cardRoadBuilding.incNumber();
+        inv2.brick.incNumber(2);
+        inv3.lumber.incNumber(3);
 
         // Check if player 1 is allowed to play his decCard
         PlayDevelopmentCardRequest pdcr = new PlayDevelopmentCardRequest("Year of Plenty", "test", (UserDTO) userThatPlaysTheCard);
