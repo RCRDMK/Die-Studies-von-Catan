@@ -194,13 +194,48 @@ public interface AISystem {
      */
     ArrayList<AIAction> continueTurnOrder(TradeInformSellerAboutBidsMessage tisabm);
 
+    /**
+     * Method used to check if a street may be attempted to be built, resource-wise
+     *
+     * @return true if yes, false if not
+     * @author Marc Hermes
+     * @since 2021-05-19
+     */
     boolean canBuildStreet();
 
+    /**
+     * Method used to check if a town may be attempted to be built, resource-wise
+     *
+     * @return true if yes, false if not
+     * @author Marc Hermes
+     * @since 2021-05-19
+     */
     boolean canBuildTown();
 
+    /**
+     * Method used to check if a city may be attempted to be built, resource-wise
+     *
+     * @return true if yes, false if not
+     * @author Marc Hermes
+     * @since 2021-05-19
+     */
     boolean canBuildCity();
 
+    /**
+     * Method used to check if a developmentCard may be attempted to be bought, resource-wise
+     *
+     * @return true if yes, false if not
+     * @author Marc Hermes
+     * @since 2021-05-19
+     */
     boolean canBuyDevelopmentCard();
 
+    /**
+     * Method used to check if a developmentCard may be attempted to be played with regards to the amount of cards in the inventory
+     *
+     * @return true if yes, false if not
+     * @author Marc Hermes
+     * @since 2021-05-19
+     */
     ArrayList<String> canPlayDevelopmentCard();
 }

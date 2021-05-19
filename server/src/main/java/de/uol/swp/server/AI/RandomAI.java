@@ -29,21 +29,34 @@ public class RandomAI extends AbstractAISystem {
         super(thatGame);
     }
 
+    /**
+     * Returns a random (uniform distribution) int value between (including) two values
+     *
+     * @param min the min value for the random number
+     * @param max the max value for the random number
+     * @return the random number
+     * @author Marc Hermes
+     * @since 2021-05-19
+     */
     private int randomInt(int min, int max) {
         return (int) (Math.random() * (max - min)) + min;
     }
 
 
+    /**
+     * When the turn starts for the AI the server will call this function.
+     * <p>
+     * The AI will then put various random AIActions in his aiAction arrayList.
+     * Finally the AI will either end its turn, or start a trade.
+     *
+     * @return the ArrayList of AIActions the AI wishes to do.
+     * @author Marc Hermes
+     * @since 2021-05-19
+     */
     public ArrayList<AIAction> startTurnOrder() {
 
-        System.out.println(inventory.brick.getNumber());
-        System.out.println(inventory.ore.getNumber());
-        System.out.println(inventory.wool.getNumber());
-        System.out.println(inventory.grain.getNumber());
-        System.out.println(inventory.lumber.getNumber());
         if (game.isStartingTurns()) {
             startingTurnLogic();
-            System.out.println("IS starting turns");
         } else {
             // if a 7 was rolled, move the robber to a random hexagon
             if (game.getLastRolledDiceValue() == 7) {
@@ -54,21 +67,26 @@ public class RandomAI extends AbstractAISystem {
                     }
                 }
             }
-
             // do some random actions
             makeRandomActionsLogic();
-
             // try to play a developmentCard
             ArrayList<String> cards = canPlayDevelopmentCard();
             if (cards.size() > 0) {
                 playDevelopmentCardLogic(cards);
             }
         }
-
         endTurn();
         return this.aiActions;
     }
 
+    /**
+     * Performs a number of actions during the opening turns of the game
+     * <p>
+     * Primarily 1 street and 1 building will be placed on the gameField.
+     *
+     * @author Marc Hermes
+     * @since 2021-05-19
+     */
     private void startingTurnLogic() {
         boolean doneBuilding = false;
         for (MapGraph.BuildingNode bn : mapGraph.getBuildingNodeHashSet()) {
@@ -88,6 +106,13 @@ public class RandomAI extends AbstractAISystem {
         }
     }
 
+    /**
+     * Using this method will result in the AI playing 1 random developmentCard that it currently can play.
+     *
+     * @param cards the ArrayList of cards that the AI may try to play
+     * @author Marc Hermes
+     * @since 2021-05-19
+     */
     private void playDevelopmentCardLogic(ArrayList<String> cards) {
         String cardToPlay = cards.get(randomInt(0, cards.size() - 1));
         switch (cardToPlay) {
@@ -132,6 +157,15 @@ public class RandomAI extends AbstractAISystem {
         }
     }
 
+    /**
+     * Using this method will result in the AI doing a random amount of random actions.
+     * <p>
+     * The AI can try to build streets, towns and cities or buy developmentCards.
+     * Inherently the same kind of action may be done twice, if the AI has the resources to do so.
+     *
+     * @author Marc Hermes
+     * @since 2021-05-19
+     */
     private void makeRandomActionsLogic() {
         int amountOfActions = randomInt(0, 5);
         for (int i = 0; i <= amountOfActions; i++) {
@@ -164,9 +198,17 @@ public class RandomAI extends AbstractAISystem {
         }
     }
 
+    /**
+     * This method will check the streetNodeHashSet of the mapGraph for a streetNode which might be built for this AI.
+     *
+     * @return an Optional UUID of the streetNode. Will be empty if there is no legal building spot for streets currently.
+     * @author Marc Hermes
+     * @since 2021-05-19
+     */
     private Optional<UUID> returnPossibleStreet() {
         for (MapGraph.StreetNode sn : mapGraph.getStreetNodeHashSet()) {
             if (sn.getOccupiedByPlayer() == 666) {
+                // TODO: when the rules for building streets is done
                 //if(sn.tryBuildRoad(game.getTurn(), game.getStartingPhase())) {
                 return Optional.of(sn.getUuid());
                 //}
@@ -175,6 +217,13 @@ public class RandomAI extends AbstractAISystem {
         return Optional.empty();
     }
 
+    /**
+     * This method will check the buildingNodeHashSet of the mapGraph for a buildingNode which might be built as a town for this AI.
+     *
+     * @return an Optional UUID of the buildingNode. Will be empty if there is no legal building spot for towns.
+     * @author Marc Hermes
+     * @since 2021-05-19
+     */
     private Optional<UUID> returnPossibleTown() {
         for (MapGraph.BuildingNode bn : mapGraph.getBuildingNodeHashSet()) {
             if (bn.getOccupiedByPlayer() == 666) {
@@ -186,6 +235,13 @@ public class RandomAI extends AbstractAISystem {
         return Optional.empty();
     }
 
+    /**
+     * This method will check the buildingNodeHashSet of the mapGraph for a buildingNode which might be built as a city for this AI.
+     *
+     * @return an Optional UUID of the buildingNode. Will be empty if there is no legal building spot for cities.
+     * @author Marc Hermes
+     * @since 2021-05-19
+     */
     private Optional<UUID> returnPossibleCity() {
         for (MapGraph.BuildingNode bn : mapGraph.getBuiltBuildings()) {
             if (bn.getOccupiedByPlayer() == game.getTurn()) {
@@ -197,6 +253,13 @@ public class RandomAI extends AbstractAISystem {
         return Optional.empty();
     }
 
+    /**
+     * This method returns a random resource as a string.
+     *
+     * @return the String name of a random resource
+     * @author Marc Hermes
+     * @since 2021-05-19
+     */
     private String returnRandomResource() {
         String resource;
         switch (randomInt(0, 4)) {
