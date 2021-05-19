@@ -892,26 +892,51 @@ public class GameServiceTest {
     @Test
     void randomAITest() {
 
-
         loginUsers();
         gameManagement.createGame("test", userDTO, "Standard");
         Optional<Game> game = gameManagement.getGame("test");
         assertTrue(game.isPresent());
+        Game g = game.get();
+        g.joinUser(userDTO1);
+        //game.get().joinUser(userDTO2);
+        //game.get().joinUser(userDTO3);
 
-        game.get().joinUser(userDTO1);
-        game.get().joinUser(userDTO2);
-        game.get().joinUser(userDTO3);
-
-        game.get().setUpUserArrayList();
-        game.get().setUpInventories();
+        g.setUpUserArrayList();
+        g.setUpInventories();
+        Inventory aiInventory = g.getInventory(userDTO);
+        aiInventory.incCard("Brick", 10);
+        aiInventory.incCard("Ore", 10);
+        aiInventory.incCard("Wool", 10);
+        aiInventory.incCard("Grain", 10);
+        aiInventory.incCard("Lumber", 10);
 
         // Player 0 (the turn player) leaves the game
-        GameLeaveUserRequest glur = new GameLeaveUserRequest(game.get().getName(), userDTO);
+        GameLeaveUserRequest glur = new GameLeaveUserRequest(g.getName(), userDTO);
         gameService.onGameLeaveUserRequest(glur);
 
         // Check if the turn started for the correct player (and thus the AI ended the turn)
         assertTrue(event instanceof NextTurnMessage);
         assertEquals(userDTO1.getUsername(), ((NextTurnMessage) event).getPlayerWithCurrentTurn());
+
+        // End the turn twice for player 1, because its the opening phase
+        EndTurnRequest etr = new EndTurnRequest(g.getName(), userDTO1);
+        gameService.onEndTurnRequest(etr);
+        gameService.onEndTurnRequest(etr);
+
+
+        // Check if the AI did its turn again so that now player 1 is the turnPlayer
+        assertTrue(event instanceof NextTurnMessage);
+        assertEquals(userDTO1.getUsername(), ((NextTurnMessage) event).getPlayerWithCurrentTurn());
+        gameService.onRollDiceRequest(new RollDiceRequest(g.getName(), userDTO1, 5));
+        gameService.onEndTurnRequest(etr);
+        assertTrue(event instanceof NextTurnMessage);
+        assertEquals(userDTO1.getUsername(), ((NextTurnMessage) event).getPlayerWithCurrentTurn());
+        gameService.onRollDiceRequest(new RollDiceRequest(g.getName(), userDTO1, 5));
+        gameService.onEndTurnRequest(etr);
+        assertTrue(event instanceof NextTurnMessage);
+        assertEquals(userDTO1.getUsername(), ((NextTurnMessage) event).getPlayerWithCurrentTurn());
+        gameService.onRollDiceRequest(new RollDiceRequest(g.getName(), userDTO1, 5));
+        gameService.onEndTurnRequest(etr);
 
     }
 

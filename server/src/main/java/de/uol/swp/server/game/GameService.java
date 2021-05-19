@@ -744,8 +744,15 @@ public class GameService extends AbstractService {
             TestAI testAI = new TestAI(game);
             AIToServerTranslator.translate(testAI.startTurnOrder(), this);
         } else {
-            RandomAI randomAI = new RandomAI(game);
-            AIToServerTranslator.translate(randomAI.startTurnOrder(), this);
+            //RandomAI randomAI = new RandomAI(game);
+            System.out.println("Rufe random AI auf");
+            /*Inventory aiInventory = game.getInventory(game.getUser(game.getTurn()));
+            aiInventory.incCard("Brick", 10);
+            aiInventory.incCard("Ore", 10);
+            aiInventory.incCard("Wool", 10);
+            aiInventory.incCard("Grain", 10);
+            aiInventory.incCard("Lumber", 10);*/
+            AIToServerTranslator.translate(new RandomAI(game).startTurnOrder(), this);
         }
     }
 

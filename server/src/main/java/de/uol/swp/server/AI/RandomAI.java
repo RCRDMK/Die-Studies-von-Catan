@@ -38,8 +38,14 @@ public class RandomAI extends AbstractAISystem {
 
     public ArrayList<AIAction> startTurnOrder() {
 
+        System.out.println(inventory.brick.getNumber());
+        System.out.println(inventory.ore.getNumber());
+        System.out.println(inventory.wool.getNumber());
+        System.out.println(inventory.grain.getNumber());
+        System.out.println(inventory.lumber.getNumber());
         if(game.isStartingTurns()) {
             startingTurnLogic();
+            System.out.println("IS starting turns");
         }
         else {
             if(game.getLastRolledDiceValue() == 7) {
@@ -91,7 +97,7 @@ public class RandomAI extends AbstractAISystem {
             if(doneBuilding) {
                 break;
             }
-            if(bn.getOccupiedByPlayer() == 666) {
+            if(bn.getOccupiedByPlayer() == 666 && bn.getParent().getHexagons().size()==6) {
                 for(MapGraph.StreetNode sn : bn.getConnectedStreetNodes()) {
                     if(sn.getOccupiedByPlayer() == 666) {
                         buildTown(bn.getUuid());

@@ -122,6 +122,7 @@ public abstract class AbstractAISystem implements AISystem {
         inventory.decCard("Ore", 1);
         inventory.decCard("Grain", 1);
         inventory.decCard("Wool", 1);
+        System.out.println("Buy card");
         aiActions.add(bdca);
 
     }
@@ -131,6 +132,7 @@ public abstract class AbstractAISystem implements AISystem {
         BuildAction pa = new BuildAction("BuildStreet", user, game.getName(), field);
         inventory.decCard("Brick", 1);
         inventory.decCard("Lumber", 1);
+        System.out.println("Build street");
         aiActions.add(pa);
 
     }
