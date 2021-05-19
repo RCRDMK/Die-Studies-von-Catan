@@ -22,6 +22,7 @@ import de.uol.swp.client.message.UnmuteMusicMessage;
 import de.uol.swp.client.register.RegistrationPresenter;
 import de.uol.swp.client.register.event.RegistrationCanceledEvent;
 import de.uol.swp.client.register.event.RegistrationErrorEvent;
+import de.uol.swp.client.register.event.ShowGameRulesEvent;
 import de.uol.swp.client.register.event.ShowRegistrationViewEvent;
 import de.uol.swp.common.game.message.TradeEndedMessage;
 import de.uol.swp.common.user.User;
@@ -469,6 +470,25 @@ public class SceneManager {
     }
 
     /**
+     * Handles ShowGameRulesEvent detected on the EventBus
+     * <p>
+     * If a ShowGameRules is detected on the EventBus, this method gets
+     * called. It calls a method to switch the current screen to the Game Rules screen.
+     *
+     * @param event The ShowGameRules detected on the EventBus
+     * @author Sergej Tulnev
+     * @see de.uol.swp.client.auth.events.ShowLoginViewEvent
+     * @since 2020-05-18
+     */
+    @Subscribe
+    public void onShowGameRulesMessage(ShowGameRulesEvent event) {
+        LOG.info("ShowGameRulesEvent");
+        removeGameRulesTab();
+        newGameRulesTab();
+    }
+
+
+    /**
      * Handles UserSettingsErrorEvent detected on the EventBus
      * <p>
      * If a UserSettingsErrorEvent is detected on the EventBus, this method gets
@@ -881,20 +901,6 @@ public class SceneManager {
     public void removeTradeTab(TradeEndedMessage tem) {
         Platform.runLater(() -> {
             tabHelper.removeTab("Trade " + tem.getTradeCode());
-        });
-    }
-
-    /**
-     * Removes an old GameRules tab
-     * <p>
-     * When this method is invoked a GameRules tab, is removed the old GameRules tab
-     *
-     * @author Sergej Tulnev
-     * @since 2021-05-19
-     */
-    public void removeGameRulesTab() {
-        Platform.runLater(() -> {
-            tabHelper.removeTab("GameRules ");
         });
     }
 

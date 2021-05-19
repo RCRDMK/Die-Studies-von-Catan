@@ -7,7 +7,6 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import de.uol.swp.client.di.ClientModule;
 import de.uol.swp.client.game.event.SummaryConfirmedEvent;
-import de.uol.swp.client.register.event.ShowGameRulesEvent;
 import de.uol.swp.client.user.ClientUserService;
 import de.uol.swp.common.game.message.*;
 import de.uol.swp.common.user.User;
@@ -576,22 +575,5 @@ public class ClientApp extends Application implements ConnectionListener {
         sceneManager.showMainTab(user);
     }
 
-    /**
-     * Handles ShowGameRulesEvent detected on the EventBus
-     * <p>
-     * If a ShowGameRules is detected on the EventBus, this method gets
-     * called. It calls a method to switch the current screen to the Game Rules screen.
-     *
-     * @param event The ShowGameRules detected on the EventBus
-     * @author Sergej Tulnev
-     * @see de.uol.swp.client.auth.events.ShowLoginViewEvent
-     * @since 2020-05-18
-     */
-    @Subscribe
-    public void onShowGameRulesMessage(ShowGameRulesEvent event) {
-        LOG.info("ShowGameRulesEvent");
-        sceneManager.removeGameRulesTab();
-        sceneManager.newGameRulesTab();
-    }
 
 }
