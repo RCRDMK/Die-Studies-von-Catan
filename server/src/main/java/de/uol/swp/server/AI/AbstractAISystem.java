@@ -119,6 +119,9 @@ public abstract class AbstractAISystem implements AISystem {
     @Override
     public void buyDevelopmentCard() {
         BuyDevelopmentCardAction bdca = new BuyDevelopmentCardAction(user, game.getName());
+        inventory.decCard("Ore", 1);
+        inventory.decCard("Grain", 1);
+        inventory.decCard("Wool", 1);
         aiActions.add(bdca);
 
     }
@@ -126,6 +129,8 @@ public abstract class AbstractAISystem implements AISystem {
     @Override
     public void buildStreet(UUID field) {
         BuildAction pa = new BuildAction("BuildStreet", user, game.getName(), field);
+        inventory.decCard("Brick", 1);
+        inventory.decCard("Lumber", 1);
         aiActions.add(pa);
 
     }
@@ -133,6 +138,10 @@ public abstract class AbstractAISystem implements AISystem {
     @Override
     public void buildTown(UUID field) {
         BuildAction pa = new BuildAction("BuildTown", user, game.getName(), field);
+        inventory.decCard("Brick", 1);
+        inventory.decCard("Lumber", 1);
+        inventory.decCard("Grain", 1);
+        inventory.decCard("Wool", 1);
         aiActions.add(pa);
 
     }
@@ -140,6 +149,8 @@ public abstract class AbstractAISystem implements AISystem {
     @Override
     public void buildCity(UUID field) {
         BuildAction pa = new BuildAction("BuildCity", user, game.getName(), field);
+        inventory.decCard("Ore", 3);
+        inventory.decCard("Grain", 2);
         aiActions.add(pa);
 
     }
@@ -223,5 +234,31 @@ public abstract class AbstractAISystem implements AISystem {
         aiActions.clear();
 
         return this.aiActions;
+    }
+
+    public boolean canBuildStreet() {
+        return inventory.brick.getNumber() > 0 && inventory.lumber.getNumber() > 0;
+    }
+
+    public boolean canBuildTown() {
+        return inventory.brick.getNumber() > 0 && inventory.lumber.getNumber() > 0 && inventory.grain.getNumber() > 0 && inventory.wool.getNumber() > 0;
+    }
+
+    public boolean canBuildCity() {
+        return inventory.ore.getNumber() > 2 && inventory.grain.getNumber() > 1;
+    }
+
+    public boolean canBuyDevelopmentCard() {
+        return inventory.ore.getNumber() > 0 && inventory.grain.getNumber() > 0 && inventory.wool.getNumber() > 0;
+    }
+
+    public ArrayList<String> canPlayDevelopmentCard() {
+        // TODO: check if the card was bought this turn
+        ArrayList<String> playableCards = new ArrayList<>();
+        if(inventory.cardYearOfPlenty.getNumber() > 0) playableCards.add("Year of Plenty");
+        if(inventory.cardMonopoly.getNumber() > 0) playableCards.add("Monopoly");
+        if(inventory.cardRoadBuilding.getNumber() > 0) playableCards.add("Road Building");
+        if(inventory.cardKnight.getNumber() > 0) playableCards.add("Knight");
+        return playableCards;
     }
 }
