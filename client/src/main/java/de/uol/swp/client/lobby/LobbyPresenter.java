@@ -77,6 +77,8 @@ public class LobbyPresenter extends AbstractPresenter {
     private RadioButton standardGameField;
     @FXML
     private RadioButton randomGameField;
+    @FXML
+    private RadioButton veryRandomGameField;
 
 
     @FXML
@@ -215,9 +217,11 @@ public class LobbyPresenter extends AbstractPresenter {
         if (isLobbyOwner) {
             randomGameField.setDisable(false);
             standardGameField.setDisable(false);
+            veryRandomGameField.setDisable(false);
         } else {
             standardGameField.setDisable(true);
             randomGameField.setDisable(true);
+            veryRandomGameField.setDisable(true);
         }
     }
 

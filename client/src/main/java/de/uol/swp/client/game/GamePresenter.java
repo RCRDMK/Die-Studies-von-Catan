@@ -1046,7 +1046,7 @@ public class GamePresenter extends AbstractPresenter {
         double d = Math.min(canvas.getHeight(), canvas.getWidth()); //Determine minimum pixels in height and length of the canvas (we dont want the playfield to scale out of canvas, so we orient at the smaller axis)
         if (!gameFieldVariant.equals("VeryRandom")) {
             return d / 5.5; // Divide by 8 because the playfield is 7 cards wide and add 1/2 card each side for margin so the cards dont touch the boundaries of the canvas.
-        } else return d / 6.5;
+        } else return d / 7;
     }
 
     /**
