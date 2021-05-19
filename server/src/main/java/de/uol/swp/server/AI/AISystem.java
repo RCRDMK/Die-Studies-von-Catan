@@ -193,4 +193,14 @@ public interface AISystem {
      * @return an ArrayList of AIActions dedicated through the AI which the server will have to resolve
      */
     ArrayList<AIAction> continueTurnOrder(TradeInformSellerAboutBidsMessage tisabm);
+
+    boolean canBuildStreet();
+
+    boolean canBuildTown();
+
+    boolean canBuildCity();
+
+    boolean canBuyDevelopmentCard();
+
+    ArrayList<String> canPlayDevelopmentCard();
 }

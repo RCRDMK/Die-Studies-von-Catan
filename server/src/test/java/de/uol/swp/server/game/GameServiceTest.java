@@ -885,6 +885,8 @@ public class GameServiceTest {
 
     /**
      * Test used for checking the general functionality of the randomAI (only check if it will end its turn)
+     * <p>
+     * Because of the randomness of the AI, no actual check can be done here. Over all test coverage will still be increased, because we give the AI the chance to perform actions.
      *
      * @author Marc Hermes
      * @since 2021-05-12
@@ -898,8 +900,6 @@ public class GameServiceTest {
         assertTrue(game.isPresent());
         Game g = game.get();
         g.joinUser(userDTO1);
-        //game.get().joinUser(userDTO2);
-        //game.get().joinUser(userDTO3);
 
         g.setUpUserArrayList();
         g.setUpInventories();
@@ -909,6 +909,10 @@ public class GameServiceTest {
         aiInventory.incCard("Wool", 10);
         aiInventory.incCard("Grain", 10);
         aiInventory.incCard("Lumber", 10);
+        aiInventory.cardRoadBuilding.incNumber();
+        aiInventory.cardMonopoly.incNumber();
+        aiInventory.cardKnight.incNumber();
+        aiInventory.cardYearOfPlenty.incNumber();
 
         // Player 0 (the turn player) leaves the game
         GameLeaveUserRequest glur = new GameLeaveUserRequest(g.getName(), userDTO);
@@ -927,17 +931,6 @@ public class GameServiceTest {
         // Check if the AI did its turn again so that now player 1 is the turnPlayer
         assertTrue(event instanceof NextTurnMessage);
         assertEquals(userDTO1.getUsername(), ((NextTurnMessage) event).getPlayerWithCurrentTurn());
-        gameService.onRollDiceRequest(new RollDiceRequest(g.getName(), userDTO1, 5));
-        gameService.onEndTurnRequest(etr);
-        assertTrue(event instanceof NextTurnMessage);
-        assertEquals(userDTO1.getUsername(), ((NextTurnMessage) event).getPlayerWithCurrentTurn());
-        gameService.onRollDiceRequest(new RollDiceRequest(g.getName(), userDTO1, 5));
-        gameService.onEndTurnRequest(etr);
-        assertTrue(event instanceof NextTurnMessage);
-        assertEquals(userDTO1.getUsername(), ((NextTurnMessage) event).getPlayerWithCurrentTurn());
-        gameService.onRollDiceRequest(new RollDiceRequest(g.getName(), userDTO1, 5));
-        gameService.onEndTurnRequest(etr);
-
     }
 
 }

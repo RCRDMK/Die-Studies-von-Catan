@@ -746,12 +746,16 @@ public class GameService extends AbstractService {
         } else {
             //RandomAI randomAI = new RandomAI(game);
             System.out.println("Rufe random AI auf");
-            /*Inventory aiInventory = game.getInventory(game.getUser(game.getTurn()));
+            Inventory aiInventory = game.getInventory(game.getUser(game.getTurn()));
             aiInventory.incCard("Brick", 10);
             aiInventory.incCard("Ore", 10);
             aiInventory.incCard("Wool", 10);
             aiInventory.incCard("Grain", 10);
-            aiInventory.incCard("Lumber", 10);*/
+            aiInventory.incCard("Lumber", 10);
+            aiInventory.cardYearOfPlenty.incNumber();
+            aiInventory.cardMonopoly.incNumber();
+            aiInventory.cardRoadBuilding.incNumber();
+            aiInventory.cardKnight.incNumber();
             AIToServerTranslator.translate(new RandomAI(game).startTurnOrder(), this);
         }
     }

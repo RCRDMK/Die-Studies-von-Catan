@@ -35,6 +35,8 @@ public abstract class AbstractAISystem implements AISystem {
 
     User user;
 
+    boolean playedCardThisTurn = false;
+
     ArrayList<AIAction> aiActions;
 
     /**
@@ -55,7 +57,21 @@ public abstract class AbstractAISystem implements AISystem {
         aiActions = new ArrayList<>();
     }
 
-    // https://www.journaldev.com/17129/java-deep-copy-object
+    /**
+     * Creates a deep copy of an object
+     * <p>
+     * By turning the object into an byteStream and then returning in into the object it originally was,
+     * all of the information stored in the object will remain.
+     * However the actual reference of the object in the program will be lost.
+     * Thus we can use the deep copy of the object to analyze changes without actually changing the original object
+     * <p>
+     * Idea from: https://www.journaldev.com/17129/java-deep-copy-object
+     *
+     * @param object the object to create a deep copy of
+     * @return the deep copy of the object
+     * @author Marc Hermes
+     * @since 2021-05-19
+     */
     private static Object deepCopy(Object object) {
         try {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -68,14 +84,6 @@ public abstract class AbstractAISystem implements AISystem {
             e.printStackTrace();
             return null;
         }
-    }
-
-    public Inventory getInventory() {
-        return inventory;
-    }
-
-    public void setInventory(Inventory inventory) {
-        this.inventory = inventory;
     }
 
     public GameDTO getGame() {
@@ -92,14 +100,6 @@ public abstract class AbstractAISystem implements AISystem {
 
     public void setAiActions(ArrayList<AIAction> aiActions) {
         this.aiActions = aiActions;
-    }
-
-    public MapGraph getMapGraph() {
-        return mapGraph;
-    }
-
-    public void setMapGraph(MapGraph mapGraph) {
-        this.mapGraph = mapGraph;
     }
 
     public User getUser() {
@@ -144,6 +144,7 @@ public abstract class AbstractAISystem implements AISystem {
         inventory.decCard("Lumber", 1);
         inventory.decCard("Grain", 1);
         inventory.decCard("Wool", 1);
+        System.out.println("Build town");
         aiActions.add(pa);
 
     }
@@ -153,6 +154,7 @@ public abstract class AbstractAISystem implements AISystem {
         BuildAction pa = new BuildAction("BuildCity", user, game.getName(), field);
         inventory.decCard("Ore", 3);
         inventory.decCard("Grain", 2);
+        System.out.println("Build city");
         aiActions.add(pa);
 
     }
@@ -178,30 +180,67 @@ public abstract class AbstractAISystem implements AISystem {
     @Override
     public void playDevelopmentCardKnight(UUID field) {
         PlayDevelopmentCardKnightAction pa = new PlayDevelopmentCardKnightAction(user, game.getName(), "Knight", field);
+        inventory.cardKnight.decNumber();
+        playedCardThisTurn = true;
+        for (MapGraph.Hexagon hx : mapGraph.getHexagonHashSet()) {
+            if (hx.isOccupiedByRobber()) {
+                hx.setOccupiedByRobber(false);
+            }
+            if (hx.getUuid().equals(field)) {
+                hx.setOccupiedByRobber(true);
+            }
+        }
         aiActions.add(pa);
     }
 
     @Override
     public void playDevelopmentCardMonopoly(String resource) {
         PlayDevelopmentCardMonopolyAction pa = new PlayDevelopmentCardMonopolyAction(user, game.getName(), "Monopoly", resource);
+        inventory.cardMonopoly.decNumber();
+        playedCardThisTurn = true;
+        for (User player : game.getUsersList()) {
+            if (!player.equals(this.user)) {
+                game.getInventory(player).decCard(resource, game.getInventory(player).getSpecificResourceAmount(resource));
+                game.getInventory(user).incCard(resource, game.getInventory(player).getSpecificResourceAmount(resource));
+            }
+        }
         aiActions.add(pa);
     }
 
     @Override
     public void playDevelopmentCardRoadBuilding(UUID street1, UUID street2) {
         PlayDevelopmentCardRoadBuildingAction pa = new PlayDevelopmentCardRoadBuildingAction(user, game.getName(), "Road Building", street1, street2);
+        inventory.cardRoadBuilding.decNumber();
+        for (MapGraph.StreetNode sn : mapGraph.getStreetNodeHashSet()) {
+            if (sn.getUuid().equals(street1) || sn.getUuid().equals(street2)) {
+                sn.buildRoad(game.getTurn());
+            }
+        }
+        playedCardThisTurn = true;
         aiActions.add(pa);
     }
 
     @Override
     public void playDevelopmentCardYearOfPlenty(String resource1, String resource2) {
         PlayDevelopmentCardYearOfPlentyAction pa = new PlayDevelopmentCardYearOfPlentyAction(user, game.getName(), "Year of Plenty", resource1, resource2);
+        inventory.cardRoadBuilding.decNumber();
+        playedCardThisTurn = true;
+        inventory.incCard(resource1, 1);
+        inventory.incCard(resource2, 1);
         aiActions.add(pa);
     }
 
     @Override
     public void moveBandit(UUID field) {
         MoveBanditAction mba = new MoveBanditAction(user, game.getName(), field);
+        for (MapGraph.Hexagon hx : mapGraph.getHexagonHashSet()) {
+            if (hx.isOccupiedByRobber()) {
+                hx.setOccupiedByRobber(false);
+            }
+            if (hx.getUuid().equals(field)) {
+                hx.setOccupiedByRobber(true);
+            }
+        }
         aiActions.add(mba);
     }
 
@@ -213,14 +252,12 @@ public abstract class AbstractAISystem implements AISystem {
 
     @Override
     public ArrayList<AIAction> discardResourcesOrder(TooMuchResourceCardsMessage tmrcm) {
-        aiActions.clear();
 
         return this.aiActions;
     }
 
     @Override
     public ArrayList<AIAction> tradeBidOrder(TradeOfferInformBiddersMessage toibm) {
-        aiActions.clear();
 
         return this.aiActions;
     }
@@ -233,34 +270,40 @@ public abstract class AbstractAISystem implements AISystem {
 
     @Override
     public ArrayList<AIAction> continueTurnOrder(TradeInformSellerAboutBidsMessage tisabm) {
-        aiActions.clear();
 
         return this.aiActions;
     }
 
+    @Override
     public boolean canBuildStreet() {
         return inventory.brick.getNumber() > 0 && inventory.lumber.getNumber() > 0;
     }
 
+    @Override
     public boolean canBuildTown() {
         return inventory.brick.getNumber() > 0 && inventory.lumber.getNumber() > 0 && inventory.grain.getNumber() > 0 && inventory.wool.getNumber() > 0;
     }
 
+    @Override
     public boolean canBuildCity() {
         return inventory.ore.getNumber() > 2 && inventory.grain.getNumber() > 1;
     }
 
+    @Override
     public boolean canBuyDevelopmentCard() {
         return inventory.ore.getNumber() > 0 && inventory.grain.getNumber() > 0 && inventory.wool.getNumber() > 0;
     }
 
+    @Override
     public ArrayList<String> canPlayDevelopmentCard() {
         // TODO: check if the card was bought this turn
         ArrayList<String> playableCards = new ArrayList<>();
-        if(inventory.cardYearOfPlenty.getNumber() > 0) playableCards.add("Year of Plenty");
-        if(inventory.cardMonopoly.getNumber() > 0) playableCards.add("Monopoly");
-        if(inventory.cardRoadBuilding.getNumber() > 0) playableCards.add("Road Building");
-        if(inventory.cardKnight.getNumber() > 0) playableCards.add("Knight");
+        if (!playedCardThisTurn) {
+            if (inventory.cardYearOfPlenty.getNumber() > 0) playableCards.add("Year of Plenty");
+            if (inventory.cardMonopoly.getNumber() > 0) playableCards.add("Monopoly");
+            if (inventory.cardRoadBuilding.getNumber() > 0) playableCards.add("Road Building");
+            if (inventory.cardKnight.getNumber() > 0) playableCards.add("Knight");
+        }
         return playableCards;
     }
 }
