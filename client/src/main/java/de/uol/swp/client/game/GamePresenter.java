@@ -25,11 +25,16 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.geometry.HPos;
+import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
+import javafx.scene.control.Button;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
@@ -94,6 +99,10 @@ public class GamePresenter extends AbstractPresenter {
     private ObservableList<String> gameUsers;
 
     private final ArrayList<HexagonContainer> hexagonContainers = new ArrayList<>();
+    private ObservableList<String> publicInventory1;
+    private ObservableList<String> publicInventory2;
+    private ObservableList<String> publicInventory3;
+    private ObservableList<String> publicInventory4;
 
     private final ArrayList<MapGraphNodeContainer> mapGraphNodeContainers = new ArrayList<>();
 
@@ -168,11 +177,49 @@ public class GamePresenter extends AbstractPresenter {
     @FXML
     private GridPane playerFourDiceView;
 
+    @FXML
+    private ListView<String> publicInventory1View;
+    @FXML
+    private ListView<String> publicInventory2View;
+    @FXML
+    private ListView<String> publicInventory3View;
+    @FXML
+    private ListView<String> publicInventory4View;
+
+    @FXML
+    private GridPane privateInventoryView;
+    @FXML
+    Label privateLumberLabel = new Label("0");
+    @FXML
+    Label privateBrickLabel = new Label("0");
+    @FXML
+    Label privateGrainLabel = new Label("0");
+    @FXML
+    Label privateWoolLabel = new Label("0");
+    @FXML
+    Label privateOreLabel = new Label("0");
+    @FXML
+    Label privateKnightCardLabel = new Label("0");
+    @FXML
+    Label privateMonopolyCardLabel = new Label("0");
+    @FXML
+    Label privateRoadBuildingCardLabel = new Label("0");
+    @FXML
+    Label privateYearOfPlentyCardLabel = new Label("0");
+    @FXML
+    Label privateVictoryPointCardLabel = new Label("0");
+    @FXML
+    Label privateCitiesLabel = new Label("0");
+    @FXML
+    Label privateRoadsLabel = new Label("0");
+    @FXML
+    Label privateSettlementsLabel = new Label("0");
+
     final private ArrayList<ImagePattern> diceImages = new ArrayList<>();
 
-    final private Rectangle rectangleDie1 = new Rectangle(100, 100);
+    final private Rectangle rectangleDie1 = new Rectangle(50, 50);
 
-    final private Rectangle rectangleDie2 = new Rectangle(100, 100);
+    final private Rectangle rectangleDie2 = new Rectangle(50, 50);
 
     @FXML
     private Button rollDice;
@@ -455,6 +502,7 @@ public class GamePresenter extends AbstractPresenter {
                 initializeRobberResourceMenu();
                 setupRobberAlert();
                 setupDicesAtGameStart();
+                setUpPrivateInventoryView();
                 setupResolveDevelopmentCardAlert();
             });
         }
@@ -631,7 +679,7 @@ public class GamePresenter extends AbstractPresenter {
      */
     public void setupPlayerPictures(ArrayList<UserDTO> list) {
         for (UserDTO userDTO : list) {
-            Rectangle rectangle = new Rectangle(100, 100);
+            Rectangle rectangle = new Rectangle(68, 68);
             rectangle.setFill(profilePicturePatterns.get(userDTO.getProfilePictureID() - 1));
             rectangles.add(rectangle);
         }
@@ -995,7 +1043,7 @@ public class GamePresenter extends AbstractPresenter {
      */
     public double cardSize() {
         double d = Math.min(canvas.getHeight(), canvas.getWidth()); //Determine minimum pixels in height and length of the canvas (we dont want the playfield to scale out of canvas, so we orient at the smaller axis)
-        return d / 8; // Divide by 8 because the playfield is 7 cards wide and add 1/2 card each side for margin so the cards dont touch the boundaries of the canvas.
+        return d / 5.5; // Divide by 8 because the playfield is 7 cards wide and add 1/2 card each side for margin so the cards dont touch the boundaries of the canvas.
     }
 
     /**
@@ -1289,7 +1337,7 @@ public class GamePresenter extends AbstractPresenter {
 
         //Draw robber
         //Initialize the robber graphics
-        robber = new Rectangle(15, 15);
+        robber = new Rectangle(25, 25);
         robber.setFill(new ImagePattern(new Image("textures/originals/robbers.png")));
         robber.setVisible(true);
 
@@ -1302,7 +1350,7 @@ public class GamePresenter extends AbstractPresenter {
     }
 
     public void buyDevelopmentCardLogic(String card) {
-        // TODO Reaktion des Clients kann erst richtig implementiert werden, wenn die Nutzer auch Ressourcen haben.
+        //
     }
 
     @Subscribe
@@ -1815,10 +1863,14 @@ public class GamePresenter extends AbstractPresenter {
     }
 
     /**
-     * The method called when a PrivateInventoryChangeMessage is received
+     * The method called when a PrivateInventoryChangeMessage is received.
+     * If lobby is not null and if current lobby is equal to lobby from received message,
+     * updates privateInventory.
+     * enhanced by Anton Nikiforov, Alexander Losse, Iskander Yusupov
      *
      * @param privateInventoryChangeMessage the PrivateInventoryChangeMessage received from the server
      * @author Marc Hermes
+     * @since 2021-05-16
      * @since 2021-05-02
      */
     @Subscribe
@@ -1840,22 +1892,132 @@ public class GamePresenter extends AbstractPresenter {
                         }
                     });
                 }
-
-                // TODO: dient nur zu Testzwecken, muss später richtig dargestellt werden
-                System.out.println("Lumber " + privateInventoryChangeMessage.getPrivateInventory().get("Lumber"));
-                System.out.println("Brick " + privateInventoryChangeMessage.getPrivateInventory().get("Brick"));
-                System.out.println("Ore " + privateInventoryChangeMessage.getPrivateInventory().get("Ore"));
-                System.out.println("Grain " + privateInventoryChangeMessage.getPrivateInventory().get("Grain"));
-                System.out.println("Wool " + privateInventoryChangeMessage.getPrivateInventory().get("Wool"));
+                updatePrivateInventory(privateInventoryChangeMessage.getPrivateInventory());
             }
         }
-        //TODO: Darstellung der Veränderung des Inventars
     }
 
-    @Subscribe
-    public void onPublicInventoryChangeMessage(PublicInventoryChangeMessage publicInventoryChangeMessage) {
-        //TODO: Darstellung der Veränderung des Inventars
+    /**
+     * Checks whether each value of each label is equal to the value from received HashMap,
+     * if it is not, then replaces existing value of label with the value from the HashMap.
+     * <p>
+     * enhanced by Anton Nikiforov, Alexander Losse, Iskander Yusupov
+     * @since 2021-05-16
+     * @param pr HashMap<String, Integer>, which was provided by onPrivateInventoryChangeMessage
+     * @author Carsten Dekker, Iskander Yusupov
+     * @since 2021-05-14
+     */
+
+    private void updatePrivateInventory(HashMap<String, Integer> pr) {
+        Platform.runLater(() -> {
+            if (!privateLumberLabel.getText().equals(pr.get("Lumber").toString())) {
+                privateLumberLabel.setText(pr.get("Lumber").toString());
+            }
+            if (!privateBrickLabel.getText().equals(pr.get("Brick").toString())) {
+                privateBrickLabel.setText(pr.get("Brick").toString());
+            }
+            if (!privateGrainLabel.getText().equals(pr.get("Grain").toString())) {
+                privateGrainLabel.setText(pr.get("Grain").toString());
+            }
+            if (!privateWoolLabel.getText().equals(pr.get("Wool").toString())) {
+                privateWoolLabel.setText(pr.get("Wool").toString());
+            }
+            if (!privateOreLabel.getText().equals(pr.get("Ore").toString())) {
+                privateOreLabel.setText(pr.get("Ore").toString());
+            }
+            if (!privateKnightCardLabel.getText().equals(pr.get("Knight").toString())) {
+                privateKnightCardLabel.setText(pr.get("Knight").toString());
+            }
+            if (!privateMonopolyCardLabel.getText().equals(pr.get("Monopoly").toString())) {
+                privateMonopolyCardLabel.setText(pr.get("Monopoly").toString());
+            }
+            if (!privateRoadBuildingCardLabel.getText().equals(pr.get("Road Building").toString())) {
+                privateRoadBuildingCardLabel.setText(pr.get("Road Building").toString());
+            }
+            if (!privateYearOfPlentyCardLabel.getText().equals(pr.get("Year of Plenty").toString())) {
+                privateYearOfPlentyCardLabel.setText(pr.get("Year of Plenty").toString());
+            }
+            if (!privateVictoryPointCardLabel.getText().equals(pr.get("Victory Point Card").toString())) {
+                privateVictoryPointCardLabel.setText(pr.get("Victory Point Card").toString());
+            }
+            if (!privateCitiesLabel.getText().equals(pr.get("Cities").toString())) {
+                privateCitiesLabel.setText(pr.get("Cities").toString());
+            }
+            if (!privateRoadsLabel.getText().equals(pr.get("Roads").toString())) {
+                privateRoadsLabel.setText(pr.get("Roads").toString());
+            }
+            if (!privateSettlementsLabel.getText().equals(pr.get("Settlements").toString())) {
+                privateSettlementsLabel.setText(pr.get("Settlements").toString());
+            }
+        });
     }
+
+/*    @Subscribe
+    public void onPublicInventoryChangeMessage(PublicInventoryChangeMessage publicInventoryChangeMessage) {
+        onPublicInventoryChangeMessageLogic(publicInventoryChangeMessage);
+    }
+        // TODO: public inventory implementieren
+    private void onPublicInventoryChangeMessageLogic(PublicInventoryChangeMessage puicm) {
+        if (this.currentLobby != null) {
+            if (this.currentLobby.equals(puicm.getName())) {
+                ArrayList<HashMap<String, Integer>> p = new ArrayList<>();
+                Platform.runLater(() -> {
+                    if (publicInventory1 == null) {
+                        publicInventory1 = FXCollections.observableArrayList();
+                        publicInventory1View.setItems(publicInventory1);
+                    }
+                    if (publicInventory2 == null) {
+                        publicInventory2 = FXCollections.observableArrayList();
+                        publicInventory2View.setItems(publicInventory2);
+                    }
+                    if (publicInventory3 == null) {
+                        publicInventory3 = FXCollections.observableArrayList();
+                        publicInventory3View.setItems(publicInventory3);
+                    }
+                    if (publicInventory4 == null) {
+                        publicInventory4 = FXCollections.observableArrayList();
+                        publicInventory4View.setItems(publicInventory4);
+                    }
+                    publicInventory1.clear();
+                    publicInventory1.add(0, p.get(0).get("Resource").toString());
+                    publicInventory1.add(0, p.get(0).get("Development Cards").toString());
+                    publicInventory1.add(0, p.get(0).get("Played Knights").toString());
+                    publicInventory1.add(0, p.get(0).get("Continuous Road").toString());
+                    publicInventory1.add(0, p.get(0).get("Largest Army").toString());
+                    publicInventory1.add(0, p.get(0).get("Longest Road").toString());
+                    publicInventory1.add(0, p.get(0).get("PublicVictoryPoints").toString());
+                    //      publicInventory1View.setCellFactory(x -> new PublicInventoryCell());
+                    publicInventory2.clear();
+                    publicInventory2.add(1, p.get(1).get("Resource").toString());
+                    publicInventory2.add(1, p.get(1).get("Development Cards").toString());
+                    publicInventory2.add(1, p.get(1).get("Played Knights").toString());
+                    publicInventory2.add(1, p.get(1).get("Continuous Road").toString());
+                    publicInventory2.add(1, p.get(1).get("Largest Army").toString());
+                    publicInventory2.add(1, p.get(1).get("Longest Road").toString());
+                    publicInventory2.add(1, p.get(1).get("PublicVictoryPoints").toString());
+                    //       publicInventory2View.setCellFactory(x -> new PublicInventoryCell());
+                    publicInventory3.clear();
+                    publicInventory3.add(2, p.get(2).get("Resource").toString());
+                    publicInventory3.add(2, p.get(2).get("Development Cards").toString());
+                    publicInventory3.add(2, p.get(2).get("Played Knights").toString());
+                    publicInventory3.add(2, p.get(2).get("Continuous Road").toString());
+                    publicInventory3.add(2, p.get(2).get("Largest Army").toString());
+                    publicInventory3.add(2, p.get(2).get("Longest Road").toString());
+                    publicInventory3.add(2, p.get(2).get("PublicVictoryPoints").toString());
+                    //     publicInventory3View.setCellFactory(x -> new PublicInventoryCell());
+                    publicInventory4.clear();
+                    publicInventory4.add(3, p.get(3).get("Resource").toString());
+                    publicInventory4.add(3, p.get(3).get("Development Cards").toString());
+                    publicInventory4.add(3, p.get(3).get("Played Knights").toString());
+                    publicInventory4.add(3, p.get(3).get("Continuous Road").toString());
+                    publicInventory4.add(3, p.get(3).get("Largest Army").toString());
+                    publicInventory4.add(3, p.get(3).get("Longest Road").toString());
+                    publicInventory4.add(3, p.get(3).get("PublicVictoryPoints").toString());
+                    //     publicInventory4View.setCellFactory(x -> new PublicInventoryCell());
+                });
+            }
+        }
+    } */
 
     /**
      * The method called when a ResolveDevelopmentCardNotSuccessfulResponse is received
@@ -1970,6 +2132,38 @@ public class GamePresenter extends AbstractPresenter {
                 });
             }
         }
+    }
+
+    /**
+     * The method gets invoked when the Game Presenter is created.
+     * <p>
+     * This method creates thirteen images and rectangles. Then it creates and fills imagePatterns
+     * with the images from first to thirteens. Every imagePattern is added to the privateInventoryView.
+     * Then adds thirteen corresponding labels to the privateInventoryView.
+     *
+     * @author Carsten Dekker, Iskander Yusupov
+     * @since 2021-05-14
+     */
+    public void setUpPrivateInventoryView() {
+        for (int i = 1; i < 14; i++) {
+            Image image = new Image("textures/privateInventory/privateInventoryImage" + i + ".png");
+            Rectangle r = new Rectangle(42, 60);
+            r.setFill(new ImagePattern(image));
+            privateInventoryView.add(r, i - 1, 0);
+        }
+        privateInventoryView.add(privateLumberLabel, 0, 1);
+        privateInventoryView.add(privateBrickLabel, 1, 1);
+        privateInventoryView.add(privateGrainLabel, 2, 1);
+        privateInventoryView.add(privateWoolLabel, 3, 1);
+        privateInventoryView.add(privateOreLabel, 4, 1);
+        privateInventoryView.add(privateKnightCardLabel, 5, 1);
+        privateInventoryView.add(privateMonopolyCardLabel, 6, 1);
+        privateInventoryView.add(privateRoadBuildingCardLabel, 7, 1);
+        privateInventoryView.add(privateYearOfPlentyCardLabel, 8, 1);
+        privateInventoryView.add(privateVictoryPointCardLabel, 9, 1);
+        privateInventoryView.add(privateCitiesLabel, 10, 1);
+        privateInventoryView.add(privateRoadsLabel, 11, 1);
+        privateInventoryView.add(privateSettlementsLabel, 12, 1);
     }
 
     /**

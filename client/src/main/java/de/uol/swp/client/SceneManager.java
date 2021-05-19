@@ -91,6 +91,9 @@ public class SceneManager {
      * This is a subroutine of the constructor to initialize all views, as well as creating the TabPane
      * <p>
      * enhanced by Alexander Losse and Marc Hermes - 2021-01-20
+     * <p>
+     * enhanced by Ricardo Mook, 2021-05-13
+     * added the abilty to have background music playing
      *
      * @author Marco Grawunder
      * @since 2019-09-03
@@ -107,6 +110,15 @@ public class SceneManager {
         nextLobbyScene = initLobbyView();
         nextGameScene = initGameView();
         nextTradeScene = initTradeView();
+
+
+        //Royalty free music from Pixabay was used. For more information see https://pixabay.com/service/license/.
+        String musicFile = "client/src/main/resources/backgroundMusic/the-last-october-day-3915.mp3";
+        Media backgroundMusic = new Media(new File(musicFile).toURI().toString());
+        player = new MediaPlayer(backgroundMusic);
+        player.setCycleCount(MediaPlayer.INDEFINITE);//loops the musicFile indefinitely
+        player.setVolume(0.4);
+        player.play();
     }
 
     /**
@@ -517,8 +529,6 @@ public class SceneManager {
      * The current scene and title are saved in the lastScene and lastTitle variables,
      * before the new scene and title are set and shown.
      *
-     * enhanced by Ricardo Mook, 2021-05-04
-     * added the abilty to have background music playing
      *
      * @param scene New scene to show
      * @param title New window title
@@ -533,13 +543,6 @@ public class SceneManager {
             primaryStage.setTitle(title);
             primaryStage.setScene(scene);
             primaryStage.show();
-
-            //Royalty free music from Pixabay was used. For more information see https://pixabay.com/service/license/.
-            String musicFile = "client/src/main/resources/backgroundMusic/the-last-october-day-3915.mp3";
-            Media backgroundMusic = new Media(new File(musicFile).toURI().toString());
-            player = new MediaPlayer(backgroundMusic);
-            player.setCycleCount(MediaPlayer.INDEFINITE);//loops the musicFile indefinitely
-            player.play();
 
         });
     }

@@ -56,6 +56,8 @@ public class TabHelper {
      */
     public TabHelper(TabPane tabPane) {
         this.tabPane = tabPane;
+        tabPane.setMinSize(735, 530);
+        tabPane.setMaxSize(735, 530);
         this.tabsMap = new HashMap<>();
         this.suspendedTabs = new HashMap<>();
         initial();
