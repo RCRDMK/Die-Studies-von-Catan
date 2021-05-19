@@ -1,5 +1,8 @@
 package de.uol.swp.common.game.message;
 
+import de.uol.swp.common.user.User;
+import de.uol.swp.common.user.UserDTO;
+
 import java.util.UUID;
 
 /**
@@ -14,7 +17,8 @@ public class SuccessfulConstructionMessage extends AbstractGameMessage {
     UUID uuid;
     String typeOfNode;
 
-    public SuccessfulConstructionMessage(int playerIndex, UUID uuid, String typeOfNode) {
+    public SuccessfulConstructionMessage(String gameName, User user, int playerIndex, UUID uuid, String typeOfNode) {
+        super(gameName, (UserDTO) user);
         this.playerIndex = playerIndex;
         this.uuid = uuid;
         this.typeOfNode = typeOfNode;

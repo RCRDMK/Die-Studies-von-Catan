@@ -2,8 +2,8 @@ package de.uol.swp.common.game.inventory;
 
 import de.uol.swp.common.user.User;
 
+import java.io.Serializable;
 import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Creates and manages the Inventory
@@ -11,7 +11,7 @@ import java.util.Map;
  * @author Anton
  * @since 2021-02-01
  */
-public class Inventory {
+public class Inventory implements Serializable {
 
     private User user;
 
@@ -129,9 +129,9 @@ public class Inventory {
      *
      * @return privateInventory
      */
-    public HashMap getPrivateView() {
+    public HashMap<String, Integer> getPrivateView() {
 
-        Map<String, Integer> privateInventory = new HashMap<>();
+        HashMap<String, Integer> privateInventory = new HashMap<>();
 
         // Resource Cards
         privateInventory.put("Lumber", lumber.getNumber());
@@ -148,14 +148,14 @@ public class Inventory {
         privateInventory.put("Victory Point Card", cardVictoryPoint);
 
         // Building Units
-        privateInventory.put("Citys", city.getNumber());
+        privateInventory.put("Cities", city.getNumber());
         privateInventory.put("Roads", road.getNumber());
         privateInventory.put("Settlements", settlement.getNumber());
 
         // Achievement
         privateInventory.put("Victory Points", victoryPoints);
 
-        return (HashMap) privateInventory;
+        return privateInventory;
     }
 
     /**
@@ -167,9 +167,9 @@ public class Inventory {
      *
      * @return publicInventory
      */
-    public HashMap getPublicView() {
+    public HashMap<String, Integer> getPublicView() {
 
-        Map<String, Integer> publicInventory = new HashMap<>();
+        HashMap<String, Integer> publicInventory = new HashMap<>();
 
         publicInventory.put("Resource", getResource());
         publicInventory.put("Development Cards", getDevelopmentCards());
@@ -186,38 +186,59 @@ public class Inventory {
         if (victoryPoints < cardVictoryPoint) publicInventory.put("Public Victory Points", 0);
         else publicInventory.put("Public Victory Points", victoryPoints - cardVictoryPoint);
 
-        return (HashMap) publicInventory;
+        return publicInventory;
     }
 
     /**
      * increases a specific Ressource Card by a specific amount
      * <p>
      * this method calls the Method incNumber(int) of the class Card
-     * String Card specifies the Ressource Card
-     * valid Strings: Lumber, Brick, Grain, Wool, Ore
+     * String Card specifies the Ressource Card and Development Cards
+     * valid Strings: Lumber, Brick, Grain, Wool, Ore, Knight, Monopoly, Road Building,
+     * Year of Plenty, Victory Point Card.
      *
+     * enhanced by Anton Nikiforov, Alexander Losse, Iskander Yusupov
+     * @since 2021-05-16
      * @param card   the name of the Ressource Card
      * @param amount how much of the Card should be increased
+     * @return true if valid resource name, false if not
      * @author Alexander Losse, Ricardo Mook
      * @since 2021-04-08
      */
-    public void incCard(String card, int amount) {
+    public boolean incCard(String card, int amount) {
         switch (card) {
             case "Lumber":
                 lumber.incNumber(amount);
-                break;
+                return true;
             case "Brick":
                 brick.incNumber(amount);
-                break;
+                return true;
             case "Grain":
                 grain.incNumber(amount);
-                break;
+                return true;
             case "Wool":
                 wool.incNumber(amount);
-                break;
+                return true;
             case "Ore":
                 ore.incNumber(amount);
-                break;
+                return true;
+            case "Knight":
+                cardKnight.incNumber(amount);
+                return true;
+            case "Monopoly":
+                cardMonopoly.incNumber(amount);
+                return true;
+            case "Road Building":
+                cardRoadBuilding.incNumber(amount);
+                return true;
+            case "Year of Plenty":
+                cardYearOfPlenty.incNumber(amount);
+                return true;
+            case "Victory Point Card":
+                incCardVictoryPoint();
+                return true;
+            default:
+                return false;
         }
     }
 
