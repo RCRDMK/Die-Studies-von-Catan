@@ -14,7 +14,40 @@ import org.apache.logging.log4j.Logger;
 /**
  * Service that handles all cheats.
  * <p>
- * It also has a function to detect a chatmessage as cheat.
+ * <h1>Cheatcodes with Examples:</h1>
+ *
+ * <h2><u>Cheatcode "givemecard"</u> </h2>
+ * <b>Usage:</b> givemecard [string] [int]<p>
+ * <b> e.g. givemecard knight 1</b><p>
+ * <b>possible strings:</b>
+ * lumber,
+ * brick,
+ * grain,
+ * wool,
+ * ore,
+ * monopoly,
+ * knight,
+ * roadbuilding,
+ * yearofplenty,
+ * victory
+ * <p><b>Gives the user [int] amount of the provided cards.</b></p>
+ *
+ *
+ * <p><h2><u>Cheatcode "givemeall"</u> </h2>
+ * <b>Usage:</b> givemeall [int]<p>
+ * <b>e.g. givemeall 15</b>
+ * <p><b>Gives user [int] ressources of each card and 1 of each development cards</b></p>
+ *
+ *
+ * <p><h2><u>Cheatcode "endgame 1"</u> </h2>
+ * <b>Usage:</b> endgame 1
+ * <p><b>Gives user 10 victory points and ends the game</b></p>
+ *
+ *
+ * <p><h2><u>Cheatcode "roll"</u> </h2>
+ * <b>Usage:</b> roll [int]<p>
+ * <b>e.g. roll 2</b>
+ * <p><b>Rolls the dice with the provided [int]</b></p>
  *
  * @author René Meyer, Sergej Tulnev
  * @see AbstractService
@@ -23,6 +56,29 @@ import org.apache.logging.log4j.Logger;
 @SuppressWarnings("UnstableApiUsage")
 @Singleton
 public class CheatService extends AbstractService {
+
+    private static final Logger LOG = LogManager.getLogger(UserService.class);
+    private final GameService gameService;
+
+    /**
+     * Constructor for CheatService
+     * <p>
+     *
+     * @param gameService
+     * @param bus         eventbus
+     * @author René Meyer, Sergej Tulnev
+     * @since 2021-04-17
+     */
+    @Inject
+    public CheatService(GameService gameService, EventBus bus) {
+        super(bus);
+        this.gameService = gameService;
+    }
+
+    private enum Cheat {
+        endgame, givemeall, givemecard, roll
+    }
+
     /**
      * Function that parses and executes the cheat
      * <p>
@@ -157,24 +213,6 @@ public class CheatService extends AbstractService {
         }
     }
 
-    private static final Logger LOG = LogManager.getLogger(UserService.class);
-    private final GameService gameService;
-
-    /**
-     * Constructor for CheatService
-     * <p>
-     *
-     * @param gameService
-     * @param bus         eventbus
-     * @author René Meyer, Sergej Tulnev
-     * @since 2021-04-17
-     */
-    @Inject
-    public CheatService(GameService gameService, EventBus bus) {
-        super(bus);
-        this.gameService = gameService;
-    }
-
     /**
      * Checks if the chatmessage is a cheat.
      * <p>
@@ -204,43 +242,4 @@ public class CheatService extends AbstractService {
         return false;
     }
 
-    /**
-     * <h1>Cheatcodes with Examples:</h1>
-     *
-     * <h2><u>Cheatcode "givemecard"</u> </h2>
-     * <b>Usage:</b> givemecard [string] [int]<p>
-     * <b> e.g. givemecard knight 1</b><p>
-     * <b>possible strings:</b>
-     * lumber,
-     * brick,
-     * grain,
-     * wool,
-     * ore,
-     * monopoly,
-     * knight,
-     * roadbuilding,
-     * yearofplenty,
-     * victory
-     * <p><b>Gives the user [int] amount of the provided cards.</b></p>
-     *
-     *
-     * <p><h2><u>Cheatcode "givemeall"</u> </h2>
-     * <b>Usage:</b> givemeall [int]<p>
-     * <b>e.g. givemeall 15</b>
-     * <p><b>Gives user [int] ressources of each card and 1 of each development cards</b></p>
-     *
-     *
-     * <p><h2><u>Cheatcode "endgame 1"</u> </h2>
-     * <b>Usage:</b> endgame 1
-     * <p><b>Gives user 10 victory points and ends the game</b></p>
-     *
-     *
-     * <p><h2><u>Cheatcode "roll"</u> </h2>
-     * <b>Usage:</b> roll [int]<p>
-     * <b>e.g. roll 2</b>
-     * <p><b>Rolls the dice with the provided [int]</b></p>
-     */
-    private enum Cheat {
-        endgame, givemeall, givemecard, roll
-    }
 }
