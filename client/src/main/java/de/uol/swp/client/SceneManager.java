@@ -22,7 +22,6 @@ import de.uol.swp.client.message.UnmuteMusicMessage;
 import de.uol.swp.client.register.RegistrationPresenter;
 import de.uol.swp.client.register.event.RegistrationCanceledEvent;
 import de.uol.swp.client.register.event.RegistrationErrorEvent;
-import de.uol.swp.client.register.event.ShowGameRulesEvent;
 import de.uol.swp.client.register.event.ShowRegistrationViewEvent;
 import de.uol.swp.common.game.message.TradeEndedMessage;
 import de.uol.swp.common.user.User;
@@ -351,13 +350,12 @@ public class SceneManager {
      * @see GameRulesPresenter
      * @since 2021-05-18
      */
-    private void initGameRulesView() {
-        if (userGameRulesScene == null) {
-            Parent rootPane = initPresenter(GameRulesPresenter.fxml);
-            userGameRulesScene = new Scene(rootPane, 800, 500);
-            userGameRulesScene.getStylesheets().add(styleSheet);
-            rootPane.getStyleClass().add("Game Rules");
-        }
+    private Scene initGameRulesView() {
+        Parent rootPane = initPresenter(GameRulesPresenter.fxml);
+        userGameRulesScene = new Scene(rootPane, 800, 500);
+        userGameRulesScene.getStylesheets().add(styleSheet);
+        rootPane.getStyleClass().add("Game Rules");
+        return lobbyScene;
     }
 
     /*
