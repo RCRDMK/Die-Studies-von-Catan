@@ -214,15 +214,23 @@ public class MapGraph implements Serializable {
      * Traderoute"-Flag.
      * </p>
      *
-     * @return The integer representing the index of the player with the longest road, inside the ArrayList of players
-     * in the GameDTO.
+     * enhanced by Marc Hermes 2021-05-19
+     *
+     * @return The int array representing the index of the player with the longest road, as well as the length of the longest road. [0] -> the PlayerIndex, [1] -> the length
      * @author Pieter Vogt
      * @see de.uol.swp.common.game.dto.GameDTO
      * @since 2021-04-02
      */
-    public int returnPlayerWithLongestRoad() {
-        //TODO:This needs to be implemented in a separate ticket some time soon.
-        return 666; //nonsense-value
+    public int[] returnPlayerWithLongestRoad() {
+        int[] returnValue = new int[2];
+        for(int i = 0; i < 4; i++) {
+            int length = longestStreetPathCalculator.getLongestPath(i);
+            if(length > returnValue[1]) {
+                returnValue[1] = length;
+                returnValue[0] = i;
+            }
+        }
+        return returnValue;
     }
 
     public ArrayList<BuildingNode> getBuiltBuildings() {

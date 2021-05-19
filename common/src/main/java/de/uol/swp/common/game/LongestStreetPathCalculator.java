@@ -388,8 +388,6 @@ public class LongestStreetPathCalculator implements Serializable {
             if (size < list.size()) {
                 size = list.size();
             }
-            if (size == list.size()) {
-            }
         }
         return size;
     }
