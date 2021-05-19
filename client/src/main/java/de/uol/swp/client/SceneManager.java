@@ -905,6 +905,20 @@ public class SceneManager {
     }
 
     /**
+     * Removes an old GameRules tab
+     * <p>
+     * When this method is invoked a GameRules tab, is removed the old GameRules tab
+     *
+     * @author Sergej Tulnev
+     * @since 2021-05-19
+     */
+    public void removeGameRulesTab() {
+        Platform.runLater(() -> {
+            tabHelper.removeTab("GameRules ");
+        });
+    }
+
+    /**
      * Suspends a certain lobby Tab
      * <p>
      * When this method is invoked the tabHelper is used to suspend a lobby Tab.
