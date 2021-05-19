@@ -23,7 +23,7 @@ public interface ServerUserService {
      * @author Marco Grawunder
      * @since 2017-03-17
      */
-    User login(String username, String password) throws SQLException;
+    User login(String username, String password) throws Exception;
 
 
     /**
@@ -56,7 +56,7 @@ public interface ServerUserService {
      * remove the correct user
      * @since 2019-09-02
      */
-    User createUser(User user) throws SQLException;
+    User createUser(User user) throws Exception;
 
     /**
      * Removes a user from the sore
@@ -69,7 +69,7 @@ public interface ServerUserService {
      * remove the correct user
      * @since 2019-10-10
      */
-    void dropUser(User user) throws SQLException;
+    void dropUser(User user) throws Exception;
 
     /**
      * Update a user
@@ -86,7 +86,7 @@ public interface ServerUserService {
      * update the correct user
      * @since 2019-09-02
      */
-    User updateUserMail(User user) throws SQLException;
+    User updateUserMail(User user) throws SQLException, Exception;
 
     /**
      * Update a user
@@ -105,7 +105,7 @@ public interface ServerUserService {
      * update the correct user
      * @since 2019-09-02
      */
-    User updateUserPassword(User user, String password) throws SQLException;
+    User updateUserPassword(User user, String password) throws Exception;
 
     /**
      * Update a user
@@ -119,7 +119,7 @@ public interface ServerUserService {
      * @return the updated user object
      * @since 2021-04-15
      */
-    User updateUserPicture(User user) throws SQLException;
+    User updateUserPicture(User user) throws SQLException, Exception;
 
     /**
      * Retrieve the list of all current logged in users
@@ -137,5 +137,5 @@ public interface ServerUserService {
      * @author Carsten Dekker
      * @since 2021-03-11
      */
-    User retrieveUserInformation(User user) throws SQLException;
+    User retrieveUserInformation(User user) throws SQLException, Exception;
 }

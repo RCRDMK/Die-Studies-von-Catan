@@ -37,7 +37,7 @@ class MainMemoryBasedUserStoreTest {
     }
 
     @Test
-    void findUserByName() throws SQLException {
+    void findUserByName() throws Exception {
         // arrange
         UserStore store = getDefaultStore();
         User userToCreate = getDefaultUsers().get(0);
@@ -52,7 +52,7 @@ class MainMemoryBasedUserStoreTest {
     }
 
     @Test
-    void findUserByName_NotFound() throws SQLException {
+    void findUserByName_NotFound() throws Exception {
         UserStore store = getDefaultStore();
         User userToFind = getDefaultUsers().get(0);
 
@@ -62,7 +62,7 @@ class MainMemoryBasedUserStoreTest {
     }
 
     @Test
-    void findUserByNameAndPassword() throws SQLException {
+    void findUserByNameAndPassword() throws Exception {
         UserStore store = getDefaultStore();
         User userToCreate = getDefaultUsers().get(1);
         store.createUser(userToCreate.getUsername(), userToCreate.getPassword(), userToCreate.getEMail());
@@ -75,7 +75,7 @@ class MainMemoryBasedUserStoreTest {
     }
 
     @Test
-    void findUserByNameAndPassword_NotFound() throws SQLException {
+    void findUserByNameAndPassword_NotFound() throws Exception {
         UserStore store = getDefaultStore();
         User userToFind = getDefaultUsers().get(0);
 
@@ -85,7 +85,7 @@ class MainMemoryBasedUserStoreTest {
     }
 
     @Test
-    void findUserByNameAndPassword_EmptyUser_NotFound() throws SQLException {
+    void findUserByNameAndPassword_EmptyUser_NotFound() throws Exception {
         UserStore store = getDefaultStore();
 
         Optional<User> userFound = store.findUser(null, "");
@@ -95,7 +95,7 @@ class MainMemoryBasedUserStoreTest {
 
 
     @Test
-    void overwriteUser() throws SQLException {
+    void overwriteUser() throws Exception {
         UserStore store = getDefaultStore();
         User userToCreate = getDefaultUsers().get(1);
         store.createUser(userToCreate.getUsername(), userToCreate.getPassword(), userToCreate.getEMail());
@@ -111,7 +111,7 @@ class MainMemoryBasedUserStoreTest {
 
 
     @Test
-    void updateUser() throws SQLException {
+    void updateUser() throws Exception {
         UserStore store = getDefaultStore();
         User userToUpdate = getDefaultUsers().get(2);
 
@@ -126,7 +126,7 @@ class MainMemoryBasedUserStoreTest {
     }
 
     @Test
-    void changePassword() throws SQLException {
+    void changePassword() throws Exception {
         UserStore store = getDefaultStore();
         User userToUpdate = getDefaultUsers().get(2);
 
@@ -142,7 +142,7 @@ class MainMemoryBasedUserStoreTest {
     }
 
     @Test
-    void dropUser() throws SQLException {
+    void dropUser() throws Exception {
         UserStore store = getDefaultStore();
         User userToRemove = getDefaultUsers().get(3);
 

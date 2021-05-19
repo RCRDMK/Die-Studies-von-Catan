@@ -24,7 +24,7 @@ public interface UserStore {
      * @author Marco Grawunder
      * @since 2019-08-13
      */
-    Optional<User> findUser(String username, String password) throws SQLException;
+    Optional<User> findUser(String username, String password) throws Exception;
 
     /**
      * Find a user only by name
@@ -34,7 +34,7 @@ public interface UserStore {
      * @author Marco Grawunder
      * @since 2019-08-13
      */
-    Optional<User> findUser(String username) throws SQLException;
+    Optional<User> findUser(String username) throws SQLException, Exception;
 
     /**
      * Create a new user
@@ -46,19 +46,7 @@ public interface UserStore {
      * @author Marco Grawunder
      * @since 2019-08-13
      */
-    User createUser(String username, String password, String eMail) throws SQLException;
-
-    /**
-     * Update user. Update only given fields. Username cannot be changed
-     *
-     * @param username username of the user to be modified
-     * @param password new password
-     * @param eMail    new email address
-     * @return The User without password information
-     * @author Marco Grawunder
-     * @since 2019-08-13
-     */
-    User updateUser(String username, String password, String eMail) throws SQLException;
+    User createUser(String username, String password, String eMail) throws SQLException, Exception;
 
     /**
      * Remove user from store
@@ -67,8 +55,10 @@ public interface UserStore {
      * @author Marco Grawunder
      * @since 2019-10-10
      */
-    void removeUser(String username) throws SQLException;
+    void removeUser(String username) throws Exception;
 
+
+    User retrieveUserInformation(String username) throws Exception;
 
     /**
      * Retrieves the list of all users.
@@ -79,5 +69,10 @@ public interface UserStore {
      */
     List<User> getAllUsers() throws SQLException;
 
+    User updateUserMail(String username, String eMail) throws SQLException;
+
+    User updateUserPassword(String username, String password) throws SQLException;
+
+    User updateUserPicture(String username, int profilePictureID) throws SQLException;
 
 }

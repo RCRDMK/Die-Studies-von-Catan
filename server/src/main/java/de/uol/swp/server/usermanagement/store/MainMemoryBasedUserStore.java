@@ -4,6 +4,7 @@ import com.google.common.base.Strings;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 
+import java.sql.SQLException;
 import java.util.*;
 
 /**
@@ -48,14 +49,9 @@ public class MainMemoryBasedUserStore extends AbstractUserStore implements UserS
         if (Strings.isNullOrEmpty(username)) {
             throw new IllegalArgumentException("Username must not be null");
         }
-        User usr = new UserDTO(username, hash(password), eMail);
+        User usr = new UserDTO(username, hash(password), eMail, 1);
         users.put(username, usr);
         return usr;
-    }
-
-    @Override
-    public User updateUser(String username, String password, String eMail) {
-        return createUser(username, password, eMail);
     }
 
     @Override
@@ -70,4 +66,23 @@ public class MainMemoryBasedUserStore extends AbstractUserStore implements UserS
         return retUsers;
     }
 
+    @Override
+    public User retrieveUserInformation(String username) {
+        return new UserDTO(username, "", users.get(username).getEMail(), users.get(username).getProfilePictureID());
+    }
+
+    @Override
+    public User updateUserMail(String username, String eMail) {
+
+    }
+
+    @Override
+    public User updateUserPassword(String username, String password) {
+
+    }
+
+    @Override
+    public User updateUserPicture(String username, int profilePictureID) {
+
+    }
 }

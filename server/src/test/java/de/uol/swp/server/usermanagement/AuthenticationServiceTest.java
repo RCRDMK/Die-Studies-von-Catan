@@ -38,7 +38,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("UnstableApiUsage")
 class AuthenticationServiceTest {
-
+/*
     private final CountDownLatch lock = new CountDownLatch(1);
 
     final User user = new UserDTO("name", "7a63639a836e576ee85336536040ce3b351fa0af1315f7c97e2956a298c72aced9acaae7be8fc36ba66bd20cd459a7321785c5a4af35ce6a620549f8f9d6c7dc", "email@test.de");
@@ -151,7 +151,7 @@ class AuthenticationServiceTest {
      * @author Sergej, René
      * @see javax.security.auth.login.LoginException
      * @since 2021-01-03
-     */
+
     @Test
     void loginLoggedInUser() throws SQLException, InterruptedException {
         loginUser(user);
@@ -269,7 +269,9 @@ class AuthenticationServiceTest {
      *
      * @author René Meyer, Sergej Tulnev
      * @since 2021-01-17
-     */
+
+ */
+    /*
     @Test
     @DisplayName("X Button exit")
     void exitViaXButtonTest() throws SQLException, InterruptedException {
@@ -351,4 +353,5 @@ class AuthenticationServiceTest {
         userManagement.dropUser(user);
         userManagement.dropUser(user3);
     }
+    */
 }

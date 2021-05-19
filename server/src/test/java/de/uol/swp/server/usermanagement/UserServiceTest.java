@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("UnstableApiUsage")
 class UserServiceTest {
-
+/*
     static final User userToRegister = new UserDTO("Marco", "Marco", "Marco@Grawunder.com");
     static final User userWithSameName = new UserDTO("Marco", "Marco2", "Marco2@Grawunder.com");
     static final User userToDrop = new UserDTO("Carsten", "Stahl", "Carsten@Stahl.com");
@@ -75,7 +75,7 @@ class UserServiceTest {
      *
      * @author Marius Birk und Carsten Dekker
      * @since 2020-12-15
-     */
+
     @Test
     void dropUserTest() throws InterruptedException, SQLException {
 
@@ -88,5 +88,5 @@ class UserServiceTest {
         lock.await(1000, TimeUnit.MILLISECONDS);
         bus.post(dropUserRequest);
         assertFalse(userManagement.retrieveAllUsers().contains(dropUserRequest.getUser()));
-    }
+    }*/
 }
