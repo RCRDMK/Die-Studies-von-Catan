@@ -11,8 +11,6 @@ import de.uol.swp.server.usermanagement.UserService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.ArrayList;
-
 /**
  * Service that handles all cheats.
  * <p>
@@ -25,32 +23,17 @@ import java.util.ArrayList;
 @SuppressWarnings("UnstableApiUsage")
 @Singleton
 public class CheatService extends AbstractService {
-    private static final Logger LOG = LogManager.getLogger(UserService.class);
-
-    private final ArrayList<String> cheatList = new CheatList().get();
-    private final GameService gameService;
-
-    /**
-     * Constructor for CheatService
-     * <p>
-     * @author René Meyer, Sergej Tulnev
-     * @since 2021-04-17
-     * @param gameService
-     * @param bus eventbus
-     */
-    @Inject
-    public CheatService(GameService gameService, EventBus bus) {
-        super(bus);
-        this.gameService = gameService;
-    }
-
     /**
      * Function that parses and executes the cheat
      * <p>
-     * Check for different cheats and execute.
+     * Check for different cheats and execute.<p>
+     * For the roll Cheat we call the onRollDiceRequest with the cheatEyesArgument<p>
+     * For the endgame Cheat we give the user who sent the cheat 10 victory points to trigger a win <p>
+     * For the givemeall and givemecard Cheat we manipulate the private Inventory and update the Inventories in the gameService
+     *
+     * @param cheatMessage
      * @author René Meyer, Sergej Tulnev
      * @since 2021-04-17
-     * @param cheatMessage
      */
     public void parseExecuteCheat(RequestChatMessage cheatMessage) {
         // parse CheatPrefix
@@ -61,10 +44,6 @@ public class CheatService extends AbstractService {
         // Cheats only get executed when they are typed in a game chat. For that we check for the game_ prefix
         if (gameNameArray.length > 1) {
             var gameName = gameNameArray[1];
-            // Cheatcode "roll"
-            // Usage: roll [int]
-            //   e.g. roll 2
-
             // Check that roll cheatMessage has correct 2 arguments
             if (cheatPrefix.equals("roll") && cheatMessageSplit.length == 2) {
                 var cheatEyesArgument = cheatMessage.getMessage().split("\\s")[1];
@@ -75,9 +54,6 @@ public class CheatService extends AbstractService {
                     gameService.onRollDiceRequest(rollDiceRequest);
                 }
             }
-            // Cheatcode "endgame 1"
-            // Usage: endgame [int]
-            //   e.g. endgame 1
 
             // Check that endgame cheatMessage has correct 2 arguments
             else if (cheatPrefix.equals("endgame") && cheatMessageSplit.length == 2) {
@@ -97,10 +73,6 @@ public class CheatService extends AbstractService {
                     }
                 }
             }
-            // Cheatcode "givemeall"
-            // Usage: givemeall [int]
-            //   e.g. givemeall 15
-            // Gives user [int] ressources of each card and 1 of each development cards
 
             // Check that givemeall cheatMessage has correct 2 arguments
             else if (cheatPrefix.equals("givemeall") && cheatMessageSplit.length == 2) {
@@ -129,9 +101,6 @@ public class CheatService extends AbstractService {
                     }
                 }
             }
-            // Cheatcode "givemecard"
-            // Usage: givemecard [string] [int]
-            //   e.g. givemecard knight 1
             // Gives the user [int] of the provided cards.
 
             // Check that givemecard cheatMessage has correct 3 arguments
@@ -188,11 +157,29 @@ public class CheatService extends AbstractService {
         }
     }
 
+    private static final Logger LOG = LogManager.getLogger(UserService.class);
+    private final GameService gameService;
+
+    /**
+     * Constructor for CheatService
+     * <p>
+     *
+     * @param gameService
+     * @param bus         eventbus
+     * @author René Meyer, Sergej Tulnev
+     * @since 2021-04-17
+     */
+    @Inject
+    public CheatService(GameService gameService, EventBus bus) {
+        super(bus);
+        this.gameService = gameService;
+    }
+
     /**
      * Checks if the chatmessage is a cheat.
      * <p>
      * Parses the chatmessage and checks the prefix before the space.
-     * If the prefix is equal to an existing cheatcommand in the cheatList return true
+     * If the prefix is equal to an existing cheatcommand in the Cheat Enum return true
      * else false.
      * If the cheatcommand is without argument return false
      *
@@ -202,10 +189,10 @@ public class CheatService extends AbstractService {
      * @return true or false
      */
     public boolean isCheat(RequestChatMessage cheatMessage) {
-        for (String cheatCode : cheatList) {
+        for (Cheat cheatCode : Cheat.values()) {
             try {
                 var cheatPrefix = cheatMessage.getMessage().split("\\s")[0];
-                if (cheatPrefix.equals(cheatCode)) {
+                if (cheatPrefix.equals(cheatCode.name())) {
                     var cheatArgument = cheatMessage.getMessage().split("\\s")[1];
                     return true;
                 }
@@ -215,5 +202,45 @@ public class CheatService extends AbstractService {
             }
         }
         return false;
+    }
+
+    /**
+     * <h1>Cheatcodes with Examples:</h1>
+     *
+     * <h2><u>Cheatcode "givemecard"</u> </h2>
+     * <b>Usage:</b> givemecard [string] [int]<p>
+     * <b> e.g. givemecard knight 1</b><p>
+     * <b>possible strings:</b>
+     * lumber,
+     * brick,
+     * grain,
+     * wool,
+     * ore,
+     * monopoly,
+     * knight,
+     * roadbuilding,
+     * yearofplenty,
+     * victory
+     * <p><b>Gives the user [int] amount of the provided cards.</b></p>
+     *
+     *
+     * <p><h2><u>Cheatcode "givemeall"</u> </h2>
+     * <b>Usage:</b> givemeall [int]<p>
+     * <b>e.g. givemeall 15</b>
+     * <p><b>Gives user [int] ressources of each card and 1 of each development cards</b></p>
+     *
+     *
+     * <p><h2><u>Cheatcode "endgame 1"</u> </h2>
+     * <b>Usage:</b> endgame 1
+     * <p><b>Gives user 10 victory points and ends the game</b></p>
+     *
+     *
+     * <p><h2><u>Cheatcode "roll"</u> </h2>
+     * <b>Usage:</b> roll [int]<p>
+     * <b>e.g. roll 2</b>
+     * <p><b>Rolls the dice with the provided [int]</b></p>
+     */
+    private enum Cheat {
+        endgame, givemeall, givemecard, roll
     }
 }
