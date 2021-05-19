@@ -25,16 +25,11 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.geometry.HPos;
-import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
-import javafx.scene.control.Button;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
@@ -1229,19 +1224,75 @@ public class GamePresenter extends AbstractPresenter {
     }
 
     /**
+     * Method to initialize the GameField of this GamePresenter of this client
+     * <p>
+     * First creates the tfArray, then iterates over the terrainFieldContainers of the gameField to get the diceTokens
+     * values and copies them to the tfArray of this GamePresenter. Then the values of the fieldTypes are checked and
+     * translated into the correct String names of the tfArray TerrainFields.
+     * <p>
+     * Enhanced, with a drawing of a robber
+     *
+     * @param mapGraph the MapGraph created by the Server
+     *
+     * @author Marius Birk
+     * @author Marc Hermes
+     * @see de.uol.swp.common.game.GameField
+     * @see de.uol.swp.client.game.GameObjects.TerrainField
+     * @see de.uol.swp.common.game.TerrainFieldContainer
+     * @since 2021-04-20
+     */
+    public void initializeMatch(MapGraph mapGraph) {
+
+        //Setting up the HexagonContainers
+        LOG.debug("Setting up " + mapGraph.getHexagonHashSet().size() + " HexagonContainers...");
+
+        for (MapGraph.Hexagon hexagon : mapGraph.getHexagonHashSet()) {
+            HexagonContainer hexagonContainer = new HexagonContainer(hexagon, cardSize());
+            this.hexagonContainers.add(hexagonContainer);
+            Platform.runLater(() -> gameAnchorPane.getChildren().add(hexagonContainer.getHexagonShape()));
+        }
+
+        //Setting up the BuildingNodeContainers
+        System.out.println("Setting up " + mapGraph.getBuildingNodeHashSet().size() + " BuildingNodeContainers...");
+
+        for (MapGraph.BuildingNode buildingNode : mapGraph.getBuildingNodeHashSet()) {
+            MapGraphNodeContainer mapGraphNodeContainer = new MapGraphNodeContainer(new Circle(cardSize() / 6), buildingNode);
+            this.mapGraphNodeContainers.add(mapGraphNodeContainer);
+            Platform.runLater(() -> gameAnchorPane.getChildren().add(mapGraphNodeContainer.getCircle()));
+        }
+
+        //Setting up the StreetNodeContainers
+        System.out.println("Setting up " + mapGraph.getStreetNodeHashSet().size() + " StreetNodeContainers...");
+
+        for (MapGraph.StreetNode streetNode : mapGraph.getStreetNodeHashSet()) {
+            MapGraphNodeContainer mapGraphNodeContainer = new MapGraphNodeContainer(new Circle(cardSize() / 8), streetNode);
+            this.mapGraphNodeContainers.add(mapGraphNodeContainer);
+            Platform.runLater(() -> gameAnchorPane.getChildren().add(mapGraphNodeContainer.getCircle()));
+        }
+        initializeNodeSpots();
+        //Draw robber
+        //Initialize the robber graphics
+        robber = new Rectangle(25, 25);
+        robber.setFill(new ImagePattern(new Image("textures/originals/robbers.png")));
+        robber.setVisible(true);
+
+        draw();
+    }
+
+    /**
      * Method to draw buildings to the screen.
      * <p>
-     * Creates the Spots (Circles) for the Buildings and streets. If a Circle is clicked, the gameService will be called to request the building of a street/building.
-     * If a circle is clicked during the resolution of the Road Building developmentCard, a bigger circle(black/red) will be temporarily placed above the street building spot.
+     * Creates the Spots (Circles) for the Buildings and streets. If a Circle is clicked, the gameService will be called
+     * to request the building of a street/building. If a circle is clicked during the resolution of the Road Building
+     * developmentCard, a bigger circle(black/red) will be temporarily placed above the street building spot.
      *
      * <p>
-     * enhanced by Marc Hermes 2021-03-31
-     * enhanced by Marc Hermes 2021-05-04
+     * enhanced by Marc Hermes 2021-03-31 enhanced by Marc Hermes 2021-05-04
      *
      * @author Kirstin
      * @since 2021-03-28
      */
-    public void initializeNodeSpots(Object o) {
+    public void initializeNodeSpots() {
 
         EventHandler<MouseEvent> clickOnCircleHandler = new EventHandler<MouseEvent>() {
             @Override
@@ -1285,63 +1336,6 @@ public class GamePresenter extends AbstractPresenter {
         for (MapGraphNodeContainer container : mapGraphNodeContainers) {
             container.getCircle().setOnMouseClicked(clickOnCircleHandler);
         }
-    }
-
-    /**
-     * Method to initialize the GameField of this GamePresenter of this client
-     * <p>
-     * First creates the tfArray, then iterates over the terrainFieldContainers of the gameField to get the diceTokens
-     * values and copies them to the tfArray of this GamePresenter. Then the values of the fieldTypes are checked and
-     * translated into the correct String names of the tfArray TerrainFields.
-     * <p>
-     * Enhanced, with a drawing of a robber
-     *
-     * @param mapGraph the MapGraph created by the Server
-     * @author Marius Birk
-     * @author Marc Hermes
-     * @see de.uol.swp.common.game.GameField
-     * @see de.uol.swp.client.game.GameObjects.TerrainField
-     * @see de.uol.swp.common.game.TerrainFieldContainer
-     * @since 2021-04-20
-     */
-    public void initializeMatch(MapGraph mapGraph) {
-
-        //Setting up the HexagonContainers
-        System.out.println("Setting up " + mapGraph.getHexagonHashSet().size() + " HexagonContainers...");
-
-        for (MapGraph.Hexagon hexagon : mapGraph.getHexagonHashSet()) {
-            HexagonContainer hexagonContainer = new HexagonContainer(hexagon, cardSize());
-            this.hexagonContainers.add(hexagonContainer);
-            Platform.runLater(() -> gameAnchorPane.getChildren().add(hexagonContainer.getHexagonShape()));
-        }
-
-        //Setting up the BuildingNodeContainers
-        System.out.println("Setting up " + mapGraph.getBuildingNodeHashSet().size() + " BuildingNodeContainers...");
-
-        for (MapGraph.BuildingNode buildingNode : mapGraph.getBuildingNodeHashSet()) {
-            MapGraphNodeContainer mapGraphNodeContainer = new MapGraphNodeContainer(new Circle(cardSize() / 6), buildingNode);
-            this.mapGraphNodeContainers.add(mapGraphNodeContainer);
-            initializeNodeSpots(mapGraphNodeContainer);
-            Platform.runLater(() -> gameAnchorPane.getChildren().add(mapGraphNodeContainer.getCircle()));
-        }
-
-        //Setting up the StreetNodeContainers
-        System.out.println("Setting up " + mapGraph.getStreetNodeHashSet().size() + " StreetNodeContainers...");
-
-        for (MapGraph.StreetNode streetNode : mapGraph.getStreetNodeHashSet()) {
-            MapGraphNodeContainer mapGraphNodeContainer = new MapGraphNodeContainer(new Circle(cardSize() / 8), streetNode);
-            this.mapGraphNodeContainers.add(mapGraphNodeContainer);
-            initializeNodeSpots(mapGraphNodeContainer);
-            Platform.runLater(() -> gameAnchorPane.getChildren().add(mapGraphNodeContainer.getCircle()));
-        }
-
-        //Draw robber
-        //Initialize the robber graphics
-        robber = new Rectangle(25, 25);
-        robber.setFill(new ImagePattern(new Image("textures/originals/robbers.png")));
-        robber.setVisible(true);
-
-        draw();
     }
 
     @Subscribe

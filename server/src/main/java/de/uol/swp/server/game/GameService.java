@@ -133,7 +133,8 @@ public class GameService extends AbstractService {
     /**
      * Handles incoming build requests.
      *
-     * @param message
+     * @param message Contains the data needed to change the mapGraph
+     *
      * @author Pieter Vogt
      * @since 2021-04-15
      */

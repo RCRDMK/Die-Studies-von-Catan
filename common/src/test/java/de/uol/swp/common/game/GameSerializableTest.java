@@ -6,10 +6,8 @@ import de.uol.swp.common.game.message.*;
 import de.uol.swp.common.game.request.*;
 import de.uol.swp.common.game.response.*;
 import de.uol.swp.common.user.UserDTO;
-import org.checkerframework.checker.units.qual.A;
 import org.junit.jupiter.api.Test;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
@@ -37,8 +35,6 @@ public class GameSerializableTest {
                 GameSizeChangedMessage.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new GameStartedMessage(),
                 GameStartedMessage.class));
-        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new MapGraphChangedMessage(),
-                MapGraphChangedMessage.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new NotEnoughPlayersMessage("test"),
                 NotEnoughPlayersMessage.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new ResolveDevelopmentCardMessage(),
