@@ -75,10 +75,11 @@ public class GameService extends AbstractService {
 
     @Subscribe
     public void onGameLeaveUserRequest(GameLeaveUserRequest gameLeaveUserRequest) {
-        Optional<Game> game = gameManagement.getGame(gameLeaveUserRequest.getName());
+        Optional<Game> optionalGame = gameManagement.getGame(gameLeaveUserRequest.getName());
         Optional<Lobby> lobby = lobbyService.getLobby(gameLeaveUserRequest.getName());
-        if (game.isPresent()) {
-            if (game.get().getUsers().size() == 1) {
+        if (optionalGame.isPresent()) {
+            Game game = optionalGame.get();
+            if (game.getUsers().size() == 1) {
                 if (gameLeaveUserRequest.getMessageContext().isPresent()) {
                     Optional<MessageContext> ctx = gameLeaveUserRequest.getMessageContext();
                     sendToSpecificUser(ctx.get(), new GameLeftSuccessfulResponse(gameLeaveUserRequest.getName(), gameLeaveUserRequest.getUser()));
@@ -86,7 +87,7 @@ public class GameService extends AbstractService {
                     lobby.ifPresent(value -> value.setGameStarted(false));
                     sendToAll(new GameDroppedMessage(gameLeaveUserRequest.getName()));
                 }
-            } else if (game.get().getUsers() == null) {
+            } else if (game.getUsers() == null) {
                 gameManagement.dropGame(gameLeaveUserRequest.getName());
                 lobby.ifPresent(value -> value.setGameStarted(false));
                 sendToAll(new GameDroppedMessage(gameLeaveUserRequest.getName()));
@@ -96,10 +97,10 @@ public class GameService extends AbstractService {
                     Optional<MessageContext> ctx = gameLeaveUserRequest.getMessageContext();
                     sendToSpecificUser(ctx.get(), new GameLeftSuccessfulResponse(gameLeaveUserRequest.getName(), gameLeaveUserRequest.getUser()));
                 }
-                game.get().leaveUser(gameLeaveUserRequest.getUser());
+                game.leaveUser(gameLeaveUserRequest.getUser());
                 sendToAll(new GameSizeChangedMessage(gameLeaveUserRequest.getName()));
                 ArrayList<UserDTO> usersInGame = new ArrayList<>();
-                for (User user : game.get().getUsers()) usersInGame.add((UserDTO) user);
+                for (User user : game.getUsers()) usersInGame.add((UserDTO) user);
                 sendToAllInGame(gameLeaveUserRequest.getName(), new UserLeftGameMessage(gameLeaveUserRequest.getName(), gameLeaveUserRequest.getUser(), usersInGame));
             }
         } else {
@@ -120,9 +121,10 @@ public class GameService extends AbstractService {
      */
     @Subscribe
     public void onRetrieveAllThisGameUsersRequest(RetrieveAllThisGameUsersRequest retrieveAllThisGameUsersRequest) {
-        Optional<Game> game = gameManagement.getGame(retrieveAllThisGameUsersRequest.getName());
-        if (game.isPresent()) {
-            List<Session> gameUsers = authenticationService.getSessions(game.get().getUsers());
+        Optional<Game> optionalGame = gameManagement.getGame(retrieveAllThisGameUsersRequest.getName());
+        if (optionalGame.isPresent()) {
+            Game game = optionalGame.get();
+            List<Session> gameUsers = authenticationService.getSessions(game.getUsers());
             if (retrieveAllThisGameUsersRequest.getMessageContext().isPresent()) {
                 Optional<MessageContext> ctx = retrieveAllThisGameUsersRequest.getMessageContext();
                 sendToSpecificUser(ctx.get(), new AllThisGameUsersResponse(gameUsers, retrieveAllThisGameUsersRequest.getName()));
@@ -133,51 +135,54 @@ public class GameService extends AbstractService {
     /**
      * Handles incoming build requests.
      *
-     * @param message
+     * @param message the construction request detected on the event bus
      * @author Pieter Vogt
      * @since 2021-04-15
      */
     @Subscribe
     public boolean onConstructionMessage(ConstructionRequest message) {
         LOG.debug("Received new ConstructionMessage from user " + message.getUser());
-        Optional<Game> game = gameManagement.getGame(message.getGame());
-        int playerIndex = 666;
-        if (message.getUuid() != null) {
-            for (int i = 0; i < game.get().getUsersList().size(); i++) {
-                if (game.get().getUsersList().get(i).equals(message.getUser())) {
-                    playerIndex = i;
-                    break;
+        Optional<Game> optionalGame = gameManagement.getGame(message.getGame());
+        if (optionalGame.isPresent()) {
+            Game game = optionalGame.get();
+            int playerIndex = 666;
+            if (message.getUuid() != null) {
+                for (int i = 0; i < game.getUsersList().size(); i++) {
+                    if (game.getUsersList().get(i).equals(message.getUser())) {
+                        playerIndex = i;
+                        break;
+                    }
                 }
-            }
-            try {
-                if (message.getTypeOfNode().equals("BuildingNode")) { //If the node from the message is a building node...
-                    for (MapGraph.BuildingNode buildingNode : game.get().getMapGraph().getBuildingNodeHashSet()) {
-                        if (message.getUuid().equals(buildingNode.getUuid())) { // ... and if the node in the message is a node in the MapGraph BuildingNodeSet...
-                            if (buildingNode.buildOrDevelopSettlement(playerIndex)) {
-                                game.get().getMapGraph().addBuiltBuilding(buildingNode);
-                                sendToAllInGame(game.get().getName(), new SuccessfulConstructionMessage(game.get().getName(), message.getUser().getWithoutPassword(), playerIndex,
-                                        message.getUuid(), "BuildingNode"));
-                                return true;
+                try {
+                    if (message.getTypeOfNode().equals("BuildingNode")) { //If the node from the message is a building node...
+                        for (MapGraph.BuildingNode buildingNode : game.getMapGraph().getBuildingNodeHashSet()) {
+                            if (message.getUuid().equals(buildingNode.getUuid())) { // ... and if the node in the message is a node in the MapGraph BuildingNodeSet...
+                                if (buildingNode.buildOrDevelopSettlement(playerIndex)) {
+                                    game.getMapGraph().addBuiltBuilding(buildingNode);
+                                    sendToAllInGame(game.getName(), new SuccessfulConstructionMessage(game.getName(), message.getUser().getWithoutPassword(), playerIndex,
+                                            message.getUuid(), "BuildingNode"));
+                                    return true;
+                                }
+                            }
+                        }
+                    } else {
+                        for (MapGraph.StreetNode streetNode : game.getMapGraph().getStreetNodeHashSet()) {
+                            if (message.getUuid().equals(streetNode.getUuid())) {
+                                if (streetNode.buildRoad(playerIndex)) {
+                                    sendToAllInGame(game.getName(), new SuccessfulConstructionMessage(game.getName(), message.getUser().getWithoutPassword(), playerIndex,
+                                            message.getUuid(), "StreetNode"));
+                                    return true;
+                                }
+
                             }
                         }
                     }
-                } else {
-                    for (MapGraph.StreetNode streetNode : game.get().getMapGraph().getStreetNodeHashSet()) {
-                        if (message.getUuid().equals(streetNode.getUuid())) {
-                            if (streetNode.buildRoad(playerIndex)) {
-                                sendToAllInGame(game.get().getName(), new SuccessfulConstructionMessage(game.get().getName(), message.getUser().getWithoutPassword(), playerIndex,
-                                        message.getUuid(), "StreetNode"));
-                                return true;
-                            }
 
-                        }
-                    }
+
+                } catch (GameManagementException e) {
+                    LOG.debug(e);
+                    System.out.println("Player " + message.getUser() + " tried to build at node with UUID: " + message.getUuid() + " but it did not work.");
                 }
-
-
-            } catch (GameManagementException e) {
-                LOG.debug(e);
-                System.out.println("Player " + message.getUser() + " tried to build at node with UUID: " + message.getUuid() + " but it did not work.");
             }
         }
         return false;
@@ -195,7 +200,7 @@ public class GameService extends AbstractService {
         }
     }
 
-    public void sendToListOfUsers(Set<User> receiver, String gameName, ServerMessage message) {
+    public void sendToListOfUsers(Set<User> receiver, ServerMessage message) {
         message.setReceiver(authenticationService.getSessions(receiver));
         post(message);
     }
@@ -207,22 +212,17 @@ public class GameService extends AbstractService {
     /**
      * Sends a message to a specific user in the given game
      *
-     * @param game    Optional<Game> game
      * @param message ServerMessage message
      * @param user    User user
      * @author Alexander Losse, Ricardo Mook
      * @since 2021-03-11
      */
-    public void sendToSpecificUserInGame(Optional<Game> game, ServerMessage message, User user) {
-        if (game.isPresent()) {
-            List<Session> theList = new ArrayList<>();
-            theList.add(authenticationService.getSession(user).get());
-            message.setReceiver(theList);
-
-            post(message);
-        } else {
-            throw new GameManagementException("Game unknown!");
-        }
+    public void sendToSpecificUserInGame(ServerMessage message, User user) {
+        List<Session> theList = new ArrayList<>();
+        authenticationService.getSession(user).ifPresent(theList::add);
+        //theList.add(authenticationService.getSession(user).get());
+        message.setReceiver(theList);
+        post(message);
     }
 
     /**
@@ -240,11 +240,12 @@ public class GameService extends AbstractService {
     @Subscribe
     public void onResourcesToDiscard(ResourcesToDiscardRequest resourcesToDiscardRequest) {
         //TODO Hier muss nach Implementierung der Bank nochmal etwas ergänzt werden.
-        Optional<Game> game = gameManagement.getGame(resourcesToDiscardRequest.getName());
-        if (game.isPresent()) {
-            for (User user : game.get().getUsers()) {
+        Optional<Game> optionalGame = gameManagement.getGame(resourcesToDiscardRequest.getName());
+        if (optionalGame.isPresent()) {
+            Game game = optionalGame.get();
+            for (User user : game.getUsers()) {
                 if (user.equals(resourcesToDiscardRequest.getUser())) {
-                    Inventory inventory = game.get().getInventory(user);
+                    Inventory inventory = game.getInventory(user);
                     inventory.lumber.setNumber(resourcesToDiscardRequest.getInventory().get("Lumber"));
                     inventory.grain.setNumber(resourcesToDiscardRequest.getInventory().get("Grain"));
                     inventory.wool.setNumber(resourcesToDiscardRequest.getInventory().get("Wool"));
@@ -289,9 +290,10 @@ public class GameService extends AbstractService {
     @Subscribe
     public void onRollDiceRequest(RollDiceRequest rollDiceRequest) {
         LOG.debug("Got new RollDiceRequest from user: " + rollDiceRequest.getUser());
-        Optional<Game> game = gameManagement.getGame(rollDiceRequest.getName());
-        if (game.isPresent()) {
-            if (rollDiceRequest.getUser().equals(game.get().getUser(game.get().getTurn()))) {
+        Optional<Game> optionalGame = gameManagement.getGame(rollDiceRequest.getName());
+        if (optionalGame.isPresent()) {
+            Game game = optionalGame.get();
+            if (rollDiceRequest.getUser().equals(game.getUser(game.getTurn()))) {
                 Dice dice = new Dice();
                 dice.rollDice();
 
@@ -302,10 +304,8 @@ public class GameService extends AbstractService {
                 }
                 int addedEyes = dice.getDiceEyes1() + dice.getDiceEyes2();
                 if (addedEyes == 7) {
-                    if (game.isPresent()) {
-                        MoveRobberMessage moveRobberMessage = new MoveRobberMessage(rollDiceRequest.getName(), (UserDTO) rollDiceRequest.getUser());
-                        sendToSpecificUserInGame(gameManagement.getGame(rollDiceRequest.getName()), moveRobberMessage, rollDiceRequest.getUser());
-                    }
+                    MoveRobberMessage moveRobberMessage = new MoveRobberMessage(rollDiceRequest.getName(), (UserDTO) rollDiceRequest.getUser());
+                    sendToSpecificUserInGame(moveRobberMessage, rollDiceRequest.getUser());
                 } else {
                     distributeResources(addedEyes, rollDiceRequest.getName());
                 }
@@ -325,8 +325,8 @@ public class GameService extends AbstractService {
                     LOG.debug(e);
                 }
                 try {
-                    RollDiceResultMessage result = new RollDiceResultMessage(dice.getDiceEyes1(), dice.getDiceEyes2(), game.get().getTurn(), game.get().getName());
-                    sendToAllInGame(game.get().getName(), result);
+                    RollDiceResultMessage result = new RollDiceResultMessage(dice.getDiceEyes1(), dice.getDiceEyes2(), game.getTurn(), game.getName());
+                    sendToAllInGame(game.getName(), result);
                 } catch (Exception e) {
                     LOG.debug(e);
                 }
@@ -341,34 +341,35 @@ public class GameService extends AbstractService {
      * Handles the distribution of resources to the users in the opening turn
      * <p>
      * This method handles the distribution of the resources to the users. First the method gets the game and gets the
-     * coressponding hexagons. After that the method gives the second built buildings in the opening turn the resource.
+     * corresponding hexagons. After that the method gives the second built buildings in the opening turn the resource.
      *
      * @param gameName Name of the Game
      * @author Philip Nitsche
      * @since 2021-04-24
      */
     public void distributeResources(String gameName) {
-        Optional<Game> game = gameManagement.getGame(gameName);
-        if (game.isPresent()) {
-            for (MapGraph.Hexagon hexagon : game.get().getMapGraph().getHexagonHashSet())
-                for (int i = 0; i < game.get().getLastBuildingOfOpeningTurn().size(); i++)
-                    if (hexagon.getBuildingNodes().contains(game.get().getLastBuildingOfOpeningTurn().get(i))) {
+        Optional<Game> optionalGame = gameManagement.getGame(gameName);
+        if (optionalGame.isPresent()) {
+            Game game = optionalGame.get();
+            for (MapGraph.Hexagon hexagon : game.getMapGraph().getHexagonHashSet())
+                for (int i = 0; i < game.getLastBuildingOfOpeningTurn().size(); i++)
+                    if (hexagon.getBuildingNodes().contains(game.getLastBuildingOfOpeningTurn().get(i))) {
                         //"Ocean" = 0; "Forest" = 1; "Farmland" = 2; "Grassland" = 3; "Hillside" = 4; "Mountain" = 5; "Desert" = 6;
                         switch (hexagon.getTerrainType()) {
                             case 1:
-                                game.get().getInventory(game.get().getUser(i)).lumber.incNumber();
+                                game.getInventory(game.getUser(i)).lumber.incNumber();
                                 break;
                             case 2:
-                                game.get().getInventory(game.get().getUser(i)).grain.incNumber();
+                                game.getInventory(game.getUser(i)).grain.incNumber();
                                 break;
                             case 3:
-                                game.get().getInventory(game.get().getUser(i)).wool.incNumber();
+                                game.getInventory(game.getUser(i)).wool.incNumber();
                                 break;
                             case 4:
-                                game.get().getInventory(game.get().getUser(i)).brick.incNumber();
+                                game.getInventory(game.getUser(i)).brick.incNumber();
                                 break;
                             case 5:
-                                game.get().getInventory(game.get().getUser(i)).ore.incNumber();
+                                game.getInventory(game.getUser(i)).ore.incNumber();
                                 break;
                             default:
                                 break;
@@ -382,7 +383,7 @@ public class GameService extends AbstractService {
      * Handles the distribution of resources to the users
      * <p>
      * This method handles the distribution of the resources to the users. First the method gets the game and gets the
-     * coressponding hexagons. After that the method checks if the diceToken on the field is equal to the
+     * corresponding hexagons. After that the method checks if the diceToken on the field is equal to the
      * rolled amount of eyes and increases the resource of the user by one(village), two(city).
      *
      * @param eyes     Number of eyes rolled with dice
@@ -391,13 +392,14 @@ public class GameService extends AbstractService {
      * @since 2021-04-06
      */
     public void distributeResources(int eyes, String gameName) {
-        Optional<Game> game = gameManagement.getGame(gameName);
-        if (game.isPresent()) {
-            for (MapGraph.Hexagon hexagon : game.get().getMapGraph().getHexagonHashSet()) {
+        Optional<Game> optionalGame = gameManagement.getGame(gameName);
+        if (optionalGame.isPresent()) {
+            Game game = optionalGame.get();
+            for (MapGraph.Hexagon hexagon : game.getMapGraph().getHexagonHashSet()) {
                 if (hexagon.getDiceToken() == eyes) {
                     for (MapGraph.BuildingNode buildingNode : hexagon.getBuildingNodes()) {
-                        if (buildingNode.getOccupiedByPlayer() != 666 && hexagon.isOccupiedByRobber() == false) {
-                            Inventory inventory = game.get().getInventory(game.get().getUser(buildingNode.getOccupiedByPlayer()));
+                        if (buildingNode.getOccupiedByPlayer() != 666 && !hexagon.isOccupiedByRobber()) {
+                            Inventory inventory = game.getInventory(game.getUser(buildingNode.getOccupiedByPlayer()));
                             //"Ocean" = 0; "Forest" = 1; "Farmland" = 2; "Grassland" = 3; "Hillside" = 4; "Mountain" = 5; "Desert" = 6;
                             switch (hexagon.getTerrainType()) {
                                 case 1:
@@ -477,23 +479,21 @@ public class GameService extends AbstractService {
      * After that, the method iterates over every hexagon in the MapGraph to detect the old place of the robber and to
      * set it on false. Now the method checks if the new fields UUID is the same as the UUID of the hexagon and set the
      * occupiedByRobber attribute on true. The new position is now send to all in the game.
-     * Next, the method checks if the new places buildingspots are occupied by players and put their names in the freshly instantiated
-     * list of usernames. If all buildingspots are checked, a ChoosePlayerMessage is send to the user who rolled a 7.
+     * Next, the method checks if the new places buildingSpots are occupied by players and put their names in the freshly instantiated
+     * list of usernames. If all buildingSpots are checked, a ChoosePlayerMessage is send to the user who rolled a 7.
      *
      * @param robbersNewFieldMessage The message, that will be send, if a user rolled a 7.
-     * @autor Marius Birk
+     * @author Marius Birk
      * @since 2021-04-25
      */
     @Subscribe
     public void onRobbersNewFieldRequest(RobbersNewFieldMessage robbersNewFieldMessage) {
-        Optional<Game> game = gameManagement.getGame(robbersNewFieldMessage.getName());
-        if (game.isPresent()) {
+        Optional<Game> optionalGame = gameManagement.getGame(robbersNewFieldMessage.getName());
+        if (optionalGame.isPresent()) {
+            Game game = optionalGame.get();
             List<String> userList = new ArrayList<>();
-            if (!userList.isEmpty()) {
-                userList.removeAll(game.get().getUsersList());
-            }
             //Indicate the old robbers place and "deactivate" the occupiedByRobber option.
-            for (MapGraph.Hexagon hexagon : game.get().getMapGraph().getHexagonHashSet()) {
+            for (MapGraph.Hexagon hexagon : game.getMapGraph().getHexagonHashSet()) {
                 if (hexagon.isOccupiedByRobber()) {
                     hexagon.setOccupiedByRobber(false);
                 }
@@ -502,8 +502,8 @@ public class GameService extends AbstractService {
                     hexagon.setOccupiedByRobber(true);
                     for (MapGraph.BuildingNode node : hexagon.getBuildingNodes()) {
                         if (node.getOccupiedByPlayer() != 666) {
-                            if (!userList.contains(game.get().getUser(node.getOccupiedByPlayer()).getUsername()) && !robbersNewFieldMessage.getUser().getUsername().equals(game.get().getUser(node.getOccupiedByPlayer()).getUsername())) {
-                                userList.add(game.get().getUser(node.getOccupiedByPlayer()).getUsername());
+                            if (!userList.contains(game.getUser(node.getOccupiedByPlayer()).getUsername()) && !robbersNewFieldMessage.getUser().getUsername().equals(game.getUser(node.getOccupiedByPlayer()).getUsername())) {
+                                userList.add(game.getUser(node.getOccupiedByPlayer()).getUsername());
                             }
                         }
                     }
@@ -515,8 +515,8 @@ public class GameService extends AbstractService {
                 tooMuchResources(game);
             }
 
-            ChoosePlayerMessage choosePlayerMessage = new ChoosePlayerMessage(game.get().getName(), robbersNewFieldMessage.getUser(), userList);
-            sendToSpecificUserInGame(game, choosePlayerMessage, robbersNewFieldMessage.getUser());
+            ChoosePlayerMessage choosePlayerMessage = new ChoosePlayerMessage(game.getName(), robbersNewFieldMessage.getUser(), userList);
+            sendToSpecificUserInGame(choosePlayerMessage, robbersNewFieldMessage.getUser());
         }
     }
 
@@ -539,45 +539,56 @@ public class GameService extends AbstractService {
      */
     @Subscribe
     public void onStartGameRequest(StartGameRequest startGameRequest) {
-        Optional<Lobby> lobby = lobbyService.getLobby(startGameRequest.getName());
-        Set<User> usersInLobby = lobby.get().getUsers();
-        if (gameManagement.getGame(lobby.get().getName()).isEmpty() && usersInLobby.size() > 1 && startGameRequest.getUser().getUsername().equals(lobby.get().getOwner().getUsername()) && !lobby.get().getGameShouldStart()) {
-            lobby.get().setPlayersReadyToNull();
-            lobby.get().setGameFieldVariant(startGameRequest.getGameFieldVariant());
-            lobby.get().setGameShouldStart(true);
-            sendToAllInLobby(startGameRequest.getName(), new StartGameMessage(startGameRequest.getName(), startGameRequest.getUser()));
-            int seconds = 60;
-            Timer timer = new Timer();
-            class RemindTask extends TimerTask {
-                public void run() {
-                    Set<User> users = new TreeSet<>(usersInLobby);
-                    if (lobby.get().getPlayersReady().size() != 0) {
-                        users.removeAll(lobby.get().getPlayersReady());
-                    } else {
-                        users.clear();
-                    }
-                    if (lobby.get().getPlayersReady().size() > 1 && gameManagement.getGame(lobby.get().getName()).isEmpty()) {
-                        try {
-                            startGame(lobby, lobby.get().getGameFieldVariant());
-                            // TODO: sollte wahrscheinlich keine notenoughplayersmessage sein, sondern "You missed the game start"
-                            sendToListOfUsers(users, lobby.get().getName(), new NotEnoughPlayersMessage(lobby.get().getName()));
-                        } catch (GameManagementException e) {
-                            LOG.debug(e);
+        Optional<Lobby> optionalLobby = lobbyService.getLobby(startGameRequest.getName());
+        if (optionalLobby.isPresent()) {
+            Lobby lobby = optionalLobby.get();
+            Set<User> usersInLobby = lobby.getUsers();
+            if (gameManagement.getGame(lobby.getName()).isEmpty() && usersInLobby.size() > 1 && startGameRequest.getUser().getUsername().equals(lobby.getOwner().getUsername())) {
+                lobby.setPlayersReadyToNull();
+                lobby.setGameFieldVariant(startGameRequest.getGameFieldVariant());
+                sendToAllInLobby(startGameRequest.getName(), new StartGameMessage(startGameRequest.getName(), startGameRequest.getUser()));
+                Timer gameStartTimer = lobby.startTimerForGameStart();
+                int seconds = 60;
+                try {
+                    class RemindTask extends TimerTask {
+
+                        public void run() {
+                            Set<User> users = new TreeSet<>(usersInLobby);
+                            if (lobby.getPlayersReady().size() != 0) {
+                                users.removeAll(lobby.getPlayersReady());
+                            } else {
+                                users.clear();
+                            }
+                            if (lobby.getPlayersReady().size() > 1 && gameManagement.getGame(lobby.getName()).isEmpty()) {
+                                try {
+                                    startGame(lobby, lobby.getGameFieldVariant());
+                                    // TODO: sollte wahrscheinlich keine notenoughplayersmessage sein, sondern "You missed the game start"
+                                    sendToListOfUsers(users, new NotEnoughPlayersMessage(lobby.getName()));
+                                } catch (GameManagementException e) {
+                                    LOG.debug(e);
+                                }
+                            } else if (lobby.getPlayersReady().size() < 2) {
+                                sendToListOfUsers(users, new NotEnoughPlayersMessage(lobby.getName()));
+                            }
                         }
-                    } else if (lobby.get().getPlayersReady().size() < 2 && lobby.get().getGameShouldStart()) {
-                        sendToListOfUsers(users, lobby.get().getName(), new NotEnoughPlayersMessage(lobby.get().getName()));
                     }
-                    lobby.get().setGameShouldStart(false);
-                    timer.cancel();
+                    gameStartTimer.schedule(new RemindTask(), seconds * 1000);
+
+                } catch (Exception e) {
+                    LOG.debug(e);
                 }
+
+            } else if (!startGameRequest.getUser().toString().equals(lobby.getOwner().toString())) {
+                if (startGameRequest.getMessageContext().isPresent()) {
+                    sendToSpecificUser(startGameRequest.getMessageContext().get(), new NotLobbyOwnerResponse(lobby.getName()));
+                }
+            } else if (gameManagement.getGame(lobby.getName()).isPresent()) {
+                if (startGameRequest.getMessageContext().isPresent()) {
+                    sendToSpecificUser(startGameRequest.getMessageContext().get(), new GameAlreadyExistsResponse(lobby.getName()));
+                }
+            } else if (lobby.getUsers().size() < 2) {
+                sendToListOfUsers(lobby.getUsers(), new NotEnoughPlayersMessage(lobby.getName()));
             }
-            timer.schedule(new RemindTask(), seconds * 1000);
-        } else if (!startGameRequest.getUser().toString().equals(lobby.get().getOwner().toString())) {
-            sendToSpecificUser(startGameRequest.getMessageContext().get(), new NotLobbyOwnerResponse(lobby.get().getName()));
-        } else if (gameManagement.getGame(lobby.get().getName()).isPresent()) {
-            sendToSpecificUser(startGameRequest.getMessageContext().get(), new GameAlreadyExistsResponse(lobby.get().getName()));
-        } else if (lobby.get().getUsers().size() < 2) {
-            sendToListOfUsers(lobby.get().getUsers(), lobby.get().getName(), new NotEnoughPlayersMessage(lobby.get().getName()));
         }
     }
 
@@ -595,32 +606,38 @@ public class GameService extends AbstractService {
      * @since 2021-01-24
      */
 
-    public void startGame(Optional<Lobby> lobby, String gameFieldVariant) {
-        if (lobby.get().getPlayersReady().size() > 1) {
-            gameManagement.createGame(lobby.get().getName(), lobby.get().getOwner(), gameFieldVariant);
-            Optional<Game> game = gameManagement.getGame(lobby.get().getName());
-            ArrayList<UserDTO> usersInGame = new ArrayList<>();
-            for (User user : lobby.get().getPlayersReady()) {
-                user = userService.retrieveUserInformation(user);
-                game.get().joinUser(user);
-                usersInGame.add((UserDTO) user);
+    public void startGame(Lobby lobby, String gameFieldVariant) {
+        if (lobby.getPlayersReady().size() > 1) {
+            gameManagement.createGame(lobby.getName(), lobby.getOwner(), gameFieldVariant);
+            Optional<Game> optionalGame = gameManagement.getGame(lobby.getName());
+            if (optionalGame.isPresent()) {
+                Game game = optionalGame.get();
+                ArrayList<UserDTO> usersInGame = new ArrayList<>();
+                for (User user : lobby.getPlayersReady()) {
+                    user = userService.retrieveUserInformation(user);
+                    game.joinUser(user);
+                    usersInGame.add((UserDTO) user);
 
+                }
+                lobby.setPlayersReadyToNull();
+                lobby.setRdyResponsesReceived(0);
+                lobby.stopTimerForGameStart();
+                lobby.setGameStarted(true);
+                post(new GameStartedMessage(lobby.getName()));
+                for (User user : game.getUsers()) {
+                    sendToSpecificUserInGame(new GameCreatedMessage(game.getName(), (UserDTO) user, game.getMapGraph(), usersInGame, gameFieldVariant), user);
+                }
+                game.setUpUserArrayList();
+                game.setUpInventories();
+                updateInventory(game);
+                sendToAllInGame(game.getName(), new NextTurnMessage(game.getName(), game.getUser(game.getTurn()).getUsername(), game.getTurn(), game.isStartingTurns()));
             }
-            lobby.get().setPlayersReadyToNull();
-            lobby.get().setRdyResponsesReceived(0);
-            lobby.get().setGameStarted(true);
-            post(new GameStartedMessage(lobby.get().getName()));
-            for (User user : game.get().getUsers()) {
-                sendToSpecificUserInGame(game, new GameCreatedMessage(game.get().getName(), (UserDTO) user, game.get().getMapGraph(), usersInGame, gameFieldVariant), user);
-            }
-            game.get().setUpUserArrayList();
-            game.get().setUpInventories();
-            updateInventory(game);
-            sendToAllInGame(game.get().getName(), new NextTurnMessage(game.get().getName(), game.get().getUser(game.get().getTurn()).getUsername(), game.get().getTurn(), game.get().isStartingTurns()));
         } else {
+            lobby.setPlayersReadyToNull();
+            lobby.setRdyResponsesReceived(0);
+            lobby.stopTimerForGameStart();
             throw new GameManagementException("Not enough Players ready!");
         }
-        lobby.get().setGameShouldStart(false);
     }
 
     /**
@@ -639,19 +656,22 @@ public class GameService extends AbstractService {
      */
     @Subscribe
     public void onPlayerReadyRequest(PlayerReadyRequest playerReadyRequest) {
-        Optional<Lobby> lobby = lobbyService.getLobby(playerReadyRequest.getName());
-        if (playerReadyRequest.getBoolean()) {
-            lobby.get().incrementRdyResponsesReceived();
-            lobby.get().joinPlayerReady(playerReadyRequest.getUser());
-        } else if (!playerReadyRequest.getBoolean()) {
-            lobby.get().incrementRdyResponsesReceived();
-        }
-        if (lobby.get().getRdyResponsesReceived() == lobby.get().getUsers().size() && gameManagement.getGame(lobby.get().getName()).isEmpty()) {
-            try {
-                startGame(lobby, lobby.get().getGameFieldVariant());
-            } catch (GameManagementException e) {
-                LOG.debug(e);
-                sendToListOfUsers(lobby.get().getPlayersReady(), lobby.get().getName(), new NotEnoughPlayersMessage(lobby.get().getName()));
+        Optional<Lobby> optionalLobby = lobbyService.getLobby(playerReadyRequest.getName());
+        if (optionalLobby.isPresent()) {
+            Lobby lobby = optionalLobby.get();
+            if (playerReadyRequest.getBoolean()) {
+                lobby.incrementRdyResponsesReceived();
+                lobby.joinPlayerReady(playerReadyRequest.getUser());
+            } else if (!playerReadyRequest.getBoolean()) {
+                lobby.incrementRdyResponsesReceived();
+            }
+            if (lobby.getRdyResponsesReceived() == lobby.getUsers().size() && gameManagement.getGame(lobby.getName()).isEmpty()) {
+                try {
+                    startGame(lobby, lobby.getGameFieldVariant());
+                } catch (GameManagementException e) {
+                    LOG.debug(e);
+                    sendToListOfUsers(lobby.getPlayersReady(), new NotEnoughPlayersMessage(lobby.getName()));
+                }
             }
         }
     }
@@ -660,10 +680,10 @@ public class GameService extends AbstractService {
      * Handles EndTurnRequests found on the eventbus.
      *
      * <p>If an EndTurnRequest is found on the eventbus, this method checks if the sender is the player with the
-     * current turn. If so, the method calls the nextRound method to increment the turncount. After that, the method
-     * sends a NextTurnMessage to all participants of the current game, telling them in wich turn they are now, in wich
-     * game and whos turn is up now.</p>
-     * Additionally the server here checks if a player has achieved the minimum 10 vitory points to trigger the summary screen
+     * current turn. If so, the method calls the nextRound method to increment the turnCount. After that, the method
+     * sends a NextTurnMessage to all participants of the current game, telling them in which turn they are now, in which
+     * game and who's turn is up now.</p>
+     * Additionally the server here checks if a player has achieved the minimum 10 victory points to trigger the summary screen
      * <p>
      * enhanced by René Meyer, Sergej Tulnev
      *
@@ -675,36 +695,37 @@ public class GameService extends AbstractService {
      */
     @Subscribe
     public void onEndTurnRequest(EndTurnRequest request) {
-        Optional<Game> game = gameManagement.getGame(request.getName());
-        if (request.getUser().getUsername().equals(game.get().getUser(game.get().getTurn()).getUsername()) && game.get().getCurrentCard().equals("")) {
-            try {
-                boolean priorGamePhase = game.get().isStartingTurns();
-                game.get().nextRound();
-                if (priorGamePhase == true && game.get().isStartingTurns() == false) {
-                    distributeResources(request.getName());
+        Optional<Game> optionalGame = gameManagement.getGame(request.getName());
+        if (optionalGame.isPresent()) {
+            Game game = optionalGame.get();
+            if (request.getUser().getUsername().equals(game.getUser(game.getTurn()).getUsername()) && game.getCurrentCard().equals("")) {
+                try {
+                    boolean priorGamePhase = game.isStartingTurns();
+                    game.nextRound();
+                    if (priorGamePhase && !game.isStartingTurns()) {
+                        distributeResources(request.getName());
+                    }
+                    sendToAllInGame(game.getName(), new NextTurnMessage(game.getName(),
+                            game.getUser(game.getTurn()).getUsername(), game.getTurn(), game.isStartingTurns()));
+                } catch (GameManagementException e) {
+                    LOG.debug(e);
+                    System.out.println("Sender " + request.getUser().getUsername() + " was not player with current turn");
                 }
-                sendToAllInGame(game.get().getName(), new NextTurnMessage(game.get().getName(),
-                        game.get().getUser(game.get().getTurn()).getUsername(), game.get().getTurn(), game.get().isStartingTurns()));
-            } catch (GameManagementException e) {
-                LOG.debug(e);
-                System.out.println("Sender " + request.getUser().getUsername() + " was not player with current turn");
             }
-        }
 
-        //@Todo: Check Victory Points, when user won redirect all to Summary Screen - Later trigger when inventory changes and not when user ends turn
-        if (game.isPresent()) {
+            //@Todo: Check Victory Points, when user won redirect all to Summary Screen - Later trigger when inventory changes and not when user ends turn
             var user = request.getUser();
-            var inventory = game.get().getInventory(user);
+            var inventory = game.getInventory(user);
             // If user has 10 victory points, he wins and the Summary Screen gets shown for every user in the game.
             if (inventory.getVictoryPoints() >= 10) {
                 //Retrieve all stats
                 //Retrieve inventories from all users
-                var inventories = game.get().getInventoriesArrayList();
+                var inventories = game.getInventoriesArrayList();
                 //Create statsDTO object
-                var statsDTO = new StatsDTO(game.get().getName(), user.getUsername(), game.get().getTradeList().size(), game.get().getOverallTurns(), inventories);
+                var statsDTO = new StatsDTO(game.getName(), user.getUsername(), game.getTradeList().size(), game.getOverallTurns(), inventories);
                 //Send GameFinishedMessage to all users in game
-                sendToAllInGame(game.get().getName(), new GameFinishedMessage(statsDTO));
-                LOG.debug("User " + user.getUsername() + " has atleast 10 victory points and won.");
+                sendToAllInGame(game.getName(), new GameFinishedMessage(statsDTO));
+                LOG.debug("User " + user.getUsername() + " has at least 10 victory points and won.");
             }
         }
     }
@@ -714,44 +735,45 @@ public class GameService extends AbstractService {
      *
      * <p>
      * Gets the game from the gameManagement and retrieves the inventory from the user. Then the method checks if enough
-     * ressources are available to buy a development card. If there are enough ressources, then the method gets the next
+     * resources are available to buy a development card. If there are enough resources, then the method gets the next
      * development card from the development card deck and sends a message with the development card to the user. If
-     * there are not enough ressources a NoEnoughRessourcesMessage is send to the user.
+     * there are not enough resources a NoEnoughResourcesMessage is send to the user.
      * </p>
      * Checks if enough development cards are still available to be bought.
      * If not, then sends corresponding message in the game chat.
      * enhanced by Anton Nikiforov, Alexander Losse, Iskander Yusupov
-     * @since 2021-05-16
+     *
      * @param request Transports the senders UserDTO
      * @author Marius Birk
+     * @since 2021-05-16
      * @since 2021-04-03
      */
     @Subscribe
     public void onBuyDevelopmentCardRequest(BuyDevelopmentCardRequest request) {
-        Optional<Game> game = gameManagement.getGame(request.getName());
-        if (game.isPresent()) {
-            if (request.getUser().getUsername().equals(game.get().getUser(game.get().getTurn()).getUsername())) {
-                Inventory inventory = game.get().getInventory(request.getUser());
+        Optional<Game> optionalGame = gameManagement.getGame(request.getName());
+        if (optionalGame.isPresent()) {
+            Game game = optionalGame.get();
+            if (request.getUser().getUsername().equals(game.getUser(game.getTurn()).getUsername())) {
+                Inventory inventory = game.getInventory(request.getUser());
                 if (inventory.wool.getNumber() >= 1 && inventory.ore.getNumber() >= 1 && inventory.grain.getNumber() >= 1) {
-                    String devCard = game.get().getDevelopmentCardDeck().drawnCard();
+                    String devCard = game.getDevelopmentCardDeck().drawnCard();
                     if (devCard != null) {
                         inventory.wool.decNumber();
                         inventory.ore.decNumber();
                         inventory.grain.decNumber();
                         inventory.incCard(devCard, 1);
                         BuyDevelopmentCardMessage response = new BuyDevelopmentCardMessage(devCard);
-                        sendToSpecificUserInGame(game, response, request.getUser());
+                        sendToSpecificUserInGame(response, request.getUser());
                     } else {
-                        String chatMessage;
-                        var chatId = "game_" + game.get().getName();
+                        var chatId = "game_" + game.getName();
                         ResponseChatMessage msg = new ResponseChatMessage("No development cards are available.", chatId, "Bank", System.currentTimeMillis());
                         post(msg);
                         LOG.debug("Posted ResponseChatMessage on eventBus");
                     }
                 } else {
                     NotEnoughRessourcesMessage nerm = new NotEnoughRessourcesMessage();
-                    nerm.setName(game.get().getName());
-                    sendToSpecificUserInGame(game, nerm, request.getUser());
+                    nerm.setName(game.getName());
+                    sendToSpecificUserInGame(nerm, request.getUser());
                 }
             }
             updateInventory(game);
@@ -772,14 +794,15 @@ public class GameService extends AbstractService {
      */
     @Subscribe
     public void onPlayDevelopmentCardRequest(PlayDevelopmentCardRequest request) {
-        Optional<Game> game = gameManagement.getGame(request.getName());
-        if (game.isPresent()) {
-            User turnPlayer = game.get().getUser(game.get().getTurn());
+        Optional<Game> optionalGame = gameManagement.getGame(request.getName());
+        if (optionalGame.isPresent()) {
+            Game game = optionalGame.get();
+            User turnPlayer = game.getUser(game.getTurn());
             if (request.getUser().getUsername().equals(turnPlayer.getUsername())) {
-                Inventory inventory = game.get().getInventory(turnPlayer);
+                Inventory inventory = game.getInventory(turnPlayer);
                 String devCard = request.getDevCard();
-                String currentCardOfGame = game.get().getCurrentCard();
-                boolean alreadyPlayedCard = game.get().playedCardThisTurn();
+                String currentCardOfGame = game.getCurrentCard();
+                boolean alreadyPlayedCard = game.playedCardThisTurn();
                 //TODO: delete these 3, only used for testing
                 inventory.cardMonopoly.incNumber();
                 inventory.cardRoadBuilding.incNumber();
@@ -789,9 +812,9 @@ public class GameService extends AbstractService {
 
                     case "Monopoly":
                         if (inventory.cardMonopoly.getNumber() > 0 && currentCardOfGame.equals("") && !alreadyPlayedCard) {
-                            game.get().setCurrentCard("Monopoly");
-                            game.get().setPlayedCardThisTurn(true);
-                            PlayDevelopmentCardResponse response = new PlayDevelopmentCardResponse(devCard, true, turnPlayer.getUsername(), game.get().getName());
+                            game.setCurrentCard("Monopoly");
+                            game.setPlayedCardThisTurn(true);
+                            PlayDevelopmentCardResponse response = new PlayDevelopmentCardResponse(devCard, true, turnPlayer.getUsername(), game.getName());
                             response.initWithMessage(request);
                             post(response);
                             inventory.cardMonopoly.decNumber();
@@ -802,9 +825,9 @@ public class GameService extends AbstractService {
                         if (inventory.cardRoadBuilding.getNumber() > 0 && currentCardOfGame.equals("") && !alreadyPlayedCard && inventory.road.getNumber() > 1) {
                             // TODO: check if the player is allowed to even attempt to build 2 streets i.e. not possible when there are no legal spaces to build 2 streets
                             // TODO: probs very complicated to check that, so maybe just ignore that fringe scenario???
-                            game.get().setCurrentCard("Road Building");
-                            game.get().setPlayedCardThisTurn(true);
-                            PlayDevelopmentCardResponse response = new PlayDevelopmentCardResponse(devCard, true, turnPlayer.getUsername(), game.get().getName());
+                            game.setCurrentCard("Road Building");
+                            game.setPlayedCardThisTurn(true);
+                            PlayDevelopmentCardResponse response = new PlayDevelopmentCardResponse(devCard, true, turnPlayer.getUsername(), game.getName());
                             response.initWithMessage(request);
                             post(response);
                             inventory.cardRoadBuilding.decNumber();
@@ -814,9 +837,9 @@ public class GameService extends AbstractService {
                     case "Year of Plenty":
                         if (inventory.cardYearOfPlenty.getNumber() > 0 && currentCardOfGame.equals("") && !alreadyPlayedCard) {
                             // TODO: Check if there theoretically are resources left in the bank that could be obtained for the player
-                            game.get().setCurrentCard("Year of Plenty");
-                            game.get().setPlayedCardThisTurn(true);
-                            PlayDevelopmentCardResponse response = new PlayDevelopmentCardResponse(devCard, true, turnPlayer.getUsername(), game.get().getName());
+                            game.setCurrentCard("Year of Plenty");
+                            game.setPlayedCardThisTurn(true);
+                            PlayDevelopmentCardResponse response = new PlayDevelopmentCardResponse(devCard, true, turnPlayer.getUsername(), game.getName());
                             response.initWithMessage(request);
                             post(response);
                             inventory.cardYearOfPlenty.decNumber();
@@ -825,9 +848,9 @@ public class GameService extends AbstractService {
 
                     case "Knight":
                         if (inventory.cardKnight.getNumber() > 0 && currentCardOfGame.equals("") && !alreadyPlayedCard) {
-                            game.get().setCurrentCard("Knight");
-                            game.get().setPlayedCardThisTurn(true);
-                            PlayDevelopmentCardResponse response = new PlayDevelopmentCardResponse(devCard, true, turnPlayer.getUsername(), game.get().getName());
+                            game.setCurrentCard("Knight");
+                            game.setPlayedCardThisTurn(true);
+                            PlayDevelopmentCardResponse response = new PlayDevelopmentCardResponse(devCard, true, turnPlayer.getUsername(), game.getName());
                             response.initWithMessage(request);
                             post(response);
                             inventory.setPlayedKnights(inventory.getPlayedKnights() + 1);
@@ -836,14 +859,14 @@ public class GameService extends AbstractService {
                         }
 
                     default:
-                        PlayDevelopmentCardResponse response = new PlayDevelopmentCardResponse(devCard, false, turnPlayer.getUsername(), game.get().getName());
+                        PlayDevelopmentCardResponse response = new PlayDevelopmentCardResponse(devCard, false, turnPlayer.getUsername(), game.getName());
                         response.initWithMessage(request);
                         post(response);
                         break;
                 }
 
             } else {
-                PlayDevelopmentCardResponse response = new PlayDevelopmentCardResponse(request.getDevCard(), false, request.getUser().getUsername(), game.get().getName());
+                PlayDevelopmentCardResponse response = new PlayDevelopmentCardResponse(request.getDevCard(), false, request.getUser().getUsername(), game.getName());
                 response.initWithMessage(request);
                 post(response);
             }
@@ -865,14 +888,15 @@ public class GameService extends AbstractService {
      */
     @Subscribe
     public void onResolveDevelopmentCardRequest(ResolveDevelopmentCardRequest request) {
-        Optional<Game> game = gameManagement.getGame(request.getName());
-        if (game.isPresent()) {
-            User turnPlayer = game.get().getUser(game.get().getTurn());
-            String gameName = game.get().getName();
+        Optional<Game> optionalGame = gameManagement.getGame(request.getName());
+        if (optionalGame.isPresent()) {
+            Game game = optionalGame.get();
+            User turnPlayer = game.getUser(game.getTurn());
+            String gameName = game.getName();
             String devCard = request.getDevCard();
 
-            if (request.getUser().getUsername().equals(turnPlayer.getUsername()) && request.getDevCard().equals(game.get().getCurrentCard())) {
-                Inventory turnPlayerInventory = game.get().getInventory(turnPlayer);
+            if (request.getUser().getUsername().equals(turnPlayer.getUsername()) && request.getDevCard().equals(game.getCurrentCard())) {
+                Inventory turnPlayerInventory = game.getInventory(turnPlayer);
                 ResolveDevelopmentCardMessage message = new ResolveDevelopmentCardMessage(devCard, (UserDTO) turnPlayer, gameName);
                 ResolveDevelopmentCardNotSuccessfulResponse notSuccessfulResponse = new ResolveDevelopmentCardNotSuccessfulResponse(devCard, turnPlayer.getUsername(), gameName);
                 boolean resolvedDevelopmentCardSuccessfully = false;
@@ -882,9 +906,9 @@ public class GameService extends AbstractService {
                         if (request instanceof ResolveDevelopmentCardMonopolyRequest) {
                             ResolveDevelopmentCardMonopolyRequest monopolyRequest = (ResolveDevelopmentCardMonopolyRequest) request;
                             String resource = monopolyRequest.getResource();
-                            for (User user : game.get().getUsers()) {
+                            for (User user : game.getUsers()) {
                                 if (!user.equals(turnPlayer)) {
-                                    Inventory x = game.get().getInventory(user);
+                                    Inventory x = game.getInventory(user);
                                     switch (resource) {
                                         case "Lumber":
                                             turnPlayerInventory.incCard(resource, x.lumber.getNumber());
@@ -922,7 +946,7 @@ public class GameService extends AbstractService {
                         if (resolvedDevelopmentCardSuccessfully) {
                             sendToAllInGame(gameName, message);
                             updateInventory(game);
-                            game.get().setCurrentCard("");
+                            game.setCurrentCard("");
                         } else {
                             notSuccessfulResponse.initWithMessage(request);
                             notSuccessfulResponse.setErrorDescription("Please select a valid resource");
@@ -945,7 +969,7 @@ public class GameService extends AbstractService {
                                 post(notSuccessfulResponse);
                             } else {
                                 sendToAllInGame(gameName, message);
-                                game.get().setCurrentCard("");
+                                game.setCurrentCard("");
                             }
                         } else {
                             notSuccessfulResponse.initWithMessage(request);
@@ -969,7 +993,7 @@ public class GameService extends AbstractService {
                                 break;
                             }
                             sendToAllInGame(gameName, message);
-                            game.get().setCurrentCard("");
+                            game.setCurrentCard("");
                             updateInventory(game);
                         } else {
                             notSuccessfulResponse.initWithMessage(request);
@@ -1002,31 +1026,30 @@ public class GameService extends AbstractService {
      * players in the game.
      * <p>
      * enhanced by Carsten Dekker ,Marc Johannes Hermes, Marius Birk, Iskander Yusupov
-     * @since 2021-05-07
+     *
      * @param game game that wants to update private and public inventories
      * @author Iskander Yusupov, Anton Nikiforov
+     * @since 2021-05-07
      * @since 2021-04-08
      */
-    public void updateInventory(Optional<Game> game) {
-        if (game.isPresent()) {
-            for (User user : game.get().getUsers()) {
-                HashMap<String, Integer> privateInventory = game.get().getInventory(user).getPrivateView();
-                PrivateInventoryChangeMessage privateInventoryChangeMessage = new PrivateInventoryChangeMessage(game.get().getName(), (UserDTO) user, privateInventory);
-                sendToSpecificUserInGame(game, privateInventoryChangeMessage, user);
-            }
-            ArrayList<HashMap<String, Integer>> publicInventories = new ArrayList<>();
-            for (User user : game.get().getUsersList()) {
-                publicInventories.add(game.get().getInventory(user).getPublicView());
-            }
-            PublicInventoryChangeMessage publicInventoryChangeMessage = new PublicInventoryChangeMessage(game.get().getName(), publicInventories);
-            sendToAllInGame(game.get().getName(), publicInventoryChangeMessage);
+    public void updateInventory(Game game) {
+        for (User user : game.getUsers()) {
+            HashMap<String, Integer> privateInventory = game.getInventory(user).getPrivateView();
+            PrivateInventoryChangeMessage privateInventoryChangeMessage = new PrivateInventoryChangeMessage(game.getName(), user, privateInventory);
+            sendToSpecificUserInGame(privateInventoryChangeMessage, user);
         }
+        ArrayList<HashMap<String, Integer>> publicInventories = new ArrayList<>();
+        for (User user : game.getUsersList()) {
+            publicInventories.add(game.getInventory(user).getPublicView());
+        }
+        PublicInventoryChangeMessage publicInventoryChangeMessage = new PublicInventoryChangeMessage(game.getName(), publicInventories);
+        sendToAllInGame(game.getName(), publicInventoryChangeMessage);
     }
 
     /**
      * Returns the gameManagement
      *
-     * @return
+     * @return the gameManagement
      */
     public GameManagement getGameManagement() {
         return this.gameManagement;
@@ -1103,7 +1126,7 @@ public class GameService extends AbstractService {
     @Subscribe
     public void onTradeItemRequest(TradeItemRequest request) {
         System.out.println("Got message " + request.getUser().getUsername());
-        Optional<Game> game = gameManagement.getGame(request.getName());
+        Optional<Game> optionalGame = gameManagement.getGame(request.getName());
         // TODO: Wird nur zum testen verwendet
       /*  game.get().getInventory(request.getUser()).incCard("Lumber", 10);
         game.get().getInventory(request.getUser()).incCard("Ore", 10);
@@ -1112,46 +1135,47 @@ public class GameService extends AbstractService {
         game.get().getInventory(request.getUser()).incCard("Brick", 10);
         Inventory easyPrüfen = game.get().getInventory(request.getUser());
 */
-        if (game.isPresent()) {
+        if (optionalGame.isPresent()) {
+            Game game = optionalGame.get();
             boolean numberOfCardsCorrect = true;
 
             for (TradeItem tradeItem : request.getTradeItems()) {
-                boolean notEnoughInInventoryCheck = tradeItem.getCount() > (int) game.get().getInventory(request.getUser()).getPrivateView().get(tradeItem.getName());
-                if (tradeItem.getCount() < 0 || notEnoughInInventoryCheck == true) {
+                boolean notEnoughInInventoryCheck = tradeItem.getCount() > game.getInventory(request.getUser()).getPrivateView().get(tradeItem.getName());
+                if (tradeItem.getCount() < 0 || notEnoughInInventoryCheck) {
                     numberOfCardsCorrect = false;
                     break;
                 }
             }
 
-            if (numberOfCardsCorrect == true) {
+            if (numberOfCardsCorrect) {
                 String tradeCode = request.getTradeCode();
-                if (!game.get().getTradeList().containsKey(tradeCode)) {
-                    game.get().addTrades(new Trade(request.getUser(), request.getTradeItems()), tradeCode);
+                if (!game.getTradeList().containsKey(tradeCode)) {
+                    game.addTrades(new Trade(request.getUser(), request.getTradeItems()), tradeCode);
 
                     System.out.println("added Trade " + tradeCode + " by User: " + request.getUser().getUsername() + " items: " + request.getTradeItems());
 
-                    for (User user : game.get().getUsers()) {
+                    for (User user : game.getUsers()) {
                         if (!request.getUser().equals(user)) {
                             TradeOfferInformBiddersMessage tradeOfferInformBiddersMessage = new TradeOfferInformBiddersMessage(request.getUser(), request.getName(), tradeCode, request.getTradeItems(), (UserDTO) user, request.getWishItems());
-                            sendToSpecificUserInGame(game, tradeOfferInformBiddersMessage, user);
+                            sendToSpecificUserInGame(tradeOfferInformBiddersMessage, user);
                             System.out.println("Send TradeOfferInformBiddersMessage to " + user.getUsername());
                         }
                     }
                 } else {
-                    Trade trade = game.get().getTradeList().get(request.getTradeCode());
+                    Trade trade = game.getTradeList().get(request.getTradeCode());
                     trade.addBid(request.getUser(), request.getTradeItems());
                     System.out.println("added bid to " + tradeCode + " by User: " + request.getUser().getUsername() + " items: " + request.getTradeItems());
-                    if (trade.getBids().size() == game.get().getUsers().size() - 1) {
+                    if (trade.getBids().size() == game.getUsers().size() - 1) {
                         System.out.println("bids full");
                         TradeInformSellerAboutBidsMessage tisabm = new TradeInformSellerAboutBidsMessage(trade.getSeller(), request.getName(), tradeCode, trade.getBidders(), trade.getBids());
-                        sendToSpecificUserInGame(game, tisabm, trade.getSeller());
+                        sendToSpecificUserInGame(tisabm, trade.getSeller());
                         System.out.println("Send TradeInformSellerAboutBidsMessage to " + trade.getSeller().getUsername());
                     }
                 }
             } else {
                 System.out.println("Nicht genug im Inventar");
                 TradeCardErrorMessage tcem = new TradeCardErrorMessage(request.getUser(), request.getName(), request.getTradeCode());
-                sendToSpecificUserInGame(game, tcem, request.getUser());
+                sendToSpecificUserInGame(tcem, request.getUser());
             }
             updateInventory(game);
         }
@@ -1174,13 +1198,14 @@ public class GameService extends AbstractService {
      */
     @Subscribe
     public void onTradeChoiceRequest(TradeChoiceRequest request) {
-        Optional<Game> game = gameManagement.getGame(request.getName());
-        if (game.isPresent()) {
-            Trade trade = game.get().getTradeList().get(request.getTradeCode());
+        Optional<Game> optionalGame = gameManagement.getGame(request.getName());
+        if (optionalGame.isPresent()) {
+            Game game = optionalGame.get();
+            Trade trade = game.getTradeList().get(request.getTradeCode());
 
-            if (request.getTradeAccepted() == true && !request.getUser().getUsername().equals(trade.getSeller().getUsername())) {
-                Inventory inventorySeller = game.get().getInventory(trade.getSeller());
-                Inventory inventoryBidder = game.get().getInventory(request.getUser());
+            if (request.getTradeAccepted() && !request.getUser().getUsername().equals(trade.getSeller().getUsername())) {
+                Inventory inventorySeller = game.getInventory(trade.getSeller());
+                Inventory inventoryBidder = game.getInventory(request.getUser());
 
                 for (TradeItem soldItem : trade.getSellingItems()) {
                     inventorySeller.decCard(soldItem.getName(), soldItem.getCount());
@@ -1191,15 +1216,15 @@ public class GameService extends AbstractService {
                     inventoryBidder.decCard(bidItem.getName(), bidItem.getCount());
                 }
             }
-            tradeEndedChatMessageHelper(game.get().getName(), request.getTradeCode(), request.getUser().getUsername(), request.getTradeAccepted());
+            tradeEndedChatMessageHelper(game.getName(), request.getTradeCode(), request.getUser().getUsername(), request.getTradeAccepted());
             sendToAllInGame(request.getName(), new TradeEndedMessage(request.getTradeCode()));
-            game.get().removeTrade(request.getTradeCode());
+            game.removeTrade(request.getTradeCode());
             updateInventory(game);
         }
     }
 
     /**
-     * help method to deliver a chatmessage to all players of the game how the trade ended
+     * help method to deliver a chatMessage to all players of the game how the trade ended
      *
      * @param gameName     the game name
      * @param tradeCode    the trade code
@@ -1235,10 +1260,9 @@ public class GameService extends AbstractService {
      */
     @Subscribe
     public void onTradeStartedRequest(TradeStartRequest request) {
-        Optional<Game> game = gameManagement.getGame(request.getName());
         UserDTO user = request.getUser();
         TradeStartedMessage tsm = new TradeStartedMessage(user, request.getName(), request.getTradeCode());
-        sendToSpecificUserInGame(game, tsm, user);
+        sendToSpecificUserInGame(tsm, user);
     }
 
     /**
@@ -1250,24 +1274,25 @@ public class GameService extends AbstractService {
      * random resource. If it found the method, the number of the resource will be decreased and the resource will
      * be increased in the inventory of the player that moved the robber.
      *
-     * @param drawRandomResourceFromPlayerMessage
+     * @param drawRandomResourceFromPlayerMessage the drawRandomResourceFromPlayerMessage detected on the event bus
      * @author Marius Birk
      * @since 2021-05-01
      */
     @Subscribe
     public void onDrawRandomResourceFromPlayerMessage(DrawRandomResourceFromPlayerMessage drawRandomResourceFromPlayerMessage) {
-        Optional<Game> game = gameManagement.getGame(drawRandomResourceFromPlayerMessage.getName());
-        if (game.isPresent()) {
-            HashMap inventory = game.get().getInventory(new UserDTO(drawRandomResourceFromPlayerMessage.getChosenName(), "", "")).getPrivateView();
+        Optional<Game> optionalGame = gameManagement.getGame(drawRandomResourceFromPlayerMessage.getName());
+        if (optionalGame.isPresent()) {
+            Game game = optionalGame.get();
+            HashMap<String, Integer> inventory = game.getInventory(new UserDTO(drawRandomResourceFromPlayerMessage.getChosenName(), "", "")).getPrivateView();
             String random = randomResource();
             inventory.keySet().forEach(e -> {
                 if (e.equals(random)) {
-                    game.get().getInventory(drawRandomResourceFromPlayerMessage.getUser()).incCard(random, 1);
-                    game.get().getInventory(new UserDTO(drawRandomResourceFromPlayerMessage.getChosenName(), "", "")).decCard(random, 1);
+                    game.getInventory(drawRandomResourceFromPlayerMessage.getUser()).incCard(random, 1);
+                    game.getInventory(new UserDTO(drawRandomResourceFromPlayerMessage.getChosenName(), "", "")).decCard(random, 1);
                 }
             });
 
-            //Nach dem eine Karte gezogen wurde darf jeder mit mehr als 7 Resourcen die Hälfte ablegen
+            //Nachdem eine Karte gezogen wurde darf jeder mit mehr als 7 Resourcen die Hälfte ablegen
 
             tooMuchResources(game);
             updateInventory(game);
@@ -1279,28 +1304,28 @@ public class GameService extends AbstractService {
      * <p>
      * This method checks if the users have more than 7 resources and sends the user a tooMuchResourceCardMessage.
      * For every user in the game, the method checks if the user has more than 7 resource cards. If this is true,
-     * it checks if the number of resources is even or uneven and sends a TooMuchResourceCardsMessage to every specfic user.
+     * it checks if the number of resources is even or uneven and sends a TooMuchResourceCardsMessage to every specific user.
      *
      * @param game Game that the users play
      * @author Marius Birk
      * @since 2021-05-13
      */
-    public void tooMuchResources(Optional<Game> game) {
-        for (User user : game.get().getUsers()) {
-            if (game.get().getInventory(user).getResource() >= 7) {
-                if (game.get().getInventory(user).getResource() % 2 != 0) {
-                    TooMuchResourceCardsMessage tooMuchResourceCardsMessage = new TooMuchResourceCardsMessage(game.get().getName(), (UserDTO) user, ((game.get().getInventory(user).getResource() - 1) / 2), game.get().getInventory(user).getPrivateView());
-                    sendToSpecificUserInGame(game, tooMuchResourceCardsMessage, user);
+    public void tooMuchResources(Game game) {
+        for (User user : game.getUsers()) {
+            if (game.getInventory(user).getResource() >= 7) {
+                if (game.getInventory(user).getResource() % 2 != 0) {
+                    TooMuchResourceCardsMessage tooMuchResourceCardsMessage = new TooMuchResourceCardsMessage(game.getName(), (UserDTO) user, ((game.getInventory(user).getResource() - 1) / 2), game.getInventory(user).getPrivateView());
+                    sendToSpecificUserInGame(tooMuchResourceCardsMessage, user);
                 } else {
-                    TooMuchResourceCardsMessage tooMuchResourceCardsMessage = new TooMuchResourceCardsMessage(game.get().getName(), (UserDTO) user, (game.get().getInventory(user).getResource() / 2), game.get().getInventory(user).getPrivateView());
-                    sendToSpecificUserInGame(game, tooMuchResourceCardsMessage, user);
+                    TooMuchResourceCardsMessage tooMuchResourceCardsMessage = new TooMuchResourceCardsMessage(game.getName(), (UserDTO) user, (game.getInventory(user).getResource() / 2), game.getInventory(user).getPrivateView());
+                    sendToSpecificUserInGame(tooMuchResourceCardsMessage, user);
                 }
             }
         }
     }
 
     /**
-     * The method chosses a random resource and returns it.
+     * The method chooses a random resource and returns it.
      * <p>
      * This method will be invoked, if the name of a random resource is needed. For that, it creates a List of resources
      * and initializes a random number between 1 and 5. To get now a random name of resource, we substrate 1 and
@@ -1311,14 +1336,14 @@ public class GameService extends AbstractService {
      * @since 2021-04-29
      */
     public String randomResource() {
-        List<String> resources = new ArrayList();
+        List<String> resources = new ArrayList<>();
         resources.add("Wool");
         resources.add("Lumber");
         resources.add("Brick");
         resources.add("Grain");
         resources.add("Ore");
 
-        int random = (int) Math.floor(Math.random() * (4 - 0 + 1)) + 0;
+        int random = (int) Math.floor(Math.random() * (4 + 1));
         return resources.get(random);
     }
 }
