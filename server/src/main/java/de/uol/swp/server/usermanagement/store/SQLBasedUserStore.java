@@ -56,15 +56,14 @@ public class SQLBasedUserStore extends AbstractUserStore implements UserStore {
             preparedStatement.setString(2, password);
             resultSet = preparedStatement.executeQuery();
         } catch (SQLException e) {
-            LOG.debug("Fehler bei der Datenbankabfrage");
+            LOG.debug("Fehler bei der Datenbankabfrage!");
             e.printStackTrace();
         }
-        assert resultSet != null;
         if (resultSet.next()) {
             User user = new UserDTO(username,"", resultSet.getString(2), resultSet.getInt(3));
             return Optional.of(user);
         } else {
-            throw new Exception("Cannot auth user " + username);
+            return Optional.empty();
         }
     }
 
@@ -80,12 +79,11 @@ public class SQLBasedUserStore extends AbstractUserStore implements UserStore {
             LOG.debug("Fehler bei der Datenbankabfrage");
             e.printStackTrace();
         }
-        assert resultSet != null;
         if (resultSet.next()) {
             User user = new UserDTO(username,"", resultSet.getString(2), resultSet.getInt(3));
             return Optional.of(user);
         } else {
-            throw new Exception("Cannot auth user " + username);
+            return Optional.empty();
         }
     }
 
@@ -100,7 +98,7 @@ public class SQLBasedUserStore extends AbstractUserStore implements UserStore {
      */
 
     @Override
-    public User createUser(String username, String password, String eMail) throws Exception{
+    public User createUser(String username, String password, String eMail) throws Exception {
         String getUsername = "select name from userData where name = ?;";
         ResultSet resultSet;
         try {
@@ -127,7 +125,7 @@ public class SQLBasedUserStore extends AbstractUserStore implements UserStore {
     }
 
     @Override
-    public void removeUser(String username) throws Exception{
+    public void removeUser(String username) throws Exception {
         String selectUserString = "select name from userData where name =?;";
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(selectUserString);
@@ -248,7 +246,7 @@ public class SQLBasedUserStore extends AbstractUserStore implements UserStore {
         try {
             String getUser = "select * from userData where name=?;";
             updateUserPicture = connection.prepareStatement(getUser);
-            updateUserPicture.setString(1, toUpdatePicture.getUsername());
+            updateUserPicture.setString(1, username);
             resultSet = updateUserPicture.executeQuery();
         } catch (SQLException e) {
             LOG.debug(e);
@@ -260,8 +258,8 @@ public class SQLBasedUserStore extends AbstractUserStore implements UserStore {
 
                 String updateUserString = "update userData set pictureID=? where name=?;";
                 updateUserPicture = connection.prepareStatement(updateUserString);
-                updateUserPicture.setInt(1, toUpdatePicture.getProfilePictureID());
-                updateUserPicture.setString(2, toUpdatePicture.getUsername());
+                updateUserPicture.setInt(1, profilePictureID);
+                updateUserPicture.setString(2, username);
                 updateUserPicture.executeUpdate();
             } catch (SQLException e) {
                 LOG.debug(e);
@@ -270,7 +268,7 @@ public class SQLBasedUserStore extends AbstractUserStore implements UserStore {
         } else {
             throw new SQLException("Username unknown!");
         }
-        return new UserDTO(toUpdatePicture.getUsername(), toUpdatePicture.getPassword(), toUpdatePicture.getEMail(), toUpdatePicture.getProfilePictureID());
+        return new UserDTO(username, "", "", profilePictureID);
     }
 
     /**
