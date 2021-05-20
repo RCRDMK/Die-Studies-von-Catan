@@ -246,7 +246,6 @@ public class GamePresenter extends AbstractPresenter {
     @FXML
     private Button[] choose;
 
-    @FXML
     private Rectangle robber;
 
     /**
@@ -582,9 +581,8 @@ public class GamePresenter extends AbstractPresenter {
         //Initializing robber on the canvas
         robber.setLayoutX((canvas.getWidth() / 2 + canvas.getLayoutX()));
         robber.setLayoutY((canvas.getHeight() / 2 + canvas.getLayoutY()));
-        Platform.runLater(() -> {
-            gameAnchorPane.getChildren().add(robber);
-        });
+        gameAnchorPane.getChildren().add(robber);
+
     }
 
     public void initializedResourceButtons() {
@@ -1155,10 +1153,9 @@ public class GamePresenter extends AbstractPresenter {
         for (HexagonContainer hexagonContainer : this.hexagonContainers) {
 
             Vector placementVector = Vector.convertStringListToVector(hexagonContainer.getHexagon().getSelfPosition(), cardSize(), centerOfCanvasVector);
-
+            Platform.runLater(() -> {
             hexagonContainer.getHexagonShape().setLayoutX(placementVector.getX());
             hexagonContainer.getHexagonShape().setLayoutY(placementVector.getY());
-            Platform.runLater(() -> {
                 hexagonContainer.getHexagonShape().setFill(determinePictureOfTerrain(hexagonContainer.getHexagon()));
             });
 
@@ -1822,8 +1819,10 @@ public class GamePresenter extends AbstractPresenter {
                         if (mapGraphNodeContainer.getMapGraphNode().getUuid().equals(message.getUuid())) {
                             MapGraph.BuildingNode buildingNode = (MapGraph.BuildingNode) mapGraphNodeContainer.getMapGraphNode();
                             buildingNode.buildOrDevelopSettlement(message.getPlayerIndex());
-                            mapGraphNodeContainer.getCircle().setFill(determinePlayerColorByIndex(mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer()));
-                            mapGraphNodeContainer.getCircle().setVisible(true);
+                            Platform.runLater(() -> {
+                                mapGraphNodeContainer.getCircle().setFill(determinePlayerColorByIndex(mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer()));
+                                mapGraphNodeContainer.getCircle().setVisible(true);
+                            });
                             break;
                         }
                     }
@@ -1832,8 +1831,10 @@ public class GamePresenter extends AbstractPresenter {
                         if (mapGraphNodeContainer.getMapGraphNode().getUuid().equals(message.getUuid())) {
                             MapGraph.StreetNode streetNode = (MapGraph.StreetNode) mapGraphNodeContainer.getMapGraphNode();
                             streetNode.buildRoad(message.getPlayerIndex());
-                            mapGraphNodeContainer.getCircle().setFill(determinePlayerColorByIndex(mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer()));
-                            mapGraphNodeContainer.getCircle().setVisible(true);
+                            Platform.runLater(() -> {
+                                mapGraphNodeContainer.getCircle().setFill(determinePlayerColorByIndex(mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer()));
+                                mapGraphNodeContainer.getCircle().setVisible(true);
+                            });
                             break;
                         }
                     }
