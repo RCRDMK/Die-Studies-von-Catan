@@ -720,19 +720,20 @@ public class GameServiceTest {
         GameService gameService3 = new GameService(gameManagement, lobbyService, authenticationService, bus, userService);
 
         gameManagement.createGame("test", userDTO, "Standard");
-        Optional<Game> game = gameManagement.getGame("test");
-        assertTrue(game.isPresent());
+        Optional<Game> optionalGame = gameManagement.getGame("test");
+        assertTrue(optionalGame.isPresent());
+        Game game = optionalGame.get();
 
-        game.get().joinUser(userDTO1);
-        game.get().joinUser(userDTO2);
+        game.joinUser(userDTO1);
+        game.joinUser(userDTO2);
 
-        game.get().setUpUserArrayList();
-        game.get().setUpInventories();
+        game.setUpUserArrayList();
+        game.setUpInventories();
 
-        Inventory bank = game.get().getBankInventory();
+        Inventory bank = game.getBankInventory();
 
-        Inventory inventory1 = game.get().getInventory(userDTO1);
-        Inventory inventory2 = game.get().getInventory(userDTO2);
+        Inventory inventory1 = game.getInventory(userDTO1);
+        Inventory inventory2 = game.getInventory(userDTO2);
 
 
         assertEquals(bank.getNumberFromCardStack("Lumber"), 19);

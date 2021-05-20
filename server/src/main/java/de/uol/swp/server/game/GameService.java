@@ -234,7 +234,6 @@ public class GameService extends AbstractService {
     /**
      * Sends a message to a specific user in the given game
      *
-     * @param game    Optional<Game> game
      * @param message ServerMessage message
      * @param user    User user
      * @author Alexander Losse, Ricardo Mook
@@ -268,24 +267,11 @@ public class GameService extends AbstractService {
         Optional<Game> optionalGame = gameManagement.getGame(resourcesToDiscardRequest.getName());
         if (optionalGame.isPresent()) {
             Game game = optionalGame.get();
-            for (User user : game.getUsers()) {
-                if (user.equals(resourcesToDiscardRequest.getUser())) {
-                    Inventory inventory = game.getInventory(user);
-                    inventory.lumber.setNumber(resourcesToDiscardRequest.getInventory().get("Lumber"));
-                    inventory.grain.setNumber(resourcesToDiscardRequest.getInventory().get("Grain"));
-                    inventory.wool.setNumber(resourcesToDiscardRequest.getInventory().get("Wool"));
-                    inventory.brick.setNumber(resourcesToDiscardRequest.getInventory().get("Brick"));
-                    inventory.ore.setNumber(resourcesToDiscardRequest.getInventory().get("Ore"));
-                }
-            }
-        Optional<Game> game = gameManagement.getGame(resourcesToDiscardRequest.getName());
-        if (game.isPresent()) {
-            takeResource(game, resourcesToDiscardRequest.getUser(), "Lumber", game.get().getInventory(resourcesToDiscardRequest.getUser()).getNumberFromCardStack("Lumber") - resourcesToDiscardRequest.getInventory().get("Lumber"));
-            takeResource(game, resourcesToDiscardRequest.getUser(), "Brick", game.get().getInventory(resourcesToDiscardRequest.getUser()).getNumberFromCardStack("Brick") - resourcesToDiscardRequest.getInventory().get("Brick"));
-            takeResource(game, resourcesToDiscardRequest.getUser(), "Grain", game.get().getInventory(resourcesToDiscardRequest.getUser()).getNumberFromCardStack("Grain") - resourcesToDiscardRequest.getInventory().get("Grain"));
-            takeResource(game, resourcesToDiscardRequest.getUser(), "Wool", game.get().getInventory(resourcesToDiscardRequest.getUser()).getNumberFromCardStack("Wool") - resourcesToDiscardRequest.getInventory().get("Wool"));
-            takeResource(game, resourcesToDiscardRequest.getUser(), "Ore", game.get().getInventory(resourcesToDiscardRequest.getUser()).getNumberFromCardStack("Ore") - resourcesToDiscardRequest.getInventory().get("Ore"));
-
+            takeResource(game, resourcesToDiscardRequest.getUser(), "Lumber", game.getInventory(resourcesToDiscardRequest.getUser()).getNumberFromCardStack("Lumber") - resourcesToDiscardRequest.getInventory().get("Lumber"));
+            takeResource(game, resourcesToDiscardRequest.getUser(), "Brick", game.getInventory(resourcesToDiscardRequest.getUser()).getNumberFromCardStack("Brick") - resourcesToDiscardRequest.getInventory().get("Brick"));
+            takeResource(game, resourcesToDiscardRequest.getUser(), "Grain", game.getInventory(resourcesToDiscardRequest.getUser()).getNumberFromCardStack("Grain") - resourcesToDiscardRequest.getInventory().get("Grain"));
+            takeResource(game, resourcesToDiscardRequest.getUser(), "Wool", game.getInventory(resourcesToDiscardRequest.getUser()).getNumberFromCardStack("Wool") - resourcesToDiscardRequest.getInventory().get("Wool"));
+            takeResource(game, resourcesToDiscardRequest.getUser(), "Ore", game.getInventory(resourcesToDiscardRequest.getUser()).getNumberFromCardStack("Ore") - resourcesToDiscardRequest.getInventory().get("Ore"));
             updateInventory(game);
         }
     }
@@ -394,19 +380,19 @@ public class GameService extends AbstractService {
                         //"Ocean" = 0; "Forest" = 1; "Farmland" = 2; "Grassland" = 3; "Hillside" = 4; "Mountain" = 5; "Desert" = 6;
                         switch (hexagon.getTerrainType()) {
                             case 1:
-                                giveResource(game, game.get().getUser(i), "Lumber", 1);
+                                giveResource(game, game.getUser(i), "Lumber", 1);
                                 break;
                             case 2:
-                                giveResource(game, game.get().getUser(i), "Grain", 1);
+                                giveResource(game, game.getUser(i), "Grain", 1);
                                 break;
                             case 3:
-                                giveResource(game, game.get().getUser(i), "Wool", 1);
+                                giveResource(game, game.getUser(i), "Wool", 1);
                                 break;
                             case 4:
-                                giveResource(game, game.get().getUser(i), "Brick", 1);
+                                giveResource(game, game.getUser(i), "Brick", 1);
                                 break;
                             case 5:
-                                giveResource(game, game.get().getUser(i), "Ore", 1);
+                                giveResource(game, game.getUser(i), "Ore", 1);
                                 break;
                             default:
                                 break;
@@ -443,19 +429,19 @@ public class GameService extends AbstractService {
                             //"Ocean" = 0; "Forest" = 1; "Farmland" = 2; "Grassland" = 3; "Hillside" = 4; "Mountain" = 5; "Desert" = 6;
                             switch (hexagon.getTerrainType()) {
                                 case 1:
-                                    giveResource(game, game.get().getUser(buildingNode.getOccupiedByPlayer()), "Lumber", buildingNode.getSizeOfSettlement());
+                                    giveResource(game, game.getUser(buildingNode.getOccupiedByPlayer()), "Lumber", buildingNode.getSizeOfSettlement());
                                     break;
                                 case 2:
-                                    giveResource(game, game.get().getUser(buildingNode.getOccupiedByPlayer()), "Grain", buildingNode.getSizeOfSettlement());
+                                    giveResource(game, game.getUser(buildingNode.getOccupiedByPlayer()), "Grain", buildingNode.getSizeOfSettlement());
                                     break;
                                 case 3:
-                                    giveResource(game, game.get().getUser(buildingNode.getOccupiedByPlayer()), "Wool", buildingNode.getSizeOfSettlement());
+                                    giveResource(game, game.getUser(buildingNode.getOccupiedByPlayer()), "Wool", buildingNode.getSizeOfSettlement());
                                     break;
                                 case 4:
-                                    giveResource(game, game.get().getUser(buildingNode.getOccupiedByPlayer()), "Brick", buildingNode.getSizeOfSettlement());
+                                    giveResource(game, game.getUser(buildingNode.getOccupiedByPlayer()), "Brick", buildingNode.getSizeOfSettlement());
                                     break;
                                 case 5:
-                                    giveResource(game, game.get().getUser(buildingNode.getOccupiedByPlayer()), "Ore", buildingNode.getSizeOfSettlement());
+                                    giveResource(game, game.getUser(buildingNode.getOccupiedByPlayer()), "Ore", buildingNode.getSizeOfSettlement());
                                     break;
                                 default:
                                     break;
@@ -486,27 +472,24 @@ public class GameService extends AbstractService {
      * @author Anton Nikiforov
      * @since 2012-05-19
      */
-    public boolean giveResource(Optional<Game> game, User user, String resourceTyp, int amount) {
-        if (game.isPresent()) {
-            Inventory bank = game.get().getBankInventory();
-            boolean success = bank.getNumberFromCardStack(resourceTyp) >= amount;
-            boolean firstTime = bank.getNumberFromCardStack(resourceTyp) == 1 && amount > 0;
-            for (int i = amount; i > 0; i--) {
-                if (bank.getNumberFromCardStack(resourceTyp) > 0) {
-                    bank.decCardStack(resourceTyp, 1);
-                    game.get().getInventory(user).incCardStack(resourceTyp, 1);
-                }
-                else break;
+    public boolean giveResource(Game game, User user, String resourceTyp, int amount) {
+        Inventory bank = game.getBankInventory();
+        boolean success = bank.getNumberFromCardStack(resourceTyp) >= amount;
+        boolean firstTime = bank.getNumberFromCardStack(resourceTyp) == 1 && amount > 0;
+        for (int i = amount; i > 0; i--) {
+            if (bank.getNumberFromCardStack(resourceTyp) > 0) {
+                bank.decCardStack(resourceTyp, 1);
+                game.getInventory(user).incCardStack(resourceTyp, 1);
             }
-            if (firstTime) {
-                    String chatMessage = resourceTyp + " storage is empty now";
-                    String chatId = "game_" + game.get().getName();
-                    ResponseChatMessage msg = new ResponseChatMessage(chatMessage, chatId, "Bank", System.currentTimeMillis());
-                    post(msg);
-            }
-            return success;
+            else break;
         }
-        return false;
+        if (firstTime) {
+                String chatMessage = resourceTyp + " storage is empty now";
+                String chatId = "game_" + game.getName();
+                ResponseChatMessage msg = new ResponseChatMessage(chatMessage, chatId, "Bank", System.currentTimeMillis());
+                post(msg);
+        }
+        return success;
     }
 
     /**
@@ -527,27 +510,24 @@ public class GameService extends AbstractService {
      * @author Anton Nikiforov
      * @since 2012-04-09
      */
-    public boolean takeResource(Optional<Game> game, User user, String resourceTyp, int amount) {
-        if (game.isPresent()) {
-            Inventory bank = game.get().getBankInventory();
-            boolean success = game.get().getInventory(user).getNumberFromCardStack(resourceTyp)  >= amount;
-            boolean wasEmpty = bank.getNumberFromCardStack(resourceTyp) == 0 && amount > 0;
-            for (int i = amount; i > 0; i--) {
-                if (game.get().getInventory(user).getNumberFromCardStack(resourceTyp) > 0) {
-                    game.get().getInventory(user).decCardStack(resourceTyp, 1);
-                    bank.incCardStack(resourceTyp, 1);
-                }
-                else break;
+    public boolean takeResource(Game game, User user, String resourceTyp, int amount) {
+        Inventory bank = game.getBankInventory();
+        boolean success = game.getInventory(user).getNumberFromCardStack(resourceTyp)  >= amount;
+        boolean wasEmpty = bank.getNumberFromCardStack(resourceTyp) == 0 && amount > 0;
+        for (int i = amount; i > 0; i--) {
+            if (game.getInventory(user).getNumberFromCardStack(resourceTyp) > 0) {
+                game.getInventory(user).decCardStack(resourceTyp, 1);
+                bank.incCardStack(resourceTyp, 1);
             }
-            if (wasEmpty) {
-                String chatMessage = resourceTyp + " storage is now filled";
-                String chatId = "game_" + game.get().getName();
-                ResponseChatMessage msg = new ResponseChatMessage(chatMessage, chatId, "Bank", System.currentTimeMillis());
-                post(msg);
-            }
-            return success;
+            else break;
         }
-        return false;
+        if (wasEmpty) {
+            String chatMessage = resourceTyp + " storage is now filled";
+            String chatId = "game_" + game.getName();
+            ResponseChatMessage msg = new ResponseChatMessage(chatMessage, chatId, "Bank", System.currentTimeMillis());
+            post(msg);
+        }
+        return success;
     }
 
     /**
@@ -580,7 +560,7 @@ public class GameService extends AbstractService {
                     hexagon.setOccupiedByRobber(true);
                     for (MapGraph.BuildingNode node : hexagon.getBuildingNodes()) {
                         if (node.getOccupiedByPlayer() != 666) {
-                            if (!userList.contains(game.getUser(node.getOccupiedByPlayer()).getUsername()) && !robbersNewFieldMessage.getUser().getUsername().equals(game.getUser(node.getOccupiedByPlayer()).getUsername())) {
+                            if (!userList.contains(game.getUser(node.getOccupiedByPlayer()).getUsername()) && !robbersNewFieldMessage.getUser().equals(game.getUser(node.getOccupiedByPlayer()))) {
                                 userList.add(game.getUser(node.getOccupiedByPlayer()).getUsername());
                             }
                         }
@@ -621,7 +601,7 @@ public class GameService extends AbstractService {
         if (optionalLobby.isPresent()) {
             Lobby lobby = optionalLobby.get();
             Set<User> usersInLobby = lobby.getUsers();
-            if (gameManagement.getGame(lobby.getName()).isEmpty() && usersInLobby.size() > 1 && startGameRequest.getUser().getUsername().equals(lobby.getOwner().getUsername())) {
+            if (gameManagement.getGame(lobby.getName()).isEmpty() && usersInLobby.size() > 1 && startGameRequest.getUser().equals(lobby.getOwner())) {
                 lobby.setPlayersReadyToNull();
                 lobby.setGameFieldVariant(startGameRequest.getGameFieldVariant());
                 sendToAllInLobby(startGameRequest.getName(), new StartGameMessage(startGameRequest.getName(), startGameRequest.getUser()));
@@ -776,7 +756,7 @@ public class GameService extends AbstractService {
         Optional<Game> optionalGame = gameManagement.getGame(request.getName());
         if (optionalGame.isPresent()) {
             Game game = optionalGame.get();
-            if (request.getUser().getUsername().equals(game.getUser(game.getTurn()).getUsername()) && game.getCurrentCard().equals("")) {
+            if (request.getUser().equals(game.getUser(game.getTurn())) && game.getCurrentCard().equals("")) {
                 try {
                     boolean priorGamePhase = game.isStartingTurns();
                     game.nextRound();
@@ -831,7 +811,7 @@ public class GameService extends AbstractService {
         Optional<Game> optionalGame = gameManagement.getGame(request.getName());
         if (optionalGame.isPresent()) {
             Game game = optionalGame.get();
-            if (request.getUser().getUsername().equals(game.getUser(game.getTurn()).getUsername())) {
+            if (request.getUser().equals(game.getUser(game.getTurn()))) {
                 Inventory inventory = game.getInventory(request.getUser());
                 if (inventory.wool.getNumber() >= 1 && inventory.ore.getNumber() >= 1 && inventory.grain.getNumber() >= 1) {
                     String devCard = game.getDevelopmentCardDeck().drawnCard();
@@ -1057,7 +1037,7 @@ public class GameService extends AbstractService {
                     case "Year of Plenty":
                         if (request instanceof ResolveDevelopmentCardYearOfPlentyRequest) {
                             ResolveDevelopmentCardYearOfPlentyRequest yearOfPlentyRequest = (ResolveDevelopmentCardYearOfPlentyRequest) request;
-                            Inventory bank = game.get().getBankInventory();
+                            Inventory bank = game.getBankInventory();
                             boolean successful1 = giveResource(game, turnPlayer, yearOfPlentyRequest.getResource1(), 1);
                             boolean successful2 = giveResource(game, turnPlayer, yearOfPlentyRequest.getResource2(), 1);
                             if (!(successful1 && successful2)) {
@@ -1363,12 +1343,12 @@ public class GameService extends AbstractService {
             String random = randomResource();
             inventory.keySet().forEach(e -> {
                 if (e.equals(random)) {
-                    game.getInventory(drawRandomResourceFromPlayerMessage.getUser()).incCard(random, 1);
-                    game.getInventory(new UserDTO(drawRandomResourceFromPlayerMessage.getChosenName(), "", "")).decCard(random, 1);
+                    game.getInventory(drawRandomResourceFromPlayerMessage.getUser()).incCardStack(random, 1);
+                    game.getInventory(new UserDTO(drawRandomResourceFromPlayerMessage.getChosenName(), "", "")).decCardStack(random, 1);
                 }
             });
 
-            //Nachdem eine Karte gezogen wurde darf jeder mit mehr als 7 Resourcen die Hälfte ablegen
+            //Nachdem eine Karte gezogen wurde darf jeder mit mehr als 7 Ressourcen die Hälfte ablegen
 
             tooMuchResources(game);
             updateInventory(game);
