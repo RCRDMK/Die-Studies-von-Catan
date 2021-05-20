@@ -136,7 +136,7 @@ public class GameDTO implements Game {
      */
     @Override
     public int getTurn() {
-        return overallTurns % users.size();
+        return overallTurns % userArrayList.size();
     }
 
     /**
