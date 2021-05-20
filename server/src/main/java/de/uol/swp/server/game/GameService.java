@@ -425,7 +425,6 @@ public class GameService extends AbstractService {
                 if (hexagon.getDiceToken() == eyes) {
                     for (MapGraph.BuildingNode buildingNode : hexagon.getBuildingNodes()) {
                         if (buildingNode.getOccupiedByPlayer() != 666 && !hexagon.isOccupiedByRobber()) {
-                            Inventory inventory = game.getInventory(game.getUser(buildingNode.getOccupiedByPlayer()));
                             //"Ocean" = 0; "Forest" = 1; "Farmland" = 2; "Grassland" = 3; "Hillside" = 4; "Mountain" = 5; "Desert" = 6;
                             switch (hexagon.getTerrainType()) {
                                 case 1:
