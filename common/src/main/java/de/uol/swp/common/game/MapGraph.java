@@ -24,6 +24,7 @@ public class MapGraph implements Serializable {
     private final HashSet<BuildingNode> buildingNodeHashSet = new HashSet<>();
     private final HashSet<Hexagon> hexagonHashSet = new HashSet<>();
     private final ArrayList<BuildingNode> builtBuildings = new ArrayList<>();
+    private final LongestStreetPathCalculator longestStreetPathCalculator;
 
     /**
      * Creates the interconnected Grid of StreetNodes and BuildingNodes.
@@ -33,6 +34,7 @@ public class MapGraph implements Serializable {
      */
     public MapGraph(String mapTypeToGenerate) {
         initializeMapGraph(mapTypeToGenerate);
+        this.longestStreetPathCalculator = new LongestStreetPathCalculator(streetNodeHashSet);
     }
 
     public HashSet<StreetNode> getStreetNodeHashSet() {
@@ -45,6 +47,10 @@ public class MapGraph implements Serializable {
 
     public HashSet<Hexagon> getHexagonHashSet() {
         return hexagonHashSet;
+    }
+
+    public LongestStreetPathCalculator getLongestStreetPathCalculator() {
+        return longestStreetPathCalculator;
     }
 
     /**
@@ -70,7 +76,6 @@ public class MapGraph implements Serializable {
 
                 middle.generateNodesMiddle();
                 middle.expand();
-                middle.interconnectOwnNodes();
                 middle.interconnectNeighbourHexagons();
 
                 middle.getHexTopLeft().expand();
@@ -118,12 +123,9 @@ public class MapGraph implements Serializable {
                 middle.getHexLeft().getHexTopLeft().generateNodes();
 
 
-                middle.getHexTopLeft().interconnectNeighbourNodes();
-                middle.getHexTopRight().interconnectNeighbourNodes();
-                middle.getHexLeft().interconnectNeighbourNodes();
-                middle.getHexRight().interconnectNeighbourNodes();
-                middle.getHexBottomLeft().interconnectNeighbourNodes();
-                middle.getHexBottomRight().interconnectNeighbourNodes();
+                for (Hexagon hexagon : hexagonHashSet) {
+                    hexagon.interconnectOwnNodes();
+                }
 
                 middle.getHexTopLeft().getHexTopLeft().updateHexagonList();
                 middle.getHexTopLeft().getHexTopRight().updateHexagonList();
@@ -212,15 +214,23 @@ public class MapGraph implements Serializable {
      * Traderoute"-Flag.
      * </p>
      *
-     * @return The integer representing the index of the player with the longest road, inside the ArrayList of players
-     * in the GameDTO.
+     * enhanced by Marc Hermes 2021-05-19
+     *
+     * @return The int array representing the index of the player with the longest road, as well as the length of the longest road. [0] -> the PlayerIndex, [1] -> the length
      * @author Pieter Vogt
      * @see de.uol.swp.common.game.dto.GameDTO
      * @since 2021-04-02
      */
-    public int returnPlayerWithLongestRoad() {
-        //TODO:This needs to be implemented in a separate ticket some time soon.
-        return 666; //nonsense-value
+    public int[] returnPlayerWithLongestRoad() {
+        int[] returnValue = new int[2];
+        for(int i = 0; i < 4; i++) {
+            int length = longestStreetPathCalculator.getLongestPath(i);
+            if(length > returnValue[1]) {
+                returnValue[1] = length;
+                returnValue[0] = i;
+            }
+        }
+        return returnValue;
     }
 
     public ArrayList<BuildingNode> getBuiltBuildings() {
@@ -345,7 +355,9 @@ public class MapGraph implements Serializable {
 
         /**
          * Builds a road for player with parsed index.
+         * Calls the function to update the matrix with new Street.
          *
+         * enhanced by Marc, Kirstin, 2021-04-23
          * @param playerIndex Index of the player who wants to build a road
          * @return True if construction was successful, false if not.
          * @author Pieter Vogt
@@ -354,6 +366,7 @@ public class MapGraph implements Serializable {
         public Boolean buildRoad(int playerIndex) {
             if (this.occupiedByPlayer == 666) {
                 this.occupiedByPlayer = playerIndex;
+                longestStreetPathCalculator.updateMatrixWithNewStreet(this.getUuid(), playerIndex);
                 return true;
             } else return false;
         }
@@ -443,7 +456,9 @@ public class MapGraph implements Serializable {
 
         /**
          * Builds or upgrades a settlement for player with parsed index.
+         * Calls the function to update the matrix with new building, if the building is not just a size increase.
          *
+         * enhanced by Marc, Kirstin, 2021-04-23
          * @param playerIndex Index of the player who wants to build or upgrade a building.
          * @return True if construction was successful, false if not.
          * @author Pieter Vogt
@@ -454,6 +469,9 @@ public class MapGraph implements Serializable {
                 if (sizeOfSettlement < 2) {
                     sizeOfSettlement++;
                     this.occupiedByPlayer = playerIndex;
+                    if (sizeOfSettlement == 1) {
+                        longestStreetPathCalculator.updateMatrixWithNewBuilding(this, playerIndex);
+                    }
                     return true;
                 } else return false;
             } else return false;
@@ -1185,7 +1203,7 @@ public class MapGraph implements Serializable {
                 streetLeft.addBuildingNode(buildingTopLeft);
                 streetLeft.addBuildingNode(buildingBottomLeft);
 
-                streetRight.addBuildingNode(buildingTopLeft);
+                streetRight.addBuildingNode(buildingBottomRight);
                 streetRight.addBuildingNode(buildingTopRight);
 
                 streetBottomLeft.addBuildingNode(buildingBottom);

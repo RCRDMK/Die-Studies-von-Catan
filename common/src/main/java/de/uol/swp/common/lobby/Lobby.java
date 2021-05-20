@@ -4,6 +4,7 @@ import de.uol.swp.common.user.User;
 
 import java.io.Serializable;
 import java.util.Set;
+import java.util.Timer;
 
 
 /**
@@ -85,6 +86,11 @@ public interface Lobby extends Serializable {
      */
     Set<User> getUsers();
 
+    /**
+     * Setter for the gameFieldVariant
+     *
+     * @param s the String description of the gameFieldVariant
+     */
     void setGameFieldVariant(String s);
 
     /**
@@ -94,11 +100,23 @@ public interface Lobby extends Serializable {
      * @author Marco Grawunder
      * @since 2021-01-24
      */
-
     Set<User> getPlayersReady();
 
+    /**
+     * Getter for the gameFieldVariant
+     *
+     * @return the String description of the gameFieldVariant
+     * @author Marc Hermes
+     * @since 2021-05-18
+     */
     String getGameFieldVariant();
 
+    /**
+     * Empties the playersReady Set
+     *
+     * @author Marc Hermes
+     * @since 2021-05-18
+     */
     void setPlayersReadyToNull();
 
     /**
@@ -128,24 +146,6 @@ public interface Lobby extends Serializable {
     void setRdyResponsesReceived(int responsesReceived);
 
     /**
-     * Returns a boolean value saying whether the game of this lobby should start or not.
-     *
-     * @return True if the game is supposed to start, false if not (when the game has already started)
-     * @author Marc Hermes
-     * @since 2021-03-23
-     */
-    boolean getGameShouldStart();
-
-    /**
-     * Sets the value of the gameShouldStart variable
-     *
-     * @param value True if the game should start, false if not
-     * @author Marc Hermes
-     * @since 2021-03-23
-     */
-    void setGameShouldStart(boolean value);
-
-    /**
      * Returns a boolean value saying whether the game of this lobby started or not
      *
      * @return True if the game started, false if not (users in the lobby still waiting)
@@ -162,4 +162,22 @@ public interface Lobby extends Serializable {
      * @since 2021-04-08
      */
     void setGameStarted(boolean value);
+
+    /**
+     * Method used to start the timer of the lobby for the gameStart
+     *
+     * @return the timer of this lobby
+     * @author Marc Hermes
+     * @since 2021-05-18
+     */
+    Timer startTimerForGameStart();
+
+    /**
+     * Method used to stop the timer of the lobby for the gameStart
+     *
+     * @author Marc Hermes
+     * @since 2021-05-18
+     */
+    void stopTimerForGameStart();
+
 }
