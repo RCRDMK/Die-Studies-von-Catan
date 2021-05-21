@@ -158,7 +158,7 @@ public class RandomAI extends AbstractAISystem {
                         //}
                     }
                 }
-                if(street1 != null & street2 != null) {
+                if (street1 != null & street2 != null) {
                     playDevelopmentCardRoadBuilding(street1, street2);
                 }
                 break;
@@ -205,6 +205,18 @@ public class RandomAI extends AbstractAISystem {
                     }
             }
         }
+    }
+
+
+    private boolean makeRandomTradeLogic() {
+        boolean startATradeTest = randomInt(0, 9) >= 5;
+        if (startATradeTest) {
+            ArrayList<ArrayList<TradeItem>> wishAndOfferList = createWishAndOfferList();
+            ArrayList<TradeItem> wishList = wishAndOfferList.get(0);
+            ArrayList<TradeItem> offerList = wishAndOfferList.get(1);
+            tradeStart(wishList, offerList);
+        }
+        return startATradeTest;
     }
 
     /**
