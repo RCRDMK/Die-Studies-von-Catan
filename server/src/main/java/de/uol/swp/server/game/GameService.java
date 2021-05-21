@@ -107,12 +107,12 @@ public class GameService extends AbstractService {
                 for (User user : game.getUsers()) usersInGame.add((UserDTO) user);
                 sendToAllInGame(gameLeaveUserRequest.getName(), new UserLeftGameMessage(gameLeaveUserRequest.getName(), gameLeaveUserRequest.getUser(), usersInGame));
                 // Check if the player leaving the game is the turnPlayer, so that the AI may replace him now
-                if (gameLeaveUserRequest.getUser().equals(game.get().getUser(game.get().getTurn()))) {
-                    if (!game.get().rolledDiceThisTurn() && !game.get().isStartingTurns()) {
-                        RollDiceRequest rdr = new RollDiceRequest(game.get().getName(), game.get().getUser(game.get().getTurn()));
+                if (gameLeaveUserRequest.getUser().equals(game.getUser(game.getTurn()))) {
+                    if (!game.rolledDiceThisTurn() && !game.isStartingTurns()) {
+                        RollDiceRequest rdr = new RollDiceRequest(game.getName(), game.getUser(game.getTurn()));
                         onRollDiceRequest(rdr);
                     }
-                    startTurnForAI((GameDTO) game.get());
+                    startTurnForAI((GameDTO) game);
                 }
             }
         } else {
@@ -314,7 +314,7 @@ public class GameService extends AbstractService {
                     dice.setEyes(rollDiceRequest.getCheatEyes());
                 }
                 int addedEyes = dice.getDiceEyes1() + dice.getDiceEyes2();
-                game.get().setLastRolledDiceValue(addedEyes);
+                game.setLastRolledDiceValue(addedEyes);
                 if (addedEyes == 7) {
                     MoveRobberMessage moveRobberMessage = new MoveRobberMessage(rollDiceRequest.getName(), (UserDTO) rollDiceRequest.getUser());
                     sendToSpecificUserInGame(moveRobberMessage, rollDiceRequest.getUser());
@@ -854,7 +854,7 @@ public class GameService extends AbstractService {
                 switch (devCard) {
 
                     case "Monopoly":
-                        if (inventory.cardMonopoly.getNumber() > 0 && currentCardOfGame.equals("") && (!alreadyPlayedCard || game.get().isUsedForTest())) {
+                        if (inventory.cardMonopoly.getNumber() > 0 && currentCardOfGame.equals("") && (!alreadyPlayedCard || game.isUsedForTest())) {
                             game.setCurrentCard("Monopoly");
                             game.setPlayedCardThisTurn(true);
                             PlayDevelopmentCardResponse response = new PlayDevelopmentCardResponse(devCard, true, turnPlayer.getUsername(), game.getName());
@@ -865,7 +865,7 @@ public class GameService extends AbstractService {
                         }
 
                     case "Road Building":
-                        if (inventory.cardRoadBuilding.getNumber() > 0 && currentCardOfGame.equals("") && (!alreadyPlayedCard || game.get().isUsedForTest()) && inventory.road.getNumber() > 1) {
+                        if (inventory.cardRoadBuilding.getNumber() > 0 && currentCardOfGame.equals("") && (!alreadyPlayedCard || game.isUsedForTest()) && inventory.road.getNumber() > 1) {
                             // TODO: check if the player is allowed to even attempt to build 2 streets i.e. not possible when there are no legal spaces to build 2 streets
                             // TODO: probs very complicated to check that, so maybe just ignore that fringe scenario???
                             game.setCurrentCard("Road Building");
@@ -878,7 +878,7 @@ public class GameService extends AbstractService {
                         }
 
                     case "Year of Plenty":
-                        if (inventory.cardYearOfPlenty.getNumber() > 0 && currentCardOfGame.equals("") && (!alreadyPlayedCard || game.get().isUsedForTest())) {
+                        if (inventory.cardYearOfPlenty.getNumber() > 0 && currentCardOfGame.equals("") && (!alreadyPlayedCard || game.isUsedForTest())) {
                             // TODO: Check if there theoretically are resources left in the bank that could be obtained for the player
                             game.setCurrentCard("Year of Plenty");
                             game.setPlayedCardThisTurn(true);
@@ -890,12 +890,12 @@ public class GameService extends AbstractService {
                         }
 
                     case "Knight":
-                        if (inventory.cardKnight.getNumber() > 0 && currentCardOfGame.equals("") && (!alreadyPlayedCard || game.get().isUsedForTest())) {
+                        if (inventory.cardKnight.getNumber() > 0 && currentCardOfGame.equals("") && (!alreadyPlayedCard || game.isUsedForTest())) {
                             game.setCurrentCard("Knight");
                             game.setPlayedCardThisTurn(true);
                             PlayDevelopmentCardResponse response = new PlayDevelopmentCardResponse(devCard, true, turnPlayer.getUsername(), game.getName());
                             MoveRobberMessage moveRobberMessage = new MoveRobberMessage(request.getName(), request.getUser());
-                            sendToSpecificUserInGame(gameManagement.getGame(request.getName()), moveRobberMessage, request.getUser());
+                            sendToSpecificUserInGame(moveRobberMessage, request.getUser());
                             response.initWithMessage(request);
                             post(response);
                             inventory.setPlayedKnights(inventory.getPlayedKnights() + 1);
@@ -1052,7 +1052,7 @@ public class GameService extends AbstractService {
 
                             RobbersNewFieldMessage rnfm = new RobbersNewFieldMessage(gameName, (UserDTO) turnPlayer, knightRequest.getField());
                             onRobbersNewFieldRequest(rnfm);
-                            game.get().setCurrentCard("");
+                            game.setCurrentCard("");
                             sendToAllInGame(gameName, message);
                         }
                         break;
