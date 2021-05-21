@@ -16,6 +16,7 @@ import java.util.ArrayList;
 public class GameCreatedMessage extends AbstractGameMessage {
     private final MapGraph mapGraph;
     private final ArrayList<UserDTO> users;
+    private final String gameFieldVariant;
 
     /**
      * Constructor
@@ -24,11 +25,12 @@ public class GameCreatedMessage extends AbstractGameMessage {
      *
      * @since 2021-01-07
      */
-    public GameCreatedMessage(String name, UserDTO user, MapGraph mapGraph, ArrayList<UserDTO> users) {
+    public GameCreatedMessage(String name, UserDTO user, MapGraph mapGraph, ArrayList<UserDTO> users, String gameFieldVariant) {
         this.name = name;
         this.user = user;
         this.mapGraph = mapGraph;
         this.users = users;
+        this.gameFieldVariant = gameFieldVariant;
     }
 
     public MapGraph getMapGraph() {
@@ -37,5 +39,9 @@ public class GameCreatedMessage extends AbstractGameMessage {
 
     public ArrayList<UserDTO> getUsers() {
         return users;
+    }
+
+    public String getGameFieldVariant() {
+        return gameFieldVariant;
     }
 }

@@ -77,6 +77,8 @@ public class LobbyPresenter extends AbstractPresenter {
     private RadioButton standardGameField;
     @FXML
     private RadioButton randomGameField;
+    @FXML
+    private RadioButton veryRandomGameField;
 
 
     @FXML
@@ -115,6 +117,9 @@ public class LobbyPresenter extends AbstractPresenter {
     public void onRandomGameField() {
         gameFieldVariant = "Random";
     }
+
+    @FXML
+    public void onVeryRandomGameField() { gameFieldVariant = "VeryRandom";}
 
     /**
      * Method called when the StartGame button is pressed
@@ -212,9 +217,11 @@ public class LobbyPresenter extends AbstractPresenter {
         if (isLobbyOwner) {
             randomGameField.setDisable(false);
             standardGameField.setDisable(false);
+            veryRandomGameField.setDisable(false);
         } else {
             standardGameField.setDisable(true);
             randomGameField.setDisable(true);
+            veryRandomGameField.setDisable(true);
         }
     }
 

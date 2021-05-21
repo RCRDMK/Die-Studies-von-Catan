@@ -35,6 +35,12 @@
             <fx:reference source="gameFieldToggleButtons"/>
         </toggleGroup>
     </RadioButton>
+    <RadioButton fx:id="veryRandomGameField" layoutX="14.0" layoutY="363.0" mnemonicParsing="false"
+                 onAction="#onVeryRandomGameField" text="VeryRandom">
+        <toggleGroup>
+            <fx:reference source="gameFieldToggleButtons"/>
+        </toggleGroup>
+    </RadioButton>
     <ListView fx:id="lobbyUsersView" prefHeight="200.0" prefWidth="200.0"/>
     <Button layoutX="524.0" layoutY="366.0" mnemonicParsing="false" onAction="#onStartGame" text="Start Game"/>
     <Button layoutX="200.0" layoutY="366.0" mnemonicParsing="false" onAction="#onLeaveLobby" text="Leave Lobby"/>
