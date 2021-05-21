@@ -37,6 +37,8 @@ public abstract class AbstractAISystem implements AISystem {
 
     boolean playedCardThisTurn = false;
 
+    boolean startedTrade = false;
+
     ArrayList<AIAction> aiActions;
 
     /**

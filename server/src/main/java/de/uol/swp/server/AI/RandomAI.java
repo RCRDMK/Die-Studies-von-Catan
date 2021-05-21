@@ -2,6 +2,7 @@ package de.uol.swp.server.AI;
 
 import de.uol.swp.common.game.MapGraph;
 import de.uol.swp.common.game.dto.GameDTO;
+import de.uol.swp.common.game.trade.TradeItem;
 import de.uol.swp.server.AI.AIActions.AIAction;
 
 import java.util.ArrayList;
@@ -69,14 +70,22 @@ public class RandomAI extends AbstractAISystem {
             }
             // do some random actions
             makeRandomActionsLogic();
-            // try to play a developmentCard
-            ArrayList<String> cards = canPlayDevelopmentCard();
-            if (cards.size() > 0) {
-                playDevelopmentCardLogic(cards);
+            startedTrade = makeRandomTradeLogic();
+            if (!startedTrade) {
+                // try to play a developmentCard
+                ArrayList<String> cards = canPlayDevelopmentCard();
+                if (cards.size() > 0) {
+                    playDevelopmentCardLogic(cards);
+                }
+
+                endTurn();
             }
         }
-        endTurn();
         return this.aiActions;
+    }
+
+    public void continueTurnOrder() {
+        startedTrade = true;
     }
 
     /**
@@ -167,7 +176,7 @@ public class RandomAI extends AbstractAISystem {
      * @since 2021-05-19
      */
     private void makeRandomActionsLogic() {
-        int amountOfActions = randomInt(0, 5);
+        int amountOfActions = randomInt(0, 3);
         for (int i = 0; i <= amountOfActions; i++) {
             int actionType = randomInt(0, 3);
             switch (actionType) {
@@ -283,4 +292,149 @@ public class RandomAI extends AbstractAISystem {
         }
         return resource;
     }
+
+    private ArrayList<ArrayList<TradeItem>> createWishAndOfferList() {
+        ArrayList<ArrayList<TradeItem>> wishAndOfferList = new ArrayList<>();
+        ArrayList<TradeItem> wishList = new ArrayList<>();
+        ArrayList<TradeItem> offerList = new ArrayList<>();
+        wishAndOfferList.add(wishList);
+        wishAndOfferList.add(offerList);
+        int lumber = inventory.lumber.getNumber();
+        int grain = inventory.grain.getNumber();
+        int brick = inventory.brick.getNumber();
+        int wool = inventory.wool.getNumber();
+        int ore = inventory.ore.getNumber();
+        String brickString = "Brick";
+        String lumberString = "Lumber";
+        String oreString = "Ore";
+        String grainString = "Grain";
+        String woolString = "Wool";
+
+        int lumberAllowedToBeTraded = lumber;
+        int brickAllowedToBeTraded = brick;
+        int grainAllowedToBeTraded = grain;
+        int woolAllowedToBeTraded = wool;
+        int oreAllowedToBeTraded = ore;
+
+        ArrayList<String> cantDo = new ArrayList<>();
+        if (!canBuildStreet()) {
+            cantDo.add("Street");
+        }
+        if (!canBuildTown()) {
+            cantDo.add("Town");
+        }
+        if (!canBuildCity()) {
+            cantDo.add("City");
+        }
+        if (!canBuyDevelopmentCard()) {
+            cantDo.add("DevCard");
+        }
+        switch (cantDo.get(randomInt(0, cantDo.size() - 1))) {
+            case "Street":
+                wishList.add(new TradeItem(lumberString, Math.max(1 - lumber, 0)));
+                lumberAllowedToBeTraded = Math.max(lumber - 1, 0);
+                wishList.add(new TradeItem(brickString, Math.max(1 - brick, 0)));
+                brickAllowedToBeTraded = Math.max(brick - 1, 0);
+                break;
+            case "Town":
+                wishList.add(new TradeItem(brickString, Math.max(1 - brick, 0)));
+                brickAllowedToBeTraded = Math.max(brick - 1, 0);
+                wishList.add(new TradeItem(lumberString, Math.max(1 - lumber, 0)));
+                lumberAllowedToBeTraded = Math.max(lumber - 1, 0);
+                wishList.add(new TradeItem(grainString, Math.max(1 - grain, 0)));
+                grainAllowedToBeTraded = Math.max(grain - 1, 0);
+                wishList.add(new TradeItem(woolString, Math.max(1 - wool, 0)));
+                woolAllowedToBeTraded = Math.max(wool - 1, 0);
+            case "City":
+                wishList.add(new TradeItem(oreString, Math.max(3 - ore, 0)));
+                oreAllowedToBeTraded = Math.max(ore - 3, 0);
+                wishList.add(new TradeItem(grainString, Math.max(2 - grain, 0)));
+                grainAllowedToBeTraded = Math.max(grain - 2, 0);
+                break;
+            case "DevCard":
+                wishList.add(new TradeItem(oreString, Math.max(1 - ore, 0)));
+                oreAllowedToBeTraded = Math.max(ore - 1, 0);
+                wishList.add(new TradeItem(grainString, Math.max(1 - grain, 0)));
+                grainAllowedToBeTraded = Math.max(grain - 1, 0);
+                wishList.add(new TradeItem(woolString, Math.max(1 - wool, 0)));
+                woolAllowedToBeTraded = Math.max(wool - 1, 0);
+                break;
+        }
+        int amountOfWishes = 0;
+        for (TradeItem ti : wishList) {
+            amountOfWishes += ti.getCount();
+        }
+        int amountOfOffers = amountOfWishes + randomInt(0, 3) - 1;
+
+        if (canBuildStreet()) {
+            lumberAllowedToBeTraded = lumber - 1;
+            brickAllowedToBeTraded = brick - 1;
+        }
+        if (canBuildTown()) {
+            brickAllowedToBeTraded = brick - 1;
+            lumberAllowedToBeTraded = lumber - 1;
+            grainAllowedToBeTraded = grain - 1;
+            woolAllowedToBeTraded = wool - 1;
+        }
+        if (canBuyDevelopmentCard()) {
+            oreAllowedToBeTraded = ore - 1;
+            grainAllowedToBeTraded = grain - 1;
+            woolAllowedToBeTraded = wool - 1;
+        }
+        //last in block, because it has the highest amount of necessary resources(overwrites others, if true)
+        if (canBuildCity()) {
+            oreAllowedToBeTraded = ore - 3;
+            grainAllowedToBeTraded = grain - 2;
+        }
+
+        int tries = 0;
+        int offerLumber = 0;
+        int offerOre = 0;
+        int offerBrick = 0;
+        int offerGrain = 0;
+        int offerWool = 0;
+        while (amountOfOffers > 0 && tries < 30) {
+            switch (randomInt(0, 4)) {
+                case 0:
+                    if(oreAllowedToBeTraded > 0) {
+                        offerOre += 1;
+                        oreAllowedToBeTraded-=1;
+                    }
+                    break;
+                case 1:
+                    if(brickAllowedToBeTraded > 0) {
+                        offerBrick+=1;
+                        brickAllowedToBeTraded-=1;
+                    }
+                    break;
+                case 2:
+                    if(lumberAllowedToBeTraded > 0) {
+                        offerLumber+=1;
+                        lumberAllowedToBeTraded-=1;
+                    }
+                    break;
+                case 3:
+                    if(grainAllowedToBeTraded > 0) {
+                        offerGrain+=1;
+                        grainAllowedToBeTraded-=1;
+                    }
+                    break;
+                case 4:
+                    if(woolAllowedToBeTraded > 0) {
+                        offerWool+=1;
+                        woolAllowedToBeTraded-=1;
+                    }
+                    break;
+            }
+            tries++;
+        }
+        offerList.add(new TradeItem(brickString, offerBrick));
+        offerList.add(new TradeItem(lumberString, offerLumber));
+        offerList.add(new TradeItem(oreString, offerOre));
+        offerList.add(new TradeItem(woolString, offerWool));
+        offerList.add(new TradeItem(grainString, offerGrain));
+
+    return wishAndOfferList;
+    }
+
 }
