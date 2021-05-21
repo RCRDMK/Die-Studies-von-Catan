@@ -18,6 +18,8 @@ import de.uol.swp.common.game.request.RetrieveAllThisGameUsersRequest;
 import de.uol.swp.common.game.request.TradeChoiceRequest;
 import de.uol.swp.common.game.request.TradeItemRequest;
 import de.uol.swp.common.game.trade.TradeItem;
+import de.uol.swp.common.lobby.Lobby;
+import de.uol.swp.common.user.Session;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.user.request.LoginRequest;
