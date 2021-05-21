@@ -13,9 +13,9 @@ import java.util.HashMap;
  * @since 2021-04-11
  */
 public class TradeInformSellerAboutBidsMessage extends AbstractGameMessage {
-    private ArrayList<UserDTO> bidders;
-    private HashMap<UserDTO, ArrayList<TradeItem>> bids;
-    private String tradeCode;
+    private final ArrayList<UserDTO> bidders;
+    private final HashMap<UserDTO, ArrayList<TradeItem>> bids;
+    private final String tradeCode;
 
     /**
      * the constructor

@@ -770,15 +770,15 @@ public class GameService extends AbstractService {
             //RandomAI randomAI = new RandomAI(game);
             System.out.println("Rufe random AI auf");
             Inventory aiInventory = game.getInventory(game.getUser(game.getTurn()));
-            aiInventory.incCard("Brick", 10);
-            aiInventory.incCard("Ore", 10);
-            aiInventory.incCard("Wool", 10);
-            aiInventory.incCard("Grain", 10);
-            aiInventory.incCard("Lumber", 10);
-            aiInventory.cardYearOfPlenty.incNumber();
+            aiInventory.incCard("Brick", 1);
+            aiInventory.incCard("Ore", 1);
+            aiInventory.incCard("Wool", 1);
+            aiInventory.incCard("Grain", 1);
+            aiInventory.incCard("Lumber", 0);
+            /*aiInventory.cardYearOfPlenty.incNumber();
             aiInventory.cardMonopoly.incNumber();
             aiInventory.cardRoadBuilding.incNumber();
-            aiInventory.cardKnight.incNumber();
+            aiInventory.cardKnight.incNumber();*/
             AIToServerTranslator.translate(new RandomAI(game).startTurnOrder(), this);
         }
     }
@@ -1214,13 +1214,13 @@ public class GameService extends AbstractService {
                 if (!game.getTradeList().containsKey(tradeCode)) {
                     game.addTrades(new Trade(request.getUser(), request.getTradeItems()), tradeCode);
 
-                    System.out.println("added Trade " + tradeCode + " by User: " + request.getUser().getUsername() + " items: " + request.getTradeItems());
+                    LOG.debug("added Trade " + tradeCode + " by User: " + request.getUser().getUsername() + " items: " + request.getTradeItems());
 
                     for (User user : game.getUsers()) {
                         if (!request.getUser().equals(user)) {
                             TradeOfferInformBiddersMessage tradeOfferInformBiddersMessage = new TradeOfferInformBiddersMessage(request.getUser(), request.getName(), tradeCode, request.getTradeItems(), (UserDTO) user, request.getWishItems());
                             sendToSpecificUserInGame(tradeOfferInformBiddersMessage, user);
-                            System.out.println("Send TradeOfferInformBiddersMessage to " + user.getUsername());
+                            LOG.debug("Send TradeOfferInformBiddersMessage to " + user.getUsername());
                         }
                     }
                 } else {
@@ -1230,10 +1230,12 @@ public class GameService extends AbstractService {
                     if (trade.getBids().size() == game.getUsers().size() - 1) {
                         System.out.println("bids full");
                         TradeInformSellerAboutBidsMessage tisabm = new TradeInformSellerAboutBidsMessage(trade.getSeller(), request.getName(), tradeCode, trade.getBidders(), trade.getBids());
-                        // TODO: everything trade related for the AI
-                        // useAI((GameDTO) game.get());
-                        sendToSpecificUserInGame(tisabm, trade.getSeller());
-                        System.out.println("Send TradeInformSellerAboutBidsMessage to " + trade.getSeller().getUsername());
+                        if (!game.getUsers().contains(game.getUser(game.getTurn()))) {
+                            AIToServerTranslator.translate(new RandomAI((GameDTO) game).continueTurnOrder(tisabm, trade.getWishList()), this);
+                        } else {
+                            sendToSpecificUserInGame(tisabm, trade.getSeller());
+                        }
+                        LOG.debug("Send TradeInformSellerAboutBidsMessage to " + trade.getSeller().getUsername());
                     }
                 }
             } else {

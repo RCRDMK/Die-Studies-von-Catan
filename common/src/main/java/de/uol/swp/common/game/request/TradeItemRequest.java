@@ -7,31 +7,30 @@ import java.util.ArrayList;
 
 /**
  * The inform the server about the items to be traded
- *
  */
-public class TradeItemRequest extends AbstractGameRequest{
+public class TradeItemRequest extends AbstractGameRequest {
 
-    private ArrayList<TradeItem> tradeItems;
-    private ArrayList<TradeItem> wishItems;
-    private String tradeCode;
+    private final ArrayList<TradeItem> tradeItems;
+    private final ArrayList<TradeItem> wishItems;
+    private final String tradeCode;
 
     /**
      * the constructor
      *
-     * @param user UserDTO of the user who wants to trade the items
-     * @param gameName String name of the game
+     * @param user       UserDTO of the user who wants to trade the items
+     * @param gameName   String name of the game
      * @param tradeItems ArrayList<TradeItem> containing the items to be traded
-     * @param tradeCode String  ID of the trade
-     *
+     * @param tradeCode  String  ID of the trade
+     * @param wishItems  the potential wishList of the seller
      * @author Alexander Losse, Ricardo Mook
      * @since 2021-04-11
      */
-    public TradeItemRequest(UserDTO user, String gameName, ArrayList<TradeItem> tradeItems, String tradeCode, ArrayList<TradeItem> wishItems){
-        this.user = new UserDTO(user.getUsername(),"","");
+    public TradeItemRequest(UserDTO user, String gameName, ArrayList<TradeItem> tradeItems, String tradeCode, ArrayList<TradeItem> wishItems) {
+        this.user = new UserDTO(user.getUsername(), "", "");
         this.name = gameName;
-        this.tradeItems = tradeItems;
+        this.tradeItems = fillEmptySpotsInList(tradeItems);
         this.tradeCode = tradeCode;
-        this.wishItems = wishItems;
+        this.wishItems = fillEmptySpotsInList(wishItems);
     }
 
     /**
@@ -60,7 +59,6 @@ public class TradeItemRequest extends AbstractGameRequest{
      * return the trade code
      *
      * @return String tradeCode
-     *
      * @author Alexander Losse, Ricardo Mook
      * @since 2021-04-11
      */

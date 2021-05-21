@@ -10,8 +10,8 @@ import java.io.Serializable;
  */
 public class TradeItem implements Serializable {
     //name of the item e.g. "Lumber"
-    private String name;
-    private int count;
+    private final String name;
+    private final int count;
 
     /**
      * Constructor

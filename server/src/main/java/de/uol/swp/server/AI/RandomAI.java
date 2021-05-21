@@ -2,10 +2,14 @@ package de.uol.swp.server.AI;
 
 import de.uol.swp.common.game.MapGraph;
 import de.uol.swp.common.game.dto.GameDTO;
+import de.uol.swp.common.game.message.TradeInformSellerAboutBidsMessage;
+import de.uol.swp.common.game.trade.Trade;
 import de.uol.swp.common.game.trade.TradeItem;
+import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.server.AI.AIActions.AIAction;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -71,21 +75,25 @@ public class RandomAI extends AbstractAISystem {
             // do some random actions
             makeRandomActionsLogic();
             startedTrade = makeRandomTradeLogic();
-            if (!startedTrade) {
-                // try to play a developmentCard
-                ArrayList<String> cards = canPlayDevelopmentCard();
-                if (cards.size() > 0) {
-                    playDevelopmentCardLogic(cards);
-                }
-
-                endTurn();
+        }
+        if (!startedTrade) {
+            // try to play a developmentCard
+            ArrayList<String> cards = canPlayDevelopmentCard();
+            if (cards.size() > 0) {
+                playDevelopmentCardLogic(cards);
             }
+
+            endTurn();
         }
         return this.aiActions;
     }
 
-    public void continueTurnOrder() {
+    public ArrayList<AIAction> continueTurnOrder(TradeInformSellerAboutBidsMessage tisabm, ArrayList<TradeItem> wishList) {
         startedTrade = true;
+        chooseTradeBidLogic(tisabm, wishList);
+
+        endTurn();
+        return this.aiActions;
     }
 
     /**
@@ -136,7 +144,7 @@ public class RandomAI extends AbstractAISystem {
                         break;
                     }
                 }
-                playDevelopmentCardKnight(hexagon);
+                //playDevelopmentCardKnight(hexagon);
                 break;
             case "Monopoly":
                 playDevelopmentCardMonopoly(returnRandomResource());
@@ -214,9 +222,104 @@ public class RandomAI extends AbstractAISystem {
             ArrayList<ArrayList<TradeItem>> wishAndOfferList = createWishAndOfferList();
             ArrayList<TradeItem> wishList = wishAndOfferList.get(0);
             ArrayList<TradeItem> offerList = wishAndOfferList.get(1);
-            tradeStart(wishList, offerList);
+            int amountOfWishes = 0;
+            for (TradeItem ti : wishList) {
+                amountOfWishes += ti.getCount();
+            }
+            if (amountOfWishes > 0) {
+                tradeStart(wishList, offerList);
+            } else return false;
         }
         return startATradeTest;
+    }
+
+    private void chooseTradeBidLogic(TradeInformSellerAboutBidsMessage tisabm, ArrayList<TradeItem> wishList) {
+        HashMap<UserDTO, Integer> usersWithAcceptableOffer = new HashMap<>();
+
+        int lumberWish = 0;
+        int grainWish = 0;
+        int oreWish = 0;
+        int woolWish = 0;
+        int brickWish = 0;
+
+        for (TradeItem ti : wishList) {
+            switch (ti.getName()) {
+                case "Lumber":
+                    lumberWish = ti.getCount();
+                    break;
+                case "Ore":
+                    oreWish = ti.getCount();
+                    break;
+                case "Wool":
+                    woolWish = ti.getCount();
+                    break;
+                case "Brick":
+                    brickWish = ti.getCount();
+                    break;
+                case "Grain":
+                    grainWish = ti.getCount();
+                    break;
+                default:
+                    break;
+            }
+        }
+        for (UserDTO user : tisabm.getBidders()) {
+            int goodTradeItemAmount = 5;
+            int amountOfItems = 0;
+            for (TradeItem offerItem : tisabm.getBids().get(user)) {
+                int offerItemCount = offerItem.getCount();
+                amountOfItems += offerItemCount;
+                switch (offerItem.getName()) {
+                    case "Lumber":
+                        if (!(offerItemCount >= lumberWish)) {
+                            goodTradeItemAmount--;
+                        }
+                        break;
+                    case "Ore":
+                        if (!(offerItemCount >= oreWish)) {
+                            goodTradeItemAmount--;
+                        }
+                        break;
+                    case "Brick":
+                        if (!(offerItemCount >= brickWish)) {
+                            goodTradeItemAmount--;
+                        }
+                        break;
+                    case "Grain":
+                        if (!(offerItemCount >= grainWish)) {
+                            goodTradeItemAmount--;
+                        }
+                        break;
+                    case "Wool":
+                        if (!(offerItemCount >= woolWish)) {
+                            goodTradeItemAmount--;
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+            if (goodTradeItemAmount >= 4) {
+                usersWithAcceptableOffer.put(user, amountOfItems);
+            }
+        }
+
+        UserDTO userWithMostItems = null;
+        int mostItems = 0;
+        for (UserDTO user : usersWithAcceptableOffer.keySet()) {
+            if (usersWithAcceptableOffer.get(user) > mostItems) {
+                mostItems = usersWithAcceptableOffer.get(user);
+                userWithMostItems = user;
+            } else if (usersWithAcceptableOffer.get(user) == mostItems && randomInt(0, 1) > 0) {
+                mostItems = usersWithAcceptableOffer.get(user);
+                userWithMostItems = user;
+            }
+        }
+        if (userWithMostItems != null) {
+            tradeOfferAccept(tisabm.getTradeCode(), true, userWithMostItems);
+        } else {
+            tradeOfferAccept(tisabm.getTradeCode(), false, this.user);
+        }
     }
 
     /**
@@ -341,42 +444,43 @@ public class RandomAI extends AbstractAISystem {
         if (!canBuyDevelopmentCard()) {
             cantDo.add("DevCard");
         }
-        switch (cantDo.get(randomInt(0, cantDo.size() - 1))) {
-            case "Street":
-                wishList.add(new TradeItem(lumberString, Math.max(1 - lumber, 0)));
-                lumberAllowedToBeTraded = Math.max(lumber - 1, 0);
-                wishList.add(new TradeItem(brickString, Math.max(1 - brick, 0)));
-                brickAllowedToBeTraded = Math.max(brick - 1, 0);
-                break;
-            case "Town":
-                wishList.add(new TradeItem(brickString, Math.max(1 - brick, 0)));
-                brickAllowedToBeTraded = Math.max(brick - 1, 0);
-                wishList.add(new TradeItem(lumberString, Math.max(1 - lumber, 0)));
-                lumberAllowedToBeTraded = Math.max(lumber - 1, 0);
-                wishList.add(new TradeItem(grainString, Math.max(1 - grain, 0)));
-                grainAllowedToBeTraded = Math.max(grain - 1, 0);
-                wishList.add(new TradeItem(woolString, Math.max(1 - wool, 0)));
-                woolAllowedToBeTraded = Math.max(wool - 1, 0);
-            case "City":
-                wishList.add(new TradeItem(oreString, Math.max(3 - ore, 0)));
-                oreAllowedToBeTraded = Math.max(ore - 3, 0);
-                wishList.add(new TradeItem(grainString, Math.max(2 - grain, 0)));
-                grainAllowedToBeTraded = Math.max(grain - 2, 0);
-                break;
-            case "DevCard":
-                wishList.add(new TradeItem(oreString, Math.max(1 - ore, 0)));
-                oreAllowedToBeTraded = Math.max(ore - 1, 0);
-                wishList.add(new TradeItem(grainString, Math.max(1 - grain, 0)));
-                grainAllowedToBeTraded = Math.max(grain - 1, 0);
-                wishList.add(new TradeItem(woolString, Math.max(1 - wool, 0)));
-                woolAllowedToBeTraded = Math.max(wool - 1, 0);
-                break;
-        }
+        if (cantDo.size() > 0)
+            switch (cantDo.get(randomInt(0, cantDo.size() - 1))) {
+                case "Street":
+                    wishList.add(new TradeItem(lumberString, Math.max(1 - lumber, 0)));
+                    lumberAllowedToBeTraded = Math.max(lumber - 1, 0);
+                    wishList.add(new TradeItem(brickString, Math.max(1 - brick, 0)));
+                    brickAllowedToBeTraded = Math.max(brick - 1, 0);
+                    break;
+                case "Town":
+                    wishList.add(new TradeItem(brickString, Math.max(1 - brick, 0)));
+                    brickAllowedToBeTraded = Math.max(brick - 1, 0);
+                    wishList.add(new TradeItem(lumberString, Math.max(1 - lumber, 0)));
+                    lumberAllowedToBeTraded = Math.max(lumber - 1, 0);
+                    wishList.add(new TradeItem(grainString, Math.max(1 - grain, 0)));
+                    grainAllowedToBeTraded = Math.max(grain - 1, 0);
+                    wishList.add(new TradeItem(woolString, Math.max(1 - wool, 0)));
+                    woolAllowedToBeTraded = Math.max(wool - 1, 0);
+                case "City":
+                    wishList.add(new TradeItem(oreString, Math.max(3 - ore, 0)));
+                    oreAllowedToBeTraded = Math.max(ore - 3, 0);
+                    wishList.add(new TradeItem(grainString, Math.max(2 - grain, 0)));
+                    grainAllowedToBeTraded = Math.max(grain - 2, 0);
+                    break;
+                case "DevCard":
+                    wishList.add(new TradeItem(oreString, Math.max(1 - ore, 0)));
+                    oreAllowedToBeTraded = Math.max(ore - 1, 0);
+                    wishList.add(new TradeItem(grainString, Math.max(1 - grain, 0)));
+                    grainAllowedToBeTraded = Math.max(grain - 1, 0);
+                    wishList.add(new TradeItem(woolString, Math.max(1 - wool, 0)));
+                    woolAllowedToBeTraded = Math.max(wool - 1, 0);
+                    break;
+            }
         int amountOfWishes = 0;
         for (TradeItem ti : wishList) {
             amountOfWishes += ti.getCount();
         }
-        int amountOfOffers = amountOfWishes + randomInt(0, 3) - 1;
+        int amountOfOffers = amountOfWishes + randomInt(0, 3) - 2;
 
         if (canBuildStreet()) {
             lumberAllowedToBeTraded = lumber - 1;
@@ -408,33 +512,33 @@ public class RandomAI extends AbstractAISystem {
         while (amountOfOffers > 0 && tries < 30) {
             switch (randomInt(0, 4)) {
                 case 0:
-                    if(oreAllowedToBeTraded > 0) {
+                    if (oreAllowedToBeTraded > 0) {
                         offerOre += 1;
-                        oreAllowedToBeTraded-=1;
+                        oreAllowedToBeTraded -= 1;
                     }
                     break;
                 case 1:
-                    if(brickAllowedToBeTraded > 0) {
-                        offerBrick+=1;
-                        brickAllowedToBeTraded-=1;
+                    if (brickAllowedToBeTraded > 0) {
+                        offerBrick += 1;
+                        brickAllowedToBeTraded -= 1;
                     }
                     break;
                 case 2:
-                    if(lumberAllowedToBeTraded > 0) {
-                        offerLumber+=1;
-                        lumberAllowedToBeTraded-=1;
+                    if (lumberAllowedToBeTraded > 0) {
+                        offerLumber += 1;
+                        lumberAllowedToBeTraded -= 1;
                     }
                     break;
                 case 3:
-                    if(grainAllowedToBeTraded > 0) {
-                        offerGrain+=1;
-                        grainAllowedToBeTraded-=1;
+                    if (grainAllowedToBeTraded > 0) {
+                        offerGrain += 1;
+                        grainAllowedToBeTraded -= 1;
                     }
                     break;
                 case 4:
-                    if(woolAllowedToBeTraded > 0) {
-                        offerWool+=1;
-                        woolAllowedToBeTraded-=1;
+                    if (woolAllowedToBeTraded > 0) {
+                        offerWool += 1;
+                        woolAllowedToBeTraded -= 1;
                     }
                     break;
             }
@@ -446,7 +550,7 @@ public class RandomAI extends AbstractAISystem {
         offerList.add(new TradeItem(woolString, offerWool));
         offerList.add(new TradeItem(grainString, offerGrain));
 
-    return wishAndOfferList;
+        return wishAndOfferList;
     }
 
 }

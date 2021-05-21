@@ -98,8 +98,8 @@ public class AIToServerTranslator {
 
             } else if (aiAction instanceof TradeStartAction) {
                 TradeStartAction tsa = (TradeStartAction) aiAction;
-                TradeStartRequest tsr = new TradeStartRequest(user, gameName, tsa.getTradeCode());
-                gameService.onTradeStartedRequest(tsr);
+                /*TradeStartRequest tsr = new TradeStartRequest(user, gameName, tsa.getTradeCode());
+                gameService.onTradeStartedRequest(tsr);*/
                 TradeItemRequest tir = new TradeItemRequest(user, gameName, tsa.getOfferList(), tsa.getTradeCode(), tsa.getWishList());
                 gameService.onTradeItemRequest(tir);
 
