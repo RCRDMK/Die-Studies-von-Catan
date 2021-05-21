@@ -29,7 +29,7 @@ public class GameSerializableTest {
                 AbstractGameMessage.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new BuyDevelopmentCardMessage(),
                 BuyDevelopmentCardMessage.class));
-        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new GameCreatedMessage("test", defaultUser, new MapGraph(""), new ArrayList<>()),
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new GameCreatedMessage("test", defaultUser, new MapGraph(""), new ArrayList<>(), ""),
                 GameCreatedMessage.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new GameDroppedMessage("test"),
                 GameDroppedMessage.class));
