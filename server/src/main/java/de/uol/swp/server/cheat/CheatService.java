@@ -230,7 +230,9 @@ public class CheatService extends AbstractService {
         for (Cheat cheatCode : Cheat.values()) {
             try {
                 var cheatPrefix = cheatMessage.getMessage().split("\\s")[0];
-                if (cheatPrefix.equals(cheatCode.name())) {
+                var gameNameArray = cheatMessage.getChat().split("_");
+                // Just accept cheatcodes entered in game
+                if (cheatPrefix.equals(cheatCode.name()) && gameNameArray.length > 1) {
                     var cheatArgument = cheatMessage.getMessage().split("\\s")[1];
                     return true;
                 }
