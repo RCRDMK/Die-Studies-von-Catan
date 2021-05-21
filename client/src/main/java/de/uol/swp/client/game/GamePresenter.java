@@ -25,8 +25,6 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.geometry.HPos;
-import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -97,6 +95,8 @@ public class GamePresenter extends AbstractPresenter {
     private Button btnOkay;
 
     private ObservableList<String> gameUsers;
+
+    private String gameFieldVariant;
 
     private final ArrayList<HexagonContainer> hexagonContainers = new ArrayList<>();
     private ObservableList<String> publicInventory1;
@@ -246,7 +246,6 @@ public class GamePresenter extends AbstractPresenter {
     @FXML
     private Button[] choose;
 
-    @FXML
     private Rectangle robber;
 
     /**
@@ -487,6 +486,7 @@ public class GamePresenter extends AbstractPresenter {
             LOG.debug("Requesting update of User list in game scene because game scene was created.");
             this.joinedLobbyUser = gcm.getUser();
             this.currentLobby = gcm.getName();
+            this.gameFieldVariant = gcm.getGameFieldVariant();
             updateGameUsersList(gcm.getUsers());
             initializeMatch(gcm.getMapGraph());
             for (int i = 1; i <= 64; i++) {
@@ -581,9 +581,8 @@ public class GamePresenter extends AbstractPresenter {
         //Initializing robber on the canvas
         robber.setLayoutX((canvas.getWidth() / 2 + canvas.getLayoutX()));
         robber.setLayoutY((canvas.getHeight() / 2 + canvas.getLayoutY()));
-        Platform.runLater(() -> {
-            gameAnchorPane.getChildren().add(robber);
-        });
+        gameAnchorPane.getChildren().add(robber);
+
     }
 
     public void initializedResourceButtons() {
@@ -1043,7 +1042,9 @@ public class GamePresenter extends AbstractPresenter {
      */
     public double cardSize() {
         double d = Math.min(canvas.getHeight(), canvas.getWidth()); //Determine minimum pixels in height and length of the canvas (we dont want the playfield to scale out of canvas, so we orient at the smaller axis)
-        return d / 5.5; // Divide by 8 because the playfield is 7 cards wide and add 1/2 card each side for margin so the cards dont touch the boundaries of the canvas.
+        if (!gameFieldVariant.equals("VeryRandom")) {
+            return d / 5.5; // Divide by 8 because the playfield is 7 cards wide and add 1/2 card each side for margin so the cards dont touch the boundaries of the canvas.
+        } else return d / 7;
     }
 
     /**
@@ -1152,10 +1153,9 @@ public class GamePresenter extends AbstractPresenter {
         for (HexagonContainer hexagonContainer : this.hexagonContainers) {
 
             Vector placementVector = Vector.convertStringListToVector(hexagonContainer.getHexagon().getSelfPosition(), cardSize(), centerOfCanvasVector);
-
+            Platform.runLater(() -> {
             hexagonContainer.getHexagonShape().setLayoutX(placementVector.getX());
             hexagonContainer.getHexagonShape().setLayoutY(placementVector.getY());
-            Platform.runLater(() -> {
                 hexagonContainer.getHexagonShape().setFill(determinePictureOfTerrain(hexagonContainer.getHexagon()));
             });
 
@@ -1817,8 +1817,10 @@ public class GamePresenter extends AbstractPresenter {
                         if (mapGraphNodeContainer.getMapGraphNode().getUuid().equals(message.getUuid())) {
                             MapGraph.BuildingNode buildingNode = (MapGraph.BuildingNode) mapGraphNodeContainer.getMapGraphNode();
                             buildingNode.buildOrDevelopSettlement(message.getPlayerIndex());
-                            mapGraphNodeContainer.getCircle().setFill(determinePlayerColorByIndex(mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer()));
-                            mapGraphNodeContainer.getCircle().setVisible(true);
+                            Platform.runLater(() -> {
+                                mapGraphNodeContainer.getCircle().setFill(determinePlayerColorByIndex(mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer()));
+                                mapGraphNodeContainer.getCircle().setVisible(true);
+                            });
                             break;
                         }
                     }
@@ -1827,8 +1829,10 @@ public class GamePresenter extends AbstractPresenter {
                         if (mapGraphNodeContainer.getMapGraphNode().getUuid().equals(message.getUuid())) {
                             MapGraph.StreetNode streetNode = (MapGraph.StreetNode) mapGraphNodeContainer.getMapGraphNode();
                             streetNode.buildRoad(message.getPlayerIndex());
-                            mapGraphNodeContainer.getCircle().setFill(determinePlayerColorByIndex(mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer()));
-                            mapGraphNodeContainer.getCircle().setVisible(true);
+                            Platform.runLater(() -> {
+                                mapGraphNodeContainer.getCircle().setFill(determinePlayerColorByIndex(mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer()));
+                                mapGraphNodeContainer.getCircle().setVisible(true);
+                            });
                             break;
                         }
                     }
@@ -1900,9 +1904,10 @@ public class GamePresenter extends AbstractPresenter {
      * if it is not, then replaces existing value of label with the value from the HashMap.
      * <p>
      * enhanced by Anton Nikiforov, Alexander Losse, Iskander Yusupov
-     * @since 2021-05-16
+     *
      * @param pr HashMap<String, Integer>, which was provided by onPrivateInventoryChangeMessage
      * @author Carsten Dekker, Iskander Yusupov
+     * @since 2021-05-16
      * @since 2021-05-14
      */
 
