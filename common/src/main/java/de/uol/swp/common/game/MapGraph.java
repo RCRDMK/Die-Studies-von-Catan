@@ -159,9 +159,7 @@ public class MapGraph implements Serializable {
         middle.getHexRight().interconnectNeighbourNodes();
         middle.getHexBottomLeft().interconnectNeighbourNodes();
         middle.getHexBottomRight().interconnectNeighbourNodes();
-                /*for (Hexagon hexagon : hexagonHashSet) {
-                    hexagon.interconnectOwnNodes();
-                }*/
+
 
         middle.getHexTopLeft().getHexTopLeft().updateHexagonList();
         middle.getHexTopLeft().getHexTopRight().updateHexagonList();
