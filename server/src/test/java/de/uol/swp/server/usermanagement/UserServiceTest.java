@@ -1,6 +1,9 @@
 package de.uol.swp.server.usermanagement;
 
 import com.google.common.eventbus.EventBus;
+import de.uol.swp.common.message.MessageContext;
+import de.uol.swp.common.message.ResponseMessage;
+import de.uol.swp.common.message.ServerMessage;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.user.request.DropUserRequest;
@@ -81,6 +84,18 @@ class UserServiceTest {
 
         final RegisterUserRequest registerRequest = new RegisterUserRequest(userToDrop);
         final DropUserRequest dropUserRequest = new DropUserRequest(userToDrop);
+        //TODO kurzfristige Lösung, Testfix needed
+        dropUserRequest.setMessageContext(new MessageContext() {
+            @Override
+            public void writeAndFlush(ResponseMessage message) {
+
+            }
+
+            @Override
+            public void writeAndFlush(ServerMessage message) {
+
+            }
+        });
 
         bus.post(registerRequest);
         lock.await(1000, TimeUnit.MILLISECONDS);

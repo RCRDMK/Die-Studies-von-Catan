@@ -18,8 +18,8 @@ public class InventoryTest {
     User user = new UserDTO("test1", "", "");
 
     Inventory inventory = new Inventory(user);
-    HashMap privateInventory = inventory.getPrivateView();
-    HashMap publicInventory = inventory.getPublicView();
+    HashMap<String, Integer> privateInventory = inventory.getPrivateView();
+    HashMap<String, Integer> publicInventory = inventory.getPublicView();
 
     /**
      * This test analyzes the Private Inventory View
@@ -49,7 +49,7 @@ public class InventoryTest {
         assertEquals(privateInventory.get("Victory Point Card"), 0);
 
         // Building Units
-        assertEquals(privateInventory.get("Citys"), 4);
+        assertEquals(privateInventory.get("Cities"), 4);
         assertEquals(privateInventory.get("Roads"), 15);
         assertEquals(privateInventory.get("Settlements"), 5);
 
@@ -119,7 +119,7 @@ public class InventoryTest {
         assertEquals(privateInventory.get("Road Building"), 1);
         assertEquals(privateInventory.get("Year of Plenty"), 1);
         assertEquals(privateInventory.get("Victory Point Card"), 1);
-        assertEquals(privateInventory.get("Citys"), 4);
+        assertEquals(privateInventory.get("Cities"), 4);
         assertEquals(privateInventory.get("Roads"), 15);
         assertEquals(privateInventory.get("Settlements"), 5);
         assertEquals(privateInventory.get("Victory Points"), 1);
@@ -184,7 +184,7 @@ public class InventoryTest {
         assertEquals(privateInventory.get("Road Building"), 6);
         assertEquals(privateInventory.get("Year of Plenty"), 6);
         assertEquals(privateInventory.get("Victory Point Card"), 0);
-        assertEquals(privateInventory.get("Citys"), 4);
+        assertEquals(privateInventory.get("Cities"), 4);
         assertEquals(privateInventory.get("Roads"), 15);
         assertEquals(privateInventory.get("Settlements"), 5);
         assertEquals(privateInventory.get("Victory Points"), 0);
@@ -254,7 +254,7 @@ public class InventoryTest {
         assertEquals(privateInventory.get("Road Building"), 0);
         assertEquals(privateInventory.get("Year of Plenty"), 0);
         assertEquals(privateInventory.get("Victory Point Card"), 0);
-        assertEquals(privateInventory.get("Citys"), 3);
+        assertEquals(privateInventory.get("Cities"), 3);
         assertEquals(privateInventory.get("Roads"), 14);
         assertEquals(privateInventory.get("Settlements"), 4);
         assertEquals(privateInventory.get("Victory Points"), 0);
@@ -319,7 +319,7 @@ public class InventoryTest {
         assertEquals(privateInventory.get("Road Building"), 2);
         assertEquals(privateInventory.get("Year of Plenty"), 2);
         assertEquals(privateInventory.get("Victory Point Card"), 0);
-        assertEquals(privateInventory.get("Citys"), 4);
+        assertEquals(privateInventory.get("Cities"), 4);
         assertEquals(privateInventory.get("Roads"), 15);
         assertEquals(privateInventory.get("Settlements"), 5);
         assertEquals(privateInventory.get("Victory Points"), 0);

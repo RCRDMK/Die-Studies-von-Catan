@@ -3,10 +3,7 @@ package de.uol.swp.common.game;
 import de.uol.swp.common.game.exception.ListFullException;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Manages the logic behind the playfield.
@@ -24,6 +21,9 @@ public class MapGraph implements Serializable {
     private final HashSet<BuildingNode> buildingNodeHashSet = new HashSet<>();
     private final HashSet<Hexagon> hexagonHashSet = new HashSet<>();
     private final ArrayList<BuildingNode> builtBuildings = new ArrayList<>();
+    // middle hexagon for reference
+    private final Hexagon middle = new Hexagon("middle");
+    private final LongestStreetPathCalculator longestStreetPathCalculator;
 
     /**
      * Creates the interconnected Grid of StreetNodes and BuildingNodes.
@@ -33,6 +33,7 @@ public class MapGraph implements Serializable {
      */
     public MapGraph(String mapTypeToGenerate) {
         initializeMapGraph(mapTypeToGenerate);
+        this.longestStreetPathCalculator = new LongestStreetPathCalculator(streetNodeHashSet);
     }
 
     public HashSet<StreetNode> getStreetNodeHashSet() {
@@ -45,6 +46,10 @@ public class MapGraph implements Serializable {
 
     public HashSet<Hexagon> getHexagonHashSet() {
         return hexagonHashSet;
+    }
+
+    public LongestStreetPathCalculator getLongestStreetPathCalculator() {
+        return longestStreetPathCalculator;
     }
 
     /**
@@ -64,116 +69,445 @@ public class MapGraph implements Serializable {
             //Here is some space for future mapTypes//
             //                                      //
             //                                      //
+
+            case "VeryRandom":
+                generateRandomField();
+                configureTerrainTypeAndDiceTokensForAllHexagonsRandomly();
+                configureHarborsRandomly();
+                break;
+
+
+            case "Random":
+                generateStandardField();
+                configureTerrainTypeAndDiceTokensForAllHexagonsRandomly();
+                configureHarborsStandard();
+                break;
+
             default: {
-                //Generating the first Hexagon in the middle.
-                Hexagon middle = new Hexagon("middle");
-
-                middle.generateNodesMiddle();
-                middle.expand();
-                middle.interconnectOwnNodes();
-                middle.interconnectNeighbourHexagons();
-
-                middle.getHexTopLeft().expand();
-                middle.getHexTopLeft().interconnectNeighbourHexagons();
-
-                middle.getHexTopRight().expand();
-                middle.getHexTopRight().interconnectNeighbourHexagons();
-
-                middle.getHexLeft().expand();
-                middle.getHexLeft().interconnectNeighbourHexagons();
-
-                middle.getHexRight().expand();
-                middle.getHexRight().interconnectNeighbourHexagons();
-
-                middle.getHexBottomLeft().expand();
-                middle.getHexBottomLeft().interconnectNeighbourHexagons();
-
-                middle.getHexBottomRight().expand();
-                middle.getHexBottomRight().interconnectNeighbourHexagons();
-
-
-                middle.getHexTopLeft().generateNodes();
-                middle.getHexTopRight().generateNodes();
-                middle.getHexLeft().generateNodes();
-                middle.getHexRight().generateNodes();
-                middle.getHexBottomLeft().generateNodes();
-                middle.getHexBottomRight().generateNodes();
-
-                middle.getHexTopLeft().getHexTopLeft().generateNodes();
-                middle.getHexTopLeft().getHexTopRight().generateNodes();
-
-                middle.getHexTopRight().getHexTopRight().generateNodes();
-                middle.getHexTopRight().getHexRight().generateNodes();
-
-                middle.getHexRight().getHexRight().generateNodes();
-                middle.getHexRight().getHexBottomRight().generateNodes();
-
-                middle.getHexBottomRight().getHexBottomRight().generateNodes();
-                middle.getHexBottomRight().getHexBottomLeft().generateNodes();
-
-                middle.getHexBottomLeft().getHexBottomLeft().generateNodes();
-                middle.getHexBottomLeft().getHexLeft().generateNodes();
-
-                middle.getHexLeft().getHexLeft().generateNodes();
-                middle.getHexLeft().getHexTopLeft().generateNodes();
-
-
-                middle.getHexTopLeft().interconnectNeighbourNodes();
-                middle.getHexTopRight().interconnectNeighbourNodes();
-                middle.getHexLeft().interconnectNeighbourNodes();
-                middle.getHexRight().interconnectNeighbourNodes();
-                middle.getHexBottomLeft().interconnectNeighbourNodes();
-                middle.getHexBottomRight().interconnectNeighbourNodes();
-
-                middle.getHexTopLeft().getHexTopLeft().updateHexagonList();
-                middle.getHexTopLeft().getHexTopRight().updateHexagonList();
-
-                middle.getHexTopRight().getHexTopRight().updateHexagonList();
-                middle.getHexTopRight().getHexRight().updateHexagonList();
-
-                middle.getHexRight().getHexRight().updateHexagonList();
-                middle.getHexRight().getHexBottomRight().updateHexagonList();
-
-                middle.getHexBottomRight().getHexBottomRight().updateHexagonList();
-                middle.getHexBottomRight().getHexBottomLeft().updateHexagonList();
-
-                middle.getHexBottomLeft().getHexBottomLeft().updateHexagonList();
-                middle.getHexBottomLeft().getHexLeft().updateHexagonList();
-
-                middle.getHexLeft().getHexLeft().updateHexagonList();
-                middle.getHexLeft().getHexTopLeft().updateHexagonList();
-
-                //einfgügen der dicetoken und terraintypes
-
-                //"Ocean" = 0; "Forest" = 1; "Farmland" = 2; "Grassland" = 3; "Hillside" = 4; "Mountain" = 5; "Desert" = 6;
-
-                middle.configureTerrainTypeAndDiceToken(6, 0);
-                middle.getHexLeft().configureTerrainTypeAndDiceToken(4, 9);
-                middle.getHexBottomLeft().configureTerrainTypeAndDiceToken(5, 11);
-                middle.getHexBottomRight().configureTerrainTypeAndDiceToken(1, 3);
-                middle.getHexRight().configureTerrainTypeAndDiceToken(5, 6);
-                middle.getHexTopRight().configureTerrainTypeAndDiceToken(2, 5);
-                middle.getHexTopLeft().configureTerrainTypeAndDiceToken(5, 4);
-
-                middle.getHexLeft().getHexTopLeft().configureTerrainTypeAndDiceToken(2, 2);
-                middle.getHexLeft().getHexLeft().configureTerrainTypeAndDiceToken(1, 5);
-
-                middle.getHexBottomLeft().getHexLeft().configureTerrainTypeAndDiceToken(2, 10);
-                middle.getHexBottomLeft().getHexBottomLeft().configureTerrainTypeAndDiceToken(4, 8);
-
-                middle.getHexBottomRight().getHexBottomLeft().configureTerrainTypeAndDiceToken(3, 4);
-                middle.getHexBottomRight().getHexBottomRight().configureTerrainTypeAndDiceToken(4, 11);
-
-                middle.getHexRight().getHexBottomRight().configureTerrainTypeAndDiceToken(3, 12);
-                middle.getHexRight().getHexRight().configureTerrainTypeAndDiceToken(2, 9);
-
-                middle.getHexTopRight().getHexRight().configureTerrainTypeAndDiceToken(1, 10);
-                middle.getHexTopRight().getHexTopRight().configureTerrainTypeAndDiceToken(3, 8);
-
-                middle.getHexTopLeft().getHexTopRight().configureTerrainTypeAndDiceToken(3, 3);
-                middle.getHexTopLeft().getHexTopLeft().configureTerrainTypeAndDiceToken(1, 6);
+                generateStandardField();
+                //einfügen der dicetoken und terraintypes und harbors
+                configureTerrainTypeAndDiceTokensForAllHexagonsStandard();
+                configureHarborsStandard();
             }
         }
+
+    }
+
+    /**
+     * Generates the standard game field
+     * <p>
+     * When this function is called, the standard game field is created
+     *
+     * @author Marc Hermes
+     * @since 2021-05-14
+     */
+    private void generateStandardField() {
+        //Generating the first Hexagon in the middle.
+        middle.generateNodesMiddle();
+        middle.expand();
+        middle.interconnectOwnNodes();
+        middle.interconnectNeighbourHexagons();
+
+        middle.getHexTopLeft().expand();
+        middle.getHexTopLeft().interconnectNeighbourHexagons();
+
+        middle.getHexTopRight().expand();
+        middle.getHexTopRight().interconnectNeighbourHexagons();
+
+        middle.getHexLeft().expand();
+        middle.getHexLeft().interconnectNeighbourHexagons();
+
+        middle.getHexRight().expand();
+        middle.getHexRight().interconnectNeighbourHexagons();
+
+        middle.getHexBottomLeft().expand();
+        middle.getHexBottomLeft().interconnectNeighbourHexagons();
+
+        middle.getHexBottomRight().expand();
+        middle.getHexBottomRight().interconnectNeighbourHexagons();
+
+
+        middle.getHexTopLeft().generateNodes();
+        middle.getHexTopRight().generateNodes();
+        middle.getHexLeft().generateNodes();
+        middle.getHexRight().generateNodes();
+        middle.getHexBottomLeft().generateNodes();
+        middle.getHexBottomRight().generateNodes();
+
+        middle.getHexTopLeft().getHexTopLeft().generateNodes();
+        middle.getHexTopLeft().getHexTopRight().generateNodes();
+
+        middle.getHexTopRight().getHexTopRight().generateNodes();
+        middle.getHexTopRight().getHexRight().generateNodes();
+
+        middle.getHexRight().getHexRight().generateNodes();
+        middle.getHexRight().getHexBottomRight().generateNodes();
+
+        middle.getHexBottomRight().getHexBottomRight().generateNodes();
+        middle.getHexBottomRight().getHexBottomLeft().generateNodes();
+
+        middle.getHexBottomLeft().getHexBottomLeft().generateNodes();
+        middle.getHexBottomLeft().getHexLeft().generateNodes();
+
+        middle.getHexLeft().getHexLeft().generateNodes();
+        middle.getHexLeft().getHexTopLeft().generateNodes();
+
+
+        middle.getHexTopLeft().interconnectNeighbourNodes();
+        middle.getHexTopRight().interconnectNeighbourNodes();
+        middle.getHexLeft().interconnectNeighbourNodes();
+        middle.getHexRight().interconnectNeighbourNodes();
+        middle.getHexBottomLeft().interconnectNeighbourNodes();
+        middle.getHexBottomRight().interconnectNeighbourNodes();
+
+
+        middle.getHexTopLeft().getHexTopLeft().updateHexagonList();
+        middle.getHexTopLeft().getHexTopRight().updateHexagonList();
+
+        middle.getHexTopRight().getHexTopRight().updateHexagonList();
+        middle.getHexTopRight().getHexRight().updateHexagonList();
+
+        middle.getHexRight().getHexRight().updateHexagonList();
+        middle.getHexRight().getHexBottomRight().updateHexagonList();
+
+        middle.getHexBottomRight().getHexBottomRight().updateHexagonList();
+        middle.getHexBottomRight().getHexBottomLeft().updateHexagonList();
+
+        middle.getHexBottomLeft().getHexBottomLeft().updateHexagonList();
+        middle.getHexBottomLeft().getHexLeft().updateHexagonList();
+
+        middle.getHexLeft().getHexLeft().updateHexagonList();
+        middle.getHexLeft().getHexTopLeft().updateHexagonList();
+
+    }
+
+    /**
+     * Generates a random game field
+     * <p>
+     * When this method is called a game field is created in which the position of the hexagons is decided randomly
+     *
+     * @author Marc Hermes
+     * @since 2021-05-14
+     */
+    private void generateRandomField() {
+        middle.generateNodesMiddle();
+        middle.interconnectOwnNodes();
+
+        ArrayList<Hexagon> placedHexagons = new ArrayList<>();
+        placedHexagons.add(middle);
+        while (hexagonHashSet.size() < 19) {
+            expandRandomly(placedHexagons, randomInt(0, placedHexagons.size() - 1), randomInt(0, 5));
+            hexagonHashSet.forEach(Hexagon::updateHexagonList);
+            hexagonHashSet.forEach(Hexagon::interconnectNeighbourHexagons);
+
+        }
+        for (Hexagon hexagon : placedHexagons) {
+            if(!hexagon.equals(middle))
+            hexagon.generateNodes();
+        }
+        for (Hexagon hexagon : placedHexagons) {
+            if(!hexagon.equals(middle))
+            hexagon.interconnectOwnNodes();
+        }
+
+    }
+
+    /**
+     * Function used for expanding randomly from a hexagon, in contrast to the usual 6-directional expanding
+     * <p>
+     * A random hexagon of the already generated ones gets selected and will then randomly expand in 1 direction
+     * Furthermore the list containing the existing hexagons gets updated because a new one was created
+     *
+     * @param list the ArrayList containing the existing hexagons
+     * @param rand the random number used to index the ArrayList of the hexagons
+     * @param direction the random number used to decide the direction in which to expand
+     * @author Marc Hermes
+     * @since 2021-05-14
+     */
+    private void expandRandomly(ArrayList<Hexagon> list, int rand, int direction) {
+        switch (direction) {
+            case 0:
+                if (list.get(rand).getSelfPosition().size() < 4) {
+                    Hexagon hex = list.get(rand).dockTopLeft();
+                    list.clear();
+                    list.addAll(hexagonHashSet);
+                    hex.updateHexagonList();
+
+                }
+                break;
+            case 1:
+                if (list.get(rand).getSelfPosition().size() < 4) {
+                    Hexagon hex = list.get(rand).dockLeft();
+                    list.clear();
+                    list.addAll(hexagonHashSet);
+                    hex.updateHexagonList();
+
+                }
+                break;
+            case 2:
+                if (list.get(rand).getSelfPosition().size() < 4) {
+                    Hexagon hex = list.get(rand).dockRight();
+                    list.clear();
+                    list.addAll(hexagonHashSet);
+                    hex.updateHexagonList();
+
+                }
+                break;
+            case 3:
+                if (list.get(rand).getSelfPosition().size() < 4) {
+                    Hexagon hex = list.get(rand).dockBottomLeft();
+                    list.clear();
+                    list.addAll(hexagonHashSet);
+                    hex.updateHexagonList();
+
+                }
+                break;
+            case 4:
+                if (list.get(rand).getSelfPosition().size() < 4) {
+                    Hexagon hex = list.get(rand).dockBottomRight();
+                    list.clear();
+                    list.addAll(hexagonHashSet);
+                    hex.updateHexagonList();
+
+                }
+                break;
+            case 5:
+                if (list.get(rand).getSelfPosition().size() < 4) {
+                    Hexagon hex = list.get(rand).dockTopRight();
+                    list.clear();
+                    list.addAll(hexagonHashSet);
+                    hex.updateHexagonList();
+                }
+                break;
+        }
+
+    }
+
+    /**
+     * Configures the dice tokens and field types as well as the harbors for the hexagons randomly
+     *
+     * @author Marc Hermes
+     * @since 2021-05-14
+     */
+    public void configureTerrainTypeAndDiceTokensForAllHexagonsRandomly() {
+        ArrayList<Hexagon> hexagons = new ArrayList<>();
+        for (Hexagon hexagon : hexagonHashSet) {
+            if (!hexagon.equals(middle)) {
+                hexagons.add(hexagon);
+            }
+        }
+        ArrayList<Integer> diceTokenList = new ArrayList<>();
+        diceTokenList.add(5);
+        diceTokenList.add(2);
+        diceTokenList.add(6);
+        diceTokenList.add(3);
+        diceTokenList.add(8);
+        diceTokenList.add(10);
+        diceTokenList.add(9);
+        diceTokenList.add(12);
+        diceTokenList.add(11);
+        diceTokenList.add(4);
+        diceTokenList.add(8);
+        diceTokenList.add(10);
+        diceTokenList.add(9);
+        diceTokenList.add(4);
+        diceTokenList.add(5);
+        diceTokenList.add(6);
+        diceTokenList.add(3);
+        diceTokenList.add(3);
+
+
+        ArrayList<Integer> terrainType = new ArrayList<>();
+        terrainType.add(1);
+        terrainType.add(2);
+        terrainType.add(1);
+        terrainType.add(3);
+        terrainType.add(3);
+        terrainType.add(1);
+        terrainType.add(2);
+        terrainType.add(3);
+        terrainType.add(4);
+        terrainType.add(3);
+        terrainType.add(4);
+        terrainType.add(2);
+        terrainType.add(4);
+        terrainType.add(5);
+        terrainType.add(2);
+        terrainType.add(5);
+        terrainType.add(1);
+        terrainType.add(5);
+
+        middle.configureTerrainTypeAndDiceToken(6, 0);
+        for (int i = 0; i < 18; i++) {
+            int rand1 = randomInt(0, 17 - i);
+            int rand2 = randomInt(0, 17 - i);
+            hexagons.get(i).configureTerrainTypeAndDiceToken(terrainType.get(rand1), diceTokenList.get(rand2));
+
+            terrainType.remove(rand1);
+            diceTokenList.remove(rand2);
+        }
+
+    }
+
+    /**
+     * Configures the harbors of the hexagons/building nodes randomly
+     * <p>
+     * By using this method it can happen that not all 18 harbors are placed on the game field.
+     *
+     * @author Marc Hermes
+     * @since 2021-05-14
+     */
+    public void configureHarborsRandomly() {
+
+        ArrayList<Integer> harborList = new ArrayList<>();
+        harborList.add(1);
+        harborList.add(2);
+        harborList.add(3);
+        harborList.add(4);
+        harborList.add(5);
+        harborList.add(6);
+        harborList.add(6);
+        harborList.add(6);
+        harborList.add(6);
+
+        for(Hexagon hexagonToInspect : hexagonHashSet) {
+            if (!hexagonToInspect.equals(middle)) {
+                int rand3 = randomInt(0, harborList.size() - 1);
+
+                // Check if the hexagon already has harbors. because then no harbor will be placed
+
+                boolean alreadyHasHarbor = false;
+                for (BuildingNode bn : hexagonToInspect.getBuildingNodes()) {
+                    if (bn.getTypeOfHarbor() != 0) {
+                        alreadyHasHarbor = true;
+                        break;
+                    }
+                }
+
+                // size() < 6 means that the hexagon has a connection to the ocean and thus a harbor may be placed
+                if (hexagonToInspect.hexagons.size() < 6 && !alreadyHasHarbor) {
+                    if (hexagonToInspect.hexLeft == null) {
+                        hexagonToInspect.buildingTopLeft.setTypeOfHarbor(harborList.get(rand3));
+                        hexagonToInspect.buildingBottomLeft.setTypeOfHarbor(harborList.get(rand3));
+                        harborList.remove(rand3);
+                    } else if (hexagonToInspect.hexRight == null) {
+                        hexagonToInspect.buildingTopRight.setTypeOfHarbor(harborList.get(rand3));
+                        hexagonToInspect.buildingBottomRight.setTypeOfHarbor(harborList.get(rand3));
+                        harborList.remove(rand3);
+                    } else if (hexagonToInspect.hexTopLeft == null) {
+                        hexagonToInspect.buildingTopLeft.setTypeOfHarbor(harborList.get(rand3));
+                        hexagonToInspect.buildingTop.setTypeOfHarbor(harborList.get(rand3));
+                        harborList.remove(rand3);
+                    } else if (hexagonToInspect.hexTopRight == null) {
+                        hexagonToInspect.buildingTop.setTypeOfHarbor(harborList.get(rand3));
+                        hexagonToInspect.buildingTopRight.setTypeOfHarbor(harborList.get(rand3));
+                        harborList.remove(rand3);
+                    } else if (hexagonToInspect.hexBottomLeft == null) {
+                        hexagonToInspect.buildingBottom.setTypeOfHarbor(harborList.get(rand3));
+                        hexagonToInspect.buildingBottomLeft.setTypeOfHarbor(harborList.get(rand3));
+                        harborList.remove(rand3);
+                    } else if (hexagonToInspect.hexBottomRight == null) {
+                        hexagonToInspect.buildingBottomRight.setTypeOfHarbor(harborList.get(rand3));
+                        hexagonToInspect.buildingBottom.setTypeOfHarbor(harborList.get(rand3));
+                        harborList.remove(rand3);
+                    }
+                    if(harborList.isEmpty()) {
+                        break;
+                    }
+
+                }
+            }
+        }
+    }
+
+    /**
+     * Generates the standard configuration of the harbors of the game field
+     *
+     * @author Marc Hermes
+     * @since 2021-05-14
+     */
+    public void configureHarborsStandard() {
+        // 0 = no harbor, 1 = 2:1 Sheep, 2 = 2:1 Clay, 3 = 2:1 Wood, 4 = 2:1 Grain, 5 = 2:1 Ore, 6 = 3:1 Any*/
+
+        middle.getHexLeft().getHexTopLeft().getBuildingTopLeft().setTypeOfHarbor(5);
+        middle.getHexLeft().getHexTopLeft().getBuildingBottomLeft().setTypeOfHarbor(5);
+
+        middle.getHexBottomLeft().getHexLeft().getBuildingTopLeft().setTypeOfHarbor(4);
+        middle.getHexBottomLeft().getHexLeft().getBuildingBottomLeft().setTypeOfHarbor(4);
+
+        middle.getHexBottomLeft().getHexBottomLeft().getBuildingBottomLeft().setTypeOfHarbor(6);
+        middle.getHexBottomLeft().getHexBottomLeft().getBuildingBottom().setTypeOfHarbor(6);
+
+        middle.getHexBottomRight().getHexBottomLeft().getBuildingBottom().setTypeOfHarbor(3);
+        middle.getHexBottomRight().getHexBottomLeft().getBuildingBottomRight().setTypeOfHarbor(3);
+
+        middle.getHexRight().getHexBottomRight().getBuildingBottom().setTypeOfHarbor(2);
+        middle.getHexRight().getHexBottomRight().getBuildingBottomRight().setTypeOfHarbor(2);
+
+        middle.getHexRight().getHexRight().getBuildingTopRight().setTypeOfHarbor(6);
+        middle.getHexRight().getHexRight().getBuildingBottomRight().setTypeOfHarbor(6);
+
+        middle.getHexRight().getHexTopRight().getBuildingTop().setTypeOfHarbor(6);
+        middle.getHexRight().getHexTopRight().getBuildingTopRight().setTypeOfHarbor(6);
+
+        middle.getHexTopRight().getHexTopLeft().getBuildingTop().setTypeOfHarbor(1);
+        middle.getHexTopRight().getHexTopLeft().getBuildingTopRight().setTypeOfHarbor(1);
+
+        middle.getHexTopLeft().getHexTopLeft().getBuildingTopLeft().setTypeOfHarbor(6);
+        middle.getHexTopLeft().getHexTopLeft().getBuildingTop().setTypeOfHarbor(6);
+    }
+
+    /**
+     * Configures the standard dice tokens and field types for the hexagons
+     * <p>
+     * IMPORTANT: only use this function if you have generated the standard game field type otherwise it may not work
+     * because the references of the hexagons may not exist.
+     *
+     * @author Marc Hermes
+     * @since 2021-05-14
+     */
+    public void configureTerrainTypeAndDiceTokensForAllHexagonsStandard() {
+        //"Ocean" = 0; "Forest" = 1; "Farmland" = 2; "Grassland" = 3; "Hillside" = 4; "Mountain" = 5; "Desert" = 6;
+
+        middle.configureTerrainTypeAndDiceToken(6, 0);
+        middle.getHexLeft().configureTerrainTypeAndDiceToken(4, 9);
+        middle.getHexBottomLeft().configureTerrainTypeAndDiceToken(5, 11);
+        middle.getHexBottomRight().configureTerrainTypeAndDiceToken(1, 3);
+        middle.getHexRight().configureTerrainTypeAndDiceToken(5, 6);
+        middle.getHexTopRight().configureTerrainTypeAndDiceToken(2, 5);
+        middle.getHexTopLeft().configureTerrainTypeAndDiceToken(5, 4);
+
+        middle.getHexLeft().getHexTopLeft().configureTerrainTypeAndDiceToken(2, 2);
+        middle.getHexLeft().getHexLeft().configureTerrainTypeAndDiceToken(1, 5);
+
+        middle.getHexBottomLeft().getHexLeft().configureTerrainTypeAndDiceToken(2, 10);
+        middle.getHexBottomLeft().getHexBottomLeft().configureTerrainTypeAndDiceToken(4, 8);
+
+        middle.getHexBottomRight().getHexBottomLeft().configureTerrainTypeAndDiceToken(3, 4);
+        middle.getHexBottomRight().getHexBottomRight().configureTerrainTypeAndDiceToken(4, 11);
+
+        middle.getHexRight().getHexBottomRight().configureTerrainTypeAndDiceToken(3, 12);
+        middle.getHexRight().getHexRight().configureTerrainTypeAndDiceToken(2, 9);
+
+        middle.getHexTopRight().getHexRight().configureTerrainTypeAndDiceToken(1, 10);
+        middle.getHexTopRight().getHexTopRight().configureTerrainTypeAndDiceToken(3, 8);
+
+        middle.getHexTopLeft().getHexTopRight().configureTerrainTypeAndDiceToken(3, 3);
+        middle.getHexTopLeft().getHexTopLeft().configureTerrainTypeAndDiceToken(1, 6);
+
+    }
+
+    /**
+     * Returns a random integer in a given range with standard distribution
+     *
+     * @param min the (inclusive) lower bound for the random number
+     * @param max the (inclusive) upper bound for the random number
+     * @return the random number generated
+     * @author Marc Hermes
+     * @since 2021-05-14
+     */
+    private int randomInt(int min, int max) {
+        return (int) (Math.random() * (max - min)) + min;
     }
 
     /**
@@ -182,15 +516,23 @@ public class MapGraph implements Serializable {
      * Traderoute"-Flag.
      * </p>
      *
-     * @return The integer representing the index of the player with the longest road, inside the ArrayList of players
-     * in the GameDTO.
+     * enhanced by Marc Hermes 2021-05-19
+     *
+     * @return The int array representing the index of the player with the longest road, as well as the length of the longest road. [0] -> the PlayerIndex, [1] -> the length
      * @author Pieter Vogt
      * @see de.uol.swp.common.game.dto.GameDTO
      * @since 2021-04-02
      */
-    public int returnPlayerWithLongestRoad() {
-        //TODO:This needs to be implemented in a separate ticket some time soon.
-        return 666; //nonsense-value
+    public int[] returnPlayerWithLongestRoad() {
+        int[] returnValue = new int[2];
+        for(int i = 0; i < 4; i++) {
+            int length = longestStreetPathCalculator.getLongestPath(i);
+            if(length > returnValue[1]) {
+                returnValue[1] = length;
+                returnValue[0] = i;
+            }
+        }
+        return returnValue;
     }
 
     public ArrayList<BuildingNode> getBuiltBuildings() {
@@ -315,7 +657,9 @@ public class MapGraph implements Serializable {
 
         /**
          * Builds a road for player with parsed index.
+         * Calls the function to update the matrix with new Street.
          *
+         * enhanced by Marc, Kirstin, 2021-04-23
          * @param playerIndex Index of the player who wants to build a road
          * @return True if construction was successful, false if not.
          * @author Pieter Vogt
@@ -324,6 +668,7 @@ public class MapGraph implements Serializable {
         public Boolean buildRoad(int playerIndex) {
             if (this.occupiedByPlayer == 666) {
                 this.occupiedByPlayer = playerIndex;
+                longestStreetPathCalculator.updateMatrixWithNewStreet(this.getUuid(), playerIndex);
                 return true;
             } else return false;
         }
@@ -413,7 +758,9 @@ public class MapGraph implements Serializable {
 
         /**
          * Builds or upgrades a settlement for player with parsed index.
+         * Calls the function to update the matrix with new building, if the building is not just a size increase.
          *
+         * enhanced by Marc, Kirstin, 2021-04-23
          * @param playerIndex Index of the player who wants to build or upgrade a building.
          * @return True if construction was successful, false if not.
          * @author Pieter Vogt
@@ -424,6 +771,9 @@ public class MapGraph implements Serializable {
                 if (sizeOfSettlement < 2) {
                     sizeOfSettlement++;
                     this.occupiedByPlayer = playerIndex;
+                    if (sizeOfSettlement == 1) {
+                        longestStreetPathCalculator.updateMatrixWithNewBuilding(this, playerIndex);
+                    }
                     return true;
                 } else return false;
             } else return false;
@@ -474,6 +824,8 @@ public class MapGraph implements Serializable {
         private List<BuildingNode> buildingNodes = new ArrayList<>();
         private List<StreetNode> streetNodes = new ArrayList<>();
         private List<Hexagon> hexagons = new ArrayList<>();
+
+        private boolean occupiedByRobber;
 
         //CONSTRUCTOR
 
@@ -699,6 +1051,14 @@ public class MapGraph implements Serializable {
             return uuid;
         }
 
+        public boolean isOccupiedByRobber() {
+            return occupiedByRobber;
+        }
+
+        public void setOccupiedByRobber(boolean occupiedByRobber) {
+            this.occupiedByRobber = occupiedByRobber;
+        }
+
         // METHODS
 
         /**
@@ -731,23 +1091,28 @@ public class MapGraph implements Serializable {
          * @since 2021-04-08
          */
         public void updateHexagonList() {
-            if (hexTopLeft != null) {
+            /*ArrayList<Hexagon> bleb = new ArrayList<>(Arrays.asList(hexTopLeft, hexTopRight, hexRight, hexLeft, hexBottomLeft, hexBottomRight));
+            bleb.forEach(hexagon -> {
+                if (hexagon != null && !hexagons.contains(hexagon)) {
+                    hexagons.add(hexagon);
+                }
+            });*/
+            if (hexTopLeft != null && !hexagons.contains(hexTopLeft)) {
                 hexagons.add(hexTopLeft);
             }
-
-            if (hexTopRight != null) {
+            if (hexTopRight != null && !hexagons.contains(hexTopRight)) {
                 hexagons.add(hexTopRight);
             }
-            if (hexRight != null) {
+            if (hexRight != null && !hexagons.contains(hexRight)) {
                 hexagons.add(hexRight);
             }
-            if (hexLeft != null) {
+            if (hexLeft != null && !hexagons.contains(hexLeft)) {
                 hexagons.add(hexLeft);
             }
-            if (hexBottomLeft != null) {
+            if (hexBottomLeft != null && !hexagons.contains(hexBottomLeft)) {
                 hexagons.add(hexBottomLeft);
             }
-            if (hexBottomRight != null) {
+            if (hexBottomRight != null && !hexagons.contains(hexBottomRight)) {
                 hexagons.add(hexBottomRight);
             }
         }
@@ -1145,7 +1510,7 @@ public class MapGraph implements Serializable {
                 streetLeft.addBuildingNode(buildingTopLeft);
                 streetLeft.addBuildingNode(buildingBottomLeft);
 
-                streetRight.addBuildingNode(buildingTopLeft);
+                streetRight.addBuildingNode(buildingBottomRight);
                 streetRight.addBuildingNode(buildingTopRight);
 
                 streetBottomLeft.addBuildingNode(buildingBottom);
@@ -1201,11 +1566,12 @@ public class MapGraph implements Serializable {
          * @author Pieter Vogt
          * @since 2021-04-08
          */
-        public void dockRight() {
+        public Hexagon dockRight() {
             if (hexRight == null) {
                 this.hexRight = new Hexagon("right", selfPosition);
                 hexRight.setHexLeft(this);
             }
+            return hexRight;
         }
 
         /**
@@ -1215,11 +1581,12 @@ public class MapGraph implements Serializable {
          * @author Pieter Vogt
          * @since 2021-04-08
          */
-        public void dockLeft() {
+        public Hexagon dockLeft() {
             if (hexLeft == null) {
                 this.hexLeft = new Hexagon("left", selfPosition);
                 hexLeft.setHexRight(this);
             }
+            return hexLeft;
         }
 
         /**
@@ -1229,11 +1596,12 @@ public class MapGraph implements Serializable {
          * @author Pieter Vogt
          * @since 2021-04-08
          */
-        public void dockTopRight() {
+        public Hexagon dockTopRight() {
             if (hexTopRight == null) {
                 this.hexTopRight = new Hexagon("topRight", selfPosition);
                 hexTopRight.setHexBottomLeft(this);
             }
+            return hexTopRight;
         }
 
         /**
@@ -1243,11 +1611,12 @@ public class MapGraph implements Serializable {
          * @author Pieter Vogt
          * @since 2021-04-08
          */
-        public void dockBottomRight() {
+        public Hexagon dockBottomRight() {
             if (hexBottomRight == null) {
                 this.hexBottomRight = new Hexagon("bottomRight", selfPosition);
                 hexBottomRight.setHexTopLeft(this);
             }
+            return hexBottomRight;
         }
 
         /**
@@ -1257,11 +1626,12 @@ public class MapGraph implements Serializable {
          * @author Pieter Vogt
          * @since 2021-04-08
          */
-        public void dockTopLeft() {
+        public Hexagon dockTopLeft() {
             if (hexTopLeft == null) {
                 this.hexTopLeft = new Hexagon("topLeft", selfPosition);
                 hexTopLeft.setHexBottomRight(this);
             }
+            return hexTopLeft;
         }
 
         /**
@@ -1271,11 +1641,12 @@ public class MapGraph implements Serializable {
          * @author Pieter Vogt
          * @since 2021-04-08
          */
-        public void dockBottomLeft() {
+        public Hexagon dockBottomLeft() {
             if (hexBottomLeft == null) {
                 this.hexBottomLeft = new Hexagon("bottomLeft", selfPosition);
                 hexBottomLeft.setHexTopRight(this);
             }
+            return hexBottomLeft;
         }
     }
 }

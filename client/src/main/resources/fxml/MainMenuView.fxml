@@ -2,9 +2,8 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-
-<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1"
-            xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.uol.swp.client.main.MainMenuPresenter" stylesheets="@../css/swp.css">
+<AnchorPane xmlns:fx="http://javafx.com/fxml/1" prefHeight="400.0" prefWidth="600.0" stylesheets="@../css/swp.css"
+            xmlns="http://javafx.com/javafx/16" fx:controller="de.uol.swp.client.main.MainMenuPresenter">
     <ListView fx:id="usersView" prefHeight="164.0" prefWidth="284.0" GridPane.rowIndex="1"/>
     <ListView fx:id="lobbiesView" layoutX="284.0" prefHeight="164.0" prefWidth="316.0" GridPane.rowIndex="3"/>
     <TextField fx:id="lobbyNameTextField" layoutX="284" layoutY="164" onAction="#onCreateLobby" prefWidth="223.0"
@@ -24,4 +23,9 @@
             prefWidth="77.0" text="Send"/>
     <Button layoutX="478.0" layoutY="374.0" mnemonicParsing="false" onAction="#onUserSettingsButtonPressed"
             text="Settings"/>
+    <Button fx:id="muteMusicButton" layoutX="376.0" layoutY="374.0" mnemonicParsing="false"
+            onAction="#onMuteMusicButtonPressed" text="Turn music off"/>
+    <Button fx:id="unmuteMusicButton" layoutX="376.0" layoutY="374.0" mnemonicParsing="false"
+            onAction="#onUnmuteMusicButtonPressed" text="Turn music on" visible="false"/>
+    <Button layoutX="290.0" layoutY="373.0" mnemonicParsing="false" onAction="#onGameRulesPressed" text="Game Rules"/>
 </AnchorPane>
