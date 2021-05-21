@@ -123,7 +123,7 @@ public class CheatService extends AbstractService {
                         // Set User Victory Points to 10
                         inventory.setVictoryPoints(10);
                         // Update Inventory to trigger the Win
-                        gameService.updateInventory(game);
+                        gameService.updateInventory(game.get());
                     } else {
                         LOG.debug("Wrong endgame command! Make sure to use endgame 1!");
                     }
@@ -150,7 +150,7 @@ public class CheatService extends AbstractService {
                         inventory.cardMonopoly.incNumber();
                         inventory.cardRoadBuilding.incNumber();
                         inventory.cardYearOfPlenty.incNumber();
-                        gameService.updateInventory(game);
+                        gameService.updateInventory(game.get());
                         LOG.debug(inventory.getPrivateView());
                     } else {
                         LOG.debug("Game not present!");
@@ -201,7 +201,7 @@ public class CheatService extends AbstractService {
                                 inventory.incCardVictoryPoint(cardAmount);
                                 break;
                         }
-                        gameService.updateInventory(game);
+                        gameService.updateInventory(game.get());
                         LOG.debug(inventory.getPrivateView());
                     } else {
                         LOG.debug("Game not present!");

@@ -712,24 +712,6 @@ public class GameService extends AbstractService {
                 System.out.println("Sender " + request.getUser().getUsername() + " was not player with current turn");
             }
         }
-        Optional<Game> optionalGame = gameManagement.getGame(request.getName());
-        if (optionalGame.isPresent()) {
-            Game game = optionalGame.get();
-            if (request.getUser().getUsername().equals(game.getUser(game.getTurn()).getUsername()) && game.getCurrentCard().equals("")) {
-                try {
-                    boolean priorGamePhase = game.isStartingTurns();
-                    game.nextRound();
-                    if (priorGamePhase && !game.isStartingTurns()) {
-                        distributeResources(request.getName());
-                    }
-                    sendToAllInGame(game.getName(), new NextTurnMessage(game.getName(),
-                            game.getUser(game.getTurn()).getUsername(), game.getTurn(), game.isStartingTurns()));
-                } catch (GameManagementException e) {
-                    LOG.debug(e);
-                    System.out.println("Sender " + request.getUser().getUsername() + " was not player with current turn");
-                }
-            }
-        }
     }
 
     /**
@@ -1051,7 +1033,7 @@ public class GameService extends AbstractService {
                 //Retrieve inventories from all users
                 var inventories = game.getInventoriesArrayList();
                 //Create statsDTO object
-                var statsDTO = new StatsDTO(game.getName(), user.getUsername(), game.get().getTradeList().size(), game.get().getOverallTurns(), inventories);
+                var statsDTO = new StatsDTO(game.getName(), user.getUsername(), game.getTradeList().size(), game.getOverallTurns(), inventories);
                 //Send GameFinishedMessage to all users in game
                 sendToAllInGame(game.getName(), new GameFinishedMessage(statsDTO));
                 LOG.debug("User " + user.getUsername() + " has atleast 10 victory points and won.");
