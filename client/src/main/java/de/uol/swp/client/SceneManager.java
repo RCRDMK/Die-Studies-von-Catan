@@ -12,6 +12,7 @@ import de.uol.swp.client.account.event.UserSettingsErrorEvent;
 import de.uol.swp.client.auth.LoginPresenter;
 import de.uol.swp.client.auth.events.ShowLoginViewEvent;
 import de.uol.swp.client.game.GamePresenter;
+import de.uol.swp.client.game.GameRulesPresenter;
 import de.uol.swp.client.game.SummaryPresenter;
 import de.uol.swp.client.game.TradePresenter;
 import de.uol.swp.client.lobby.LobbyPresenter;
@@ -21,6 +22,7 @@ import de.uol.swp.client.message.UnmuteMusicMessage;
 import de.uol.swp.client.register.RegistrationPresenter;
 import de.uol.swp.client.register.event.RegistrationCanceledEvent;
 import de.uol.swp.client.register.event.RegistrationErrorEvent;
+import de.uol.swp.client.register.event.ShowGameRulesEvent;
 import de.uol.swp.client.register.event.ShowRegistrationViewEvent;
 import de.uol.swp.common.game.message.TradeEndedMessage;
 import de.uol.swp.common.user.User;
@@ -32,11 +34,12 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import javafx.scene.media.Media;
-import javafx.scene.media.MediaPlayer;
+
 import java.io.File;
 import java.net.URL;
 
@@ -72,6 +75,8 @@ public class SceneManager {
     private TabPane tabPane = new TabPane();
     private TabHelper tabHelper;
     private Scene userSettingsScene;
+    private Scene userGameRulesScene;
+    private Scene nextUserGameRulesScene;
     private MediaPlayer player;
     private Scene summaryScene;
     private Scene nextSummaryScene;
@@ -91,6 +96,9 @@ public class SceneManager {
      * This is a subroutine of the constructor to initialize all views, as well as creating the TabPane
      * <p>
      * enhanced by Alexander Losse and Marc Hermes - 2021-01-20
+     * <p>
+     * enhanced by Ricardo Mook, 2021-05-13
+     * added the abilty to have background music playing
      *
      * @author Marco Grawunder
      * @since 2019-09-03
@@ -104,9 +112,19 @@ public class SceneManager {
         initRegistrationView();
         initUserSettingsView();
         nextSummaryScene = initSummaryView();
+        initGameRulesView();
         nextLobbyScene = initLobbyView();
         nextGameScene = initGameView();
         nextTradeScene = initTradeView();
+        nextUserGameRulesScene = initGameRulesView();
+
+        //Royalty free music from Pixabay was used. For more information see https://pixabay.com/service/license/.
+        String musicFile = "client/src/main/resources/backgroundMusic/the-last-october-day-3915.mp3";
+        Media backgroundMusic = new Media(new File(musicFile).toURI().toString());
+        player = new MediaPlayer(backgroundMusic);
+        player.setCycleCount(MediaPlayer.INDEFINITE);//loops the musicFile indefinitely
+        player.setVolume(0.4);
+        player.play();
     }
 
     /**
@@ -323,6 +341,25 @@ public class SceneManager {
         }
     }
 
+    /**
+     * Initializes the userGameRules view
+     * <p>
+     * If the userGameRules is null it gets set to a new scene containing the
+     * a pane showing the GameRules view as specified by the UserGameRulesView
+     * FXML file.
+     *
+     * @author Sergej Tulnev
+     * @see GameRulesPresenter
+     * @since 2021-05-18
+     */
+    private Scene initGameRulesView() {
+        Parent rootPane = initPresenter(GameRulesPresenter.fxml);
+        userGameRulesScene = new Scene(rootPane, 800, 500);
+        userGameRulesScene.getStylesheets().add(styleSheet);
+        rootPane.getStyleClass().add("Game Rules");
+        return lobbyScene;
+    }
+
     /*
     @Subscribe
     public void onChangeToCertainSizeEvent(ChangeToCertainSizeEvent event) {
@@ -433,6 +470,25 @@ public class SceneManager {
     }
 
     /**
+     * Handles ShowGameRulesEvent detected on the EventBus
+     * <p>
+     * If a ShowGameRules is detected on the EventBus, this method gets
+     * called. It calls a method to switch the current screen to the Game Rules screen.
+     *
+     * @param event The ShowGameRules detected on the EventBus
+     * @author Sergej Tulnev
+     * @see de.uol.swp.client.auth.events.ShowLoginViewEvent
+     * @since 2020-05-18
+     */
+    @Subscribe
+    public void onShowGameRulesMessage(ShowGameRulesEvent event) {
+        LOG.info("ShowGameRulesEvent");
+        removeGameRulesTab();
+        newGameRulesTab();
+    }
+
+
+    /**
      * Handles UserSettingsErrorEvent detected on the EventBus
      * <p>
      * If a UserSettingsErrorEvent is detected on the EventBus, this method gets
@@ -517,8 +573,6 @@ public class SceneManager {
      * The current scene and title are saved in the lastScene and lastTitle variables,
      * before the new scene and title are set and shown.
      *
-     * enhanced by Ricardo Mook, 2021-05-04
-     * added the abilty to have background music playing
      *
      * @param scene New scene to show
      * @param title New window title
@@ -533,13 +587,6 @@ public class SceneManager {
             primaryStage.setTitle(title);
             primaryStage.setScene(scene);
             primaryStage.show();
-
-            //Royalty free music from Pixabay was used. For more information see https://pixabay.com/service/license/.
-            String musicFile = "client/src/main/resources/backgroundMusic/the-last-october-day-3915.mp3";
-            Media backgroundMusic = new Media(new File(musicFile).toURI().toString());
-            player = new MediaPlayer(backgroundMusic);
-            player.setCycleCount(MediaPlayer.INDEFINITE);//loops the musicFile indefinitely
-            player.play();
 
         });
     }
@@ -741,6 +788,25 @@ public class SceneManager {
     }
 
     /**
+     * Creates a new Tab
+     * <p>
+     * This method invokes the newGameRulesTab method resulting in the creation of a new gameRules tab
+     *
+     * @author Sergej Tulnev
+     * @since 2021-05-18
+     */
+    public void newGameRulesTab() {
+        Tab gameRulesTab = new Tab("GameRules ");
+        gameRulesTab.setContent(userGameRulesScene.getRoot());
+        gameRulesTab.setClosable(true);
+        Platform.runLater(() -> {
+            tabHelper.addTab(gameRulesTab);
+            tabHelper.getTabPane().getSelectionModel().select(gameRulesTab);
+        });
+        nextUserGameRulesScene = initGameRulesView();
+    }
+
+    /**
      * Creates a new game tab
      * <p>
      * When this method is invoked a new game tab with a specific name is created.
@@ -835,6 +901,20 @@ public class SceneManager {
     public void removeTradeTab(TradeEndedMessage tem) {
         Platform.runLater(() -> {
             tabHelper.removeTab("Trade " + tem.getTradeCode());
+        });
+    }
+
+    /**
+     * Removes an old GameRules tab
+     * <p>
+     * When this method is invoked a GameRules tab, is removed the old GameRules tab
+     *
+     * @author Sergej Tulnev
+     * @since 2021-05-19
+     */
+    public void removeGameRulesTab() {
+        Platform.runLater(() -> {
+            tabHelper.removeTab("GameRules ");
         });
     }
 
