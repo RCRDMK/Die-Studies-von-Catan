@@ -16,6 +16,7 @@ public class TerrainFieldTest {
     TerrainField tf5 = new TerrainField(new Vector(4, 2));
     TerrainField tf6 = new TerrainField(new Vector(4, 2));
     TerrainField tf7 = new TerrainField(new Vector(4, 2));
+    TerrainField tf8 = new TerrainField(new Vector(4, 2));
 
 
     /**
@@ -38,6 +39,7 @@ public class TerrainFieldTest {
         tf5.setName("Ocean");
         tf6.setName("Mountain");
         tf7.setName("Desert");
+        tf8.setName("Forrest");
         assertEquals(GOLDENROD, tf1.determineColorOfTerrain());
         assertEquals(LAWNGREEN, tf2.determineColorOfTerrain());
         assertEquals(LIGHTCORAL, tf3.determineColorOfTerrain());
@@ -45,6 +47,7 @@ public class TerrainFieldTest {
         assertEquals(DODGERBLUE, tf5.determineColorOfTerrain());
         assertEquals(GREY, tf6.determineColorOfTerrain());
         assertEquals(BLANCHEDALMOND, tf7.determineColorOfTerrain());
+        assertEquals(OLIVEDRAB, tf8.determineColorOfTerrain());
     }
 
 }

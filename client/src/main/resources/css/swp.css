@@ -1,29 +1,28 @@
 /*author Ricardo Mook, 2021-04-28*/
 
 .menu-button .label{
-    -fx-text-fill: black;
+    -fx-text-fill: #000000;
 }
 
 .choice-box .label{
-    -fx-text-fill: black;
+    -fx-text-fill: #000000;
 }
 
 .text-field {/* Sets behaviour for the Textfield class*/
-     visibility: true;
-    -fx-background-color: white;
-    -fx-text-fill: black;
+    -fx-background-color: #ffffff;
+    -fx-text-fill: #000000;
 }
 
 .radio-button{
-    -fx-text-fill: white;
+    -fx-text-fill: #ffffff;
 }
 
 .list-view .label{
-    -fx-text-fill: black;
+    -fx-text-fill: #000000;
 }
 
 .label{
-    -fx-text-fill: white;
+    -fx-text-fill: #ffffff;
 }
 
 /*Besides the "Siedler von Catan Logo" all images are from the royalty-free websides pexels.com and unsplash.com.
