@@ -75,4 +75,5 @@ public class TradeInformSellerAboutBidsMessage extends AbstractGameMessage {
     public String getTradeCode() {
         return tradeCode;
     }
+
 }

@@ -193,7 +193,7 @@ public class GameService extends AbstractService {
 
                 } catch (GameManagementException e) {
                     LOG.debug(e);
-                    System.out.println("Player " + message.getUser() + " tried to build at node with UUID: " + message.getUuid() + " but it did not work.");
+                    LOG.debug("Player " + message.getUser() + " tried to build at node with UUID: " + message.getUuid() + " but it did not work.");
                 }
             }
         }
@@ -730,7 +730,7 @@ public class GameService extends AbstractService {
                     }
                 } catch (GameManagementException e) {
                     LOG.debug(e);
-                    System.out.println("Sender " + request.getUser().getUsername() + " was not player with current turn");
+                    LOG.debug("Sender " + request.getUser().getUsername() + " was not player with current turn");
                 }
             }
 
@@ -768,7 +768,7 @@ public class GameService extends AbstractService {
             AIToServerTranslator.translate(testAI.startTurnOrder(), this);
         } else {
             //RandomAI randomAI = new RandomAI(game);
-            System.out.println("Rufe random AI auf");
+            LOG.debug("Rufe random AI auf");
             Inventory aiInventory = game.getInventory(game.getUser(game.getTurn()));
             aiInventory.incCard("Brick", 1);
             aiInventory.incCard("Ore", 1);
@@ -1187,7 +1187,7 @@ public class GameService extends AbstractService {
      */
     @Subscribe
     public void onTradeItemRequest(TradeItemRequest request) {
-        System.out.println("Got message " + request.getUser().getUsername());
+        LOG.debug("Got message " + request.getUser().getUsername());
         Optional<Game> optionalGame = gameManagement.getGame(request.getName());
         // TODO: Wird nur zum testen verwendet
       /*  game.get().getInventory(request.getUser()).incCard("Lumber", 10);
@@ -1212,7 +1212,7 @@ public class GameService extends AbstractService {
             if (numberOfCardsCorrect) {
                 String tradeCode = request.getTradeCode();
                 if (!game.getTradeList().containsKey(tradeCode)) {
-                    game.addTrades(new Trade(request.getUser(), request.getTradeItems()), tradeCode);
+                    game.addTrades(new Trade(request.getUser(), request.getTradeItems(), request.getWishItems()), tradeCode);
 
                     LOG.debug("added Trade " + tradeCode + " by User: " + request.getUser().getUsername() + " items: " + request.getTradeItems());
 
@@ -1226,9 +1226,9 @@ public class GameService extends AbstractService {
                 } else {
                     Trade trade = game.getTradeList().get(request.getTradeCode());
                     trade.addBid(request.getUser(), request.getTradeItems());
-                    System.out.println("added bid to " + tradeCode + " by User: " + request.getUser().getUsername() + " items: " + request.getTradeItems());
-                    if (trade.getBids().size() == game.getUsers().size() - 1) {
-                        System.out.println("bids full");
+                    LOG.debug("added bid to " + tradeCode + " by User: " + request.getUser().getUsername() + " items: " + request.getTradeItems());
+                    if (trade.getBids().size() == game.getUsersList().size() - 1) {
+                        LOG.debug("bids full");
                         TradeInformSellerAboutBidsMessage tisabm = new TradeInformSellerAboutBidsMessage(trade.getSeller(), request.getName(), tradeCode, trade.getBidders(), trade.getBids());
                         if (!game.getUsers().contains(game.getUser(game.getTurn()))) {
                             AIToServerTranslator.translate(new RandomAI((GameDTO) game).continueTurnOrder(tisabm, trade.getWishList()), this);
@@ -1239,7 +1239,7 @@ public class GameService extends AbstractService {
                     }
                 }
             } else {
-                System.out.println("Nicht genug im Inventar");
+                LOG.debug("Nicht genug im Inventar");
                 TradeCardErrorMessage tcem = new TradeCardErrorMessage(request.getUser(), request.getName(), request.getTradeCode());
                 sendToSpecificUserInGame(tcem, request.getUser());
             }

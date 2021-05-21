@@ -65,4 +65,63 @@ public class TradeItemRequest extends AbstractGameRequest {
     public String getTradeCode() {
         return tradeCode;
     }
+
+
+    /**
+     * returns an ArrayList<TradeItem> where missing TradeItems are included
+     * <p>
+     * if a TradeItem is missing in the ArrayList<TradeItem>, the method adds an TradeItem with count = 0
+     *
+     * @param itemList ArrayList<TradeItem> to be updated
+     * @return ArrayList<TradeItem>
+     * @author Marc Hermes, Alexander Losse
+     * @since 2021-05-22
+     */
+    private ArrayList<TradeItem> fillEmptySpotsInList(ArrayList<TradeItem> itemList) {
+        boolean lumberExists = false;
+        boolean oreExists = false;
+        boolean woolExists = false;
+        boolean grainExists = false;
+        boolean brickExists = false;
+
+        if (itemList.size() < 5) {
+            for (TradeItem tradeItem : itemList) {
+                String itemName = tradeItem.getName();
+                switch (itemName) {
+                    case "Lumber":
+                        lumberExists = true;
+                        break;
+                    case "Ore":
+                        oreExists = true;
+                        break;
+                    case "Wool":
+                        woolExists = true;
+                        break;
+                    case "Grain":
+                        grainExists = true;
+                        break;
+                    case "Brick":
+                        brickExists = true;
+                        break;
+                }
+            }
+
+            if (!lumberExists) {
+                itemList.add(new TradeItem("Lumber", 0));
+            }
+            if (!oreExists) {
+                itemList.add(new TradeItem("Ore", 0));
+            }
+            if (!woolExists) {
+                itemList.add(new TradeItem("Wool", 0));
+            }
+            if (!grainExists) {
+                itemList.add(new TradeItem("Grain", 0));
+            }
+            if (!brickExists) {
+                itemList.add(new TradeItem("Brick", 0));
+            }
+        }
+        return itemList;
+    }
 }
