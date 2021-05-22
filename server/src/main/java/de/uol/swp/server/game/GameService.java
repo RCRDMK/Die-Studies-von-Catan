@@ -1220,7 +1220,7 @@ public class GameService extends AbstractService {
                         if (!request.getUser().equals(user)) {
                             TradeOfferInformBiddersMessage tradeOfferInformBiddersMessage = new TradeOfferInformBiddersMessage(request.getUser(), request.getName(), tradeCode, request.getTradeItems(), (UserDTO) user, request.getWishItems());
                             if (!game.getUsers().contains(user)) {
-                                AIToServerTranslator.translate(new RandomAI((GameDTO) game).tradeBidOrder(tradeOfferInformBiddersMessage),this);
+                                AIToServerTranslator.translate(new RandomAI((GameDTO) game).tradeBidOrder(tradeOfferInformBiddersMessage), this);
                             } else {
                                 sendToSpecificUserInGame(tradeOfferInformBiddersMessage, user);
                                 LOG.debug("Send TradeOfferInformBiddersMessage to " + user.getUsername());
@@ -1376,6 +1376,8 @@ public class GameService extends AbstractService {
      * This method checks if the users have more than 7 resources and sends the user a tooMuchResourceCardMessage.
      * For every user in the game, the method checks if the user has more than 7 resource cards. If this is true,
      * it checks if the number of resources is even or uneven and sends a TooMuchResourceCardsMessage to every specific user.
+     * <p>
+     * enhanced by Marc Hermes, Alexander Losse on 2021-05-22
      *
      * @param game Game that the users play
      * @author Marius Birk
@@ -1386,10 +1388,18 @@ public class GameService extends AbstractService {
             if (game.getInventory(user).getResource() >= 7) {
                 if (game.getInventory(user).getResource() % 2 != 0) {
                     TooMuchResourceCardsMessage tooMuchResourceCardsMessage = new TooMuchResourceCardsMessage(game.getName(), (UserDTO) user, ((game.getInventory(user).getResource() - 1) / 2), game.getInventory(user).getPrivateView());
-                    sendToSpecificUserInGame(tooMuchResourceCardsMessage, user);
+                    if (!game.getUsers().contains(user)) {
+                        AIToServerTranslator.translate(new RandomAI((GameDTO) game).discardResourcesOrder(tooMuchResourceCardsMessage), this);
+                    } else {
+                        sendToSpecificUserInGame(tooMuchResourceCardsMessage, user);
+                    }
                 } else {
                     TooMuchResourceCardsMessage tooMuchResourceCardsMessage = new TooMuchResourceCardsMessage(game.getName(), (UserDTO) user, (game.getInventory(user).getResource() / 2), game.getInventory(user).getPrivateView());
-                    sendToSpecificUserInGame(tooMuchResourceCardsMessage, user);
+                    if (!game.getUsers().contains(user)) {
+                        AIToServerTranslator.translate(new RandomAI((GameDTO) game).discardResourcesOrder(tooMuchResourceCardsMessage), this);
+                    } else {
+                        sendToSpecificUserInGame(tooMuchResourceCardsMessage, user);
+                    }
                 }
             }
         }
