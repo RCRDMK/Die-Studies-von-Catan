@@ -8,7 +8,7 @@ public class TooMuchResourceCardsMessage extends AbstractGameMessage {
     private final int cards;
     private final HashMap<String, Integer> inventory;
 
-    public TooMuchResourceCardsMessage(String name, UserDTO user, int cards, HashMap inventory) {
+    public TooMuchResourceCardsMessage(String name, UserDTO user, int cards, HashMap<String, Integer> inventory) {
         super(name, user);
         this.cards = cards;
         this.inventory = inventory;

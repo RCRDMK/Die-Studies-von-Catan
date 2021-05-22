@@ -1216,11 +1216,15 @@ public class GameService extends AbstractService {
 
                     LOG.debug("added Trade " + tradeCode + " by User: " + request.getUser().getUsername() + " items: " + request.getTradeItems());
 
-                    for (User user : game.getUsers()) {
+                    for (User user : game.getUsersList()) {
                         if (!request.getUser().equals(user)) {
                             TradeOfferInformBiddersMessage tradeOfferInformBiddersMessage = new TradeOfferInformBiddersMessage(request.getUser(), request.getName(), tradeCode, request.getTradeItems(), (UserDTO) user, request.getWishItems());
-                            sendToSpecificUserInGame(tradeOfferInformBiddersMessage, user);
-                            LOG.debug("Send TradeOfferInformBiddersMessage to " + user.getUsername());
+                            if (!game.getUsers().contains(user)) {
+                                AIToServerTranslator.translate(new RandomAI((GameDTO) game).tradeBidOrder(tradeOfferInformBiddersMessage),this);
+                            } else {
+                                sendToSpecificUserInGame(tradeOfferInformBiddersMessage, user);
+                                LOG.debug("Send TradeOfferInformBiddersMessage to " + user.getUsername());
+                            }
                         }
                     }
                 } else {
@@ -1378,7 +1382,7 @@ public class GameService extends AbstractService {
      * @since 2021-05-13
      */
     public void tooMuchResources(Game game) {
-        for (User user : game.getUsers()) {
+        for (User user : game.getUsersList()) {
             if (game.getInventory(user).getResource() >= 7) {
                 if (game.getInventory(user).getResource() % 2 != 0) {
                     TooMuchResourceCardsMessage tooMuchResourceCardsMessage = new TooMuchResourceCardsMessage(game.getName(), (UserDTO) user, ((game.getInventory(user).getResource() - 1) / 2), game.getInventory(user).getPrivateView());

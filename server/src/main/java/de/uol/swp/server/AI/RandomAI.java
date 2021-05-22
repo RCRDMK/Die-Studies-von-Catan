@@ -2,8 +2,9 @@ package de.uol.swp.server.AI;
 
 import de.uol.swp.common.game.MapGraph;
 import de.uol.swp.common.game.dto.GameDTO;
+import de.uol.swp.common.game.message.TooMuchResourceCardsMessage;
 import de.uol.swp.common.game.message.TradeInformSellerAboutBidsMessage;
-import de.uol.swp.common.game.trade.Trade;
+import de.uol.swp.common.game.message.TradeOfferInformBiddersMessage;
 import de.uol.swp.common.game.trade.TradeItem;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.server.AI.AIActions.AIAction;
@@ -67,7 +68,7 @@ public class RandomAI extends AbstractAISystem {
             if (game.getLastRolledDiceValue() == 7) {
                 for (MapGraph.Hexagon hx : mapGraph.getHexagonHashSet()) {
                     if (!hx.isOccupiedByRobber()) {
-                        moveBandit(hx.getUuid());
+                        moveBanditLogic(hx.getUuid());
                         break;
                     }
                 }
@@ -91,11 +92,36 @@ public class RandomAI extends AbstractAISystem {
     public ArrayList<AIAction> continueTurnOrder(TradeInformSellerAboutBidsMessage tisabm, ArrayList<TradeItem> wishList) {
         startedTrade = true;
         chooseTradeBidLogic(tisabm, wishList);
-
+        makeRandomActionsLogic();
         endTurn();
         return this.aiActions;
     }
 
+    public ArrayList<AIAction> tradeBidOrder(TradeOfferInformBiddersMessage toibm) {
+        this.user = toibm.getBidder();
+        this.inventory = game.getInventory(user);
+        bidOnItemLogic(toibm);
+
+        return this.aiActions;
+    }
+
+    public ArrayList<AIAction> discardResourcesOrder(TooMuchResourceCardsMessage tmrcm) {
+        this.user = tmrcm.getUser();
+        this.inventory = game.getInventory(user);
+        discardResourcesLogic(tmrcm.getCards());
+        return this.aiActions;
+    }
+
+    private void moveBanditLogic(UUID hx){
+        moveBandit(hx);
+        if (inventory.getResource() >= 7) {
+            if (inventory.getResource() % 2 != 0) {
+                discardResourcesLogic((inventory.getResource() - 1) / 2);
+            } else {
+                discardResourcesLogic(inventory.getResource() / 2);
+            }
+        }
+    }
     /**
      * Performs a number of actions during the opening turns of the game
      * <p>
@@ -144,7 +170,8 @@ public class RandomAI extends AbstractAISystem {
                         break;
                     }
                 }
-                //playDevelopmentCardKnight(hexagon);
+                playDevelopmentCardKnight(hexagon);
+                moveBanditLogic(hexagon);
                 break;
             case "Monopoly":
                 playDevelopmentCardMonopoly(returnRandomResource());
@@ -320,6 +347,122 @@ public class RandomAI extends AbstractAISystem {
         } else {
             tradeOfferAccept(tisabm.getTradeCode(), false, this.user);
         }
+    }
+
+    private void bidOnItemLogic(TradeOfferInformBiddersMessage toibm) {
+        ArrayList<ArrayList<TradeItem>> wishAndOfferListAI = createWishAndOfferList();
+        ArrayList<TradeItem> wishListAI = wishAndOfferListAI.get(0);
+        ArrayList<TradeItem> offerListAI = wishAndOfferListAI.get(1);
+        ArrayList<TradeItem> offerListSeller = toibm.getSellingItems();
+
+        int notAcceptableTradeItems = 0;
+        for (TradeItem tradeItemSeller : offerListSeller) {
+            for (TradeItem tradeItemAI : wishListAI) {
+                if (tradeItemAI.getName().equals(tradeItemSeller.getName())) {
+                    if (tradeItemAI.getCount() > tradeItemSeller.getCount()) {
+                        notAcceptableTradeItems++;
+                    }
+                    break;
+                }
+            }
+        }
+        if (notAcceptableTradeItems > 1 + randomInt(0, 1)) {
+            offerListAI.clear();
+        } else if (notAcceptableTradeItems <= 1 + randomInt(0, 1)) {
+            int tries = 0;
+            while (notAcceptableTradeItems > 0 && tries < 50) {
+                tries++;
+                String randomResource = returnRandomResource();
+                for (TradeItem tradeItemOffer : offerListAI) {
+                    if (tradeItemOffer.getCount() > 0 && randomResource.equals(tradeItemOffer.getName())) {
+                        notAcceptableTradeItems--;
+                        tradeItemOffer.decCount(1);
+                        if (notAcceptableTradeItems == 0) {
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        tradeBid(offerListAI, toibm.getTradeCode());
+
+    }
+
+    private void discardResourcesLogic(int amountOfResourcesToBeDiscarded) {
+
+        HashMap<String, Integer> resourcesToDiscard = new HashMap<>();
+        ArrayList<ArrayList<TradeItem>> wishAndOfferList = createWishAndOfferList();
+        ArrayList<TradeItem> wishItems = wishAndOfferList.get(0);
+        ArrayList<TradeItem> offerItems = wishAndOfferList.get(1);
+
+        boolean discardedSomething = true;
+        //discard items the AI would offer in a trade
+        while (discardedSomething) {
+            discardedSomething = false;
+            String randomResource = returnRandomResource();
+            for (TradeItem offerItem : offerItems) {
+                if (offerItem.getName().equals(randomResource) && offerItem.getCount() > 0) {
+                    offerItem.decCount(1);
+                    amountOfResourcesToBeDiscarded--;
+                    discardedSomething = true;
+                    inventory.decCard(offerItem.getName(), 1);
+                    resourcesToDiscard.put(offerItem.getName(), resourcesToDiscard.getOrDefault(offerItem.getName(), 0) + 1);
+                    if (amountOfResourcesToBeDiscarded == 0) {
+                        break;
+                    }
+                }
+            }
+            if (amountOfResourcesToBeDiscarded == 0) {
+                break;
+            }
+        }
+        //discard items AI wouldn't want to use
+        if (amountOfResourcesToBeDiscarded > 0) {
+            ArrayList<String> resourceList = new ArrayList<>();
+            resourceList.add("Grain");
+            resourceList.add("Wool");
+            resourceList.add("Lumber");
+            resourceList.add("Brick");
+            resourceList.add("Ore");
+            for (String item : resourceList) {
+                for (TradeItem wishItem : wishItems) {
+                    if (item.equals(wishItem.getName())) {
+                        resourceList.remove(item);
+                    }
+                }
+            }
+            discardedSomething = true;
+            while (discardedSomething) {
+                discardedSomething = false;
+                String randomResource = returnRandomResource();
+                for (String item : resourceList) {
+                    if (item.equals(randomResource) && inventory.getSpecificResourceAmount(item) > 0) {
+                        inventory.decCard(item, 1);
+                        amountOfResourcesToBeDiscarded = amountOfResourcesToBeDiscarded - 1;
+                        resourcesToDiscard.put(item, resourcesToDiscard.getOrDefault(item, 0) + 1);
+                        discardedSomething = true;
+                    } else if (item.equals(randomResource) && inventory.getSpecificResourceAmount(item) == 0) {
+                        resourceList.remove(item);
+                    }
+                    if (amountOfResourcesToBeDiscarded == 0) {
+                        break;
+                    }
+                }
+                if (amountOfResourcesToBeDiscarded == 0) {
+                    break;
+                }
+            }
+            //discard rest if necessary
+            while (amountOfResourcesToBeDiscarded > 0) {
+                String randomResource = returnRandomResource();
+                if (inventory.getSpecificResourceAmount(randomResource) > 0) {
+                    inventory.decCard(randomResource, 1);
+                    resourcesToDiscard.put(randomResource, resourcesToDiscard.getOrDefault(randomResource, 0) + 1);
+                    amountOfResourcesToBeDiscarded--;
+                }
+            }
+        }
+        discardResources(resourcesToDiscard);
     }
 
     /**
