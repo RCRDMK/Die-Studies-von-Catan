@@ -718,4 +718,40 @@ public class GameServiceTest {
 
 
     }
+
+    /**
+     * This test checks if the MapGraph can be generated randomly
+     *
+     * @author Marc Hermes
+     * @since 2021-05-14
+     */
+    @Test
+    void randomGameFieldGenerateTest() {
+
+        loginUsers();
+        gameManagement.createGame("test", userDTO, "VeryRandom");
+        Optional<Game> game = gameManagement.getGame("test");
+        assertTrue(game.isPresent());
+
+        game.get().joinUser(userDTO1);
+        game.get().joinUser(userDTO2);
+        game.get().joinUser(userDTO3);
+
+        game.get().setUpUserArrayList();
+        game.get().setUpInventories();
+
+        // Check if the amount of building nodes, street nodes and hexagons is correct.
+        // because of the randomness of the generation an exact value for the street and buildings nodes as well as harbors cannot be checked.
+        int harborCounter = 0;
+        for(MapGraph.BuildingNode bn : game.get().getMapGraph().getBuildingNodeHashSet()) {
+            if(bn.getTypeOfHarbor() != 0) {
+                harborCounter++;
+            }
+        }
+
+        assertTrue(harborCounter <= 18);
+        assertEquals(game.get().getMapGraph().getHexagonHashSet().size(), 19);
+        assertTrue(game.get().getMapGraph().getBuildingNodeHashSet().size() >= 54);
+        assertTrue(game.get().getMapGraph().getStreetNodeHashSet().size() >= 72);
+    }
 }

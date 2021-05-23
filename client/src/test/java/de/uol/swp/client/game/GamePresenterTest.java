@@ -66,7 +66,7 @@ public class GamePresenterTest {
         LobbyCreatedSuccessfulResponse message2 = new LobbyCreatedSuccessfulResponse(userDTO);
         lobbyService.joinLobby("testLobby", userDTO1);
         GameService gameService = new GameService(bus);
-        GameCreatedMessage gMessage = new GameCreatedMessage("Testgame", userDTO, new MapGraph(""), new ArrayList<>());
+        GameCreatedMessage gMessage = new GameCreatedMessage("Testgame", userDTO, new MapGraph(""), new ArrayList<>(), "");
         GameLeaveUserRequest request = new GameLeaveUserRequest("Testgame", userDTO);
         gameService.leaveGame("Testgame",userDTO);
         assertTrue(event instanceof GameLeaveUserRequest);
