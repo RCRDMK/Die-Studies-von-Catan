@@ -1255,7 +1255,7 @@ public class GamePresenter extends AbstractPresenter {
         }
 
         //Setting up the BuildingNodeContainers
-        System.out.println("Setting up " + mapGraph.getBuildingNodeHashSet().size() + " BuildingNodeContainers...");
+        LOG.debug("Setting up " + mapGraph.getBuildingNodeHashSet().size() + " BuildingNodeContainers...");
 
         for (MapGraph.BuildingNode buildingNode : mapGraph.getBuildingNodeHashSet()) {
             MapGraphNodeContainer mapGraphNodeContainer = new MapGraphNodeContainer(new Circle(cardSize() / 6), buildingNode);
@@ -1264,7 +1264,7 @@ public class GamePresenter extends AbstractPresenter {
         }
 
         //Setting up the StreetNodeContainers
-        System.out.println("Setting up " + mapGraph.getStreetNodeHashSet().size() + " StreetNodeContainers...");
+        LOG.debug("Setting up " + mapGraph.getStreetNodeHashSet().size() + " StreetNodeContainers...");
 
         for (MapGraph.StreetNode streetNode : mapGraph.getStreetNodeHashSet()) {
             MapGraphNodeContainer mapGraphNodeContainer = new MapGraphNodeContainer(new Circle(cardSize() / 8), streetNode);
