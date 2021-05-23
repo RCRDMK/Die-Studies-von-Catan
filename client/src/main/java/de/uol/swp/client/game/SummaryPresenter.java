@@ -47,13 +47,13 @@ public class SummaryPresenter extends AbstractPresenter {
     @FXML
     public TableView<DetailedTableStats> detailedTableStats;
     @FXML
+    public TableView<InventoryTableStats> resourceTableStats;
+    @FXML
     public Label winnerLabel;
     @FXML
     public ImageView winnerImage;
     @FXML
     public ImageView profileImage;
-    @FXML
-    public TableView<InventoryTableStats> resourceTableStats;
     private String gameName;
 
     private User currentUser;
@@ -144,9 +144,15 @@ public class SummaryPresenter extends AbstractPresenter {
                 winnerLabel.setText("Sorry, you lost game " + gameName + " - User " + statsDTO.getWinner() + " won!");
                 winnerLabel.setTextFill(Color.ORANGERED);
             }
-            initGeneralTable();
-            initDetailedTable();
-            initRessourceTable();
+            if (generalTableStats.getItems().stream().count() == 0) {
+                initGeneralTable();
+            }
+            if (detailedTableStats.getItems().stream().count() == 0) {
+                initDetailedTable();
+            }
+            if (resourceTableStats.getItems().stream().count() == 0) {
+                initRessourceTable();
+            }
         });
     }
 
