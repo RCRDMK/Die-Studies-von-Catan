@@ -1,34 +1,34 @@
 /*author Ricardo Mook, 2021-04-28*/
 
-.menu-button .label{
+.menu-button .label {
     -fx-text-fill: #000000;
 }
 
-.choice-box .label{
+.choice-box .label {
     -fx-text-fill: #000000;
 }
 
-.text-field {/* Sets behaviour for the Textfield class*/
+.text-field { /* Sets behaviour for the Textfield class*/
     -fx-background-color: #ffffff;
     -fx-text-fill: #000000;
 }
 
-.radio-button{
+.radio-button {
     -fx-text-fill: #ffffff;
 }
 
-.list-view .label{
+.list-view .label {
     -fx-text-fill: #000000;
 }
 
-.label{
+.label {
     -fx-text-fill: #ffffff;
 }
 
 /*Besides the "Siedler von Catan Logo" all images are from the royalty-free websides pexels.com and unsplash.com.
 For more information see https://www.pexels.com/license/ and https://unsplash.com/license.*/
 
-.login {/* Sets a new rule with the name login. When this rule is called the behaviour down below gets executed*/
+.login { /* Sets a new rule with the name login. When this rule is called the behaviour down below gets executed*/
     -fx-background-image: url("../textures/images/LoginBackground.jpg"), url("../textures/images/Siedler_von_Catan_Logo.jpg");
     -fx-background-size: cover, 45%; /* Sets the size for the images. Cover fills the entire screen*/
     -fx-background-repeat: no-repeat;
@@ -37,12 +37,6 @@ For more information see https://www.pexels.com/license/ and https://unsplash.co
 
 .registration {
     -fx-background-image: url("../textures/images/RegistrationBackground.jpg");
-    -fx-background-size: cover;
-    -fx-background-repeat: no-repeat;
-}
-
-#summary {
-    -fx-background-image: url("../textures/images/EndScreenStatsBg.png");
     -fx-background-size: cover;
     -fx-background-repeat: no-repeat;
 }
@@ -70,3 +64,10 @@ For more information see https://www.pexels.com/license/ and https://unsplash.co
     -fx-background-size: cover;
     -fx-background-repeat: no-repeat;
 }
+
+#summary {
+    -fx-background-image: url("../textures/images/EndScreenStatsBg.png");
+    -fx-background-size: cover;
+    -fx-background-repeat: no-repeat;
+}
+

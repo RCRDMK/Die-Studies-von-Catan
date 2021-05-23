@@ -99,10 +99,6 @@ public class GamePresenter extends AbstractPresenter {
     private String gameFieldVariant;
 
     private final ArrayList<HexagonContainer> hexagonContainers = new ArrayList<>();
-    private ObservableList<String> publicInventory1;
-    private ObservableList<String> publicInventory2;
-    private ObservableList<String> publicInventory3;
-    private ObservableList<String> publicInventory4;
 
     private final ArrayList<MapGraphNodeContainer> mapGraphNodeContainers = new ArrayList<>();
 
