@@ -696,37 +696,21 @@ public class GameService extends AbstractService {
      */
     @Subscribe
     public void onEndTurnRequest(EndTurnRequest request) {
-        Optional<Game> optionalGame = gameManagement.getGame(request.getName());
-        if (optionalGame.isPresent()) {
-            Game game = optionalGame.get();
-            if (request.getUser().getUsername().equals(game.getUser(game.getTurn()).getUsername()) && game.getCurrentCard().equals("")) {
-                try {
-                    boolean priorGamePhase = game.isStartingTurns();
-                    game.nextRound();
-                    if (priorGamePhase && !game.isStartingTurns()) {
-                        distributeResources(request.getName());
-                    }
-                    sendToAllInGame(game.getName(), new NextTurnMessage(game.getName(),
-                            game.getUser(game.getTurn()).getUsername(), game.getTurn(), game.isStartingTurns()));
-                } catch (GameManagementException e) {
-                    LOG.debug(e);
-                    System.out.println("Sender " + request.getUser().getUsername() + " was not player with current turn");
+        Optional<Game> game = gameManagement.getGame(request.getName());
+        if (request.getUser().getUsername().equals(game.get().getUser(game.get().getTurn()).getUsername()) && game.get().getCurrentCard().equals("")) {
+            try {
+                boolean priorGamePhase = game.get().isStartingTurns();
+                game.get().nextRound();
+                if (priorGamePhase == true && game.get().isStartingTurns() == false) {
+                    distributeResources(request.getName());
                 }
-            }
+                sendToAllInGame(game.get().getName(), new NextTurnMessage(game.get().getName(),
+                        game.get().getUser(game.get().getTurn()).getUsername(), game.get().getTurn(), game.get().isStartingTurns()));
+                LOG.debug("EndTurn Request");
 
-            //@Todo: Check Victory Points, when user won redirect all to Summary Screen - Later trigger when inventory changes and not when user ends turn
-            var user = request.getUser();
-            var inventory = game.getInventory(user);
-            // If user has 10 victory points, he wins and the Summary Screen gets shown for every user in the game.
-            if (inventory.getVictoryPoints() >= 10) {
-                //Retrieve all stats
-                //Retrieve inventories from all users
-                var inventories = game.getInventoriesArrayList();
-                //Create statsDTO object
-                var statsDTO = new StatsDTO(game.getName(), user.getUsername(), game.getTradeList().size(), game.getOverallTurns(), inventories);
-                //Send GameFinishedMessage to all users in game
-                sendToAllInGame(game.getName(), new GameFinishedMessage(statsDTO));
-                LOG.debug("User " + user.getUsername() + " has at least 10 victory points and won.");
+            } catch (GameManagementException e) {
+                LOG.debug(e);
+                System.out.println("Sender " + request.getUser().getUsername() + " was not player with current turn");
             }
         }
     }
@@ -1025,8 +1009,13 @@ public class GameService extends AbstractService {
      * If game exists, method sends two types of messages with updated information about inventories.
      * PrivateInventoryChangeMessage is send to specific player in the game. PublicInventoryChangeMessage is send to all
      * players in the game.
+     * Also checks if a player has more than 10 victory points and then sends a GameFinishedMessage to all players in the game
+     * This is done here because the win instantly gets triggered and not only when a player ends his turn
      * <p>
      * enhanced by Carsten Dekker ,Marc Johannes Hermes, Marius Birk, Iskander Yusupov
+     *
+     * @since 2021-05-07
+     * enhanced by René Meyer
      *
      * @param game game that wants to update private and public inventories
      * @author Iskander Yusupov, Anton Nikiforov
@@ -1038,6 +1027,18 @@ public class GameService extends AbstractService {
             HashMap<String, Integer> privateInventory = game.getInventory(user).getPrivateView();
             PrivateInventoryChangeMessage privateInventoryChangeMessage = new PrivateInventoryChangeMessage(game.getName(), user, privateInventory);
             sendToSpecificUserInGame(privateInventoryChangeMessage, user);
+            var inventory = game.getInventory(user);
+            // If user has 10 victory points, he wins and the Summary Screen gets shown for every user in the game.
+            if (inventory.getVictoryPoints() >= 10) {
+                //Retrieve all stats
+                //Retrieve inventories from all users
+                var inventories = game.getInventoriesArrayList();
+                //Create statsDTO object
+                var statsDTO = new StatsDTO(game.getName(), user.getUsername(), game.getTradeList().size(), game.getOverallTurns(), inventories);
+                //Send GameFinishedMessage to all users in game
+                sendToAllInGame(game.getName(), new GameFinishedMessage(statsDTO));
+                LOG.debug("User " + user.getUsername() + " has atleast 10 victory points and won.");
+            }
         }
         ArrayList<HashMap<String, Integer>> publicInventories = new ArrayList<>();
         for (User user : game.getUsersList()) {
