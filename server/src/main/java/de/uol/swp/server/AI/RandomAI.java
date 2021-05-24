@@ -89,7 +89,7 @@ public class RandomAI extends AbstractAISystem {
     /**
      * When the turn continues for the AI (after the players in the game bid on the ongoing trade) the Server will call this function
      *
-     * @param tisabm the TradeInformSellerAboutBidsMessage containing information about the bids of the trade
+     * @param tisabm   the TradeInformSellerAboutBidsMessage containing information about the bids of the trade
      * @param wishList the original wishList of the AI
      * @return the ArrayList of AIActions the AI wishes to do
      * @author Alexander Losse, Marc Hermes
@@ -387,6 +387,9 @@ public class RandomAI extends AbstractAISystem {
             }
         }
         if (userWithMostItems != null) {
+            for (TradeItem ti : tisabm.getBids().get(userWithMostItems)) {
+                inventory.incCard(ti.getName(), ti.getCount());
+            }
             tradeOfferAccept(tisabm.getTradeCode(), true, userWithMostItems);
         } else {
             tradeOfferAccept(tisabm.getTradeCode(), false, this.user);
