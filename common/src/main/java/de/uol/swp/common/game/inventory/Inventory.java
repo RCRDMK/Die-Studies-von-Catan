@@ -103,6 +103,12 @@ public class Inventory implements Serializable {
         this.victoryPoints++;
     }
 
+    //Increment the Victory Point Card by amount
+    public void incCardVictoryPoint(int amount) {
+        this.cardVictoryPoint += amount;
+        this.victoryPoints += amount;
+    }
+
     /**
      * Summed all Resource Cards together
      * <p>

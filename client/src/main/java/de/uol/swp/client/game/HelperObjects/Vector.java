@@ -26,8 +26,8 @@ public class Vector {
      * Returns a vector depending on a parsed MapGraphNode and distance (CardSize).
      * <p>This method is used to place Nodes.</p>
      *
-     * @param node
-     * @param d
+     * @param node MapGraphNode to extract vector from
+     * @param d    cardSize
      *
      * @return
      */
@@ -36,8 +36,6 @@ public class Vector {
         if (node.getClass().equals(MapGraph.BuildingNode.class)) {
             MapGraph.BuildingNode buildingNode = (MapGraph.BuildingNode) node;
             double angle;
-            //This gets calculated because the BuildingNodes are further away from the hexagonal center than the StreetNodes.
-            //double distance = d / Math.sin(1.0 / 12 * Math.PI);
             double distance = d / Math.sqrt(3);
 
             switch (buildingNode.getPositionToParent()) {
