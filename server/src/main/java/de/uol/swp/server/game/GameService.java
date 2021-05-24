@@ -474,7 +474,7 @@ public class GameService extends AbstractService {
     public boolean giveResource(Game game, User user, String resourceTyp, int amount) {
         Inventory bank = game.getBankInventory();
         boolean success = bank.getNumberFromCardStack(resourceTyp) >= amount;
-        boolean firstTime = bank.getNumberFromCardStack(resourceTyp) == 1 && amount > 0;
+        boolean firstTime = bank.getNumberFromCardStack(resourceTyp) != 0 && bank.getNumberFromCardStack(resourceTyp) <= amount;
         for (int i = amount; i > 0; i--) {
             if (bank.getNumberFromCardStack(resourceTyp) > 0) {
                 bank.decCardStack(resourceTyp, 1);
@@ -855,7 +855,7 @@ public class GameService extends AbstractService {
         if (optionalGame.isPresent()) {
             Game game = optionalGame.get();
             User turnPlayer = game.getUser(game.getTurn());
-            if (request.getUser().getUsername().equals(turnPlayer.getUsername())) {
+            if (request.getUser().equals(turnPlayer)) {
                 Inventory inventory = game.getInventory(turnPlayer);
                 String devCard = request.getDevCard();
                 String currentCardOfGame = game.getCurrentCard();
@@ -936,11 +936,12 @@ public class GameService extends AbstractService {
      * resolution was successful. If something went wrong, inform the turnPlayer so that he may try again.
      * <p>
      * enhanced by Anton Nikiforov "Year of Plenty" bank
-     * @since 2021-05-11
+
      *
      * @param request the ResolveDevelopmentCardRequest sent from the client
      * @author Marc Hermes
      * @since 2021-05-01
+     * @since 2021-05-11
      */
     @Subscribe
     public void onResolveDevelopmentCardRequest(ResolveDevelopmentCardRequest request) {
@@ -951,7 +952,7 @@ public class GameService extends AbstractService {
             String gameName = game.getName();
             String devCard = request.getDevCard();
 
-            if (request.getUser().getUsername().equals(turnPlayer.getUsername()) && request.getDevCard().equals(game.getCurrentCard())) {
+            if (request.getUser().equals(turnPlayer) && request.getDevCard().equals(game.getCurrentCard())) {
                 Inventory turnPlayerInventory = game.getInventory(turnPlayer);
                 ResolveDevelopmentCardMessage message = new ResolveDevelopmentCardMessage(devCard, (UserDTO) turnPlayer, gameName);
                 ResolveDevelopmentCardNotSuccessfulResponse notSuccessfulResponse = new ResolveDevelopmentCardNotSuccessfulResponse(devCard, turnPlayer.getUsername(), gameName);
@@ -1083,6 +1084,7 @@ public class GameService extends AbstractService {
      * enhanced by Carsten Dekker ,Marc Johannes Hermes, Marius Birk, Iskander Yusupov
      *
      * @param game game that wants to update private and public inventories
+     *
      * @author Iskander Yusupov, Anton Nikiforov
      * @since 2021-05-07
      * @since 2021-04-08
@@ -1170,6 +1172,7 @@ public class GameService extends AbstractService {
      * if all users, who are not the seller) have send their bid, the method informs the seller about the the offers(TradeInformSellerAboutBidsMessage)
      *
      * @param request TradeItemRequest
+     *
      * @author Alexander Losse, Ricardo Mook
      * @see TradeItem
      * @see Trade
@@ -1248,6 +1251,7 @@ public class GameService extends AbstractService {
      * the specified trade is removed from the game
      *
      * @param request TradeChoiceRequest containing the choice the seller made
+     *
      * @author Alexander Losse, Ricardo Mook
      * @since 2021-04-13
      */
@@ -1285,6 +1289,7 @@ public class GameService extends AbstractService {
      * @param tradeCode    the trade code
      * @param winnerBidder the winners name
      * @param success      bool if successful or not
+     *
      * @author Alexander Losse, Ricardo Mook
      * @since 2021-04-11
      */
@@ -1309,6 +1314,7 @@ public class GameService extends AbstractService {
      * sends tradeStartedMessage to the seller when his request to start a trade is handled by the server
      *
      * @param request TradeStartRequest
+     *
      * @author Alexander Losse, Ricardo Mook
      * @see TradeStartRequest
      * @since 2021-04-11
@@ -1330,6 +1336,7 @@ public class GameService extends AbstractService {
      * be increased in the inventory of the player that moved the robber.
      *
      * @param drawRandomResourceFromPlayerMessage the drawRandomResourceFromPlayerMessage detected on the event bus
+     *
      * @author Marius Birk
      * @since 2021-05-01
      */
@@ -1339,18 +1346,13 @@ public class GameService extends AbstractService {
         if (optionalGame.isPresent()) {
             Game game = optionalGame.get();
             HashMap<String, Integer> inventory = game.getInventory(new UserDTO(drawRandomResourceFromPlayerMessage.getChosenName(), "", "")).getPrivateView();
-            String random = randomResource();
-            inventory.keySet().forEach(e -> {
-                if (e.equals(random)) {
-                    game.getInventory(drawRandomResourceFromPlayerMessage.getUser()).incCardStack(random, 1);
-                    game.getInventory(new UserDTO(drawRandomResourceFromPlayerMessage.getChosenName(), "", "")).decCardStack(random, 1);
-                }
-            });
+            String random = randomResource(inventory);
+            game.getInventory(new UserDTO(drawRandomResourceFromPlayerMessage.getChosenName(), "", "")).decCardStack(random, 1);
+            game.getInventory(drawRandomResourceFromPlayerMessage.getUser()).incCardStack(random, 1);
+            updateInventory(game);
 
             //Nachdem eine Karte gezogen wurde darf jeder mit mehr als 7 Ressourcen die Hälfte ablegen
-
             tooMuchResources(game);
-            updateInventory(game);
         }
     }
 
@@ -1362,6 +1364,7 @@ public class GameService extends AbstractService {
      * it checks if the number of resources is even or uneven and sends a TooMuchResourceCardsMessage to every specfic user.
      *
      * @param game Game that the users play
+     *
      * @author Marius Birk
      * @since 2021-05-13
      */
@@ -1380,25 +1383,28 @@ public class GameService extends AbstractService {
     }
 
     /**
-     * The method chooses a random resource and returns it.
+     * The method chooses a random resource from given inventory and returns it.
      * <p>
-     * This method will be invoked, if the name of a random resource is needed. For that, it creates a List of resources
-     * and initializes a random number between 1 and 5. To get now a random name of resource, we substrate 1 and
+     * This method will be invoked, if the name of a random resource from given inventory is needed. For that, it creates a List of resources from the given inventory
+     * and initializes a random number. To get now a random name of resource, we substrate 1 and
      * invoke the get() method of the List and return that value.
+     * <p>
+     * enhanced by Anton Nikiforov "Year of Plenty" bank
+     *
+     * @param inventory form Player
      *
      * @return the name of a resource
      * @author Marius Birk
      * @since 2021-04-29
+     * @since 2021-05-23
      */
-    public String randomResource() {
+    public String randomResource(HashMap<String, Integer> inventory) {
         List<String> resources = new ArrayList<>();
-        resources.add("Wool");
-        resources.add("Lumber");
-        resources.add("Brick");
-        resources.add("Grain");
-        resources.add("Ore");
-
-        int random = (int) Math.floor(Math.random() * (4 + 1));
-        return resources.get(random);
+        if (inventory.get("Lumber") > 0) resources.add("Lumber");
+        if (inventory.get("Brick") > 0) resources.add("Brick");
+        if (inventory.get("Grain") > 0) resources.add("Grain");
+        if (inventory.get("Wool") > 0) resources.add("Wool");
+        if (inventory.get("Ore") > 0) resources.add("Ore");
+        return resources.get((int) (Math.random() * resources.size()));
     }
 }
