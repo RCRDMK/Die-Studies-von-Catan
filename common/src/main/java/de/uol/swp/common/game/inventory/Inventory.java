@@ -28,22 +28,22 @@ public class Inventory implements Serializable {
     }
 
     // Resource Cards
-    public Card lumber = new Card();
-    public Card brick = new Card();
-    public Card grain = new Card();
-    public Card wool = new Card();
-    public Card ore = new Card();
+    public CardStack lumber = new CardStack();
+    public CardStack brick = new CardStack();
+    public CardStack grain = new CardStack();
+    public CardStack wool = new CardStack();
+    public CardStack ore = new CardStack();
 
     // Development Cards
-    public Card cardKnight = new Card();
-    public Card cardMonopoly = new Card();
-    public Card cardRoadBuilding = new Card();
-    public Card cardYearOfPlenty = new Card();
+    public CardStack cardKnight = new CardStack();
+    public CardStack cardMonopoly = new CardStack();
+    public CardStack cardRoadBuilding = new CardStack();
+    public CardStack cardYearOfPlenty = new CardStack();
 
     // Building Units
-    public Unit city = new Unit(4);
-    public Unit road = new Unit(15);
-    public Unit settlement = new Unit(5);
+    public UnitStack city = new UnitStack(4);
+    public UnitStack road = new UnitStack(15);
+    public UnitStack settlement = new UnitStack(5);
 
     // Achievements
     private int victoryPoints = 0;
@@ -97,8 +97,8 @@ public class Inventory implements Serializable {
     }
 
 
-    //Increment the Victory Point Card
-    public void incCardVictoryPoint() {
+    //Increment the Victory Point Card and increase the victoryPoints by one
+    public void incCardStackVictoryPoint() {
         this.cardVictoryPoint++;
         this.victoryPoints++;
     }
@@ -109,18 +109,34 @@ public class Inventory implements Serializable {
         this.victoryPoints += amount;
     }
 
-    //This method add the Resource Cards
-    public int getResource() {
-        return lumber.getNumber() +
+    /**
+     * Summed all Resource Cards together
+     * <p>
+     * This method summed all Resource Cards together and gives their sum
+     *
+     * @return sum of the Resource Cards
+     * @author Anton Nikiforov
+     * @since 2021-02-01
+     */
+    public int sumResource() {
+        return  lumber.getNumber() +
                 brick.getNumber() +
                 grain.getNumber() +
                 wool.getNumber() +
                 ore.getNumber();
     }
 
-    //This method gets the Development Cards
-    public int getDevelopmentCards() {
-        return cardVictoryPoint +
+    /**
+     * Summed all Development Cards together
+     * <p>
+     * This method summed all Development Cards together and gives their sum
+     *
+     * @return sum of the Development Cards
+     * @author Anton Nikiforov
+     * @since 2021-02-01
+     */
+    public int sumDevelopmentCards() {
+        return  cardVictoryPoint +
                 cardKnight.getNumber() +
                 cardMonopoly.getNumber() +
                 cardRoadBuilding.getNumber() +
@@ -177,8 +193,8 @@ public class Inventory implements Serializable {
 
         HashMap<String, Integer> publicInventory = new HashMap<>();
 
-        publicInventory.put("Resource", getResource());
-        publicInventory.put("Development Cards", getDevelopmentCards());
+        publicInventory.put("Resource", sumResource());
+        publicInventory.put("Development Cards", sumDevelopmentCards());
 
         publicInventory.put("Played Knights", playedKnights);
         publicInventory.put("Continuous Road", continuousRoad);
@@ -196,7 +212,52 @@ public class Inventory implements Serializable {
     }
 
     /**
-     * increases a specific Ressource Card by a specific amount
+     * Getter for Cards
+     * <p>
+     * It gets the right card for the entered name.
+     *
+     * @param card to get
+     *
+     * @return Card with entered cardName
+     * @author Anton Nikiforov
+     * @see CardStack
+     * @since 2021-04-06
+     */
+    public CardStack getCardStack(String card) {
+        switch (card) {
+            case "Lumber" : return lumber;
+            case "Brick" : return brick;
+            case "Grain" : return grain;
+            case "Wool" : return wool;
+            case "Ore" : return ore;
+
+            case "Knight" : return cardKnight;
+            case "Monopoly" : return cardMonopoly;
+            case "Road Building" : return cardRoadBuilding;
+            case "Year of Plenty" : return cardYearOfPlenty;
+
+            default : return null;
+        }
+    }
+
+    /**
+     * Getter for the number of Cards
+     * <p>
+     * It gets the number of Cards for the entered cardName.
+     *
+     * @param card to get the number from
+     *
+     * @return number for CardStack with entered cardStackName
+     * @author Anton Nikiforov
+     * @see CardStack
+     * @since 2021-05-19
+     */
+    public int getNumberFromCardStack(String card) {
+        return getCardStack(card).getNumber();
+    }
+
+    /**
+     * Increases a specific Ressource Card by a specific amount
      * <p>
      * this method calls the Method incNumber(int) of the class Card
      * String Card specifies the Ressource Card and Development Cards
@@ -207,44 +268,41 @@ public class Inventory implements Serializable {
      * @since 2021-05-16
      * @param card   the name of the Ressource Card
      * @param amount how much of the Card should be increased
-     * @return true if valid resource name, false if not
      * @author Alexander Losse, Ricardo Mook
      * @since 2021-04-08
      */
-    public boolean incCard(String card, int amount) {
+    public void incCardStack(String card, int amount) {
         switch (card) {
             case "Lumber":
                 lumber.incNumber(amount);
-                return true;
+                break;
             case "Brick":
                 brick.incNumber(amount);
-                return true;
+                break;
             case "Grain":
                 grain.incNumber(amount);
-                return true;
+                break;
             case "Wool":
                 wool.incNumber(amount);
-                return true;
+                break;
             case "Ore":
                 ore.incNumber(amount);
-                return true;
+                break;
             case "Knight":
                 cardKnight.incNumber(amount);
-                return true;
+                break;
             case "Monopoly":
                 cardMonopoly.incNumber(amount);
-                return true;
+                break;
             case "Road Building":
                 cardRoadBuilding.incNumber(amount);
-                return true;
+                break;
             case "Year of Plenty":
                 cardYearOfPlenty.incNumber(amount);
-                return true;
+                break;
             case "Victory Point Card":
-                incCardVictoryPoint();
-                return true;
-            default:
-                return false;
+                incCardStackVictoryPoint();
+                break;
         }
     }
 
@@ -260,7 +318,7 @@ public class Inventory implements Serializable {
      * @author Alexander Losse, Ricardo Mook
      * @since 2021-04-08
      */
-    public void decCard(String card, int amount) {
+    public void decCardStack(String card, int amount) {
         switch (card) {
             case "Lumber":
                 lumber.decNumber(amount);
@@ -276,6 +334,18 @@ public class Inventory implements Serializable {
                 break;
             case "Ore":
                 ore.decNumber(amount);
+                break;
+            case "Knight":
+                cardKnight.decNumber(amount);
+                break;
+            case "Monopoly":
+                cardMonopoly.decNumber(amount);
+                break;
+            case "Road Building":
+                cardRoadBuilding.decNumber(amount);
+                break;
+            case "Year of Plenty":
+                cardYearOfPlenty.decNumber(amount);
                 break;
         }
     }

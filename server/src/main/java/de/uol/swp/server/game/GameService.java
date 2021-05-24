@@ -189,6 +189,28 @@ public class GameService extends AbstractService {
         return false;
     }
 
+    /**
+     * Prepares a given ServerMessage to be send to all players in the lobby and posts it on the EventBus
+     * <p>
+     *
+     * @param lobbyName Name of the lobby the players are in
+     * @param message   the message to be send to the users
+     *
+     * @author Marco Grawunder
+     * @see de.uol.swp.common.message.ServerMessage
+     * @since 2019-10-08
+     */
+    public void sendToAllInLobby(String lobbyName, ServerMessage message) {
+        Optional<Lobby> lobby = lobbyService.getLobby(lobbyName);
+
+        if (lobby.isPresent()) {
+            message.setReceiver(authenticationService.getSessions(lobby.get().getUsers()));
+            post(message);
+        } else {
+            throw new LobbyManagementException("Lobby unknown!");
+        }
+    }
+
     public void sendToAllInGame(String gameName, ServerMessage message) {
         Optional<Game> game = gameManagement.getGame(gameName);
 
@@ -233,6 +255,8 @@ public class GameService extends AbstractService {
      * or not. After that it iterates over the list of users in the game to get the right one. If the method found the right user,
      * it sets the new inventory for the user. At the end we call the updateInventory method, to get the right inventory
      * back to the client.
+     * enhanced by Anton Nikiforov
+     * @since 2021-05-19
      *
      * @param resourcesToDiscardRequest request with a hashmap(inventory), the game name and the user, that send it.
      * @author Marius Birk
@@ -244,16 +268,11 @@ public class GameService extends AbstractService {
         Optional<Game> optionalGame = gameManagement.getGame(resourcesToDiscardRequest.getName());
         if (optionalGame.isPresent()) {
             Game game = optionalGame.get();
-            for (User user : game.getUsers()) {
-                if (user.equals(resourcesToDiscardRequest.getUser())) {
-                    Inventory inventory = game.getInventory(user);
-                    inventory.lumber.setNumber(resourcesToDiscardRequest.getInventory().get("Lumber"));
-                    inventory.grain.setNumber(resourcesToDiscardRequest.getInventory().get("Grain"));
-                    inventory.wool.setNumber(resourcesToDiscardRequest.getInventory().get("Wool"));
-                    inventory.brick.setNumber(resourcesToDiscardRequest.getInventory().get("Brick"));
-                    inventory.ore.setNumber(resourcesToDiscardRequest.getInventory().get("Ore"));
-                }
-            }
+            takeResource(game, resourcesToDiscardRequest.getUser(), "Lumber", game.getInventory(resourcesToDiscardRequest.getUser()).getNumberFromCardStack("Lumber") - resourcesToDiscardRequest.getInventory().get("Lumber"));
+            takeResource(game, resourcesToDiscardRequest.getUser(), "Brick", game.getInventory(resourcesToDiscardRequest.getUser()).getNumberFromCardStack("Brick") - resourcesToDiscardRequest.getInventory().get("Brick"));
+            takeResource(game, resourcesToDiscardRequest.getUser(), "Grain", game.getInventory(resourcesToDiscardRequest.getUser()).getNumberFromCardStack("Grain") - resourcesToDiscardRequest.getInventory().get("Grain"));
+            takeResource(game, resourcesToDiscardRequest.getUser(), "Wool", game.getInventory(resourcesToDiscardRequest.getUser()).getNumberFromCardStack("Wool") - resourcesToDiscardRequest.getInventory().get("Wool"));
+            takeResource(game, resourcesToDiscardRequest.getUser(), "Ore", game.getInventory(resourcesToDiscardRequest.getUser()).getNumberFromCardStack("Ore") - resourcesToDiscardRequest.getInventory().get("Ore"));
             updateInventory(game);
         }
     }
@@ -310,7 +329,7 @@ public class GameService extends AbstractService {
                 } else {
                     distributeResources(addedEyes, rollDiceRequest.getName());
                 }
-                try {
+                /*try {
                     String chatMessage;
                     var chatId = "game_" + rollDiceRequest.getName();
                     if (addedEyes == 8 || addedEyes == 11) {
@@ -324,7 +343,7 @@ public class GameService extends AbstractService {
                     LOG.debug("Posted ResponseChatMessage on eventBus");
                 } catch (Exception e) {
                     LOG.debug(e);
-                }
+                }*/
                 try {
                     RollDiceResultMessage result = new RollDiceResultMessage(dice.getDiceEyes1(), dice.getDiceEyes2(), game.getTurn(), game.getName());
                     sendToAllInGame(game.getName(), result);
@@ -343,6 +362,10 @@ public class GameService extends AbstractService {
      * <p>
      * This method handles the distribution of the resources to the users. First the method gets the game and gets the
      * corresponding hexagons. After that the method gives the second built buildings in the opening turn the resource.
+     * coressponding hexagons. After that the method gives the second built buildings in the opening turn the resource.
+     * <p>
+     * enhanced by Anton Nikiforov
+     * @since 2021-05-19
      *
      * @param gameName Name of the Game
      * @author Philip Nitsche
@@ -358,19 +381,19 @@ public class GameService extends AbstractService {
                         //"Ocean" = 0; "Forest" = 1; "Farmland" = 2; "Grassland" = 3; "Hillside" = 4; "Mountain" = 5; "Desert" = 6;
                         switch (hexagon.getTerrainType()) {
                             case 1:
-                                game.getInventory(game.getUser(i)).lumber.incNumber();
+                                giveResource(game, game.getUser(i), "Lumber", 1);
                                 break;
                             case 2:
-                                game.getInventory(game.getUser(i)).grain.incNumber();
+                                giveResource(game, game.getUser(i), "Grain", 1);
                                 break;
                             case 3:
-                                game.getInventory(game.getUser(i)).wool.incNumber();
+                                giveResource(game, game.getUser(i), "Wool", 1);
                                 break;
                             case 4:
-                                game.getInventory(game.getUser(i)).brick.incNumber();
+                                giveResource(game, game.getUser(i), "Brick", 1);
                                 break;
                             case 5:
-                                game.getInventory(game.getUser(i)).ore.incNumber();
+                                giveResource(game, game.getUser(i), "Ore", 1);
                                 break;
                             default:
                                 break;
@@ -386,6 +409,9 @@ public class GameService extends AbstractService {
      * This method handles the distribution of the resources to the users. First the method gets the game and gets the
      * corresponding hexagons. After that the method checks if the diceToken on the field is equal to the
      * rolled amount of eyes and increases the resource of the user by one(village), two(city).
+     * <p>
+     * enhanced by Anton Nikiforov
+     * @since 2021-05-19
      *
      * @param eyes     Number of eyes rolled with dice
      * @param gameName Name of the Game
@@ -400,48 +426,23 @@ public class GameService extends AbstractService {
                 if (hexagon.getDiceToken() == eyes) {
                     for (MapGraph.BuildingNode buildingNode : hexagon.getBuildingNodes()) {
                         if (buildingNode.getOccupiedByPlayer() != 666 && !hexagon.isOccupiedByRobber()) {
-                            Inventory inventory = game.getInventory(game.getUser(buildingNode.getOccupiedByPlayer()));
                             //"Ocean" = 0; "Forest" = 1; "Farmland" = 2; "Grassland" = 3; "Hillside" = 4; "Mountain" = 5; "Desert" = 6;
                             switch (hexagon.getTerrainType()) {
                                 case 1:
-                                    if (buildingNode.getSizeOfSettlement() == 1) {
-                                        inventory.lumber.incNumber();
-                                    } else if (buildingNode.getSizeOfSettlement() == 2) {
-                                        inventory.lumber.incNumber();
-                                        inventory.lumber.incNumber();
-                                    }
+                                    giveResource(game, game.getUser(buildingNode.getOccupiedByPlayer()), "Lumber", buildingNode.getSizeOfSettlement());
                                     break;
                                 case 2:
-                                    if (buildingNode.getSizeOfSettlement() == 1) {
-                                        inventory.grain.incNumber();
-                                    } else if (buildingNode.getSizeOfSettlement() == 2) {
-                                        inventory.grain.incNumber();
-                                        inventory.grain.incNumber();
-                                    }
+                                    giveResource(game, game.getUser(buildingNode.getOccupiedByPlayer()), "Grain", buildingNode.getSizeOfSettlement());
                                     break;
                                 case 3:
-                                    if (buildingNode.getSizeOfSettlement() == 1) {
-                                        inventory.wool.incNumber();
-                                    } else if (buildingNode.getSizeOfSettlement() == 2) {
-                                        inventory.wool.incNumber();
-                                        inventory.wool.incNumber();
-                                    }
+                                    giveResource(game, game.getUser(buildingNode.getOccupiedByPlayer()), "Wool", buildingNode.getSizeOfSettlement());
                                     break;
                                 case 4:
-                                    if (buildingNode.getSizeOfSettlement() == 1) {
-                                        inventory.brick.incNumber();
-                                    } else if (buildingNode.getSizeOfSettlement() == 2) {
-                                        inventory.brick.incNumber();
-                                        inventory.brick.incNumber();
-                                    }
+                                    giveResource(game, game.getUser(buildingNode.getOccupiedByPlayer()), "Brick", buildingNode.getSizeOfSettlement());
                                     break;
                                 case 5:
-                                    if (buildingNode.getSizeOfSettlement() == 1) {
-                                        inventory.ore.incNumber();
-                                    } else if (buildingNode.getSizeOfSettlement() == 2) {
-                                        inventory.ore.incNumber();
-                                        inventory.ore.incNumber();
-                                    }
+                                    giveResource(game, game.getUser(buildingNode.getOccupiedByPlayer()), "Ore", buildingNode.getSizeOfSettlement());
+                                    break;
                                 default:
                                     break;
                             }
@@ -454,23 +455,79 @@ public class GameService extends AbstractService {
     }
 
     /**
-     * Prepares a given ServerMessage to be send to all players in the lobby and posts it on the EventBus
+     * Gives the given User the entered resource from the bank
      * <p>
+     * It takes the resource from the bank and gives them to the user one by one until
+     * the amount is reached or the bank is empty.
+     * Than if it's the first time where the bank gos empty for this resourceTyp,
+     * it posts a chat message in the game.
      *
-     * @param lobbyName Name of the lobby the players are in
-     * @param message   the message to be send to the users
-     * @author Marco Grawunder
-     * @see de.uol.swp.common.message.ServerMessage
-     * @since 2019-10-08
+     * @param game where we are
+     * @param user who wants the resource
+     * @param resourceTyp he wants
+     * @param amount of the resource
+     *
+     * @return success
+     *
+     * @author Anton Nikiforov
+     * @since 2012-05-19
      */
-    public void sendToAllInLobby(String lobbyName, ServerMessage message) {
-        Optional<Lobby> lobby = lobbyService.getLobby(lobbyName);
-        if (lobby.isPresent()) {
-            message.setReceiver(authenticationService.getSessions(lobby.get().getUsers()));
-            post(message);
-        } else {
-            throw new LobbyManagementException("Lobby unknown!");
+    public boolean giveResource(Game game, User user, String resourceTyp, int amount) {
+        Inventory bank = game.getBankInventory();
+        boolean success = bank.getNumberFromCardStack(resourceTyp) >= amount;
+        boolean firstTime = bank.getNumberFromCardStack(resourceTyp) != 0 && bank.getNumberFromCardStack(resourceTyp) <= amount;
+        for (int i = amount; i > 0; i--) {
+            if (bank.getNumberFromCardStack(resourceTyp) > 0) {
+                bank.decCardStack(resourceTyp, 1);
+                game.getInventory(user).incCardStack(resourceTyp, 1);
+            }
+            else break;
         }
+        if (firstTime) {
+                String chatMessage = resourceTyp + " storage is empty now";
+                String chatId = "game_" + game.getName();
+                ResponseChatMessage msg = new ResponseChatMessage(chatMessage, chatId, "Bank", System.currentTimeMillis());
+                post(msg);
+        }
+        return success;
+    }
+
+    /**
+     * Takes the entered Resource from given User
+     * <p>
+     * It takes the resource from the user and gives them to the bank one by one until
+     * the amount is reached or the inventory form user is empty.
+     * Than if the bank was empty for this resourceTyp, it posts a chat message in the game
+     * that the resource storage is now filled.
+     *
+     * @param game where we are
+     * @param user who wants to give the resource
+     * @param resourceTyp he wants to give
+     * @param amount of the resource
+     *
+     * @return success
+     *
+     * @author Anton Nikiforov
+     * @since 2012-04-09
+     */
+    public boolean takeResource(Game game, User user, String resourceTyp, int amount) {
+        Inventory bank = game.getBankInventory();
+        boolean success = game.getInventory(user).getNumberFromCardStack(resourceTyp)  >= amount;
+        boolean wasEmpty = bank.getNumberFromCardStack(resourceTyp) == 0 && amount > 0;
+        for (int i = amount; i > 0; i--) {
+            if (game.getInventory(user).getNumberFromCardStack(resourceTyp) > 0) {
+                game.getInventory(user).decCardStack(resourceTyp, 1);
+                bank.incCardStack(resourceTyp, 1);
+            }
+            else break;
+        }
+        if (wasEmpty) {
+            String chatMessage = resourceTyp + " storage is now filled";
+            String chatId = "game_" + game.getName();
+            ResponseChatMessage msg = new ResponseChatMessage(chatMessage, chatId, "Bank", System.currentTimeMillis());
+            post(msg);
+        }
+        return success;
     }
 
     /**
@@ -503,7 +560,7 @@ public class GameService extends AbstractService {
                     hexagon.setOccupiedByRobber(true);
                     for (MapGraph.BuildingNode node : hexagon.getBuildingNodes()) {
                         if (node.getOccupiedByPlayer() != 666) {
-                            if (!userList.contains(game.getUser(node.getOccupiedByPlayer()).getUsername()) && !robbersNewFieldMessage.getUser().getUsername().equals(game.getUser(node.getOccupiedByPlayer()).getUsername())) {
+                            if (!userList.contains(game.getUser(node.getOccupiedByPlayer()).getUsername()) && !robbersNewFieldMessage.getUser().equals(game.getUser(node.getOccupiedByPlayer()))) {
                                 userList.add(game.getUser(node.getOccupiedByPlayer()).getUsername());
                             }
                         }
@@ -544,7 +601,7 @@ public class GameService extends AbstractService {
         if (optionalLobby.isPresent()) {
             Lobby lobby = optionalLobby.get();
             Set<User> usersInLobby = lobby.getUsers();
-            if (gameManagement.getGame(lobby.getName()).isEmpty() && usersInLobby.size() > 1 && startGameRequest.getUser().getUsername().equals(lobby.getOwner().getUsername())) {
+            if (gameManagement.getGame(lobby.getName()).isEmpty() && usersInLobby.size() > 1 && startGameRequest.getUser().equals(lobby.getOwner())) {
                 lobby.setPlayersReadyToNull();
                 lobby.setGameFieldVariant(startGameRequest.getGameFieldVariant());
                 sendToAllInLobby(startGameRequest.getName(), new StartGameMessage(startGameRequest.getName(), startGameRequest.getUser()));
@@ -738,15 +795,15 @@ public class GameService extends AbstractService {
         Optional<Game> optionalGame = gameManagement.getGame(request.getName());
         if (optionalGame.isPresent()) {
             Game game = optionalGame.get();
-            if (request.getUser().getUsername().equals(game.getUser(game.getTurn()).getUsername())) {
+            if (request.getUser().equals(game.getUser(game.getTurn()))) {
                 Inventory inventory = game.getInventory(request.getUser());
                 if (inventory.wool.getNumber() >= 1 && inventory.ore.getNumber() >= 1 && inventory.grain.getNumber() >= 1) {
                     String devCard = game.getDevelopmentCardDeck().drawnCard();
                     if (devCard != null) {
-                        inventory.wool.decNumber();
-                        inventory.ore.decNumber();
-                        inventory.grain.decNumber();
-                        inventory.incCard(devCard, 1);
+                        takeResource(game, request.getUser(), "Wool", 1);
+                        takeResource(game, request.getUser(), "Ore", 1);
+                        takeResource(game, request.getUser(), "Grain", 1);
+                        inventory.incCardStack(devCard, 1);
                         BuyDevelopmentCardMessage response = new BuyDevelopmentCardMessage(devCard);
                         sendToSpecificUserInGame(response, request.getUser());
                     } else {
@@ -783,15 +840,11 @@ public class GameService extends AbstractService {
         if (optionalGame.isPresent()) {
             Game game = optionalGame.get();
             User turnPlayer = game.getUser(game.getTurn());
-            if (request.getUser().getUsername().equals(turnPlayer.getUsername())) {
+            if (request.getUser().equals(turnPlayer)) {
                 Inventory inventory = game.getInventory(turnPlayer);
                 String devCard = request.getDevCard();
                 String currentCardOfGame = game.getCurrentCard();
                 boolean alreadyPlayedCard = game.playedCardThisTurn();
-                //TODO: delete these 3, only used for testing
-                inventory.cardMonopoly.incNumber();
-                inventory.cardRoadBuilding.incNumber();
-                inventory.cardYearOfPlenty.incNumber();
                 // TODO: Check if the card was bought THIS turn, because it cannot be used then
                 switch (devCard) {
 
@@ -866,10 +919,14 @@ public class GameService extends AbstractService {
      * if the DevelopmentCard that is currently being played equals the one in this request,
      * then try to resolve the DevelopmentCard accordingly and inform players of this game that the
      * resolution was successful. If something went wrong, inform the turnPlayer so that he may try again.
+     * <p>
+     * enhanced by Anton Nikiforov "Year of Plenty" bank
+
      *
      * @param request the ResolveDevelopmentCardRequest sent from the client
      * @author Marc Hermes
      * @since 2021-05-01
+     * @since 2021-05-11
      */
     @Subscribe
     public void onResolveDevelopmentCardRequest(ResolveDevelopmentCardRequest request) {
@@ -880,7 +937,7 @@ public class GameService extends AbstractService {
             String gameName = game.getName();
             String devCard = request.getDevCard();
 
-            if (request.getUser().getUsername().equals(turnPlayer.getUsername()) && request.getDevCard().equals(game.getCurrentCard())) {
+            if (request.getUser().equals(turnPlayer) && request.getDevCard().equals(game.getCurrentCard())) {
                 Inventory turnPlayerInventory = game.getInventory(turnPlayer);
                 ResolveDevelopmentCardMessage message = new ResolveDevelopmentCardMessage(devCard, (UserDTO) turnPlayer, gameName);
                 ResolveDevelopmentCardNotSuccessfulResponse notSuccessfulResponse = new ResolveDevelopmentCardNotSuccessfulResponse(devCard, turnPlayer.getUsername(), gameName);
@@ -896,27 +953,27 @@ public class GameService extends AbstractService {
                                     Inventory x = game.getInventory(user);
                                     switch (resource) {
                                         case "Lumber":
-                                            turnPlayerInventory.incCard(resource, x.lumber.getNumber());
+                                            turnPlayerInventory.incCardStack(resource, x.lumber.getNumber());
                                             x.lumber.decNumber(x.lumber.getNumber());
                                             resolvedDevelopmentCardSuccessfully = true;
                                             break;
                                         case "Ore":
-                                            turnPlayerInventory.incCard(resource, x.ore.getNumber());
+                                            turnPlayerInventory.incCardStack(resource, x.ore.getNumber());
                                             x.ore.decNumber(x.ore.getNumber());
                                             resolvedDevelopmentCardSuccessfully = true;
                                             break;
                                         case "Wool":
-                                            turnPlayerInventory.incCard(resource, x.wool.getNumber());
+                                            turnPlayerInventory.incCardStack(resource, x.wool.getNumber());
                                             x.wool.decNumber(x.wool.getNumber());
                                             resolvedDevelopmentCardSuccessfully = true;
                                             break;
                                         case "Brick":
-                                            turnPlayerInventory.incCard(resource, x.brick.getNumber());
+                                            turnPlayerInventory.incCardStack(resource, x.brick.getNumber());
                                             x.brick.decNumber(x.brick.getNumber());
                                             resolvedDevelopmentCardSuccessfully = true;
                                             break;
                                         case "Grain":
-                                            turnPlayerInventory.incCard(resource, x.grain.getNumber());
+                                            turnPlayerInventory.incCardStack(resource, x.grain.getNumber());
                                             x.grain.decNumber(x.grain.getNumber());
                                             resolvedDevelopmentCardSuccessfully = true;
                                             break;
@@ -963,15 +1020,14 @@ public class GameService extends AbstractService {
                         break;
 
                     case "Year of Plenty":
-                        // TODO: implement bank resources and "not successful" functionality i.e. when the bank doesnt have enough resources
                         if (request instanceof ResolveDevelopmentCardYearOfPlentyRequest) {
                             ResolveDevelopmentCardYearOfPlentyRequest yearOfPlentyRequest = (ResolveDevelopmentCardYearOfPlentyRequest) request;
-
-                            boolean successful1 = turnPlayerInventory.incCard(yearOfPlentyRequest.getResource1(), 1);
-                            boolean successful2 = turnPlayerInventory.incCard(yearOfPlentyRequest.getResource2(), 1);
+                            Inventory bank = game.getBankInventory();
+                            boolean successful1 = giveResource(game, turnPlayer, yearOfPlentyRequest.getResource1(), 1);
+                            boolean successful2 = giveResource(game, turnPlayer, yearOfPlentyRequest.getResource2(), 1);
                             if (!(successful1 && successful2)) {
-                                turnPlayerInventory.decCard(yearOfPlentyRequest.getResource1(), 1);
-                                turnPlayerInventory.decCard(yearOfPlentyRequest.getResource2(), 1);
+                                if (successful1) takeResource(game, turnPlayer, yearOfPlentyRequest.getResource1(), 1);
+                                if (successful2) takeResource(game, turnPlayer, yearOfPlentyRequest.getResource2(), 1);
                                 notSuccessfulResponse.initWithMessage(request);
                                 notSuccessfulResponse.setErrorDescription("Please select 2 valid resources");
                                 post(notSuccessfulResponse);
@@ -1130,11 +1186,11 @@ public class GameService extends AbstractService {
         System.out.println("Got message " + request.getUser().getUsername());
         Optional<Game> optionalGame = gameManagement.getGame(request.getName());
         // TODO: Wird nur zum testen verwendet
-      /*  game.get().getInventory(request.getUser()).incCard("Lumber", 10);
-        game.get().getInventory(request.getUser()).incCard("Ore", 10);
-        game.get().getInventory(request.getUser()).incCard("Wool", 10);
-        game.get().getInventory(request.getUser()).incCard("Grain", 10);
-        game.get().getInventory(request.getUser()).incCard("Brick", 10);
+      /*  game.get().getInventory(request.getUser()).incCardStack("Lumber", 10);
+        game.get().getInventory(request.getUser()).incCardStack("Ore", 10);
+        game.get().getInventory(request.getUser()).incCardStack("Wool", 10);
+        game.get().getInventory(request.getUser()).incCardStack("Grain", 10);
+        game.get().getInventory(request.getUser()).incCardStack("Brick", 10);
         Inventory easyPrüfen = game.get().getInventory(request.getUser());
 */
         if (optionalGame.isPresent()) {
@@ -1210,12 +1266,12 @@ public class GameService extends AbstractService {
                 Inventory inventoryBidder = game.getInventory(request.getUser());
 
                 for (TradeItem soldItem : trade.getSellingItems()) {
-                    inventorySeller.decCard(soldItem.getName(), soldItem.getCount());
-                    inventoryBidder.incCard(soldItem.getName(), soldItem.getCount());
+                    inventorySeller.decCardStack(soldItem.getName(), soldItem.getCount());
+                    inventoryBidder.incCardStack(soldItem.getName(), soldItem.getCount());
                 }
                 for (TradeItem bidItem : trade.getBids().get(request.getUser())) {
-                    inventorySeller.incCard(bidItem.getName(), bidItem.getCount());
-                    inventoryBidder.decCard(bidItem.getName(), bidItem.getCount());
+                    inventorySeller.incCardStack(bidItem.getName(), bidItem.getCount());
+                    inventoryBidder.decCardStack(bidItem.getName(), bidItem.getCount());
                 }
             }
             tradeEndedChatMessageHelper(game.getName(), request.getTradeCode(), request.getUser().getUsername(), request.getTradeAccepted());
@@ -1232,6 +1288,7 @@ public class GameService extends AbstractService {
      * @param tradeCode    the trade code
      * @param winnerBidder the winners name
      * @param success      bool if successful or not
+     *
      * @author Alexander Losse, Ricardo Mook
      * @since 2021-04-11
      */
@@ -1286,18 +1343,13 @@ public class GameService extends AbstractService {
         if (optionalGame.isPresent()) {
             Game game = optionalGame.get();
             HashMap<String, Integer> inventory = game.getInventory(new UserDTO(drawRandomResourceFromPlayerMessage.getChosenName(), "", "")).getPrivateView();
-            String random = randomResource();
-            inventory.keySet().forEach(e -> {
-                if (e.equals(random)) {
-                    game.getInventory(drawRandomResourceFromPlayerMessage.getUser()).incCard(random, 1);
-                    game.getInventory(new UserDTO(drawRandomResourceFromPlayerMessage.getChosenName(), "", "")).decCard(random, 1);
-                }
-            });
-
-            //Nachdem eine Karte gezogen wurde darf jeder mit mehr als 7 Resourcen die Hälfte ablegen
-
-            tooMuchResources(game);
+            String random = randomResource(inventory);
+            game.getInventory(new UserDTO(drawRandomResourceFromPlayerMessage.getChosenName(), "", "")).decCardStack(random, 1);
+            game.getInventory(drawRandomResourceFromPlayerMessage.getUser()).incCardStack(random, 1);
             updateInventory(game);
+
+            //Nachdem eine Karte gezogen wurde darf jeder mit mehr als 7 Ressourcen die Hälfte ablegen
+            tooMuchResources(game);
         }
     }
 
@@ -1306,20 +1358,21 @@ public class GameService extends AbstractService {
      * <p>
      * This method checks if the users have more than 7 resources and sends the user a tooMuchResourceCardMessage.
      * For every user in the game, the method checks if the user has more than 7 resource cards. If this is true,
-     * it checks if the number of resources is even or uneven and sends a TooMuchResourceCardsMessage to every specific user.
+     * it checks if the number of resources is even or uneven and sends a TooMuchResourceCardsMessage to every specfic user.
      *
      * @param game Game that the users play
+     *
      * @author Marius Birk
      * @since 2021-05-13
      */
     public void tooMuchResources(Game game) {
         for (User user : game.getUsers()) {
-            if (game.getInventory(user).getResource() >= 7) {
-                if (game.getInventory(user).getResource() % 2 != 0) {
-                    TooMuchResourceCardsMessage tooMuchResourceCardsMessage = new TooMuchResourceCardsMessage(game.getName(), (UserDTO) user, ((game.getInventory(user).getResource() - 1) / 2), game.getInventory(user).getPrivateView());
+            if (game.getInventory(user).sumResource() >= 7) {
+                if (game.getInventory(user).sumResource() % 2 != 0) {
+                    TooMuchResourceCardsMessage tooMuchResourceCardsMessage = new TooMuchResourceCardsMessage(game.getName(), (UserDTO) user, ((game.getInventory(user).sumResource() - 1) / 2), game.getInventory(user).getPrivateView());
                     sendToSpecificUserInGame(tooMuchResourceCardsMessage, user);
                 } else {
-                    TooMuchResourceCardsMessage tooMuchResourceCardsMessage = new TooMuchResourceCardsMessage(game.getName(), (UserDTO) user, (game.getInventory(user).getResource() / 2), game.getInventory(user).getPrivateView());
+                    TooMuchResourceCardsMessage tooMuchResourceCardsMessage = new TooMuchResourceCardsMessage(game.getName(), (UserDTO) user, (game.getInventory(user).sumResource() / 2), game.getInventory(user).getPrivateView());
                     sendToSpecificUserInGame(tooMuchResourceCardsMessage, user);
                 }
             }
@@ -1327,25 +1380,28 @@ public class GameService extends AbstractService {
     }
 
     /**
-     * The method chooses a random resource and returns it.
+     * The method chooses a random resource from given inventory and returns it.
      * <p>
-     * This method will be invoked, if the name of a random resource is needed. For that, it creates a List of resources
-     * and initializes a random number between 1 and 5. To get now a random name of resource, we substrate 1 and
+     * This method will be invoked, if the name of a random resource from given inventory is needed. For that, it creates a List of resources from the given inventory
+     * and initializes a random number. To get now a random name of resource, we substrate 1 and
      * invoke the get() method of the List and return that value.
+     * <p>
+     * enhanced by Anton Nikiforov "Year of Plenty" bank
+     *
+     * @param inventory form Player
      *
      * @return the name of a resource
      * @author Marius Birk
      * @since 2021-04-29
+     * @since 2021-05-23
      */
-    public String randomResource() {
+    public String randomResource(HashMap<String, Integer> inventory) {
         List<String> resources = new ArrayList<>();
-        resources.add("Wool");
-        resources.add("Lumber");
-        resources.add("Brick");
-        resources.add("Grain");
-        resources.add("Ore");
-
-        int random = (int) Math.floor(Math.random() * (4 + 1));
-        return resources.get(random);
+        if (inventory.get("Lumber") > 0) resources.add("Lumber");
+        if (inventory.get("Brick") > 0) resources.add("Brick");
+        if (inventory.get("Grain") > 0) resources.add("Grain");
+        if (inventory.get("Wool") > 0) resources.add("Wool");
+        if (inventory.get("Ore") > 0) resources.add("Ore");
+        return resources.get((int) (Math.random() * resources.size()));
     }
 }
