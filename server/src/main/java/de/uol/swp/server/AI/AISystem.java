@@ -3,13 +3,9 @@ package de.uol.swp.server.AI;
 import de.uol.swp.common.game.message.TooMuchResourceCardsMessage;
 import de.uol.swp.common.game.message.TradeInformSellerAboutBidsMessage;
 import de.uol.swp.common.game.message.TradeOfferInformBiddersMessage;
-import de.uol.swp.common.game.trade.Trade;
 import de.uol.swp.common.game.trade.TradeItem;
 import de.uol.swp.common.user.User;
-import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.server.AI.AIActions.AIAction;
-import de.uol.swp.server.AI.AIActions.DiscardResourcesAction;
-import de.uol.swp.server.AI.AIActions.TradeBidAction;
 
 import java.util.ArrayList;
 import java.util.HashMap;

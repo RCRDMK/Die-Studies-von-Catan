@@ -9,10 +9,7 @@ import de.uol.swp.common.game.trade.TradeItem;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.server.AI.AIActions.AIAction;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * AI which makes choices randomly
@@ -89,6 +86,15 @@ public class RandomAI extends AbstractAISystem {
         return this.aiActions;
     }
 
+    /**
+     * When the turn continues for the AI (after the players in the game bid on the ongoing trade) the Server will call this function
+     *
+     * @param tisabm the TradeInformSellerAboutBidsMessage containing information about the bids of the trade
+     * @param wishList the original wishList of the AI
+     * @return the ArrayList of AIActions the AI wishes to do
+     * @author Alexander Losse, Marc Hermes
+     * @since 2021-05-22
+     */
     public ArrayList<AIAction> continueTurnOrder(TradeInformSellerAboutBidsMessage tisabm, ArrayList<TradeItem> wishList) {
         startedTrade = true;
         chooseTradeBidLogic(tisabm, wishList);
@@ -97,6 +103,15 @@ public class RandomAI extends AbstractAISystem {
         return this.aiActions;
     }
 
+    /**
+     * When a different Player initiates a trade the server will call this Method for the AI so that it may
+     * participate in the trade
+     *
+     * @param toibm the TradeOfferInformBiddersMessage containing the information about the new trade
+     * @return the ArrayList of AIActions the AI wishes to do (should only include the tradeBidAction)
+     * @author Alexander Losse, Marc Hermes
+     * @since 2021-05-22
+     */
     public ArrayList<AIAction> tradeBidOrder(TradeOfferInformBiddersMessage toibm) {
         this.user = toibm.getBidder();
         this.inventory = game.getInventory(user);
@@ -105,6 +120,14 @@ public class RandomAI extends AbstractAISystem {
         return this.aiActions;
     }
 
+    /**
+     * When the robber was moved and the AI needs to discard resources the Server will call this method for the AI
+     *
+     * @param tmrcm the TooMuchResourceCardsMessage containing the information about the amount of cards to discard
+     * @return the ArrayList of AIActions the AI wishes to do (should only include the discardResourcesAction)
+     * @author Alexander Losse, Marc Hermes
+     * @since 2021-05-22
+     */
     public ArrayList<AIAction> discardResourcesOrder(TooMuchResourceCardsMessage tmrcm) {
         this.user = tmrcm.getUser();
         this.inventory = game.getInventory(user);
@@ -112,7 +135,16 @@ public class RandomAI extends AbstractAISystem {
         return this.aiActions;
     }
 
-    private void moveBanditLogic(UUID hx){
+    /**
+     * Method called when the bandit is to be moved
+     * <p>
+     * When invoked this method will move the bandit as well as discard resources should it be necessary.
+     *
+     * @param hx the UUID of the field the robber should be moved to
+     * @author Alexander Losse, Marc Hermes
+     * @since 2021-05-22
+     */
+    private void moveBanditLogic(UUID hx) {
         moveBandit(hx);
         if (inventory.getResource() >= 7) {
             if (inventory.getResource() % 2 != 0) {
@@ -122,6 +154,7 @@ public class RandomAI extends AbstractAISystem {
             }
         }
     }
+
     /**
      * Performs a number of actions during the opening turns of the game
      * <p>
@@ -243,6 +276,17 @@ public class RandomAI extends AbstractAISystem {
     }
 
 
+    /**
+     * This method is used when the AI wants to trade
+     * <p>
+     * Firstly it is randomly decided whether the AI wants to trade or not.
+     * Then the method createWishAndOfferList() is invoked.
+     * If there are any entries in the wishList with numbers larger than 0 the trade is started.
+     *
+     * @return true if the AI traded, false if not
+     * @author Alexander Losse, Marc Hermes
+     * @since 2021-05-22
+     */
     private boolean makeRandomTradeLogic() {
         boolean startATradeTest = randomInt(0, 9) >= 5;
         if (startATradeTest) {
@@ -424,10 +468,13 @@ public class RandomAI extends AbstractAISystem {
             resourceList.add("Lumber");
             resourceList.add("Brick");
             resourceList.add("Ore");
-            for (String item : resourceList) {
+            Iterator<String> it = resourceList.iterator();
+            while (it.hasNext()) {
+                String value = it.next();
                 for (TradeItem wishItem : wishItems) {
-                    if (item.equals(wishItem.getName())) {
-                        resourceList.remove(item);
+                    if (value.equals(wishItem.getName())) {
+                        it.remove();
+                        break;
                     }
                 }
             }
@@ -435,14 +482,16 @@ public class RandomAI extends AbstractAISystem {
             while (discardedSomething) {
                 discardedSomething = false;
                 String randomResource = returnRandomResource();
-                for (String item : resourceList) {
-                    if (item.equals(randomResource) && inventory.getSpecificResourceAmount(item) > 0) {
-                        inventory.decCard(item, 1);
+                Iterator<String> it1 = resourceList.iterator();
+                while (it.hasNext()) {
+                    String value1 = it1.next();
+                    if (value1.equals(randomResource) && inventory.getSpecificResourceAmount(value1) > 0) {
+                        inventory.decCard(value1, 1);
                         amountOfResourcesToBeDiscarded = amountOfResourcesToBeDiscarded - 1;
-                        resourcesToDiscard.put(item, resourcesToDiscard.getOrDefault(item, 0) + 1);
+                        resourcesToDiscard.put(value1, resourcesToDiscard.getOrDefault(value1, 0) + 1);
                         discardedSomething = true;
-                    } else if (item.equals(randomResource) && inventory.getSpecificResourceAmount(item) == 0) {
-                        resourceList.remove(item);
+                    } else if (value1.equals(randomResource) && inventory.getSpecificResourceAmount(value1) == 0) {
+                        it1.remove();
                     }
                     if (amountOfResourcesToBeDiscarded == 0) {
                         break;

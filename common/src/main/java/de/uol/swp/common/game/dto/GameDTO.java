@@ -224,7 +224,7 @@ public class GameDTO implements Game {
                 } else {
                     startingTurns = false; // 2b2) if we are at player 1 and were already counting backwards, end the openingphase.
                     for (int i = 0; i < userArrayList.size(); i++) {
-                        //lastBuildingOfOpeningTurn.add(mapGraph.getBuiltBuildings().get(mapGraph.getBuiltBuildings().size() - 1 - i));
+                        lastBuildingOfOpeningTurn.add(mapGraph.getBuiltBuildings().get(mapGraph.getBuiltBuildings().size() - 1 - i));
                     }
                 }
             }

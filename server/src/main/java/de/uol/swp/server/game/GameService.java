@@ -148,7 +148,6 @@ public class GameService extends AbstractService {
      * Handles incoming build requests.
      *
      * @param message Contains the data needed to change the mapGraph
-     *
      * @author Pieter Vogt
      * @since 2021-04-15
      */
@@ -233,7 +232,6 @@ public class GameService extends AbstractService {
     public void sendToSpecificUserInGame(ServerMessage message, User user) {
         List<Session> theList = new ArrayList<>();
         authenticationService.getSession(user).ifPresent(theList::add);
-        //theList.add(authenticationService.getSession(user).get());
         message.setReceiver(theList);
         post(message);
     }
@@ -757,7 +755,7 @@ public class GameService extends AbstractService {
             //RandomAI randomAI = new RandomAI(game);
             LOG.debug("Rufe random AI auf");
             Inventory aiInventory = game.getInventory(game.getUser(game.getTurn()));
-            aiInventory.incCard("Brick", 1);
+            /*aiInventory.incCard("Brick", 1);
             aiInventory.incCard("Ore", 1);
             aiInventory.incCard("Wool", 1);
             aiInventory.incCard("Grain", 1);
@@ -1078,11 +1076,10 @@ public class GameService extends AbstractService {
      * <p>
      * enhanced by Carsten Dekker ,Marc Johannes Hermes, Marius Birk, Iskander Yusupov
      *
-     * @since 2021-05-07
-     * enhanced by René Meyer
-     *
      * @param game game that wants to update private and public inventories
      * @author Iskander Yusupov, Anton Nikiforov
+     * @since 2021-05-07
+     * enhanced by René Meyer
      * @since 2021-05-07
      * @since 2021-04-08
      */
