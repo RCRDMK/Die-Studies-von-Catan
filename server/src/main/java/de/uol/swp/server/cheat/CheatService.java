@@ -140,11 +140,11 @@ public class CheatService extends AbstractService {
                     if (game.isPresent()) {
                         var inventory = game.get().getInventory(user);
                         // Increase ressources by resourceAmount
-                        inventory.incCard("Lumber", resourceAmount);
-                        inventory.incCard("Brick", resourceAmount);
-                        inventory.incCard("Wool", resourceAmount);
-                        inventory.incCard("Grain", resourceAmount);
-                        inventory.incCard("Ore", resourceAmount);
+                        inventory.incCardStack("Lumber", resourceAmount);
+                        inventory.incCardStack("Brick", resourceAmount);
+                        inventory.incCardStack("Wool", resourceAmount);
+                        inventory.incCardStack("Grain", resourceAmount);
+                        inventory.incCardStack("Ore", resourceAmount);
                         // Increase development cards
                         inventory.cardKnight.incNumber();
                         inventory.cardMonopoly.incNumber();
@@ -171,19 +171,19 @@ public class CheatService extends AbstractService {
                         var inventory = game.get().getInventory(user);
                         switch (cardName) {
                             case "lumber":
-                                inventory.incCard("Lumber", cardAmount);
+                                inventory.incCardStack("Lumber", cardAmount);
                                 break;
                             case "brick":
-                                inventory.incCard("Brick", cardAmount);
+                                inventory.incCardStack("Brick", cardAmount);
                                 break;
                             case "grain":
-                                inventory.incCard("Grain", cardAmount);
+                                inventory.incCardStack("Grain", cardAmount);
                                 break;
                             case "wool":
-                                inventory.incCard("Wool", cardAmount);
+                                inventory.incCardStack("Wool", cardAmount);
                                 break;
                             case "ore":
-                                inventory.incCard("Ore", cardAmount);
+                                inventory.incCardStack("Ore", cardAmount);
                                 break;
                             case "monopoly":
                                 inventory.cardMonopoly.incNumber(cardAmount);
