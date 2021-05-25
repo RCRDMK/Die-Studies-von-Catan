@@ -46,6 +46,7 @@ public class SQLBasedUserStore extends AbstractUserStore implements UserStore {
         statement.close();
         connection.close();
     }
+
     @Override
     public Optional<User> findUser(String username, String password) throws Exception {
         String findUser = "select name, mail, pictureID from userData where name=? and password=?;";
@@ -234,7 +235,8 @@ public class SQLBasedUserStore extends AbstractUserStore implements UserStore {
      * present in the database.
      *
      * @author Carsten Dekker
-     * @param toUpdatePicture the new user object that contains the new profilePictureID
+     * @param username name of the updated user
+     * @param profilePictureID the new profilePictureID
      * @return A new UserDTO with the username and the profile pictureID
      * @see java.sql.SQLException
      * @since 2021-04-15

@@ -8,6 +8,7 @@ import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.user.request.DropUserRequest;
 import de.uol.swp.common.user.request.RegisterUserRequest;
+import de.uol.swp.server.usermanagement.store.MainMemoryBasedUserStore;
 import org.junit.jupiter.api.Test;
 
 import java.sql.SQLException;
@@ -18,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("UnstableApiUsage")
 class UserServiceTest {
-/*
+
     static final User userToRegister = new UserDTO("Marco", "Marco", "Marco@Grawunder.com");
     static final User userWithSameName = new UserDTO("Marco", "Marco2", "Marco2@Grawunder.com");
     static final User userToDrop = new UserDTO("Carsten", "Stahl", "Carsten@Stahl.com");
@@ -26,14 +27,15 @@ class UserServiceTest {
     final CountDownLatch lock = new CountDownLatch(1);
 
     final EventBus bus = new EventBus();
-    final UserManagement userManagement = new UserManagement();
+    MainMemoryBasedUserStore mainMemoryBasedUserStore = new MainMemoryBasedUserStore();
+    final UserManagement userManagement = new UserManagement(mainMemoryBasedUserStore);
     final UserService userService = new UserService(bus, userManagement);
 
     UserServiceTest() throws SQLException {
     }
 
     @Test
-    void registerUserTest() throws SQLException {
+    void registerUserTest() throws Exception {
         final RegisterUserRequest request = new RegisterUserRequest(userToRegister);
 
         // The post will lead to a call of a UserService function
@@ -48,7 +50,7 @@ class UserServiceTest {
     }
 
     @Test
-    void registerSecondUserWithSameName() throws SQLException {
+    void registerSecondUserWithSameName() throws Exception {
         final RegisterUserRequest request = new RegisterUserRequest(userToRegister);
         final RegisterUserRequest request2 = new RegisterUserRequest(userWithSameName);
 
@@ -78,7 +80,7 @@ class UserServiceTest {
      *
      * @author Marius Birk und Carsten Dekker
      * @since 2020-12-15
-
+     */
     @Test
     void dropUserTest() throws InterruptedException, SQLException {
 
@@ -103,5 +105,5 @@ class UserServiceTest {
         lock.await(1000, TimeUnit.MILLISECONDS);
         bus.post(dropUserRequest);
         assertFalse(userManagement.retrieveAllUsers().contains(dropUserRequest.getUser()));
-    }*/
+    }
 }

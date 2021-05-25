@@ -111,27 +111,11 @@ class MainMemoryBasedUserStoreTest {
 
 
     @Test
-    void updateUser() throws Exception {
-        UserStore store = getDefaultStore();
-        User userToUpdate = getDefaultUsers().get(2);
-
-        store.updateUser(userToUpdate.getUsername(), userToUpdate.getPassword(),
-                userToUpdate.getEMail() + "@TESTING");
-
-        Optional<User> userFound = store.findUser(userToUpdate.getUsername());
-
-        assertTrue(userFound.isPresent());
-        assertEquals(userFound.get().getEMail(), userToUpdate.getEMail() + "@TESTING");
-
-    }
-
-    @Test
     void changePassword() throws Exception {
         UserStore store = getDefaultStore();
         User userToUpdate = getDefaultUsers().get(2);
 
-        store.updateUser(userToUpdate.getUsername(), userToUpdate.getPassword() + "_NEWPASS",
-                userToUpdate.getEMail());
+        store.updateUserPassword(userToUpdate.getUsername(), "_NEWPASS");
 
         Optional<User> userFound = store.findUser(userToUpdate.getUsername(),
                 userToUpdate.getPassword() + "_NEWPASS");

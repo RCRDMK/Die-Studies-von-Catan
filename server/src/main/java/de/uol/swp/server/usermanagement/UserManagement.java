@@ -34,9 +34,7 @@ public class UserManagement extends AbstractUserManagement {
 
     private static final Logger LOG = LogManager.getLogger(UserManagement.class);
     private static final SortedMap<String, User> loggedInUsers = new TreeMap<>();
-
-    private final SQLBasedUserStore storeInUse;
-    //private final MainMemoryBasedUserStore storeInUse;
+    private final UserStore storeInUse;
 
     /**
      * Constructor
@@ -48,18 +46,32 @@ public class UserManagement extends AbstractUserManagement {
      * The constructor changed to an empty constructor. The usual store is not longer needed.
      * @since 2021-01-19
      */
+
     @Inject
-    public UserManagement(SQLBasedUserStore storeInUse) throws SQLException {
+    public UserManagement(UserStore storeInUse) throws SQLException {
         this.storeInUse = storeInUse;
-        storeInUse.buildConnection();
+        if(storeInUse instanceof SQLBasedUserStore) {
+            SQLBasedUserStore sqlBasedUserStore = (SQLBasedUserStore) storeInUse;
+            sqlBasedUserStore.buildConnection();
+        }
     }
 
-    /*
-    @Inject
-    public UserManagement(MainMemoryBasedUserStore storeInUse) {
-        this.storeInUse = storeInUse;
-    }
+    /**
+     * Closes Connection
+     * <p>
+     * This method will be closing the connection between database and server application.
+     * If the server is going to be shut down,
+     * it will close the connection to the database.
+     *
+     * @author Marius Birk
+     * @since 2021-01-15
      */
+    public void closeConnection() throws SQLException {
+        if (storeInUse instanceof SQLBasedUserStore) {
+            SQLBasedUserStore sqlBasedUserStore = (SQLBasedUserStore) storeInUse;
+            sqlBasedUserStore.closeConnection();
+        }
+    }
 
     @Override
     public User login(String username, String password) throws Exception {
@@ -210,7 +222,7 @@ public class UserManagement extends AbstractUserManagement {
     }
 
     @Override
-    public List<User> retrieveAllUsers() {
+    public List<User> retrieveAllUsers() throws SQLException {
         return storeInUse.getAllUsers();
     }
 }
