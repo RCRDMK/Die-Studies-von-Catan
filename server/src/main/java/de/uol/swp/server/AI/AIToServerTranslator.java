@@ -36,7 +36,6 @@ public class AIToServerTranslator {
             UserDTO user = (UserDTO) aiAction.getUser();
 
             if (aiAction instanceof EndTurnAction) {
-                EndTurnAction eta = (EndTurnAction) aiAction;
                 EndTurnRequest etr = new EndTurnRequest(gameName, user);
                 gameService.onEndTurnRequest(etr);
 
@@ -56,7 +55,6 @@ public class AIToServerTranslator {
                 gameService.onConstructionMessage(cr);
 
             } else if (aiAction instanceof BuyDevelopmentCardAction) {
-                BuyDevelopmentCardAction bdca = (BuyDevelopmentCardAction) aiAction;
                 BuyDevelopmentCardRequest bdcr = new BuyDevelopmentCardRequest(user, gameName);
                 gameService.onBuyDevelopmentCardRequest(bdcr);
 
