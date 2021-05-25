@@ -769,7 +769,7 @@ public class GameService extends AbstractService {
         if (optionalGame.isPresent()) {
             Game game = optionalGame.get();
             LOG.debug("EndTurn Request");
-            if (request.getUser().getUsername().equals(game.getUser(game.getTurn()).getUsername()) && game.getCurrentCard().equals("") && game.rolledDiceThisTurn()) {
+            if (request.getUser().getUsername().equals(game.getUser(game.getTurn()).getUsername()) && game.getCurrentCard().equals("") && (game.rolledDiceThisTurn() || game.isStartingTurns())) {
                 try {
                     boolean priorGamePhase = game.isStartingTurns();
                     game.nextRound();

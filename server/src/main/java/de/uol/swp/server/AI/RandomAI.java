@@ -494,6 +494,11 @@ public class RandomAI extends AbstractAISystem {
     private void discardResourcesLogic(int amountOfResourcesToBeDiscarded) {
 
         HashMap<String, Integer> resourcesToDiscard = new HashMap<>();
+        resourcesToDiscard.put("Wool", 0);
+        resourcesToDiscard.put("Brick", 0);
+        resourcesToDiscard.put("Grain", 0);
+        resourcesToDiscard.put("Lumber", 0);
+        resourcesToDiscard.put("Ore", 0);
         ArrayList<ArrayList<TradeItem>> wishAndOfferList = createWishAndOfferList();
         ArrayList<TradeItem> wishItems = wishAndOfferList.get(0);
         ArrayList<TradeItem> offerItems = wishAndOfferList.get(1);
