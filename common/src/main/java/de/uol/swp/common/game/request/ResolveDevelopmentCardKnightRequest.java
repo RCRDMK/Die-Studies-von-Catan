@@ -27,7 +27,7 @@ public class ResolveDevelopmentCardKnightRequest extends ResolveDevelopmentCardR
     /**
      * Constructor used for the resolution of the Monopoly DevelopmentCard
      *
-     * @param devCard  the name of the DevelopmentCard, should be "Monopoly"
+     * @param devCard  the name of the DevelopmentCard, should be "Knight"
      * @param user     the user who wants to resolve the card
      * @param gameName the name of the game in which the card is to be resolved
      * @param field the UUID of the field the robber is to be moved to

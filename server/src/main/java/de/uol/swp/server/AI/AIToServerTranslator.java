@@ -55,7 +55,6 @@ public class AIToServerTranslator {
                 gameService.onConstructionMessage(cr);
 
             } else if (aiAction instanceof BuyDevelopmentCardAction) {
-                BuyDevelopmentCardAction bdca = (BuyDevelopmentCardAction) aiAction;
                 BuyDevelopmentCardRequest bdcr = new BuyDevelopmentCardRequest(user, gameName);
                 gameService.onBuyDevelopmentCardRequest(bdcr);
 
