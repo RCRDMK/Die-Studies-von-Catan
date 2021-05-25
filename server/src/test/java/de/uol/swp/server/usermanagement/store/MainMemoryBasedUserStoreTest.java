@@ -118,17 +118,43 @@ class MainMemoryBasedUserStoreTest {
         store.updateUserPassword(userToUpdate.getUsername(), "_NEWPASS");
 
         Optional<User> userFound = store.findUser(userToUpdate.getUsername(),
-                userToUpdate.getPassword() + "_NEWPASS");
+                 "_NEWPASS");
 
         assertTrue(userFound.isPresent());
-        assertEquals(userFound.get().getEMail(), userToUpdate.getEMail());
+        assertNotEquals(userToUpdate.getPassword(), "_NEWPASS");
 
+    }
+
+    @Test
+    void changeEmail() throws Exception {
+        UserStore store = getDefaultStore();
+        User userToUpdate = getDefaultUsers().get(3);
+
+        store.updateUserMail(userToUpdate.getUsername(), "1@1.de");
+
+        Optional<User> userFound = store.findUser(userToUpdate.getUsername());
+
+        assertTrue(userFound.isPresent());
+        assertEquals(userFound.get().getEMail(), "1@1.de");
+    }
+
+    @Test
+    void changeProfilePictureID() throws Exception {
+        UserStore store = getDefaultStore();
+        User userToUpdate = getDefaultUsers().get(4);
+
+        store.updateUserPicture(userToUpdate.getUsername(), 40);
+
+        Optional<User> userFound = store.findUser(userToUpdate.getUsername());
+
+        assertTrue(userFound.isPresent());
+        assertEquals(userFound.get().getProfilePictureID(), 40);
     }
 
     @Test
     void dropUser() throws Exception {
         UserStore store = getDefaultStore();
-        User userToRemove = getDefaultUsers().get(3);
+        User userToRemove = getDefaultUsers().get(5);
 
         store.removeUser(userToRemove.getUsername());
 

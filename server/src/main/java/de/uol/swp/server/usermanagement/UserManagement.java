@@ -215,7 +215,7 @@ public class UserManagement extends AbstractUserManagement {
     public User retrieveUserInformation(User toGetInformation) throws Exception {
         Optional<User> user = storeInUse.findUser(toGetInformation.getUsername());
         if(user.isPresent()) {
-            return storeInUse.retrieveUserInformation(toGetInformation.getUsername());
+            return user.get();
         } else {
             throw new UserManagementException("Username unknown!");
         }

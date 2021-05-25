@@ -86,7 +86,6 @@ class UserServiceTest {
 
         final RegisterUserRequest registerRequest = new RegisterUserRequest(userToDrop);
         final DropUserRequest dropUserRequest = new DropUserRequest(userToDrop);
-        //TODO kurzfristige Lösung, Testfix needed
         dropUserRequest.setMessageContext(new MessageContext() {
             @Override
             public void writeAndFlush(ResponseMessage message) {

@@ -17,6 +17,7 @@ import de.uol.swp.server.usermanagement.store.UserStore;
 public class ServerModule extends AbstractModule {
 
     private final EventBus bus = new EventBus();
+    //Hier kann der Store ausgewählt werden
     private final UserStore userStore = new MainMemoryBasedUserStore();
     //private final UserStore userStore = new SQLBasedUserStore();
 
