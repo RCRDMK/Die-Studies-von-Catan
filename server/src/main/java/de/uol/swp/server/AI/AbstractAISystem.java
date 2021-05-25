@@ -130,7 +130,6 @@ public abstract class AbstractAISystem implements AISystem {
             game.getBankInventory().incCardStack("Ore", 1);
             game.getBankInventory().incCardStack("Grain", 1);
             game.getBankInventory().incCardStack("Wool", 1);
-            System.out.println("Buy card");
             aiActions.add(bdca);
         }
 
@@ -141,7 +140,8 @@ public abstract class AbstractAISystem implements AISystem {
         BuildAction pa = new BuildAction("BuildStreet", user, game.getName(), field);
         inventory.decCardStack("Brick", 1);
         inventory.decCardStack("Lumber", 1);
-        System.out.println("Build street");
+        game.getBankInventory().incCardStack("Brick", 1);
+        game.getBankInventory().incCardStack("Lumber", 1);
         aiActions.add(pa);
 
     }
@@ -153,7 +153,10 @@ public abstract class AbstractAISystem implements AISystem {
         inventory.decCardStack("Lumber", 1);
         inventory.decCardStack("Grain", 1);
         inventory.decCardStack("Wool", 1);
-        System.out.println("Build town");
+        game.getBankInventory().incCardStack("Brick", 1);
+        game.getBankInventory().incCardStack("Lumber", 1);
+        game.getBankInventory().incCardStack("Grain", 1);
+        game.getBankInventory().incCardStack("Wool", 1);
         aiActions.add(pa);
 
     }
@@ -163,7 +166,8 @@ public abstract class AbstractAISystem implements AISystem {
         BuildAction pa = new BuildAction("BuildCity", user, game.getName(), field);
         inventory.decCardStack("Ore", 3);
         inventory.decCardStack("Grain", 2);
-        System.out.println("Build city");
+        game.getBankInventory().incCardStack("Ore", 3);
+        game.getBankInventory().incCardStack("Grain", 2);
         aiActions.add(pa);
 
     }
@@ -236,6 +240,8 @@ public abstract class AbstractAISystem implements AISystem {
         playedCardThisTurn = "Year of Plenty";
         inventory.incCardStack(resource1, 1);
         inventory.incCardStack(resource2, 1);
+        game.getBankInventory().incCardStack(resource1, 1);
+        game.getBankInventory().incCardStack(resource2, 1);
         aiActions.add(pa);
     }
 
