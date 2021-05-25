@@ -40,8 +40,7 @@ public class GameManagement extends AbstractGameManagement {
      */
     @Override
     public void createGame(String name, User owner, String gameFieldVariant) {
-        GameDTO game = new GameDTO(name, owner);
-        game.setMapGraph(new MapGraph(gameFieldVariant));
+        GameDTO game = new GameDTO(name, owner, gameFieldVariant);
         games.put(name, game);
     }
 
