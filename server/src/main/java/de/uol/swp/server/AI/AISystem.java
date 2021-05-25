@@ -150,6 +150,16 @@ public interface AISystem {
     void discardResources(HashMap<String, Integer> resourcesToDiscard);
 
     /**
+     * Method used to draw a certain resource from a player
+     *
+     * @param playerName to name of the player to draw the resource from
+     * @param resource the resource to draw from the player
+     * @author Marc Hermes
+     * @since 2021-05-25
+     */
+    void drawRandomResourceFromPlayer(String playerName, String resource);
+
+    /**
      * Method used to start the turn of the AI.
      * <p>
      * This method is called by the server to engage the AI to start it's turn.
@@ -187,9 +197,12 @@ public interface AISystem {
      * it had to wait on trade responses of the other players.
      *
      * @param tisabm the TradeInformSellerAboutBidsMessage directed for this AI
+     * @param wishList the original wishList of the AI
      * @return an ArrayList of AIActions dedicated through the AI which the server will have to resolve
+     * @author Marc Hermes
+     * @since 2021-05-25
      */
-    ArrayList<AIAction> continueTurnOrder(TradeInformSellerAboutBidsMessage tisabm);
+    ArrayList<AIAction> continueTurnOrder(TradeInformSellerAboutBidsMessage tisabm, ArrayList<TradeItem> wishList);
 
     /**
      * Method used to check if a street may be attempted to be built, resource-wise

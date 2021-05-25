@@ -1,5 +1,6 @@
 package de.uol.swp.server.AI;
 
+import de.uol.swp.common.game.message.DrawRandomResourceFromPlayerMessage;
 import de.uol.swp.common.game.message.RobbersNewFieldMessage;
 import de.uol.swp.common.game.request.*;
 import de.uol.swp.common.user.UserDTO;
@@ -68,6 +69,11 @@ public class AIToServerTranslator {
                 DiscardResourcesAction dra = (DiscardResourcesAction) aiAction;
                 ResourcesToDiscardRequest rdr = new ResourcesToDiscardRequest(gameName, user, dra.getResourcesToDiscard());
                 gameService.onResourcesToDiscard(rdr);
+
+            } else if (aiAction instanceof DrawRandomResourceFromPlayerAction) {
+                DrawRandomResourceFromPlayerAction drrfpa = (DrawRandomResourceFromPlayerAction) aiAction;
+                DrawRandomResourceFromPlayerMessage drrfpm = new DrawRandomResourceFromPlayerMessage(gameName, user, drrfpa.getPlayerName(), drrfpa.getResource());
+                gameService.onDrawRandomResourceFromPlayerMessage(drrfpm);
 
             } else if (aiAction instanceof PlayDevelopmentCardAction) {
                 PlayDevelopmentCardAction pda = (PlayDevelopmentCardAction) aiAction;

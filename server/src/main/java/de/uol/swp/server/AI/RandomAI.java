@@ -2,10 +2,12 @@ package de.uol.swp.server.AI;
 
 import de.uol.swp.common.game.MapGraph;
 import de.uol.swp.common.game.dto.GameDTO;
+import de.uol.swp.common.game.inventory.Inventory;
 import de.uol.swp.common.game.message.TooMuchResourceCardsMessage;
 import de.uol.swp.common.game.message.TradeInformSellerAboutBidsMessage;
 import de.uol.swp.common.game.message.TradeOfferInformBiddersMessage;
 import de.uol.swp.common.game.trade.TradeItem;
+import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.server.AI.AIActions.AIAction;
 
@@ -76,10 +78,7 @@ public class RandomAI extends AbstractAISystem {
         }
         if (!startedTrade) {
             // try to play a developmentCard
-            ArrayList<String> cards = canPlayDevelopmentCard();
-            if (cards.size() > 0) {
-                playDevelopmentCardLogic(cards);
-            }
+            playDevelopmentCardLogic();
 
             endTurn();
         }
@@ -99,6 +98,7 @@ public class RandomAI extends AbstractAISystem {
         startedTrade = true;
         chooseTradeBidLogic(tisabm, wishList);
         makeRandomActionsLogic();
+        playDevelopmentCardLogic();
         endTurn();
         return this.aiActions;
     }
@@ -146,11 +146,44 @@ public class RandomAI extends AbstractAISystem {
      */
     private void moveBanditLogic(UUID hx) {
         moveBandit(hx);
-        if (inventory.getResource() >= 7) {
-            if (inventory.getResource() % 2 != 0) {
-                discardResourcesLogic((inventory.getResource() - 1) / 2);
+        if (inventory.sumResource() > 7 && !playedCardThisTurn.equals("Knight")) {
+            if (inventory.sumResource() % 2 != 0) {
+                discardResourcesLogic((inventory.sumResource() - 1) / 2);
             } else {
-                discardResourcesLogic(inventory.getResource() / 2);
+                discardResourcesLogic(inventory.sumResource() / 2);
+            }
+        }
+
+        // draw a random resource from a player
+        ArrayList<User> usersNearTheRobber = new ArrayList<>();
+        for (MapGraph.Hexagon hexagon : mapGraph.getHexagonHashSet()) {
+            if (hexagon.isOccupiedByRobber()) {
+                for (MapGraph.BuildingNode bn : hexagon.getBuildingNodes()) {
+                    int playerIndex = bn.getOccupiedByPlayer();
+                    if (playerIndex != 666 && playerIndex != game.getTurn()) {
+                        if (!usersNearTheRobber.contains(game.getUser(game.getTurn()))) {
+                            usersNearTheRobber.add(game.getUser(playerIndex));
+                        }
+                    }
+                }
+                break;
+            }
+        }
+        if(usersNearTheRobber.size() > 0) {
+            Inventory randomInventory = game.getInventory(usersNearTheRobber.get(randomInt(0, usersNearTheRobber.size() - 1)));
+            HashMap<String, Integer> privateView = randomInventory.getPrivateView();
+            ArrayList<String> resources = new ArrayList<>();
+            if (privateView.get("Lumber") > 0) resources.add("Lumber");
+            if (privateView.get("Brick") > 0) resources.add("Brick");
+            if (privateView.get("Grain") > 0) resources.add("Grain");
+            if (privateView.get("Wool") > 0) resources.add("Wool");
+            if (privateView.get("Ore") > 0) resources.add("Ore");
+            if(resources.size() > 0) {
+                String randomResource = resources.get(randomInt(0, resources.size() - 1));
+                inventory.incCardStack(randomResource, 1);
+                drawRandomResourceFromPlayer(randomInventory.getUser().getUsername(), randomResource);
+            } else {
+                drawRandomResourceFromPlayer(randomInventory.getUser().getUsername(), "");
             }
         }
     }
@@ -185,52 +218,53 @@ public class RandomAI extends AbstractAISystem {
     /**
      * Using this method will result in the AI playing 1 random developmentCard that it currently can play.
      *
-     * @param cards the ArrayList of cards that the AI may try to play
      * @author Marc Hermes
      * @since 2021-05-19
      */
-    private void playDevelopmentCardLogic(ArrayList<String> cards) {
-        String cardToPlay = cards.get(randomInt(0, cards.size() - 1));
-        switch (cardToPlay) {
-            case "Year of Plenty":
-                playDevelopmentCardYearOfPlenty(returnRandomResource(), returnRandomResource());
-                break;
-            case "Knight":
-                UUID hexagon = null;
-                for (MapGraph.Hexagon hx : mapGraph.getHexagonHashSet()) {
-                    if (!hx.isOccupiedByRobber()) {
-                        hexagon = hx.getUuid();
-                        break;
-                    }
-                }
-                playDevelopmentCardKnight(hexagon);
-                moveBanditLogic(hexagon);
-                break;
-            case "Monopoly":
-                playDevelopmentCardMonopoly(returnRandomResource());
-                break;
-            case "Road Building":
-                UUID street1 = null;
-                UUID street2 = null;
-                int streets = 0;
-                for (MapGraph.StreetNode sn : mapGraph.getStreetNodeHashSet()) {
-                    if (sn.getOccupiedByPlayer() == 666) {
-                        //if(sn.tryBuildRoad(game.getTurn(), game.getStartingPhase())) {
-                        if (street1 == null) {
-                            street1 = sn.getUuid();
-                            streets = streets + 1;
-                        } else if (streets == 1) {
-                            street2 = sn.getUuid();
+    private void playDevelopmentCardLogic() {
+        ArrayList<String> cards = canPlayDevelopmentCard();
+        if (cards.size() > 0) {
+            String cardToPlay = cards.get(randomInt(0, cards.size() - 1));
+            switch (cardToPlay) {
+                case "Year of Plenty":
+                    playDevelopmentCardYearOfPlenty(returnRandomResource(), returnRandomResource());
+                    break;
+                case "Knight":
+                    UUID hexagon = null;
+                    for (MapGraph.Hexagon hx : mapGraph.getHexagonHashSet()) {
+                        if (!hx.isOccupiedByRobber()) {
+                            hexagon = hx.getUuid();
                             break;
                         }
-                        //}
                     }
-                }
-                if (street1 != null & street2 != null) {
-                    playDevelopmentCardRoadBuilding(street1, street2);
-                }
-                break;
-
+                    playDevelopmentCardKnight(hexagon);
+                    moveBanditLogic(hexagon);
+                    break;
+                case "Monopoly":
+                    playDevelopmentCardMonopoly(returnRandomResource());
+                    break;
+                case "Road Building":
+                    UUID street1 = null;
+                    UUID street2 = null;
+                    int streets = 0;
+                    for (MapGraph.StreetNode sn : mapGraph.getStreetNodeHashSet()) {
+                        if (sn.getOccupiedByPlayer() == 666) {
+                            //if(sn.tryBuildRoad(game.getTurn(), game.getStartingPhase())) {
+                            if (street1 == null) {
+                                street1 = sn.getUuid();
+                                streets = streets + 1;
+                            } else if (streets == 1) {
+                                street2 = sn.getUuid();
+                                break;
+                            }
+                            //}
+                        }
+                    }
+                    if (street1 != null & street2 != null) {
+                        playDevelopmentCardRoadBuilding(street1, street2);
+                    }
+                    break;
+            }
         }
     }
 
@@ -304,6 +338,14 @@ public class RandomAI extends AbstractAISystem {
         return startATradeTest;
     }
 
+    /**
+     * Method used to choose a certain bid after the AI was reactivated by the server during a trade that the AI initiated
+     *
+     * @param tisabm the TradeInformSellerAboutBidsMessage that the Server would usually send to a User
+     * @param wishList the original wishList of the AI
+     * @author Alexander Losse, Marc Hermes
+     * @since 2021-05-25
+     */
     private void chooseTradeBidLogic(TradeInformSellerAboutBidsMessage tisabm, ArrayList<TradeItem> wishList) {
         HashMap<UserDTO, Integer> usersWithAcceptableOffer = new HashMap<>();
 
@@ -388,7 +430,7 @@ public class RandomAI extends AbstractAISystem {
         }
         if (userWithMostItems != null) {
             for (TradeItem ti : tisabm.getBids().get(userWithMostItems)) {
-                inventory.incCard(ti.getName(), ti.getCount());
+                inventory.incCardStack(ti.getName(), ti.getCount());
             }
             tradeOfferAccept(tisabm.getTradeCode(), true, userWithMostItems);
         } else {
@@ -452,7 +494,7 @@ public class RandomAI extends AbstractAISystem {
                     offerItem.decCount(1);
                     amountOfResourcesToBeDiscarded--;
                     discardedSomething = true;
-                    inventory.decCard(offerItem.getName(), 1);
+                    inventory.decCardStack(offerItem.getName(), 1);
                     resourcesToDiscard.put(offerItem.getName(), resourcesToDiscard.getOrDefault(offerItem.getName(), 0) + 1);
                     if (amountOfResourcesToBeDiscarded == 0) {
                         break;
@@ -489,7 +531,7 @@ public class RandomAI extends AbstractAISystem {
                 while (it.hasNext()) {
                     String value1 = it1.next();
                     if (value1.equals(randomResource) && inventory.getSpecificResourceAmount(value1) > 0) {
-                        inventory.decCard(value1, 1);
+                        inventory.decCardStack(value1, 1);
                         amountOfResourcesToBeDiscarded = amountOfResourcesToBeDiscarded - 1;
                         resourcesToDiscard.put(value1, resourcesToDiscard.getOrDefault(value1, 0) + 1);
                         discardedSomething = true;
@@ -508,7 +550,7 @@ public class RandomAI extends AbstractAISystem {
             while (amountOfResourcesToBeDiscarded > 0) {
                 String randomResource = returnRandomResource();
                 if (inventory.getSpecificResourceAmount(randomResource) > 0) {
-                    inventory.decCard(randomResource, 1);
+                    inventory.decCardStack(randomResource, 1);
                     resourcesToDiscard.put(randomResource, resourcesToDiscard.getOrDefault(randomResource, 0) + 1);
                     amountOfResourcesToBeDiscarded--;
                 }
@@ -581,7 +623,8 @@ public class RandomAI extends AbstractAISystem {
      */
     private String returnRandomResource() {
         String resource;
-        switch (randomInt(0, 4)) {
+        int rand = randomInt(0, 4);
+        switch (rand) {
             case 0:
                 resource = "Ore";
                 break;
@@ -598,7 +641,7 @@ public class RandomAI extends AbstractAISystem {
                 resource = "Grain";
                 break;
             default:
-                throw new IllegalStateException("Unexpected value: " + randomInt(0, 4));
+                throw new IllegalStateException("Unexpected value: " + rand);
         }
         return resource;
     }

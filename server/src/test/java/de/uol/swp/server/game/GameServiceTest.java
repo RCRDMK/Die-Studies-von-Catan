@@ -924,11 +924,11 @@ public class GameServiceTest {
         g.setUpUserArrayList();
         g.setUpInventories();
         Inventory aiInventory = g.getInventory(userDTO);
-        aiInventory.incCard("Brick", 10);
-        aiInventory.incCard("Ore", 10);
-        aiInventory.incCard("Wool", 10);
-        aiInventory.incCard("Grain", 10);
-        aiInventory.incCard("Lumber", 10);
+        aiInventory.incCardStack("Brick", 10);
+        aiInventory.incCardStack("Ore", 10);
+        aiInventory.incCardStack("Wool", 10);
+        aiInventory.incCardStack("Grain", 10);
+        aiInventory.incCardStack("Lumber", 10);
         aiInventory.cardRoadBuilding.incNumber();
         aiInventory.cardMonopoly.incNumber();
         aiInventory.cardKnight.incNumber();

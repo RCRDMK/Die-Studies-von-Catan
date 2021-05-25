@@ -579,7 +579,7 @@ public class GameService extends AbstractService {
                 }
             }
 
-            if (userList.isEmpty()) {
+            if (!game.getCurrentCard().equals("Knight")) {
                 tooMuchResources(game);
             }
 
@@ -767,7 +767,7 @@ public class GameService extends AbstractService {
         if (optionalGame.isPresent()) {
             Game game = optionalGame.get();
             LOG.debug("EndTurn Request");
-            if (request.getUser().getUsername().equals(game.getUser(game.getTurn()).getUsername()) && game.getCurrentCard().equals("")) {
+            if (request.getUser().getUsername().equals(game.getUser(game.getTurn()).getUsername()) && game.getCurrentCard().equals("") && game.rolledDiceThisTurn()) {
                 try {
                     boolean priorGamePhase = game.isStartingTurns();
                     game.nextRound();
@@ -1415,14 +1415,25 @@ public class GameService extends AbstractService {
         Optional<Game> optionalGame = gameManagement.getGame(drawRandomResourceFromPlayerMessage.getName());
         if (optionalGame.isPresent()) {
             Game game = optionalGame.get();
-            HashMap<String, Integer> inventory = game.getInventory(new UserDTO(drawRandomResourceFromPlayerMessage.getChosenName(), "", "")).getPrivateView();
-            String random = randomResource(inventory);
-            game.getInventory(new UserDTO(drawRandomResourceFromPlayerMessage.getChosenName(), "", "")).decCardStack(random, 1);
-            game.getInventory(drawRandomResourceFromPlayerMessage.getUser()).incCardStack(random, 1);
-            updateInventory(game);
+            String resource = "";
+            // Check if the player who wants to draw a random resource is an AI player in which case he already drew a random resource by himself
+            if(!game.getUsers().contains(drawRandomResourceFromPlayerMessage.getUser())) {
+                resource = drawRandomResourceFromPlayerMessage.getResource();
+            }
 
-            //Nachdem eine Karte gezogen wurde darf jeder mit mehr als 7 Ressourcen die Hälfte ablegen
-            tooMuchResources(game);
+            for(User user : game.getUsersList()) {
+                if(user.getUsername().equals(drawRandomResourceFromPlayerMessage.getChosenName())) {
+                    HashMap<String, Integer> inventory = game.getInventory(user).getPrivateView();
+                    if(resource.equals("")) {
+                        resource = randomResource(inventory);
+                    }
+                    game.getInventory(user).decCardStack(resource, 1);
+                    game.getInventory(drawRandomResourceFromPlayerMessage.getUser()).incCardStack(resource, 1);
+                    updateInventory(game);
+                    break;
+
+                }
+            }
         }
     }
 
@@ -1442,17 +1453,17 @@ public class GameService extends AbstractService {
      */
     public void tooMuchResources(Game game) {
         for (User user : game.getUsersList()) {
-            if (game.getInventory(user).sumResource() >= 7) {
+            if (game.getInventory(user).sumResource() > 7) {
                 if (game.getInventory(user).sumResource() % 2 != 0) {
                     TooMuchResourceCardsMessage tooMuchResourceCardsMessage = new TooMuchResourceCardsMessage(game.getName(), (UserDTO) user, ((game.getInventory(user).sumResource() - 1) / 2), game.getInventory(user).getPrivateView());
-                    if (!game.getUsers().contains(user)) {
+                    if (!game.getUsers().contains(user) && !game.getUser(game.getTurn()).equals(user)) {
                         AIToServerTranslator.translate(new RandomAI((GameDTO) game).discardResourcesOrder(tooMuchResourceCardsMessage), this);
                     } else {
                         sendToSpecificUserInGame(tooMuchResourceCardsMessage, user);
                     }
                 } else {
                     TooMuchResourceCardsMessage tooMuchResourceCardsMessage = new TooMuchResourceCardsMessage(game.getName(), (UserDTO) user, (game.getInventory(user).sumResource() / 2), game.getInventory(user).getPrivateView());
-                    if (!game.getUsers().contains(user)) {
+                    if (!game.getUsers().contains(user) && !game.getUser(game.getTurn()).equals(user)) {
                         AIToServerTranslator.translate(new RandomAI((GameDTO) game).discardResourcesOrder(tooMuchResourceCardsMessage), this);
                     } else {
                         sendToSpecificUserInGame(tooMuchResourceCardsMessage, user);

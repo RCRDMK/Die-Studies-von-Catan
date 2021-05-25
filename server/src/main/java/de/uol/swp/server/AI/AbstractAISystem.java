@@ -34,7 +34,7 @@ public abstract class AbstractAISystem implements AISystem {
 
     User user;
 
-    boolean playedCardThisTurn = false;
+    String playedCardThisTurn = "";
 
     boolean startedTrade = false;
 
@@ -56,6 +56,7 @@ public abstract class AbstractAISystem implements AISystem {
         mapGraph = game.getMapGraph();
         user = game.getUser(game.getTurn());
         aiActions = new ArrayList<>();
+        playedCardThisTurn = game.getCurrentCard();
     }
 
     /**
@@ -120,19 +121,26 @@ public abstract class AbstractAISystem implements AISystem {
     @Override
     public void buyDevelopmentCard() {
         BuyDevelopmentCardAction bdca = new BuyDevelopmentCardAction(user, game.getName());
-        inventory.decCard("Ore", 1);
-        inventory.decCard("Grain", 1);
-        inventory.decCard("Wool", 1);
-        System.out.println("Buy card");
-        aiActions.add(bdca);
+        String devCard = game.getDevelopmentCardDeck().drawnCard();
+        if (devCard != null) {
+            inventory.incCardStack(devCard, 1);
+            inventory.decCardStack("Ore", 1);
+            inventory.decCardStack("Grain", 1);
+            inventory.decCardStack("Wool", 1);
+            game.getBankInventory().incCardStack("Ore", 1);
+            game.getBankInventory().incCardStack("Grain", 1);
+            game.getBankInventory().incCardStack("Wool", 1);
+            System.out.println("Buy card");
+            aiActions.add(bdca);
+        }
 
     }
 
     @Override
     public void buildStreet(UUID field) {
         BuildAction pa = new BuildAction("BuildStreet", user, game.getName(), field);
-        inventory.decCard("Brick", 1);
-        inventory.decCard("Lumber", 1);
+        inventory.decCardStack("Brick", 1);
+        inventory.decCardStack("Lumber", 1);
         System.out.println("Build street");
         aiActions.add(pa);
 
@@ -141,10 +149,10 @@ public abstract class AbstractAISystem implements AISystem {
     @Override
     public void buildTown(UUID field) {
         BuildAction pa = new BuildAction("BuildTown", user, game.getName(), field);
-        inventory.decCard("Brick", 1);
-        inventory.decCard("Lumber", 1);
-        inventory.decCard("Grain", 1);
-        inventory.decCard("Wool", 1);
+        inventory.decCardStack("Brick", 1);
+        inventory.decCardStack("Lumber", 1);
+        inventory.decCardStack("Grain", 1);
+        inventory.decCardStack("Wool", 1);
         System.out.println("Build town");
         aiActions.add(pa);
 
@@ -153,8 +161,8 @@ public abstract class AbstractAISystem implements AISystem {
     @Override
     public void buildCity(UUID field) {
         BuildAction pa = new BuildAction("BuildCity", user, game.getName(), field);
-        inventory.decCard("Ore", 3);
-        inventory.decCard("Grain", 2);
+        inventory.decCardStack("Ore", 3);
+        inventory.decCardStack("Grain", 2);
         System.out.println("Build city");
         aiActions.add(pa);
 
@@ -182,7 +190,7 @@ public abstract class AbstractAISystem implements AISystem {
     public void playDevelopmentCardKnight(UUID field) {
         PlayDevelopmentCardKnightAction pa = new PlayDevelopmentCardKnightAction(user, game.getName(), "Knight", field);
         inventory.cardKnight.decNumber();
-        playedCardThisTurn = true;
+        playedCardThisTurn = "Knight";
         for (MapGraph.Hexagon hx : mapGraph.getHexagonHashSet()) {
             if (hx.isOccupiedByRobber()) {
                 hx.setOccupiedByRobber(false);
@@ -198,11 +206,11 @@ public abstract class AbstractAISystem implements AISystem {
     public void playDevelopmentCardMonopoly(String resource) {
         PlayDevelopmentCardMonopolyAction pa = new PlayDevelopmentCardMonopolyAction(user, game.getName(), "Monopoly", resource);
         inventory.cardMonopoly.decNumber();
-        playedCardThisTurn = true;
+        playedCardThisTurn = "Monopoly";
         for (User player : game.getUsersList()) {
             if (!player.equals(this.user)) {
-                game.getInventory(player).decCard(resource, game.getInventory(player).getSpecificResourceAmount(resource));
-                game.getInventory(user).incCard(resource, game.getInventory(player).getSpecificResourceAmount(resource));
+                game.getInventory(player).decCardStack(resource, game.getInventory(player).getSpecificResourceAmount(resource));
+                game.getInventory(user).incCardStack(resource, game.getInventory(player).getSpecificResourceAmount(resource));
             }
         }
         aiActions.add(pa);
@@ -217,7 +225,7 @@ public abstract class AbstractAISystem implements AISystem {
                 sn.buildRoad(game.getTurn());
             }
         }
-        playedCardThisTurn = true;
+        playedCardThisTurn = "Road Building";
         aiActions.add(pa);
     }
 
@@ -225,9 +233,9 @@ public abstract class AbstractAISystem implements AISystem {
     public void playDevelopmentCardYearOfPlenty(String resource1, String resource2) {
         PlayDevelopmentCardYearOfPlentyAction pa = new PlayDevelopmentCardYearOfPlentyAction(user, game.getName(), "Year of Plenty", resource1, resource2);
         inventory.cardRoadBuilding.decNumber();
-        playedCardThisTurn = true;
-        inventory.incCard(resource1, 1);
-        inventory.incCard(resource2, 1);
+        playedCardThisTurn = "Year of Plenty";
+        inventory.incCardStack(resource1, 1);
+        inventory.incCardStack(resource2, 1);
         aiActions.add(pa);
     }
 
@@ -252,6 +260,12 @@ public abstract class AbstractAISystem implements AISystem {
     }
 
     @Override
+    public void drawRandomResourceFromPlayer(String playerName, String resource) {
+        DrawRandomResourceFromPlayerAction drrfpa = new DrawRandomResourceFromPlayerAction(user, game.getName(), playerName, resource);
+        aiActions.add(drrfpa);
+    }
+
+    @Override
     public ArrayList<AIAction> discardResourcesOrder(TooMuchResourceCardsMessage tmrcm) {
 
         return this.aiActions;
@@ -270,7 +284,7 @@ public abstract class AbstractAISystem implements AISystem {
     }
 
     @Override
-    public ArrayList<AIAction> continueTurnOrder(TradeInformSellerAboutBidsMessage tisabm) {
+    public ArrayList<AIAction> continueTurnOrder(TradeInformSellerAboutBidsMessage tisabm, ArrayList<TradeItem> wishList) {
 
         return this.aiActions;
     }
@@ -299,7 +313,7 @@ public abstract class AbstractAISystem implements AISystem {
     public ArrayList<String> canPlayDevelopmentCard() {
         // TODO: check if the card was bought this turn
         ArrayList<String> playableCards = new ArrayList<>();
-        if (!playedCardThisTurn) {
+        if (playedCardThisTurn.equals("")) {
             if (inventory.cardYearOfPlenty.getNumber() > 0) playableCards.add("Year of Plenty");
             if (inventory.cardMonopoly.getNumber() > 0) playableCards.add("Monopoly");
             if (inventory.cardRoadBuilding.getNumber() > 0) playableCards.add("Road Building");
