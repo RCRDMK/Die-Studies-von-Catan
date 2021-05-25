@@ -59,7 +59,6 @@ public class HexagonContainer {
         Polygon hexagonShape = new Polygon();
 
         Vector direction = Vector.right(resizingFactor);
-
         hexagonShape.getPoints().add(direction.getY());
         hexagonShape.getPoints().add(direction.getX());
 

@@ -102,7 +102,7 @@ public class InventoryTest {
         inventory.cardMonopoly.incNumber();
         inventory.cardRoadBuilding.incNumber();
         inventory.cardYearOfPlenty.incNumber();
-        inventory.incCardVictoryPoint();
+        inventory.incCardStackVictoryPoint();
 
         // Building Unit inc
         inventory.settlement.incNumber();
