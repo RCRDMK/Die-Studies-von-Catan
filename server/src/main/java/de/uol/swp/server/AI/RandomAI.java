@@ -438,6 +438,13 @@ public class RandomAI extends AbstractAISystem {
         }
     }
 
+    /**
+     * Method used for the AI in order to participate in an ongoing trade through bidding
+     *
+     * @param toibm the TradeInformBiddersMessage sent that would be sent to a client
+     * @author Alexander Losse, Marc Hermes
+     * @since 2021-05-25
+     */
     private void bidOnItemLogic(TradeOfferInformBiddersMessage toibm) {
         ArrayList<ArrayList<TradeItem>> wishAndOfferListAI = createWishAndOfferList();
         ArrayList<TradeItem> wishListAI = wishAndOfferListAI.get(0);
@@ -477,6 +484,13 @@ public class RandomAI extends AbstractAISystem {
 
     }
 
+    /**
+     * Method used for discarding resources when the robber is activated
+     *
+     * @param amountOfResourcesToBeDiscarded the int amount indicating how many resources need to be discarded
+     * @author Alexander Losse, Marc Hermes
+     * @since 2021-05-25
+     */
     private void discardResourcesLogic(int amountOfResourcesToBeDiscarded) {
 
         HashMap<String, Integer> resourcesToDiscard = new HashMap<>();
@@ -646,6 +660,13 @@ public class RandomAI extends AbstractAISystem {
         return resource;
     }
 
+    /**
+     * Method used to create a wish and an offer list for the AI so that it may make decisions accordingly
+     *
+     * @return An arrayList holding 2 arrayLists of TradeItems, the first arrayList is used as the wishList, the second as the offerList
+     * @author Alexander Losse, Marc Hermes
+     * @since 2021-05-25
+     */
     private ArrayList<ArrayList<TradeItem>> createWishAndOfferList() {
         ArrayList<ArrayList<TradeItem>> wishAndOfferList = new ArrayList<>();
         ArrayList<TradeItem> wishList = new ArrayList<>();

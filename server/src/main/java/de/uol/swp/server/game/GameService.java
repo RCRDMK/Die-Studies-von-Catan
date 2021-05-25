@@ -550,6 +550,8 @@ public class GameService extends AbstractService {
      * Next, the method checks if the new places buildingSpots are occupied by players and put their names in the freshly instantiated
      * list of usernames. If all buildingSpots are checked, a ChoosePlayerMessage is send to the user who rolled a 7.
      *
+     * enhanced by Marc Hermes 2021-05-25
+     *
      * @param robbersNewFieldMessage The message, that will be send, if a user rolled a 7.
      * @author Marius Birk
      * @since 2021-04-25
@@ -578,7 +580,7 @@ public class GameService extends AbstractService {
                     sendToAllInGame(robbersNewFieldMessage.getName(), new SuccessfullMovedRobberMessage(hexagon.getUuid()));
                 }
             }
-
+            // If the robber wasn't moved because of the Knight DevelopmentCard do this
             if (!game.getCurrentCard().equals("Knight")) {
                 tooMuchResources(game);
             }
@@ -776,7 +778,7 @@ public class GameService extends AbstractService {
                     }
                     sendToAllInGame(game.getName(), new NextTurnMessage(game.getName(),
                             game.getUser(game.getTurn()).getUsername(), game.getTurn(), game.isStartingTurns()));
-                    // Check if the size of actual players is smaller than the size of intended players, then activate AI
+                    // Check if the turnPlayer is an actual user in the game, if not, start the AI
                     if (!game.getUsers().contains(game.getUser(game.getTurn()))) {
                         if (!game.isStartingTurns()) {
                             RollDiceRequest rdr = new RollDiceRequest(game.getName(), game.getUser(game.getTurn()));
@@ -1401,10 +1403,14 @@ public class GameService extends AbstractService {
      * Draws a random card from the user, that was chosen from the player that moved the robber.
      * <p>
      * If a DrawRandomResourceFromPlayerMessage is detected on the eventbus, this method will be invoked. First the
-     * method checks if the game is present and then gets the inventory of the user, from who the card will be drawn.
+     * method checks if the game is present and then gets the inventory of the user, from whom the card will be drawn.
      * After that, a random resource will be chosen and the method iterates over the inventory in search of the
-     * random resource. If it found the method, the number of the resource will be decreased and the resource will
+     * random resource. If it found the resource, the number of the resource will be decreased and the resource will
      * be increased in the inventory of the player that moved the robber.
+     * If the message comes from an AI Player no random resource will be selected, as the AI already randomly selected one during
+     * it's calculations.
+     *
+     * enhanced by Marc Hermes 2021-05-25
      *
      * @param drawRandomResourceFromPlayerMessage the drawRandomResourceFromPlayerMessage detected on the event bus
      * @author Marius Birk
@@ -1456,6 +1462,7 @@ public class GameService extends AbstractService {
             if (game.getInventory(user).sumResource() > 7) {
                 if (game.getInventory(user).sumResource() % 2 != 0) {
                     TooMuchResourceCardsMessage tooMuchResourceCardsMessage = new TooMuchResourceCardsMessage(game.getName(), (UserDTO) user, ((game.getInventory(user).sumResource() - 1) / 2), game.getInventory(user).getPrivateView());
+                    // Check if the player isn't an actual player -> activate AI instead
                     if (!game.getUsers().contains(user) && !game.getUser(game.getTurn()).equals(user)) {
                         AIToServerTranslator.translate(new RandomAI((GameDTO) game).discardResourcesOrder(tooMuchResourceCardsMessage), this);
                     } else {
@@ -1463,6 +1470,7 @@ public class GameService extends AbstractService {
                     }
                 } else {
                     TooMuchResourceCardsMessage tooMuchResourceCardsMessage = new TooMuchResourceCardsMessage(game.getName(), (UserDTO) user, (game.getInventory(user).sumResource() / 2), game.getInventory(user).getPrivateView());
+                    // Check if the player isn't an actual player -> activate AI instead
                     if (!game.getUsers().contains(user) && !game.getUser(game.getTurn()).equals(user)) {
                         AIToServerTranslator.translate(new RandomAI((GameDTO) game).discardResourcesOrder(tooMuchResourceCardsMessage), this);
                     } else {
