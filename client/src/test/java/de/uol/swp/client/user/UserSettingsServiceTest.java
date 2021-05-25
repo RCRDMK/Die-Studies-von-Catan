@@ -79,4 +79,12 @@ public class UserSettingsServiceTest {
 
         assertFalse(userSettingsService.isValidEmailAddress(mail));
     }
+
+    @Test
+    public void isValidEmailAdressTestNull() {
+        String mail = null;
+        UserSettingsService userSettingsService = new UserSettingsService(bus);
+
+        assertFalse(userSettingsService.isValidEmailAddress(mail));
+    }
 }

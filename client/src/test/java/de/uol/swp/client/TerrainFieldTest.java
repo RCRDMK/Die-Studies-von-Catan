@@ -39,7 +39,7 @@ public class TerrainFieldTest {
         tf5.setName("Ocean");
         tf6.setName("Mountain");
         tf7.setName("Desert");
-        tf8.setName("Forrest");
+        tf8.setName("Forest");
         assertEquals(GOLDENROD, tf1.determineColorOfTerrain());
         assertEquals(LAWNGREEN, tf2.determineColorOfTerrain());
         assertEquals(LIGHTCORAL, tf3.determineColorOfTerrain());

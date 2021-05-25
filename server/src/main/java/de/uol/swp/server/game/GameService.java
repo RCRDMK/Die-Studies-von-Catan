@@ -142,7 +142,7 @@ public class GameService extends AbstractService {
     @Subscribe
     public boolean onConstructionMessage(ConstructionRequest message) {
         LOG.debug("Received new ConstructionMessage from user " + message.getUser());
-        Optional<Game> optionalGame = gameManagement.getGame(message.getGame());
+        Optional<Game> optionalGame = gameManagement.getGame(message.getName());
         if (optionalGame.isPresent()) {
             Game game = optionalGame.get();
             int playerIndex = 666;

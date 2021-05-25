@@ -257,7 +257,7 @@ public class TradePresenter extends AbstractPresenter {
                 gameService.sendTradeChoice(bidders.get(2), true, gameName, tradeCode);
             }
         } else {
-            gameService.endTradeBeforeItStarted(user, gameName, tradeCode);
+            gameService.endTradeBeforeItStarted(tradeCode);
         }
     }
 
