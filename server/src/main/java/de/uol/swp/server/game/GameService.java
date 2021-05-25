@@ -24,8 +24,8 @@ import de.uol.swp.common.user.Session;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.user.request.LogoutRequest;
-import de.uol.swp.common.user.response.game.AllThisGameUsersResponse;
-import de.uol.swp.common.user.response.game.GameLeftSuccessfulResponse;
+import de.uol.swp.common.game.response.AllThisGameUsersResponse;
+import de.uol.swp.common.game.response.GameLeftSuccessfulResponse;
 import de.uol.swp.server.AbstractService;
 import de.uol.swp.server.game.dice.Dice;
 import de.uol.swp.server.lobby.LobbyManagementException;
@@ -762,7 +762,7 @@ public class GameService extends AbstractService {
                         inventory.ore.decNumber();
                         inventory.grain.decNumber();
                         inventory.incCard(devCard, 1);
-                        BuyDevelopmentCardMessage response = new BuyDevelopmentCardMessage(devCard);
+                        BuyDevelopmentCardMessage response = new BuyDevelopmentCardMessage(request.getName(), request.getUser(), devCard);
                         sendToSpecificUserInGame(response, request.getUser());
                     } else {
                         var chatId = "game_" + game.getName();

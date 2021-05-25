@@ -14,10 +14,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  */
 
 public class LongestStreetPathCalculatorTest {
-    private MapGraph mapGraph = new MapGraph("");
-    private HashSet<MapGraph.StreetNode> streetNodes = mapGraph.getStreetNodeHashSet();
-    private HashSet<MapGraph.BuildingNode> buildingNodes = mapGraph.getBuildingNodeHashSet();
-    private HashSet<MapGraph.Hexagon> hexagons =  mapGraph.getHexagonHashSet();
+    private final MapGraph mapGraph = new MapGraph("");
+    private final HashSet<MapGraph.StreetNode> streetNodes = mapGraph.getStreetNodeHashSet();
+    private final HashSet<MapGraph.BuildingNode> buildingNodes = mapGraph.getBuildingNodeHashSet();
+    private final HashSet<MapGraph.Hexagon> hexagons =  mapGraph.getHexagonHashSet();
 
 
     /**
@@ -115,6 +115,15 @@ public class LongestStreetPathCalculatorTest {
             }
         }
         assertEquals(mapGraph.getLongestStreetPathCalculator().getLongestPath(1),3);
+    }
+
+    @Test
+    void blackBoxTest5(){
+        for (MapGraph.Hexagon hexagon: hexagons){
+            //ifSchleife baut einen Kreis im Hexagon.
+            //Die Streetnode im Hexagon darüber bauen, damit eine Abwzeigung erschaffen wird.
+
+        }
     }
 
 }

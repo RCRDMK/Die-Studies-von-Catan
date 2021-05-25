@@ -243,10 +243,10 @@ public class Inventory implements Serializable {
     }
 
     /**
-     * decreases a specific Ressource Card by a specific amount
+     * Decreases a specific ressource card by a specific amount
      * <p>
-     * this method calls the Method decNumber(int) of the class Card
-     * String Card specifies the Ressource Card
+     * This method calls the method decNumber(int) of the class Card
+     * String Card specifies the ressource card
      * valid Strings: Lumber, Brick, Grain, Wool, Ore
      *
      * @param card   the name of the Ressource Card

@@ -34,6 +34,9 @@ public class TradeItemRequest extends AbstractGameRequest{
         this.wishItems = wishItems;
     }
 
+    public TradeItemRequest() {
+    }
+
     /**
      * returns the tradeItems
      *
