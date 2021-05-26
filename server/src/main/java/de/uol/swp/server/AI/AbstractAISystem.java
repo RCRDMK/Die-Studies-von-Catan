@@ -88,30 +88,6 @@ public abstract class AbstractAISystem implements AISystem {
         }
     }
 
-    public GameDTO getGame() {
-        return game;
-    }
-
-    public void setGame(GameDTO game) {
-        this.game = game;
-    }
-
-    public ArrayList<AIAction> getAiActions() {
-        return aiActions;
-    }
-
-    public void setAiActions(ArrayList<AIAction> aiActions) {
-        this.aiActions = aiActions;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
     @Override
     public void endTurn() {
         AIAction aiAction = new EndTurnAction(user, game.getName());
