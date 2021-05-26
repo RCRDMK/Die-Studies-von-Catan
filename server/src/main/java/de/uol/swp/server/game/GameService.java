@@ -1312,7 +1312,7 @@ public class GameService extends AbstractService {
      */
     public void tooMuchResources(Game game) {
         for (User user : game.getUsers()) {
-            if (game.getInventory(user).getResource() >= 7) {
+            if (game.getInventory(user).getResource() > 7) {
                 if (game.getInventory(user).getResource() % 2 != 0) {
                     TooMuchResourceCardsMessage tooMuchResourceCardsMessage = new TooMuchResourceCardsMessage(game.getName(), (UserDTO) user, ((game.getInventory(user).getResource() - 1) / 2), game.getInventory(user).getPrivateView());
                     sendToSpecificUserInGame(tooMuchResourceCardsMessage, user);

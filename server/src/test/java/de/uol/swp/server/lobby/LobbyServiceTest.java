@@ -3,28 +3,33 @@ package de.uol.swp.server.lobby;
 import com.google.common.eventbus.DeadEvent;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
-import de.uol.swp.common.lobby.message.*;
+import de.uol.swp.common.game.response.AllThisGameUsersResponse;
 import de.uol.swp.common.lobby.Lobby;
-import de.uol.swp.common.lobby.request.CreateLobbyRequest;
-import de.uol.swp.common.lobby.request.LobbyJoinUserRequest;
-import de.uol.swp.common.lobby.request.LobbyLeaveUserRequest;
-import de.uol.swp.common.lobby.request.RetrieveAllThisLobbyUsersRequest;
+import de.uol.swp.common.lobby.message.LobbyDroppedMessage;
+import de.uol.swp.common.lobby.message.UserLeftLobbyMessage;
+import de.uol.swp.common.lobby.request.*;
+import de.uol.swp.common.lobby.response.AllCreatedLobbiesResponse;
 import de.uol.swp.common.lobby.response.AlreadyJoinedThisLobbyResponse;
+import de.uol.swp.common.lobby.response.LobbyAlreadyExistsResponse;
+import de.uol.swp.common.message.AbstractServerMessage;
 import de.uol.swp.common.message.MessageContext;
 import de.uol.swp.common.message.ResponseMessage;
 import de.uol.swp.common.message.ServerMessage;
 import de.uol.swp.common.user.Session;
+import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
-import de.uol.swp.common.user.response.lobby.LobbyFullResponse;
+import de.uol.swp.common.user.request.LoginRequest;
+import de.uol.swp.common.user.request.LogoutRequest;
+import de.uol.swp.common.user.response.lobby.AllThisLobbyUsersResponse;
 import de.uol.swp.common.user.response.lobby.JoinDeletedLobbyResponse;
+import de.uol.swp.common.user.response.lobby.LobbyFullResponse;
 import de.uol.swp.server.usermanagement.AuthenticationService;
 import de.uol.swp.server.usermanagement.UserManagement;
+import org.checkerframework.checker.units.qual.C;
 import org.junit.jupiter.api.*;
 
 import java.sql.SQLException;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -43,8 +48,7 @@ public class LobbyServiceTest {
     final UserManagement userManagement = new UserManagement();
     final AuthenticationService authenticationService = new AuthenticationService(bus, userManagement);
 
-    UserDTO userDTO = new UserDTO("Peter", "lustig", "peter.lustig@uol.de");
-    UserDTO userDTO1 = new UserDTO("Carsten", "stahl", "carsten.stahl@uol.de");
+    final User defaultUser = new UserDTO("Marco", "test", "marco@test.de");
 
     final CountDownLatch lock = new CountDownLatch(1);
     Object event;
@@ -97,6 +101,99 @@ public class LobbyServiceTest {
         bus.unregister(this);
     }
 
+    private void loginUser() {
+        LoginRequest loginRequest = new LoginRequest(defaultUser.getUsername(), defaultUser.getPassword());
+        authenticationService.onLoginRequest(loginRequest);
+    }
+
+    @Test
+    public void sendToAllInLobbyFailTest() {
+        AbstractServerMessage message = new AbstractServerMessage();
+        assertThrows(LobbyManagementException.class, () -> lobbyService.sendToAllInLobby("Test", message));
+    }
+
+    @Test
+    void createLobbyTestLobbyExistsResponse() throws SQLException, InterruptedException {
+        loginUser();
+        CreateLobbyRequest request1 = new CreateLobbyRequest("Test", (UserDTO) defaultUser);
+        MessageContext ctx = new MessageContext() {
+            @Override
+            public void writeAndFlush(ResponseMessage message) {
+                bus.post(message);
+            }
+
+            @Override
+            public void writeAndFlush(ServerMessage message) {
+                bus.post(message);
+            }
+        };
+        request1.setMessageContext(ctx);
+        lobbyService.onCreateLobbyRequest(request1);
+
+        CreateLobbyRequest request = new CreateLobbyRequest("Test", (UserDTO) defaultUser);
+        MessageContext ctx1 = new MessageContext() {
+            @Override
+            public void writeAndFlush(ResponseMessage message) {
+                bus.post(message);
+            }
+
+            @Override
+            public void writeAndFlush(ServerMessage message) {
+                bus.post(message);
+            }
+        };
+        request.setMessageContext(ctx1);
+        lobbyService.onCreateLobbyRequest(request);
+
+        assertTrue(event instanceof LobbyAlreadyExistsResponse);
+    }
+
+    @Test
+    public void leaveLobbyAndDropLobbyTest() throws SQLException, InterruptedException {
+        loginUser();
+        CreateLobbyRequest request1 = new CreateLobbyRequest("Test", (UserDTO) defaultUser);
+        lobbyService.onCreateLobbyRequest(request1);
+        assertNotNull(lobbyManagement.getLobby("Test").get());
+
+        LobbyLeaveUserRequest request = new LobbyLeaveUserRequest("Test", (UserDTO) defaultUser);
+        request.setMessageContext(new MessageContext() {
+            @Override
+            public void writeAndFlush(ResponseMessage message) {
+                bus.post(message);
+            }
+
+            @Override
+            public void writeAndFlush(ServerMessage message) {
+                bus.post(message);
+            }
+        });
+        lobbyService.onLobbyLeaveUserRequest(request);
+
+        assertTrue(event instanceof LobbyDroppedMessage);
+    }
+
+    @Test
+    public void leaveLobbyUnknownLobbyTest() {
+        lobbyManagement.createLobby("Test", defaultUser);
+        assertNotNull(lobbyManagement.getLobby("Test").get());
+
+
+        LobbyLeaveUserRequest request = new LobbyLeaveUserRequest("test", (UserDTO) defaultUser);
+        request.setMessageContext(new MessageContext() {
+            @Override
+            public void writeAndFlush(ResponseMessage message) {
+                bus.post(message);
+            }
+
+            @Override
+            public void writeAndFlush(ServerMessage message) {
+                bus.post(message);
+            }
+        });
+        assertThrows(LobbyManagementException.class, () -> lobbyService.onLobbyLeaveUserRequest(request));
+
+    }
+
     /**
      * This test shows that two Lobbies with same name can't be created.
      * There are two different users, who wants to create a lobby, but with the same name.
@@ -106,21 +203,93 @@ public class LobbyServiceTest {
      */
     @Test
     @DisplayName("Zwei Lobbies, gleicher Name")
-    void duplicateLobbyTest() throws InterruptedException {
-        String lobbyName = "Testlobby";
+    void duplicateLobbyTest() {
+        CreateLobbyRequest request = new CreateLobbyRequest("Test", (UserDTO) defaultUser);
+        request.setMessageContext(new MessageContext() {
+            @Override
+            public void writeAndFlush(ResponseMessage message) {
+                bus.post(message);
+            }
 
-        UserDTO userDTO = new UserDTO("Peter", "lustig", "peter.lustig@uol.de");
-        UserDTO userDTO1 = new UserDTO("Carsten", "stahl", "carsten.stahl@uol.de");
+            @Override
+            public void writeAndFlush(ServerMessage message) {
+                bus.post(message);
+            }
+        });
+        lobbyService.onCreateLobbyRequest(request);
 
-        lock.await(2000, TimeUnit.MILLISECONDS);
+        User user = new UserDTO("default", "", "");
+        CreateLobbyRequest request1 = new CreateLobbyRequest("Test", (UserDTO) user);
+        request1.setMessageContext(new MessageContext() {
+            @Override
+            public void writeAndFlush(ResponseMessage message) {
+                bus.post(message);
+            }
 
-        lobbyManagement.createLobby(lobbyName, userDTO);
-        /** We except the first assertNotNull to be true.*/
-        assertNotNull(lobbyManagement.getLobby(lobbyName).get());
+            @Override
+            public void writeAndFlush(ServerMessage message) {
+                bus.post(message);
+            }
+        });
 
-        /** We expect the next line to success. We try to create a new lobby with the same name as the first one.
-         * But we dont want a new lobby, so it throws an exception. */
-        Assertions.assertThrows(IllegalArgumentException.class, () -> lobbyManagement.createLobby(lobbyName, userDTO1));
+        lobbyService.onCreateLobbyRequest(request1);
+
+        assertTrue(event instanceof LobbyAlreadyExistsResponse);
+    }
+
+    @Test
+    public void retrieveAllThisLobbyUsersRequestTest() {
+        CreateLobbyRequest request = new CreateLobbyRequest("Test", (UserDTO) defaultUser);
+        request.setMessageContext(new MessageContext() {
+            @Override
+            public void writeAndFlush(ResponseMessage message) {
+                bus.post(message);
+            }
+
+            @Override
+            public void writeAndFlush(ServerMessage message) {
+                bus.post(message);
+            }
+        });
+        lobbyService.onCreateLobbyRequest(request);
+
+        RetrieveAllThisLobbyUsersRequest request1 = new RetrieveAllThisLobbyUsersRequest("Test");
+        MessageContext context = new MessageContext() {
+            @Override
+            public void writeAndFlush(ResponseMessage message) {
+                bus.post(message);
+            }
+
+            @Override
+            public void writeAndFlush(ServerMessage message) {
+                bus.post(message);
+            }
+        };
+        request1.setMessageContext(context);
+        lobbyService.onRetrieveAllThisLobbyUsersRequest(request1);
+
+        assertTrue(event instanceof AllThisLobbyUsersResponse);
+    }
+
+    @Test
+    public void retrieveAllLobbiesRequestTest() throws SQLException, InterruptedException {
+        loginUser();
+        RetrieveAllLobbiesRequest request = new RetrieveAllLobbiesRequest();
+        MessageContext context = new MessageContext() {
+            @Override
+            public void writeAndFlush(ResponseMessage message) {
+                bus.post(message);
+            }
+
+            @Override
+            public void writeAndFlush(ServerMessage message) {
+                bus.post(message);
+            }
+        };
+
+        request.setMessageContext(context);
+        lobbyService.onRetrieveAllLobbiesRequest(request);
+        assertTrue(event instanceof AllCreatedLobbiesResponse);
     }
 
     /**
@@ -251,7 +420,7 @@ public class LobbyServiceTest {
             }
         };
 
-        LobbyJoinUserRequest ljur1 = new LobbyJoinUserRequest("testLobby", userDTO1);
+        LobbyJoinUserRequest ljur1 = new LobbyJoinUserRequest("testLobby", (UserDTO) defaultUser);
         ljur1.setMessageContext(ctx);
         assertThrows(NoSuchElementException.class, () -> lobbyService.onLobbyJoinUserRequest(ljur1));
         assertTrue(event instanceof JoinDeletedLobbyResponse);
@@ -276,17 +445,17 @@ public class LobbyServiceTest {
     void onRetrieveAllThisLobbyUsersRequest() {
 
         LobbyService lobbyService = new LobbyService(lobbyManagement, authenticationService, bus);
-        lobbyManagement.createLobby("testLobby", userDTO);
+        lobbyManagement.createLobby("testLobby", (UserDTO) defaultUser);
         RetrieveAllThisLobbyUsersRequest retrieveAllThisLobbyUsersRequest = new RetrieveAllThisLobbyUsersRequest(
                 "testLobby");
         Optional<Lobby> lobby = lobbyManagement.getLobby("testLobby");
         assertSame(lobbyManagement.getLobby("testLobby").get().getName(),
                 retrieveAllThisLobbyUsersRequest.getName());
         assertTrue(lobby.isPresent());
-        lobby.get().joinUser(userDTO1);
+        lobby.get().joinUser((UserDTO) defaultUser);
         List<Session> lobbyUsers = authenticationService.getSessions(lobby.get().getUsers());
         for (Session session : lobbyUsers) {
-            assertTrue(userDTO == (session.getUser()) || userDTO1 == (session.getUser()));
+            assertTrue((UserDTO) defaultUser == (session.getUser()) || (UserDTO) defaultUser == (session.getUser()));
         }
 
     }
@@ -301,14 +470,28 @@ public class LobbyServiceTest {
      */
     @Test
     void leaveLobbyTest() {
-        LobbyService lobbyService = new LobbyService(lobbyManagement, authenticationService, bus);
-        lobbyManagement.createLobby("testLobby", userDTO);
+        lobbyManagement.createLobby("testLobby", defaultUser);
         Optional<Lobby> lobby = lobbyManagement.getLobby("testLobby");
-        lobby.get().joinUser(userDTO1);
-        LobbyLeaveUserRequest lobbyLeaveUserRequest = new LobbyLeaveUserRequest("testLobby", userDTO1);
+        lobby.get().joinUser(defaultUser);
+
+        lobby.get().joinUser(new UserDTO("default", "", ""));
+        LobbyLeaveUserRequest lobbyLeaveUserRequest = new LobbyLeaveUserRequest("testLobby", (UserDTO) defaultUser);
+        MessageContext ctx = new MessageContext() {
+            @Override
+            public void writeAndFlush(ResponseMessage message) {
+                bus.post(message);
+            }
+
+            @Override
+            public void writeAndFlush(ServerMessage message) {
+                bus.post(message);
+            }
+        };
+        lobbyLeaveUserRequest.setMessageContext(ctx);
         lobbyService.onLobbyLeaveUserRequest(lobbyLeaveUserRequest);
+        System.out.println(lobby.get().getUsers());
         assertTrue(event instanceof UserLeftLobbyMessage);
-        assertFalse(lobby.get().getUsers().contains(userDTO1));
+        assertFalse(lobby.get().getUsers().contains(defaultUser));
     }
 
 
@@ -321,16 +504,56 @@ public class LobbyServiceTest {
      * @since 2020-12-11
      */
     @Test
-    void leaveLobbyOwnerTest() {
-        LobbyService lobbyService = new LobbyService(lobbyManagement, authenticationService, bus);
-        lobbyManagement.createLobby("testLobby", userDTO);
+    void leaveLobbyOwnerTest() throws InterruptedException {
+        lobbyManagement.createLobby("testLobby", defaultUser);
         Optional<Lobby> lobby = lobbyManagement.getLobby("testLobby");
-        lobby.get().joinUser(userDTO1);
-        LobbyLeaveUserRequest lobbyLeaveUserRequest = new LobbyLeaveUserRequest("testLobby", userDTO);
+        lobby.get().joinUser(defaultUser);
+
+        User user = new UserDTO("test", "", "");
+        lobby.get().joinUser(user);
+
+        LobbyLeaveUserRequest lobbyLeaveUserRequest = new LobbyLeaveUserRequest("testLobby", (UserDTO) defaultUser);
         lobbyService.onLobbyLeaveUserRequest(lobbyLeaveUserRequest);
+        lock.await(1000, TimeUnit.MILLISECONDS);
         assertTrue(event instanceof UserLeftLobbyMessage);
-        assertFalse(lobby.get().getUsers().contains(userDTO));
-        assertTrue(lobby.get().getOwner() == userDTO1);
+        assertFalse(lobby.get().getUsers().contains(defaultUser));
     }
 
+
+    @Test
+    public void logoutRequestTest() throws InterruptedException, SQLException {
+        loginUser();
+        lock.await(1000, TimeUnit.MILLISECONDS);
+        lobbyManagement.createLobby("testLobby", defaultUser);
+        Optional<Lobby> lobby = lobbyManagement.getLobby("testLobby");
+        UserDTO userDTO = new UserDTO("Peter", "lustig", "peter.lustig@uol.de");
+        userManagement.createUser(userDTO);
+        LoginRequest request = new LoginRequest(userDTO.getUsername(), userDTO.getPassword());
+        authenticationService.onLoginRequest(request);
+        lock.await(1000, TimeUnit.MILLISECONDS);
+        lobby.get().joinUser(defaultUser);
+
+        LogoutRequest logoutRequest = new LogoutRequest();
+        MessageContext context = new MessageContext() {
+            @Override
+            public void writeAndFlush(ResponseMessage message) {
+                bus.post(message);
+            }
+
+            @Override
+            public void writeAndFlush(ServerMessage message) {
+                bus.post(message);
+            }
+        };
+        logoutRequest.setMessageContext(context);
+        Set<User> user = new TreeSet<>();
+        user.add(defaultUser);
+        user.add(userDTO);
+        logoutRequest.setSession(authenticationService.getSession(defaultUser).get());
+
+        lobbyService.onLogoutRequest(logoutRequest);
+
+        assertTrue(event instanceof LobbyDroppedMessage);
+        userManagement.dropUser(userDTO);
+    }
 }
