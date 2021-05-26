@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class UserManagementTest {
 
     private static final int NO_USERS = 10;
-    private static final User userNotInStore = new UserDTO("marco" + NO_USERS, "marco" + NO_USERS, "marco" + NO_USERS + "@grawunder.de");
+    private static final User userNotInStore = new UserDTO("marco" + NO_USERS, "marco" + NO_USERS, "marco" + NO_USERS + "@grawunder.de", 1);
     private final MainMemoryBasedUserStore mainMemoryBasedUserStore = new MainMemoryBasedUserStore();
     private final UserManagement management = new UserManagement(mainMemoryBasedUserStore);
 

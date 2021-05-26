@@ -66,10 +66,6 @@ public class MainMemoryBasedUserStore extends AbstractUserStore implements UserS
         return retUsers;
     }
 
-    @Override
-    public User retrieveUserInformation(String username) {
-        return new UserDTO(username, "", users.get(username).getEMail(), users.get(username).getProfilePictureID());
-    }
 
     @Override
     public User updateUserMail(String username, String eMail) {

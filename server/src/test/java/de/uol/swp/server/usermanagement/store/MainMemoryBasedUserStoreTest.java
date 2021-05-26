@@ -173,6 +173,13 @@ class MainMemoryBasedUserStoreTest {
     }
 
     @Test
+    void createNullUser() {
+        UserStore store = getDefaultStore();
+
+        assertThrows(IllegalArgumentException.class, () -> store.createUser(null, "test", "test@test.de"));
+    }
+
+    @Test
     void getAllUsers() throws SQLException {
         UserStore store = getDefaultStore();
         List<UserDTO> allUsers = getDefaultUsers();

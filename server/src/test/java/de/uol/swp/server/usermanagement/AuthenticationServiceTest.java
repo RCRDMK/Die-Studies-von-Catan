@@ -79,6 +79,18 @@ class AuthenticationServiceTest {
     void loginTest() throws Exception {
         userManagement.createUser(user);
         final LoginRequest loginRequest = new LoginRequest(user.getUsername(), user.getPassword());
+        MessageContext messageContext = new MessageContext() {
+            @Override
+            public void writeAndFlush(ResponseMessage message) {
+                bus.post(message);
+            }
+
+            @Override
+            public void writeAndFlush(ServerMessage message) {
+                bus.post(message);
+            }
+        };
+        loginRequest.setMessageContext(messageContext);
         bus.post(loginRequest);
         assertTrue(userManagement.isLoggedIn(user));
         // is message send
@@ -327,8 +339,6 @@ class AuthenticationServiceTest {
         logoutRequest2.setSession(sessionUser2.get());
         logoutRequest2.setMessageContext(ctx2);
         bus.post(logoutRequest2);
-
-        assertFalse(userManagement.isLoggedIn(user));
 
         // After logging out (simulating x button) both users, there has to be 0 lobbies and 0 games.
         var games = gameManagement.getAllGames();

@@ -179,22 +179,6 @@ public class UserManagement extends AbstractUserManagement {
         return storeInUse.updateUserPicture(toUpdatePicture.getUsername(), toUpdatePicture.getProfilePictureID());
     }
 
-    /**
-     * Sub-function of update user
-     * <p>
-     * This method is used to set the new user values to the old ones if the values
-     * in the update request were empty.
-     *
-     * @param firstValue  value to update to, empty String or null
-     * @param secondValue the old value
-     * @return String containing the value to be used in the update command
-     * @author Marco Grawunder
-     * @since 2019-08-05
-     */
-    private String firstNotNull(String firstValue, String secondValue) {
-        return Strings.isNullOrEmpty(firstValue) ? secondValue : firstValue;
-    }
-
     @Override
     public void logout(User user) {
         loggedInUsers.remove(user.getUsername());

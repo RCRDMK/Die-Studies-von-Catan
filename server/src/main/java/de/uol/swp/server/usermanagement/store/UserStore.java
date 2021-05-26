@@ -34,7 +34,7 @@ public interface UserStore {
      * @author Marco Grawunder
      * @since 2019-08-13
      */
-    Optional<User> findUser(String username) throws SQLException, Exception;
+    Optional<User> findUser(String username) throws Exception;
 
     /**
      * Create a new user
@@ -46,7 +46,7 @@ public interface UserStore {
      * @author Marco Grawunder
      * @since 2019-08-13
      */
-    User createUser(String username, String password, String eMail) throws SQLException, Exception;
+    User createUser(String username, String password, String eMail) throws Exception;
 
     /**
      * Remove user from store
@@ -57,8 +57,38 @@ public interface UserStore {
      */
     void removeUser(String username) throws Exception;
 
+    /**
+     * Updates the users eMail
+     *
+     * @param username username of the user
+     * @param eMail the new eMail
+     * @return the updated user without password
+     * @author Carsten Dekker
+     * @since 2021-05-26
+     */
+    User updateUserMail(String username, String eMail) throws Exception;
 
-    User retrieveUserInformation(String username) throws Exception;
+    /**
+     * Updates the users password
+     *
+     * @param username username of the user
+     * @param password the new password
+     * @return the updated user without password
+     * @author Carsten Dekker
+     * @since 2021-05-26
+     */
+    User updateUserPassword(String username, String password) throws Exception;
+
+    /**
+     * Updates the users profilePictureID
+     *
+     * @param username username of the user
+     * @param profilePictureID the new profilePictureID
+     * @return the updated user without password
+     * @author Carsten Dekker
+     * @since 2021-05-26
+     */
+    User updateUserPicture(String username, int profilePictureID) throws Exception;
 
     /**
      * Retrieves the list of all users.
@@ -68,11 +98,4 @@ public interface UserStore {
      * @since 2019-08-13
      */
     List<User> getAllUsers() throws SQLException;
-
-    User updateUserMail(String username, String eMail) throws SQLException;
-
-    User updateUserPassword(String username, String password) throws SQLException;
-
-    User updateUserPicture(String username, int profilePictureID) throws SQLException;
-
 }

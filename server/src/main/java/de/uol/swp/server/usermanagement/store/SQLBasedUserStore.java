@@ -283,7 +283,8 @@ public class SQLBasedUserStore extends AbstractUserStore implements UserStore {
      * @author Carsten Dekker
      * @see java.sql.SQLException
      * @since 2021-03-12
-     */
+
+    //TODO: Kann potentiel weg
     @Override
     public User retrieveUserInformation(String username) throws Exception {
         ResultSet resultSet;
@@ -303,7 +304,7 @@ public class SQLBasedUserStore extends AbstractUserStore implements UserStore {
             return null;
         }
     }
-
+ */
     @Override
     public List<User> getAllUsers() {
         return null;

@@ -122,15 +122,6 @@ public interface ServerUserService {
     User updateUserPicture(User user) throws SQLException, Exception;
 
     /**
-     * Retrieve the list of all current logged in users
-     *
-     * @return a list of users
-     * @author Marco Grawunder
-     * @since 2017-03-17
-     */
-    List<User> retrieveAllUsers() throws SQLException;
-
-    /**
      * Retrieve the user information of the currently logged in user
      *
      * @return user information
