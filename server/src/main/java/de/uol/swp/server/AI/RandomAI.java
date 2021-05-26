@@ -16,7 +16,6 @@ import java.util.*;
 /**
  * AI which makes choices randomly
  * <p>
- * //TODO: Work in progress
  *
  * @author Marc Hermes
  * @since 2021-05-08
