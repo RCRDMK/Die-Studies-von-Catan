@@ -1,15 +1,22 @@
 package de.uol.swp.server.AI;
 
-import com.google.gson.Gson;
 import de.uol.swp.common.game.MapGraph;
 import de.uol.swp.common.game.dto.GameDTO;
 import de.uol.swp.common.game.inventory.Inventory;
+import de.uol.swp.common.game.message.TooMuchResourceCardsMessage;
+import de.uol.swp.common.game.message.TradeInformSellerAboutBidsMessage;
+import de.uol.swp.common.game.message.TradeOfferInformBiddersMessage;
 import de.uol.swp.common.game.trade.Trade;
 import de.uol.swp.common.game.trade.TradeItem;
 import de.uol.swp.common.user.User;
 import de.uol.swp.server.AI.AIActions.*;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.UUID;
 
 /**
@@ -40,11 +47,27 @@ public abstract class AbstractAISystem implements AISystem {
      * @since 2021-05-08
      */
     public AbstractAISystem(GameDTO thatGame) {
-        Gson gson = new Gson();
-        game = gson.fromJson(gson.toJson(thatGame), GameDTO.class);
+        game = (GameDTO) deepCopy(thatGame);
+        assert game != null;
         inventory = game.getInventory(game.getUser(game.getTurn()));
         mapGraph = game.getMapGraph();
         user = game.getUser(game.getTurn());
+        aiActions = new ArrayList<>();
+    }
+
+    // https://www.journaldev.com/17129/java-deep-copy-object
+    private static Object deepCopy(Object object) {
+        try {
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            ObjectOutputStream outputStrm = new ObjectOutputStream(outputStream);
+            outputStrm.writeObject(object);
+            ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
+            ObjectInputStream objInputStream = new ObjectInputStream(inputStream);
+            return objInputStream.readObject();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     public Inventory getInventory() {
@@ -159,7 +182,7 @@ public abstract class AbstractAISystem implements AISystem {
 
     @Override
     public void playDevelopmentCardYearOfPlenty(String resource1, String resource2) {
-        PlayDevelopmentCardYearOfPlentyAction pa = new PlayDevelopmentCardYearOfPlentyAction(user, game.getName(), "Year Of Plenty", resource1, resource2);
+        PlayDevelopmentCardYearOfPlentyAction pa = new PlayDevelopmentCardYearOfPlentyAction(user, game.getName(), "Year of Plenty", resource1, resource2);
         aiActions.add(pa);
     }
 
@@ -170,13 +193,33 @@ public abstract class AbstractAISystem implements AISystem {
     }
 
     @Override
-    public ArrayList<AIAction> startTurnAction(int eyes) {
+    public void discardResources(HashMap<String, Integer> resourcesToDiscard) {
+        DiscardResourcesAction dra = new DiscardResourcesAction(user, game.getName(), resourcesToDiscard);
+        aiActions.add(dra);
+    }
+
+    @Override
+    public ArrayList<AIAction> discardResourcesOrder(TooMuchResourceCardsMessage tmrcm) {
+        aiActions.clear();
 
         return this.aiActions;
     }
 
     @Override
-    public ArrayList<AIAction> continueTurnAction(Trade trade, String tradeCode) {
+    public ArrayList<AIAction> tradeBidOrder(TradeOfferInformBiddersMessage toibm) {
+        aiActions.clear();
+
+        return this.aiActions;
+    }
+
+    @Override
+    public ArrayList<AIAction> startTurnOrder() {
+
+        return this.aiActions;
+    }
+
+    @Override
+    public ArrayList<AIAction> continueTurnOrder(TradeInformSellerAboutBidsMessage tisabm) {
         aiActions.clear();
 
         return this.aiActions;

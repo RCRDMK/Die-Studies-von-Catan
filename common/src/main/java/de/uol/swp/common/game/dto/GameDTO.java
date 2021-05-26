@@ -35,6 +35,7 @@ public class GameDTO implements Game {
     private boolean countingUp = true;
     private boolean lastPlayerSecondTurn = false;
     private boolean playedCardThisTurn = false;
+    private int lastRolledDiceValue = 0;
     private final DevelopmentCardDeck developmentCardDeck = new DevelopmentCardDeck();
     private final ArrayList<MapGraph.BuildingNode> lastBuildingOfOpeningTurn = new ArrayList<>();
 
@@ -46,6 +47,8 @@ public class GameDTO implements Game {
 
     private final HashMap<String, Trade> tradeList = new HashMap<>();
     private String currentCard = "";
+    private boolean isTest;
+    private boolean rolledDiceThisTurn = false;
 
     /**
      * Constructor
@@ -173,6 +176,7 @@ public class GameDTO implements Game {
             openingPhase();
         } else overallTurns++;
         playedCardThisTurn = false;
+        rolledDiceThisTurn = false;
     }
 
     /**
@@ -384,6 +388,32 @@ public class GameDTO implements Game {
     @Override
     public void setPlayedCardThisTurn(boolean value) {
         playedCardThisTurn = value;
+    }
+
+    @Override
+    public void setLastRolledDiceValue(int eyes) {
+        this.rolledDiceThisTurn = true;
+        this.lastRolledDiceValue = eyes;
+    }
+
+    @Override
+    public int getLastRolledDiceValue() {
+        return lastRolledDiceValue;
+    }
+
+    @Override
+    public boolean isUsedForTest() {
+        return this.isTest;
+    }
+
+    @Override
+    public void setIsUsedForTest(boolean value) {
+        this.isTest = value;
+    }
+
+    @Override
+    public boolean rolledDiceThisTurn() {
+        return this.rolledDiceThisTurn;
     }
 
 }

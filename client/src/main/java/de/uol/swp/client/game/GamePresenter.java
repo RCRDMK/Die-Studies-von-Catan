@@ -1441,6 +1441,9 @@ public class GamePresenter extends AbstractPresenter {
                                         EndTurnButton.setDisable(false);
                                         buyDevCard.setDisable(false);
                                     }
+                                    if(currentDevelopmentCard.equals("Knight")) {
+                                        gameService.resolveDevelopmentCardKnight((UserDTO) moveRobberMessage.getUser(), moveRobberMessage.getName(), currentDevelopmentCard, container.getHexagon().getUuid());
+                                    }
                                     gameService.movedRobber(moveRobberMessage.getName(), moveRobberMessage.getUser(), container.getHexagon().getUuid());
                                 }
                             }
@@ -1727,8 +1730,10 @@ public class GamePresenter extends AbstractPresenter {
             oldGridPane.getChildren().remove(rectangleDie1);
             oldGridPane.getChildren().remove(rectangleDie2);
             rectangleDie1.setFill(diceImages.get(0));
-            newGridPane.add(rectangleDie1, 0, 0);
             rectangleDie2.setFill(diceImages.get(0));
+            if(!newGridPane.getChildren().contains(rectangleDie1))
+            newGridPane.add(rectangleDie1, 0, 0);
+            if(!newGridPane.getChildren().contains(rectangleDie2))
             newGridPane.add(rectangleDie2, 1, 0);
         });
     }
@@ -2060,38 +2065,41 @@ public class GamePresenter extends AbstractPresenter {
     public void onPlayDevelopmentCardResponse(PlayDevelopmentCardResponse pdcr) {
         if (this.currentLobby != null) {
             if (this.currentLobby.equals(pdcr.getGameName())) {
-                if (pdcr.isCanPlayCard()) {
-                    LOG.debug("The card " + pdcr.getDevCard() + " was played by the user " + pdcr.getUserName());
-                    this.currentDevelopmentCard = pdcr.getDevCard();
-                    Platform.runLater(() -> {
-                        this.resolveDevelopmentCardAlert.setTitle(currentDevelopmentCard + " in " + pdcr.getGameName());
-                        if (this.currentDevelopmentCard.equals("Year of Plenty") || this.currentDevelopmentCard.equals("Monopoly")) {
-                            this.resolveDevelopmentCardAlert.setHeaderText("Select Resource/s");
-                            for (Rectangle rect : resourceRectangles) {
-                                rect.setVisible(true);
-                            }
-                            for (MapGraphNodeContainer container : mapGraphNodeContainers) {
-                                if (container.getMapGraphNode().getOccupiedByPlayer() == 666) {
-                                    container.getCircle().setVisible(false);
+                this.currentDevelopmentCard = pdcr.getDevCard();
+                if (!pdcr.getDevCard().equals("Knight")) {
+                    if (pdcr.isCanPlayCard()) {
+                        LOG.debug("The card " + pdcr.getDevCard() + " was played by the user " + pdcr.getUserName());
+                        this.currentDevelopmentCard = pdcr.getDevCard();
+                        Platform.runLater(() -> {
+                            this.resolveDevelopmentCardAlert.setTitle(currentDevelopmentCard + " in " + pdcr.getGameName());
+                            if (this.currentDevelopmentCard.equals("Year of Plenty") || this.currentDevelopmentCard.equals("Monopoly")) {
+                                this.resolveDevelopmentCardAlert.setHeaderText("Select Resource/s");
+                                for (Rectangle rect : resourceRectangles) {
+                                    rect.setVisible(true);
+                                }
+                                for (MapGraphNodeContainer container : mapGraphNodeContainers) {
+                                    if (container.getMapGraphNode().getOccupiedByPlayer() == 666) {
+                                        container.getCircle().setVisible(false);
+                                    }
+                                }
+                            } else if (this.currentDevelopmentCard.equals("Road Building")) {
+                                for (MapGraphNodeContainer container : mapGraphNodeContainers) {
+                                    if (container.getMapGraphNode().getOccupiedByPlayer() == 666) {
+                                        container.getCircle().setVisible(container.getMapGraphNode() instanceof MapGraph.StreetNode);
+                                    }
+                                }
+                                this.resolveDevelopmentCardAlert.setHeaderText("Select 2 building spots for the streets");
+                                for (Rectangle rect : resourceRectangles) {
+                                    rect.setVisible(false);
                                 }
                             }
-                        } else if (this.currentDevelopmentCard.equals("Road Building")) {
-                            for (MapGraphNodeContainer container : mapGraphNodeContainers) {
-                                if (container.getMapGraphNode().getOccupiedByPlayer() == 666) {
-                                    container.getCircle().setVisible(container.getMapGraphNode() instanceof MapGraph.StreetNode);
-                                }
-                            }
-                            this.resolveDevelopmentCardAlert.setHeaderText("Select 2 building spots for the streets");
-                            for (Rectangle rect : resourceRectangles) {
-                                rect.setVisible(false);
-                            }
-                        }
-                        this.resolveDevelopmentCardAlert.show();
+                            this.resolveDevelopmentCardAlert.show();
 
-                    });
+                        });
 
-                } else {
-                    LOG.debug("The user " + pdcr.getUserName() + " cannot play the card " + pdcr.getDevCard());
+                    } else {
+                        LOG.debug("The user " + pdcr.getUserName() + " cannot play the card " + pdcr.getDevCard());
+                    }
                 }
             }
         }

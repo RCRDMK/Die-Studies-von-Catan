@@ -272,4 +272,18 @@ public class GameService {
     public void resolveDevelopmentCardRoadBuilding(UserDTO joinedLobbyUser, String currentLobby, String devCard, UUID street1, UUID street2) {
         eventBus.post(new ResolveDevelopmentCardRoadBuildingRequest(devCard, joinedLobbyUser, currentLobby, street1, street2));
     }
+
+    /**
+     * sends a request to resolve the Knight DevelopmentCard to the server
+     *
+     * @param joinedLobbyUser the user who wants to resolve the Knight card
+     * @param currentLobby    the name of the game in which the card is to be resolved
+     * @param devCard         the name of the DevelopmentCard, should be Knight
+     * @param field           the UUID of the field to move the robber to
+     * @author Marc Hermes
+     * @since 2021-05-14
+     */
+    public void resolveDevelopmentCardKnight(UserDTO joinedLobbyUser, String currentLobby, String devCard, UUID field) {
+        eventBus.post(new ResolveDevelopmentCardKnightRequest(devCard, joinedLobbyUser, currentLobby, field));
+    }
 }
