@@ -30,7 +30,7 @@ public class SQLBasedUserStore extends AbstractUserStore implements UserStore {
         String CONNECTION = "jdbc:mysql://178.238.232.242:3306";
         connection = DriverManager.getConnection(CONNECTION, "swpJ", "Uz3FLt2cgMmFCALY");
         statement = connection.createStatement();
-        statement.execute("use userData;");
+        statement.execute("use swpJ;");
     }
 
     /**
@@ -50,10 +50,9 @@ public class SQLBasedUserStore extends AbstractUserStore implements UserStore {
 
     @Override
     public Optional<User> findUser(String username, String password) throws Exception {
-        String findUser = "select name, mail, pictureID from userData where name=? and password=?;";
         ResultSet resultSet = null;
         try {
-            PreparedStatement preparedStatement = connection.prepareStatement(findUser);
+            PreparedStatement preparedStatement = connection.prepareStatement("select name, mail, pictureID from userData where name=? and password=?;");
             preparedStatement.setString(1, username);
             preparedStatement.setString(2, password);
             resultSet = preparedStatement.executeQuery();
@@ -62,7 +61,7 @@ public class SQLBasedUserStore extends AbstractUserStore implements UserStore {
             e.printStackTrace();
         }
         if (resultSet.next()) {
-            User user = new UserDTO(username, "", resultSet.getString(2), resultSet.getInt(3));
+            User user = new UserDTO(username, resultSet.getString(), resultSet.getString(2), resultSet.getInt(3));
             return Optional.of(user);
         } else {
             return Optional.empty();
@@ -180,7 +179,7 @@ public class SQLBasedUserStore extends AbstractUserStore implements UserStore {
      */
     @Override
     public User updateUserPassword(String username, String password) throws Exception {
-        Optional<User> user = findUser(username, password);
+        Optional<User> user = findUser(username);
         if (user.isPresent()) {
             PreparedStatement preparedStatement = connection.prepareStatement("update userData set password=? where name=?;");
             try {
