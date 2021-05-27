@@ -175,11 +175,6 @@ public class LobbyService extends AbstractService {
                     lobbyManagement.dropLobby(lobbyLeaveUserRequest.getName());
                     sendToAll(new LobbyDroppedMessage(lobbyLeaveUserRequest.getName()));
                 }
-            } else if (lobby.get().getUsers() == null) {
-                //TODO Kommen wir jemals hier rein? Kann es ggf raus?
-                lobbyManagement.dropLobby(lobbyLeaveUserRequest.getName());
-                sendToAll(new LobbyDroppedMessage(lobbyLeaveUserRequest.getName()));
-
             } else {
                 if (lobbyLeaveUserRequest.getMessageContext().isPresent()) {
                     Optional<MessageContext> ctx = lobbyLeaveUserRequest.getMessageContext();

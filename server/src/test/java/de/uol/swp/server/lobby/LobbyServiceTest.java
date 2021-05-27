@@ -3,7 +3,6 @@ package de.uol.swp.server.lobby;
 import com.google.common.eventbus.DeadEvent;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
-import de.uol.swp.common.game.response.AllThisGameUsersResponse;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.message.LobbyDroppedMessage;
 import de.uol.swp.common.lobby.message.UserLeftLobbyMessage;
@@ -23,13 +22,18 @@ import de.uol.swp.common.user.request.LogoutRequest;
 import de.uol.swp.common.user.response.lobby.AllThisLobbyUsersResponse;
 import de.uol.swp.common.user.response.lobby.JoinDeletedLobbyResponse;
 import de.uol.swp.common.user.response.lobby.LobbyFullResponse;
+import de.uol.swp.server.message.ClientAuthorizedMessage;
 import de.uol.swp.server.usermanagement.AuthenticationService;
 import de.uol.swp.server.usermanagement.UserManagement;
-import org.checkerframework.checker.units.qual.C;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
 import java.sql.SQLException;
-import java.util.*;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -48,7 +52,7 @@ public class LobbyServiceTest {
     final UserManagement userManagement = new UserManagement();
     final AuthenticationService authenticationService = new AuthenticationService(bus, userManagement);
 
-    final User defaultUser = new UserDTO("Marco", "test", "marco@test.de");
+    final User defaultUser = new UserDTO("Peter", "lustig", "peter.lustig@uol.de");
 
     final CountDownLatch lock = new CountDownLatch(1);
     Object event;
@@ -443,21 +447,18 @@ public class LobbyServiceTest {
 
     @Test
     void onRetrieveAllThisLobbyUsersRequest() {
-
-        LobbyService lobbyService = new LobbyService(lobbyManagement, authenticationService, bus);
-        lobbyManagement.createLobby("testLobby", (UserDTO) defaultUser);
+        lobbyManagement.createLobby("testLobby", defaultUser);
         RetrieveAllThisLobbyUsersRequest retrieveAllThisLobbyUsersRequest = new RetrieveAllThisLobbyUsersRequest(
                 "testLobby");
         Optional<Lobby> lobby = lobbyManagement.getLobby("testLobby");
         assertSame(lobbyManagement.getLobby("testLobby").get().getName(),
                 retrieveAllThisLobbyUsersRequest.getName());
         assertTrue(lobby.isPresent());
-        lobby.get().joinUser((UserDTO) defaultUser);
+        lobby.get().joinUser(defaultUser);
         List<Session> lobbyUsers = authenticationService.getSessions(lobby.get().getUsers());
         for (Session session : lobbyUsers) {
-            assertTrue((UserDTO) defaultUser == (session.getUser()) || (UserDTO) defaultUser == (session.getUser()));
+            assertTrue(defaultUser == (session.getUser()) || defaultUser == (session.getUser()));
         }
-
     }
 
     /**
@@ -521,20 +522,9 @@ public class LobbyServiceTest {
 
 
     @Test
-    public void logoutRequestTest() throws InterruptedException, SQLException {
+    public void userLogoutDropLobby() throws InterruptedException {
         loginUser();
-        lock.await(1000, TimeUnit.MILLISECONDS);
-        lobbyManagement.createLobby("testLobby", defaultUser);
-        Optional<Lobby> lobby = lobbyManagement.getLobby("testLobby");
-        UserDTO userDTO = new UserDTO("Peter", "lustig", "peter.lustig@uol.de");
-        userManagement.createUser(userDTO);
-        LoginRequest request = new LoginRequest(userDTO.getUsername(), userDTO.getPassword());
-        authenticationService.onLoginRequest(request);
-        lock.await(1000, TimeUnit.MILLISECONDS);
-        lobby.get().joinUser(defaultUser);
-
-        LogoutRequest logoutRequest = new LogoutRequest();
-        MessageContext context = new MessageContext() {
+        MessageContext msg = new MessageContext() {
             @Override
             public void writeAndFlush(ResponseMessage message) {
                 bus.post(message);
@@ -545,15 +535,17 @@ public class LobbyServiceTest {
                 bus.post(message);
             }
         };
-        logoutRequest.setMessageContext(context);
-        Set<User> user = new TreeSet<>();
-        user.add(defaultUser);
-        user.add(userDTO);
-        logoutRequest.setSession(authenticationService.getSession(defaultUser).get());
+        LogoutRequest request = new LogoutRequest();
+        assertTrue(event instanceof ClientAuthorizedMessage);
+        request.setSession(((ClientAuthorizedMessage) event).getSession().get());
+        request.setMessageContext(msg);
 
-        lobbyService.onLogoutRequest(logoutRequest);
+        lobbyService.onCreateLobbyRequest(new CreateLobbyRequest("Test", (UserDTO) defaultUser));
+        lock.await(1000,TimeUnit.MILLISECONDS);
 
-        assertTrue(event instanceof LobbyDroppedMessage);
-        userManagement.dropUser(userDTO);
+        lobbyService.onLogoutRequest(request);
+
+
+        assertFalse(lobbyManagement.getAllLobbies().containsKey("Test"));
     }
 }
