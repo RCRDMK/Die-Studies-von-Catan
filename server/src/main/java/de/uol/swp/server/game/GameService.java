@@ -1373,14 +1373,19 @@ public class GameService extends AbstractService {
      *
      * @param request TradeStartRequest
      * @author Alexander Losse, Ricardo Mook
+     * @enhanced Sergej Tulnev
+     * @sinice 2021-05-27
      * @see TradeStartRequest
      * @since 2021-04-11
      */
     @Subscribe
     public void onTradeStartedRequest(TradeStartRequest request) {
         UserDTO user = request.getUser();
-        TradeStartedMessage tsm = new TradeStartedMessage(user, request.getName(), request.getTradeCode());
-        sendToSpecificUserInGame(tsm, user);
+        if (gameManagement.getGame(request.getName()).get().getTradeList().isEmpty()) {
+            TradeStartedMessage tsm = new TradeStartedMessage(user, request.getName(), request.getTradeCode());
+            sendToSpecificUserInGame(tsm, user);
+        }
+
     }
 
     /**

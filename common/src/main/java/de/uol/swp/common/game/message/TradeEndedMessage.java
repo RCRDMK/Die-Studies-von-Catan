@@ -12,7 +12,9 @@ public class TradeEndedMessage extends AbstractGameMessage {
      *
      * @param tradeCode String
      * @author Alexander Losse, Ricardo Mok
+     * @enhenced by Sergej Tulnev
      * @since 2021-04-25
+     * @since 2021-05-27
      */
     public TradeEndedMessage(String tradeCode) {
         this.tradeCode = tradeCode;
