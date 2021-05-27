@@ -29,11 +29,10 @@ public class TradePresenter extends AbstractPresenter {
 
     public static final String fxml = "/fxml/TradeView.fxml";
     private static final String lumberString = "Lumber";
-    private static final String oreString = "Ore";
-    private static final String woolString = "Wool";
-    private static final String grainString = "Grain";
     private static final String brickString = "Brick";
-
+    private static final String grainString = "Grain";
+    private static final String woolString = "Wool";
+    private static final String oreString = "Ore";
 
     private boolean sellerGotBids;
     private boolean isBidder = false;
@@ -113,11 +112,11 @@ public class TradePresenter extends AbstractPresenter {
             this.user = tradeOfferInformBiddersMessage.getBidder();
             setOffer(tradeOfferInformBiddersMessage.getSellingItems(), tradeOfferInformBiddersMessage.getWantedItems());
             textRowW.setVisible(false);
-            grainW.setVisible(false);
             lumberW.setVisible(false);
-            oreW.setVisible(false);
             brickW.setVisible(false);
+            grainW.setVisible(false);
             woolW.setVisible(false);
+            oreW.setVisible(false);
 
         }
     }
@@ -170,14 +169,14 @@ public class TradePresenter extends AbstractPresenter {
             String valueOfCount = String.valueOf(item.getCount());
             if (item.getName().equals(lumberString)) {
                 lumber1.setText(valueOfCount);
-            } else if (item.getName().equals(oreString)) {
-                ore1.setText(valueOfCount);
             } else if (item.getName().equals(brickString)) {
                 brick1.setText(valueOfCount);
             } else if (item.getName().equals(grainString)) {
                 grain1.setText(valueOfCount);
             } else if (item.getName().equals(woolString)) {
                 wool1.setText(valueOfCount);
+            } else if (item.getName().equals(oreString)) {
+                ore1.setText(valueOfCount);
             }
         }
         textRow1.setText("Seller offers:");
@@ -186,14 +185,14 @@ public class TradePresenter extends AbstractPresenter {
             String valueOfCount = String.valueOf(item.getCount());
             if (item.getName().equals(lumberString)) {
                 lumber2.setText(valueOfCount);
-            } else if (item.getName().equals(oreString)) {
-                ore2.setText(valueOfCount);
             } else if (item.getName().equals(brickString)) {
                 brick2.setText(valueOfCount);
             } else if (item.getName().equals(grainString)) {
                 grain2.setText(valueOfCount);
             } else if (item.getName().equals(woolString)) {
                 wool2.setText(valueOfCount);
+            } else if (item.getName().equals(oreString)) {
+                ore2.setText(valueOfCount);
             }
         }
         textRow2.setText("Seller wants:");
@@ -217,11 +216,11 @@ public class TradePresenter extends AbstractPresenter {
     @FXML
     public void onRejectOfferButtonPressed() {
         ArrayList<TradeItem> sendEmptyTradeItemArrayList = new ArrayList<>();
-        sendEmptyTradeItemArrayList.add(new TradeItem(oreString, 0));
         sendEmptyTradeItemArrayList.add(new TradeItem(lumberString, 0));
-        sendEmptyTradeItemArrayList.add(new TradeItem(woolString, 0));
-        sendEmptyTradeItemArrayList.add(new TradeItem(grainString, 0));
         sendEmptyTradeItemArrayList.add(new TradeItem(brickString, 0));
+        sendEmptyTradeItemArrayList.add(new TradeItem(grainString, 0));
+        sendEmptyTradeItemArrayList.add(new TradeItem(woolString, 0));
+        sendEmptyTradeItemArrayList.add(new TradeItem(oreString, 0));
         gameService.sendItem(user, gameName, sendEmptyTradeItemArrayList, tradeCode, sendEmptyTradeItemArrayList);
         disableAbilityToSentItems();
     }
@@ -344,14 +343,14 @@ public class TradePresenter extends AbstractPresenter {
             String ressourceChoiceString = ressourceChoice.getValue().toString();
             if (ressourceChoiceString.equals(lumberString)) {
                 lumber0.setText(ressourceOfferInputValueText);
-            } else if (ressourceChoiceString.equals(oreString)) {
-                ore0.setText(ressourceOfferInputValueText);
             } else if (ressourceChoiceString.equals(brickString)) {
                 brick0.setText(ressourceOfferInputValueText);
             } else if (ressourceChoiceString.equals(grainString)) {
                 grain0.setText(ressourceOfferInputValueText);
             } else if (ressourceChoiceString.equals(woolString)) {
                 wool0.setText(ressourceOfferInputValueText);
+            } else if (ressourceChoiceString.equals(oreString)) {
+                ore0.setText(ressourceOfferInputValueText);
             }
         }
     }
@@ -368,14 +367,14 @@ public class TradePresenter extends AbstractPresenter {
             String ressourceChoiceString = ressourceChoice.getValue().toString();
             if (ressourceChoiceString.equals(lumberString)) {
                 lumberW.setText(ressourceWishInputValueText);
-            } else if (ressourceChoiceString.equals(oreString)) {
-                oreW.setText(ressourceWishInputValueText);
             } else if (ressourceChoiceString.equals(brickString)) {
                 brickW.setText(ressourceWishInputValueText);
             } else if (ressourceChoiceString.equals(grainString)) {
                 grainW.setText(ressourceWishInputValueText);
             } else if (ressourceChoiceString.equals(woolString)) {
                 woolW.setText(ressourceWishInputValueText);
+            } else if (ressourceChoiceString.equals(oreString)) {
+                oreW.setText(ressourceWishInputValueText);
             }
         }
     }
@@ -396,10 +395,10 @@ public class TradePresenter extends AbstractPresenter {
     public ArrayList<TradeItem> createTradeOfferItemList() {
         ArrayList<TradeItem> tradeItems = new ArrayList<>();
         tradeItems.add(new TradeItem(lumberString, Integer.parseInt(lumber0.getText())));
-        tradeItems.add(new TradeItem(oreString, Integer.parseInt(ore0.getText())));
         tradeItems.add(new TradeItem(brickString, Integer.parseInt(brick0.getText())));
         tradeItems.add(new TradeItem(grainString, Integer.parseInt(grain0.getText())));
         tradeItems.add(new TradeItem(woolString, Integer.parseInt(wool0.getText())));
+        tradeItems.add(new TradeItem(oreString, Integer.parseInt(ore0.getText())));
         return tradeItems;
     }
 
@@ -414,10 +413,10 @@ public class TradePresenter extends AbstractPresenter {
     public ArrayList<TradeItem> createTradeWishItemList() {
         ArrayList<TradeItem> tradeItems = new ArrayList<>();
         tradeItems.add(new TradeItem(lumberString, Integer.parseInt(lumberW.getText())));
-        tradeItems.add(new TradeItem(oreString, Integer.parseInt(oreW.getText())));
         tradeItems.add(new TradeItem(brickString, Integer.parseInt(brickW.getText())));
         tradeItems.add(new TradeItem(grainString, Integer.parseInt(grainW.getText())));
         tradeItems.add(new TradeItem(woolString, Integer.parseInt(woolW.getText())));
+        tradeItems.add(new TradeItem(oreString, Integer.parseInt(oreW.getText())));
         return tradeItems;
     }
 
@@ -444,14 +443,14 @@ public class TradePresenter extends AbstractPresenter {
                 String valueOfCount = String.valueOf(item.getCount());
                 if (item.getName().equals(lumberString)) {
                     lumber1.setText(valueOfCount);
-                } else if (item.getName().equals(oreString)) {
-                    ore1.setText(valueOfCount);
                 } else if (item.getName().equals(brickString)) {
                     brick1.setText(valueOfCount);
                 } else if (item.getName().equals(grainString)) {
                     grain1.setText(valueOfCount);
                 } else if (item.getName().equals(woolString)) {
                     wool1.setText(valueOfCount);
+                } else if (item.getName().equals(oreString)) {
+                    ore1.setText(valueOfCount);
                 }
             }
             if (bids.size() > 1) {
@@ -461,14 +460,14 @@ public class TradePresenter extends AbstractPresenter {
                     String valueOfCount = String.valueOf(item.getCount());
                     if (item.getName().equals(lumberString)) {
                         lumber2.setText(valueOfCount);
-                    } else if (item.getName().equals(oreString)) {
-                        ore2.setText(valueOfCount);
                     } else if (item.getName().equals(brickString)) {
                         brick2.setText(valueOfCount);
                     } else if (item.getName().equals(grainString)) {
                         grain2.setText(valueOfCount);
                     } else if (item.getName().equals(woolString)) {
                         wool2.setText(valueOfCount);
+                    } else if (item.getName().equals(oreString)) {
+                        ore2.setText(valueOfCount);
                     }
                 }
                 if (bids.size() > 2) {
@@ -478,14 +477,14 @@ public class TradePresenter extends AbstractPresenter {
                         String valueOfCount = String.valueOf(item.getCount());
                         if (item.getName().equals(lumberString)) {
                             lumber3.setText(valueOfCount);
-                        } else if (item.getName().equals(oreString)) {
-                            ore3.setText(valueOfCount);
                         } else if (item.getName().equals(brickString)) {
                             brick3.setText(valueOfCount);
                         } else if (item.getName().equals(grainString)) {
                             grain3.setText(valueOfCount);
                         } else if (item.getName().equals(woolString)) {
                             wool3.setText(valueOfCount);
+                        } else if (item.getName().equals(oreString)) {
+                            ore3.setText(valueOfCount);
                         }
                     }
                 }
@@ -577,7 +576,13 @@ public class TradePresenter extends AbstractPresenter {
     Button rejectOfferButton;
 
     @FXML
+    Button createRequestButton;
+
+    @FXML
     ChoiceBox ressourceChoice;
+
+    @FXML
+    ChoiceBox ressourceChoiceBank;
 
     @FXML
     TextField ressourceInputValue;
@@ -595,32 +600,7 @@ public class TradePresenter extends AbstractPresenter {
     RadioButton offer3RadioButton;
 
     @FXML
-    Text brickW;
-    @FXML
-    Text brick0;
-
-    @FXML
-    Text brick1;
-
-    @FXML
-    Text brick2;
-
-    @FXML
-    Text brick3;
-    @FXML
-    Text oreW;
-
-    @FXML
-    Text ore0;
-
-    @FXML
-    Text ore1;
-
-    @FXML
-    Text ore2;
-
-    @FXML
-    Text ore3;
+    RadioButton bankOfferRadioButton;
 
     @FXML
     Text lumberW;
@@ -638,6 +618,27 @@ public class TradePresenter extends AbstractPresenter {
     Text lumber3;
 
     @FXML
+    Text lumber4;
+
+    @FXML
+    Text brickW;
+
+    @FXML
+    Text brick0;
+
+    @FXML
+    Text brick1;
+
+    @FXML
+    Text brick2;
+
+    @FXML
+    Text brick3;
+
+    @FXML
+    Text brick4;
+
+    @FXML
     Text grainW;
 
     @FXML
@@ -653,7 +654,11 @@ public class TradePresenter extends AbstractPresenter {
     Text grain3;
 
     @FXML
+    Text grain4;
+
+    @FXML
     Text woolW;
+
     @FXML
     Text wool0;
 
@@ -665,6 +670,27 @@ public class TradePresenter extends AbstractPresenter {
 
     @FXML
     Text wool3;
+
+    @FXML
+    Text wool4;
+
+    @FXML
+    Text oreW;
+
+    @FXML
+    Text ore0;
+
+    @FXML
+    Text ore1;
+
+    @FXML
+    Text ore2;
+
+    @FXML
+    Text ore3;
+
+    @FXML
+    Text ore4;
 
     @FXML
     Text textRowW;
@@ -682,7 +708,7 @@ public class TradePresenter extends AbstractPresenter {
     Text textRow3;
 
     @FXML
-    ToggleGroup choiceTrade;
+    Text textRow4;
 
     @FXML
     HBox row1Hbox;
@@ -693,7 +719,9 @@ public class TradePresenter extends AbstractPresenter {
     @FXML
     HBox row3Hbox;
 
+    @FXML
+    HBox row4Hbox;
 
+    @FXML
+    ToggleGroup choiceTrade;
 }
- 
-
