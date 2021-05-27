@@ -357,7 +357,7 @@ public class GamePresenter extends AbstractPresenter {
     public void onTrade(ActionEvent event) {
         String tradeCode = UUID.randomUUID().toString().trim().substring(0, 7);
         gameService.sendTradeStartedRequest((UserDTO) this.joinedLobbyUser, this.currentLobby, tradeCode);
-
+        tradeButton.setDisable(true);
     }
 
 
