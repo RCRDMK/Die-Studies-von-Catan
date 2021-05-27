@@ -26,6 +26,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Rectangle2D;
+import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
@@ -40,10 +41,7 @@ import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
-import javafx.stage.Modality;
-import javafx.stage.Screen;
-import javafx.stage.StageStyle;
-import javafx.stage.Window;
+import javafx.stage.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -2146,7 +2144,14 @@ public class GamePresenter extends AbstractPresenter {
      * <p>
      * This method creates thirteen images and rectangles. Then it creates and fills imagePatterns
      * with the images from first to thirteens. Every imagePattern is added to the privateInventoryView.
-     * Then adds thirteen corresponding labels to the privateInventoryView.
+     *
+     * After this hover and exits methods for the mouse are being executed. When the user is entering the
+     * rectangle of a card, a tooltip with what the card under the mouse cursor represents appears.
+     *
+     * Lastly it adds thirteen corresponding labels to the privateInventoryView.
+     *
+     * Enhanced by Ricardo Mook, 2021-05-27
+     * added hover and exits methods for the mouse
      *
      * @author Carsten Dekker, Iskander Yusupov
      * @since 2021-05-14
@@ -2157,6 +2162,253 @@ public class GamePresenter extends AbstractPresenter {
             Rectangle r = new Rectangle(42, 60);
             r.setFill(new ImagePattern(image));
             privateInventoryView.add(r, i - 1, 0);
+
+            switch (i){
+                case 1:
+                    Tooltip lumberHover = new Tooltip("Lumber");
+
+                    r.setOnMouseMoved(new EventHandler<MouseEvent>() {
+                        @Override
+                        public void handle(MouseEvent mouseEvent) {
+                            Node n = (Node) mouseEvent.getSource();
+                            lumberHover.show(n,mouseEvent.getScreenX(), mouseEvent.getScreenY());
+                        }
+                    });
+                    r.setOnMouseExited(new EventHandler<MouseEvent>() {
+                        @Override
+                        public void handle(MouseEvent mouseEvent) {
+                            lumberHover.hide();
+                        }
+                    });
+                    break;
+
+                case 2:
+                    Tooltip brickHover = new Tooltip("Brick");
+
+                    r.setOnMouseMoved(new EventHandler<MouseEvent>() {
+                        @Override
+                        public void handle(MouseEvent mouseEvent) {
+                            Node n = (Node) mouseEvent.getSource();
+                            brickHover.show(n,mouseEvent.getScreenX(), mouseEvent.getScreenY());
+                        }
+                    });
+                    r.setOnMouseExited(new EventHandler<MouseEvent>() {
+                        @Override
+                        public void handle(MouseEvent mouseEvent) {
+                            brickHover.hide();
+                        }
+                    });
+                    break;
+
+                case 3:
+                    Tooltip grainHover = new Tooltip("Grain");
+
+                    r.setOnMouseMoved(new EventHandler<MouseEvent>() {
+                        @Override
+                        public void handle(MouseEvent mouseEvent) {
+                            Node n = (Node) mouseEvent.getSource();
+                            grainHover.show(n,mouseEvent.getScreenX(), mouseEvent.getScreenY());
+                        }
+                    });
+
+                    r.setOnMouseExited(new EventHandler<MouseEvent>() {
+                        @Override
+                        public void handle(MouseEvent mouseEvent) {
+                            grainHover.hide();
+                        }
+                    });
+                    break;
+
+                case 4:
+                    Tooltip woolHover = new Tooltip("Wool");
+
+                    r.setOnMouseMoved(new EventHandler<MouseEvent>() {
+                        @Override
+                        public void handle(MouseEvent mouseEvent) {
+                            Node n = (Node) mouseEvent.getSource();
+                            woolHover.show(n,mouseEvent.getScreenX(), mouseEvent.getScreenY());
+                        }
+                    });
+
+                    r.setOnMouseExited(new EventHandler<MouseEvent>() {
+                        @Override
+                        public void handle(MouseEvent mouseEvent) {
+                            woolHover.hide();
+                        }
+                    });
+                    break;
+
+                case 5:
+                    Tooltip oreHover = new Tooltip("Ore");
+
+                    r.setOnMouseMoved(new EventHandler<MouseEvent>() {
+                        @Override
+                        public void handle(MouseEvent mouseEvent) {
+                            Node n = (Node) mouseEvent.getSource();
+                            oreHover.show(n,mouseEvent.getScreenX(), mouseEvent.getScreenY());
+                        }
+                    });
+
+                    r.setOnMouseExited(new EventHandler<MouseEvent>() {
+                        @Override
+                        public void handle(MouseEvent mouseEvent) {
+                            oreHover.hide();
+                        }
+                    });
+                    break;
+
+                case 6:
+                    Tooltip knightHover = new Tooltip("Knight");
+
+                    r.setOnMouseMoved(new EventHandler<MouseEvent>() {
+                        @Override
+                        public void handle(MouseEvent mouseEvent) {
+                            Node n = (Node) mouseEvent.getSource();
+                            knightHover.show(n,mouseEvent.getScreenX(), mouseEvent.getScreenY());
+                        }
+                    });
+
+                    r.setOnMouseExited(new EventHandler<MouseEvent>() {
+                        @Override
+                        public void handle(MouseEvent mouseEvent) {
+                            knightHover.hide();
+                        }
+                    });
+                    break;
+
+                case 7:
+                    Tooltip monopolyHover = new Tooltip("Monopoly");
+
+                    r.setOnMouseMoved(new EventHandler<MouseEvent>() {
+                        @Override
+                        public void handle(MouseEvent mouseEvent) {
+                            Node n = (Node) mouseEvent.getSource();
+                            monopolyHover.show(n,mouseEvent.getScreenX(), mouseEvent.getScreenY());
+                        }
+                    });
+
+                    r.setOnMouseExited(new EventHandler<MouseEvent>() {
+                        @Override
+                        public void handle(MouseEvent mouseEvent) {
+                            monopolyHover.hide();
+                        }
+                    });
+                    break;
+
+                case 8:
+                    Tooltip roadBuildingHover = new Tooltip("Road Building");
+
+                    r.setOnMouseMoved(new EventHandler<MouseEvent>() {
+                        @Override
+                        public void handle(MouseEvent mouseEvent) {
+                            Node n = (Node) mouseEvent.getSource();
+                            roadBuildingHover.show(n,mouseEvent.getScreenX(), mouseEvent.getScreenY());
+                        }
+                    });
+
+                    r.setOnMouseExited(new EventHandler<MouseEvent>() {
+                        @Override
+                        public void handle(MouseEvent mouseEvent) {
+                            roadBuildingHover.hide();
+                        }
+                    });
+                    break;
+
+                case 9:
+                    Tooltip plentyHover = new Tooltip("Year of Plenty");
+
+                    r.setOnMouseMoved(new EventHandler<MouseEvent>() {
+                        @Override
+                        public void handle(MouseEvent mouseEvent) {
+                            Node n = (Node) mouseEvent.getSource();
+                            plentyHover.show(n,mouseEvent.getScreenX(), mouseEvent.getScreenY());
+                        }
+                    });
+
+                    r.setOnMouseExited(new EventHandler<MouseEvent>() {
+                        @Override
+                        public void handle(MouseEvent mouseEvent) {
+                            plentyHover.hide();
+                        }
+                    });
+                    break;
+
+                case 10:
+                    Tooltip vicPointsHover = new Tooltip("Victory Points");
+
+                    r.setOnMouseMoved(new EventHandler<MouseEvent>() {
+                        @Override
+                        public void handle(MouseEvent mouseEvent) {
+                            Node n = (Node) mouseEvent.getSource();
+                            vicPointsHover.show(n,mouseEvent.getScreenX(), mouseEvent.getScreenY());
+                        }
+                    });
+
+                    r.setOnMouseExited(new EventHandler<MouseEvent>() {
+                        @Override
+                        public void handle(MouseEvent mouseEvent) {
+                            vicPointsHover.hide();
+                        }
+                    });
+                    break;
+
+                case 11:
+                    Tooltip citiesHover = new Tooltip("Cities");
+
+                    r.setOnMouseMoved(new EventHandler<MouseEvent>() {
+                        @Override
+                        public void handle(MouseEvent mouseEvent) {
+                            Node n = (Node) mouseEvent.getSource();
+                            citiesHover.show(n,mouseEvent.getScreenX(), mouseEvent.getScreenY());
+                        }
+                    });
+
+                    r.setOnMouseExited(new EventHandler<MouseEvent>() {
+                        @Override
+                        public void handle(MouseEvent mouseEvent) {
+                            citiesHover.hide();
+                        }
+                    });
+                    break;
+
+                case 12:
+                    Tooltip roadsHover = new Tooltip("Roads");
+
+                    r.setOnMouseMoved(new EventHandler<MouseEvent>() {
+                        @Override
+                        public void handle(MouseEvent mouseEvent) {
+                            Node n = (Node) mouseEvent.getSource();
+                            roadsHover.show(n,mouseEvent.getScreenX(), mouseEvent.getScreenY());
+                        }
+                    });
+
+                    r.setOnMouseExited(new EventHandler<MouseEvent>() {
+                        @Override
+                        public void handle(MouseEvent mouseEvent) {
+                            roadsHover.hide();
+                        }
+                    });
+                    break;
+
+                case 13:
+                    Tooltip settleHover = new Tooltip("Settlements");
+
+                    r.setOnMouseMoved(new EventHandler<MouseEvent>() {
+                        @Override
+                        public void handle(MouseEvent mouseEvent) {
+                            Node n = (Node) mouseEvent.getSource();
+                            settleHover.show(n,mouseEvent.getScreenX(), mouseEvent.getScreenY());
+                        }
+                    });
+
+                    r.setOnMouseExited(new EventHandler<MouseEvent>() {
+                        @Override
+                        public void handle(MouseEvent mouseEvent) {
+                            settleHover.hide();
+                        }
+                    });
+                    break;
+            }
         }
         privateInventoryView.add(privateLumberLabel, 0, 1);
         privateInventoryView.add(privateBrickLabel, 1, 1);
