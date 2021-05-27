@@ -1096,11 +1096,12 @@ public class GameService extends AbstractService {
                     case "Knight":
                         if (request instanceof ResolveDevelopmentCardKnightRequest) {
                             ResolveDevelopmentCardKnightRequest knightRequest = (ResolveDevelopmentCardKnightRequest) request;
-
                             RobbersNewFieldMessage rnfm = new RobbersNewFieldMessage(gameName, (UserDTO) turnPlayer, knightRequest.getField());
                             onRobbersNewFieldRequest(rnfm);
                             game.setCurrentCard("");
                             sendToAllInGame(gameName, message);
+                            turnPlayerInventory.setPlayedKnights(turnPlayerInventory.getPlayedKnights() + 1);
+                            checkForLargestArmy(knightRequest);
                         }
                         break;
 
@@ -1115,6 +1116,32 @@ public class GameService extends AbstractService {
         }
     }
 
+    /**
+     * This method evaluates if a user gets the largest army card
+     * <p>
+     * This method gets invoked by the onResolveDevelopmentCardRequest method and creates an ArrayList with all user
+     * inventories from the right game. With the given inventories this method evaluates, who gets the largest army
+     * card.
+     *
+     * @param knightRequest the ResolveDevelopmentCardKnightRequest passed by the onResolveDevelopmentCardRequest method
+     * @author Carsten Dekker
+     * @since 2021-05-27
+     */
+    public void checkForLargestArmy(ResolveDevelopmentCardKnightRequest knightRequest) {
+        Optional <Game> optionalGame = gameManagement.getGame(knightRequest.getName());
+        if(optionalGame.isPresent()) {
+            Game game = optionalGame.get();
+            ArrayList<Inventory> inventories = game.getInventoriesArrayList();
+            for (Inventory inventory : inventories) {
+                if (inventory.getPlayedKnights() < game.getLargestArmy()) {
+                    inventory.setLargestArmy(false);
+                } else if (inventory.getPlayedKnights() > game.getLargestArmy()) {
+                    inventory.setLargestArmy(true);
+                    game.setLargestArmy(inventory.getPlayedKnights());
+                }
+            }
+        }
+    }
 
     /**
      * Method to update private and public inventories in a game

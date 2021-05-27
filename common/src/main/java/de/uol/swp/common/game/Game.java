@@ -208,10 +208,6 @@ public interface Game extends Serializable {
 
     DevelopmentCardDeck getDevelopmentCardDeck();
 
-    //TODO: this Methods need to be removed after all dependencies on the 3 obsolete classes had been resolved!!!
-    GameField getGameField();
-
-
     /**
      * adds a Trade to the game
      *
@@ -322,4 +318,19 @@ public interface Game extends Serializable {
      * @since 2021-05-14
      */
     boolean rolledDiceThisTurn();
+
+    /**
+     * Getter for the int value showing the number of Knights in the currently largest army.
+     *
+     * @return int with the size of the largest army
+     */
+    int getLargestArmy();
+
+    /**
+     * Setter for the int value showing the number of Knights in the currently largest army.
+     *
+     * @param largestArmy the int value of the largest army
+     */
+    void setLargestArmy(int largestArmy);
+
 }

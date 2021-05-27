@@ -441,6 +441,38 @@ public class ClientApp extends Application implements ConnectionListener {
     }
 
     /**
+     * Handles private inventory changes
+     * <p>
+     * If an PrivateInventoryChangeMessage object is detected on the EventBus, this method is called.
+     * If the loglevel is set to INFO or higher "PrivateInventoryChangedMessage received for game: + gameName"
+     * is written to the log.
+     *
+     * @param picm The PrivateInventoryChangedMessage object detected on the EventBus
+     * @author Carsten Dekker
+     * @since 2021-05-27
+     */
+    @Subscribe
+    public void onPrivateInventoryChangedMessage(PrivateInventoryChangeMessage picm) {
+        LOG.info("PrivateInventoryChangedMessage received for game: " + picm.getName());
+    }
+
+    /**
+     * Handles public inventory changes
+     * <p>
+     * If an PublicInventoryChangeMessage object is detected on the EventBus, this method is called.
+     * If the loglevel is set to INFO or higher "PublicInventoryChangedMessage received for game: + gameName"
+     * is written to the log.
+     *
+     * @param picm The PublicInventoryChangedMessage object detected on the EventBus
+     * @author Carsten Dekker
+     * @since 2021-05-27
+     */
+    @Subscribe
+    public void onPublicInventoryChangedMessage(PublicInventoryChangeMessage picm) {
+        LOG.info("PublicInventoryChangedMessage received for game: " + picm.getName());
+    }
+
+    /**
      * Handles errors produced by the EventBus
      * <p>
      * If an DeadEvent object is detected on the EventBus, this method is called.
