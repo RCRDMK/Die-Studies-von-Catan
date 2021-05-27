@@ -680,12 +680,9 @@ public class GameService extends AbstractService {
             Optional<Game> optionalGame = gameManagement.getGame(lobby.getName());
             if (optionalGame.isPresent()) {
                 Game game = optionalGame.get();
-                ArrayList<UserDTO> usersInGame = new ArrayList<>();
                 for (User user : lobby.getPlayersReady()) {
                     user = userService.retrieveUserInformation(user);
                     game.joinUser(user);
-                    usersInGame.add((UserDTO) user);
-
                 }
                 lobby.setPlayersReadyToNull();
                 lobby.setRdyResponsesReceived(0);
@@ -958,6 +955,7 @@ public class GameService extends AbstractService {
                             response.initWithMessage(request);
                             post(response);
                             inventory.cardMonopoly.decNumber();
+                            updateInventory(game);
                             break;
                         }
 
@@ -971,6 +969,7 @@ public class GameService extends AbstractService {
                             response.initWithMessage(request);
                             post(response);
                             inventory.cardRoadBuilding.decNumber();
+                            updateInventory(game);
                             break;
                         }
 
@@ -983,6 +982,7 @@ public class GameService extends AbstractService {
                             response.initWithMessage(request);
                             post(response);
                             inventory.cardYearOfPlenty.decNumber();
+                            updateInventory(game);
                             break;
                         }
 
@@ -997,6 +997,7 @@ public class GameService extends AbstractService {
                             post(response);
                             inventory.setPlayedKnights(inventory.getPlayedKnights() + 1);
                             inventory.cardKnight.decNumber();
+                            updateInventory(game);
                             break;
                         }
 
@@ -1012,7 +1013,6 @@ public class GameService extends AbstractService {
                 response.initWithMessage(request);
                 post(response);
             }
-            updateInventory(game);
         }
     }
 
@@ -1115,6 +1115,7 @@ public class GameService extends AbstractService {
                             } else {
                                 sendToAllInGame(gameName, message);
                                 game.setCurrentCard("");
+                                updateInventory(game);
                             }
                         } else {
                             notSuccessfulResponse.initWithMessage(request);
@@ -1153,6 +1154,7 @@ public class GameService extends AbstractService {
                             onRobbersNewFieldRequest(rnfm);
                             game.setCurrentCard("");
                             sendToAllInGame(gameName, message);
+                            updateInventory(game);
                         }
                         break;
 
@@ -1163,7 +1165,6 @@ public class GameService extends AbstractService {
                         break;
                 }
             }
-            updateInventory(game);
         }
     }
 

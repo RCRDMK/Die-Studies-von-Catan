@@ -9,6 +9,7 @@ import de.uol.swp.common.game.inventory.Inventory;
 import de.uol.swp.common.game.message.*;
 import de.uol.swp.common.game.MapGraph;
 import de.uol.swp.common.game.request.*;
+import de.uol.swp.common.game.response.PlayDevelopmentCardResponse;
 import de.uol.swp.common.game.trade.TradeItem;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.user.Session;
@@ -560,22 +561,34 @@ public class GameServiceTest {
     @Test
     void playAndResolveDevelopmentCardRequestTest() {
         loginUsers();
-        gameManagement.createGame("test", userDTO, null, "Standard");
-        Optional<Game> game = gameManagement.getGame("test");
-        assertTrue(game.isPresent());
+        lobbyManagement.createLobby("test", userDTO);
+        Optional<Lobby> optionalLobby = lobbyManagement.getLobby("test");
+        assertTrue(optionalLobby.isPresent());
+        Lobby lobby = optionalLobby.get();
+        lobby.joinUser(userDTO1);
+        lobby.joinUser(userDTO2);
+        lobby.joinUser(userDTO3);
+        lobby.joinPlayerReady(userDTO);
+        lobby.joinPlayerReady(userDTO1);
+        lobby.joinPlayerReady(userDTO2);
+        lobby.joinPlayerReady(userDTO3);
+        gameService.startGame(lobby, "Standard");
+        Optional<Game> optionalGame = gameManagement.getGame("test");
+        assertTrue(optionalGame.isPresent());
+        Game game = optionalGame.get();
 
-        game.get().joinUser(userDTO1);
-        game.get().joinUser(userDTO2);
-        game.get().joinUser(userDTO3);
+        game.joinUser(userDTO1);
+        game.joinUser(userDTO2);
+        game.joinUser(userDTO3);
 
-        game.get().setUpUserArrayList();
-        game.get().setUpInventories();
+        game.setUpUserArrayList();
+        game.setUpInventories();
 
-        User userThatPlaysTheCard = game.get().getUser(0);
-        Inventory inv0 = game.get().getInventory(userThatPlaysTheCard);
-        Inventory inv1 = game.get().getInventory(game.get().getUser(1));
-        Inventory inv2 = game.get().getInventory(game.get().getUser(2));
-        Inventory inv3 = game.get().getInventory(game.get().getUser(3));
+        User userThatPlaysTheCard = game.getUser(0);
+        Inventory inv0 = game.getInventory(userThatPlaysTheCard);
+        Inventory inv1 = game.getInventory(game.getUser(1));
+        Inventory inv2 = game.getInventory(game.getUser(2));
+        Inventory inv3 = game.getInventory(game.getUser(3));
 
         inv0.cardYearOfPlenty.incNumber();
         inv0.cardRoadBuilding.incNumber();
@@ -588,36 +601,34 @@ public class GameServiceTest {
         PlayDevelopmentCardRequest pdcr = new PlayDevelopmentCardRequest("Year of Plenty", "test", (UserDTO) userThatPlaysTheCard);
         gameService.onPlayDevelopmentCardRequest(pdcr);
 
-        //TODO Testfix needed
-        //assertTrue(event instanceof PublicInventoryChangeMessage);
-        //assertTrue(((PlayDevelopmentCardResponse) event).isCanPlayCard());
+        assertTrue(event instanceof PublicInventoryChangeMessage);
 
         // Check if player 2 is not allowed to play his decCardStack because its not his turn
-        pdcr = new PlayDevelopmentCardRequest("Road Building", "test", (UserDTO) game.get().getUser(2));
+        pdcr = new PlayDevelopmentCardRequest("Road Building", "test", (UserDTO) game.getUser(2));
         gameService.onPlayDevelopmentCardRequest(pdcr);
-        //TODO Testfix needed
-        //assertTrue(event instanceof PlayDevelopmentCardResponse);
-        //TODO Testfix needed
-        //PlayDevelopmentCardResponse rsp = (PlayDevelopmentCardResponse) event;
-        //assertEquals(rsp.getUserName(), game.get().getUser(2).getUsername());
-        //assertFalse(rsp.isCanPlayCard());
+        assertTrue(event instanceof PlayDevelopmentCardResponse);
+        PlayDevelopmentCardResponse rsp = (PlayDevelopmentCardResponse) event;
+        assertEquals(rsp.getUserName(), game.getUser(2).getUsername());
+        assertFalse(rsp.isCanPlayCard());
 
         // Check if player 1 can try to resolve the wrong card
         int i = 0;
         MapGraph.StreetNode street1 = null;
         MapGraph.StreetNode street2 = null;
-        for (MapGraph.StreetNode street : game.get().getMapGraph().getStreetNodeHashSet()) {
+        for (MapGraph.StreetNode street : game.getMapGraph().getStreetNodeHashSet()) {
             if (i == 0) street1 = street;
             if (i == 1) street2 = street;
             else i++;
             if (i == 2) break;
         }
-        ResolveDevelopmentCardRoadBuildingRequest rdcrbr = new ResolveDevelopmentCardRoadBuildingRequest("Road Building", (UserDTO) userThatPlaysTheCard, game.get().getName(), street1.getUuid(), street2.getUuid());
+        assert street1 != null;
+        assert street2 != null;
+        ResolveDevelopmentCardRoadBuildingRequest rdcrbr = new ResolveDevelopmentCardRoadBuildingRequest("Road Building", (UserDTO) userThatPlaysTheCard, game.getName(), street1.getUuid(), street2.getUuid());
         gameService.onResolveDevelopmentCardRequest(rdcrbr);
         assertFalse(event instanceof ResolveDevelopmentCardMessage);
 
         // Check if player 1 is allowed to resolve his devCard and if it resolves successfully
-        ResolveDevelopmentCardYearOfPlentyRequest rdcyopr = new ResolveDevelopmentCardYearOfPlentyRequest("Year of Plenty", (UserDTO) userThatPlaysTheCard, game.get().getName(), "Lumber", "Ore");
+        ResolveDevelopmentCardYearOfPlentyRequest rdcyopr = new ResolveDevelopmentCardYearOfPlentyRequest("Year of Plenty", (UserDTO) userThatPlaysTheCard, game.getName(), "Lumber", "Ore");
         gameService.onResolveDevelopmentCardRequest(rdcyopr);
         assertTrue(event instanceof PublicInventoryChangeMessage);
         assertEquals(inv0.brick.getNumber(), 0);
@@ -625,15 +636,14 @@ public class GameServiceTest {
         assertEquals(inv0.lumber.getNumber(), 1);
 
         // End the turn and let player 2 try to play the Monopoly devCard
-        EndTurnRequest endTurnRequest = new EndTurnRequest(game.get().getName(), (UserDTO) userThatPlaysTheCard);
+        EndTurnRequest endTurnRequest = new EndTurnRequest(game.getName(), (UserDTO) userThatPlaysTheCard);
         gameService.onEndTurnRequest(endTurnRequest);
         assertTrue(event instanceof NextTurnMessage);
-        userThatPlaysTheCard = game.get().getUser(1);
-        pdcr = new PlayDevelopmentCardRequest("Monopoly", game.get().getName(), (UserDTO) userThatPlaysTheCard);
+        userThatPlaysTheCard = game.getUser(1);
+        pdcr = new PlayDevelopmentCardRequest("Monopoly", game.getName(), (UserDTO) userThatPlaysTheCard);
         gameService.onPlayDevelopmentCardRequest(pdcr);
-        //TODO Testfix needed
-        //assertTrue(event instanceof PlayDevelopmentCardResponse);
-        ResolveDevelopmentCardMonopolyRequest rdcMr = new ResolveDevelopmentCardMonopolyRequest("Monopoly", (UserDTO) userThatPlaysTheCard, game.get().getName(), "Lumber");
+        assertTrue(event instanceof PublicInventoryChangeMessage);
+        ResolveDevelopmentCardMonopolyRequest rdcMr = new ResolveDevelopmentCardMonopolyRequest("Monopoly", (UserDTO) userThatPlaysTheCard, game.getName(), "Lumber");
         gameService.onResolveDevelopmentCardRequest(rdcMr);
         assertTrue(event instanceof PublicInventoryChangeMessage);
         assertEquals(inv0.lumber.getNumber(), 0);
@@ -642,19 +652,17 @@ public class GameServiceTest {
         assertEquals(inv3.lumber.getNumber(), 0);
 
         // End the turn and let player 3 try to play the Road Building card
-        endTurnRequest = new EndTurnRequest(game.get().getName(), (UserDTO) userThatPlaysTheCard);
+        endTurnRequest = new EndTurnRequest(game.getName(), (UserDTO) userThatPlaysTheCard);
         gameService.onEndTurnRequest(endTurnRequest);
-        userThatPlaysTheCard = game.get().getUser(2);
+        userThatPlaysTheCard = game.getUser(2);
 
-        pdcr = new PlayDevelopmentCardRequest("Road Building", game.get().getName(), (UserDTO) userThatPlaysTheCard);
+        pdcr = new PlayDevelopmentCardRequest("Road Building", game.getName(), (UserDTO) userThatPlaysTheCard);
         gameService.onPlayDevelopmentCardRequest(pdcr);
-        //TODO Testfix needed
-        //assertTrue(event instanceof PlayDevelopmentCardResponse);
+        assertTrue(event instanceof PublicInventoryChangeMessage);
 
-        rdcrbr = new ResolveDevelopmentCardRoadBuildingRequest("Road Building", (UserDTO) userThatPlaysTheCard, game.get().getName(), street1.getUuid(), street2.getUuid());
+        rdcrbr = new ResolveDevelopmentCardRoadBuildingRequest("Road Building", (UserDTO) userThatPlaysTheCard, game.getName(), street1.getUuid(), street2.getUuid());
         gameService.onResolveDevelopmentCardRequest(rdcrbr);
-        //TODO Testfix needed
-        //assertTrue(event instanceof ResolveDevelopmentCardMessage);
+        assertTrue(event instanceof PublicInventoryChangeMessage);
 
         // check if player 3 (index 2) is the occupier of the streets that were built with the Road Building decCardStack
         assertEquals(street1.getOccupiedByPlayer(), 2);
