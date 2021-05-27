@@ -18,8 +18,8 @@ public class ServerModule extends AbstractModule {
 
     private final EventBus bus = new EventBus();
     //Hier kann der Store ausgewählt werden
-    private final UserStore userStore = new MainMemoryBasedUserStore();
-    //private final UserStore userStore = new SQLBasedUserStore();
+    //private final UserStore userStore = new MainMemoryBasedUserStore();
+    private final UserStore userStore = new SQLBasedUserStore();
 
     @Override
     protected void configure() {
