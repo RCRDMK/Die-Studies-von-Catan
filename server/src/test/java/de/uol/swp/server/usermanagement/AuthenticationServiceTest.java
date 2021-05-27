@@ -79,7 +79,7 @@ class AuthenticationServiceTest {
 
     @BeforeEach
     void testPreparation() throws SQLException {
-        if(userManagement.retrieveAllUsers().contains(user)) {
+        if (userManagement.retrieveAllUsers().contains(user)) {
             userManagement.logout(user);
             userManagement.dropUser(user);
         } else if (userManagement.retrieveAllUsers().contains(user2)) {

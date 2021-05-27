@@ -14,19 +14,25 @@ import java.util.Set;
  * @author Iskander Yusupov
  * @since 2021-01-15
  */
-
 public class GameCreatedMessage extends AbstractGameMessage {
     private final MapGraph mapGraph;
     private final ArrayList<User> users;
     private final Set<User> humans;
     private final String gameFieldVariant;
 
+    /**
+     * Constructor used for serialization
+     *
+     * @author Marc Hermes
+     * @since 2021-05-27
+     */
     public GameCreatedMessage() {
         this.mapGraph = null;
         this.users = null;
         this.humans = null;
         this.gameFieldVariant = null;
     }
+
     /**
      * Constructor
      * <p>
@@ -50,6 +56,13 @@ public class GameCreatedMessage extends AbstractGameMessage {
         return users;
     }
 
+    /**
+     * Getter for the Set of human users in the game
+     *
+     * @return the Set containing all human users in the game
+     * @author Marc Hermes
+     * @since 2021-05-27
+     */
     public Set<User> getHumans() {
         return humans;
     }

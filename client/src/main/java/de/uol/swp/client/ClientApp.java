@@ -264,10 +264,19 @@ public class ClientApp extends Application implements ConnectionListener {
         sceneManager.createSummaryTab(message.getName());
     }
 
+    /**
+     * When a JoinOnGoingGameResponse is detected on the EventBus this method is invoked
+     * <p>
+     * The same actions are done as when a GameCreatedMessage is detected
+     *
+     * @param response the JoinOnGoingGameResponse detected on the EventBus
+     * @author Marc Hermes
+     * @since 2021-05-27
+     */
     @Subscribe
     public void userJoinedOnGoingGame(JoinOnGoingGameResponse response) {
-        LOG.debug("Received JoinOnGoingGameResponse from Server, may " + (!response.isJoinedSuccessful() ? "not" : "") +" join the game.");
-        if(response.isJoinedSuccessful()) {
+        LOG.debug("Received JoinOnGoingGameResponse from Server, may " + (!response.isJoinedSuccessful() ? "not" : "") + " join the game.");
+        if (response.isJoinedSuccessful()) {
             sceneManager.showGameScreen(response.getGameName());
             sceneManager.suspendLobbyTab(response.getGameName());
             sceneManager.createSummaryTab(response.getGameName());

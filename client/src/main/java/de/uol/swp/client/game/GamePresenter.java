@@ -507,6 +507,16 @@ public class GamePresenter extends AbstractPresenter {
         }
     }
 
+    /**
+     * When a JoinOnGoinGameResponse is detected on the EventBus this method is invoked
+     * <p>
+     * First the usual actions when joining a game are done to initialize the visuals of the presenter.
+     * Then the method updateGameField() is called to update the mapGraphNodes that are already built by players.
+     *
+     * @param joggr the JoinOnGoingGameResponse detected on the EventBus
+     * @author Marc Hermes
+     * @since 2021-05-27
+     */
     @Subscribe
     public void onJoinOnGoingGameResponse(JoinOnGoingGameResponse joggr) {
         if (this.currentLobby == null && joggr.isJoinedSuccessful()) {
@@ -1030,6 +1040,16 @@ public class GamePresenter extends AbstractPresenter {
         }
     }
 
+    /**
+     * When a JoinOnGoingGameMessage is detected on the EventBus this method is invoked
+     * <p>
+     * If the currentLobby is not null, meaning this is not an empty presenter and the currentLobby equals
+     * one in the JoinOnGoingGameMessage an update of the users in this presenter is done
+     *
+     * @param joggm the JoinOnGoingGameMessage detected on the EventBus
+     * @author Marc Hermes
+     * @since 2021-05-27
+     */
     @Subscribe
     public void onJoinOnGoingGameMessage(JoinOnGoingGameMessage joggm) {
         if (this.currentLobby != null) {
@@ -1046,12 +1066,14 @@ public class GamePresenter extends AbstractPresenter {
      * <p>
      * This method clears the entire user list and then adds the name of each user in the list given to the game menu
      * user list. If there ist no user list this creates one.
+     * <p>
+     * enhanced by Marc Hermes, 2021-05-27
      *
      * @param l      A list of User objects including all users in the game
      * @param humans a set of Users that contains all human users in the game
      * @implNote The code inside this Method has to run in the JavaFX-application thread. Therefore it is crucial not to
      * remove the {@code Platform.runLater()}
-     * @author Iskander Yusupov , @design Marc Hermes, Ricardo Mook
+     * @author Iskander Yusupov, Marc Hermes, Ricardo Mook
      * @see de.uol.swp.common.user.UserDTO
      * @since 2020-03-14
      */
@@ -1395,7 +1417,8 @@ public class GamePresenter extends AbstractPresenter {
         for (MapGraphNodeContainer mapGraphNodeContainer : mapGraphNodeContainers) {
             Platform.runLater(() -> {
                 mapGraphNodeContainer.getCircle().setFill(determinePlayerColorByIndex(mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer()));
-                if(mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer() != 666) mapGraphNodeContainer.getCircle().setVisible(true);
+                if (mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer() != 666)
+                    mapGraphNodeContainer.getCircle().setVisible(true);
             });
         }
         for (HexagonContainer hexagonContainer : hexagonContainers) {

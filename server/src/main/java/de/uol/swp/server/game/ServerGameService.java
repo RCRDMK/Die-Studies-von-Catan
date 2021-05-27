@@ -19,8 +19,10 @@ public interface ServerGameService {
      * Creates a new game and adds it to the list
      * <p>
      *
-     * @param name  the name of the game to create
-     * @param owner the user who wants to create a game
+     * @param name             the name of the game to create
+     * @param owner            the user who wants to create a game
+     * @param usersInLobby     the set of users in the lobby
+     * @param gameFieldVariant the String name of the gameFieldVariant
      * @implNote the primary key of the games is the name therefore the name has
      * to be unique
      * @author Iskander Yusupov
@@ -28,7 +30,6 @@ public interface ServerGameService {
      * @since 2021-01-15
      */
     void createGame(String name, User owner, Set<User> usersInLobby, String gameFieldVariant);
-
 
     /**
      * Deletes game with requested name

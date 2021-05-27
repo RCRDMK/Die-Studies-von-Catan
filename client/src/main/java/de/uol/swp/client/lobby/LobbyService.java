@@ -138,6 +138,14 @@ public class LobbyService {
         LOG.debug("StartGameRequest posted on Eventbus");
     }
 
+    /**
+     * Posts a request to join an ongoing game on the EventBus
+     *
+     * @param name the name of the game to join
+     * @param user the user who wants to join
+     * @author Marc Hermes
+     * @since 2021-05-27
+     */
     public void joinGame(String name, UserDTO user) {
         JoinOnGoingGameRequest joinOnGoingGameRequest = new JoinOnGoingGameRequest(name, user);
         eventBus.post(joinOnGoingGameRequest);

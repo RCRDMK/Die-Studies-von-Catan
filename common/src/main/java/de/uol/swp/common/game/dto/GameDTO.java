@@ -56,9 +56,10 @@ public class GameDTO implements Game {
     /**
      * Constructor
      *
-     * @param name              The name the game should have
-     * @param creator           The user who created the game and therefore shall be the owner
-     * @param gameFieldVariant  The variant that the game field should have
+     * @param name             The name the game should have
+     * @param creator          The user who created the game and therefore shall be the owner
+     * @param gameFieldVariant The variant that the game field should have
+     * @param usersInLobby     The actual users in the lobby
      * @since 2021-01-15
      */
     public GameDTO(String name, User creator, String gameFieldVariant, Set<User> usersInLobby) {
@@ -131,13 +132,25 @@ public class GameDTO implements Game {
         return userArrayList.get(index);
     }
 
+    /**
+     * Method called when starting the game
+     * <p>
+     * First puts all users in the lobby into the usersArrayList.
+     * Then, if there are less players in the lobby than the lobby owner wanted to play with,
+     * the difference will be filled with AI Users.
+     * In case the other users in the lobby just didn't want to start the game, AI Users will also play until
+     * they decide they want to join.
+     *
+     * @author Marc Hermes
+     * @since 2021-05-27
+     */
     @Override
     public void setUpUserArrayList() {
         userArrayList.addAll(usersInLobby);
         int players = userArrayList.size();
         int i = 0;
-        while(amountOfPlayers > players) {
-            UserDTO aiUser = new UserDTO("KI"+i, "", "", 1);
+        while (amountOfPlayers > players) {
+            UserDTO aiUser = new UserDTO("KI" + i, "", "", 1);
             aiUsers.add(aiUser);
             userArrayList.add(aiUser);
             players++;
@@ -201,7 +214,6 @@ public class GameDTO implements Game {
      * @author Philip Nitsche
      * @since 2021-04-26
      */
-
     @Override
     public ArrayList<MapGraph.BuildingNode> getLastBuildingOfOpeningTurn() {
         return lastBuildingOfOpeningTurn;
@@ -280,7 +292,6 @@ public class GameDTO implements Game {
      * It compares the user with the inventory user and returns the inventory from user
      *
      * @param user form the inventory you want
-     *
      * @return The Inventory from user
      * @author Anton Nikiforov
      * @see de.uol.swp.common.game.inventory.Inventory

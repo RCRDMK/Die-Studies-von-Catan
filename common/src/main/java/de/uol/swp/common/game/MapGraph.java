@@ -202,12 +202,12 @@ public class MapGraph implements Serializable {
 
         }
         for (Hexagon hexagon : placedHexagons) {
-            if(!hexagon.equals(middle))
-            hexagon.generateNodes();
+            if (!hexagon.equals(middle))
+                hexagon.generateNodes();
         }
         for (Hexagon hexagon : placedHexagons) {
-            if(!hexagon.equals(middle))
-            hexagon.interconnectOwnNodes();
+            if (!hexagon.equals(middle))
+                hexagon.interconnectOwnNodes();
         }
 
     }
@@ -218,8 +218,8 @@ public class MapGraph implements Serializable {
      * A random hexagon of the already generated ones gets selected and will then randomly expand in 1 direction
      * Furthermore the list containing the existing hexagons gets updated because a new one was created
      *
-     * @param list the ArrayList containing the existing hexagons
-     * @param rand the random number used to index the ArrayList of the hexagons
+     * @param list      the ArrayList containing the existing hexagons
+     * @param rand      the random number used to index the ArrayList of the hexagons
      * @param direction the random number used to decide the direction in which to expand
      * @author Marc Hermes
      * @since 2021-05-14
@@ -370,7 +370,7 @@ public class MapGraph implements Serializable {
         harborList.add(6);
         harborList.add(6);
 
-        for(Hexagon hexagonToInspect : hexagonHashSet) {
+        for (Hexagon hexagonToInspect : hexagonHashSet) {
             if (!hexagonToInspect.equals(middle)) {
                 int rand3 = randomInt(0, harborList.size() - 1);
 
@@ -411,7 +411,7 @@ public class MapGraph implements Serializable {
                         hexagonToInspect.buildingBottom.setTypeOfHarbor(harborList.get(rand3));
                         harborList.remove(rand3);
                     }
-                    if(harborList.isEmpty()) {
+                    if (harborList.isEmpty()) {
                         break;
                     }
 
@@ -515,7 +515,7 @@ public class MapGraph implements Serializable {
      * <p>The first player, that has a Route of at least 5 StreetNode-objects, gets awarded the "Longest
      * Traderoute"-Flag.
      * </p>
-     *
+     * <p>
      * enhanced by Marc Hermes 2021-05-19
      *
      * @return The int array representing the index of the player with the longest road, as well as the length of the longest road. [0] -> the PlayerIndex, [1] -> the length
@@ -525,9 +525,9 @@ public class MapGraph implements Serializable {
      */
     public int[] returnPlayerWithLongestRoad() {
         int[] returnValue = new int[2];
-        for(int i = 0; i < 4; i++) {
+        for (int i = 0; i < 4; i++) {
             int length = longestStreetPathCalculator.getLongestPath(i);
-            if(length > returnValue[1]) {
+            if (length > returnValue[1]) {
                 returnValue[1] = length;
                 returnValue[0] = i;
             }
@@ -614,26 +614,13 @@ public class MapGraph implements Serializable {
 
         private final HashSet<BuildingNode> connectedBuildingNodes = new HashSet<>();
 
-        //private final UUID uuid;
-
-        //private final String positionToParent;
-        //private int occupiedByPlayer = 666;
-        //private Hexagon parent;
-
         //CONSTRUCTOR
 
         public StreetNode(String position, Hexagon h, UUID uuid) {
             super(position, h, uuid);
-            //this.positionToParent = position;
-            //this.parent = h;
-            //this.uuid = uuid;
         }
 
         //GETTER SETTER
-
-        /*public int getOccupiedByPlayer() {
-            return occupiedByPlayer;
-        }*/
 
         public HashSet<BuildingNode> getConnectedBuildingNodes() {
             return connectedBuildingNodes;
@@ -647,29 +634,14 @@ public class MapGraph implements Serializable {
             }
         }
 
-        /*public Hexagon getParent() {
-            return parent;
-        }*/
-
-        /*public void setParent(Hexagon parent) {
-            this.parent = parent;
-        }*/
-
-        /*public String getPositionToParent() {
-            return positionToParent;
-        }*/
-
-        /*public UUID getUuid() {
-            return uuid;
-        }*/
-
         //METHODS
 
         /**
          * Builds a road for player with parsed index.
          * Calls the function to update the matrix with new Street.
-         *
+         * <p>
          * enhanced by Marc, Kirstin, 2021-04-23
+         *
          * @param playerIndex Index of the player who wants to build a road
          * @return True if construction was successful, false if not.
          * @author Pieter Vogt
@@ -697,11 +669,7 @@ public class MapGraph implements Serializable {
 
         private final HashSet<StreetNode> connectedStreetNodes = new HashSet<>();
 
-        //private final UUID uuid;
-        //private final String positionToParent;
         private int typeOfHarbor;
-        //private int occupiedByPlayer = 666;
-        //private Hexagon parent;
         private int sizeOfSettlement = 0;
         //CONSTRUCTOR
 
@@ -714,9 +682,6 @@ public class MapGraph implements Serializable {
          */
         public BuildingNode(String position, Hexagon h, UUID uuid) {
             super(position, h, uuid);
-            //this.positionToParent = position;
-            //this.parent = h;
-            //this.uuid = uuid;
         }
 
         //GETTER SETTER
@@ -741,31 +706,22 @@ public class MapGraph implements Serializable {
             }
         }
 
-        /*public Hexagon getParent() {
-            return parent;
-        }*/
-
-        /*public void setParent(Hexagon parent) {
-            this.parent = parent;
-        }*/
-
-        /*public String getPositionToParent() {
-            return positionToParent;
-        }*/
-
         public int getSizeOfSettlement() {
             return sizeOfSettlement;
         }
 
-        public void incSizeOfSettlement() {this.sizeOfSettlement++; }
+        public void incSizeOfSettlement() {
+            this.sizeOfSettlement++;
+        }
 
         //METHODS
 
         /**
          * Builds or upgrades a settlement for player with parsed index.
          * Calls the function to update the matrix with new building, if the building is not just a size increase.
-         *
+         * <p>
          * enhanced by Marc, Kirstin, 2021-04-23
+         *
          * @param playerIndex Index of the player who wants to build or upgrade a building.
          * @return True if construction was successful, false if not.
          * @author Pieter Vogt

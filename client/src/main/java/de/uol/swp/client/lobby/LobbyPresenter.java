@@ -74,8 +74,6 @@ public class LobbyPresenter extends AbstractPresenter {
     @FXML
     public ToggleGroup minimumAmountOfPlayersToggleButtons;
     @FXML
-    public RadioButton minimum1Player;
-    @FXML
     public RadioButton minimum2Players;
     @FXML
     public RadioButton minimum3Players;
@@ -113,36 +111,68 @@ public class LobbyPresenter extends AbstractPresenter {
     private ChatService chatService;
 
 
+    /**
+     * Method called when the StandardGameField radioButton is pressed
+     *
+     * @author Marc Hermes
+     * @since 2021-05-14
+     */
     @FXML
     public void onStandardGameField() {
         gameFieldVariant = "Standard";
     }
 
+    /**
+     * Method called when the RandomGameField radioButton is pressed
+     *
+     * @author Marc Hermes
+     * @since 2021-05-14
+     */
     @FXML
     public void onRandomGameField() {
         gameFieldVariant = "Random";
     }
 
+    /**
+     * Method called when the VeryRandomGameField radioButton is pressed
+     *
+     * @author Marc Hermes
+     * @since 2021-05-14
+     */
     @FXML
     public void onVeryRandomGameField() {
         gameFieldVariant = "VeryRandom";
     }
 
-    @FXML
-    public void on1Player() {
-        minimumAmountOfPlayers = 1;
-    }
-
+    /**
+     * Method called when the 2Players radioButton is pressed
+     *
+     * @author Marc Hermes
+     * @since 2021-05-27
+     */
     @FXML
     public void on2Players() {
         minimumAmountOfPlayers = 2;
     }
 
+    /**
+     * Method called when the 3Players radioButton is pressed
+     *
+     * @author Marc Hermes
+     * @since 2021-05-27
+     */
     @FXML
     public void on3Players() {
         minimumAmountOfPlayers = 3;
     }
 
+
+    /**
+     * Method called when the 4Players radioButton is pressed
+     *
+     * @author Marc Hermes
+     * @since 2021-05-27
+     */
     @FXML
     public void on4Players() {
         minimumAmountOfPlayers = 4;
@@ -165,6 +195,12 @@ public class LobbyPresenter extends AbstractPresenter {
         notEnoughPlayersLabel.setVisible(false);
     }
 
+    /**
+     * Method called when the JoinGame button is pressed
+     *
+     * @author Marc Hermes
+     * @since 2021-05-27
+     */
     @FXML
     public void onJoinGame() {
         LOG.debug("JoinGame Button Presse");
@@ -248,10 +284,16 @@ public class LobbyPresenter extends AbstractPresenter {
             randomGameField.setDisable(false);
             standardGameField.setDisable(false);
             veryRandomGameField.setDisable(false);
+            minimum2Players.setDisable(false);
+            minimum3Players.setDisable(false);
+            minimum4Players.setDisable(false);
         } else {
             standardGameField.setDisable(true);
             randomGameField.setDisable(true);
             veryRandomGameField.setDisable(true);
+            minimum2Players.setDisable(true);
+            minimum3Players.setDisable(true);
+            minimum4Players.setDisable(true);
         }
     }
 
@@ -812,6 +854,16 @@ public class LobbyPresenter extends AbstractPresenter {
         }
     }
 
+    /**
+     * When a GameDroppedMessage is detected on the EventBus this method is invoked
+     * <p>
+     * If the currentLobby is not null, meaning this isn't an empty presenter and the currentLobby equals the
+     * lobby mentioned in the GameDroppedMessage button visibility is adjusted
+     *
+     * @param gdm the GameDroppedMessage detected on the EventBus
+     * @author Marc Hermes
+     * @since 2021-05-27
+     */
     @Subscribe
     public void onGameDroppedMessage(GameDroppedMessage gdm) {
         if (this.currentLobby != null) {
@@ -823,6 +875,16 @@ public class LobbyPresenter extends AbstractPresenter {
         }
     }
 
+    /**
+     * When a GameFinishedMessage is detected on the EventBus this method is invoked
+     * <p>
+     * If the currentLobby is not null, meaning this isn't an empty presenter and the currentLobby equals the
+     * lobby mentioned in the GameFinishedMessage button visibility is adjusted
+     *
+     * @param gfm the GameFinishedMessage detected on the EventBus
+     * @author Marc Hermes
+     * @since 2021-05-27
+     */
     @Subscribe
     public void onGameFinishedMessage(GameFinishedMessage gfm) {
         if (this.currentLobby != null) {
@@ -834,6 +896,16 @@ public class LobbyPresenter extends AbstractPresenter {
         }
     }
 
+    /**
+     * When a GameStartedMessage is detected on the EventBus this method is invoked
+     * <p>
+     * If the currentLobby is not null, meaning this isn't an empty presenter and the currentLobby equals the
+     * lobby mentioned in the GameStartedMessage button visibility is adjusted
+     *
+     * @param gsm the GameDroppedMessage detected on the EventBus
+     * @author Marc Hermes
+     * @since 2021-05-27
+     */
     @Subscribe
     public void onGameStartedMessage(GameStartedMessage gsm) {
         if (this.currentLobby != null) {
@@ -844,6 +916,4 @@ public class LobbyPresenter extends AbstractPresenter {
             }
         }
     }
-
 }
-

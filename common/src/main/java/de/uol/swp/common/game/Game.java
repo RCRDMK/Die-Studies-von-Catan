@@ -164,7 +164,7 @@ public interface Game extends Serializable {
     /**
      * Getter for the Inventory from user
      *
-     * @param user
+     * @param user the User whose inventory to get
      * @return The Inventory from user
      * @author Anton Nikiforov
      * @see de.uol.swp.common.game.inventory.Inventory
@@ -197,7 +197,7 @@ public interface Game extends Serializable {
     /**
      * Puts the parsed MapGraph into the DTO.
      *
-     * @param mapGraph
+     * @param mapGraph the mapGraph to set as the mapGraph of this gameDTO
      * @author Pieter Vogt
      * @see MapGraph
      * @since 2021-04-11
@@ -263,7 +263,7 @@ public interface Game extends Serializable {
      * getter for the boolean value whether or not a card was already played this turn.
      * useful, as only 1 card may be played each turn
      *
-     * @return
+     * @return true, if already played one card, false if not
      * @author Marc Hermes
      * @since 2021-05-03
      */
@@ -323,5 +323,12 @@ public interface Game extends Serializable {
      */
     boolean rolledDiceThisTurn();
 
+    /**
+     * Setter for the minimum amount of players the owner wants to play with in the game
+     *
+     * @param amount the minimum amount of players
+     * @author Marc Hermes
+     * @since 2021-05-27
+     */
     void setAmountOfPlayers(int amount);
 }

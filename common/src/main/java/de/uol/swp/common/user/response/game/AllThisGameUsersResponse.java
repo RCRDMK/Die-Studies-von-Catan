@@ -1,12 +1,9 @@
 package de.uol.swp.common.user.response.game;
 
 import de.uol.swp.common.message.AbstractResponseMessage;
-import de.uol.swp.common.user.Session;
 import de.uol.swp.common.user.User;
-import de.uol.swp.common.user.UserDTO;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -51,7 +48,9 @@ public class AllThisGameUsersResponse extends AbstractResponseMessage {
      * List contains copies of the User objects. These copies have their password
      * variable set to an empty String.
      *
-     * @param users List of all sessions of the users currently in the game
+     * @param humanUsers the set of users containing all human users of this game
+     * @param users      List of all users currently in the game
+     * @param gameName   the name of the game for this request
      * @author Iskander Yusupov
      * @since 2021-01-15
      */
@@ -85,6 +84,13 @@ public class AllThisGameUsersResponse extends AbstractResponseMessage {
         return game;
     }
 
+    /**
+     * Getter for the set of human users in the game
+     *
+     * @return the set of human users in the game
+     * @author Marc Hermes
+     * @since 2021-05-27
+     */
     public Set<User> getHumanUsers() {
         return humanUsers;
     }

@@ -163,7 +163,7 @@ public class SceneManager {
      * This mainMenuTab is then added to the tabPane.
      * <p>
      * enhanced by Alexander Losse and Marc Hermes - 2021-01-20
-     *
+     * <p>
      * enhanced by Ricardo Mook - 2021-04-28
      * added a CSS rule
      *
@@ -191,7 +191,7 @@ public class SceneManager {
      * <p>
      * If the loginScene is null it gets set to a new scene containing the
      * a pane showing the login view as specified by the LoginView FXML file.
-     *
+     * <p>
      * enhanced by Ricardo Mook - 2021-04-28
      * added a CSS rule
      *
@@ -214,7 +214,7 @@ public class SceneManager {
      * If the registrationScene is null it gets set to a new scene containing the
      * a pane showing the registration view as specified by the RegistrationView
      * FXML file.
-     *
+     * <p>
      * enhanced by Ricardo Mook - 2021-04-28
      * added a CSS rule
      *
@@ -238,7 +238,7 @@ public class SceneManager {
      * pane showing the lobby view as specified by the LobbyView FXML file
      * <p>
      * enhanced by Alexander Losse and Marc Hermes - 2021-01-20
-     *
+     * <p>
      * enhanced by Ricardo Mook - 2021-04-28
      * added a CSS rule
      *
@@ -260,7 +260,7 @@ public class SceneManager {
      * If the gameScene is null it gets set to a new scene containing the
      * a pane showing the game view as specified by the GameView
      * FXML file
-     *
+     * <p>
      * enhanced by Ricardo Mook - 2021-04-28
      * added a CSS rule
      *
@@ -282,7 +282,7 @@ public class SceneManager {
      * If the tradeScene is null it gets set to a new scene containing the
      * a pane showing the game view as specified by the TradeView
      * FXML file
-     *
+     * <p>
      * enhanced by Ricardo Mook - 2021-04-28
      * added a CSS rule
      *
@@ -324,7 +324,7 @@ public class SceneManager {
      * If the userSettingsScene is null it gets set to a new scene containing the
      * a pane showing the userSettings view as specified by the UserSettingsView
      * FXML file.
-     *
+     * <p>
      * enhanced by Ricardo Mook - 2021-04-28
      * added a CSS rule
      *
@@ -503,15 +503,16 @@ public class SceneManager {
     public void onUserSettingsErrorEvent(UserSettingsErrorEvent event) {
         showError(event.getMessage());
     }
-/**
- * Pauses the background music when a MuteMusicMessage on the Eventbus is detected
- *
- * @param mmm The MuteMusicMessage on the Eventbus
- * @author Ricardo Mook
- * @since 2021-05-08
- */
+
+    /**
+     * Pauses the background music when a MuteMusicMessage on the Eventbus is detected
+     *
+     * @param mmm The MuteMusicMessage on the Eventbus
+     * @author Ricardo Mook
+     * @since 2021-05-08
+     */
     @Subscribe
-    public void onMuteMusicEvent(MuteMusicMessage mmm){
+    public void onMuteMusicEvent(MuteMusicMessage mmm) {
         player.pause();
     }
 
@@ -523,7 +524,7 @@ public class SceneManager {
      * @since 2021-05-08
      */
     @Subscribe
-    public void onUnmuteMusicEvent(UnmuteMusicMessage umm){
+    public void onUnmuteMusicEvent(UnmuteMusicMessage umm) {
         player.play();
     }
 
@@ -572,7 +573,6 @@ public class SceneManager {
      * <p>
      * The current scene and title are saved in the lastScene and lastTitle variables,
      * before the new scene and title are set and shown.
-     *
      *
      * @param scene New scene to show
      * @param title New window title

@@ -139,7 +139,6 @@ public class GameService extends AbstractService {
         Optional<Game> optionalGame = gameManagement.getGame(retrieveAllThisGameUsersRequest.getName());
         if (optionalGame.isPresent()) {
             Game game = optionalGame.get();
-            //List<Session> gameUsers = authenticationService.getSessions(game.getUsers());
             ArrayList<User> gameUsers = game.getUsersList();
             Set<User> actualUsers = game.getUsers();
             if (retrieveAllThisGameUsersRequest.getMessageContext().isPresent()) {
@@ -611,7 +610,7 @@ public class GameService extends AbstractService {
         if (optionalLobby.isPresent()) {
             Lobby lobby = optionalLobby.get();
             Set<User> usersInLobby = lobby.getUsers();
-            if (gameManagement.getGame(lobby.getName()).isEmpty() && startGameRequest.getMinimumAmountOfPlayers() > 0 && startGameRequest.getUser().equals(lobby.getOwner())) {
+            if (gameManagement.getGame(lobby.getName()).isEmpty() && startGameRequest.getMinimumAmountOfPlayers() > 0 && startGameRequest.getMinimumAmountOfPlayers() < 5 && startGameRequest.getUser().equals(lobby.getOwner())) {
                 lobby.setPlayersReadyToNull();
                 lobby.setGameFieldVariant(startGameRequest.getGameFieldVariant());
                 lobby.setMinimumAmountOfPlayers(startGameRequest.getMinimumAmountOfPlayers());
@@ -746,6 +745,19 @@ public class GameService extends AbstractService {
         }
     }
 
+    /**
+     * Handles JoinOnGoingGameRequests from the client found on the EventBus
+     * <p>
+     * First check if the game of the lobby has already started and the game is present
+     * Then check if the user is in the lobby and not already part of the game.
+     * If everything checks out, join the user in the game, thus replacing an AI player in the game
+     * and send a Response to the user who joined as well as inform all other users in the game that
+     * a new user joined the game.
+     *
+     * @param request the JoinOnGoingGameRequest detected on the EventBus
+     * @author Marc Hermes
+     * @since 2021-05-27
+     */
     @Subscribe
     public void onJoinOnGoingGameRequest(JoinOnGoingGameRequest request) {
         Optional<Lobby> optionalLobby = lobbyService.getLobby(request.getName());
@@ -770,19 +782,17 @@ public class GameService extends AbstractService {
                         // send information to user
                         response = new JoinOnGoingGameResponse(game.getName(), request.getUser(), true, game.getMapGraph(), game.getUsersList(), game.getUsers(), lobby.getGameFieldVariant());
                         sendToSpecificUser(request.getMessageContext().get(), response);
-                        var gameMessage = new JoinOnGoingGameMessage(game.getName(),request.getUser(), game.getUsersList(), game.getUsers());
+                        var gameMessage = new JoinOnGoingGameMessage(game.getName(), request.getUser(), game.getUsersList(), game.getUsers());
                         sendToAllInGame(game.getName(), gameMessage);
                         updateInventory(game);
                         var currentTurnMessage = new NextTurnMessage(game.getName(), game.getUser(game.getTurn()).getUsername(), game.getTurn(), game.isStartingTurns());
                         sendToAllInGame(game.getName(), currentTurnMessage);
 
                     } else {
-                        // Already in the game
                         sendToSpecificUser(request.getMessageContext().get(), response);
                     }
                 }
             } else {
-                //Game hasn't even started yet or is not
                 sendToSpecificUser(request.getMessageContext().get(), response);
             }
         }
