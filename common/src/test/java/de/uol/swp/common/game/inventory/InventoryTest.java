@@ -338,17 +338,17 @@ public class InventoryTest {
     public void incCardTest(){
         Inventory inventory = new Inventory(user);
 
-        inventory.incCard("Lumber", 10);
-        inventory.incCard("Brick", 10);
-        inventory.incCard("Grain", 10);
-        inventory.incCard("Wool", 10);
-        inventory.incCard("Ore", 10);
-        inventory.incCard("Knight", 10);
-        inventory.incCard("Monopoly", 10);
-        inventory.incCard("Road Building", 10);
-        inventory.incCard("Year of Plenty", 10);
-        inventory.incCard("Victory Point Card", 1);
-        inventory.incCard("Test", 1);
+        inventory.incCardStack("Lumber", 10);
+        inventory.incCardStack("Brick", 10);
+        inventory.incCardStack("Grain", 10);
+        inventory.incCardStack("Wool", 10);
+        inventory.incCardStack("Ore", 10);
+        inventory.incCardStack("Knight", 10);
+        inventory.incCardStack("Monopoly", 10);
+        inventory.incCardStack("Road Building", 10);
+        inventory.incCardStack("Year of Plenty", 10);
+        inventory.incCardStack("Victory Point Card", 1);
+        inventory.incCardStack("Test", 1);
 
         assertEquals(10, inventory.lumber.getNumber());
         assertEquals(10, inventory.brick.getNumber());
@@ -366,28 +366,28 @@ public class InventoryTest {
     public void decCardTest(){
         Inventory inventory = new Inventory(user);
 
-        inventory.incCard("Lumber", 10);
-        inventory.incCard("Brick", 10);
-        inventory.incCard("Grain", 10);
-        inventory.incCard("Wool", 10);
-        inventory.incCard("Ore", 10);
-        inventory.incCard("Knight", 10);
-        inventory.incCard("Monopoly", 10);
-        inventory.incCard("Road Building", 10);
-        inventory.incCard("Year of Plenty", 10);
-        inventory.incCard("Victory Point Card", 1);
+        inventory.incCardStack("Lumber", 10);
+        inventory.incCardStack("Brick", 10);
+        inventory.incCardStack("Grain", 10);
+        inventory.incCardStack("Wool", 10);
+        inventory.incCardStack("Ore", 10);
+        inventory.incCardStack("Knight", 10);
+        inventory.incCardStack("Monopoly", 10);
+        inventory.incCardStack("Road Building", 10);
+        inventory.incCardStack("Year of Plenty", 10);
+        inventory.incCardStack("Victory Point Card", 1);
 
-        inventory.decCard("Lumber", 2);
-        inventory.decCard("Brick", 2);
-        inventory.decCard("Grain", 2);
-        inventory.decCard("Wool", 2);
-        inventory.decCard("Ore", 2);
-        inventory.decCard("Knight", 2);
-        inventory.decCard("Monopoly", 2);
-        inventory.decCard("Road Building", 2);
-        inventory.decCard("Year of Plenty", 2);
-        inventory.decCard("Victory Point Card", 1);
-        inventory.decCard("Test", 1);
+        inventory.decCardStack("Lumber", 2);
+        inventory.decCardStack("Brick", 2);
+        inventory.decCardStack("Grain", 2);
+        inventory.decCardStack("Wool", 2);
+        inventory.decCardStack("Ore", 2);
+        inventory.decCardStack("Knight", 2);
+        inventory.decCardStack("Monopoly", 2);
+        inventory.decCardStack("Road Building", 2);
+        inventory.decCardStack("Year of Plenty", 2);
+        inventory.decCardStack("Victory Point Card", 1);
+        inventory.decCardStack("Test", 1);
 
         assertEquals(8, inventory.lumber.getNumber());
         assertEquals(8, inventory.brick.getNumber());

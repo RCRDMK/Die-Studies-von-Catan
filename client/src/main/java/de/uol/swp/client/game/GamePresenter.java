@@ -1231,7 +1231,6 @@ public class GamePresenter extends AbstractPresenter {
      *
      * @author Marius Birk
      * @author Marc Hermes
-     * @see de.uol.swp.common.game.GameField
      * @see de.uol.swp.client.game.GameObjects.TerrainField
      * @see de.uol.swp.common.game.TerrainFieldContainer
      * @since 2021-04-20
@@ -1331,62 +1330,6 @@ public class GamePresenter extends AbstractPresenter {
         for (MapGraphNodeContainer container : mapGraphNodeContainers) {
             container.getCircle().setOnMouseClicked(clickOnCircleHandler);
         }
-    }
-
-    /**
-     * Method to initialize the GameField of this GamePresenter of this client
-     * <p>
-     * First creates the tfArray, then iterates over the terrainFieldContainers of the gameField to get the diceTokens
-     * values and copies them to the tfArray of this GamePresenter. Then the values of the fieldTypes are checked and
-     * translated into the correct String names of the tfArray TerrainFields.
-     * <p>
-     * Enhanced, with a drawing of a robber
-     *
-     * @param mapGraph the MapGraph created by the Server
-     * @author Marius Birk
-     * @author Marc Hermes
-     * @see de.uol.swp.client.game.GameObjects.TerrainField
-     * @see de.uol.swp.common.game.TerrainFieldContainer
-     * @since 2021-04-20
-     */
-    public void initializeMatch(MapGraph mapGraph) {
-
-        //Setting up the HexagonContainers
-        System.out.println("Setting up " + mapGraph.getHexagonHashSet().size() + " HexagonContainers...");
-
-        for (MapGraph.Hexagon hexagon : mapGraph.getHexagonHashSet()) {
-            HexagonContainer hexagonContainer = new HexagonContainer(hexagon, cardSize());
-            this.hexagonContainers.add(hexagonContainer);
-            Platform.runLater(() -> gameAnchorPane.getChildren().add(hexagonContainer.getHexagonShape()));
-        }
-
-        //Setting up the BuildingNodeContainers
-        System.out.println("Setting up " + mapGraph.getBuildingNodeHashSet().size() + " BuildingNodeContainers...");
-
-        for (MapGraph.BuildingNode buildingNode : mapGraph.getBuildingNodeHashSet()) {
-            MapGraphNodeContainer mapGraphNodeContainer = new MapGraphNodeContainer(new Circle(cardSize() / 6), buildingNode);
-            this.mapGraphNodeContainers.add(mapGraphNodeContainer);
-            initializeNodeSpots(mapGraphNodeContainer);
-            Platform.runLater(() -> gameAnchorPane.getChildren().add(mapGraphNodeContainer.getCircle()));
-        }
-
-        //Setting up the StreetNodeContainers
-        System.out.println("Setting up " + mapGraph.getStreetNodeHashSet().size() + " StreetNodeContainers...");
-
-        for (MapGraph.StreetNode streetNode : mapGraph.getStreetNodeHashSet()) {
-            MapGraphNodeContainer mapGraphNodeContainer = new MapGraphNodeContainer(new Circle(cardSize() / 8), streetNode);
-            this.mapGraphNodeContainers.add(mapGraphNodeContainer);
-            initializeNodeSpots(mapGraphNodeContainer);
-            Platform.runLater(() -> gameAnchorPane.getChildren().add(mapGraphNodeContainer.getCircle()));
-        }
-
-        //Draw robber
-        //Initialize the robber graphics
-        robber = new Rectangle(25, 25);
-        robber.setFill(new ImagePattern(new Image("textures/originals/robbers.png")));
-        robber.setVisible(true);
-
-        draw();
     }
 
     @Subscribe
