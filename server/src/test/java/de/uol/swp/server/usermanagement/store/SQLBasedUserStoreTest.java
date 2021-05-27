@@ -7,6 +7,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -43,9 +44,9 @@ public class SQLBasedUserStoreTest {
 
     @Test
     public void findUserWithUserNameTestFail() throws Exception {
-        Optional<User> foundUser = userStore.findUser("SWPJ2020/21");
+        Optional<User> user = userStore.findUser("Maro");
 
-        assertTrue(foundUser.isEmpty());
+        assertTrue(user.isEmpty());
     }
 
     @Test
@@ -56,34 +57,23 @@ public class SQLBasedUserStoreTest {
 
         assertTrue(foundUser.isPresent());
         assertEquals(defaultUser.getUsername(), foundUser.get().getUsername());
-        //TODO Same TODO as above
-        assertEquals(defaultUser.getPassword(), foundUser.get().getPassword());
-        assertTrue(foundUser.get().getPassword().isEmpty());
 
         userStore.removeUser(defaultUser.getUsername());
     }
 
     @Test
     public void findUserWithUserNamePasswordTestFail() throws Exception {
-        Optional<User> foundUser = userStore.findUser("SWPJ2020/21", defaultUser.getPassword());
+        Optional<User> user = userStore.findUser("Maro", "Test");
 
-        assertTrue(foundUser.isEmpty());
+        assertTrue(user.isEmpty());
     }
 
     @Test
-    public void createUserDuplicateTest() throws Exception {
+    public void findUserWithUserNamePasswordNotEqualTestFail() throws Exception {
         userStore.createUser(defaultUser.getUsername(), defaultUser.getPassword(), defaultUser.getEMail());
-        lock.await(1000, TimeUnit.MILLISECONDS);
+        Optional<User> user = userStore.findUser(defaultUser.getUsername(), "Test");
 
-        assertThrows(Exception.class, () -> userStore.createUser(defaultUser.getUsername(), defaultUser.getPassword(), defaultUser.getEMail()));
-
-        userStore.removeUser(defaultUser.getUsername());
-    }
-
-    @Test
-    public void removeNonExistingUserTest()  {
-
-        assertThrows(Exception.class, () -> userStore.removeUser("SWPJ2020/21"));
+        assertTrue(user.isEmpty());
     }
 
     @Test
@@ -100,11 +90,6 @@ public class SQLBasedUserStoreTest {
         userStore.removeUser(defaultUser.getUsername());
     }
 
-    @Test
-    public void updateUserMailUserUnknownTest()  {
-
-        assertThrows(Exception.class, () -> userStore.updateUserMail("SWPJ2020/21", "test@test.de"));
-    }
 
     @Test
     public void updateUserPasswordTestSuccess() throws Exception {
@@ -121,11 +106,6 @@ public class SQLBasedUserStoreTest {
         userStore.removeUser(defaultUser.getUsername());
     }
 
-    @Test
-    public void updateUserPasswordUserUnknownTest()  {
-
-        assertThrows(Exception.class, () -> userStore.updateUserPassword("SWPJ2020/21", "123456789"));
-    }
 
     @Test
     public void updateUserPictureIDTestSuccess() throws Exception {
@@ -142,8 +122,22 @@ public class SQLBasedUserStoreTest {
     }
 
     @Test
-    public void updateUserPictureIDUserUnknownTest()  {
+    public void getAllUsersTest() throws Exception {
+        userStore.createUser(defaultUser.getUsername(), defaultUser.getPassword(), defaultUser.getEMail());
 
-        assertThrows(Exception.class, () -> userStore.updateUserPicture("SWPJ2020/21", 5));
+        List<User> userList = userStore.getAllUsers();
+
+        String wantedToFind = null;
+        for(User user: userList){
+            if (user.getUsername().equals("Marco")){
+                wantedToFind = user.getUsername();
+            }
+        }
+
+        assertNotNull(wantedToFind);
+        assertTrue(wantedToFind.equals(defaultUser.getUsername()));
+
+        userStore.removeUser(defaultUser.getUsername());
     }
+
 }

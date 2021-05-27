@@ -1,9 +1,6 @@
 package de.uol.swp.server.usermanagement;
 
-import com.google.common.base.Strings;
 import de.uol.swp.common.user.User;
-import de.uol.swp.common.user.UserDTO;
-import de.uol.swp.server.usermanagement.store.MainMemoryBasedUserStore;
 import de.uol.swp.server.usermanagement.store.SQLBasedUserStore;
 import de.uol.swp.server.usermanagement.store.UserStore;
 import org.apache.logging.log4j.LogManager;
@@ -65,6 +62,7 @@ public class UserManagement extends AbstractUserManagement {
      *
      * @author Marius Birk
      * @since 2021-01-15
+     * @return
      */
     public void closeConnection() throws SQLException {
         if (storeInUse instanceof SQLBasedUserStore) {
