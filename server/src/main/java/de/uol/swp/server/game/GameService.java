@@ -1126,7 +1126,6 @@ public class GameService extends AbstractService {
                     case "Year of Plenty":
                         if (request instanceof ResolveDevelopmentCardYearOfPlentyRequest) {
                             ResolveDevelopmentCardYearOfPlentyRequest yearOfPlentyRequest = (ResolveDevelopmentCardYearOfPlentyRequest) request;
-                            Inventory bank = game.getBankInventory();
                             boolean successful1 = giveResource(game, turnPlayer, yearOfPlentyRequest.getResource1(), 1);
                             boolean successful2 = giveResource(game, turnPlayer, yearOfPlentyRequest.getResource2(), 1);
                             if (!(successful1 && successful2)) {
@@ -1156,12 +1155,10 @@ public class GameService extends AbstractService {
                             sendToAllInGame(gameName, message);
                             updateInventory(game);
                         }
-                        break;
-
-                    default:
-                        notSuccessfulResponse.initWithMessage(request);
-                        notSuccessfulResponse.setErrorDescription("Not a valid DevelopmentCard");
-                        post(notSuccessfulResponse);
+                        else {
+                            notSuccessfulResponse.initWithMessage(request);
+                            post(notSuccessfulResponse);
+                        }
                         break;
                 }
             }

@@ -10,6 +10,7 @@ import de.uol.swp.common.game.message.*;
 import de.uol.swp.common.game.MapGraph;
 import de.uol.swp.common.game.request.*;
 import de.uol.swp.common.game.response.PlayDevelopmentCardResponse;
+import de.uol.swp.common.game.response.ResolveDevelopmentCardNotSuccessfulResponse;
 import de.uol.swp.common.game.trade.TradeItem;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.user.Session;
@@ -596,6 +597,7 @@ public class GameServiceTest {
         inv2.cardRoadBuilding.incNumber();
         inv2.brick.incNumber(2);
         inv3.lumber.incNumber(3);
+        inv3.cardKnight.incNumber();
 
         // Check if player 1 is allowed to play his decCardStack
         PlayDevelopmentCardRequest pdcr = new PlayDevelopmentCardRequest("Year of Plenty", "test", (UserDTO) userThatPlaysTheCard);
@@ -667,6 +669,130 @@ public class GameServiceTest {
         // check if player 3 (index 2) is the occupier of the streets that were built with the Road Building decCardStack
         assertEquals(street1.getOccupiedByPlayer(), 2);
         assertEquals(street2.getOccupiedByPlayer(), 2);
+
+        // End the turn and let player 4 try to play a card illegally and then play the knight card
+        endTurnRequest = new EndTurnRequest(game.getName(), (UserDTO) userThatPlaysTheCard);
+        gameService.onEndTurnRequest(endTurnRequest);
+        userThatPlaysTheCard = game.getUser(3);
+
+        pdcr = new PlayDevelopmentCardRequest("illegalCard", game.getName(), (UserDTO) userThatPlaysTheCard);
+        gameService.onPlayDevelopmentCardRequest(pdcr);
+
+        pdcr = new PlayDevelopmentCardRequest("Knight", game.getName(), (UserDTO) userThatPlaysTheCard);
+        gameService.onPlayDevelopmentCardRequest(pdcr);
+        assertTrue(event instanceof PublicInventoryChangeMessage);
+
+        UUID hexagon = null;
+        for(MapGraph.Hexagon hx : game.getMapGraph().getHexagonHashSet()) {
+            if(!hx.isOccupiedByRobber()) {
+                hexagon = hx.getUuid();
+                break;
+            }
+        }
+        ResolveDevelopmentCardKnightRequest rdckr;
+        rdckr = new ResolveDevelopmentCardKnightRequest("IllegalName", (UserDTO) userThatPlaysTheCard, game.getName(), hexagon);
+        gameService.onResolveDevelopmentCardRequest(rdckr);
+        assertTrue(event instanceof PublicInventoryChangeMessage);
+
+        rdckr = new ResolveDevelopmentCardKnightRequest("Knight", (UserDTO) userThatPlaysTheCard, game.getName(), hexagon);
+        gameService.onResolveDevelopmentCardRequest(rdckr);
+        assertTrue(event instanceof PublicInventoryChangeMessage);
+
+
+        // From here on ignore rules and test for coverage
+        game.setIsUsedForTest(true);
+        inv3.cardMonopoly.incNumber(10);
+        inv3.cardYearOfPlenty.incNumber(10);
+        inv3.cardKnight.incNumber(10);
+        inv3.cardRoadBuilding.incNumber(10);
+
+        // year of plenty
+        pdcr = new PlayDevelopmentCardRequest("Year of Plenty", "test", (UserDTO) userThatPlaysTheCard);
+        gameService.onPlayDevelopmentCardRequest(pdcr);
+        assertTrue(event instanceof PublicInventoryChangeMessage);
+
+        rdckr = new ResolveDevelopmentCardKnightRequest("Year of Plenty", (UserDTO) userThatPlaysTheCard, game.getName(), hexagon);
+        gameService.onResolveDevelopmentCardRequest(rdckr);
+        assertTrue(event instanceof ResolveDevelopmentCardNotSuccessfulResponse);
+
+        game.getBankInventory().lumber.setNumber(0);
+        rdcyopr = new ResolveDevelopmentCardYearOfPlentyRequest("Year of Plenty", (UserDTO) userThatPlaysTheCard, game.getName(), "Lumber", "Ore");
+        gameService.onResolveDevelopmentCardRequest(rdcyopr);
+        assertTrue(event instanceof ResolveDevelopmentCardNotSuccessfulResponse);
+        game.getBankInventory().lumber.setNumber(19);
+        gameService.onResolveDevelopmentCardRequest(rdcyopr);
+        assertTrue(event instanceof PublicInventoryChangeMessage);
+
+        // knight
+        pdcr = new PlayDevelopmentCardRequest("Knight", game.getName(), (UserDTO) userThatPlaysTheCard);
+        gameService.onPlayDevelopmentCardRequest(pdcr);
+        assertTrue(event instanceof PublicInventoryChangeMessage);
+
+        for(MapGraph.Hexagon hx : game.getMapGraph().getHexagonHashSet()) {
+            if(!hx.isOccupiedByRobber()) {
+                hexagon = hx.getUuid();
+                break;
+            }
+        }
+        rdcyopr = new ResolveDevelopmentCardYearOfPlentyRequest("Knight", (UserDTO) userThatPlaysTheCard, game.getName(), "Lumber", "Ore");
+        gameService.onResolveDevelopmentCardRequest(rdcyopr);
+        assertTrue(event instanceof ResolveDevelopmentCardNotSuccessfulResponse);
+
+        rdckr = new ResolveDevelopmentCardKnightRequest("Knight", (UserDTO) userThatPlaysTheCard, game.getName(), hexagon);
+        gameService.onResolveDevelopmentCardRequest(rdckr);
+        assertTrue(event instanceof PublicInventoryChangeMessage);
+
+        // monopoly
+        pdcr = new PlayDevelopmentCardRequest("Monopoly", game.getName(), (UserDTO) userThatPlaysTheCard);
+        gameService.onPlayDevelopmentCardRequest(pdcr);
+        assertTrue(event instanceof PublicInventoryChangeMessage);
+
+        rdcyopr = new ResolveDevelopmentCardYearOfPlentyRequest("Monopoly", (UserDTO) userThatPlaysTheCard, game.getName(), "Lumber", "Ore");
+        gameService.onResolveDevelopmentCardRequest(rdcyopr);
+        assertTrue(event instanceof ResolveDevelopmentCardNotSuccessfulResponse);
+
+        rdcMr = new ResolveDevelopmentCardMonopolyRequest("Monopoly", (UserDTO) userThatPlaysTheCard, game.getName(), "Grain");
+        gameService.onResolveDevelopmentCardRequest(rdcMr);
+        assertTrue(event instanceof PublicInventoryChangeMessage);
+
+        pdcr = new PlayDevelopmentCardRequest("Monopoly", game.getName(), (UserDTO) userThatPlaysTheCard);
+        gameService.onPlayDevelopmentCardRequest(pdcr);
+        assertTrue(event instanceof PublicInventoryChangeMessage);
+        rdcMr = new ResolveDevelopmentCardMonopolyRequest("Monopoly", (UserDTO) userThatPlaysTheCard, game.getName(), "Wool");
+        gameService.onResolveDevelopmentCardRequest(rdcMr);
+        assertTrue(event instanceof PublicInventoryChangeMessage);
+
+        pdcr = new PlayDevelopmentCardRequest("Monopoly", game.getName(), (UserDTO) userThatPlaysTheCard);
+        gameService.onPlayDevelopmentCardRequest(pdcr);
+        assertTrue(event instanceof PublicInventoryChangeMessage);
+        rdcMr = new ResolveDevelopmentCardMonopolyRequest("Monopoly", (UserDTO) userThatPlaysTheCard, game.getName(), "Ore");
+        gameService.onResolveDevelopmentCardRequest(rdcMr);
+        assertTrue(event instanceof PublicInventoryChangeMessage);
+
+        pdcr = new PlayDevelopmentCardRequest("Monopoly", game.getName(), (UserDTO) userThatPlaysTheCard);
+        gameService.onPlayDevelopmentCardRequest(pdcr);
+        assertTrue(event instanceof PublicInventoryChangeMessage);
+        rdcMr = new ResolveDevelopmentCardMonopolyRequest("Monopoly", (UserDTO) userThatPlaysTheCard, game.getName(), "illegalResource");
+        gameService.onResolveDevelopmentCardRequest(rdcMr);
+        assertTrue(event instanceof ResolveDevelopmentCardNotSuccessfulResponse);
+        rdcMr = new ResolveDevelopmentCardMonopolyRequest("Monopoly", (UserDTO) userThatPlaysTheCard, game.getName(), "Brick");
+        gameService.onResolveDevelopmentCardRequest(rdcMr);
+        assertTrue(event instanceof PublicInventoryChangeMessage);
+
+        // road building
+        pdcr = new PlayDevelopmentCardRequest("Road Building", game.getName(), (UserDTO) userThatPlaysTheCard);
+        gameService.onPlayDevelopmentCardRequest(pdcr);
+        assertTrue(event instanceof PublicInventoryChangeMessage);
+
+        rdckr = new ResolveDevelopmentCardKnightRequest("Road Building", (UserDTO) userThatPlaysTheCard, game.getName(), hexagon);
+        gameService.onResolveDevelopmentCardRequest(rdckr);
+        assertTrue(event instanceof ResolveDevelopmentCardNotSuccessfulResponse);
+
+        rdcrbr = new ResolveDevelopmentCardRoadBuildingRequest("Road Building", (UserDTO) userThatPlaysTheCard, game.getName(), street1.getUuid(), street2.getUuid());
+        gameService.onResolveDevelopmentCardRequest(rdcrbr);
+        assertTrue(event instanceof ResolveDevelopmentCardNotSuccessfulResponse);
+
+
     }
 
     @Test
