@@ -8,15 +8,16 @@
 <?import javafx.scene.shape.*?>
 <?import javafx.scene.text.*?>
 
-<AnchorPane prefHeight="400.0" prefWidth="600.0" stylesheets="@../css/swp.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.uol.swp.client.game.TradePresenter">
+<AnchorPane prefHeight="400.0" prefWidth="736.0" stylesheets="@../css/swp.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.uol.swp.client.game.TradePresenter">
    <children>
-      <Rectangle id="textBackground" arcHeight="5.0" arcWidth="5.0" fill="#8b8d8f" height="156.0" layoutY="44.0" opacity="0.33" stroke="BLACK" strokeType="INSIDE" width="600.0" />
-      <VBox prefHeight="400.0" prefWidth="600.0">
+      <Rectangle id="textBackground" arcHeight="5.0" arcWidth="5.0" fill="#080808" height="234.0" layoutX="5.0" layoutY="45.0" opacity="0.33" stroke="BLANK"
+                 strokeType="INSIDE" width="712.0" />
+      <VBox prefHeight="400.0" prefWidth="733.0">
          <children>
-            <HBox prefHeight="100.0" prefWidth="506.0">
-               <VBox prefHeight="200.0" prefWidth="600.0">
+            <HBox prefHeight="100.0" prefWidth="800.0">
+               <VBox prefHeight="200.0" prefWidth="800.0">
                   <children>
-                     <HBox prefHeight="100.0" prefWidth="600.0">
+                     <HBox prefHeight="100.0" prefWidth="800.0">
                         <children>
                          <ChoiceBox fx:id="ressourceChoice" value="What do you want to add?">
                              <items>
@@ -30,43 +31,46 @@
                                  </FXCollections>
                              </items>
                               <HBox.margin>
-                                 <Insets top="12.0" />
+                                 <Insets left="5.0" top="12.0" />
                               </HBox.margin>
                          </ChoiceBox>
-                           <TextField fx:id="ressourceInputValue">
+                           <TextField fx:id="ressourceInputValue" prefHeight="25.0" prefWidth="27.0">
                               <HBox.margin>
-                                 <Insets top="12.0" />
+                                 <Insets left="10.0" top="12.0" />
                               </HBox.margin></TextField>
-                           <Button fx:id="addItemOfferButton" mnemonicParsing="false" onAction="#onAddItemOfferButtonPressed" text="add offer">
-                              <HBox.margin>
-                                 <Insets top="12.0" />
-                              </HBox.margin></Button>
                            <Button fx:id="addItemWishButton" mnemonicParsing="false" onAction="#onAddItemWishButtonPressed" text="add wish">
                               <opaqueInsets>
-                                 <Insets />
+                                 <Insets top="12.0" />
                               </opaqueInsets>
                               <HBox.margin>
-                                 <Insets top="12.0" />
+                                 <Insets left="10.0" top="12.0" />
                               </HBox.margin>
                            </Button>
-                           <Button fx:id="sendItemsButton" mnemonicParsing="false" onAction="#onSendItemsButtonsPressed" text="send Items">
+                           <Button fx:id="addItemOfferButton" mnemonicParsing="false" onAction="#onAddItemOfferButtonPressed" text="add offer">
                               <HBox.margin>
-                                 <Insets top="12.0" />
+                                 <Insets left="5.0" top="12.0" />
                               </HBox.margin></Button>
                            <Button fx:id="rejectOfferButton" mnemonicParsing="false" onAction="#onRejectOfferButtonPressed" text="reject offer" visible="false">
                               <HBox.margin>
                                  <Insets top="12.0" />
                               </HBox.margin></Button>
+                           <Button fx:id="sendItemsButton" mnemonicParsing="false" onAction="#onSendItemsButtonsPressed" text="send Items">
+                              <HBox.margin>
+                                 <Insets top="12.0" />
+                              </HBox.margin></Button>
                         </children>
                      </HBox>
-                     <HBox prefHeight="100.0" prefWidth="464.0">
+                     <HBox prefHeight="100.0" prefWidth="800.0">
                         <children>
                            <VBox prefHeight="200.0" prefWidth="100.0">
                               <children>
-                                 <Text fill="white" strokeType="OUTSIDE" strokeWidth="0.0"/>
+                                 <Text fill="white" strokeType="OUTSIDE" strokeWidth="0.0" />
                                  <Text fill="white" layoutX="10.0" layoutY="23.0" strokeType="OUTSIDE" strokeWidth="0.0" />
                                  <Text fx:id="textRowW" fill="white" strokeType="OUTSIDE" strokeWidth="0.0" text="You want:" />
                               </children>
+                              <HBox.margin>
+                                 <Insets />
+                              </HBox.margin>
                            </VBox>
                            <VBox prefHeight="200.0" prefWidth="100.0">
                               <children>
@@ -103,27 +107,28 @@
                                  <Text fx:id="oreW" fill="white" strokeType="OUTSIDE" strokeWidth="0.0" text="0" />
                               </children>
                            </VBox>
-                        </children></HBox>
+                        </children>
+                        <VBox.margin>
+                           <Insets left="10.0" top="1.0" />
+                        </VBox.margin></HBox>
                   </children>
                </VBox></HBox>
-            <HBox prefHeight="100.0" prefWidth="200.0">
+            <HBox prefHeight="132.0" prefWidth="800.0">
                <children>
-                  <VBox prefHeight="200.0" prefWidth="600.0">
+                  <VBox prefHeight="160.0" prefWidth="700.0">
                      <children>
-                        <HBox prefHeight="50.0" prefWidth="600.0">
+                        <HBox prefHeight="33.0" prefWidth="700.0">
                            <children>
                               <VBox prefHeight="200.0" prefWidth="100.0">
                                  <children>
+                                     <Text fill="white" strokeType="OUTSIDE" strokeWidth="0.0" />
                                      <Text fx:id="textRow0" fill="white" strokeType="OUTSIDE" strokeWidth="0.0" text="Your offer:" />
                                  </children>
-                                 <opaqueInsets>
-                                    <Insets />
-                                 </opaqueInsets>
                               </VBox>
                               <VBox prefHeight="200.0" prefWidth="100.0">
                                  <children>
                                     <Text fill="white" strokeType="OUTSIDE" strokeWidth="0.0" />
-                                    <Text fx:id="lumber0" fill="white" strokeType="OUTSIDE" strokeWidth="0.0" text="0" />
+                                    <Text fx:id="lumber0" fill="white" strokeType="OUTSIDE" strokeWidth="0.0" text="0" wrappingWidth="1.0" />
                                  </children>
                               </VBox>
                               <VBox prefHeight="200.0" prefWidth="100.0">
@@ -150,21 +155,25 @@
                                     <Text fx:id="ore0" fill="white" strokeType="OUTSIDE" strokeWidth="0.0" text="0" />
                                  </children>
                               </VBox>
-                              <RadioButton fx:id="offerNoneRadioButton" mnemonicParsing="false" selected="true" text=" Accept none" visible="false">
-                                 <toggleGroup>
-                                    <ToggleGroup fx:id="choiceTrade" />
-                                 </toggleGroup></RadioButton>
+                              <VBox prefHeight="200.0" prefWidth="100.0">
+                                 <children>
+                                    <Text fill="white" strokeType="OUTSIDE" strokeWidth="0.0" />
+                                    <RadioButton fx:id="offerNoneRadioButton" mnemonicParsing="false" selected="true" text=" Accept none" visible="false">
+                                       <toggleGroup>
+                                          <ToggleGroup fx:id="choiceTrade" />
+                                       </toggleGroup>
+                                    </RadioButton>
+                                 </children>
+                              </VBox>
                            </children>
                         </HBox>
-                        <HBox fx:id="row1Hbox" layoutX="10.0" layoutY="10.0" prefHeight="50.0" prefWidth="600.0" visible="false">
+                        <HBox fx:id="row1Hbox" layoutX="10.0" layoutY="10.0" prefHeight="50.0" prefWidth="700.0" visible="false">
                            <children>
                               <VBox prefHeight="200.0" prefWidth="100.0">
                                  <children>
+                                    <Text fill="white" strokeType="OUTSIDE" strokeWidth="0.0" />
                                     <Text fx:id="textRow1" fill="white" strokeType="OUTSIDE" strokeWidth="0.0" text="Offer 1:" />
                                  </children>
-                                 <opaqueInsets>
-                                    <Insets />
-                                 </opaqueInsets>
                               </VBox>
                               <VBox prefHeight="200.0" prefWidth="100.0">
                                  <children>
@@ -196,18 +205,19 @@
                                     <Text fx:id="ore1" fill="white" strokeType="OUTSIDE" strokeWidth="0.0" text="0" />
                                  </children>
                               </VBox>
+                              <VBox prefHeight="200.0" prefWidth="100.0">
+                              <Text fill="white" strokeType="OUTSIDE" strokeWidth="0.0" />
                               <RadioButton fx:id="offer1RadioButton" mnemonicParsing="false" text="Accept Offer 1" toggleGroup="$choiceTrade" visible="false" />
+                              </VBox>
                            </children>
                         </HBox>
                         <HBox fx:id="row2Hbox" layoutX="10.0" layoutY="10.0" prefHeight="50.0" prefWidth="600.0" visible="false">
                            <children>
                               <VBox prefHeight="200.0" prefWidth="100.0">
                                  <children>
+                                    <Text fill="white" strokeType="OUTSIDE" strokeWidth="0.0" />
                                     <Text fx:id="textRow2" fill="white" strokeType="OUTSIDE" strokeWidth="0.0" text="Offer 2:" />
                                  </children>
-                                 <opaqueInsets>
-                                    <Insets />
-                                 </opaqueInsets>
                               </VBox>
                               <VBox prefHeight="200.0" prefWidth="100.0">
                                  <children>
@@ -239,18 +249,19 @@
                                     <Text fx:id="ore2" fill="white" strokeType="OUTSIDE" strokeWidth="0.0" text="0" />
                                  </children>
                               </VBox>
+                              <VBox prefHeight="200.0" prefWidth="100.0">
+                              <Text fill="white" strokeType="OUTSIDE" strokeWidth="0.0" />
                               <RadioButton fx:id="offer2RadioButton" mnemonicParsing="false" text="Accept offer 2" toggleGroup="$choiceTrade" />
+                              </VBox>
                            </children>
                         </HBox>
                         <HBox fx:id="row3Hbox" layoutX="10.0" layoutY="10.0" prefHeight="50.0" prefWidth="600.0" visible="false">
                            <children>
                               <VBox prefHeight="200.0" prefWidth="100.0">
                                  <children>
+                                    <Text fill="white" strokeType="OUTSIDE" strokeWidth="0.0" />
                                     <Text fx:id="textRow3" fill="white" strokeType="OUTSIDE" strokeWidth="0.0" text="Offer 3:" />
                                  </children>
-                                 <opaqueInsets>
-                                    <Insets />
-                                 </opaqueInsets>
                               </VBox>
                               <VBox prefHeight="200.0" prefWidth="100.0">
                                  <children>
@@ -282,18 +293,19 @@
                                     <Text fx:id="ore3" fill="white" strokeType="OUTSIDE" strokeWidth="0.0" text="0" />
                                  </children>
                               </VBox>
+                              <VBox prefHeight="200.0" prefWidth="100.0">
+                              <Text fill="white" strokeType="OUTSIDE" strokeWidth="0.0" />
                               <RadioButton fx:id="offer3RadioButton" mnemonicParsing="false" text="Accept offer 3" toggleGroup="$choiceTrade" />
+                              </VBox>
                            </children>
                         </HBox>
                         <HBox fx:id="row4Hbox" layoutX="10.0" layoutY="10.0" prefHeight="50.0" prefWidth="600.0" visible="false">
                            <children>
                               <VBox prefHeight="200.0" prefWidth="100.0">
                                  <children>
+                                    <Text fill="white" strokeType="OUTSIDE" strokeWidth="0.0" />
                                     <Text fx:id="textRow4" fill="white" strokeType="OUTSIDE" strokeWidth="0.0" text="Bank offer" />
                                  </children>
-                                 <opaqueInsets>
-                                    <Insets />
-                                 </opaqueInsets>
                               </VBox>
                               <VBox prefHeight="200.0" prefWidth="100.0">
                                  <children>
@@ -325,36 +337,56 @@
                                     <Text fx:id="ore4" fill="white" strokeType="OUTSIDE" strokeWidth="0.0" text="0" />
                                  </children>
                               </VBox>
+                              <VBox prefHeight="200.0" prefWidth="100.0">
+                              <Text fill="white" strokeType="OUTSIDE" strokeWidth="0.0" />
                               <RadioButton fx:id="bankOfferRadioButton" mnemonicParsing="false" text="Accept bank offer" toggleGroup="$choiceTrade" />
-                           </children>
-                        </HBox>
-                        <HBox prefHeight="100.0" prefWidth="600.0">
-                           <children>
-                              <ChoiceBox fx:id="ressourceChoiceBank" value="What do you want to add?">
-                                 <items>
-                                    <FXCollections fx:factory="observableArrayList">
-                                       <String fx:value="What do you want to add?" />
-                                       <String fx:value="Lumber" />
-                                       <String fx:value="Brick" />
-                                       <String fx:value="Grain" />
-                                       <String fx:value="Wool" />
-                                       <String fx:value="Ore" />
-                                    </FXCollections>
-                                 </items>
-                                 <HBox.margin>
-                                    <Insets top="12.0" />
-                                 </HBox.margin>
-                              </ChoiceBox>
-                              <Button fx:id="createRequestButton" mnemonicParsing="false" onAction="#onSendItemsButtonsPressed" text="create Request" />
+                              </VBox>
                            </children>
                         </HBox>
                      </children>
                   </VBox>
-               </children></HBox>
-            <HBox layoutX="10.0" layoutY="110.0" prefHeight="100.0" prefWidth="600.0">
+               </children>
+               <VBox.margin>
+                  <Insets left="10.0" top="1.0" />
+               </VBox.margin></HBox>
+            <HBox prefHeight="0.0" prefWidth="600.0">
                <children>
-                  <Button fx:id="endTradeButton" mnemonicParsing="false" onAction="#onEndTradeButtonPressed" text="end trade" />
-               </children></HBox>
+                  <ChoiceBox fx:id="ressourceChoiceBank" prefHeight="25.0" prefWidth="211.0" value="What do you want to add?">
+                     <items>
+                        <FXCollections fx:factory="observableArrayList">
+                           <String fx:value="What do you want to add?" />
+                           <String fx:value="Lumber" />
+                           <String fx:value="Brick" />
+                           <String fx:value="Grain" />
+                           <String fx:value="Wool" />
+                           <String fx:value="Ore" />
+                        </FXCollections>
+                     </items>
+                     <HBox.margin>
+                        <Insets left="5.0" />
+                     </HBox.margin>
+                  </ChoiceBox>
+                        <Button fx:id="createRequestButton" mnemonicParsing="false" onAction="#onSendItemsButtonsPressed" text="create Request">
+                     <HBox.margin>
+                        <Insets left="10.0" />
+                     </HBox.margin>
+                  </Button>
+               </children>
+               <VBox.margin>
+                  <Insets top="20.0" />
+               </VBox.margin>
+            </HBox>
+            <HBox layoutX="10.0" layoutY="110.0" prefHeight="50.0" prefWidth="800.0">
+               <HBox.margin>
+                  <Insets top="12.0" />
+               </HBox.margin>
+               <children>
+                  <Button fx:id="endTradeButton" mnemonicParsing="false" onAction="#onEndTradeButtonPressed" text="end trade">
+                     <HBox.margin>
+                        <Insets left="5.0" top="50.0" />
+                     </HBox.margin></Button>
+               </children>
+            </HBox>
          </children></VBox>
    </children>
 </AnchorPane>
