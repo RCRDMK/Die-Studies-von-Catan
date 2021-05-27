@@ -181,7 +181,7 @@ public class GameService {
      * @since 2021-04-21
      */
     public void endTradeBeforeItStarted(UserDTO user, String gameName, String tradeCode) {
-        TradeEndedMessage tem = new TradeEndedMessage(tradeCode);
+        TradeEndedMessage tem = new TradeEndedMessage(tradeCode, user);
         eventBus.post(tem);
     }
 

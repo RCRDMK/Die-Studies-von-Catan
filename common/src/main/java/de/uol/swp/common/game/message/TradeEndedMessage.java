@@ -1,5 +1,7 @@
 package de.uol.swp.common.game.message;
 
+import de.uol.swp.common.user.UserDTO;
+
 /**
  * used to close the tradeWindow
  */
@@ -16,8 +18,9 @@ public class TradeEndedMessage extends AbstractGameMessage {
      * @since 2021-04-25
      * @since 2021-05-27
      */
-    public TradeEndedMessage(String tradeCode) {
+    public TradeEndedMessage(String tradeCode, UserDTO user) {
         this.tradeCode = tradeCode;
+        this.user = user;
     }
 
     /**

@@ -1901,6 +1901,20 @@ public class GamePresenter extends AbstractPresenter {
     }
 
     /**
+     * reactivates the TradeButton on TradeEndedMessage
+     *
+     * @param tem TradeEndedMessage
+     * @author Sergej Tulnev
+     * @since 2021-05-27
+     */
+    @Subscribe
+    public void onTradeEndedMessage(TradeEndedMessage tem) {
+        if (this.joinedLobbyUser.getUsername().equals(tem.getUser().getUsername())) {
+            tradeButton.setDisable(false);
+        }
+    }
+
+    /**
      * Checks whether each value of each label is equal to the value from received HashMap,
      * if it is not, then replaces existing value of label with the value from the HashMap.
      * <p>
