@@ -253,7 +253,8 @@ public class Inventory implements Serializable {
      * @since 2021-05-19
      */
     public int getNumberFromCardStack(String card) {
-        return getCardStack(card).getNumber();
+        CardStack cardStack = getCardStack(card);
+        return cardStack != null ? cardStack.getNumber() : 0;
     }
 
     /**

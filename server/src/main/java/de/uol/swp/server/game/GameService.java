@@ -473,23 +473,25 @@ public class GameService extends AbstractService {
      * @since 2012-05-19
      */
     public boolean giveResource(Game game, User user, String resourceTyp, int amount) {
-        Inventory bank = game.getBankInventory();
-        boolean success = bank.getNumberFromCardStack(resourceTyp) >= amount;
-        boolean firstTime = bank.getNumberFromCardStack(resourceTyp) != 0 && bank.getNumberFromCardStack(resourceTyp) <= amount;
-        for (int i = amount; i > 0; i--) {
-            if (bank.getNumberFromCardStack(resourceTyp) > 0) {
-                bank.decCardStack(resourceTyp, 1);
-                game.getInventory(user).incCardStack(resourceTyp, 1);
+        if(resourceTyp.equals("")) return false;
+        else {
+            Inventory bank = game.getBankInventory();
+            boolean success = bank.getNumberFromCardStack(resourceTyp) >= amount;
+            boolean firstTime = bank.getNumberFromCardStack(resourceTyp) != 0 && bank.getNumberFromCardStack(resourceTyp) <= amount;
+            for (int i = amount; i > 0; i--) {
+                if (bank.getNumberFromCardStack(resourceTyp) > 0) {
+                    bank.decCardStack(resourceTyp, 1);
+                    game.getInventory(user).incCardStack(resourceTyp, 1);
+                } else break;
             }
-            else break;
-        }
-        if (firstTime) {
+            if (firstTime) {
                 String chatMessage = resourceTyp + " storage is empty now";
                 String chatId = "game_" + game.getName();
                 ResponseChatMessage msg = new ResponseChatMessage(chatMessage, chatId, "Bank", System.currentTimeMillis());
                 post(msg);
+            }
+            return success;
         }
-        return success;
     }
 
     /**
@@ -511,23 +513,25 @@ public class GameService extends AbstractService {
      * @since 2012-04-09
      */
     public boolean takeResource(Game game, User user, String resourceTyp, int amount) {
-        Inventory bank = game.getBankInventory();
-        boolean success = game.getInventory(user).getNumberFromCardStack(resourceTyp)  >= amount;
-        boolean wasEmpty = bank.getNumberFromCardStack(resourceTyp) == 0 && amount > 0;
-        for (int i = amount; i > 0; i--) {
-            if (game.getInventory(user).getNumberFromCardStack(resourceTyp) > 0) {
-                game.getInventory(user).decCardStack(resourceTyp, 1);
-                bank.incCardStack(resourceTyp, 1);
+        if(resourceTyp.equals("")) return false;
+        else {
+            Inventory bank = game.getBankInventory();
+            boolean success = game.getInventory(user).getNumberFromCardStack(resourceTyp) >= amount;
+            boolean wasEmpty = bank.getNumberFromCardStack(resourceTyp) == 0 && amount > 0;
+            for (int i = amount; i > 0; i--) {
+                if (game.getInventory(user).getNumberFromCardStack(resourceTyp) > 0) {
+                    game.getInventory(user).decCardStack(resourceTyp, 1);
+                    bank.incCardStack(resourceTyp, 1);
+                } else break;
             }
-            else break;
+            if (wasEmpty) {
+                String chatMessage = resourceTyp + " storage is now filled";
+                String chatId = "game_" + game.getName();
+                ResponseChatMessage msg = new ResponseChatMessage(chatMessage, chatId, "Bank", System.currentTimeMillis());
+                post(msg);
+            }
+            return success;
         }
-        if (wasEmpty) {
-            String chatMessage = resourceTyp + " storage is now filled";
-            String chatId = "game_" + game.getName();
-            ResponseChatMessage msg = new ResponseChatMessage(chatMessage, chatId, "Bank", System.currentTimeMillis());
-            post(msg);
-        }
-        return success;
     }
 
     /**
