@@ -61,7 +61,7 @@ public class SQLBasedUserStore extends AbstractUserStore implements UserStore {
             e.printStackTrace();
         }
         if (resultSet.next()) {
-            User user = new UserDTO(username, resultSet.getString(), resultSet.getString(2), resultSet.getInt(3));
+            User user = new UserDTO(username, password, resultSet.getString(2), resultSet.getInt(3));
             return Optional.of(user);
         } else {
             return Optional.empty();
