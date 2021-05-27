@@ -180,4 +180,8 @@ public interface Lobby extends Serializable {
      */
     void stopTimerForGameStart();
 
+    void setMinimumAmountOfPlayers(int amount);
+
+    int getMinimumAmountOfPlayers();
+
 }

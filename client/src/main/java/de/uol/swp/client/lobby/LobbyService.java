@@ -119,7 +119,7 @@ public class LobbyService {
      * @since 2021-02-04
      */
     public void sendPlayerReadyRequest(String name, UserDTO user, boolean ready) {
-        PlayerReadyRequest playerReadyRequest = new PlayerReadyRequest(name, (UserDTO) user, ready);
+        PlayerReadyRequest playerReadyRequest = new PlayerReadyRequest(name, user, ready);
         eventBus.post(playerReadyRequest);
     }
 
@@ -132,9 +132,15 @@ public class LobbyService {
      * @see de.uol.swp.common.lobby.request.StartGameRequest
      * @since 2021-01-24
      */
-    public void startGame(String name, UserDTO user, String gameFieldVariant) {
-        StartGameRequest startGameRequest = new StartGameRequest(name, user, gameFieldVariant);
+    public void startGame(String name, UserDTO user, String gameFieldVariant, int minmumAmountOfPlayers) {
+        StartGameRequest startGameRequest = new StartGameRequest(name, user, gameFieldVariant, minmumAmountOfPlayers);
         eventBus.post(startGameRequest);
         LOG.debug("StartGameRequest posted on Eventbus");
+    }
+
+    public void joinGame(String name, UserDTO user) {
+        JoinOnGoingGameRequest joinOnGoingGameRequest = new JoinOnGoingGameRequest(name, user);
+        eventBus.post(joinOnGoingGameRequest);
+        LOG.debug("JoinOnGoingGameRequest posted on Eventbus");
     }
 }

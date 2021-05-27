@@ -5,6 +5,7 @@ import de.uol.swp.common.user.User;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * An interface for all methods of the server game service
@@ -26,7 +27,7 @@ public interface ServerGameService {
      * @see de.uol.swp.common.user.User
      * @since 2021-01-15
      */
-    void createGame(String name, User owner,String gameFieldVariant);
+    void createGame(String name, User owner, Set<User> usersInLobby, String gameFieldVariant);
 
 
     /**

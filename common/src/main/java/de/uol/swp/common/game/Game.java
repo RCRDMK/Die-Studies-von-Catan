@@ -322,4 +322,6 @@ public interface Game extends Serializable {
      * @since 2021-05-14
      */
     boolean rolledDiceThisTurn();
+
+    void setAmountOfPlayers(int amount);
 }

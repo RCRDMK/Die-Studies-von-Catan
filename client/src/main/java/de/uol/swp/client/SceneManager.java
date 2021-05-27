@@ -866,7 +866,6 @@ public class SceneManager {
         summaryTab.setClosable(false);
         Platform.runLater(() -> {
             tabHelper.addTab(summaryTab);
-            tabHelper.getTabPane().getSelectionModel().select(summaryTab);
         });
         hideSummaryTab(gamename);
         nextSummaryScene = initSummaryView();
@@ -946,6 +945,7 @@ public class SceneManager {
     public void unsuspendLobbyTab(String lobbyName) {
         Platform.runLater(() -> {
             tabHelper.unsuspendTab("Lobby " + lobbyName);
+            tabHelper.getTabPane().getSelectionModel().select(tabHelper.getTabByText("Lobby " + lobbyName));
         });
     }
 

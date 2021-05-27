@@ -108,7 +108,7 @@ public class GameServiceTest {
         Optional<Lobby> lobby = lobbyManagement.getLobby("testLobby");
         assertTrue(lobby.isPresent());
         lobby.get().joinUser(userDTO1);
-        gameManagement.createGame(lobby.get().getName(), lobby.get().getOwner(), "Standard");
+        gameManagement.createGame(lobby.get().getName(), lobby.get().getOwner(), null, "Standard");
         Optional<Game> game = gameManagement.getGame(lobby.get().getName());
         RetrieveAllThisGameUsersRequest retrieveAllThisGameUsersRequest = new RetrieveAllThisGameUsersRequest(lobby.get().getName());
         assertSame(gameManagement.getGame(lobby.get().getName()).get().getName(), retrieveAllThisGameUsersRequest.getName());
@@ -142,7 +142,7 @@ public class GameServiceTest {
         assertTrue(lobby.isPresent());
         lobby.get().joinUser(userDTO1);
         lobby.get().joinUser(userDTO2);
-        gameManagement.createGame(lobby.get().getName(), lobby.get().getOwner(), "Standard");
+        gameManagement.createGame(lobby.get().getName(), lobby.get().getOwner(), null, "Standard");
         Optional<Game> game = gameManagement.getGame(lobby.get().getName());
         assertTrue(game.isPresent());
         RetrieveAllThisGameUsersRequest retrieveAllThisGameUsersRequest = new RetrieveAllThisGameUsersRequest(lobby.get().getName());
@@ -178,7 +178,7 @@ public class GameServiceTest {
         lobby.get().joinUser(userDTO1);
         lobby.get().joinUser(userDTO2);
         lobby.get().joinUser(userDTO3);
-        gameManagement.createGame(lobby.get().getName(), lobby.get().getOwner(), "Standard");
+        gameManagement.createGame(lobby.get().getName(), lobby.get().getOwner(), null, "Standard");
         Optional<Game> game = gameManagement.getGame(lobby.get().getName());
         assertTrue(game.isPresent());
         RetrieveAllThisGameUsersRequest retrieveAllThisGameUsersRequest = new RetrieveAllThisGameUsersRequest(lobby.get().getName());
@@ -221,7 +221,7 @@ public class GameServiceTest {
         lobby.get().joinUser(userDTO1);
         lobby.get().joinUser(userDTO2);
         lobby.get().joinUser(userDTO3);
-        gameManagement.createGame(lobby.get().getName(), lobby.get().getOwner(), "Standard");
+        gameManagement.createGame(lobby.get().getName(), lobby.get().getOwner(), null, "Standard");
         Optional<Game> game = gameManagement.getGame(lobby.get().getName());
         assertTrue(game.isPresent());
         RetrieveAllThisGameUsersRequest retrieveAllThisGameUsersRequest = new RetrieveAllThisGameUsersRequest(lobby.get().getName());
@@ -325,7 +325,7 @@ public class GameServiceTest {
         loginUsers();
         GameService gameServiceTIRT = new GameService(gameManagement, lobbyService, authenticationService, bus, userService);
 
-        gameManagement.createGame("test", userDTO, "Standard");
+        gameManagement.createGame("test", userDTO, null, "Standard");
         Optional<Game> game = gameManagement.getGame("test");
         assertTrue(game.isPresent());
 
@@ -508,7 +508,7 @@ public class GameServiceTest {
     @Test
     void distributeResourcesTest() {
         loginUsers();
-        gameManagement.createGame("test", userDTO, "Standard");
+        gameManagement.createGame("test", userDTO, null, "Standard");
         Optional<Game> game = gameManagement.getGame("test");
         assertTrue(game.isPresent());
 
@@ -560,7 +560,7 @@ public class GameServiceTest {
     @Test
     void playAndResolveDevelopmentCardRequestTest() {
         loginUsers();
-        gameManagement.createGame("test", userDTO, "Standard");
+        gameManagement.createGame("test", userDTO, null, "Standard");
         Optional<Game> game = gameManagement.getGame("test");
         assertTrue(game.isPresent());
 
@@ -664,7 +664,7 @@ public class GameServiceTest {
     @Test
     public void ResourcesToDiscardTest() {
         GameService gameService2 = new GameService(gameManagement, lobbyService, authenticationService, bus, userService);
-        gameManagement.createGame("test", userDTO, "Standard");
+        gameManagement.createGame("test", userDTO, null, "Standard");
         Optional<Game> game = gameManagement.getGame("test");
         assertTrue(game.isPresent());
 
@@ -716,7 +716,7 @@ public class GameServiceTest {
     void randomGameFieldGenerateTest() {
 
         loginUsers();
-        gameManagement.createGame("test", userDTO, "VeryRandom");
+        gameManagement.createGame("test", userDTO, null, "VeryRandom");
         Optional<Game> game = gameManagement.getGame("test");
         assertTrue(game.isPresent());
 
@@ -754,7 +754,7 @@ public class GameServiceTest {
     @Test
     void missingPlayerAITest() {
         loginUsers();
-        gameManagement.createGame("test", userDTO, "Standard");
+        gameManagement.createGame("test", userDTO, null, "Standard");
         Optional<Game> game = gameManagement.getGame("test");
         assertTrue(game.isPresent());
 
@@ -807,7 +807,7 @@ public class GameServiceTest {
      * <p>
      * The AI will first play the opening turn and then continue to do another turn where it
      * plays all developmentCards and trades
-     *
+     * <p>
      * enhanced by Marc Hermes 2021-05-26
      *
      * @author Marc Hermes
@@ -816,7 +816,7 @@ public class GameServiceTest {
     @Test
     void replacePlayerDuringOwnTurnAITest() {
         loginUsers();
-        gameManagement.createGame("test", userDTO, "Standard");
+        gameManagement.createGame("test", userDTO, null, "Standard");
         Optional<Game> optionalGame = gameManagement.getGame("test");
         assertTrue(optionalGame.isPresent());
         Game game = optionalGame.get();
@@ -900,8 +900,8 @@ public class GameServiceTest {
         ArrayList<TradeItem> wishList = new ArrayList<>();
         HashMap<UserDTO, ArrayList<TradeItem>> bids = new HashMap<>();
         // the AI will now try to trade, thus we send him an empty list of trades to accept
-        for(String tc : game.getTradeList().keySet()) {
-            if(tc != null) {
+        for (String tc : game.getTradeList().keySet()) {
+            if (tc != null) {
 
                 var tisabm = new TradeInformSellerAboutBidsMessage(userDTO, game.getName(), tc, bidders, bids);
                 AIToServerTranslator.translate(new TestAI((GameDTO) game).continueTurnOrder(tisabm, wishList), gameService);
@@ -921,18 +921,18 @@ public class GameServiceTest {
 
         // Choose any hexagon to move the robber to
         UUID uuidForRobber = null;
-        for(MapGraph.Hexagon hx : game.getMapGraph().getHexagonHashSet()) {
-            if(!hx.isOccupiedByRobber()) {
+        for (MapGraph.Hexagon hx : game.getMapGraph().getHexagonHashSet()) {
+            if (!hx.isOccupiedByRobber()) {
                 uuidForRobber = hx.getUuid();
             }
         }
-        RobbersNewFieldMessage mrm = new RobbersNewFieldMessage(game.getName(),userDTO1, uuidForRobber);
+        RobbersNewFieldMessage mrm = new RobbersNewFieldMessage(game.getName(), userDTO1, uuidForRobber);
         gameService.onRobbersNewFieldRequest(mrm);
 
         // Check if the AI discarded its resources and now has less than before and therefore discarded resources
         assertTrue(resourceAmountBefore > aiInventory.sumResource());
         String tradeCode = UUID.randomUUID().toString().trim().substring(0, 7);
-        TradeItemRequest tri = new TradeItemRequest(userDTO1, game.getName(), wishList,tradeCode, wishList);
+        TradeItemRequest tri = new TradeItemRequest(userDTO1, game.getName(), wishList, tradeCode, wishList);
         gameService.onTradeItemRequest(tri);
 
     }
@@ -972,7 +972,7 @@ public class GameServiceTest {
     void randomAITest() {
 
         loginUsers();
-        gameManagement.createGame("test", userDTO, "Standard");
+        gameManagement.createGame("test", userDTO, null, "Standard");
         Optional<Game> game = gameManagement.getGame("test");
         assertTrue(game.isPresent());
         Game g = game.get();
@@ -1021,7 +1021,7 @@ public class GameServiceTest {
     void onGiveAndTakeResourceTest() {
         GameService gameService3 = new GameService(gameManagement, lobbyService, authenticationService, bus, userService);
 
-        gameManagement.createGame("test", userDTO, "Standard");
+        gameManagement.createGame("test", userDTO, null, "Standard");
         Optional<Game> optionalGame = gameManagement.getGame("test");
         assertTrue(optionalGame.isPresent());
         Game game = optionalGame.get();

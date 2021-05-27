@@ -2,10 +2,12 @@ package de.uol.swp.common.user.response.game;
 
 import de.uol.swp.common.message.AbstractResponseMessage;
 import de.uol.swp.common.user.Session;
+import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Response message for the RetrieveAllThisGameUsersRequest
@@ -23,7 +25,8 @@ import java.util.List;
 public class AllThisGameUsersResponse extends AbstractResponseMessage {
 
     private static final long serialVersionUID = -7113321823425212173L;
-    final private ArrayList<UserDTO> users = new ArrayList<>();
+    private final ArrayList<User> users;
+    private final Set<User> humanUsers;
     private String game;
 
     /**
@@ -36,6 +39,8 @@ public class AllThisGameUsersResponse extends AbstractResponseMessage {
      */
     public AllThisGameUsersResponse() {
         // needed for serialization
+        this.users = null;
+        this.humanUsers = null;
     }
 
     /**
@@ -50,11 +55,10 @@ public class AllThisGameUsersResponse extends AbstractResponseMessage {
      * @author Iskander Yusupov
      * @since 2021-01-15
      */
-    public AllThisGameUsersResponse(List<Session> users, String gameName) {
+    public AllThisGameUsersResponse(Set<User> humanUsers, ArrayList<User> users, String gameName) {
         this.game = gameName;
-        for (Session user : users) {
-            this.users.add(UserDTO.createWithoutPassword(user.getUser()));
-        }
+        this.users = users;
+        this.humanUsers = humanUsers;
     }
 
     /**
@@ -65,7 +69,7 @@ public class AllThisGameUsersResponse extends AbstractResponseMessage {
      * @author Iskander Yusupov
      * @since 2021-01-15
      */
-    public List<UserDTO> getUsers() {
+    public ArrayList<User> getUsers() {
         return users;
     }
 
@@ -81,5 +85,8 @@ public class AllThisGameUsersResponse extends AbstractResponseMessage {
         return game;
     }
 
+    public Set<User> getHumanUsers() {
+        return humanUsers;
+    }
 }
 

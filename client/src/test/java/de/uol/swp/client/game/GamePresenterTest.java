@@ -8,6 +8,7 @@ import de.uol.swp.common.game.MapGraph;
 import de.uol.swp.common.game.message.GameCreatedMessage;
 import de.uol.swp.common.game.request.GameLeaveUserRequest;
 import de.uol.swp.common.lobby.request.CreateLobbyRequest;
+import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.user.response.lobby.LobbyCreatedSuccessfulResponse;
 import org.junit.jupiter.api.AfterEach;
@@ -15,6 +16,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -66,7 +68,7 @@ public class GamePresenterTest {
         LobbyCreatedSuccessfulResponse message2 = new LobbyCreatedSuccessfulResponse(userDTO);
         lobbyService.joinLobby("testLobby", userDTO1);
         GameService gameService = new GameService(bus);
-        GameCreatedMessage gMessage = new GameCreatedMessage("Testgame", userDTO, new MapGraph(""), new ArrayList<>(), "");
+        GameCreatedMessage gMessage = new GameCreatedMessage("Testgame", userDTO, new MapGraph(""), new ArrayList<>(), null,"");
         GameLeaveUserRequest request = new GameLeaveUserRequest("Testgame", userDTO);
         gameService.leaveGame("Testgame",userDTO);
         assertTrue(event instanceof GameLeaveUserRequest);

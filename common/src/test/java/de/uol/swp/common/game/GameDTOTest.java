@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  */
 
 public class GameDTOTest {
-    private GameDTO defaultGame = new GameDTO("test", new UserDTO("test", "", ""), "");
+    private GameDTO defaultGame = new GameDTO("test", new UserDTO("test", "", ""), "", null);
 
     /**
      * This test checks if the user can join the game correctly.

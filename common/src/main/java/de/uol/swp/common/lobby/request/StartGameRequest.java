@@ -13,6 +13,7 @@ import de.uol.swp.common.user.UserDTO;
  */
 public class StartGameRequest extends AbstractLobbyRequest {
  private String gameFieldVariant;
+ private int minimumAmountOfPlayers;
     /**
      * Default constructor
      * <p>
@@ -33,13 +34,18 @@ public class StartGameRequest extends AbstractLobbyRequest {
      * @author Kirstin Beyer, Iskander Yusupov
      * @since 2021-01-24
      */
-    public StartGameRequest(String lobbyName, UserDTO user, String gameFieldVariant) {
+    public StartGameRequest(String lobbyName, UserDTO user, String gameFieldVariant, int minimumAmountOfPlayers) {
         this.name=lobbyName;
         this.user=user;
         this.gameFieldVariant=gameFieldVariant;
+        this.minimumAmountOfPlayers = minimumAmountOfPlayers;
     }
 
     public String getGameFieldVariant() {
         return gameFieldVariant;
+    }
+
+    public int getMinimumAmountOfPlayers() {
+        return minimumAmountOfPlayers;
     }
 }

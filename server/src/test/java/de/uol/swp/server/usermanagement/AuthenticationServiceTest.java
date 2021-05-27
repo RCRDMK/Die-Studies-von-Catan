@@ -300,7 +300,7 @@ class AuthenticationServiceTest {
         assertEquals(lobby.get().getUsers().size(), 2);
 
         // Create game and let user and user2 join and check if game size = 2
-        gameManagement.createGame("testGame", user, "random");
+        gameManagement.createGame("testGame", user, null, "random");
         var game = gameManagement.getGame("testGame");
         assertTrue(game.isPresent());
         game.get().joinUser(user3);

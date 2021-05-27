@@ -16,8 +16,11 @@ import de.uol.swp.common.game.response.*;
 import de.uol.swp.common.game.trade.Trade;
 import de.uol.swp.common.game.trade.TradeItem;
 import de.uol.swp.common.lobby.Lobby;
+import de.uol.swp.common.lobby.message.JoinOnGoingGameMessage;
 import de.uol.swp.common.lobby.message.StartGameMessage;
+import de.uol.swp.common.lobby.request.JoinOnGoingGameRequest;
 import de.uol.swp.common.lobby.request.StartGameRequest;
+import de.uol.swp.common.lobby.response.JoinOnGoingGameResponse;
 import de.uol.swp.common.message.MessageContext;
 import de.uol.swp.common.message.ResponseMessage;
 import de.uol.swp.common.message.ServerMessage;
@@ -136,10 +139,12 @@ public class GameService extends AbstractService {
         Optional<Game> optionalGame = gameManagement.getGame(retrieveAllThisGameUsersRequest.getName());
         if (optionalGame.isPresent()) {
             Game game = optionalGame.get();
-            List<Session> gameUsers = authenticationService.getSessions(game.getUsers());
+            //List<Session> gameUsers = authenticationService.getSessions(game.getUsers());
+            ArrayList<User> gameUsers = game.getUsersList();
+            Set<User> actualUsers = game.getUsers();
             if (retrieveAllThisGameUsersRequest.getMessageContext().isPresent()) {
                 Optional<MessageContext> ctx = retrieveAllThisGameUsersRequest.getMessageContext();
-                sendToSpecificUser(ctx.get(), new AllThisGameUsersResponse(gameUsers, retrieveAllThisGameUsersRequest.getName()));
+                sendToSpecificUser(ctx.get(), new AllThisGameUsersResponse(actualUsers, gameUsers, retrieveAllThisGameUsersRequest.getName()));
             }
         }
     }
@@ -606,9 +611,10 @@ public class GameService extends AbstractService {
         if (optionalLobby.isPresent()) {
             Lobby lobby = optionalLobby.get();
             Set<User> usersInLobby = lobby.getUsers();
-            if (gameManagement.getGame(lobby.getName()).isEmpty() && usersInLobby.size() > 1 && startGameRequest.getUser().equals(lobby.getOwner())) {
+            if (gameManagement.getGame(lobby.getName()).isEmpty() && startGameRequest.getMinimumAmountOfPlayers() > 0 && startGameRequest.getUser().equals(lobby.getOwner())) {
                 lobby.setPlayersReadyToNull();
                 lobby.setGameFieldVariant(startGameRequest.getGameFieldVariant());
+                lobby.setMinimumAmountOfPlayers(startGameRequest.getMinimumAmountOfPlayers());
                 sendToAllInLobby(startGameRequest.getName(), new StartGameMessage(startGameRequest.getName(), startGameRequest.getUser()));
                 Timer gameStartTimer = lobby.startTimerForGameStart();
                 int seconds = 60;
@@ -622,7 +628,7 @@ public class GameService extends AbstractService {
                             } else {
                                 users.clear();
                             }
-                            if (lobby.getPlayersReady().size() > 1 && gameManagement.getGame(lobby.getName()).isEmpty()) {
+                            if (lobby.getPlayersReady().size() > 0 && gameManagement.getGame(lobby.getName()).isEmpty()) {
                                 try {
                                     startGame(lobby, lobby.getGameFieldVariant());
                                     // TODO: sollte wahrscheinlich keine notenoughplayersmessage sein, sondern "You missed the game start"
@@ -630,7 +636,7 @@ public class GameService extends AbstractService {
                                 } catch (GameManagementException e) {
                                     LOG.debug(e);
                                 }
-                            } else if (lobby.getPlayersReady().size() < 2) {
+                            } else if (lobby.getPlayersReady().size() < 1) {
                                 sendToListOfUsers(users, new NotEnoughPlayersMessage(lobby.getName()));
                             }
                         }
@@ -670,8 +676,8 @@ public class GameService extends AbstractService {
      */
 
     public void startGame(Lobby lobby, String gameFieldVariant) {
-        if (lobby.getPlayersReady().size() > 1) {
-            gameManagement.createGame(lobby.getName(), lobby.getOwner(), gameFieldVariant);
+        if (lobby.getPlayersReady().size() > 0) {
+            gameManagement.createGame(lobby.getName(), lobby.getOwner(), lobby.getUsers(), gameFieldVariant);
             Optional<Game> optionalGame = gameManagement.getGame(lobby.getName());
             if (optionalGame.isPresent()) {
                 Game game = optionalGame.get();
@@ -686,12 +692,13 @@ public class GameService extends AbstractService {
                 lobby.setRdyResponsesReceived(0);
                 lobby.stopTimerForGameStart();
                 lobby.setGameStarted(true);
-                post(new GameStartedMessage(lobby.getName()));
-                for (User user : game.getUsers()) {
-                    sendToSpecificUserInGame(new GameCreatedMessage(game.getName(), (UserDTO) user, game.getMapGraph(), usersInGame, gameFieldVariant), user);
-                }
+                game.setAmountOfPlayers(lobby.getMinimumAmountOfPlayers());
                 game.setUpUserArrayList();
                 game.setUpInventories();
+                post(new GameStartedMessage(lobby.getName()));
+                for (User user : game.getUsers()) {
+                    sendToSpecificUserInGame(new GameCreatedMessage(game.getName(), (UserDTO) user, game.getMapGraph(), game.getUsersList(), game.getUsers(), gameFieldVariant), user);
+                }
                 updateInventory(game);
                 sendToAllInGame(game.getName(), new NextTurnMessage(game.getName(), game.getUser(game.getTurn()).getUsername(), game.getTurn(), game.isStartingTurns()));
             }
@@ -735,6 +742,48 @@ public class GameService extends AbstractService {
                     LOG.debug(e);
                     sendToListOfUsers(lobby.getPlayersReady(), new NotEnoughPlayersMessage(lobby.getName()));
                 }
+            }
+        }
+    }
+
+    @Subscribe
+    public void onJoinOnGoingGameRequest(JoinOnGoingGameRequest request) {
+        Optional<Lobby> optionalLobby = lobbyService.getLobby(request.getName());
+        Optional<Game> optionalGame = gameManagement.getGame(request.getName());
+        if (optionalLobby.isPresent() && request.getMessageContext().isPresent()) {
+            Lobby lobby = optionalLobby.get();
+            var response = new JoinOnGoingGameResponse(lobby.getName(), request.getUser(), false, null, null, null, lobby.getGameFieldVariant());
+            if (lobby.getGameStarted() && optionalGame.isPresent()) {
+                Game game = optionalGame.get();
+                boolean foundUser = false;
+                User user = null;
+                for (User usr : game.getUsersList()) {
+                    if (request.getSession().equals(authenticationService.getSession(usr))) {
+                        user = usr;
+                        foundUser = true;
+                        break;
+                    }
+                }
+                if (foundUser && user != null) {
+                    if (!game.getUsers().contains(user)) {
+                        game.joinUser(user);
+                        // send information to user
+                        response = new JoinOnGoingGameResponse(game.getName(), request.getUser(), true, game.getMapGraph(), game.getUsersList(), game.getUsers(), lobby.getGameFieldVariant());
+                        sendToSpecificUser(request.getMessageContext().get(), response);
+                        var gameMessage = new JoinOnGoingGameMessage(game.getName(),request.getUser(), game.getUsersList(), game.getUsers());
+                        sendToAllInGame(game.getName(), gameMessage);
+                        updateInventory(game);
+                        var currentTurnMessage = new NextTurnMessage(game.getName(), game.getUser(game.getTurn()).getUsername(), game.getTurn(), game.isStartingTurns());
+                        sendToAllInGame(game.getName(), currentTurnMessage);
+
+                    } else {
+                        // Already in the game
+                        sendToSpecificUser(request.getMessageContext().get(), response);
+                    }
+                }
+            } else {
+                //Game hasn't even started yet or is not
+                sendToSpecificUser(request.getMessageContext().get(), response);
             }
         }
     }

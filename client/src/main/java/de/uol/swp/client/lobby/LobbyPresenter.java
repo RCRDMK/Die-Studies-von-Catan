@@ -4,11 +4,9 @@ import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
 import de.uol.swp.client.chat.ChatService;
-import de.uol.swp.client.game.GameService;
 import de.uol.swp.common.chat.RequestChatMessage;
 import de.uol.swp.common.chat.ResponseChatMessage;
-import de.uol.swp.common.game.message.GameCreatedMessage;
-import de.uol.swp.common.game.message.NotEnoughPlayersMessage;
+import de.uol.swp.common.game.message.*;
 import de.uol.swp.common.game.response.GameAlreadyExistsResponse;
 import de.uol.swp.common.game.response.NotLobbyOwnerResponse;
 import de.uol.swp.common.lobby.message.StartGameMessage;
@@ -23,7 +21,6 @@ import de.uol.swp.common.user.response.lobby.LobbyLeftSuccessfulResponse;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.stage.Modality;
@@ -58,17 +55,11 @@ public class LobbyPresenter extends AbstractPresenter {
 
     private Alert alert;
 
-    private ButtonType buttonTypeYes;
-
-    private ButtonType buttonTypeNo;
-
-    private Button btnYes;
-
-    private Button btnNo;
-
     private boolean isLobbyOwner = false;
 
     private String gameFieldVariant = "Standard";
+
+    private int minimumAmountOfPlayers = 2;
 
     @FXML
     private ToggleGroup gameFieldToggleButtons;
@@ -80,6 +71,22 @@ public class LobbyPresenter extends AbstractPresenter {
     @FXML
     private RadioButton veryRandomGameField;
 
+    @FXML
+    public ToggleGroup minimumAmountOfPlayersToggleButtons;
+    @FXML
+    public RadioButton minimum1Player;
+    @FXML
+    public RadioButton minimum2Players;
+    @FXML
+    public RadioButton minimum3Players;
+    @FXML
+    public RadioButton minimum4Players;
+
+    @FXML
+    private Button startGameButton;
+
+    @FXML
+    private Button joinGameButton;
 
     @FXML
     public TextField lobbyChatInput;
@@ -105,8 +112,6 @@ public class LobbyPresenter extends AbstractPresenter {
     @Inject
     private ChatService chatService;
 
-    @Inject
-    private GameService gameService;
 
     @FXML
     public void onStandardGameField() {
@@ -119,35 +124,62 @@ public class LobbyPresenter extends AbstractPresenter {
     }
 
     @FXML
-    public void onVeryRandomGameField() { gameFieldVariant = "VeryRandom";}
+    public void onVeryRandomGameField() {
+        gameFieldVariant = "VeryRandom";
+    }
+
+    @FXML
+    public void on1Player() {
+        minimumAmountOfPlayers = 1;
+    }
+
+    @FXML
+    public void on2Players() {
+        minimumAmountOfPlayers = 2;
+    }
+
+    @FXML
+    public void on3Players() {
+        minimumAmountOfPlayers = 3;
+    }
+
+    @FXML
+    public void on4Players() {
+        minimumAmountOfPlayers = 4;
+    }
 
     /**
      * Method called when the StartGame button is pressed
      * <p>
      *
-     * @param event The ActionEvent created by pressing the StartGame button
      * @author Kirstin Beyer und Iskander Yusupov
      * @see de.uol.swp.client.lobby.LobbyService
      * @since 2021-01-23
      */
     @FXML
-    public void onStartGame(ActionEvent event) {
+    public void onStartGame() {
         LOG.debug("StartGame Button pressed");
-        lobbyService.startGame(this.currentLobby, (UserDTO) this.joinedLobbyUser, gameFieldVariant);
+        lobbyService.startGame(this.currentLobby, (UserDTO) this.joinedLobbyUser, gameFieldVariant, minimumAmountOfPlayers);
         gameAlreadyExistsLabel.setVisible(false);
         notLobbyOwnerLabel.setVisible(false);
         notEnoughPlayersLabel.setVisible(false);
     }
 
+    @FXML
+    public void onJoinGame() {
+        LOG.debug("JoinGame Button Presse");
+        lobbyService.joinGame(this.currentLobby, (UserDTO) this.joinedLobbyUser);
+    }
+
     /**
      * Method called when the LeaveLobby button is pressed
      *
-     * @param event The ActionEvent created by pressing the LeaveLobby button
+     * @author Marc Hermes
      * @see de.uol.swp.client.lobby.LobbyService
+     * @since 2020-12-02
      */
-
     @FXML
-    public void onLeaveLobby(ActionEvent event) {
+    public void onLeaveLobby() {
         if (this.currentLobby != null && this.joinedLobbyUser != null) {
             lobbyService.leaveLobby(this.currentLobby, (UserDTO) this.joinedLobbyUser);
         } else if (this.currentLobby == null && this.joinedLobbyUser != null) {
@@ -164,13 +196,12 @@ public class LobbyPresenter extends AbstractPresenter {
      * If the send Message button is pressed, this methods tries to request the chatService to send a specified message.
      * The message is of type RequestChatMessage If this will result in an exception, go log the exception
      *
-     * @param event The ActionEvent created by pressing the send Message button
      * @author Anton, René, Sergej
      * @see de.uol.swp.client.chat.ChatService
      * @since 2020-12-06
      */
     @FXML
-    void onSendMessage(ActionEvent event) {
+    void onSendMessage() {
         try {
             var chatMessage = lobbyChatInput.getCharacters().toString();
             // ChatID = gets lobby name
@@ -212,7 +243,6 @@ public class LobbyPresenter extends AbstractPresenter {
      * @author Pieter Vogt
      * @since 2021-03-21
      */
-
     public void setGameOptionsButtonsVisibility() {
         if (isLobbyOwner) {
             randomGameField.setDisable(false);
@@ -311,15 +341,15 @@ public class LobbyPresenter extends AbstractPresenter {
      */
     public void setupButtonsAndAlerts() {
         this.alert = new Alert(Alert.AlertType.CONFIRMATION);
-        this.buttonTypeYes = new ButtonType("Yes", ButtonBar.ButtonData.YES);
-        this.buttonTypeNo = new ButtonType("No", ButtonBar.ButtonData.NO);
+        ButtonType buttonTypeYes = new ButtonType("Yes", ButtonBar.ButtonData.YES);
+        ButtonType buttonTypeNo = new ButtonType("No", ButtonBar.ButtonData.NO);
         alert.getButtonTypes().setAll(buttonTypeYes, buttonTypeNo);
-        this.btnYes = (Button) alert.getDialogPane().lookupButton(buttonTypeYes);
+        Button btnYes = (Button) alert.getDialogPane().lookupButton(buttonTypeYes);
         btnYes.setOnAction(event -> {
             onBtnYesClicked();
             event.consume();
         });
-        this.btnNo = (Button) alert.getDialogPane().lookupButton(buttonTypeNo);
+        Button btnNo = (Button) alert.getDialogPane().lookupButton(buttonTypeNo);
         btnNo.setOnAction(event -> {
             onBtnNoClicked();
             event.consume();
@@ -327,6 +357,11 @@ public class LobbyPresenter extends AbstractPresenter {
         this.alert.initModality(Modality.NONE);
 
         setGameOptionsButtonsVisibility();
+        joinGameButton.setVisible(false);
+        startGameButton.setVisible(true);
+        standardGameField.fire();
+        minimum2Players.fire();
+
 
     }
 
@@ -771,8 +806,44 @@ public class LobbyPresenter extends AbstractPresenter {
         if (this.currentLobby != null) {
             if (this.currentLobby.equals(gcm.getName())) {
                 LOG.debug("New game " + gcm.getName() + " created");
+                startGameButton.setVisible(false);
+                joinGameButton.setVisible(true);
             }
         }
     }
+
+    @Subscribe
+    public void onGameDroppedMessage(GameDroppedMessage gdm) {
+        if (this.currentLobby != null) {
+            if (this.currentLobby.equals(gdm.getName())) {
+                LOG.debug("The game " + gdm.getName() + " was dropped");
+                startGameButton.setVisible(true);
+                joinGameButton.setVisible(false);
+            }
+        }
+    }
+
+    @Subscribe
+    public void onGameFinishedMessage(GameFinishedMessage gfm) {
+        if (this.currentLobby != null) {
+            if (this.currentLobby.equals(gfm.getName())) {
+                LOG.debug("The game " + gfm.getName() + " has concluded");
+                startGameButton.setVisible(true);
+                joinGameButton.setVisible(false);
+            }
+        }
+    }
+
+    @Subscribe
+    public void onGameStartedMessage(GameStartedMessage gsm) {
+        if (this.currentLobby != null) {
+            if (this.currentLobby.equals(gsm.getLobbyName())) {
+                LOG.debug("New game " + gsm.getName() + " of this lobby started");
+                startGameButton.setVisible(false);
+                joinGameButton.setVisible(true);
+            }
+        }
+    }
+
 }
 

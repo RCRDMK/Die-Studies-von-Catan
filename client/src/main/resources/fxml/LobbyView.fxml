@@ -41,7 +41,34 @@
             <fx:reference source="gameFieldToggleButtons"/>
         </toggleGroup>
     </RadioButton>
+    <RadioButton fx:id="minimum1Player" layoutX="84.0" layoutY="313.0" mnemonicParsing="false"
+                 onAction="#on1Player" text="1 Player" visible="false">
+        <toggleGroup>
+            <ToggleGroup fx:id="minimumAmountOfPlayersToggleButtons"/>
+        </toggleGroup>
+    </RadioButton>
+    <RadioButton fx:id="minimum2Players" layoutX="84.0" layoutY="313.0" mnemonicParsing="false"
+                 onAction="#on2Players" text="2 Players">
+        <toggleGroup>
+            <fx:reference source="minimumAmountOfPlayersToggleButtons"/>
+        </toggleGroup>
+    </RadioButton>
+    <RadioButton fx:id="minimum3Players" layoutX="84.0" layoutY="338.0" mnemonicParsing="false"
+                 onAction="#on3Players" text="3 Players">
+        <toggleGroup>
+            <fx:reference source="minimumAmountOfPlayersToggleButtons"/>
+        </toggleGroup>
+    </RadioButton>
+    <RadioButton fx:id="minimum4Players" layoutX="84.0" layoutY="363.0" mnemonicParsing="false"
+                 onAction="#on4Players" text="4 Players">
+        <toggleGroup>
+            <fx:reference source="minimumAmountOfPlayersToggleButtons"/>
+        </toggleGroup>
+    </RadioButton>
     <ListView fx:id="lobbyUsersView" prefHeight="200.0" prefWidth="200.0"/>
-    <Button layoutX="524.0" layoutY="366.0" mnemonicParsing="false" onAction="#onStartGame" text="Start Game"/>
+    <Button fx:id="startGameButton" layoutX="524.0" layoutY="366.0" mnemonicParsing="false" onAction="#onStartGame"
+            text="Start Game"/>
     <Button layoutX="200.0" layoutY="366.0" mnemonicParsing="false" onAction="#onLeaveLobby" text="Leave Lobby"/>
+    <Button fx:id="joinGameButton" layoutX="524.0" layoutY="366.0" mnemonicParsing="false" onAction="#onJoinGame"
+            text="Join Game"/>
 </AnchorPane>

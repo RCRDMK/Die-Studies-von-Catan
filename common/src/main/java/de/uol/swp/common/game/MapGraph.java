@@ -566,12 +566,17 @@ public class MapGraph implements Serializable {
 
         //Fields
 
-        private final UUID uuid = UUID.randomUUID();
-        private String positionToParent;
-        private int occupiedByPlayer = 666;
-        private Hexagon parent;
+        public final UUID uuid;
+        public final String positionToParent;
+        public int occupiedByPlayer = 666;
+        public final Hexagon parent;
 
         //Constructors
+        public MapGraphNode(String positionToParent, Hexagon parent, UUID uuid) {
+            this.positionToParent = positionToParent;
+            this.uuid = uuid;
+            this.parent = parent;
+        }
 
         //Getter Setter
 
@@ -585,6 +590,10 @@ public class MapGraph implements Serializable {
 
         public int getOccupiedByPlayer() {
             return occupiedByPlayer;
+        }
+
+        public void setOccupiedByPlayer(int occupiedByPlayer) {
+            this.occupiedByPlayer = occupiedByPlayer;
         }
 
         public Hexagon getParent() {
@@ -605,25 +614,26 @@ public class MapGraph implements Serializable {
 
         private final HashSet<BuildingNode> connectedBuildingNodes = new HashSet<>();
 
-        private final UUID uuid;
+        //private final UUID uuid;
 
-        private String positionToParent;
-        private int occupiedByPlayer = 666;
-        private Hexagon parent;
+        //private final String positionToParent;
+        //private int occupiedByPlayer = 666;
+        //private Hexagon parent;
 
         //CONSTRUCTOR
 
         public StreetNode(String position, Hexagon h, UUID uuid) {
-            this.positionToParent = position;
-            this.parent = h;
-            this.uuid = uuid;
+            super(position, h, uuid);
+            //this.positionToParent = position;
+            //this.parent = h;
+            //this.uuid = uuid;
         }
 
         //GETTER SETTER
 
-        public int getOccupiedByPlayer() {
+        /*public int getOccupiedByPlayer() {
             return occupiedByPlayer;
-        }
+        }*/
 
         public HashSet<BuildingNode> getConnectedBuildingNodes() {
             return connectedBuildingNodes;
@@ -637,21 +647,21 @@ public class MapGraph implements Serializable {
             }
         }
 
-        public Hexagon getParent() {
+        /*public Hexagon getParent() {
             return parent;
-        }
+        }*/
 
-        public void setParent(Hexagon parent) {
+        /*public void setParent(Hexagon parent) {
             this.parent = parent;
-        }
+        }*/
 
-        public String getPositionToParent() {
+        /*public String getPositionToParent() {
             return positionToParent;
-        }
+        }*/
 
-        public UUID getUuid() {
+        /*public UUID getUuid() {
             return uuid;
-        }
+        }*/
 
         //METHODS
 
@@ -687,11 +697,11 @@ public class MapGraph implements Serializable {
 
         private final HashSet<StreetNode> connectedStreetNodes = new HashSet<>();
 
-        private final UUID uuid;
-        private String positionToParent;
+        //private final UUID uuid;
+        //private final String positionToParent;
         private int typeOfHarbor;
-        private int occupiedByPlayer = 666;
-        private Hexagon parent;
+        //private int occupiedByPlayer = 666;
+        //private Hexagon parent;
         private int sizeOfSettlement = 0;
         //CONSTRUCTOR
 
@@ -703,23 +713,16 @@ public class MapGraph implements Serializable {
          * </p>
          */
         public BuildingNode(String position, Hexagon h, UUID uuid) {
-            this.positionToParent = position;
-            this.parent = h;
-            this.uuid = uuid;
+            super(position, h, uuid);
+            //this.positionToParent = position;
+            //this.parent = h;
+            //this.uuid = uuid;
         }
 
         //GETTER SETTER
 
         public HashSet<StreetNode> getConnectedStreetNodes() {
             return connectedStreetNodes;
-        }
-
-        public int getOccupiedByPlayer() {
-            return occupiedByPlayer;
-        }
-
-        public void setOccupiedByPlayer(int occupiedByPlayer) {
-            this.occupiedByPlayer = occupiedByPlayer;
         }
 
         public int getTypeOfHarbor() {
@@ -738,21 +741,23 @@ public class MapGraph implements Serializable {
             }
         }
 
-        public Hexagon getParent() {
+        /*public Hexagon getParent() {
             return parent;
-        }
+        }*/
 
-        public void setParent(Hexagon parent) {
+        /*public void setParent(Hexagon parent) {
             this.parent = parent;
-        }
+        }*/
 
-        public String getPositionToParent() {
+        /*public String getPositionToParent() {
             return positionToParent;
-        }
+        }*/
 
         public int getSizeOfSettlement() {
             return sizeOfSettlement;
         }
+
+        public void incSizeOfSettlement() {this.sizeOfSettlement++; }
 
         //METHODS
 
