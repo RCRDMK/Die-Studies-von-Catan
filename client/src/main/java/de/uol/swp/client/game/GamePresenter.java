@@ -30,9 +30,6 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
-import javafx.scene.control.Button;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
@@ -1179,9 +1176,7 @@ public class GamePresenter extends AbstractPresenter {
                 circle.setLayoutY(drawVector.getY());
                 circle.setVisible(false);
 
-                mapGraphNodeContainer.getCircle().setFill(determinePlayerColorByIndex(mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer()));
-
-
+                circle.setFill(determinePlayerColorByIndex(mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer()));
             } else {
                 double itemSize = cardSize() / 15;
                 MapGraph.StreetNode streetNode = (MapGraph.StreetNode) mapGraphNodeContainer.getMapGraphNode();
@@ -1224,19 +1219,75 @@ public class GamePresenter extends AbstractPresenter {
     }
 
     /**
+     * Method to initialize the GameField of this GamePresenter of this client
+     * <p>
+     * First creates the tfArray, then iterates over the terrainFieldContainers of the gameField to get the diceTokens
+     * values and copies them to the tfArray of this GamePresenter. Then the values of the fieldTypes are checked and
+     * translated into the correct String names of the tfArray TerrainFields.
+     * <p>
+     * Enhanced, with a drawing of a robber
+     *
+     * @param mapGraph the MapGraph created by the Server
+     *
+     * @author Marius Birk
+     * @author Marc Hermes
+     * @see de.uol.swp.common.game.GameField
+     * @see de.uol.swp.client.game.GameObjects.TerrainField
+     * @see de.uol.swp.common.game.TerrainFieldContainer
+     * @since 2021-04-20
+     */
+    public void initializeMatch(MapGraph mapGraph) {
+
+        //Setting up the HexagonContainers
+        LOG.debug("Setting up " + mapGraph.getHexagonHashSet().size() + " HexagonContainers...");
+
+        for (MapGraph.Hexagon hexagon : mapGraph.getHexagonHashSet()) {
+            HexagonContainer hexagonContainer = new HexagonContainer(hexagon, cardSize());
+            this.hexagonContainers.add(hexagonContainer);
+            Platform.runLater(() -> gameAnchorPane.getChildren().add(hexagonContainer.getHexagonShape()));
+        }
+
+        //Setting up the BuildingNodeContainers
+        LOG.debug("Setting up " + mapGraph.getBuildingNodeHashSet().size() + " BuildingNodeContainers...");
+
+        for (MapGraph.BuildingNode buildingNode : mapGraph.getBuildingNodeHashSet()) {
+            MapGraphNodeContainer mapGraphNodeContainer = new MapGraphNodeContainer(new Circle(cardSize() / 6), buildingNode);
+            this.mapGraphNodeContainers.add(mapGraphNodeContainer);
+            Platform.runLater(() -> gameAnchorPane.getChildren().add(mapGraphNodeContainer.getCircle()));
+        }
+
+        //Setting up the StreetNodeContainers
+        LOG.debug("Setting up " + mapGraph.getStreetNodeHashSet().size() + " StreetNodeContainers...");
+
+        for (MapGraph.StreetNode streetNode : mapGraph.getStreetNodeHashSet()) {
+            MapGraphNodeContainer mapGraphNodeContainer = new MapGraphNodeContainer(new Circle(cardSize() / 8), streetNode);
+            this.mapGraphNodeContainers.add(mapGraphNodeContainer);
+            Platform.runLater(() -> gameAnchorPane.getChildren().add(mapGraphNodeContainer.getCircle()));
+        }
+        initializeNodeSpots();
+        //Draw robber
+        //Initialize the robber graphics
+        robber = new Rectangle(25, 25);
+        robber.setFill(new ImagePattern(new Image("textures/originals/robbers.png")));
+        robber.setVisible(true);
+
+        draw();
+    }
+
+    /**
      * Method to draw buildings to the screen.
      * <p>
-     * Creates the Spots (Circles) for the Buildings and streets. If a Circle is clicked, the gameService will be called to request the building of a street/building.
-     * If a circle is clicked during the resolution of the Road Building developmentCard, a bigger circle(black/red) will be temporarily placed above the street building spot.
+     * Creates the Spots (Circles) for the Buildings and streets. If a Circle is clicked, the gameService will be called
+     * to request the building of a street/building. If a circle is clicked during the resolution of the Road Building
+     * developmentCard, a bigger circle(black/red) will be temporarily placed above the street building spot.
      *
      * <p>
-     * enhanced by Marc Hermes 2021-03-31
-     * enhanced by Marc Hermes 2021-05-04
+     * enhanced by Marc Hermes 2021-03-31 enhanced by Marc Hermes 2021-05-04
      *
      * @author Kirstin
      * @since 2021-03-28
      */
-    public void initializeNodeSpots(Object o) {
+    public void initializeNodeSpots() {
 
         EventHandler<MouseEvent> clickOnCircleHandler = new EventHandler<MouseEvent>() {
             @Override
@@ -1440,6 +1491,9 @@ public class GamePresenter extends AbstractPresenter {
                                         buildMenu.setDisable(false);
                                         EndTurnButton.setDisable(false);
                                         buyDevCard.setDisable(false);
+                                    }
+                                    if(currentDevelopmentCard.equals("Knight")) {
+                                        gameService.resolveDevelopmentCardKnight((UserDTO) moveRobberMessage.getUser(), moveRobberMessage.getName(), currentDevelopmentCard, container.getHexagon().getUuid());
                                     }
                                     gameService.movedRobber(moveRobberMessage.getName(), moveRobberMessage.getUser(), container.getHexagon().getUuid());
                                 }
@@ -1727,8 +1781,10 @@ public class GamePresenter extends AbstractPresenter {
             oldGridPane.getChildren().remove(rectangleDie1);
             oldGridPane.getChildren().remove(rectangleDie2);
             rectangleDie1.setFill(diceImages.get(0));
-            newGridPane.add(rectangleDie1, 0, 0);
             rectangleDie2.setFill(diceImages.get(0));
+            if(!newGridPane.getChildren().contains(rectangleDie1))
+            newGridPane.add(rectangleDie1, 0, 0);
+            if(!newGridPane.getChildren().contains(rectangleDie2))
             newGridPane.add(rectangleDie2, 1, 0);
         });
     }
@@ -2060,38 +2116,41 @@ public class GamePresenter extends AbstractPresenter {
     public void onPlayDevelopmentCardResponse(PlayDevelopmentCardResponse pdcr) {
         if (this.currentLobby != null) {
             if (this.currentLobby.equals(pdcr.getGameName())) {
-                if (pdcr.isCanPlayCard()) {
-                    LOG.debug("The card " + pdcr.getDevCard() + " was played by the user " + pdcr.getUserName());
-                    this.currentDevelopmentCard = pdcr.getDevCard();
-                    Platform.runLater(() -> {
-                        this.resolveDevelopmentCardAlert.setTitle(currentDevelopmentCard + " in " + pdcr.getGameName());
-                        if (this.currentDevelopmentCard.equals("Year of Plenty") || this.currentDevelopmentCard.equals("Monopoly")) {
-                            this.resolveDevelopmentCardAlert.setHeaderText("Select Resource/s");
-                            for (Rectangle rect : resourceRectangles) {
-                                rect.setVisible(true);
-                            }
-                            for (MapGraphNodeContainer container : mapGraphNodeContainers) {
-                                if (container.getMapGraphNode().getOccupiedByPlayer() == 666) {
-                                    container.getCircle().setVisible(false);
+                this.currentDevelopmentCard = pdcr.getDevCard();
+                if (!pdcr.getDevCard().equals("Knight")) {
+                    if (pdcr.isCanPlayCard()) {
+                        LOG.debug("The card " + pdcr.getDevCard() + " was played by the user " + pdcr.getUserName());
+                        this.currentDevelopmentCard = pdcr.getDevCard();
+                        Platform.runLater(() -> {
+                            this.resolveDevelopmentCardAlert.setTitle(currentDevelopmentCard + " in " + pdcr.getGameName());
+                            if (this.currentDevelopmentCard.equals("Year of Plenty") || this.currentDevelopmentCard.equals("Monopoly")) {
+                                this.resolveDevelopmentCardAlert.setHeaderText("Select Resource/s");
+                                for (Rectangle rect : resourceRectangles) {
+                                    rect.setVisible(true);
+                                }
+                                for (MapGraphNodeContainer container : mapGraphNodeContainers) {
+                                    if (container.getMapGraphNode().getOccupiedByPlayer() == 666) {
+                                        container.getCircle().setVisible(false);
+                                    }
+                                }
+                            } else if (this.currentDevelopmentCard.equals("Road Building")) {
+                                for (MapGraphNodeContainer container : mapGraphNodeContainers) {
+                                    if (container.getMapGraphNode().getOccupiedByPlayer() == 666) {
+                                        container.getCircle().setVisible(container.getMapGraphNode() instanceof MapGraph.StreetNode);
+                                    }
+                                }
+                                this.resolveDevelopmentCardAlert.setHeaderText("Select 2 building spots for the streets");
+                                for (Rectangle rect : resourceRectangles) {
+                                    rect.setVisible(false);
                                 }
                             }
-                        } else if (this.currentDevelopmentCard.equals("Road Building")) {
-                            for (MapGraphNodeContainer container : mapGraphNodeContainers) {
-                                if (container.getMapGraphNode().getOccupiedByPlayer() == 666) {
-                                    container.getCircle().setVisible(container.getMapGraphNode() instanceof MapGraph.StreetNode);
-                                }
-                            }
-                            this.resolveDevelopmentCardAlert.setHeaderText("Select 2 building spots for the streets");
-                            for (Rectangle rect : resourceRectangles) {
-                                rect.setVisible(false);
-                            }
-                        }
-                        this.resolveDevelopmentCardAlert.show();
+                            this.resolveDevelopmentCardAlert.show();
 
-                    });
+                        });
 
-                } else {
-                    LOG.debug("The user " + pdcr.getUserName() + " cannot play the card " + pdcr.getDevCard());
+                    } else {
+                        LOG.debug("The user " + pdcr.getUserName() + " cannot play the card " + pdcr.getDevCard());
+                    }
                 }
             }
         }

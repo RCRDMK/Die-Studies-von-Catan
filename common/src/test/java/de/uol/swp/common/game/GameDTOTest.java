@@ -23,7 +23,7 @@ public class GameDTOTest {
     private final UserDTO userDTO2 = new UserDTO("test2", "", "");
     private final UserDTO userDTO3 = new UserDTO("test3", "", "");
 
-    private GameDTO defaultGame = new GameDTO("test", userDTO);
+    private GameDTO defaultGame = new GameDTO("test", new UserDTO("test", "", ""), "");
 
     /**
      * This test checks if the user can join the game correctly.

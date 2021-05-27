@@ -4,32 +4,21 @@ import com.google.common.eventbus.DeadEvent;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import de.uol.swp.common.game.Game;
-
 import de.uol.swp.common.game.inventory.Inventory;
 import de.uol.swp.common.game.message.*;
-
 import de.uol.swp.common.game.MapGraph;
 import de.uol.swp.common.game.request.*;
-import de.uol.swp.common.game.response.PlayDevelopmentCardResponse;
-import de.uol.swp.common.game.response.ResolveDevelopmentCardNotSuccessfulResponse;
-import de.uol.swp.common.game.request.GameLeaveUserRequest;
-import de.uol.swp.common.game.request.ResourcesToDiscardRequest;
-import de.uol.swp.common.game.request.RetrieveAllThisGameUsersRequest;
-import de.uol.swp.common.game.request.TradeChoiceRequest;
-import de.uol.swp.common.game.request.TradeItemRequest;
 import de.uol.swp.common.game.trade.TradeItem;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.user.Session;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.user.request.LoginRequest;
-import de.uol.swp.common.user.request.LogoutRequest;
 import de.uol.swp.server.lobby.LobbyManagement;
 import de.uol.swp.server.lobby.LobbyService;
 import de.uol.swp.server.usermanagement.AuthenticationService;
 import de.uol.swp.server.usermanagement.UserManagement;
 import de.uol.swp.server.usermanagement.UserService;
-import org.checkerframework.checker.nullness.Opt;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -345,18 +334,18 @@ public class GameServiceTest {
 
         //fill Inventory userDTO
         game.get().getInventory(userDTO).lumber.setNumber(0);
-        game.get().getInventory(userDTO).incCard("Lumber", 10);
+        game.get().getInventory(userDTO).incCardStack("Lumber", 10);
         game.get().getInventory(userDTO).ore.setNumber(0);
-        game.get().getInventory(userDTO).incCard("Ore", 10);
+        game.get().getInventory(userDTO).incCardStack("Ore", 10);
         //fill Inventory userDTO1
         game.get().getInventory(userDTO1).ore.setNumber(0);
-        game.get().getInventory(userDTO1).incCard("Ore", 10);
+        game.get().getInventory(userDTO1).incCardStack("Ore", 10);
         //fill Inventory userDTO2
         game.get().getInventory(userDTO2).grain.setNumber(0);
-        game.get().getInventory(userDTO2).incCard("Grain", 10);
+        game.get().getInventory(userDTO2).incCardStack("Grain", 10);
         //fill Inventory userDTO3
         game.get().getInventory(userDTO3).wool.setNumber(0);
-        game.get().getInventory(userDTO3).incCard("Wool", 10);
+        game.get().getInventory(userDTO3).incCardStack("Wool", 10);
 
         //tests the tradestart
         TradeItem sellerItemLumber = new TradeItem("Lumber", 5);
@@ -499,13 +488,10 @@ public class GameServiceTest {
         assertTrue(game.get().getInventory(userDTO3).wool.getNumber() == 10);
         //TODO Testfix needed
         //assertTrue(event instanceof TradeEndedMessage);
-
-
     }
 
-
     /**
-     * This test checks if the distributeResource method works as intendet.
+     * This test checks if the distributeResource method works as intended
      * <p>
      * We create a new gameService and we create a new game. After that we assert that, the game is present and we
      * join some user to the game. We setup the inventories and the UserArrayList. We built at every possible
@@ -533,7 +519,6 @@ public class GameServiceTest {
             b.buildOrDevelopSettlement(1);
         }
 
-
         Map<String, Integer> inventoryEmpty = new HashMap<>();
         inventoryEmpty = game.get().getInventory(game.get().getUser(1)).getPrivateView();
         assertEquals(inventoryEmpty.get("Lumber"), 0);
@@ -550,9 +535,9 @@ public class GameServiceTest {
         assertEquals(inventoryFull.get("Grain"), 6);
         assertEquals(inventoryFull.get("Wool"), 0);
         assertEquals(inventoryFull.get("Ore"), 0);
-        assertEquals(game.get().getInventory(game.get().getUser(1)).getResource(), 12);
-        assertEquals(game.get().getInventory(game.get().getUser(0)).getResource(), 0);
-        assertEquals(game.get().getInventory(game.get().getUser(2)).getResource(), 0);
+        assertEquals(game.get().getInventory(game.get().getUser(1)).sumResource(), 12);
+        assertEquals(game.get().getInventory(game.get().getUser(0)).sumResource(), 0);
+        assertEquals(game.get().getInventory(game.get().getUser(2)).sumResource(), 0);
     }
 
     /**
@@ -591,10 +576,11 @@ public class GameServiceTest {
         inv0.cardYearOfPlenty.incNumber();
         inv0.cardRoadBuilding.incNumber();
         inv1.cardMonopoly.incNumber();
-        inv3.incCard("Lumber", 3);
-        inv2.incCard("Brick", 2);
+        inv2.cardRoadBuilding.incNumber();
+        inv2.brick.incNumber(2);
+        inv3.lumber.incNumber(3);
 
-        // Check if player 1 is allowed to play his decCard
+        // Check if player 1 is allowed to play his decCardStack
         PlayDevelopmentCardRequest pdcr = new PlayDevelopmentCardRequest("Year of Plenty", "test", (UserDTO) userThatPlaysTheCard);
         gameService.onPlayDevelopmentCardRequest(pdcr);
 
@@ -602,7 +588,7 @@ public class GameServiceTest {
         //assertTrue(event instanceof PublicInventoryChangeMessage);
         //assertTrue(((PlayDevelopmentCardResponse) event).isCanPlayCard());
 
-        // Check if player 2 is not allowed to play his decCard because its not his turn
+        // Check if player 2 is not allowed to play his decCardStack because its not his turn
         pdcr = new PlayDevelopmentCardRequest("Road Building", "test", (UserDTO) game.get().getUser(2));
         gameService.onPlayDevelopmentCardRequest(pdcr);
         //TODO Testfix needed
@@ -666,10 +652,9 @@ public class GameServiceTest {
         //TODO Testfix needed
         //assertTrue(event instanceof ResolveDevelopmentCardMessage);
 
-        // check if player 3 (index 2) is the occupier of the streets that were built with the Road Building decCard
+        // check if player 3 (index 2) is the occupier of the streets that were built with the Road Building decCardStack
         assertEquals(street1.getOccupiedByPlayer(), 2);
         assertEquals(street2.getOccupiedByPlayer(), 2);
-
     }
 
     @Test
@@ -715,8 +700,6 @@ public class GameServiceTest {
 
         assertEquals(game.get().getInventory(userDTO1).lumber.getNumber(), 3);
         assertEquals(game.get().getInventory(userDTO1).grain.getNumber(), 4);
-
-
     }
 
     /**
@@ -753,5 +736,355 @@ public class GameServiceTest {
         assertEquals(game.get().getMapGraph().getHexagonHashSet().size(), 19);
         assertTrue(game.get().getMapGraph().getBuildingNodeHashSet().size() >= 54);
         assertTrue(game.get().getMapGraph().getStreetNodeHashSet().size() >= 72);
+    }
+
+    /**
+     * This test checks if the AI is used when the player whose turn
+     * it is right now is not in the game anymore.
+     * <p>
+     * The AI will build a town and a street and then end his own turn.
+     *
+     * @author Marc Hermes
+     * @since 2021-05-11
+     */
+    @Test
+    void missingPlayerAITest() {
+        loginUsers();
+        gameManagement.createGame("test", userDTO, "Standard");
+        Optional<Game> game = gameManagement.getGame("test");
+        assertTrue(game.isPresent());
+
+        game.get().joinUser(userDTO1);
+        game.get().joinUser(userDTO2);
+        game.get().joinUser(userDTO3);
+
+        game.get().setUpUserArrayList();
+        game.get().setUpInventories();
+
+        // give the AI enough resources to buy a development card
+        Inventory aiInventory = game.get().getInventory(userDTO1);
+        aiInventory.grain.incNumber();
+        aiInventory.wool.incNumber();
+        aiInventory.ore.incNumber();
+
+        // give player 4 some grain so that it may be taken by the AIs monopoly card
+        game.get().getInventory(userDTO3).grain.incNumber();
+
+        // give the AI the developmentCards to play
+        aiInventory.cardRoadBuilding.incNumber();
+        aiInventory.cardMonopoly.incNumber();
+        aiInventory.cardYearOfPlenty.incNumber();
+        aiInventory.cardKnight.incNumber();
+
+        // the TestAI class will now be used
+        game.get().setIsUsedForTest(true);
+
+        // Player 1 leaves the game
+        GameLeaveUserRequest glur = new GameLeaveUserRequest(game.get().getName(), userDTO1);
+        gameService.onGameLeaveUserRequest(glur);
+
+        // Player 0 ends his turn
+        EndTurnRequest etr = new EndTurnRequest(game.get().getName(), userDTO);
+        gameService.onEndTurnRequest(etr);
+
+        int buildingCounter = 0;
+        int streetCounter = 0;
+        MapGraph.BuildingNode b = null;
+
+        for (MapGraph.BuildingNode bn : game.get().getMapGraph().getBuildingNodeHashSet()) {
+            if (bn.getOccupiedByPlayer() == 1) {
+                buildingCounter++;
+            }
+            if (bn.getSizeOfSettlement() == 2) {
+                b = bn;
+            }
+        }
+
+        for (MapGraph.StreetNode sn : game.get().getMapGraph().getStreetNodeHashSet()) {
+            if (sn.getOccupiedByPlayer() == 1) {
+                streetCounter++;
+
+            }
+        }
+
+        // Check if the AI built the building and street
+        assertEquals(buildingCounter, 1);
+        assert b != null;
+        assertEquals(b.getSizeOfSettlement(), 2);
+        assertEquals(streetCounter, 3);
+
+        // Check if the AI played monopoly and year of plenty correctly
+        assertEquals(aiInventory.lumber.getNumber(), 1);
+        assertEquals(aiInventory.grain.getNumber(), 1);
+        assertEquals(aiInventory.brick.getNumber(), 1);
+
+
+        // Check if the turn started for the correct player (and thus the AI ended the turn)
+        assertTrue(event instanceof NextTurnMessage);
+        assertEquals(userDTO2.getUsername(), ((NextTurnMessage) event).getPlayerWithCurrentTurn());
+    }
+
+    /**
+     * This test checks if the AI is used when the player whose turn
+     * it is right now leaves the game.
+     * <p>
+     * The AI will build a town and a street and then end his own turn.
+     *
+     * @author Marc Hermes
+     * @since 2021-05-11
+     */
+    @Test
+    void replacePlayerDuringOwnTurnAITest() {
+        loginUsers();
+        gameManagement.createGame("test", userDTO, "Standard");
+        Optional<Game> game = gameManagement.getGame("test");
+        assertTrue(game.isPresent());
+
+        game.get().joinUser(userDTO1);
+        game.get().joinUser(userDTO2);
+        game.get().joinUser(userDTO3);
+
+        game.get().setUpUserArrayList();
+        game.get().setUpInventories();
+
+        // give the AI enough resources to buy a development card
+        Inventory aiInventory = game.get().getInventory(userDTO);
+        aiInventory.grain.incNumber();
+        aiInventory.wool.incNumber();
+        aiInventory.ore.incNumber();
+
+        // give the AI the developmentCards to play
+        aiInventory.cardRoadBuilding.incNumber();
+        aiInventory.cardMonopoly.incNumber();
+        aiInventory.cardYearOfPlenty.incNumber();
+        aiInventory.cardKnight.incNumber();
+
+        // give player 4 some grain so that it may be taken by the AIs monopoly card
+        game.get().getInventory(userDTO3).grain.incNumber();
+
+        // the TestAI class will now be used
+        game.get().setIsUsedForTest(true);
+
+        // Player 0 (the turn player) leaves the game
+        GameLeaveUserRequest glur = new GameLeaveUserRequest(game.get().getName(), userDTO);
+        gameService.onGameLeaveUserRequest(glur);
+
+        int buildingCounter = 0;
+        int streetCounter = 0;
+        MapGraph.BuildingNode b = null;
+        for (MapGraph.BuildingNode bn : game.get().getMapGraph().getBuildingNodeHashSet()) {
+            if (bn.getOccupiedByPlayer() == 0) {
+                buildingCounter++;
+                if (bn.getSizeOfSettlement() == 2) {
+                    b = bn;
+                }
+            }
+        }
+        for (MapGraph.StreetNode sn : game.get().getMapGraph().getStreetNodeHashSet()) {
+            if (sn.getOccupiedByPlayer() == 0) {
+                streetCounter++;
+            }
+        }
+
+        // Check if the AI built the building and street
+        assertEquals(buildingCounter, 1);
+        assert b != null;
+        assertEquals(b.getSizeOfSettlement(), 2);
+        assertEquals(streetCounter, 3);
+
+        // Check if the AI played monopoly and year of plenty correctly
+        assertEquals(aiInventory.lumber.getNumber(), 1);
+        assertEquals(aiInventory.grain.getNumber(), 1);
+        assertEquals(aiInventory.brick.getNumber(), 1);
+
+        // Check if the turn started for the correct player (and thus the AI ended the turn)
+        assertTrue(event instanceof NextTurnMessage);
+        assertEquals(userDTO1.getUsername(), ((NextTurnMessage) event).getPlayerWithCurrentTurn());
+
+    }
+
+    /**
+     * Test used for checking the general functionality of the randomAI (only check if it will end its turn)
+     *
+     * @author Marc Hermes
+     * @since 2021-05-12
+     */
+    @Test
+    void randomAITest() {
+
+
+        loginUsers();
+        gameManagement.createGame("test", userDTO, "Standard");
+        Optional<Game> game = gameManagement.getGame("test");
+        assertTrue(game.isPresent());
+
+        game.get().joinUser(userDTO1);
+        game.get().joinUser(userDTO2);
+        game.get().joinUser(userDTO3);
+
+        game.get().setUpUserArrayList();
+        game.get().setUpInventories();
+
+        // Player 0 (the turn player) leaves the game
+        GameLeaveUserRequest glur = new GameLeaveUserRequest(game.get().getName(), userDTO);
+        gameService.onGameLeaveUserRequest(glur);
+
+        // Check if the turn started for the correct player (and thus the AI ended the turn)
+        assertTrue(event instanceof NextTurnMessage);
+        assertEquals(userDTO1.getUsername(), ((NextTurnMessage) event).getPlayerWithCurrentTurn());
+
+    }
+
+
+    /**
+     * This test checks if the giveResource and the takeResource method works as intended
+     * <p>
+     * We create a new gameService and we create a new game. After that we assert that, the game is present and we
+     * join some user to the game. We setup the UserArrayList and the inventories.
+     * Than we checks the content of the inventories before and after the giveResource method, including the bank.
+     * Finally we check the content of inventories the after the takeResource method, including the bank.
+     *
+     * @author Anton Nikiforov
+     * @since 2021-04-26
+     */
+    @Test
+    void onGiveAndTakeResourceTest() {
+        GameService gameService3 = new GameService(gameManagement, lobbyService, authenticationService, bus, userService);
+
+        gameManagement.createGame("test", userDTO, "Standard");
+        Optional<Game> optionalGame = gameManagement.getGame("test");
+        assertTrue(optionalGame.isPresent());
+        Game game = optionalGame.get();
+
+        game.joinUser(userDTO1);
+        game.joinUser(userDTO2);
+
+        game.setUpUserArrayList();
+        game.setUpInventories();
+
+        Inventory bank = game.getBankInventory();
+
+        Inventory inventory1 = game.getInventory(userDTO1);
+        Inventory inventory2 = game.getInventory(userDTO2);
+
+
+        assertEquals(bank.getNumberFromCardStack("Lumber"), 19);
+        assertEquals(bank.getNumberFromCardStack("Brick"), 19);
+        assertEquals(bank.getNumberFromCardStack("Grain"), 19);
+        assertEquals(bank.getNumberFromCardStack("Wool"), 19);
+        assertEquals(bank.getNumberFromCardStack("Ore"), 19);
+
+        assertEquals(inventory1.getNumberFromCardStack("Lumber"), 0);
+        assertEquals(inventory1.getNumberFromCardStack("Brick"), 0);
+        assertEquals(inventory1.getNumberFromCardStack("Grain"), 0);
+        assertEquals(inventory1.getNumberFromCardStack("Wool"), 0);
+        assertEquals(inventory1.getNumberFromCardStack("Ore"), 0);
+
+        assertEquals(inventory2.getNumberFromCardStack("Lumber"), 0);
+        assertEquals(inventory2.getNumberFromCardStack("Brick"), 0);
+        assertEquals(inventory2.getNumberFromCardStack("Grain"), 0);
+        assertEquals(inventory2.getNumberFromCardStack("Wool"), 0);
+        assertEquals(inventory2.getNumberFromCardStack("Ore"), 0);
+
+        // giveResourceTest
+        gameService3.giveResource(game, userDTO1, "Lumber", 15);
+        gameService3.giveResource(game, userDTO1, "Brick", 15);
+        gameService3.giveResource(game, userDTO1, "Grain", 15);
+        gameService3.giveResource(game, userDTO1, "Wool", 15);
+        gameService3.giveResource(game, userDTO1, "Ore", 15);
+
+        assertEquals(bank.getNumberFromCardStack("Lumber"), 4);
+        assertEquals(bank.getNumberFromCardStack("Brick"), 4);
+        assertEquals(bank.getNumberFromCardStack("Grain"), 4);
+        assertEquals(bank.getNumberFromCardStack("Wool"), 4);
+        assertEquals(bank.getNumberFromCardStack("Ore"), 4);
+
+        assertEquals(inventory1.getNumberFromCardStack("Lumber"), 15);
+        assertEquals(inventory1.getNumberFromCardStack("Brick"), 15);
+        assertEquals(inventory1.getNumberFromCardStack("Grain"), 15);
+        assertEquals(inventory1.getNumberFromCardStack("Wool"), 15);
+        assertEquals(inventory1.getNumberFromCardStack("Ore"), 15);
+
+        assertEquals(inventory2.getNumberFromCardStack("Lumber"), 0);
+        assertEquals(inventory2.getNumberFromCardStack("Brick"), 0);
+        assertEquals(inventory2.getNumberFromCardStack("Grain"), 0);
+        assertEquals(inventory2.getNumberFromCardStack("Wool"), 0);
+        assertEquals(inventory2.getNumberFromCardStack("Ore"), 0);
+
+
+        gameService3.giveResource(game, userDTO2, "Lumber", 10);
+        gameService3.giveResource(game, userDTO2, "Brick", 10);
+        gameService3.giveResource(game, userDTO2, "Grain", 10);
+        gameService3.giveResource(game, userDTO2, "Wool", 10);
+        gameService3.giveResource(game, userDTO2, "Ore", 10);
+
+        assertEquals(bank.getNumberFromCardStack("Lumber"), 0);
+        assertEquals(bank.getNumberFromCardStack("Brick"), 0);
+        assertEquals(bank.getNumberFromCardStack("Grain"), 0);
+        assertEquals(bank.getNumberFromCardStack("Wool"), 0);
+        assertEquals(bank.getNumberFromCardStack("Ore"), 0);
+
+        assertEquals(inventory1.getNumberFromCardStack("Lumber"), 15);
+        assertEquals(inventory1.getNumberFromCardStack("Brick"), 15);
+        assertEquals(inventory1.getNumberFromCardStack("Grain"), 15);
+        assertEquals(inventory1.getNumberFromCardStack("Wool"), 15);
+        assertEquals(inventory1.getNumberFromCardStack("Ore"), 15);
+
+        assertEquals(inventory2.getNumberFromCardStack("Lumber"), 4);
+        assertEquals(inventory2.getNumberFromCardStack("Brick"), 4);
+        assertEquals(inventory2.getNumberFromCardStack("Grain"), 4);
+        assertEquals(inventory2.getNumberFromCardStack("Wool"), 4);
+        assertEquals(inventory2.getNumberFromCardStack("Ore"), 4);
+
+
+        // takeResourceTest
+        gameService3.takeResource(game, userDTO1, "Lumber", 15);
+        gameService3.takeResource(game, userDTO1, "Brick", 15);
+        gameService3.takeResource(game, userDTO1, "Grain", 15);
+        gameService3.takeResource(game, userDTO1, "Wool", 15);
+        gameService3.takeResource(game, userDTO1, "Ore", 15);
+
+        assertEquals(bank.getNumberFromCardStack("Lumber"), 15);
+        assertEquals(bank.getNumberFromCardStack("Brick"), 15);
+        assertEquals(bank.getNumberFromCardStack("Grain"), 15);
+        assertEquals(bank.getNumberFromCardStack("Wool"), 15);
+        assertEquals(bank.getNumberFromCardStack("Ore"), 15);
+
+        assertEquals(inventory1.getNumberFromCardStack("Lumber"), 0);
+        assertEquals(inventory1.getNumberFromCardStack("Brick"), 0);
+        assertEquals(inventory1.getNumberFromCardStack("Grain"), 0);
+        assertEquals(inventory1.getNumberFromCardStack("Wool"), 0);
+        assertEquals(inventory1.getNumberFromCardStack("Ore"), 0);
+
+        assertEquals(inventory2.getNumberFromCardStack("Lumber"), 4);
+        assertEquals(inventory2.getNumberFromCardStack("Brick"), 4);
+        assertEquals(inventory2.getNumberFromCardStack("Grain"), 4);
+        assertEquals(inventory2.getNumberFromCardStack("Wool"), 4);
+        assertEquals(inventory2.getNumberFromCardStack("Ore"), 4);
+
+
+        gameService3.takeResource(game, userDTO2, "Lumber", 10);
+        gameService3.takeResource(game, userDTO2, "Brick", 10);
+        gameService3.takeResource(game, userDTO2, "Grain", 10);
+        gameService3.takeResource(game, userDTO2, "Wool", 10);
+        gameService3.takeResource(game, userDTO2, "Ore", 10);
+
+        assertEquals(bank.getNumberFromCardStack("Lumber"), 19);
+        assertEquals(bank.getNumberFromCardStack("Brick"), 19);
+        assertEquals(bank.getNumberFromCardStack("Grain"), 19);
+        assertEquals(bank.getNumberFromCardStack("Wool"), 19);
+        assertEquals(bank.getNumberFromCardStack("Ore"), 19);
+
+        assertEquals(inventory1.getNumberFromCardStack("Lumber"), 0);
+        assertEquals(inventory1.getNumberFromCardStack("Brick"), 0);
+        assertEquals(inventory1.getNumberFromCardStack("Grain"), 0);
+        assertEquals(inventory1.getNumberFromCardStack("Wool"), 0);
+        assertEquals(inventory1.getNumberFromCardStack("Ore"), 0);
+
+        assertEquals(inventory2.getNumberFromCardStack("Lumber"), 0);
+        assertEquals(inventory2.getNumberFromCardStack("Brick"), 0);
+        assertEquals(inventory2.getNumberFromCardStack("Grain"), 0);
+        assertEquals(inventory2.getNumberFromCardStack("Wool"), 0);
+        assertEquals(inventory2.getNumberFromCardStack("Ore"), 0);
     }
 }
