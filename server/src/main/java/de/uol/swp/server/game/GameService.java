@@ -1355,7 +1355,6 @@ public class GameService extends AbstractService {
                 TradeCardErrorMessage tcem = new TradeCardErrorMessage(request.getUser(), request.getName(), request.getTradeCode());
                 sendToSpecificUserInGame(tcem, request.getUser());
             }
-            updateInventory(game);
         }
     }
 
