@@ -724,6 +724,7 @@ public class RandomAI extends AbstractAISystem {
                     grainAllowedToBeTraded = Math.max(grain - 1, 0);
                     wishList.add(new TradeItem(woolString, Math.max(1 - wool, 0)));
                     woolAllowedToBeTraded = Math.max(wool - 1, 0);
+                    break;
                 case "City":
                     wishList.add(new TradeItem(oreString, Math.max(3 - ore, 0)));
                     oreAllowedToBeTraded = Math.max(ore - 3, 0);
