@@ -31,8 +31,8 @@ import java.util.TreeMap;
  * @since 2021-02-26
  */
 public class UserManagement extends AbstractUserManagement {
-//TODO: Hier wurde übergangsweise ein anderer Server eingetragen
-    private final String CONNECTION = "jdbc:mysql://178.238.232.242:3306";
+    //private final String CONNECTION = "jdbc:mysql://178.238.232.242:3306";
+    private final String CONNECTION = "jdbc:mysql://134.106.11.89:50101";
     private Connection connection;
     private Statement statement;
     private static final Logger LOG = LogManager.getLogger(UserManagement.class);
@@ -66,10 +66,10 @@ public class UserManagement extends AbstractUserManagement {
 
     public void buildConnection() throws SQLException {
         DriverManager.registerDriver(new com.mysql.cj.jdbc.Driver());
-        //TODO: Dies ist nicht der Nutzer für die ARBI Datenbank
-        connection = DriverManager.getConnection(CONNECTION, "swpJ", "Uz3FLt2cgMmFCALY");
+        connection = DriverManager.getConnection(CONNECTION, "root", "SWP2020j");
+        //connection = DriverManager.getConnection(CONNECTION, "swpJ", "Uz3FLt2cgMmFCALY");
         statement = connection.createStatement();
-        statement.execute("use swpJ;");
+        statement.execute("use user_store;");
     }
 
     /**
