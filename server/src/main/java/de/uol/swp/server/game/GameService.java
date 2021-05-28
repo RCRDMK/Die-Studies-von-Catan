@@ -1157,7 +1157,7 @@ public class GameService extends AbstractService {
         for (User user : game.getUsersList()) {
             publicInventories.add(game.getInventory(user).getPublicView());
         }
-        PublicInventoryChangeMessage publicInventoryChangeMessage = new PublicInventoryChangeMessage(game.getName(), publicInventories);
+        PublicInventoryChangeMessage publicInventoryChangeMessage = new PublicInventoryChangeMessage(game.getName(), game.getUsersList(), publicInventories);
         sendToAllInGame(game.getName(), publicInventoryChangeMessage);
     }
 

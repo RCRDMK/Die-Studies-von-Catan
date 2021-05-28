@@ -19,6 +19,7 @@ import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.user.response.game.AllThisGameUsersResponse;
 import de.uol.swp.common.user.response.game.GameLeftSuccessfulResponse;
+import de.uol.swp.common.user.response.lobby.AllThisLobbyUsersResponse;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -1151,8 +1152,8 @@ public class GamePresenter extends AbstractPresenter {
 
             Vector placementVector = Vector.convertStringListToVector(hexagonContainer.getHexagon().getSelfPosition(), cardSize(), centerOfCanvasVector);
             Platform.runLater(() -> {
-            hexagonContainer.getHexagonShape().setLayoutX(placementVector.getX());
-            hexagonContainer.getHexagonShape().setLayoutY(placementVector.getY());
+                hexagonContainer.getHexagonShape().setLayoutX(placementVector.getX());
+                hexagonContainer.getHexagonShape().setLayoutY(placementVector.getY());
                 hexagonContainer.getHexagonShape().setFill(determinePictureOfTerrain(hexagonContainer.getHexagon()));
             });
 
@@ -1233,7 +1234,6 @@ public class GamePresenter extends AbstractPresenter {
      * Enhanced, with a drawing of a robber
      *
      * @param mapGraph the MapGraph created by the Server
-     *
      * @author Marius Birk
      * @author Marc Hermes
      * @see de.uol.swp.common.game.GameField
@@ -1441,7 +1441,7 @@ public class GamePresenter extends AbstractPresenter {
                                         EndTurnButton.setDisable(false);
                                         buyDevCard.setDisable(false);
                                     }
-                                    if(currentDevelopmentCard.equals("Knight")) {
+                                    if (currentDevelopmentCard.equals("Knight")) {
                                         gameService.resolveDevelopmentCardKnight((UserDTO) moveRobberMessage.getUser(), moveRobberMessage.getName(), currentDevelopmentCard, container.getHexagon().getUuid());
                                     }
                                     gameService.movedRobber(moveRobberMessage.getName(), moveRobberMessage.getUser(), container.getHexagon().getUuid());
@@ -1731,10 +1731,10 @@ public class GamePresenter extends AbstractPresenter {
             oldGridPane.getChildren().remove(rectangleDie2);
             rectangleDie1.setFill(diceImages.get(0));
             rectangleDie2.setFill(diceImages.get(0));
-            if(!newGridPane.getChildren().contains(rectangleDie1))
-            newGridPane.add(rectangleDie1, 0, 0);
-            if(!newGridPane.getChildren().contains(rectangleDie2))
-            newGridPane.add(rectangleDie2, 1, 0);
+            if (!newGridPane.getChildren().contains(rectangleDie1))
+                newGridPane.add(rectangleDie1, 0, 0);
+            if (!newGridPane.getChildren().contains(rectangleDie2))
+                newGridPane.add(rectangleDie2, 1, 0);
         });
     }
 
@@ -1956,72 +1956,120 @@ public class GamePresenter extends AbstractPresenter {
         });
     }
 
-/*    @Subscribe
+    /**
+     * Handles new PublicInventoryChangeMessage
+     * <p>
+     * If a PublicInventoryChangeMessage is detected on the EventBus the method onPublicInventoryChangeMessageLogic is invoked.
+     *
+     * @param publicInventoryChangeMessage the PublicInventoryChangeMessage object seen on the EventBus
+     * @author Iskander Yusupov
+     * @see PublicInventoryChangeMessage
+     * @since 2021-05-28
+     */
+    @Subscribe
     public void onPublicInventoryChangeMessage(PublicInventoryChangeMessage publicInventoryChangeMessage) {
         onPublicInventoryChangeMessageLogic(publicInventoryChangeMessage);
     }
-        // TODO: public inventory implementieren
+
+    /**
+     * The Method invoked by onPublicInventoryChangeMessage()
+     * <p>
+     * If the currentLobby is not null, meaning this is not an empty GamePresenter and the game name stored in this
+     * GamePresenter equals the one in the received Message, the method updatePublicInventory is invoked to update the
+     * public inventories in the currentLobby(current game) in regards to the arrayLists given by the message.
+     *
+     * @param puicm the PublicInventoryChangeMessage given by the original subscriber method.
+     * @author Iskander Yusupov
+     * @see de.uol.swp.common.game.message.PublicInventoryChangeMessage
+     * @since 2021-05-28
+     */
     private void onPublicInventoryChangeMessageLogic(PublicInventoryChangeMessage puicm) {
         if (this.currentLobby != null) {
             if (this.currentLobby.equals(puicm.getName())) {
-                ArrayList<HashMap<String, Integer>> p = new ArrayList<>();
-                Platform.runLater(() -> {
-                    if (publicInventory1 == null) {
-                        publicInventory1 = FXCollections.observableArrayList();
-                        publicInventory1View.setItems(publicInventory1);
-                    }
-                    if (publicInventory2 == null) {
-                        publicInventory2 = FXCollections.observableArrayList();
-                        publicInventory2View.setItems(publicInventory2);
-                    }
-                    if (publicInventory3 == null) {
-                        publicInventory3 = FXCollections.observableArrayList();
-                        publicInventory3View.setItems(publicInventory3);
-                    }
-                    if (publicInventory4 == null) {
-                        publicInventory4 = FXCollections.observableArrayList();
-                        publicInventory4View.setItems(publicInventory4);
-                    }
-                    publicInventory1.clear();
-                    publicInventory1.add(0, p.get(0).get("Resource").toString());
-                    publicInventory1.add(0, p.get(0).get("Development Cards").toString());
-                    publicInventory1.add(0, p.get(0).get("Played Knights").toString());
-                    publicInventory1.add(0, p.get(0).get("Continuous Road").toString());
-                    publicInventory1.add(0, p.get(0).get("Largest Army").toString());
-                    publicInventory1.add(0, p.get(0).get("Longest Road").toString());
-                    publicInventory1.add(0, p.get(0).get("PublicVictoryPoints").toString());
-                    //      publicInventory1View.setCellFactory(x -> new PublicInventoryCell());
-                    publicInventory2.clear();
-                    publicInventory2.add(1, p.get(1).get("Resource").toString());
-                    publicInventory2.add(1, p.get(1).get("Development Cards").toString());
-                    publicInventory2.add(1, p.get(1).get("Played Knights").toString());
-                    publicInventory2.add(1, p.get(1).get("Continuous Road").toString());
-                    publicInventory2.add(1, p.get(1).get("Largest Army").toString());
-                    publicInventory2.add(1, p.get(1).get("Longest Road").toString());
-                    publicInventory2.add(1, p.get(1).get("PublicVictoryPoints").toString());
-                    //       publicInventory2View.setCellFactory(x -> new PublicInventoryCell());
-                    publicInventory3.clear();
-                    publicInventory3.add(2, p.get(2).get("Resource").toString());
-                    publicInventory3.add(2, p.get(2).get("Development Cards").toString());
-                    publicInventory3.add(2, p.get(2).get("Played Knights").toString());
-                    publicInventory3.add(2, p.get(2).get("Continuous Road").toString());
-                    publicInventory3.add(2, p.get(2).get("Largest Army").toString());
-                    publicInventory3.add(2, p.get(2).get("Longest Road").toString());
-                    publicInventory3.add(2, p.get(2).get("PublicVictoryPoints").toString());
-                    //     publicInventory3View.setCellFactory(x -> new PublicInventoryCell());
-                    publicInventory4.clear();
-                    publicInventory4.add(3, p.get(3).get("Resource").toString());
-                    publicInventory4.add(3, p.get(3).get("Development Cards").toString());
-                    publicInventory4.add(3, p.get(3).get("Played Knights").toString());
-                    publicInventory4.add(3, p.get(3).get("Continuous Road").toString());
-                    publicInventory4.add(3, p.get(3).get("Largest Army").toString());
-                    publicInventory4.add(3, p.get(3).get("Longest Road").toString());
-                    publicInventory4.add(3, p.get(3).get("PublicVictoryPoints").toString());
-                    //     publicInventory4View.setCellFactory(x -> new PublicInventoryCell());
-                });
+                updatePublicInventory(puicm.getPlayers(), puicm.getPublicInventories());
             }
         }
-    } */
+    }
+
+    /**
+     * Updates the publicInventoryViews according to the Arraylists given
+     * <p>
+     * This method clears each publicInventory (ObservableList) and then adds the names of users and
+     * contents of public inventories in each publicInventory(1-4).
+     * If there is no publicInventory (ObservableList), method creates one.
+     *
+     * @param users is an ArrayList of currently in-game users.
+     * @implNote The code inside this Method has to run in the JavaFX-application thread. Therefore it is crucial not to
+     * remove the {@code Platform.runLater()}
+     * @author Iskander Yusupov
+     * @see de.uol.swp.common.game.inventory.Inventory
+     * @since 2021-05-28
+     */
+    public void updatePublicInventory(ArrayList<User> users, ArrayList<HashMap<String, Integer>> pu) {
+        // Attention: This must be done on the FX Thread!
+        Platform.runLater(() -> {
+            if (publicInventory1 == null) {
+                publicInventory1 = FXCollections.observableArrayList();
+                publicInventory1View.setItems(publicInventory1);
+            }
+            if (publicInventory2 == null) {
+                publicInventory2 = FXCollections.observableArrayList();
+                publicInventory2View.setItems(publicInventory2);
+            }
+            if (publicInventory3 == null && users.size() >= 2) {
+                publicInventory3 = FXCollections.observableArrayList();
+                publicInventory3View.setItems(publicInventory3);
+            }
+            if (publicInventory4 == null && users.size() == 3) {
+                publicInventory4 = FXCollections.observableArrayList();
+                publicInventory4View.setItems(publicInventory4);
+            }
+            publicInventory1.clear();
+            publicInventory1.add(0, users.get(0).toString());
+            publicInventory1.add(0, pu.get(0).get("Resource").toString());
+            publicInventory1.add(0, pu.get(0).get("Development Cards").toString());
+            publicInventory1.add(0, pu.get(0).get("Played Knights").toString());
+            publicInventory1.add(0, pu.get(0).get("Continuous Road").toString());
+            publicInventory1.add(0, pu.get(0).get("Largest Army").toString());
+            publicInventory1.add(0, pu.get(0).get("Longest Road").toString());
+            publicInventory1.add(0, pu.get(0).get("PublicVictoryPoints").toString());
+            publicInventory1View.setCellFactory(x -> new PublicInventoryCell());
+            publicInventory2.clear();
+            publicInventory2.add(1, users.get(1).toString());
+            publicInventory2.add(1, pu.get(1).get("Resource").toString());
+            publicInventory2.add(1, pu.get(1).get("Development Cards").toString());
+            publicInventory2.add(1, pu.get(1).get("Played Knights").toString());
+            publicInventory2.add(1, pu.get(1).get("Continuous Road").toString());
+            publicInventory2.add(1, pu.get(1).get("Largest Army").toString());
+            publicInventory2.add(1, pu.get(1).get("Longest Road").toString());
+            publicInventory2.add(1, pu.get(1).get("PublicVictoryPoints").toString());
+            publicInventory2View.setCellFactory(x -> new PublicInventoryCell());
+            if (users.size() >= 2) {
+                publicInventory3.clear();
+                publicInventory3.add(1, users.get(2).toString());
+                publicInventory3.add(2, pu.get(2).get("Resource").toString());
+                publicInventory3.add(2, pu.get(2).get("Development Cards").toString());
+                publicInventory3.add(2, pu.get(2).get("Played Knights").toString());
+                publicInventory3.add(2, pu.get(2).get("Continuous Road").toString());
+                publicInventory3.add(2, pu.get(2).get("Largest Army").toString());
+                publicInventory3.add(2, pu.get(2).get("Longest Road").toString());
+                publicInventory3.add(2, pu.get(2).get("PublicVictoryPoints").toString());
+                publicInventory3View.setCellFactory(x -> new PublicInventoryCell());
+                if (users.size() == 3) {
+                    publicInventory4.clear();
+                    publicInventory4.add(1, users.get(3).toString());
+                    publicInventory4.add(3, pu.get(3).get("Resource").toString());
+                    publicInventory4.add(3, pu.get(3).get("Development Cards").toString());
+                    publicInventory4.add(3, pu.get(3).get("Played Knights").toString());
+                    publicInventory4.add(3, pu.get(3).get("Continuous Road").toString());
+                    publicInventory4.add(3, pu.get(3).get("Largest Army").toString());
+                    publicInventory4.add(3, pu.get(3).get("Longest Road").toString());
+                    publicInventory4.add(3, pu.get(3).get("PublicVictoryPoints").toString());
+                    publicInventory4View.setCellFactory(x -> new PublicInventoryCell());
+                }
+            }
+        });
+    }
 
     /**
      * The method called when a ResolveDevelopmentCardNotSuccessfulResponse is received
