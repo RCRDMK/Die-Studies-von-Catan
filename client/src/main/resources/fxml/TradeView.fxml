@@ -10,8 +10,7 @@
 
 <AnchorPane prefHeight="400.0" prefWidth="736.0" stylesheets="@../css/swp.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.uol.swp.client.game.TradePresenter">
    <children>
-      <Rectangle id="textBackground" arcHeight="5.0" arcWidth="5.0" fill="#080808" height="234.0" layoutX="5.0" layoutY="45.0" opacity="0.33" stroke="BLANK"
-                 strokeType="INSIDE" width="712.0" />
+      <Rectangle id="textBackground" arcHeight="5.0" arcWidth="5.0" fill="#080808" height="234.0" layoutX="5.0" layoutY="45.0" opacity="0.33" strokeType="INSIDE" width="712.0" />
       <VBox prefHeight="400.0" prefWidth="733.0">
          <children>
             <HBox prefHeight="100.0" prefWidth="800.0">
@@ -107,6 +106,17 @@
                                  <Text fx:id="oreW" fill="white" strokeType="OUTSIDE" strokeWidth="0.0" text="0" />
                               </children>
                            </VBox>
+                           <VBox prefHeight="200.0" prefWidth="100.0">
+                              <children>
+                                 <Text fx:id="oreW1" fill="white" strokeType="OUTSIDE" strokeWidth="0.0" text="Choose an offer:" />
+                                 <Text fill="white" strokeType="OUTSIDE" strokeWidth="0.0" />
+                                 <RadioButton fx:id="offerNoneRadioButtonBank" mnemonicParsing="false" selected="true" text="Accept none" visible="false">
+                                    <toggleGroup>
+                                       <ToggleGroup fx:id="choiceTradeBank" />
+                                    </toggleGroup>
+                                 </RadioButton>
+                              </children>
+                           </VBox>
                         </children>
                         <VBox.margin>
                            <Insets left="10.0" top="1.0" />
@@ -158,7 +168,7 @@
                               <VBox prefHeight="200.0" prefWidth="100.0">
                                  <children>
                                     <Text fill="white" strokeType="OUTSIDE" strokeWidth="0.0" />
-                                    <RadioButton fx:id="offerNoneRadioButton" mnemonicParsing="false" selected="true" text=" Accept none" visible="false">
+                                    <RadioButton fx:id="offerNoneRadioButton" mnemonicParsing="false" selected="true" text="Accept none" visible="false">
                                        <toggleGroup>
                                           <ToggleGroup fx:id="choiceTrade" />
                                        </toggleGroup>

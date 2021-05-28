@@ -33,6 +33,9 @@ public class TradePresenter extends AbstractPresenter {
     private static final String grainString = "Grain";
     private static final String woolString = "Wool";
     private static final String oreString = "Ore";
+    public Text oreW1;
+    public RadioButton offerNoneRadioButtonBank;
+    public ToggleGroup choiceTradeBank;
 
     private boolean sellerGotBids;
     private boolean isBidder = false;
