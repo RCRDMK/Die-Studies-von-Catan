@@ -1338,7 +1338,7 @@ public class GameService extends AbstractService {
                 }
             }
             tradeEndedChatMessageHelper(game.getName(), request.getTradeCode(), request.getUser().getUsername(), request.getTradeAccepted());
-            sendToAllInGame(request.getName(), new TradeEndedMessage(request.getTradeCode()));
+            sendToAllInGame(request.getName(), new TradeEndedMessage(request.getName(), request.getTradeCode()));
             game.removeTrade(request.getTradeCode());
             updateInventory(game);
         }

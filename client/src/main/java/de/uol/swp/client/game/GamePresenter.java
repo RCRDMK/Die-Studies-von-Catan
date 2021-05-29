@@ -290,37 +290,6 @@ public class GamePresenter extends AbstractPresenter {
     }
 
     /**
-     * Adds the ResponseChatMessage to the textArea
-     *
-     * @param message
-     * @author René Meyer
-     * @see de.uol.swp.common.chat.ResponseChatMessage
-     * @since 2021-03-13
-     */
-    private void updateChat(ResponseChatMessage message) {
-        updateChatLogic(message);
-    }
-
-    /**
-     * Adds the ResponseChatMessage to the textArea
-     * <p>
-     * First the message gets formatted with the readableTime.
-     * After the formatting the Message gets added to the textArea.
-     * The formatted Message contains the username, readableTime and message
-     *
-     * @param rcm the ResponseChatMessage given by the original subscriber method.
-     * @author René Meyer
-     * @see de.uol.swp.common.chat.ResponseChatMessage
-     * @since 2021-03-13
-     */
-    private void updateChatLogic(ResponseChatMessage rcm) {
-        var time = new SimpleDateFormat("HH:mm");
-        Date resultdate = new Date((long) rcm.getTime().doubleValue());
-        var readableTime = time.format(resultdate);
-        gameChatArea.insertText(gameChatArea.getLength(), readableTime + " " + rcm.getUsername() + ": " + rcm.getMessage() + "\n");
-    }
-
-    /**
      * The Method invoked by onResponseChatMessage()
      * <p>
      * If the currentLobby is not null, meaning this is an not an empty LobbyPresenter and the lobby name stored in this
@@ -343,21 +312,59 @@ public class GamePresenter extends AbstractPresenter {
     }
 
     /**
+     * Adds the ResponseChatMessage to the textArea
+     * <p>
+     * First the message gets formatted with the readableTime.
+     * After the formatting the Message gets added to the textArea.
+     * The formatted Message contains the username, readableTime and message
+     *
+     * @param rcm the ResponseChatMessage given by the original subscriber method.
+     * @author René Meyer
+     * @see de.uol.swp.common.chat.ResponseChatMessage
+     * @since 2021-03-13
+     */
+    private void updateChat(ResponseChatMessage rcm) {
+        var time = new SimpleDateFormat("HH:mm");
+        Date resultdate = new Date((long) rcm.getTime().doubleValue());
+        var readableTime = time.format(resultdate);
+        gameChatArea.insertText(gameChatArea.getLength(), readableTime + " " + rcm.getUsername() + ": " + rcm.getMessage() + "\n");
+    }
+
+    /**
      * This method is called when the Trade button is pressed
      * <p>
-     * When the user presses the trade button a popup window appears. Within it the user can select which ressources
+     * When the user presses the trade button a teb appears. Within it the user can select which ressources
      * he wants to trade and which amount of it. With a click on the Start a Trade button the startTrade method from the
      * Gameservice on the client side gets called.
      *
      * @author Alexander Losse, Ricardo Mook
      * @since 2021-04-07
      */
-
     @FXML
     public void onTrade(ActionEvent event) {
+        this.buildMenu.setDisable(true);
+        this.buyDevCard.setDisable(true);
+        this.EndTurnButton.setDisable(true);
         String tradeCode = UUID.randomUUID().toString().trim().substring(0, 7);
         gameService.sendTradeStartedRequest((UserDTO) this.joinedLobbyUser, this.currentLobby, tradeCode);
 
+    }
+
+    /**
+     * Enabled the buttons when the trade ended
+     *
+     * @param message TradeEndedMessage
+     *
+     * @author Anton Nikiforov
+     * @since 2021-05-29
+     */
+    @Subscribe
+    public void onTradeEndedMessage(TradeEndedMessage message) {
+        if (itsMyTurn) {
+            this.buildMenu.setDisable(false);
+            this.buyDevCard.setDisable(false);
+            this.EndTurnButton.setDisable(false);
+        }
     }
 
 
@@ -722,7 +729,6 @@ public class GamePresenter extends AbstractPresenter {
 
                     if (itsMyTurn) {
                         tradeButton.setDisable(false);
-                        rollDice.setDisable(false);
                         buildMenu.setDisable(false);
                         buyDevCard.setDisable(false);
                         EndTurnButton.setDisable(false);
@@ -811,7 +817,6 @@ public class GamePresenter extends AbstractPresenter {
             tooMuchAlert.initModality(Modality.APPLICATION_MODAL);
             tooMuchAlert.show();
             tradeButton.setDisable(true);
-            rollDice.setDisable(true);
             buildMenu.setDisable(true);
             buyDevCard.setDisable(true);
             EndTurnButton.setDisable(true);

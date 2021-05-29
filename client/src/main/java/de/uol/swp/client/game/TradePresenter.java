@@ -291,7 +291,7 @@ public class TradePresenter extends AbstractPresenter {
             }
 
         } else {
-            gameService.endTradeBeforeItStarted(tradeCode);
+            gameService.endTradeBeforeItStarted(gameName, tradeCode);
         }
     }
 

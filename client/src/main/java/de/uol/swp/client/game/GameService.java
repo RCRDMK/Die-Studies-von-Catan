@@ -193,12 +193,14 @@ public class GameService {
      * <p>
      * used to close the TradeTab if no Trade is saved at the server, e.g. the seller hit the TradeButton by accident and doesnt want to Trade( didnt send a TradeItemRequest)
      *
+     * @param gameName String
      * @param tradeCode String
+     *
      * @author Alexander Losse, Ricardo Mook
      * @since 2021-04-21
      */
-    public void endTradeBeforeItStarted(String tradeCode) {
-        TradeEndedMessage tem = new TradeEndedMessage(tradeCode);
+    public void endTradeBeforeItStarted(String gameName, String tradeCode) {
+        TradeEndedMessage tem = new TradeEndedMessage(gameName, tradeCode);
         eventBus.post(tem);
     }
 
