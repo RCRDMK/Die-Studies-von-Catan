@@ -145,7 +145,7 @@ public class GamePresenter extends AbstractPresenter {
     private ListView<String> gameUsersView;
 
     @FXML
-    private Button EndTurnButton;
+    private Button endTurnButton;
 
     @FXML
     private Button tradeButton;
@@ -219,7 +219,7 @@ public class GamePresenter extends AbstractPresenter {
     final private Rectangle rectangleDie2 = new Rectangle(50, 50);
 
     @FXML
-    private Button rollDice;
+    private Button rollDiceButton;
 
     @FXML
     private Button buyDevCard;
@@ -244,6 +244,9 @@ public class GamePresenter extends AbstractPresenter {
     private Button[] choose;
 
     private Rectangle robber;
+
+    private boolean rolledDice = false;
+    private boolean startingTurn;
 
     /**
      * Method called when the send Message button is pressed
@@ -357,7 +360,6 @@ public class GamePresenter extends AbstractPresenter {
     public void onTrade(ActionEvent event) {
         String tradeCode = UUID.randomUUID().toString().trim().substring(0, 7);
         gameService.sendTradeStartedRequest((UserDTO) this.joinedLobbyUser, this.currentLobby, tradeCode);
-
     }
 
 
@@ -437,6 +439,8 @@ public class GamePresenter extends AbstractPresenter {
     public void onRollDice() {
         if (this.currentLobby != null) {
             gameService.rollDice(this.currentLobby, (UserDTO) this.joinedLobbyUser);
+            rolledDice = true;
+            switchTurnPhaseButtons();
         }
     }
 
@@ -720,10 +724,10 @@ public class GamePresenter extends AbstractPresenter {
 
                     if (itsMyTurn == true) {
                         tradeButton.setDisable(false);
-                        rollDice.setDisable(false);
+                        rollDiceButton.setDisable(false);
                         buildMenu.setDisable(false);
                         buyDevCard.setDisable(false);
-                        EndTurnButton.setDisable(false);
+                        endTurnButton.setDisable(false);
                     }
 
                     ResourcesToDiscardRequest resourcesToDiscard = new ResourcesToDiscardRequest(tooMuchResourceCardsMessage.getName(), (UserDTO) tooMuchResourceCardsMessage.getUser(), inventory);
@@ -809,10 +813,10 @@ public class GamePresenter extends AbstractPresenter {
             tooMuchAlert.initModality(Modality.APPLICATION_MODAL);
             tooMuchAlert.show();
             tradeButton.setDisable(true);
-            rollDice.setDisable(true);
+            rollDiceButton.setDisable(true);
             buildMenu.setDisable(true);
             buyDevCard.setDisable(true);
-            EndTurnButton.setDisable(true);
+            endTurnButton.setDisable(true);
         } else {
             lumberLabelRobberMenu.setText(Integer.toString(privateInventory.get("Lumber")));
             grainLabelRobberMenu.setText(Integer.toString(privateInventory.get("Grain")));
@@ -855,18 +859,29 @@ public class GamePresenter extends AbstractPresenter {
     @Subscribe
     public void nextPlayerTurn(NextTurnMessage response) {
         if (response.getGameName().equals(currentLobby)) {
+            rolledDice = false;
             if (response.getPlayerWithCurrentTurn().equals(joinedLobbyUser.getUsername())) {
+                startingTurn = response.isInStartingTurn();
                 itsMyTurn = true;
-                EndTurnButton.setDisable(false);
-                rollDice.setDisable(false);
-                buyDevCard.setDisable(false);
-                tradeButton.setDisable(false);
+                if (response.isInStartingTurn()) {
+                    // endTurnButton.setDisable(true);
+                    // rollDiceButton.setDisable(false);
+                    // buyDevCard.setDisable(false);
+                    // tradeButton.setDisable(false);
+                    switchTurnPhaseButtons();
+                } else {
+                    switchTurnPhaseButtons();
+                }
             } else {
                 itsMyTurn = false;
-                EndTurnButton.setDisable(true);
-                rollDice.setDisable(true);
+                switchTurnPhaseButtons();
+                /*
+                endTurnButton.setDisable(true);
+                rollDiceButton.setDisable(true);
                 buyDevCard.setDisable(true);
                 tradeButton.setDisable(true);
+                buyDevCard.setDisable((true));
+            */
             }
             if (!response.isInStartingTurn()) {
                 if (response.getTurn() == 0) {
@@ -1151,8 +1166,8 @@ public class GamePresenter extends AbstractPresenter {
 
             Vector placementVector = Vector.convertStringListToVector(hexagonContainer.getHexagon().getSelfPosition(), cardSize(), centerOfCanvasVector);
             Platform.runLater(() -> {
-            hexagonContainer.getHexagonShape().setLayoutX(placementVector.getX());
-            hexagonContainer.getHexagonShape().setLayoutY(placementVector.getY());
+                hexagonContainer.getHexagonShape().setLayoutX(placementVector.getX());
+                hexagonContainer.getHexagonShape().setLayoutY(placementVector.getY());
                 hexagonContainer.getHexagonShape().setFill(determinePictureOfTerrain(hexagonContainer.getHexagon()));
             });
 
@@ -1233,7 +1248,6 @@ public class GamePresenter extends AbstractPresenter {
      * Enhanced, with a drawing of a robber
      *
      * @param mapGraph the MapGraph created by the Server
-     *
      * @author Marius Birk
      * @author Marc Hermes
      * @see de.uol.swp.common.game.GameField
@@ -1435,13 +1449,15 @@ public class GamePresenter extends AbstractPresenter {
                                 if (container.getHexagon().getTerrainType() != 6) {
                                     for (HexagonContainer container1 : hexagonContainers) {
                                         container1.getHexagonShape().removeEventHandler(MouseEvent.MOUSE_PRESSED, this);
-
-                                        rollDice.setDisable(false);
-                                        buildMenu.setDisable(false);
-                                        EndTurnButton.setDisable(false);
-                                        buyDevCard.setDisable(false);
+/**
+ rollDiceButton.setDisable(false);
+ buildMenu.setDisable(false);
+ endTurnButton.setDisable(false);
+ buyDevCard.setDisable(false);
+ **/
+                                        switchTurnPhaseButtons();
                                     }
-                                    if(currentDevelopmentCard.equals("Knight")) {
+                                    if (currentDevelopmentCard.equals("Knight")) {
                                         gameService.resolveDevelopmentCardKnight((UserDTO) moveRobberMessage.getUser(), moveRobberMessage.getName(), currentDevelopmentCard, container.getHexagon().getUuid());
                                     }
                                     gameService.movedRobber(moveRobberMessage.getName(), moveRobberMessage.getUser(), container.getHexagon().getUuid());
@@ -1453,9 +1469,9 @@ public class GamePresenter extends AbstractPresenter {
                 };
                 for (HexagonContainer container : hexagonContainers) {
                     container.getHexagonShape().addEventHandler(MouseEvent.MOUSE_PRESSED, clickOnHexagonHandler);
-                    rollDice.setDisable(true);
+                    rollDiceButton.setDisable(true);
                     buildMenu.setDisable(true);
-                    EndTurnButton.setDisable(true);
+                    endTurnButton.setDisable(true);
                     buyDevCard.setDisable(true);
                 }
             }
@@ -1731,10 +1747,10 @@ public class GamePresenter extends AbstractPresenter {
             oldGridPane.getChildren().remove(rectangleDie2);
             rectangleDie1.setFill(diceImages.get(0));
             rectangleDie2.setFill(diceImages.get(0));
-            if(!newGridPane.getChildren().contains(rectangleDie1))
-            newGridPane.add(rectangleDie1, 0, 0);
-            if(!newGridPane.getChildren().contains(rectangleDie2))
-            newGridPane.add(rectangleDie2, 1, 0);
+            if (!newGridPane.getChildren().contains(rectangleDie1))
+                newGridPane.add(rectangleDie1, 0, 0);
+            if (!newGridPane.getChildren().contains(rectangleDie2))
+                newGridPane.add(rectangleDie2, 1, 0);
         });
     }
 
@@ -2209,4 +2225,40 @@ public class GamePresenter extends AbstractPresenter {
             }
         }
     }
+
+    private void switchTurnPhaseButtons() {
+        if (itsMyTurn) { //it's users turn
+            if (!startingTurn) { //not in opening phase
+                if (!rolledDice) { //part 1(resources)
+                    buildMenu.setDisable(true);
+                    endTurnButton.setDisable(true);
+                    tradeButton.setDisable(true);
+                    rollDiceButton.setDisable(false);
+                    buyDevCard.setDisable(true);
+                } else { //part 2 trading, building
+                    buildMenu.setDisable(false);
+                    endTurnButton.setDisable(false);
+                    tradeButton.setDisable(false);
+                    rollDiceButton.setDisable(true);
+                    buyDevCard.setDisable(false);
+                }
+
+            } else { //opening phase
+                buildMenu.setDisable(false);
+                endTurnButton.setDisable(false);
+                tradeButton.setDisable(true);
+                rollDiceButton.setDisable(true);
+                buyDevCard.setDisable(true);
+            }
+        }
+        else{ //not users turn
+            endTurnButton.setDisable(true);
+            rollDiceButton.setDisable(true);
+            buyDevCard.setDisable(true);
+            tradeButton.setDisable(true);
+            buyDevCard.setDisable((true));
+            buildMenu.setDisable(true);
+        }
+    }
+
 }

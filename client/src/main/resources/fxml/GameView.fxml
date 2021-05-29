@@ -15,7 +15,7 @@
         <ListView layoutX="618.0" layoutY="153.0" prefHeight="69.0" prefWidth="109.0" />
         <ToolBar layoutY="-5.0" prefHeight="35.0" prefWidth="735.0">
             <items>
-                <Button fx:id="rollDice" mnemonicParsing="false" onAction="#onRollDice" text="Roll Dice" />
+                <Button fx:id="rollDiceButton" mnemonicParsing="false" onAction="#onRollDice" text="Roll Dice" />
                 <Text fx:id="DiceOutput" strokeType="OUTSIDE" strokeWidth="0.0" text="Text" />
                 <Separator orientation="VERTICAL" />
                 <Button fx:id="tradeButton" mnemonicParsing="false" onAction="#onTrade" text="Trade">
@@ -28,7 +28,7 @@
                     </items>
                 </MenuButton>
                 <Button fx:id="buyDevCard" layoutX="153.0" layoutY="11.0" mnemonicParsing="false" onAction="#onBuyDevelopmentCard" text="Buy DevelopmentCard" />
-                <Button fx:id="EndTurnButton" layoutX="10.0" layoutY="11.0" mnemonicParsing="false" onAction="#onEndTurn" text="End Turn" />
+                <Button fx:id="endTurnButton" layoutX="10.0" layoutY="11.0" mnemonicParsing="false" onAction="#onEndTurn" text="End Turn" />
                 <Region prefHeight="25.0" prefWidth="73.0" />
                 <Button mnemonicParsing="false" onAction="#onLeaveGame" text="Leave Game" />
             </items>

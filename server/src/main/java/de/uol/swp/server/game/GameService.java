@@ -148,7 +148,6 @@ public class GameService extends AbstractService {
      * Handles incoming build requests.
      *
      * @param message Contains the data needed to change the mapGraph
-     *
      * @author Pieter Vogt
      * @since 2021-04-15
      */
@@ -207,7 +206,6 @@ public class GameService extends AbstractService {
      *
      * @param lobbyName Name of the lobby the players are in
      * @param message   the message to be send to the users
-     *
      * @author Marco Grawunder
      * @see de.uol.swp.common.message.ServerMessage
      * @since 2019-10-08
@@ -268,10 +266,10 @@ public class GameService extends AbstractService {
      * it sets the new inventory for the user. At the end we call the updateInventory method, to get the right inventory
      * back to the client.
      * enhanced by Anton Nikiforov
-     * @since 2021-05-19
      *
      * @param resourcesToDiscardRequest request with a hashmap(inventory), the game name and the user, that send it.
      * @author Marius Birk
+     * @since 2021-05-19
      * @since 2021-05-03
      */
     @Subscribe
@@ -377,10 +375,10 @@ public class GameService extends AbstractService {
      * coressponding hexagons. After that the method gives the second built buildings in the opening turn the resource.
      * <p>
      * enhanced by Anton Nikiforov
-     * @since 2021-05-19
      *
      * @param gameName Name of the Game
      * @author Philip Nitsche
+     * @since 2021-05-19
      * @since 2021-04-24
      */
     public void distributeResources(String gameName) {
@@ -423,11 +421,11 @@ public class GameService extends AbstractService {
      * rolled amount of eyes and increases the resource of the user by one(village), two(city).
      * <p>
      * enhanced by Anton Nikiforov
-     * @since 2021-05-19
      *
      * @param eyes     Number of eyes rolled with dice
      * @param gameName Name of the Game
      * @author Marius Birk, Carsten Dekker, Philip Nitsche
+     * @since 2021-05-19
      * @since 2021-04-06
      */
     public void distributeResources(int eyes, String gameName) {
@@ -474,13 +472,11 @@ public class GameService extends AbstractService {
      * Than if it's the first time where the bank gos empty for this resourceTyp,
      * it posts a chat message in the game.
      *
-     * @param game where we are
-     * @param user who wants the resource
+     * @param game        where we are
+     * @param user        who wants the resource
      * @param resourceTyp he wants
-     * @param amount of the resource
-     *
+     * @param amount      of the resource
      * @return success
-     *
      * @author Anton Nikiforov
      * @since 2012-05-19
      */
@@ -492,14 +488,13 @@ public class GameService extends AbstractService {
             if (bank.getNumberFromCardStack(resourceTyp) > 0) {
                 bank.decCardStack(resourceTyp, 1);
                 game.getInventory(user).incCardStack(resourceTyp, 1);
-            }
-            else break;
+            } else break;
         }
         if (firstTime) {
-                String chatMessage = resourceTyp + " storage is empty now";
-                String chatId = "game_" + game.getName();
-                ResponseChatMessage msg = new ResponseChatMessage(chatMessage, chatId, "Bank", System.currentTimeMillis());
-                post(msg);
+            String chatMessage = resourceTyp + " storage is empty now";
+            String chatId = "game_" + game.getName();
+            ResponseChatMessage msg = new ResponseChatMessage(chatMessage, chatId, "Bank", System.currentTimeMillis());
+            post(msg);
         }
         return success;
     }
@@ -512,26 +507,23 @@ public class GameService extends AbstractService {
      * Than if the bank was empty for this resourceTyp, it posts a chat message in the game
      * that the resource storage is now filled.
      *
-     * @param game where we are
-     * @param user who wants to give the resource
+     * @param game        where we are
+     * @param user        who wants to give the resource
      * @param resourceTyp he wants to give
-     * @param amount of the resource
-     *
+     * @param amount      of the resource
      * @return success
-     *
      * @author Anton Nikiforov
      * @since 2012-04-09
      */
     public boolean takeResource(Game game, User user, String resourceTyp, int amount) {
         Inventory bank = game.getBankInventory();
-        boolean success = game.getInventory(user).getNumberFromCardStack(resourceTyp)  >= amount;
+        boolean success = game.getInventory(user).getNumberFromCardStack(resourceTyp) >= amount;
         boolean wasEmpty = bank.getNumberFromCardStack(resourceTyp) == 0 && amount > 0;
         for (int i = amount; i > 0; i--) {
             if (game.getInventory(user).getNumberFromCardStack(resourceTyp) > 0) {
                 game.getInventory(user).decCardStack(resourceTyp, 1);
                 bank.incCardStack(resourceTyp, 1);
-            }
-            else break;
+            } else break;
         }
         if (wasEmpty) {
             String chatMessage = resourceTyp + " storage is now filled";
@@ -839,30 +831,33 @@ public class GameService extends AbstractService {
         Optional<Game> optionalGame = gameManagement.getGame(request.getName());
         if (optionalGame.isPresent()) {
             Game game = optionalGame.get();
-            if (request.getUser().equals(game.getUser(game.getTurn()))) {
-                Inventory inventory = game.getInventory(request.getUser());
-                if (inventory.wool.getNumber() >= 1 && inventory.ore.getNumber() >= 1 && inventory.grain.getNumber() >= 1) {
-                    String devCard = game.getDevelopmentCardDeck().drawnCard();
-                    if (devCard != null) {
-                        takeResource(game, request.getUser(), "Wool", 1);
-                        takeResource(game, request.getUser(), "Ore", 1);
-                        takeResource(game, request.getUser(), "Grain", 1);
-                        inventory.incCardStack(devCard, 1);
-                        BuyDevelopmentCardMessage response = new BuyDevelopmentCardMessage(devCard);
-                        sendToSpecificUserInGame(response, request.getUser());
+            if (game.rolledDiceThisTurn()) {
+                if (request.getUser().equals(game.getUser(game.getTurn()))) {
+                    Inventory inventory = game.getInventory(request.getUser());
+                    if (inventory.wool.getNumber() >= 1 && inventory.ore.getNumber() >= 1 && inventory.grain.getNumber() >= 1) {
+                        String devCard = game.getDevelopmentCardDeck().drawnCard();
+                        if (devCard != null) {
+                            takeResource(game, request.getUser(), "Wool", 1);
+                            takeResource(game, request.getUser(), "Ore", 1);
+                            takeResource(game, request.getUser(), "Grain", 1);
+                            inventory.incCardStack(devCard, 1);
+                            BuyDevelopmentCardMessage response = new BuyDevelopmentCardMessage(devCard);
+                            sendToSpecificUserInGame(response, request.getUser());
+                        } else {
+                            var chatId = "game_" + game.getName();
+                            ResponseChatMessage msg = new ResponseChatMessage("No development cards are available.", chatId, "Bank", System.currentTimeMillis());
+                            post(msg);
+                            LOG.debug("Posted ResponseChatMessage on eventBus");
+                        }
                     } else {
-                        var chatId = "game_" + game.getName();
-                        ResponseChatMessage msg = new ResponseChatMessage("No development cards are available.", chatId, "Bank", System.currentTimeMillis());
-                        post(msg);
-                        LOG.debug("Posted ResponseChatMessage on eventBus");
+                        NotEnoughRessourcesMessage nerm = new NotEnoughRessourcesMessage();
+                        nerm.setName(game.getName());
+                        sendToSpecificUserInGame(nerm, request.getUser());
                     }
-                } else {
-                    NotEnoughRessourcesMessage nerm = new NotEnoughRessourcesMessage();
-                    nerm.setName(game.getName());
-                    sendToSpecificUserInGame(nerm, request.getUser());
                 }
+                updateInventory(game);
             }
-            updateInventory(game);
+            //TODO: Message dass gerollt werden muss
         }
     }
 
@@ -972,7 +967,6 @@ public class GameService extends AbstractService {
      * resolution was successful. If something went wrong, inform the turnPlayer so that he may try again.
      * <p>
      * enhanced by Anton Nikiforov "Year of Plenty" bank
-
      *
      * @param request the ResolveDevelopmentCardRequest sent from the client
      * @author Marc Hermes
@@ -1127,11 +1121,10 @@ public class GameService extends AbstractService {
      * <p>
      * enhanced by Carsten Dekker ,Marc Johannes Hermes, Marius Birk, Iskander Yusupov
      *
-     * @since 2021-05-07
-     * enhanced by René Meyer
-     *
      * @param game game that wants to update private and public inventories
      * @author Iskander Yusupov, Anton Nikiforov
+     * @since 2021-05-07
+     * enhanced by René Meyer
      * @since 2021-05-07
      * @since 2021-04-08
      */
@@ -1347,7 +1340,6 @@ public class GameService extends AbstractService {
      * @param tradeCode    the trade code
      * @param winnerBidder the winners name
      * @param success      bool if successful or not
-     *
      * @author Alexander Losse, Ricardo Mook
      * @since 2021-04-11
      */
@@ -1420,7 +1412,6 @@ public class GameService extends AbstractService {
      * it checks if the number of resources is even or uneven and sends a TooMuchResourceCardsMessage to every specfic user.
      *
      * @param game Game that the users play
-     *
      * @author Marius Birk
      * @since 2021-05-13
      */
@@ -1448,7 +1439,6 @@ public class GameService extends AbstractService {
      * enhanced by Anton Nikiforov "Year of Plenty" bank
      *
      * @param inventory form Player
-     *
      * @return the name of a resource
      * @author Marius Birk
      * @since 2021-04-29
