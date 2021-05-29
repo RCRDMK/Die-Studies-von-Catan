@@ -1399,29 +1399,29 @@ public class GameService extends AbstractService {
      * <p>
      * enhanced by Marc Hermes 2021-05-25
      *
-     * @param drawRandomResourceFromPlayerMessage the drawRandomResourceFromPlayerMessage detected on the event bus
+     * @param drawRandomResourceFromPlayerRequest the drawRandomResourceFromPlayerMessage detected on the event bus
      * @author Marius Birk
      * @since 2021-05-01
      */
     @Subscribe
-    public void onDrawRandomResourceFromPlayerMessage(DrawRandomResourceFromPlayerMessage drawRandomResourceFromPlayerMessage) {
-        Optional<Game> optionalGame = gameManagement.getGame(drawRandomResourceFromPlayerMessage.getName());
+    public void onDrawRandomResourceFromPlayerMessage(DrawRandomResourceFromPlayerRequest drawRandomResourceFromPlayerRequest) {
+        Optional<Game> optionalGame = gameManagement.getGame(drawRandomResourceFromPlayerRequest.getName());
         if (optionalGame.isPresent()) {
             Game game = optionalGame.get();
             String resource = "";
             // Check if the player who wants to draw a random resource is an AI player in which case he already drew a random resource by himself
-            if (!game.getUsers().contains(drawRandomResourceFromPlayerMessage.getUser())) {
-                resource = drawRandomResourceFromPlayerMessage.getResource();
+            if (!game.getUsers().contains(drawRandomResourceFromPlayerRequest.getUser())) {
+                resource = drawRandomResourceFromPlayerRequest.getResource();
             }
 
             for (User user : game.getUsersList()) {
-                if (user.getUsername().equals(drawRandomResourceFromPlayerMessage.getChosenName())) {
+                if (user.getUsername().equals(drawRandomResourceFromPlayerRequest.getChosenName())) {
                     HashMap<String, Integer> inventory = game.getInventory(user).getPrivateView();
                     if (resource.equals("")) {
                         resource = randomResource(inventory);
                     }
                     game.getInventory(user).decCardStack(resource, 1);
-                    game.getInventory(drawRandomResourceFromPlayerMessage.getUser()).incCardStack(resource, 1);
+                    game.getInventory(drawRandomResourceFromPlayerRequest.getUser()).incCardStack(resource, 1);
                     updateInventory(game);
                     break;
 
