@@ -9,8 +9,11 @@ import de.uol.swp.common.game.message.TradeOfferInformBiddersMessage;
 import de.uol.swp.common.game.message.TradeStartedMessage;
 import de.uol.swp.common.game.trade.TradeItem;
 import de.uol.swp.common.user.UserDTO;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.input.ContextMenuEvent;
+import javafx.scene.input.InputMethodEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
 
@@ -33,11 +36,11 @@ public class TradePresenter extends AbstractPresenter {
     private static final String grainString = "Grain";
     private static final String woolString = "Wool";
     private static final String oreString = "Ore";
-    public Text oreW1;
-    public RadioButton offerNoneRadioButtonBank;
-    public ToggleGroup choiceTradeBank;
+    public Label tradeLable1;
+    public Label tradeLable2;
 
-    private boolean sellerGotBids;
+    private boolean sellerGotBids = false;;
+    private boolean sellerGotBankOffer = false;;
     private boolean isBidder = false;
     private String tradeCode;
     private String gameName;
@@ -81,14 +84,14 @@ public class TradePresenter extends AbstractPresenter {
 
                 endTradeButton.setVisible(true);
                 offerNoneRadioButton.setVisible(true);
-                row1Hbox.setVisible(true);
+                row1HBox.setVisible(true);
                 offer1RadioButton.setVisible(true);
 
                 int biddersCount = message.getBidders().size();
                 if (biddersCount > 1) {
-                    row2Hbox.setVisible(true);
+                    row2HBox.setVisible(true);
                     if (biddersCount > 2) {
-                        row3Hbox.setVisible(true);
+                        row3HBox.setVisible(true);
                     }
                 }
                 bidders = message.getBidders();
@@ -114,6 +117,9 @@ public class TradePresenter extends AbstractPresenter {
             this.gameName = tradeOfferInformBiddersMessage.getName();
             this.user = tradeOfferInformBiddersMessage.getBidder();
             setOffer(tradeOfferInformBiddersMessage.getSellingItems(), tradeOfferInformBiddersMessage.getWantedItems());
+            ressourceChoiceBank.setVisible(false);
+            createRequestButton.setVisible(false);
+            tradeLable2.setVisible(false);
             textRowW.setVisible(false);
             lumberW.setVisible(false);
             brickW.setVisible(false);
@@ -182,7 +188,6 @@ public class TradePresenter extends AbstractPresenter {
                 ore1.setText(valueOfCount);
             }
         }
-        textRow1.setText("Seller offers:");
 
         for (TradeItem item : wantedItems) {
             String valueOfCount = String.valueOf(item.getCount());
@@ -198,14 +203,16 @@ public class TradePresenter extends AbstractPresenter {
                 ore2.setText(valueOfCount);
             }
         }
-        textRow2.setText("Seller wants:");
-        endTradeButton.setVisible(false);
-        rejectOfferButton.setVisible(true);
-        row1Hbox.setVisible(true);
-        row2Hbox.setVisible(true);
-        offer2RadioButton.setVisible(false);
         isBidder = true;
         addItemWishButton.setVisible(false);
+        rejectOfferButton.setVisible(true);
+        row1HBox.setVisible(true);
+        textRow1.setText("Seller offers:");
+        offer1RadioButton.setVisible(false);
+        row2HBox.setVisible(true);
+        textRow2.setText("Seller wants:");
+        offer2RadioButton.setVisible(false);
+        endTradeButton.setVisible(false);
     }
 
     /**
@@ -258,6 +265,19 @@ public class TradePresenter extends AbstractPresenter {
             } else if (selectedRadioButton == offer3RadioButton) {
                 gameService.sendTradeChoice(bidders.get(2), true, gameName, tradeCode);
             }
+        } else if (sellerGotBankOffer) {
+            RadioButton selectedRadioButton = (RadioButton) choiceTrade.getSelectedToggle();
+
+            if (selectedRadioButton == offerNoneRadioButton) {
+                gameService.sendTradeChoice(user, false, gameName, tradeCode);
+            } else if (selectedRadioButton == offer1RadioButton) {
+                gameService.sendTradeChoice(bidders.get(0), true, gameName, tradeCode);
+            } else if (selectedRadioButton == offer2RadioButton) {
+                gameService.sendTradeChoice(bidders.get(1), true, gameName, tradeCode);
+            } else if (selectedRadioButton == offer3RadioButton) {
+                gameService.sendTradeChoice(bidders.get(2), true, gameName, tradeCode);
+            }
+
         } else {
             gameService.endTradeBeforeItStarted(user, gameName, tradeCode);
         }
@@ -314,10 +334,10 @@ public class TradePresenter extends AbstractPresenter {
         if (minimalItems) {
             gameService.sendItem(user, gameName, sendTradeOfferItemArrayList, tradeCode, sendTradeWishItemArrayList);
             disableAbilityToSentItems();
-        }//TODO: inform the user that he has to send at least 1 item
+        }
         else {
             Alert noValidInput = new Alert(Alert.AlertType.CONFIRMATION);
-            noValidInput.setContentText("Please only input valid ressources and numbers");
+            noValidInput.setContentText("Please only input valid ressources and numbers. It should be 1 item in the offer at least.");
             Button conformation;
             ButtonType ok = new ButtonType("OK", ButtonBar.ButtonData.YES);
             noValidInput.getButtonTypes().setAll(ok);
@@ -545,11 +565,25 @@ public class TradePresenter extends AbstractPresenter {
         sendItemsButton.setDisable(true);
         ressourceInputValue.setDisable(true);
         ressourceChoice.setDisable(true);
-
+        ressourceChoiceBank.setVisible(false);
+        createRequestButton.setVisible(false);
+        tradeLable2.setVisible(false);
         endTradeButton.setVisible(false);
         if (isBidder) {
             rejectOfferButton.setDisable(true);
         }
+    }
+
+    public void onCreateRequestButton() {
+    }
+
+    public void onContextMenuRequested() {
+        ressourceInputValue.setText("");
+    }
+
+    public void onInput() {
+        System.out.println("moin");
+
     }
 
     ////////////////////////////////////////
@@ -603,7 +637,10 @@ public class TradePresenter extends AbstractPresenter {
     RadioButton offer3RadioButton;
 
     @FXML
-    RadioButton bankOfferRadioButton;
+    RadioButton offer4RadioButton;
+
+    @FXML
+    Text textCol;
 
     @FXML
     Text lumberW;
@@ -714,16 +751,16 @@ public class TradePresenter extends AbstractPresenter {
     Text textRow4;
 
     @FXML
-    HBox row1Hbox;
+    HBox row1HBox;
 
     @FXML
-    HBox row2Hbox;
+    HBox row2HBox;
 
     @FXML
-    HBox row3Hbox;
+    HBox row3HBox;
 
     @FXML
-    HBox row4Hbox;
+    HBox row4HBox;
 
     @FXML
     ToggleGroup choiceTrade;
