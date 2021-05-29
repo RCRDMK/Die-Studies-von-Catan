@@ -172,6 +172,23 @@ public class GameService {
     }
 
     /**
+     * This method creates a bank request to buy a resource via an BankRequest
+     *
+     * @param gameName  the game name
+     * @param user      the user who wanna buy
+     * @param tradeCode the tradeCode
+     * @param cardName  the name form the card he wanna buy
+     *
+     * @author Anton Nikiforov
+     * @see de.uol.swp.common.game.request.BankRequest
+     * @since 2021-05-29
+     */
+    public void createBankRequest(String gameName, UserDTO user, String tradeCode, String cardName) {
+        BankRequest br = new BankRequest(gameName, user, tradeCode, cardName);
+        eventBus.post(br);
+    }
+
+    /**
      * sends a TradeEndedMessage
      * <p>
      * used to close the TradeTab if no Trade is saved at the server, e.g. the seller hit the TradeButton by accident and doesnt want to Trade( didnt send a TradeItemRequest)
@@ -180,7 +197,7 @@ public class GameService {
      * @author Alexander Losse, Ricardo Mook
      * @since 2021-04-21
      */
-    public void endTradeBeforeItStarted(UserDTO user, String gameName, String tradeCode) {
+    public void endTradeBeforeItStarted(String tradeCode) {
         TradeEndedMessage tem = new TradeEndedMessage(tradeCode);
         eventBus.post(tem);
     }

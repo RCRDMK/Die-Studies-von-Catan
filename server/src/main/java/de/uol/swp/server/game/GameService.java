@@ -1246,16 +1246,17 @@ public class GameService extends AbstractService {
     public void onTradeItemRequest(TradeItemRequest request) {
         System.out.println("Got message " + request.getUser().getUsername());
         Optional<Game> optionalGame = gameManagement.getGame(request.getName());
-        // TODO: Wird nur zum testen verwendet
-      /*  game.get().getInventory(request.getUser()).incCardStack("Lumber", 10);
-        game.get().getInventory(request.getUser()).incCardStack("Ore", 10);
-        game.get().getInventory(request.getUser()).incCardStack("Wool", 10);
-        game.get().getInventory(request.getUser()).incCardStack("Grain", 10);
-        game.get().getInventory(request.getUser()).incCardStack("Brick", 10);
-        Inventory easyPrüfen = game.get().getInventory(request.getUser());
-*/
+
         if (optionalGame.isPresent()) {
             Game game = optionalGame.get();
+
+            // TODO: Wird nur zum testen verwendet
+            game.getInventory(request.getUser()).incCardStack("Lumber", 5);
+            game.getInventory(request.getUser()).incCardStack("Ore", 5);
+            game.getInventory(request.getUser()).incCardStack("Wool", 5);
+            game.getInventory(request.getUser()).incCardStack("Grain", 5);
+            game.getInventory(request.getUser()).incCardStack("Brick", 5);
+
             boolean numberOfCardsCorrect = true;
 
             for (TradeItem tradeItem : request.getTradeItems()) {
@@ -1301,7 +1302,6 @@ public class GameService extends AbstractService {
             updateInventory(game);
         }
     }
-
 
     /**
      * finalises the trade
@@ -1414,6 +1414,29 @@ public class GameService extends AbstractService {
             //Nachdem eine Karte gezogen wurde darf jeder mit mehr als 7 Ressourcen die Hälfte ablegen
             tooMuchResources(game);
         }
+    }
+
+    /**
+     * either initiates a new trade or adds a bid to an existing trade
+     * <p>
+     * the method checks if the user has enough items in his inventory
+     * if check not successful the methods sends an error message to the user
+     * if successful the method checks if the String tradeCode already exists
+     * if the tradeCode does not exists, the methods initiates a new trade. The user who send the TradeItemRequest becomes the seller
+     * the method sends TradeOfferInformBiddersMessage to the other users in the game, informing about them new trade
+     * if the tradeCOde does exists, the method adds a new bidder to the specified trade
+     * if all users, who are not the seller) have send their bid, the method informs the seller about the the offers(TradeInformSellerAboutBidsMessage)
+     *
+     * @param request BankRequest
+     *
+     * @author Anton Nikiforov
+     * @see TradeItem
+     * @see BankRequest
+     * @since 2021-05-29
+     */
+    @Subscribe
+    public void onBankRequest(BankRequest request) {
+
     }
 
     /**

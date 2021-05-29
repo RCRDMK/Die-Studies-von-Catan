@@ -9,11 +9,8 @@ import de.uol.swp.common.game.message.TradeOfferInformBiddersMessage;
 import de.uol.swp.common.game.message.TradeStartedMessage;
 import de.uol.swp.common.game.trade.TradeItem;
 import de.uol.swp.common.user.UserDTO;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.scene.input.ContextMenuEvent;
-import javafx.scene.input.InputMethodEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
 
@@ -36,8 +33,6 @@ public class TradePresenter extends AbstractPresenter {
     private static final String grainString = "Grain";
     private static final String woolString = "Wool";
     private static final String oreString = "Ore";
-    public Label tradeLable1;
-    public Label tradeLable2;
 
     private boolean sellerGotBids = false;;
     private boolean sellerGotBankOffer = false;;
@@ -279,7 +274,7 @@ public class TradePresenter extends AbstractPresenter {
             }
 
         } else {
-            gameService.endTradeBeforeItStarted(user, gameName, tradeCode);
+            gameService.endTradeBeforeItStarted(tradeCode);
         }
     }
 
@@ -321,7 +316,7 @@ public class TradePresenter extends AbstractPresenter {
      * @since 2021-04-21
      */
     @FXML
-    public void onSendItemsButtonsPressed() {
+    public void onSendItemsSuggestButtonsPressed() {
         ArrayList<TradeItem> sendTradeOfferItemArrayList = createTradeOfferItemList();
         ArrayList<TradeItem> sendTradeWishItemArrayList = createTradeWishItemList();
         boolean minimalItems = false;
@@ -337,7 +332,7 @@ public class TradePresenter extends AbstractPresenter {
         }
         else {
             Alert noValidInput = new Alert(Alert.AlertType.CONFIRMATION);
-            noValidInput.setContentText("Please only input valid ressources and numbers. It should be 1 item in the offer at least.");
+            noValidInput.setContentText("Please only input valid resources and numbers. It should be 1 item in the offer at least.");
             Button conformation;
             ButtonType ok = new ButtonType("OK", ButtonBar.ButtonData.YES);
             noValidInput.getButtonTypes().setAll(ok);
@@ -345,6 +340,25 @@ public class TradePresenter extends AbstractPresenter {
             noValidInput.showAndWait();
             conformation.setOnAction(event -> noValidInput.hide());
         }
+    }
+
+    /**
+     * method gets called when on the send button is pressed it collects the trade items - help method -
+     * <p>
+     * ArrayList<TradeItem> sendTradeItemArrayList is created with createTradeItemList()
+     * boolean minimalItems tracks if at least one item ha a count of > 0
+     * if minimalItems == true a TradeItemRequest is send via the GameService
+     * disables addItemOfferButton, sendItemsButton, ressourceInputValue, ressourceChoice, endTradeButton
+     * else nothing happens
+     *
+     * @author Alexander Losse, Ricardo Mook
+     * @see GameService
+     * @see TradeItem
+     * @since 2021-04-21
+     */
+    @FXML
+    public void onCreateRequestButton() {
+        gameService.createBankRequest(gameName, user, tradeCode, ressourceChoiceBank.getValue().toString());
     }
 
     /**
@@ -574,18 +588,6 @@ public class TradePresenter extends AbstractPresenter {
         }
     }
 
-    public void onCreateRequestButton() {
-    }
-
-    public void onContextMenuRequested() {
-        ressourceInputValue.setText("");
-    }
-
-    public void onInput() {
-        System.out.println("moin");
-
-    }
-
     ////////////////////////////////////////
     //
     //
@@ -761,6 +763,12 @@ public class TradePresenter extends AbstractPresenter {
 
     @FXML
     HBox row4HBox;
+
+    @FXML
+    Label tradeLable1;
+
+    @FXML
+    Label tradeLable2;
 
     @FXML
     ToggleGroup choiceTrade;

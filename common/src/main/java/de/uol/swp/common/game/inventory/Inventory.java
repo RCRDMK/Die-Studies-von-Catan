@@ -216,15 +216,15 @@ public class Inventory implements Serializable {
      * <p>
      * It gets the right card for the entered name.
      *
-     * @param card to get
+     * @param cardName to get the CardStack from
      *
      * @return Card with entered cardName
      * @author Anton Nikiforov
      * @see CardStack
      * @since 2021-04-06
      */
-    public CardStack getCardStack(String card) {
-        switch (card) {
+    public CardStack getCardStack(String cardName) {
+        switch (cardName) {
             case "Lumber" : return lumber;
             case "Brick" : return brick;
             case "Grain" : return grain;
@@ -243,18 +243,19 @@ public class Inventory implements Serializable {
     /**
      * Getter for the number of Cards
      * <p>
-     * It gets the number of Cards for the entered cardName.
+     * It gets the number of CardStack for the entered cardName.
      *
-     * @param card to get the number from
+     * @param cardName to get the number from
      *
      * @return number for CardStack with entered cardStackName
      * @author Anton Nikiforov
      * @see CardStack
      * @since 2021-05-19
      */
-    public int getNumberFromCardStack(String card) {
-        CardStack cardStack = getCardStack(card);
-        return cardStack != null ? cardStack.getNumber() : 0;
+    public int getNumberFromCardStack(String cardName) {
+        CardStack cardStack = getCardStack(cardName);
+        if (cardStack != null) return cardStack.getNumber();
+        else return 0;
     }
 
     /**
@@ -267,13 +268,13 @@ public class Inventory implements Serializable {
      *
      * enhanced by Anton Nikiforov, Alexander Losse, Iskander Yusupov
      * @since 2021-05-16
-     * @param card   the name of the Ressource Card
-     * @param amount how much of the Card should be increased
+     * @param cardName  the name of the Ressource Card
+     * @param amount    how much of the Card should be increased
      * @author Alexander Losse, Ricardo Mook
      * @since 2021-04-08
      */
-    public void incCardStack(String card, int amount) {
-        switch (card) {
+    public void incCardStack(String cardName, int amount) {
+        switch (cardName) {
             case "Lumber":
                 lumber.incNumber(amount);
                 break;
@@ -314,13 +315,13 @@ public class Inventory implements Serializable {
      * String Card specifies the Ressource Card
      * valid Strings: Lumber, Brick, Grain, Wool, Ore
      *
-     * @param card   the name of the Ressource Card
-     * @param amount how much of the Card should be decreased
+     * @param cardName the name of the Ressource Card
+     * @param amount   how much of the Card should be decreased
      * @author Alexander Losse, Ricardo Mook
      * @since 2021-04-08
      */
-    public void decCardStack(String card, int amount) {
-        switch (card) {
+    public void decCardStack(String cardName, int amount) {
+        switch (cardName) {
             case "Lumber":
                 lumber.decNumber(amount);
                 break;

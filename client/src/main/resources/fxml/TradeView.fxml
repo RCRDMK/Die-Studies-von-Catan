@@ -9,13 +9,13 @@
 <?import javafx.scene.text.*?>
 
 <AnchorPane stylesheets="@../css/swp.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.uol.swp.client.game.TradePresenter">
-   <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#080808" height="260.0" layoutX="5.0" layoutY="67.0" opacity="0.33" width="726.0" />
+   <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#080808" height="260.0" layoutX="5.0" layoutY="67.0" opacity="0.60" width="726.0" />
    <VBox prefHeight="400.0">
       <HBox>
          <VBox.margin>
             <Insets top="2.0" />
          </VBox.margin>
-         <Label fx:id="tradeLable1" style="-fx-background-color: rgba(0,0,0,0.44)" text="Trade with the players">
+         <Label fx:id="tradeLable1" style="-fx-background-color: rgba(0,0,0,0.44)" text="Trade with players">
            <font>
               <Font name="Times New Roman Bold" size="23.0" />
            </font>
@@ -30,7 +30,7 @@
                <Insets top="4.0" />
             </HBox.margin>
             <HBox>
-               <ChoiceBox fx:id="ressourceChoice" onContextMenuRequested="#onContextMenuRequested" value="What do you want to trade?">
+               <ChoiceBox fx:id="ressourceChoice" value="What do you want to trade?">
                   <items>
                      <FXCollections fx:factory="observableArrayList">
                         <String fx:value="What do you want to trade?" />
@@ -45,7 +45,7 @@
                      <Insets left="5.0" />
                   </HBox.margin>
                </ChoiceBox>
-               <TextField fx:id="ressourceInputValue" onInputMethodTextChanged="#onInput" prefHeight="25.0" prefWidth="127.0">
+               <TextField fx:id="ressourceInputValue" prefHeight="25.0" prefWidth="127.0">
                   <HBox.margin>
                      <Insets left="10.0" />
                   </HBox.margin>
@@ -63,7 +63,7 @@
                      <Insets left="5.0" />
                   </HBox.margin>
                </Button>
-               <Button fx:id="sendItemsButton" mnemonicParsing="false" onAction="#onSendItemsButtonsPressed" text="send Suggestion">
+               <Button fx:id="sendItemsButton" mnemonicParsing="false" onAction="#onSendItemsSuggestButtonsPressed" text="send Suggestion">
                   <HBox.margin>
                      <Insets left="73.0" />
                   </HBox.margin>
