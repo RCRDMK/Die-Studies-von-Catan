@@ -7,6 +7,7 @@ import de.uol.swp.common.game.message.TradeCardErrorMessage;
 import de.uol.swp.common.game.message.TradeInformSellerAboutBidsMessage;
 import de.uol.swp.common.game.message.TradeOfferInformBiddersMessage;
 import de.uol.swp.common.game.message.TradeStartedMessage;
+import de.uol.swp.common.game.message.BankResponseMessage;
 import de.uol.swp.common.game.trade.TradeItem;
 import de.uol.swp.common.user.UserDTO;
 import javafx.fxml.FXML;
@@ -41,6 +42,7 @@ public class TradePresenter extends AbstractPresenter {
     private String gameName;
     private UserDTO user;
     private ArrayList<UserDTO> bidders;
+    private ArrayList<ArrayList<TradeItem>> bankOffer;
     private HashMap<UserDTO, ArrayList<TradeItem>> bids;
 
     /**
@@ -154,6 +156,21 @@ public class TradePresenter extends AbstractPresenter {
                 }
             }
         }
+    }
+
+    /**
+     * Reacts to the BankResponseMessage
+     * <p>
+     *
+     * @param message BankResponseMessage
+     *
+     * @author Anton Nikiforov
+     * @see BankResponseMessage
+     * @since 2021-05-29
+     */
+    @Subscribe
+    public void onBankResponseMessage(BankResponseMessage message) {
+
     }
 
     /**
@@ -343,18 +360,13 @@ public class TradePresenter extends AbstractPresenter {
     }
 
     /**
-     * method gets called when on the send button is pressed it collects the trade items - help method -
+     * Method gets called when on the create Request button was pressed
      * <p>
-     * ArrayList<TradeItem> sendTradeItemArrayList is created with createTradeItemList()
-     * boolean minimalItems tracks if at least one item ha a count of > 0
-     * if minimalItems == true a TradeItemRequest is send via the GameService
-     * disables addItemOfferButton, sendItemsButton, ressourceInputValue, ressourceChoice, endTradeButton
-     * else nothing happens
+     * Send gameName, user, tradeCode, ressourceChoiceBank to the GameService for the BankRequest
      *
-     * @author Alexander Losse, Ricardo Mook
+     * @author Anton Nikiforov
      * @see GameService
-     * @see TradeItem
-     * @since 2021-04-21
+     * @since 2021-05-29
      */
     @FXML
     public void onCreateRequestButton() {

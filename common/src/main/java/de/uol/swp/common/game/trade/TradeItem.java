@@ -5,7 +5,7 @@ import java.io.Serializable;
 /**
  * This class is used to save information about an item to be traded
  * <p>
- * enhanced by Anton Nikiforov 'boolean canBuy from the bank'
+ * enhanced by Anton Nikiforov 'boolean enoughInWallet from user'
  *
  * @author Alexander Losse, Ricardo Mook
  * @since 2021-04-07
@@ -15,7 +15,7 @@ public class TradeItem implements Serializable {
     //name of the item e.g. "Lumber"
     private String name;
     private int count;
-    private boolean canBuy;
+    private boolean enoughInWallet;
 
     /**
      * Constructor
@@ -26,10 +26,9 @@ public class TradeItem implements Serializable {
      * @author Alexander Losse, Ricardo Mook
      * @since 2021-04-07
      */
-    public TradeItem(String name, int count){
+    public TradeItem(String name, int count) {
         this.name = name;
         this.count = count;
-        this.canBuy = true;
     }
 
     /**
@@ -59,21 +58,21 @@ public class TradeItem implements Serializable {
      *
      * @author Anton Nikiforov
      * @since 2021-05-28
-     * @return boolean canBuy
+     * @return boolean enoughInWallet
      */
-    public boolean isCanBuy() {
-        return canBuy;
+    public boolean isEnoughInWallet() {
+        return enoughInWallet;
     }
 
     /**
      * setter
      *
-     + @param boolean canBuy from the bank
+     + @param boolean enoughInWallet from user
      *
      * @author Anton Nikiforov
      * @since 2021-05-28
      */
-    public void setCanBuy(boolean canBuy) {
-        this.canBuy = canBuy;
+    public void setEnoughInWallet(boolean enoughInWallet) {
+        this.enoughInWallet = enoughInWallet;
     }
 }

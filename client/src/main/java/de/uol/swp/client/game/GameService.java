@@ -172,7 +172,7 @@ public class GameService {
     }
 
     /**
-     * This method creates a bank request to buy a resource via an BankRequest
+     * This method creates a bank request to buy a resource via BankRequest
      *
      * @param gameName  the game name
      * @param user      the user who wanna buy
