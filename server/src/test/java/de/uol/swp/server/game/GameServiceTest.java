@@ -1087,4 +1087,99 @@ public class GameServiceTest {
         assertEquals(inventory2.getNumberFromCardStack("Wool"), 0);
         assertEquals(inventory2.getNumberFromCardStack("Ore"), 0);
     }
+
+    /**
+     * This test checks if the right user gets the largest army card
+     * <p>
+     * First the method logs all users in and joins 2 users into a game. Then it alters
+     * the inventory of both users and gives them ten knight cards each. It then tests if
+     * the largest army boolean is correctly set.
+     *
+     * @author Dekker Carsten
+     * @since 2021-05-28
+     */
+    @Test
+    void checkForLargestArmy() {
+        loginUsers();
+
+        GameService gameService = new GameService(gameManagement, lobbyService, authenticationService, bus, userService);
+
+        gameManagement.createGame("test", userDTO, "Standard");
+        Optional<Game> optionalGame = gameManagement.getGame("test");
+        assertTrue(optionalGame.isPresent());
+
+        Game game = optionalGame.get();
+
+        game.joinUser(userDTO1);
+
+        game.setUpUserArrayList();
+        game.setUpInventories();
+
+        game.getInventory(userDTO).setPlayedKnights(2);
+
+        game.getInventory(userDTO).incCardStack("Knight", 10);
+
+        game.getInventory(userDTO1).setPlayedKnights(2);
+
+        game.getInventory(userDTO1).incCardStack("Knight", 10);
+
+        PlayDevelopmentCardRequest playDevelopmentCardRequest = new PlayDevelopmentCardRequest("Knight", game.getName(), userDTO);
+
+        gameService.onPlayDevelopmentCardRequest(playDevelopmentCardRequest);
+
+        ResolveDevelopmentCardKnightRequest resolveDevelopmentCardKnightRequest = new ResolveDevelopmentCardKnightRequest();
+
+        for(MapGraph.Hexagon hexagon : game.getMapGraph().getHexagonHashSet()) {
+            if (!hexagon.isOccupiedByRobber()) {
+                resolveDevelopmentCardKnightRequest = new ResolveDevelopmentCardKnightRequest("Knight", userDTO, game.getName(), hexagon.getUuid());
+                break;
+            }
+        }
+
+        gameService.onResolveDevelopmentCardRequest(resolveDevelopmentCardKnightRequest);
+
+        assertTrue(game.getInventory(userDTO).isLargestArmy());
+
+        EndTurnRequest endTurnRequest = new EndTurnRequest(game.getName(), userDTO);
+
+        gameService.onEndTurnRequest(endTurnRequest);
+
+        PlayDevelopmentCardRequest playDevelopmentCardRequest1 = new PlayDevelopmentCardRequest("Knight", game.getName(), userDTO1);
+
+        gameService.onPlayDevelopmentCardRequest(playDevelopmentCardRequest1);
+
+        ResolveDevelopmentCardKnightRequest resolveDevelopmentCardKnightRequest1 = new ResolveDevelopmentCardKnightRequest();
+
+        for(MapGraph.Hexagon hexagon : game.getMapGraph().getHexagonHashSet()) {
+            if (!hexagon.isOccupiedByRobber()) {
+                resolveDevelopmentCardKnightRequest1 = new ResolveDevelopmentCardKnightRequest("Knight", userDTO1, game.getName(), hexagon.getUuid());
+                break;
+            }
+        }
+
+        gameService.onResolveDevelopmentCardRequest(resolveDevelopmentCardKnightRequest1);
+
+        assertFalse(game.getInventory(userDTO1).isLargestArmy());
+
+        EndTurnRequest endTurnRequest1 = new EndTurnRequest(game.getName(), userDTO1);
+
+        gameService.onEndTurnRequest(endTurnRequest1);
+
+        PlayDevelopmentCardRequest playDevelopmentCardRequest2 = new PlayDevelopmentCardRequest("Knight", game.getName(), userDTO1);
+
+        gameService.onPlayDevelopmentCardRequest(playDevelopmentCardRequest2);
+
+        ResolveDevelopmentCardKnightRequest resolveDevelopmentCardKnightRequest2 = new ResolveDevelopmentCardKnightRequest();
+
+        for(MapGraph.Hexagon hexagon : game.getMapGraph().getHexagonHashSet()) {
+            if (!hexagon.isOccupiedByRobber()) {
+                resolveDevelopmentCardKnightRequest2 = new ResolveDevelopmentCardKnightRequest("Knight", userDTO1, game.getName(), hexagon.getUuid());
+                break;
+            }
+        }
+
+        gameService.onResolveDevelopmentCardRequest(resolveDevelopmentCardKnightRequest2);
+
+        assertTrue(game.getInventory(userDTO1).isLargestArmy());
+    }
 }

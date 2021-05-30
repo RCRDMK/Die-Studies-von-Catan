@@ -318,4 +318,18 @@ public interface Game extends Serializable {
      * @since 2021-05-14
      */
     boolean rolledDiceThisTurn();
+
+    /**
+     * Getter for the largest Army reference
+     *
+     * @return refernced inventory with the largest army
+     */
+    Inventory getInventoryWithLargestArmy();
+
+    /**
+     * setter for the largest Army reference
+     *
+     * @param inventoryWithLargestArmy the inventory referencing the inventory with the largest army
+     */
+    void setInventoryWithLargestArmy(Inventory inventoryWithLargestArmy);
 }
