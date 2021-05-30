@@ -322,4 +322,12 @@ public interface Game extends Serializable {
      * @since 2021-05-14
      */
     boolean rolledDiceThisTurn();
+
+    void rememberDevCardBoughtThisTurn(String card, int amount);
+
+    HashMap<String, Integer> getAllBoughtCardThisTurn();
+
+    int getHowManyCardsOfTypeWereBoughtThisTurn(String card);
+
+    boolean canUserPlayDevCard(User user, String card);
 }

@@ -831,7 +831,6 @@ public class GameService extends AbstractService {
         Optional<Game> optionalGame = gameManagement.getGame(request.getName());
         if (optionalGame.isPresent()) {
             Game game = optionalGame.get();
-            if (game.rolledDiceThisTurn()) {
                 if (request.getUser().equals(game.getUser(game.getTurn()))) {
                     Inventory inventory = game.getInventory(request.getUser());
                     if (inventory.wool.getNumber() >= 1 && inventory.ore.getNumber() >= 1 && inventory.grain.getNumber() >= 1) {
@@ -841,6 +840,7 @@ public class GameService extends AbstractService {
                             takeResource(game, request.getUser(), "Ore", 1);
                             takeResource(game, request.getUser(), "Grain", 1);
                             inventory.incCardStack(devCard, 1);
+                            game.rememberDevCardBoughtThisTurn(devCard, 1);
                             BuyDevelopmentCardMessage response = new BuyDevelopmentCardMessage(devCard);
                             sendToSpecificUserInGame(response, request.getUser());
                         } else {
@@ -857,9 +857,7 @@ public class GameService extends AbstractService {
                 }
                 updateInventory(game);
             }
-            //TODO: Message dass gerollt werden muss
         }
-    }
 
     /**
      * Handles Requests from a client to play a DevelopmentCard
@@ -889,7 +887,10 @@ public class GameService extends AbstractService {
                 inventory.cardRoadBuilding.incNumber();
                 inventory.cardYearOfPlenty.incNumber();
                 inventory.cardKnight.incNumber();
-                // TODO: Check if the card was bought THIS turn, because it cannot be used then
+
+                if(!game.canUserPlayDevCard(request.getUser(), devCard)){
+                    devCard = "default";
+                }
                 switch (devCard) {
 
                     case "Monopoly":

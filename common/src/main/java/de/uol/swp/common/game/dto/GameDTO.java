@@ -50,12 +50,15 @@ public class GameDTO implements Game {
     private boolean isTest;
     private boolean rolledDiceThisTurn = false;
 
+    private HashMap<String, Integer> boughtDevCardThisTurn = new HashMap<>();
+
+
     /**
      * Constructor
      *
-     * @param name              The name the game should have
-     * @param creator           The user who created the game and therefore shall be the owner
-     * @param gameFieldVariant  The variant that the game field should have
+     * @param name             The name the game should have
+     * @param creator          The user who created the game and therefore shall be the owner
+     * @param gameFieldVariant The variant that the game field should have
      * @since 2021-01-15
      */
     public GameDTO(String name, User creator, String gameFieldVariant) {
@@ -177,6 +180,7 @@ public class GameDTO implements Game {
         } else overallTurns++;
         playedCardThisTurn = false;
         rolledDiceThisTurn = false;
+        boughtDevCardThisTurn.clear();
     }
 
     /**
@@ -267,7 +271,6 @@ public class GameDTO implements Game {
      * It compares the user with the inventory user and returns the inventory from user
      *
      * @param user form the inventory you want
-     *
      * @return The Inventory from user
      * @author Anton Nikiforov
      * @see de.uol.swp.common.game.inventory.Inventory
@@ -416,4 +419,34 @@ public class GameDTO implements Game {
         return this.rolledDiceThisTurn;
     }
 
+    @Override
+    public void rememberDevCardBoughtThisTurn(String card, int amount) {
+        if (card.equals("Monopoly") || card.equals("Road Building") || card.equals("Year of Plenty") || card.equals("Knight")) {
+            boughtDevCardThisTurn.put(card, boughtDevCardThisTurn.getOrDefault(card, 0) + amount);
+        }
+    }
+
+    @Override
+    public HashMap<String, Integer> getAllBoughtCardThisTurn() {
+        return boughtDevCardThisTurn;
+    }
+
+    @Override
+    public int getHowManyCardsOfTypeWereBoughtThisTurn(String card) {
+        if (!boughtDevCardThisTurn.isEmpty() && boughtDevCardThisTurn.containsKey(card)) {
+            return boughtDevCardThisTurn.get(card);
+        } else {
+            return 0;
+        }
+    }
+
+    @Override
+    public boolean canUserPlayDevCard(User user, String card) {
+        if (card.equals("Monopoly") || card.equals("Road Building") || card.equals("Year of Plenty") || card.equals("Knight")) {
+            Inventory inventoryDummy = getInventory(user);
+            int cardsInInventory = inventoryDummy.getCardStack(card).getNumber();
+            int boughtCards = getHowManyCardsOfTypeWereBoughtThisTurn(card);
+            return cardsInInventory - boughtCards > 0;
+        }else return false;
+    }
 }
