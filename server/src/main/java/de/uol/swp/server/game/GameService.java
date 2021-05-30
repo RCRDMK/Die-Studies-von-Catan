@@ -148,7 +148,6 @@ public class GameService extends AbstractService {
      * Handles incoming build requests.
      *
      * @param message Contains the data needed to change the mapGraph
-     *
      * @author Pieter Vogt
      * @since 2021-04-15
      */
@@ -207,7 +206,6 @@ public class GameService extends AbstractService {
      *
      * @param lobbyName Name of the lobby the players are in
      * @param message   the message to be send to the users
-     *
      * @author Marco Grawunder
      * @see de.uol.swp.common.message.ServerMessage
      * @since 2019-10-08
@@ -268,10 +266,10 @@ public class GameService extends AbstractService {
      * it sets the new inventory for the user. At the end we call the updateInventory method, to get the right inventory
      * back to the client.
      * enhanced by Anton Nikiforov
-     * @since 2021-05-19
      *
      * @param resourcesToDiscardRequest request with a hashmap(inventory), the game name and the user, that send it.
      * @author Marius Birk
+     * @since 2021-05-19
      * @since 2021-05-03
      */
     @Subscribe
@@ -377,10 +375,10 @@ public class GameService extends AbstractService {
      * coressponding hexagons. After that the method gives the second built buildings in the opening turn the resource.
      * <p>
      * enhanced by Anton Nikiforov
-     * @since 2021-05-19
      *
      * @param gameName Name of the Game
      * @author Philip Nitsche
+     * @since 2021-05-19
      * @since 2021-04-24
      */
     public void distributeResources(String gameName) {
@@ -423,11 +421,11 @@ public class GameService extends AbstractService {
      * rolled amount of eyes and increases the resource of the user by one(village), two(city).
      * <p>
      * enhanced by Anton Nikiforov
-     * @since 2021-05-19
      *
      * @param eyes     Number of eyes rolled with dice
      * @param gameName Name of the Game
      * @author Marius Birk, Carsten Dekker, Philip Nitsche
+     * @since 2021-05-19
      * @since 2021-04-06
      */
     public void distributeResources(int eyes, String gameName) {
@@ -474,13 +472,11 @@ public class GameService extends AbstractService {
      * Than if it's the first time where the bank gos empty for this resourceTyp,
      * it posts a chat message in the game.
      *
-     * @param game where we are
-     * @param user who wants the resource
+     * @param game        where we are
+     * @param user        who wants the resource
      * @param resourceTyp he wants
-     * @param amount of the resource
-     *
+     * @param amount      of the resource
      * @return success
-     *
      * @author Anton Nikiforov
      * @since 2012-05-19
      */
@@ -514,13 +510,11 @@ public class GameService extends AbstractService {
      * Than if the bank was empty for this resourceTyp, it posts a chat message in the game
      * that the resource storage is now filled.
      *
-     * @param game where we are
-     * @param user who wants to give the resource
+     * @param game        where we are
+     * @param user        who wants to give the resource
      * @param resourceTyp he wants to give
-     * @param amount of the resource
-     *
+     * @param amount      of the resource
      * @return success
-     *
      * @author Anton Nikiforov
      * @since 2012-04-09
      */
@@ -976,7 +970,6 @@ public class GameService extends AbstractService {
      * resolution was successful. If something went wrong, inform the turnPlayer so that he may try again.
      * <p>
      * enhanced by Anton Nikiforov "Year of Plenty" bank
-
      *
      * @param request the ResolveDevelopmentCardRequest sent from the client
      * @author Marc Hermes
@@ -1100,11 +1093,12 @@ public class GameService extends AbstractService {
                     case "Knight":
                         if (request instanceof ResolveDevelopmentCardKnightRequest) {
                             ResolveDevelopmentCardKnightRequest knightRequest = (ResolveDevelopmentCardKnightRequest) request;
-
                             RobbersNewFieldMessage rnfm = new RobbersNewFieldMessage(gameName, (UserDTO) turnPlayer, knightRequest.getField());
                             onRobbersNewFieldRequest(rnfm);
                             game.setCurrentCard("");
                             sendToAllInGame(gameName, message);
+                            turnPlayerInventory.setPlayedKnights(turnPlayerInventory.getPlayedKnights() + 1);
+                            checkForLargestArmy(game);
                         }
                         break;
 
@@ -1119,6 +1113,30 @@ public class GameService extends AbstractService {
         }
     }
 
+    /**
+     * This method evaluates if a user gets the largest army card
+     * <p>
+     * This method gets invoked by the onResolveDevelopmentCardRequest method and creates an ArrayList with all user
+     * inventories from the right game. With the given inventories this method evaluates, who gets the largest army
+     * card.
+     *
+     * @param game current game that is played
+     * @author Carsten Dekker
+     * @since 2021-05-27
+     */
+    public void checkForLargestArmy(Game game) {
+        if (game.getInventoryWithLargestArmy() == null && game.getInventory(game.getUser(game.getTurn())).getPlayedKnights() > 2) {
+            game.getInventory(game.getUser(game.getTurn())).setLargestArmy(true);
+            game.setInventoryWithLargestArmy(game.getInventory(game.getUser(game.getTurn())));
+        } else if (game.getInventoryWithLargestArmy() != null) {
+            if (game.getInventory(game.getUser(game.getTurn())).getPlayedKnights() > game.getInventoryWithLargestArmy().getPlayedKnights()) {
+                if (!game.getUser(game.getTurn()).equals(game.getInventoryWithLargestArmy().getUser()))
+                    game.getInventoryWithLargestArmy().setLargestArmy(false);
+                game.setInventoryWithLargestArmy(game.getInventory(game.getUser(game.getTurn())));
+                game.getInventoryWithLargestArmy().setLargestArmy(true);
+            }
+        }
+    }
 
     /**
      * Method to update private and public inventories in a game
@@ -1219,7 +1237,6 @@ public class GameService extends AbstractService {
                 LOG.debug("Left " + i + lobbyString + " for User: " + userToLogOut.getUsername());
             }
         }
-
     }
 
     /**
