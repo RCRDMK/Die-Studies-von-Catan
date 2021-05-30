@@ -39,6 +39,8 @@ public class GameDTO implements Game {
     private final DevelopmentCardDeck developmentCardDeck = new DevelopmentCardDeck();
     private final ArrayList<MapGraph.BuildingNode> lastBuildingOfOpeningTurn = new ArrayList<>();
 
+    private Inventory inventoryWithLargestArmy = null;
+
     private Inventory inventory1;
     private Inventory inventory2;
     private Inventory inventory3;
@@ -326,12 +328,6 @@ public class GameDTO implements Game {
         this.mapGraph = mapGraph;
     }
 
-    //TODO: This method needs to be deleted as soon as the dependencies to the obsolete classes are fixed!!!
-    @Override
-    public GameField getGameField() {
-        return null;
-    }
-
     /**
      * adds a Trade to the game
      *
@@ -416,4 +412,13 @@ public class GameDTO implements Game {
         return this.rolledDiceThisTurn;
     }
 
+    @Override
+    public Inventory getInventoryWithLargestArmy() {
+        return inventoryWithLargestArmy;
+    }
+
+    @Override
+    public void setInventoryWithLargestArmy(Inventory inventoryWithLargestArmy) {
+        this.inventoryWithLargestArmy = inventoryWithLargestArmy;
+    }
 }
