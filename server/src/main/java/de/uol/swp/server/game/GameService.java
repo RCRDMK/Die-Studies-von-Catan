@@ -148,7 +148,6 @@ public class GameService extends AbstractService {
      * Handles incoming build requests.
      *
      * @param message Contains the data needed to change the mapGraph
-     *
      * @author Pieter Vogt
      * @since 2021-04-15
      */
@@ -207,7 +206,6 @@ public class GameService extends AbstractService {
      *
      * @param lobbyName Name of the lobby the players are in
      * @param message   the message to be send to the users
-     *
      * @author Marco Grawunder
      * @see de.uol.swp.common.message.ServerMessage
      * @since 2019-10-08
@@ -268,10 +266,10 @@ public class GameService extends AbstractService {
      * it sets the new inventory for the user. At the end we call the updateInventory method, to get the right inventory
      * back to the client.
      * enhanced by Anton Nikiforov
-     * @since 2021-05-19
      *
      * @param resourcesToDiscardRequest request with a hashmap(inventory), the game name and the user, that send it.
      * @author Marius Birk
+     * @since 2021-05-19
      * @since 2021-05-03
      */
     @Subscribe
@@ -377,10 +375,10 @@ public class GameService extends AbstractService {
      * coressponding hexagons. After that the method gives the second built buildings in the opening turn the resource.
      * <p>
      * enhanced by Anton Nikiforov
-     * @since 2021-05-19
      *
      * @param gameName Name of the Game
      * @author Philip Nitsche
+     * @since 2021-05-19
      * @since 2021-04-24
      */
     public void distributeResources(String gameName) {
@@ -423,11 +421,11 @@ public class GameService extends AbstractService {
      * rolled amount of eyes and increases the resource of the user by one(village), two(city).
      * <p>
      * enhanced by Anton Nikiforov
-     * @since 2021-05-19
      *
      * @param eyes     Number of eyes rolled with dice
      * @param gameName Name of the Game
      * @author Marius Birk, Carsten Dekker, Philip Nitsche
+     * @since 2021-05-19
      * @since 2021-04-06
      */
     public void distributeResources(int eyes, String gameName) {
@@ -474,13 +472,11 @@ public class GameService extends AbstractService {
      * Than if it's the first time where the bank gos empty for this resourceTyp,
      * it posts a chat message in the game.
      *
-     * @param game where we are
-     * @param user who wants the resource
+     * @param game        where we are
+     * @param user        who wants the resource
      * @param resourceTyp he wants
-     * @param amount of the resource
-     *
+     * @param amount      of the resource
      * @return success
-     *
      * @author Anton Nikiforov
      * @since 2012-05-19
      */
@@ -492,14 +488,13 @@ public class GameService extends AbstractService {
             if (bank.getNumberFromCardStack(resourceTyp) > 0) {
                 bank.decCardStack(resourceTyp, 1);
                 game.getInventory(user).incCardStack(resourceTyp, 1);
-            }
-            else break;
+            } else break;
         }
         if (firstTime) {
-                String chatMessage = resourceTyp + " storage is empty now";
-                String chatId = "game_" + game.getName();
-                ResponseChatMessage msg = new ResponseChatMessage(chatMessage, chatId, "Bank", System.currentTimeMillis());
-                post(msg);
+            String chatMessage = resourceTyp + " storage is empty now";
+            String chatId = "game_" + game.getName();
+            ResponseChatMessage msg = new ResponseChatMessage(chatMessage, chatId, "Bank", System.currentTimeMillis());
+            post(msg);
         }
         return success;
     }
@@ -512,26 +507,23 @@ public class GameService extends AbstractService {
      * Than if the bank was empty for this resourceTyp, it posts a chat message in the game
      * that the resource storage is now filled.
      *
-     * @param game where we are
-     * @param user who wants to give the resource
+     * @param game        where we are
+     * @param user        who wants to give the resource
      * @param resourceTyp he wants to give
-     * @param amount of the resource
-     *
+     * @param amount      of the resource
      * @return success
-     *
      * @author Anton Nikiforov
      * @since 2012-04-09
      */
     public boolean takeResource(Game game, User user, String resourceTyp, int amount) {
         Inventory bank = game.getBankInventory();
-        boolean success = game.getInventory(user).getNumberFromCardStack(resourceTyp)  >= amount;
+        boolean success = game.getInventory(user).getNumberFromCardStack(resourceTyp) >= amount;
         boolean wasEmpty = bank.getNumberFromCardStack(resourceTyp) == 0 && amount > 0;
         for (int i = amount; i > 0; i--) {
             if (game.getInventory(user).getNumberFromCardStack(resourceTyp) > 0) {
                 game.getInventory(user).decCardStack(resourceTyp, 1);
                 bank.incCardStack(resourceTyp, 1);
-            }
-            else break;
+            } else break;
         }
         if (wasEmpty) {
             String chatMessage = resourceTyp + " storage is now filled";
@@ -972,7 +964,6 @@ public class GameService extends AbstractService {
      * resolution was successful. If something went wrong, inform the turnPlayer so that he may try again.
      * <p>
      * enhanced by Anton Nikiforov "Year of Plenty" bank
-
      *
      * @param request the ResolveDevelopmentCardRequest sent from the client
      * @author Marc Hermes
@@ -1101,7 +1092,7 @@ public class GameService extends AbstractService {
                             game.setCurrentCard("");
                             sendToAllInGame(gameName, message);
                             turnPlayerInventory.setPlayedKnights(turnPlayerInventory.getPlayedKnights() + 1);
-                            checkForLargestArmy(knightRequest);
+                            checkForLargestArmy(game);
                         }
                         break;
 
@@ -1123,153 +1114,151 @@ public class GameService extends AbstractService {
      * inventories from the right game. With the given inventories this method evaluates, who gets the largest army
      * card.
      *
-     * @param knightRequest the ResolveDevelopmentCardKnightRequest passed by the onResolveDevelopmentCardRequest method
+     * @param game current game that is played
      * @author Carsten Dekker
      * @since 2021-05-27
      */
-    public void checkForLargestArmy(ResolveDevelopmentCardKnightRequest knightRequest) {
-        Optional <Game> optionalGame = gameManagement.getGame(knightRequest.getName());
-        if(optionalGame.isPresent()) {
-            Game game = optionalGame.get();
-            ArrayList<Inventory> inventories = game.getInventoriesArrayList();
-            for (Inventory inventory : inventories) {
-                if (inventory.getPlayedKnights() < game.getLargestArmy()) {
-                    inventory.setLargestArmy(false);
-                } else if (inventory.getPlayedKnights() > game.getLargestArmy()) {
-                    inventory.setLargestArmy(true);
-                    game.setLargestArmy(inventory.getPlayedKnights());
+    public void checkForLargestArmy(Game game) {
+        if (game.getInventoryWithLargestArmy() == null && game.getInventory(game.getUser(game.getTurn())).getPlayedKnights() > 2) {
+            game.getInventory(game.getUser(game.getTurn())).setLargestArmy(true);
+            game.setInventoryWithLargestArmy(game.getInventory(game.getUser(game.getTurn())));
+        } else if (game.getInventoryWithLargestArmy() != null) {
+            if (game.getInventory(game.getUser(game.getTurn())).getPlayedKnights() > game.getInventoryWithLargestArmy().getPlayedKnights()) {
+                if (!game.getUser(game.getTurn()).equals(game.getInventoryWithLargestArmy().getUser()))
+                    game.getInventoryWithLargestArmy().setLargestArmy(false);
+                game.setInventoryWithLargestArmy(game.getInventory(game.getUser(game.getTurn())));
+                game.getInventoryWithLargestArmy().setLargestArmy(true);
+            }
+        }
+    }
+
+        /**
+         * Method to update private and public inventories in a game
+         * <p>
+         * If game exists, method sends two types of messages with updated information about inventories.
+         * PrivateInventoryChangeMessage is send to specific player in the game. PublicInventoryChangeMessage is send to all
+         * players in the game.
+         * Also checks if a player has more than 10 victory points and then sends a GameFinishedMessage to all players in the game
+         * This is done here because the win instantly gets triggered and not only when a player ends his turn
+         * <p>
+         * enhanced by Carsten Dekker ,Marc Johannes Hermes, Marius Birk, Iskander Yusupov
+         *
+         * @since 2021-05-07
+         * enhanced by René Meyer
+         *
+         * @param game game that wants to update private and public inventories
+         * @author Iskander Yusupov, Anton Nikiforov
+         * @since 2021-05-07
+         * @since 2021-04-08
+         */
+        public void updateInventory (Game game){
+            for (User user : game.getUsers()) {
+                HashMap<String, Integer> privateInventory = game.getInventory(user).getPrivateView();
+                PrivateInventoryChangeMessage privateInventoryChangeMessage = new PrivateInventoryChangeMessage(game.getName(), user, privateInventory);
+                sendToSpecificUserInGame(privateInventoryChangeMessage, user);
+                var inventory = game.getInventory(user);
+                // If user has 10 victory points, he wins and the Summary Screen gets shown for every user in the game.
+                if (inventory.getVictoryPoints() >= 10) {
+                    //Retrieve all stats
+                    //Retrieve inventories from all users
+                    var inventories = game.getInventoriesArrayList();
+                    //Create statsDTO object
+                    var statsDTO = new StatsDTO(game.getName(), user.getUsername(), game.getTradeList().size(), game.getOverallTurns(), inventories);
+                    //Send GameFinishedMessage to all users in game
+                    sendToAllInGame(game.getName(), new GameFinishedMessage(statsDTO));
+                    LOG.debug("User " + user.getUsername() + " has atleast 10 victory points and won.");
                 }
             }
-        }
-    }
-
-    /**
-     * Method to update private and public inventories in a game
-     * <p>
-     * If game exists, method sends two types of messages with updated information about inventories.
-     * PrivateInventoryChangeMessage is send to specific player in the game. PublicInventoryChangeMessage is send to all
-     * players in the game.
-     * Also checks if a player has more than 10 victory points and then sends a GameFinishedMessage to all players in the game
-     * This is done here because the win instantly gets triggered and not only when a player ends his turn
-     * <p>
-     * enhanced by Carsten Dekker ,Marc Johannes Hermes, Marius Birk, Iskander Yusupov
-     *
-     * @since 2021-05-07
-     * enhanced by René Meyer
-     *
-     * @param game game that wants to update private and public inventories
-     * @author Iskander Yusupov, Anton Nikiforov
-     * @since 2021-05-07
-     * @since 2021-04-08
-     */
-    public void updateInventory(Game game) {
-        for (User user : game.getUsers()) {
-            HashMap<String, Integer> privateInventory = game.getInventory(user).getPrivateView();
-            PrivateInventoryChangeMessage privateInventoryChangeMessage = new PrivateInventoryChangeMessage(game.getName(), user, privateInventory);
-            sendToSpecificUserInGame(privateInventoryChangeMessage, user);
-            var inventory = game.getInventory(user);
-            // If user has 10 victory points, he wins and the Summary Screen gets shown for every user in the game.
-            if (inventory.getVictoryPoints() >= 10) {
-                //Retrieve all stats
-                //Retrieve inventories from all users
-                var inventories = game.getInventoriesArrayList();
-                //Create statsDTO object
-                var statsDTO = new StatsDTO(game.getName(), user.getUsername(), game.getTradeList().size(), game.getOverallTurns(), inventories);
-                //Send GameFinishedMessage to all users in game
-                sendToAllInGame(game.getName(), new GameFinishedMessage(statsDTO));
-                LOG.debug("User " + user.getUsername() + " has atleast 10 victory points and won.");
+            ArrayList<HashMap<String, Integer>> publicInventories = new ArrayList<>();
+            for (User user : game.getUsersList()) {
+                publicInventories.add(game.getInventory(user).getPublicView());
             }
+            PublicInventoryChangeMessage publicInventoryChangeMessage = new PublicInventoryChangeMessage(game.getName(), publicInventories);
+            sendToAllInGame(game.getName(), publicInventoryChangeMessage);
         }
-        ArrayList<HashMap<String, Integer>> publicInventories = new ArrayList<>();
-        for (User user : game.getUsersList()) {
-            publicInventories.add(game.getInventory(user).getPublicView());
+
+        /**
+         * Returns the gameManagement
+         *
+         * @return the gameManagement
+         */
+        public GameManagement getGameManagement () {
+            return this.gameManagement;
         }
-        PublicInventoryChangeMessage publicInventoryChangeMessage = new PublicInventoryChangeMessage(game.getName(), publicInventories);
-        sendToAllInGame(game.getName(), publicInventoryChangeMessage);
-    }
 
-    /**
-     * Returns the gameManagement
-     *
-     * @return the gameManagement
-     */
-    public GameManagement getGameManagement() {
-        return this.gameManagement;
-    }
-
-    /**
-     * Handles LogoutRequests found on the EventBus
-     * <p>
-     * If a LogoutRequest is detected on the EventBus, this method is called. It gets all games from the GameManagement
-     * and loops through them. If the user is part of a game, he gets removed from it. If he is the last user in the
-     * game, the game gets dropped. Finally we log how many games the user left.
-     *
-     * @param request LogoutRequest found on the eventBus
-     * @author René Meyer, Sergej Tulnev
-     * @see de.uol.swp.common.user.request.LogoutRequest
-     * @see de.uol.swp.common.game.request.GameLeaveUserRequest
-     * @see de.uol.swp.server.lobby.LobbyService
-     * @since 2021-04-08
-     */
-    @Subscribe
-    public void onLogoutRequest(LogoutRequest request) {
-        if (request.getSession().isPresent()) {
-            Session session = request.getSession().get();
-            var userToLogOut = session.getUser();
-            // Could be already logged out
-            if (userToLogOut != null) {
-                var games = gameManagement.getAllGames();
-                // Create gamesCopy because of ConcurrentModificationException,
-                // so it doesn't matter when in the meantime the games Object gets modified, while we still loop through it
-                var gamesCopy = games.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-                // Loop games
-                Iterator<Map.Entry<String, Game>> it = gamesCopy.entrySet().iterator();
-                var i = 0;
-                while (it.hasNext()) {
-                    Map.Entry<String, Game> entry = it.next();
-                    Game game = entry.getValue();
-                    if (game.getUsers().contains(userToLogOut)) {
-                        // leave every game the user is part of
-                        var gameLeaveUserRequest = new GameLeaveUserRequest(game.getName(), (UserDTO) userToLogOut);
-                        if (request.getMessageContext().isPresent()) {
-                            gameLeaveUserRequest.setMessageContext(request.getMessageContext().get());
-                            this.onGameLeaveUserRequest(gameLeaveUserRequest);
+        /**
+         * Handles LogoutRequests found on the EventBus
+         * <p>
+         * If a LogoutRequest is detected on the EventBus, this method is called. It gets all games from the GameManagement
+         * and loops through them. If the user is part of a game, he gets removed from it. If he is the last user in the
+         * game, the game gets dropped. Finally we log how many games the user left.
+         *
+         * @param request LogoutRequest found on the eventBus
+         * @author René Meyer, Sergej Tulnev
+         * @see de.uol.swp.common.user.request.LogoutRequest
+         * @see de.uol.swp.common.game.request.GameLeaveUserRequest
+         * @see de.uol.swp.server.lobby.LobbyService
+         * @since 2021-04-08
+         */
+        @Subscribe
+        public void onLogoutRequest (LogoutRequest request){
+            if (request.getSession().isPresent()) {
+                Session session = request.getSession().get();
+                var userToLogOut = session.getUser();
+                // Could be already logged out
+                if (userToLogOut != null) {
+                    var games = gameManagement.getAllGames();
+                    // Create gamesCopy because of ConcurrentModificationException,
+                    // so it doesn't matter when in the meantime the games Object gets modified, while we still loop through it
+                    var gamesCopy = games.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+                    // Loop games
+                    Iterator<Map.Entry<String, Game>> it = gamesCopy.entrySet().iterator();
+                    var i = 0;
+                    while (it.hasNext()) {
+                        Map.Entry<String, Game> entry = it.next();
+                        Game game = entry.getValue();
+                        if (game.getUsers().contains(userToLogOut)) {
+                            // leave every game the user is part of
+                            var gameLeaveUserRequest = new GameLeaveUserRequest(game.getName(), (UserDTO) userToLogOut);
+                            if (request.getMessageContext().isPresent()) {
+                                gameLeaveUserRequest.setMessageContext(request.getMessageContext().get());
+                                this.onGameLeaveUserRequest(gameLeaveUserRequest);
+                            }
                         }
+                        i++;
                     }
-                    i++;
+                    var lobbyString = i > 1 ? " games" : " game";
+                    LOG.debug("Left " + i + lobbyString + " for User: " + userToLogOut.getUsername());
                 }
-                var lobbyString = i > 1 ? " games" : " game";
-                LOG.debug("Left " + i + lobbyString + " for User: " + userToLogOut.getUsername());
             }
+
         }
 
-    }
-
-    /**
-     * either initiates a new trade or adds a bid to an existing trade
-     * <p>
-     * the method checks if the user has enough items in his inventory
-     * if check not successful the methods sends an error message to the user
-     * if successful the method checks if the String tradeCode already exists
-     * if the tradeCode does not exists, the methods initiates a new trade. The user who send the TradeItemRequest becomes the seller
-     * the method sends TradeOfferInformBiddersMessage to the other users in the game, informing about them new trade
-     * if the tradeCOde does exists, the method adds a new bidder to the specified trade
-     * if all users, who are not the seller) have send their bid, the method informs the seller about the the offers(TradeInformSellerAboutBidsMessage)
-     *
-     * @param request TradeItemRequest
-     * @author Alexander Losse, Ricardo Mook
-     * @see TradeItem
-     * @see Trade
-     * @see TradeItemRequest
-     * @see TradeOfferInformBiddersMessage
-     * @see TradeInformSellerAboutBidsMessage
-     * @since 2021-04-11
-     */
-    @Subscribe
-    public void onTradeItemRequest(TradeItemRequest request) {
-        System.out.println("Got message " + request.getUser().getUsername());
-        Optional<Game> optionalGame = gameManagement.getGame(request.getName());
-        // TODO: Wird nur zum testen verwendet
+        /**
+         * either initiates a new trade or adds a bid to an existing trade
+         * <p>
+         * the method checks if the user has enough items in his inventory
+         * if check not successful the methods sends an error message to the user
+         * if successful the method checks if the String tradeCode already exists
+         * if the tradeCode does not exists, the methods initiates a new trade. The user who send the TradeItemRequest becomes the seller
+         * the method sends TradeOfferInformBiddersMessage to the other users in the game, informing about them new trade
+         * if the tradeCOde does exists, the method adds a new bidder to the specified trade
+         * if all users, who are not the seller) have send their bid, the method informs the seller about the the offers(TradeInformSellerAboutBidsMessage)
+         *
+         * @param request TradeItemRequest
+         * @author Alexander Losse, Ricardo Mook
+         * @see TradeItem
+         * @see Trade
+         * @see TradeItemRequest
+         * @see TradeOfferInformBiddersMessage
+         * @see TradeInformSellerAboutBidsMessage
+         * @since 2021-04-11
+         */
+        @Subscribe
+        public void onTradeItemRequest (TradeItemRequest request){
+            System.out.println("Got message " + request.getUser().getUsername());
+            Optional<Game> optionalGame = gameManagement.getGame(request.getName());
+            // TODO: Wird nur zum testen verwendet
       /*  game.get().getInventory(request.getUser()).incCardStack("Lumber", 10);
         game.get().getInventory(request.getUser()).incCardStack("Ore", 10);
         game.get().getInventory(request.getUser()).incCardStack("Wool", 10);
@@ -1277,217 +1266,219 @@ public class GameService extends AbstractService {
         game.get().getInventory(request.getUser()).incCardStack("Brick", 10);
         Inventory easyPrüfen = game.get().getInventory(request.getUser());
 */
-        if (optionalGame.isPresent()) {
-            Game game = optionalGame.get();
-            boolean numberOfCardsCorrect = true;
+            if (optionalGame.isPresent()) {
+                Game game = optionalGame.get();
+                boolean numberOfCardsCorrect = true;
 
-            for (TradeItem tradeItem : request.getTradeItems()) {
-                boolean notEnoughInInventoryCheck = tradeItem.getCount() > game.getInventory(request.getUser()).getPrivateView().get(tradeItem.getName());
-                if (tradeItem.getCount() < 0 || notEnoughInInventoryCheck) {
-                    numberOfCardsCorrect = false;
-                    break;
+                for (TradeItem tradeItem : request.getTradeItems()) {
+                    boolean notEnoughInInventoryCheck = tradeItem.getCount() > game.getInventory(request.getUser()).getPrivateView().get(tradeItem.getName());
+                    if (tradeItem.getCount() < 0 || notEnoughInInventoryCheck) {
+                        numberOfCardsCorrect = false;
+                        break;
+                    }
                 }
-            }
 
-            if (numberOfCardsCorrect) {
-                String tradeCode = request.getTradeCode();
-                if (!game.getTradeList().containsKey(tradeCode)) {
-                    game.addTrades(new Trade(request.getUser(), request.getTradeItems()), tradeCode);
+                if (numberOfCardsCorrect) {
+                    String tradeCode = request.getTradeCode();
+                    if (!game.getTradeList().containsKey(tradeCode)) {
+                        game.addTrades(new Trade(request.getUser(), request.getTradeItems()), tradeCode);
 
-                    System.out.println("added Trade " + tradeCode + " by User: " + request.getUser().getUsername() + " items: " + request.getTradeItems());
+                        System.out.println("added Trade " + tradeCode + " by User: " + request.getUser().getUsername() + " items: " + request.getTradeItems());
 
-                    for (User user : game.getUsers()) {
-                        if (!request.getUser().equals(user)) {
-                            TradeOfferInformBiddersMessage tradeOfferInformBiddersMessage = new TradeOfferInformBiddersMessage(request.getUser(), request.getName(), tradeCode, request.getTradeItems(), (UserDTO) user, request.getWishItems());
-                            sendToSpecificUserInGame(tradeOfferInformBiddersMessage, user);
-                            System.out.println("Send TradeOfferInformBiddersMessage to " + user.getUsername());
+                        for (User user : game.getUsers()) {
+                            if (!request.getUser().equals(user)) {
+                                TradeOfferInformBiddersMessage tradeOfferInformBiddersMessage = new TradeOfferInformBiddersMessage(request.getUser(), request.getName(), tradeCode, request.getTradeItems(), (UserDTO) user, request.getWishItems());
+                                sendToSpecificUserInGame(tradeOfferInformBiddersMessage, user);
+                                System.out.println("Send TradeOfferInformBiddersMessage to " + user.getUsername());
+                            }
+                        }
+                    } else {
+                        Trade trade = game.getTradeList().get(request.getTradeCode());
+                        trade.addBid(request.getUser(), request.getTradeItems());
+                        System.out.println("added bid to " + tradeCode + " by User: " + request.getUser().getUsername() + " items: " + request.getTradeItems());
+                        if (trade.getBids().size() == game.getUsers().size() - 1) {
+                            System.out.println("bids full");
+                            TradeInformSellerAboutBidsMessage tisabm = new TradeInformSellerAboutBidsMessage(trade.getSeller(), request.getName(), tradeCode, trade.getBidders(), trade.getBids());
+                            // TODO: everything trade related for the AI
+                            // useAI((GameDTO) game.get());
+                            sendToSpecificUserInGame(tisabm, trade.getSeller());
+                            System.out.println("Send TradeInformSellerAboutBidsMessage to " + trade.getSeller().getUsername());
                         }
                     }
                 } else {
-                    Trade trade = game.getTradeList().get(request.getTradeCode());
-                    trade.addBid(request.getUser(), request.getTradeItems());
-                    System.out.println("added bid to " + tradeCode + " by User: " + request.getUser().getUsername() + " items: " + request.getTradeItems());
-                    if (trade.getBids().size() == game.getUsers().size() - 1) {
-                        System.out.println("bids full");
-                        TradeInformSellerAboutBidsMessage tisabm = new TradeInformSellerAboutBidsMessage(trade.getSeller(), request.getName(), tradeCode, trade.getBidders(), trade.getBids());
-                        // TODO: everything trade related for the AI
-                        // useAI((GameDTO) game.get());
-                        sendToSpecificUserInGame(tisabm, trade.getSeller());
-                        System.out.println("Send TradeInformSellerAboutBidsMessage to " + trade.getSeller().getUsername());
+                    System.out.println("Nicht genug im Inventar");
+                    TradeCardErrorMessage tcem = new TradeCardErrorMessage(request.getUser(), request.getName(), request.getTradeCode());
+                    sendToSpecificUserInGame(tcem, request.getUser());
+                }
+                updateInventory(game);
+            }
+        }
+
+
+        /**
+         * finalises the trade
+         * <p>
+         * if a bid was accepted by the seller
+         * trades the items between the users
+         * if rejected, nothing happens
+         * calls tradeEndedChatMessageHelper to inform the players about the result of the trade
+         * TradeEndedMessage is send to all player in game
+         * the specified trade is removed from the game
+         *
+         * @param request TradeChoiceRequest containing the choice the seller made
+         * @author Alexander Losse, Ricardo Mook
+         * @since 2021-04-13
+         */
+        @Subscribe
+        public void onTradeChoiceRequest (TradeChoiceRequest request){
+            Optional<Game> optionalGame = gameManagement.getGame(request.getName());
+            if (optionalGame.isPresent()) {
+                Game game = optionalGame.get();
+                Trade trade = game.getTradeList().get(request.getTradeCode());
+
+                if (request.getTradeAccepted() && !request.getUser().getUsername().equals(trade.getSeller().getUsername())) {
+                    Inventory inventorySeller = game.getInventory(trade.getSeller());
+                    Inventory inventoryBidder = game.getInventory(request.getUser());
+
+                    for (TradeItem soldItem : trade.getSellingItems()) {
+                        inventorySeller.decCardStack(soldItem.getName(), soldItem.getCount());
+                        inventoryBidder.incCardStack(soldItem.getName(), soldItem.getCount());
+                    }
+                    for (TradeItem bidItem : trade.getBids().get(request.getUser())) {
+                        inventorySeller.incCardStack(bidItem.getName(), bidItem.getCount());
+                        inventoryBidder.decCardStack(bidItem.getName(), bidItem.getCount());
                     }
                 }
-            } else {
-                System.out.println("Nicht genug im Inventar");
-                TradeCardErrorMessage tcem = new TradeCardErrorMessage(request.getUser(), request.getName(), request.getTradeCode());
-                sendToSpecificUserInGame(tcem, request.getUser());
+                tradeEndedChatMessageHelper(game.getName(), request.getTradeCode(), request.getUser().getUsername(), request.getTradeAccepted());
+                sendToAllInGame(request.getName(), new TradeEndedMessage(request.getTradeCode()));
+                game.removeTrade(request.getTradeCode());
+                updateInventory(game);
             }
-            updateInventory(game);
         }
-    }
 
-
-    /**
-     * finalises the trade
-     * <p>
-     * if a bid was accepted by the seller
-     * trades the items between the users
-     * if rejected, nothing happens
-     * calls tradeEndedChatMessageHelper to inform the players about the result of the trade
-     * TradeEndedMessage is send to all player in game
-     * the specified trade is removed from the game
-     *
-     * @param request TradeChoiceRequest containing the choice the seller made
-     * @author Alexander Losse, Ricardo Mook
-     * @since 2021-04-13
-     */
-    @Subscribe
-    public void onTradeChoiceRequest(TradeChoiceRequest request) {
-        Optional<Game> optionalGame = gameManagement.getGame(request.getName());
-        if (optionalGame.isPresent()) {
-            Game game = optionalGame.get();
-            Trade trade = game.getTradeList().get(request.getTradeCode());
-
-            if (request.getTradeAccepted() && !request.getUser().getUsername().equals(trade.getSeller().getUsername())) {
-                Inventory inventorySeller = game.getInventory(trade.getSeller());
-                Inventory inventoryBidder = game.getInventory(request.getUser());
-
-                for (TradeItem soldItem : trade.getSellingItems()) {
-                    inventorySeller.decCardStack(soldItem.getName(), soldItem.getCount());
-                    inventoryBidder.incCardStack(soldItem.getName(), soldItem.getCount());
-                }
-                for (TradeItem bidItem : trade.getBids().get(request.getUser())) {
-                    inventorySeller.incCardStack(bidItem.getName(), bidItem.getCount());
-                    inventoryBidder.decCardStack(bidItem.getName(), bidItem.getCount());
-                }
-            }
-            tradeEndedChatMessageHelper(game.getName(), request.getTradeCode(), request.getUser().getUsername(), request.getTradeAccepted());
-            sendToAllInGame(request.getName(), new TradeEndedMessage(request.getTradeCode()));
-            game.removeTrade(request.getTradeCode());
-            updateInventory(game);
-        }
-    }
-
-    /**
-     * help method to deliver a chatMessage to all players of the game how the trade ended
-     *
-     * @param gameName     the game name
-     * @param tradeCode    the trade code
-     * @param winnerBidder the winners name
-     * @param success      bool if successful or not
-     *
-     * @author Alexander Losse, Ricardo Mook
-     * @since 2021-04-11
-     */
-    private void tradeEndedChatMessageHelper(String gameName, String tradeCode, String winnerBidder, Boolean success) {
-        try {
-            String chatMessage;
-            var chatId = "game_" + gameName;
-            if (success) {
-                chatMessage = "The offer from Player " + winnerBidder + " was accepted at trade: " + tradeCode;
-            } else {
-                chatMessage = "None of the bids was accepted. Sorry! :(";
-            }
-            ResponseChatMessage msg = new ResponseChatMessage(chatMessage, chatId, "TradeInfo", System.currentTimeMillis());
-            post(msg);
-            LOG.debug("Posted ResponseChatMessage on eventBus");
-        } catch (Exception e) {
-            LOG.debug(e);
-        }
-    }
-
-    /**
-     * sends tradeStartedMessage to the seller when his request to start a trade is handled by the server
-     *
-     * @param request TradeStartRequest
-     * @author Alexander Losse, Ricardo Mook
-     * @see TradeStartRequest
-     * @since 2021-04-11
-     */
-    @Subscribe
-    public void onTradeStartedRequest(TradeStartRequest request) {
-        UserDTO user = request.getUser();
-        TradeStartedMessage tsm = new TradeStartedMessage(user, request.getName(), request.getTradeCode());
-        sendToSpecificUserInGame(tsm, user);
-    }
-
-    /**
-     * Draws a random card from the user, that was chosen from the player that moved the robber.
-     * <p>
-     * If a DrawRandomResourceFromPlayerMessage is detected on the eventbus, this method will be invoked. First the
-     * method checks if the game is present and then gets the inventory of the user, from who the card will be drawn.
-     * After that, a random resource will be chosen and the method iterates over the inventory in search of the
-     * random resource. If it found the method, the number of the resource will be decreased and the resource will
-     * be increased in the inventory of the player that moved the robber.
-     *
-     * @param drawRandomResourceFromPlayerMessage the drawRandomResourceFromPlayerMessage detected on the event bus
-     * @author Marius Birk
-     * @since 2021-05-01
-     */
-    @Subscribe
-    public void onDrawRandomResourceFromPlayerMessage(DrawRandomResourceFromPlayerMessage drawRandomResourceFromPlayerMessage) {
-        Optional<Game> optionalGame = gameManagement.getGame(drawRandomResourceFromPlayerMessage.getName());
-        if (optionalGame.isPresent()) {
-            Game game = optionalGame.get();
-            HashMap<String, Integer> inventory = game.getInventory(new UserDTO(drawRandomResourceFromPlayerMessage.getChosenName(), "", "")).getPrivateView();
-            String random = randomResource(inventory);
-            game.getInventory(new UserDTO(drawRandomResourceFromPlayerMessage.getChosenName(), "", "")).decCardStack(random, 1);
-            game.getInventory(drawRandomResourceFromPlayerMessage.getUser()).incCardStack(random, 1);
-            updateInventory(game);
-
-            //Nachdem eine Karte gezogen wurde darf jeder mit mehr als 7 Ressourcen die Hälfte ablegen
-            tooMuchResources(game);
-        }
-    }
-
-    /**
-     * This method checks if the users have more than 7 resources.
-     * <p>
-     * This method checks if the users have more than 7 resources and sends the user a tooMuchResourceCardMessage.
-     * For every user in the game, the method checks if the user has more than 7 resource cards. If this is true,
-     * it checks if the number of resources is even or uneven and sends a TooMuchResourceCardsMessage to every specfic user.
-     *
-     * @param game Game that the users play
-     *
-     * @author Marius Birk
-     * @since 2021-05-13
-     */
-    public void tooMuchResources(Game game) {
-        for (User user : game.getUsers()) {
-            if (game.getInventory(user).sumResource() >= 7) {
-                if (game.getInventory(user).sumResource() % 2 != 0) {
-                    TooMuchResourceCardsMessage tooMuchResourceCardsMessage = new TooMuchResourceCardsMessage(game.getName(), (UserDTO) user, ((game.getInventory(user).sumResource() - 1) / 2), game.getInventory(user).getPrivateView());
-                    sendToSpecificUserInGame(tooMuchResourceCardsMessage, user);
+        /**
+         * help method to deliver a chatMessage to all players of the game how the trade ended
+         *
+         * @param gameName     the game name
+         * @param tradeCode    the trade code
+         * @param winnerBidder the winners name
+         * @param success      bool if successful or not
+         *
+         * @author Alexander Losse, Ricardo Mook
+         * @since 2021-04-11
+         */
+        private void tradeEndedChatMessageHelper (String gameName, String tradeCode, String winnerBidder, Boolean
+        success){
+            try {
+                String chatMessage;
+                var chatId = "game_" + gameName;
+                if (success) {
+                    chatMessage = "The offer from Player " + winnerBidder + " was accepted at trade: " + tradeCode;
                 } else {
-                    TooMuchResourceCardsMessage tooMuchResourceCardsMessage = new TooMuchResourceCardsMessage(game.getName(), (UserDTO) user, (game.getInventory(user).sumResource() / 2), game.getInventory(user).getPrivateView());
-                    sendToSpecificUserInGame(tooMuchResourceCardsMessage, user);
+                    chatMessage = "None of the bids was accepted. Sorry! :(";
+                }
+                ResponseChatMessage msg = new ResponseChatMessage(chatMessage, chatId, "TradeInfo", System.currentTimeMillis());
+                post(msg);
+                LOG.debug("Posted ResponseChatMessage on eventBus");
+            } catch (Exception e) {
+                LOG.debug(e);
+            }
+        }
+
+        /**
+         * sends tradeStartedMessage to the seller when his request to start a trade is handled by the server
+         *
+         * @param request TradeStartRequest
+         * @author Alexander Losse, Ricardo Mook
+         * @see TradeStartRequest
+         * @since 2021-04-11
+         */
+        @Subscribe
+        public void onTradeStartedRequest (TradeStartRequest request){
+            UserDTO user = request.getUser();
+            TradeStartedMessage tsm = new TradeStartedMessage(user, request.getName(), request.getTradeCode());
+            sendToSpecificUserInGame(tsm, user);
+        }
+
+        /**
+         * Draws a random card from the user, that was chosen from the player that moved the robber.
+         * <p>
+         * If a DrawRandomResourceFromPlayerMessage is detected on the eventbus, this method will be invoked. First the
+         * method checks if the game is present and then gets the inventory of the user, from who the card will be drawn.
+         * After that, a random resource will be chosen and the method iterates over the inventory in search of the
+         * random resource. If it found the method, the number of the resource will be decreased and the resource will
+         * be increased in the inventory of the player that moved the robber.
+         *
+         * @param drawRandomResourceFromPlayerMessage the drawRandomResourceFromPlayerMessage detected on the event bus
+         * @author Marius Birk
+         * @since 2021-05-01
+         */
+        @Subscribe
+        public void onDrawRandomResourceFromPlayerMessage (DrawRandomResourceFromPlayerMessage
+        drawRandomResourceFromPlayerMessage){
+            Optional<Game> optionalGame = gameManagement.getGame(drawRandomResourceFromPlayerMessage.getName());
+            if (optionalGame.isPresent()) {
+                Game game = optionalGame.get();
+                HashMap<String, Integer> inventory = game.getInventory(new UserDTO(drawRandomResourceFromPlayerMessage.getChosenName(), "", "")).getPrivateView();
+                String random = randomResource(inventory);
+                game.getInventory(new UserDTO(drawRandomResourceFromPlayerMessage.getChosenName(), "", "")).decCardStack(random, 1);
+                game.getInventory(drawRandomResourceFromPlayerMessage.getUser()).incCardStack(random, 1);
+                updateInventory(game);
+
+                //Nachdem eine Karte gezogen wurde darf jeder mit mehr als 7 Ressourcen die Hälfte ablegen
+                tooMuchResources(game);
+            }
+        }
+
+        /**
+         * This method checks if the users have more than 7 resources.
+         * <p>
+         * This method checks if the users have more than 7 resources and sends the user a tooMuchResourceCardMessage.
+         * For every user in the game, the method checks if the user has more than 7 resource cards. If this is true,
+         * it checks if the number of resources is even or uneven and sends a TooMuchResourceCardsMessage to every specfic user.
+         *
+         * @param game Game that the users play
+         *
+         * @author Marius Birk
+         * @since 2021-05-13
+         */
+        public void tooMuchResources (Game game){
+            for (User user : game.getUsers()) {
+                if (game.getInventory(user).sumResource() >= 7) {
+                    if (game.getInventory(user).sumResource() % 2 != 0) {
+                        TooMuchResourceCardsMessage tooMuchResourceCardsMessage = new TooMuchResourceCardsMessage(game.getName(), (UserDTO) user, ((game.getInventory(user).sumResource() - 1) / 2), game.getInventory(user).getPrivateView());
+                        sendToSpecificUserInGame(tooMuchResourceCardsMessage, user);
+                    } else {
+                        TooMuchResourceCardsMessage tooMuchResourceCardsMessage = new TooMuchResourceCardsMessage(game.getName(), (UserDTO) user, (game.getInventory(user).sumResource() / 2), game.getInventory(user).getPrivateView());
+                        sendToSpecificUserInGame(tooMuchResourceCardsMessage, user);
+                    }
                 }
             }
         }
-    }
 
-    /**
-     * The method chooses a random resource from given inventory and returns it.
-     * <p>
-     * This method will be invoked, if the name of a random resource from given inventory is needed. For that, it creates a List of resources from the given inventory
-     * and initializes a random number. To get now a random name of resource, we substrate 1 and
-     * invoke the get() method of the List and return that value.
-     * <p>
-     * enhanced by Anton Nikiforov "Year of Plenty" bank
-     *
-     * @param inventory form Player
-     *
-     * @return the name of a resource
-     * @author Marius Birk
-     * @since 2021-04-29
-     * @since 2021-05-23
-     */
-    public String randomResource(HashMap<String, Integer> inventory) {
-        List<String> resources = new ArrayList<>();
-        if (inventory.get("Lumber") > 0) resources.add("Lumber");
-        if (inventory.get("Brick") > 0) resources.add("Brick");
-        if (inventory.get("Grain") > 0) resources.add("Grain");
-        if (inventory.get("Wool") > 0) resources.add("Wool");
-        if (inventory.get("Ore") > 0) resources.add("Ore");
-        return resources.get((int) (Math.random() * resources.size()));
+        /**
+         * The method chooses a random resource from given inventory and returns it.
+         * <p>
+         * This method will be invoked, if the name of a random resource from given inventory is needed. For that, it creates a List of resources from the given inventory
+         * and initializes a random number. To get now a random name of resource, we substrate 1 and
+         * invoke the get() method of the List and return that value.
+         * <p>
+         * enhanced by Anton Nikiforov "Year of Plenty" bank
+         *
+         * @param inventory form Player
+         *
+         * @return the name of a resource
+         * @author Marius Birk
+         * @since 2021-04-29
+         * @since 2021-05-23
+         */
+        public String randomResource (HashMap < String, Integer > inventory){
+            List<String> resources = new ArrayList<>();
+            if (inventory.get("Lumber") > 0) resources.add("Lumber");
+            if (inventory.get("Brick") > 0) resources.add("Brick");
+            if (inventory.get("Grain") > 0) resources.add("Grain");
+            if (inventory.get("Wool") > 0) resources.add("Wool");
+            if (inventory.get("Ore") > 0) resources.add("Ore");
+            return resources.get((int) (Math.random() * resources.size()));
+        }
     }
-}

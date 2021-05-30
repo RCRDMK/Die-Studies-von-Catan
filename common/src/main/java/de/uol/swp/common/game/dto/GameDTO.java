@@ -38,7 +38,8 @@ public class GameDTO implements Game {
     private int lastRolledDiceValue = 0;
     private final DevelopmentCardDeck developmentCardDeck = new DevelopmentCardDeck();
     private final ArrayList<MapGraph.BuildingNode> lastBuildingOfOpeningTurn = new ArrayList<>();
-    private int largestArmy = 2;
+
+    private Inventory inventoryWithLargestArmy = null;
 
     private Inventory inventory1;
     private Inventory inventory2;
@@ -412,12 +413,12 @@ public class GameDTO implements Game {
     }
 
     @Override
-    public int getLargestArmy() {
-        return largestArmy;
+    public Inventory getInventoryWithLargestArmy() {
+        return inventoryWithLargestArmy;
     }
 
     @Override
-    public void setLargestArmy(int largestArmy) {
-        this.largestArmy = largestArmy;
+    public void setInventoryWithLargestArmy(Inventory inventoryWithLargestArmy) {
+        this.inventoryWithLargestArmy = inventoryWithLargestArmy;
     }
 }

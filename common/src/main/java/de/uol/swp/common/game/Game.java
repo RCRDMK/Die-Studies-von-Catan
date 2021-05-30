@@ -320,17 +320,16 @@ public interface Game extends Serializable {
     boolean rolledDiceThisTurn();
 
     /**
-     * Getter for the int value showing the number of Knights in the currently largest army.
+     * Getter for the largest Army reference
      *
-     * @return int with the size of the largest army
+     * @return refernced inventory with the largest army
      */
-    int getLargestArmy();
+    Inventory getInventoryWithLargestArmy();
 
     /**
-     * Setter for the int value showing the number of Knights in the currently largest army.
+     * setter for the largest Army reference
      *
-     * @param largestArmy the int value of the largest army
+     * @param inventoryWithLargestArmy the inventory referencing the inventory with the largest army
      */
-    void setLargestArmy(int largestArmy);
-
+    void setInventoryWithLargestArmy(Inventory inventoryWithLargestArmy);
 }
