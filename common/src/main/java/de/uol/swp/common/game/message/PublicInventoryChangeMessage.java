@@ -15,7 +15,6 @@ import java.util.Set;
  */
 public class PublicInventoryChangeMessage extends AbstractGameMessage {
     final private ArrayList<HashMap<String, Integer>> publicInventories;
-    final private ArrayList<User> userList;
 
 
     /**
@@ -27,10 +26,9 @@ public class PublicInventoryChangeMessage extends AbstractGameMessage {
      * @since 2021-04-08
      */
 
-    public PublicInventoryChangeMessage(String gameName, ArrayList <User> userList, ArrayList<HashMap<String, Integer>> publicInventories) {
+    public PublicInventoryChangeMessage(String gameName, ArrayList<HashMap<String, Integer>> publicInventories) {
         super(gameName, new UserDTO("", "", ""));
         this.publicInventories = publicInventories;
-        this.userList = userList;
     }
 
     /**
@@ -44,12 +42,4 @@ public class PublicInventoryChangeMessage extends AbstractGameMessage {
         return publicInventories;
     }
 
-    /**
-     * Getter for the arrayList of players in game
-     *
-     * @return the ArrayList representing the users in game
-     * @author Iskander Yusupov
-     * @since 2021-05-28
-     */
-    public ArrayList<User> getPlayers() {return userList;}
 }

@@ -1012,7 +1012,7 @@ public class GamePresenter extends AbstractPresenter {
      * @see de.uol.swp.common.user.UserDTO
      * @since 2020-03-14
      */
-    private void updateGameUsersList(List<UserDTO> gameUserList) {
+   private void updateGameUsersList(List<UserDTO> gameUserList) {
         updateGameUsersListLogic(gameUserList);
     }
 
@@ -1021,7 +1021,7 @@ public class GamePresenter extends AbstractPresenter {
         Platform.runLater(() -> {
             if (gameUsers == null) {
                 gameUsers = FXCollections.observableArrayList();
-                gameUsersView.setItems(gameUsers);
+               // gameUsersView.setItems(gameUsers);
             }
             gameUsers.clear();
             l.forEach(u -> gameUsers.add(u.getUsername()));
@@ -1986,7 +1986,7 @@ public class GamePresenter extends AbstractPresenter {
     private void onPublicInventoryChangeMessageLogic(PublicInventoryChangeMessage puicm) {
         if (this.currentLobby != null) {
             if (this.currentLobby.equals(puicm.getName())) {
-                updatePublicInventory(puicm.getPlayers(), puicm.getPublicInventories());
+                updatePublicInventory(puicm.getPublicInventories());
             }
         }
     }
@@ -1998,14 +1998,13 @@ public class GamePresenter extends AbstractPresenter {
      * contents of public inventories in each publicInventory(1-4).
      * If there is no publicInventory (ObservableList), method creates one.
      *
-     * @param users is an ArrayList of currently in-game users.
      * @implNote The code inside this Method has to run in the JavaFX-application thread. Therefore it is crucial not to
      * remove the {@code Platform.runLater()}
      * @author Iskander Yusupov
      * @see de.uol.swp.common.game.inventory.Inventory
      * @since 2021-05-28
      */
-    public void updatePublicInventory(ArrayList<User> users, ArrayList<HashMap<String, Integer>> pu) {
+    public void updatePublicInventory(ArrayList<HashMap<String, Integer>> pu) {
         // Attention: This must be done on the FX Thread!
         Platform.runLater(() -> {
             if (publicInventory1 == null) {
@@ -2016,60 +2015,84 @@ public class GamePresenter extends AbstractPresenter {
                 publicInventory2 = FXCollections.observableArrayList();
                 publicInventory2View.setItems(publicInventory2);
             }
-            if (publicInventory3 == null && users.size() >= 2) {
+            if (publicInventory3 == null && gameUsers.size() >= 2) {
                 publicInventory3 = FXCollections.observableArrayList();
                 publicInventory3View.setItems(publicInventory3);
             }
-            if (publicInventory4 == null && users.size() == 3) {
+            if (publicInventory4 == null && gameUsers.size() == 3) {
                 publicInventory4 = FXCollections.observableArrayList();
                 publicInventory4View.setItems(publicInventory4);
             }
             publicInventory1.clear();
-            publicInventory1.add(0, users.get(0).toString());
-            publicInventory1.add(0, pu.get(0).get("Resource").toString());
-            publicInventory1.add(0, pu.get(0).get("Development Cards").toString());
-            publicInventory1.add(0, pu.get(0).get("Played Knights").toString());
-            publicInventory1.add(0, pu.get(0).get("Continuous Road").toString());
-            publicInventory1.add(0, pu.get(0).get("Largest Army").toString());
-            publicInventory1.add(0, pu.get(0).get("Longest Road").toString());
-            publicInventory1.add(0, pu.get(0).get("PublicVictoryPoints").toString());
-            publicInventory1View.setCellFactory(x -> new PublicInventoryCell());
+            if(gameUsers.size() > 0) {
+                publicInventory1.add(gameUsers.get(0));
+            }
+            publicInventory1.add("Points: " + pu.get(0).get("Public Victory Points").toString());
+            publicInventory1.add("Resources: " + pu.get(0).get("Resource").toString());
+            publicInventory1.add("Cards: " + pu.get(0).get("Development Cards").toString());
+            publicInventory1.add("Knights: " + pu.get(0).get("Played Knights").toString());
+            publicInventory1.add("Roads: " + pu.get(0).get("Continuous Road").toString());
+            if(pu.get(0).get("Largest Army").toString().equals("1")){
+                publicInventory1.add("Largest Army");
+            }
+            if(pu.get(0).get("Longest Road").toString().equals("1")){
+                publicInventory1.add("Longest Road");
+            }
+           // publicInventory1View.setCellFactory(y -> new PublicInventoryCell());
+
             publicInventory2.clear();
-            publicInventory2.add(1, users.get(1).toString());
-            publicInventory2.add(1, pu.get(1).get("Resource").toString());
-            publicInventory2.add(1, pu.get(1).get("Development Cards").toString());
-            publicInventory2.add(1, pu.get(1).get("Played Knights").toString());
-            publicInventory2.add(1, pu.get(1).get("Continuous Road").toString());
-            publicInventory2.add(1, pu.get(1).get("Largest Army").toString());
-            publicInventory2.add(1, pu.get(1).get("Longest Road").toString());
-            publicInventory2.add(1, pu.get(1).get("PublicVictoryPoints").toString());
-            publicInventory2View.setCellFactory(x -> new PublicInventoryCell());
-            if (users.size() >= 2) {
+            if(gameUsers.size() > 0) {
+                publicInventory2.add(gameUsers.get(1));
+            }
+            publicInventory1.add("Points: " + pu.get(1).get("Public Victory Points").toString());
+            publicInventory1.add("Resources: " + pu.get(1).get("Resource").toString());
+            publicInventory1.add("Cards: " + pu.get(1).get("Development Cards").toString());
+            publicInventory1.add("Knights: " + pu.get(1).get("Played Knights").toString());
+            publicInventory1.add("Roads: " + pu.get(1).get("Continuous Road").toString());
+            if(pu.get(1).get("Largest Army").toString().equals("1")){
+                publicInventory1.add("Largest Army");
+            }
+            if(pu.get(1).get("Longest Road").toString().equals("1")){
+                publicInventory1.add("Longest Road");
+            }
+
+            if (gameUsers.size() >= 2) {
                 publicInventory3.clear();
-                publicInventory3.add(1, users.get(2).toString());
-                publicInventory3.add(2, pu.get(2).get("Resource").toString());
-                publicInventory3.add(2, pu.get(2).get("Development Cards").toString());
-                publicInventory3.add(2, pu.get(2).get("Played Knights").toString());
-                publicInventory3.add(2, pu.get(2).get("Continuous Road").toString());
-                publicInventory3.add(2, pu.get(2).get("Largest Army").toString());
-                publicInventory3.add(2, pu.get(2).get("Longest Road").toString());
-                publicInventory3.add(2, pu.get(2).get("PublicVictoryPoints").toString());
-                publicInventory3View.setCellFactory(x -> new PublicInventoryCell());
-                if (users.size() == 3) {
+                if(gameUsers.size() > 0) {
+                    publicInventory3.add(gameUsers.get(2));
+                }
+                publicInventory3.add("Points: " + pu.get(2).get("Public Victory Points").toString());
+                publicInventory3.add("Resources: " + pu.get(2).get("Resource").toString());
+                publicInventory3.add("Cards: " + pu.get(2).get("Development Cards").toString());
+                publicInventory3.add("Knights: " + pu.get(2).get("Played Knights").toString());
+                publicInventory3.add("Roads: " + pu.get(2).get("Continuous Road").toString());
+                if(pu.get(2).get("Largest Army").toString().equals("1")){
+                    publicInventory3.add("Largest Army");
+                }
+                if(pu.get(2).get("Longest Road").toString().equals("1")){
+                    publicInventory3.add("Longest Road");
+                }
+                if (gameUsers.size() == 3) {
                     publicInventory4.clear();
-                    publicInventory4.add(1, users.get(3).toString());
-                    publicInventory4.add(3, pu.get(3).get("Resource").toString());
-                    publicInventory4.add(3, pu.get(3).get("Development Cards").toString());
-                    publicInventory4.add(3, pu.get(3).get("Played Knights").toString());
-                    publicInventory4.add(3, pu.get(3).get("Continuous Road").toString());
-                    publicInventory4.add(3, pu.get(3).get("Largest Army").toString());
-                    publicInventory4.add(3, pu.get(3).get("Longest Road").toString());
-                    publicInventory4.add(3, pu.get(3).get("PublicVictoryPoints").toString());
-                    publicInventory4View.setCellFactory(x -> new PublicInventoryCell());
+                    if(gameUsers.size() > 0) {
+                        publicInventory4.add(gameUsers.get(3));
+                    }
+                    publicInventory4.add("Points: " + pu.get(3).get("Public Victory Points").toString());
+                    publicInventory4.add("Resources: " + pu.get(3).get("Resource").toString());
+                    publicInventory4.add("Cards: " + pu.get(3).get("Development Cards").toString());
+                    publicInventory4.add("Knights: " + pu.get(3).get("Played Knights").toString());
+                    publicInventory4.add("Roads: " + pu.get(3).get("Continuous Road").toString());
+                    if(pu.get(3).get("Largest Army").toString().equals("1")){
+                        publicInventory4.add("Largest Army");
+                    }
+                    if(pu.get(3).get("Longest Road").toString().equals("1")){
+                        publicInventory4.add("Longest Road");
+                    }
                 }
             }
         });
     }
+
 
     /**
      * The method called when a ResolveDevelopmentCardNotSuccessfulResponse is received

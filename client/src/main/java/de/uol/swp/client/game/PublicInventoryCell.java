@@ -6,48 +6,44 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
+import java.util.HashMap;
 
-/**
- * Creates PublicInventoryCells to populate the ListView fxml-element for
- * in-game public inventories.
- * <p>
- *
- * @author Iskander Yusupov
- * @see de.uol.swp.client.AbstractPresenter
- * @since 2021-05-28
- */
-public class PublicInventoryCell extends ListCell<String> {
+
+public class PublicInventoryCell extends ListCell<HashMap.Entry<String, Integer>> {
     VBox vbox = new VBox();
     Label playerName = new Label("");
-    Label resource = new Label("Resources: ");
-    Label developmentCards = new Label("Cards: ");
-    Label playedKnights = new Label("Knights: ");
-    Label continuousRoad = new Label("Roads: ");
+    Label victoryPoints = new Label("");
+    Label resource = new Label("");
+    Label developmentCards = new Label("");
+    Label playedKnights = new Label("");
+    Label continuousRoad = new Label("");
     Pane pane = new Pane();
     Pane pane1 = new Pane();
     Pane pane2 = new Pane();
     Pane pane3 = new Pane();
     Pane pane4 = new Pane();
+    Pane pane5 = new Pane();
 
     public PublicInventoryCell() {
         super();
-        vbox.getChildren().addAll(playerName, pane, resource, pane1, developmentCards, pane2,
-                playedKnights, pane3, continuousRoad, pane4);
+        vbox.getChildren().addAll(playerName, pane,victoryPoints , pane1, resource, pane2, developmentCards, pane3,
+                playedKnights, pane4, continuousRoad, pane5);
         VBox.setVgrow(pane, Priority.ALWAYS);
         VBox.setVgrow(pane1, Priority.ALWAYS);
         VBox.setVgrow(pane2, Priority.ALWAYS);
         VBox.setVgrow(pane3, Priority.ALWAYS);
         VBox.setVgrow(pane4, Priority.ALWAYS);
+        VBox.setVgrow(pane4, Priority.ALWAYS);
     }
 
     @Override
-    protected void updateItem(String item, boolean empty) {
+    protected void updateItem(HashMap.Entry<String, Integer> item, boolean empty) {
         super.updateItem(item, empty);
         setText(null);
         setGraphic(null);
 
         if (item != null && !empty) {
-            //   playerName.setText(item.);
+           // playerName.setText(item.);
         }
     }
 
