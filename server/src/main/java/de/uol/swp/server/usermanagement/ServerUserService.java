@@ -86,7 +86,7 @@ public interface ServerUserService {
      * update the correct user
      * @since 2019-09-02
      */
-    User updateUserMail(User user) throws SQLException, Exception;
+    User updateUserMail(User user) throws Exception;
 
     /**
      * Update a user
@@ -119,7 +119,7 @@ public interface ServerUserService {
      * @return the updated user object
      * @since 2021-04-15
      */
-    User updateUserPicture(User user) throws SQLException, Exception;
+    User updateUserPicture(User user) throws Exception;
 
     /**
      * Retrieve the user information of the currently logged in user
@@ -128,5 +128,5 @@ public interface ServerUserService {
      * @author Carsten Dekker
      * @since 2021-03-11
      */
-    User retrieveUserInformation(User user) throws SQLException, Exception;
+    User retrieveUserInformation(User user) throws Exception;
 }

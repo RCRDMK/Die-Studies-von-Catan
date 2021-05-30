@@ -3,9 +3,7 @@ package de.uol.swp.server.usermanagement;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.server.usermanagement.store.MainMemoryBasedUserStore;
-import de.uol.swp.server.usermanagement.store.SQLBasedUserStore;
 import org.junit.jupiter.api.Test;
-
 import java.sql.SQLException;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -21,6 +19,10 @@ class UserManagementTest {
     UserManagementTest() throws SQLException {
     }
 
+    /**
+     *
+     * @throws Exception
+     */
     @Test
     void loginUser() throws Exception {
 
