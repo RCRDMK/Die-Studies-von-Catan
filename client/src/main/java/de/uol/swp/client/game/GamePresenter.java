@@ -83,7 +83,7 @@ public class GamePresenter extends AbstractPresenter {
 
     private String currentLobby;
 
-    private Alert alert;
+    private Alert te;
 
     private ButtonType buttonTypeOkay;
 
@@ -516,7 +516,7 @@ public class GamePresenter extends AbstractPresenter {
      * @since 2021-04-19
      */
     public void initializeRobberResourceMenu() {
-        this.alert = new Alert(javafx.scene.control.Alert.AlertType.CONFIRMATION);
+        this.te = new Alert(javafx.scene.control.Alert.AlertType.CONFIRMATION);
         chooseResource = new GridPane();
         this.privateInventory = new HashMap<>();
 
@@ -1366,9 +1366,9 @@ public class GamePresenter extends AbstractPresenter {
         if (this.currentLobby != null) {
             if (this.currentLobby.equals(notEnoughRessourcesMessage.getName())) {
                 Platform.runLater(() -> {
-                    this.alert.setTitle(notEnoughRessourcesMessage.getName());
-                    this.alert.setHeaderText("You have not enough Ressources!");
-                    this.alert.show();
+                    this.te.setTitle(notEnoughRessourcesMessage.getName());
+                    this.te.setHeaderText("You have not enough Ressources!");
+                    this.te.show();
                 });
             }
         }
@@ -1384,12 +1384,12 @@ public class GamePresenter extends AbstractPresenter {
      * @since 2021-04-03
      */
     public void setupRessourceAlert() {
-        this.alert = new Alert(javafx.scene.control.Alert.AlertType.CONFIRMATION);
+        this.te = new Alert(javafx.scene.control.Alert.AlertType.CONFIRMATION);
         this.buttonTypeOkay = new ButtonType("Okay", ButtonBar.ButtonData.OK_DONE);
-        alert.getButtonTypes().setAll(buttonTypeOkay);
-        this.btnOkay = (Button) alert.getDialogPane().lookupButton(buttonTypeOkay);
+        te.getButtonTypes().setAll(buttonTypeOkay);
+        this.btnOkay = (Button) te.getDialogPane().lookupButton(buttonTypeOkay);
         btnOkay.setOnAction(event -> {
-            alert.close();
+            te.close();
             event.consume();
         });
     }
@@ -1416,12 +1416,12 @@ public class GamePresenter extends AbstractPresenter {
         if (this.currentLobby != null) {
             if (this.currentLobby.equals(moveRobberMessage.getName())) {
                 Platform.runLater(() -> {
-                    this.alert.setTitle(moveRobberMessage.getName());
-                    this.alert.setHeaderText("Click on a field to move the Robber!");
+                    this.te.setTitle(moveRobberMessage.getName());
+                    this.te.setHeaderText("Click on a field to move the Robber!");
                     Rectangle2D center = Screen.getPrimary().getVisualBounds();
-                    this.alert.setX(center.getWidth() / 4);
-                    this.alert.setY(center.getHeight() / 5);
-                    this.alert.show();
+                    this.te.setX(center.getWidth() / 4);
+                    this.te.setY(center.getHeight() / 5);
+                    this.te.show();
                 });
 
                 //adding a eventhandler to know where the user wants to set the robber
@@ -1470,12 +1470,12 @@ public class GamePresenter extends AbstractPresenter {
      * @since 2021-04-20
      */
     public void setupRobberAlert() {
-        this.alert = new Alert(javafx.scene.control.Alert.AlertType.CONFIRMATION);
+        this.te = new Alert(javafx.scene.control.Alert.AlertType.CONFIRMATION);
         this.buttonTypeOkay = new ButtonType("Okay", ButtonBar.ButtonData.OK_DONE);
-        alert.getButtonTypes().setAll(buttonTypeOkay);
-        this.btnOkay = (Button) alert.getDialogPane().lookupButton(buttonTypeOkay);
+        te.getButtonTypes().setAll(buttonTypeOkay);
+        this.btnOkay = (Button) te.getDialogPane().lookupButton(buttonTypeOkay);
         btnOkay.setOnAction(event -> {
-            alert.close();
+            te.close();
             event.consume();
         });
     }
@@ -2131,9 +2131,9 @@ public class GamePresenter extends AbstractPresenter {
         if (this.currentLobby != null) {
             if (this.currentLobby.equals(message.getName())) {
                 Platform.runLater(() -> {
-                    this.alert.setTitle(message.getName());
-                    this.alert.setHeaderText("You have not enough Resources for the trade in: " + message.getTradeCode());
-                    this.alert.show();
+                    this.te.setTitle(message.getName());
+                    this.te.setHeaderText("You have not enough Resources for the trade in: " + message.getTradeCode());
+                    this.te.show();
                 });
             }
         }
@@ -2167,11 +2167,11 @@ public class GamePresenter extends AbstractPresenter {
                 case 1:
                     Tooltip lumberHover = new Tooltip("Lumber");
 
-                    r.setOnMouseMoved(new EventHandler<MouseEvent>() {
+                    r.setOnMouseEntered(new EventHandler<MouseEvent>() {
                         @Override
                         public void handle(MouseEvent mouseEvent) {
-                            Node n = (Node) mouseEvent.getSource();
-                            lumberHover.show(n,mouseEvent.getScreenX(), mouseEvent.getScreenY());
+                            lumberHover.show(r, mouseEvent.getScreenX(), mouseEvent.getScreenY());
+
                         }
                     });
                     r.setOnMouseExited(new EventHandler<MouseEvent>() {
@@ -2185,11 +2185,10 @@ public class GamePresenter extends AbstractPresenter {
                 case 2:
                     Tooltip brickHover = new Tooltip("Brick");
 
-                    r.setOnMouseMoved(new EventHandler<MouseEvent>() {
+                    r.setOnMouseEntered(new EventHandler<MouseEvent>() {
                         @Override
                         public void handle(MouseEvent mouseEvent) {
-                            Node n = (Node) mouseEvent.getSource();
-                            brickHover.show(n,mouseEvent.getScreenX(), mouseEvent.getScreenY());
+                            brickHover.show(r,mouseEvent.getScreenX(), mouseEvent.getScreenY());
                         }
                     });
                     r.setOnMouseExited(new EventHandler<MouseEvent>() {
@@ -2203,11 +2202,10 @@ public class GamePresenter extends AbstractPresenter {
                 case 3:
                     Tooltip grainHover = new Tooltip("Grain");
 
-                    r.setOnMouseMoved(new EventHandler<MouseEvent>() {
+                    r.setOnMouseEntered(new EventHandler<MouseEvent>() {
                         @Override
                         public void handle(MouseEvent mouseEvent) {
-                            Node n = (Node) mouseEvent.getSource();
-                            grainHover.show(n,mouseEvent.getScreenX(), mouseEvent.getScreenY());
+                            grainHover.show(r,mouseEvent.getScreenX(), mouseEvent.getScreenY());
                         }
                     });
 
@@ -2222,11 +2220,10 @@ public class GamePresenter extends AbstractPresenter {
                 case 4:
                     Tooltip woolHover = new Tooltip("Wool");
 
-                    r.setOnMouseMoved(new EventHandler<MouseEvent>() {
+                    r.setOnMouseEntered(new EventHandler<MouseEvent>() {
                         @Override
                         public void handle(MouseEvent mouseEvent) {
-                            Node n = (Node) mouseEvent.getSource();
-                            woolHover.show(n,mouseEvent.getScreenX(), mouseEvent.getScreenY());
+                            woolHover.show(r,mouseEvent.getScreenX(), mouseEvent.getScreenY());
                         }
                     });
 
@@ -2241,11 +2238,10 @@ public class GamePresenter extends AbstractPresenter {
                 case 5:
                     Tooltip oreHover = new Tooltip("Ore");
 
-                    r.setOnMouseMoved(new EventHandler<MouseEvent>() {
+                    r.setOnMouseEntered(new EventHandler<MouseEvent>() {
                         @Override
                         public void handle(MouseEvent mouseEvent) {
-                            Node n = (Node) mouseEvent.getSource();
-                            oreHover.show(n,mouseEvent.getScreenX(), mouseEvent.getScreenY());
+                            oreHover.show(r,mouseEvent.getScreenX(), mouseEvent.getScreenY());
                         }
                     });
 
@@ -2260,11 +2256,10 @@ public class GamePresenter extends AbstractPresenter {
                 case 6:
                     Tooltip knightHover = new Tooltip("Knight");
 
-                    r.setOnMouseMoved(new EventHandler<MouseEvent>() {
+                    r.setOnMouseEntered(new EventHandler<MouseEvent>() {
                         @Override
                         public void handle(MouseEvent mouseEvent) {
-                            Node n = (Node) mouseEvent.getSource();
-                            knightHover.show(n,mouseEvent.getScreenX(), mouseEvent.getScreenY());
+                            knightHover.show(r,mouseEvent.getScreenX(), mouseEvent.getScreenY());
                         }
                     });
 
@@ -2279,11 +2274,10 @@ public class GamePresenter extends AbstractPresenter {
                 case 7:
                     Tooltip monopolyHover = new Tooltip("Monopoly");
 
-                    r.setOnMouseMoved(new EventHandler<MouseEvent>() {
+                    r.setOnMouseEntered(new EventHandler<MouseEvent>() {
                         @Override
                         public void handle(MouseEvent mouseEvent) {
-                            Node n = (Node) mouseEvent.getSource();
-                            monopolyHover.show(n,mouseEvent.getScreenX(), mouseEvent.getScreenY());
+                            monopolyHover.show(r,mouseEvent.getScreenX(), mouseEvent.getScreenY());
                         }
                     });
 
@@ -2298,11 +2292,10 @@ public class GamePresenter extends AbstractPresenter {
                 case 8:
                     Tooltip roadBuildingHover = new Tooltip("Road Building");
 
-                    r.setOnMouseMoved(new EventHandler<MouseEvent>() {
+                    r.setOnMouseEntered(new EventHandler<MouseEvent>() {
                         @Override
                         public void handle(MouseEvent mouseEvent) {
-                            Node n = (Node) mouseEvent.getSource();
-                            roadBuildingHover.show(n,mouseEvent.getScreenX(), mouseEvent.getScreenY());
+                            roadBuildingHover.show(r,mouseEvent.getScreenX(), mouseEvent.getScreenY());
                         }
                     });
 
@@ -2317,11 +2310,10 @@ public class GamePresenter extends AbstractPresenter {
                 case 9:
                     Tooltip plentyHover = new Tooltip("Year of Plenty");
 
-                    r.setOnMouseMoved(new EventHandler<MouseEvent>() {
+                    r.setOnMouseEntered(new EventHandler<MouseEvent>() {
                         @Override
                         public void handle(MouseEvent mouseEvent) {
-                            Node n = (Node) mouseEvent.getSource();
-                            plentyHover.show(n,mouseEvent.getScreenX(), mouseEvent.getScreenY());
+                            plentyHover.show(r,mouseEvent.getScreenX(), mouseEvent.getScreenY());
                         }
                     });
 
@@ -2336,11 +2328,10 @@ public class GamePresenter extends AbstractPresenter {
                 case 10:
                     Tooltip vicPointsHover = new Tooltip("Victory Points");
 
-                    r.setOnMouseMoved(new EventHandler<MouseEvent>() {
+                    r.setOnMouseEntered(new EventHandler<MouseEvent>() {
                         @Override
                         public void handle(MouseEvent mouseEvent) {
-                            Node n = (Node) mouseEvent.getSource();
-                            vicPointsHover.show(n,mouseEvent.getScreenX(), mouseEvent.getScreenY());
+                            vicPointsHover.show(r,mouseEvent.getScreenX(), mouseEvent.getScreenY());
                         }
                     });
 
@@ -2355,11 +2346,10 @@ public class GamePresenter extends AbstractPresenter {
                 case 11:
                     Tooltip citiesHover = new Tooltip("Cities");
 
-                    r.setOnMouseMoved(new EventHandler<MouseEvent>() {
+                    r.setOnMouseEntered(new EventHandler<MouseEvent>() {
                         @Override
                         public void handle(MouseEvent mouseEvent) {
-                            Node n = (Node) mouseEvent.getSource();
-                            citiesHover.show(n,mouseEvent.getScreenX(), mouseEvent.getScreenY());
+                            citiesHover.show(r,mouseEvent.getScreenX(), mouseEvent.getScreenY());
                         }
                     });
 
@@ -2374,11 +2364,10 @@ public class GamePresenter extends AbstractPresenter {
                 case 12:
                     Tooltip roadsHover = new Tooltip("Roads");
 
-                    r.setOnMouseMoved(new EventHandler<MouseEvent>() {
+                    r.setOnMouseEntered(new EventHandler<MouseEvent>() {
                         @Override
                         public void handle(MouseEvent mouseEvent) {
-                            Node n = (Node) mouseEvent.getSource();
-                            roadsHover.show(n,mouseEvent.getScreenX(), mouseEvent.getScreenY());
+                            roadsHover.show(r,mouseEvent.getScreenX(), mouseEvent.getScreenY());
                         }
                     });
 
@@ -2393,11 +2382,10 @@ public class GamePresenter extends AbstractPresenter {
                 case 13:
                     Tooltip settleHover = new Tooltip("Settlements");
 
-                    r.setOnMouseMoved(new EventHandler<MouseEvent>() {
+                    r.setOnMouseEntered(new EventHandler<MouseEvent>() {
                         @Override
                         public void handle(MouseEvent mouseEvent) {
-                            Node n = (Node) mouseEvent.getSource();
-                            settleHover.show(n,mouseEvent.getScreenX(), mouseEvent.getScreenY());
+                            settleHover.show(r,mouseEvent.getScreenX(), mouseEvent.getScreenY());
                         }
                     });
 
