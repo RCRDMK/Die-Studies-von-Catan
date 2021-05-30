@@ -9,7 +9,7 @@
 <?import javafx.scene.text.*?>
 
 <AnchorPane stylesheets="@../css/swp.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.uol.swp.client.game.TradePresenter">
-   <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#080808" height="260.0" layoutX="5.0" layoutY="67.0" opacity="0.60" width="726.0" />
+   <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#1f1f1f" height="260.0" layoutX="5.0" layoutY="45.0" opacity="0.60" width="726.0" />
    <VBox prefHeight="400.0">
       <HBox>
          <VBox.margin>
@@ -416,7 +416,7 @@
             <VBox.margin>
                <Insets top="45.0" />
             </VBox.margin>
-            <Label fx:id="tradeLable2" style="-fx-background-color: rgba(0,0,0,0.44)" text="Trade with the bank">
+            <Label fx:id="tradeLable2" style="-fx-background-color: rgba(0,0,0,0.44)" text="Trade with the bank and harbors">
                <font>
                   <Font name="Times New Roman Bold" size="23.0" />
                </font>

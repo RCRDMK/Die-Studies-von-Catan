@@ -35,8 +35,8 @@ public class TradePresenter extends AbstractPresenter {
     private static final String woolString = "Wool";
     private static final String oreString = "Ore";
 
-    private boolean sellerGotBids = false;;
-    private boolean sellerGotBankOffer = false;;
+    private boolean sellerGotBids = false;
+    private boolean sellerGotBankOffer = false;
     private boolean isBidder = false;
     private String tradeCode;
     private String gameName;
@@ -170,7 +170,11 @@ public class TradePresenter extends AbstractPresenter {
      */
     @Subscribe
     public void onBankResponseMessage(BankResponseMessage message) {
+        if (this.tradeCode != null) {
+            if (user.equals(message.getUser()) && tradeCode.equals(message.getTradeCode())) {
 
+            }
+        }
     }
 
     /**
@@ -370,7 +374,10 @@ public class TradePresenter extends AbstractPresenter {
      */
     @FXML
     public void onCreateRequestButton() {
-        gameService.createBankRequest(gameName, user, tradeCode, ressourceChoiceBank.getValue().toString());
+        String card = ressourceChoiceBank.getValue().toString();
+        if (!card.equals("What do you want to buy?")) {
+            gameService.createBankRequest(gameName, user, tradeCode, card);
+        }
     }
 
     /**

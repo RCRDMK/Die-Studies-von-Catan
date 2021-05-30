@@ -1417,15 +1417,8 @@ public class GameService extends AbstractService {
     }
 
     /**
-     * either initiates a new trade or adds a bid to an existing trade
+     * Handles BankRequest found on the EventBus
      * <p>
-     * the method checks if the user has enough items in his inventory
-     * if check not successful the methods sends an error message to the user
-     * if successful the method checks if the String tradeCode already exists
-     * if the tradeCode does not exists, the methods initiates a new trade. The user who send the TradeItemRequest becomes the seller
-     * the method sends TradeOfferInformBiddersMessage to the other users in the game, informing about them new trade
-     * if the tradeCOde does exists, the method adds a new bidder to the specified trade
-     * if all users, who are not the seller) have send their bid, the method informs the seller about the the offers(TradeInformSellerAboutBidsMessage)
      *
      * @param request BankRequest
      *
@@ -1436,7 +1429,15 @@ public class GameService extends AbstractService {
      */
     @Subscribe
     public void onBankRequest(BankRequest request) {
-
+        Optional<Game> optionalGame = gameManagement.getGame(request.getName());
+        if (optionalGame.isPresent()) {
+            Game game = optionalGame.get();
+            Inventory bank = game.getBankInventory();
+            if (bank.getNumberFromCardStack(request.getCardName()) == 0) {
+                BankResponseMessage bankResponseMessage = new BankResponseMessage(request.getUser(), request.getTradeCode(), null, false);
+                sendToSpecificUserInGame(bankResponseMessage, request.getUser());
+            }
+        }
     }
 
     /**
