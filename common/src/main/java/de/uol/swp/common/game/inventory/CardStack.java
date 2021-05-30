@@ -8,7 +8,7 @@ import java.io.Serializable;
  * @author Anton Nikiforov
  * @since 2020-03-04
  */
-public class Card implements Serializable {
+public class CardStack implements Serializable {
 
     private int number = 0;
 
@@ -19,7 +19,7 @@ public class Card implements Serializable {
 
     //Setter
     public void setNumber(int number) {
-        this.number = Math.max(number, 0);
+        this.number = Math.max(number, 0); // (number >= 0)
     }
 
     //Incrementer
@@ -34,11 +34,11 @@ public class Card implements Serializable {
 
     //Decrementer
     public void decNumber() {
-        if (this.number > 0) this.number--;
+        if (this.number > 0) this.number--; // (number >= 0)
     }
 
     //Decrementer with number
     public void decNumber(int number) {
-        this.number = Math.max(this.number - number, 0);
+        this.number = Math.max(this.number - number, 0);  // (number >= 0)
     }
 }

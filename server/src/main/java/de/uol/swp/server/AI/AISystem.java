@@ -1,11 +1,17 @@
 package de.uol.swp.server.AI;
 
+import de.uol.swp.common.game.message.TooMuchResourceCardsMessage;
+import de.uol.swp.common.game.message.TradeInformSellerAboutBidsMessage;
+import de.uol.swp.common.game.message.TradeOfferInformBiddersMessage;
 import de.uol.swp.common.game.trade.Trade;
 import de.uol.swp.common.game.trade.TradeItem;
 import de.uol.swp.common.user.User;
 import de.uol.swp.server.AI.AIActions.AIAction;
+import de.uol.swp.server.AI.AIActions.DiscardResourcesAction;
+import de.uol.swp.server.AI.AIActions.TradeBidAction;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.UUID;
 
 /**
@@ -138,16 +144,44 @@ public interface AISystem {
     void moveBandit(UUID field);
 
     /**
+     * Method used to discard resources for the robber
+     *
+     * @param resourcesToDiscard the HashMap containing the resources to discard
+     * @author Marc Hermes
+     * @since 2021-05-18
+     */
+    void discardResources(HashMap<String, Integer> resourcesToDiscard);
+
+    /**
      * Method used to start the turn of the AI.
      * <p>
      * This method is called by the server to engage the AI to start it's turn.
      *
-     * @param eyes the Dice value rolled at the start of the turn of the AI
      * @return an ArrayList of AIActions dedicated through the AI which the server will have to resolve
      * @author Marc Hermes
      * @since 2021-05-08
      */
-    ArrayList<AIAction> startTurnAction(int eyes);
+    ArrayList<AIAction> startTurnOrder();
+
+    /**
+     * Method used to start the AI in case it needs to discard resources for the robber
+     *
+     * @param tmrcm the TooMuchResourceCardsMessage directed to this AI
+     * @return the discardResourcesAction
+     * @author Marc Hermes
+     * @since 2021-05-18
+     */
+    ArrayList<AIAction> discardResourcesOrder(TooMuchResourceCardsMessage tmrcm);
+
+    /**
+     * Method used to start the AI in case it needs to create a bid for an ongoing trade
+     *
+     * @param toibm the TradeOfferInformBiddersMessage directed to this AI
+     * @return the tradeBidAction
+     * @author Marc Hermes
+     * @since 2021-05-18
+     */
+    ArrayList<AIAction> tradeBidOrder(TradeOfferInformBiddersMessage toibm);
 
     /**
      * Method used to continue the turn of the AI.
@@ -155,9 +189,8 @@ public interface AISystem {
      * This method is called by the server to re-engage the AI to continue it's turn after it stopped because
      * it had to wait on trade responses of the other players.
      *
-     * @param trade     the Trade because of which the AI had to stop and wait in the first place
-     * @param tradeCode the String identifying the Trade
+     * @param tisabm the TradeInformSellerAboutBidsMessage directed for this AI
      * @return an ArrayList of AIActions dedicated through the AI which the server will have to resolve
      */
-    ArrayList<AIAction> continueTurnAction(Trade trade, String tradeCode);
+    ArrayList<AIAction> continueTurnOrder(TradeInformSellerAboutBidsMessage tisabm);
 }

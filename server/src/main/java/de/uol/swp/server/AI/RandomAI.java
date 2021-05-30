@@ -1,6 +1,10 @@
 package de.uol.swp.server.AI;
 
+import de.uol.swp.common.game.MapGraph;
 import de.uol.swp.common.game.dto.GameDTO;
+import de.uol.swp.server.AI.AIActions.AIAction;
+
+import java.util.ArrayList;
 
 /**
  * AI which makes choices randomly
@@ -21,5 +25,24 @@ public class RandomAI extends AbstractAISystem {
      */
     public RandomAI(GameDTO thatGame) {
         super(thatGame);
+    }
+
+    public ArrayList<AIAction> startTurnOrder() {
+
+        playDevelopmentCardYearOfPlenty("Lumber", "Brick");
+        for (MapGraph.Hexagon hexagon : game.getMapGraph().getHexagonHashSet()) {
+            moveBandit(hexagon.getUuid());
+            break;
+        }
+        for (MapGraph.StreetNode street : game.getMapGraph().getStreetNodeHashSet()) {
+            buildStreet(street.getUuid());
+            break;
+        }
+        for (MapGraph.BuildingNode building : game.getMapGraph().getBuildingNodeHashSet()) {
+            buildTown(building.getUuid());
+            break;
+        }
+        endTurn();
+        return this.aiActions;
     }
 }

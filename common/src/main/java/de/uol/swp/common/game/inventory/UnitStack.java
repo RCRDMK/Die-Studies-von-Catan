@@ -8,11 +8,11 @@ import java.io.Serializable;
  * @author Anton Nikiforov
  * @since 2020-03-04
  */
-public class Unit implements Serializable {
+public class UnitStack implements Serializable {
 
     private int number;
 
-    public Unit(int number) {
+    public UnitStack(int number) {
         this.number = number;
     }
 

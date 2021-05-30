@@ -821,9 +821,9 @@ public class MapGraph implements Serializable {
         private BuildingNode buildingTopRight;
         private BuildingNode buildingTop;
 
-        private List<BuildingNode> buildingNodes = new ArrayList<>();
-        private List<StreetNode> streetNodes = new ArrayList<>();
-        private List<Hexagon> hexagons = new ArrayList<>();
+        private Set<BuildingNode> buildingNodes = new HashSet<>();
+        private Set<StreetNode> streetNodes = new HashSet<>();
+        private Set<Hexagon> hexagons = new HashSet<>();
 
         private boolean occupiedByRobber;
 
@@ -1019,27 +1019,27 @@ public class MapGraph implements Serializable {
             this.hexBottomRight = hexBottomRight;
         }
 
-        public List<BuildingNode> getBuildingNodes() {
+        public Set<BuildingNode> getBuildingNodes() {
             return buildingNodes;
         }
 
-        public void setBuildingNodes(List<BuildingNode> buildingNodes) {
+        public void setBuildingNodes(Set<BuildingNode> buildingNodes) {
             this.buildingNodes = buildingNodes;
         }
 
-        public List<StreetNode> getStreetNodes() {
+        public Set<StreetNode> getStreetNodes() {
             return streetNodes;
         }
 
-        public void setStreetNodes(List<StreetNode> streetNodes) {
+        public void setStreetNodes(Set<StreetNode> streetNodes) {
             this.streetNodes = streetNodes;
         }
 
-        public List<Hexagon> getHexagons() {
+        public Set<Hexagon> getHexagons() {
             return hexagons;
         }
 
-        public void setHexagons(List<Hexagon> hexagons) {
+        public void setHexagons(Set<Hexagon> hexagons) {
             this.hexagons = hexagons;
         }
 
@@ -1393,18 +1393,6 @@ public class MapGraph implements Serializable {
             //Updating Sets of the MapGraph.
             streetNodeHashSet.addAll(streetNodes);
             buildingNodeHashSet.addAll(buildingNodes);
-        }
-
-        /**
-         * Generates nodes for all neighbour-Hexagons.
-         *
-         * @author Pieter Vogt
-         * @since 2021-04-10
-         */
-        private void generateNeighbourNodes() {
-            for (Hexagon h : hexagons) {
-                h.generateNodes();
-            }
         }
 
         /**
