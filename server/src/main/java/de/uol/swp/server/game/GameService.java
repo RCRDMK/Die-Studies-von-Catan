@@ -1089,11 +1089,12 @@ public class GameService extends AbstractService {
                     case "Knight":
                         if (request instanceof ResolveDevelopmentCardKnightRequest) {
                             ResolveDevelopmentCardKnightRequest knightRequest = (ResolveDevelopmentCardKnightRequest) request;
-
                             RobbersNewFieldMessage rnfm = new RobbersNewFieldMessage(gameName, (UserDTO) turnPlayer, knightRequest.getField());
                             onRobbersNewFieldRequest(rnfm);
                             game.setCurrentCard("");
                             sendToAllInGame(gameName, message);
+                            turnPlayerInventory.setPlayedKnights(turnPlayerInventory.getPlayedKnights() + 1);
+                            checkForLargestArmy(game);
                         }
                         break;
 
@@ -1108,6 +1109,30 @@ public class GameService extends AbstractService {
         }
     }
 
+    /**
+     * This method evaluates if a user gets the largest army card
+     * <p>
+     * This method gets invoked by the onResolveDevelopmentCardRequest method and creates an ArrayList with all user
+     * inventories from the right game. With the given inventories this method evaluates, who gets the largest army
+     * card.
+     *
+     * @param game current game that is played
+     * @author Carsten Dekker
+     * @since 2021-05-27
+     */
+    public void checkForLargestArmy(Game game) {
+        if (game.getInventoryWithLargestArmy() == null && game.getInventory(game.getUser(game.getTurn())).getPlayedKnights() > 2) {
+            game.getInventory(game.getUser(game.getTurn())).setLargestArmy(true);
+            game.setInventoryWithLargestArmy(game.getInventory(game.getUser(game.getTurn())));
+        } else if (game.getInventoryWithLargestArmy() != null) {
+            if (game.getInventory(game.getUser(game.getTurn())).getPlayedKnights() > game.getInventoryWithLargestArmy().getPlayedKnights()) {
+                if (!game.getUser(game.getTurn()).equals(game.getInventoryWithLargestArmy().getUser()))
+                    game.getInventoryWithLargestArmy().setLargestArmy(false);
+                game.setInventoryWithLargestArmy(game.getInventory(game.getUser(game.getTurn())));
+                game.getInventoryWithLargestArmy().setLargestArmy(true);
+            }
+        }
+    }
 
     /**
      * Method to update private and public inventories in a game
@@ -1153,62 +1178,62 @@ public class GameService extends AbstractService {
         sendToAllInGame(game.getName(), publicInventoryChangeMessage);
     }
 
-    /**
-     * Returns the gameManagement
-     *
-     * @return the gameManagement
-     */
-    public GameManagement getGameManagement() {
-        return this.gameManagement;
-    }
-
-    /**
-     * Handles LogoutRequests found on the EventBus
-     * <p>
-     * If a LogoutRequest is detected on the EventBus, this method is called. It gets all games from the GameManagement
-     * and loops through them. If the user is part of a game, he gets removed from it. If he is the last user in the
-     * game, the game gets dropped. Finally we log how many games the user left.
-     *
-     * @param request LogoutRequest found on the eventBus
-     * @author René Meyer, Sergej Tulnev
-     * @see de.uol.swp.common.user.request.LogoutRequest
-     * @see de.uol.swp.common.game.request.GameLeaveUserRequest
-     * @see de.uol.swp.server.lobby.LobbyService
-     * @since 2021-04-08
-     */
-    @Subscribe
-    public void onLogoutRequest(LogoutRequest request) {
-        if (request.getSession().isPresent()) {
-            Session session = request.getSession().get();
-            var userToLogOut = session.getUser();
-            // Could be already logged out
-            if (userToLogOut != null) {
-                var games = gameManagement.getAllGames();
-                // Create gamesCopy because of ConcurrentModificationException,
-                // so it doesn't matter when in the meantime the games Object gets modified, while we still loop through it
-                var gamesCopy = games.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-                // Loop games
-                Iterator<Map.Entry<String, Game>> it = gamesCopy.entrySet().iterator();
-                var i = 0;
-                while (it.hasNext()) {
-                    Map.Entry<String, Game> entry = it.next();
-                    Game game = entry.getValue();
-                    if (game.getUsers().contains(userToLogOut)) {
-                        // leave every game the user is part of
-                        var gameLeaveUserRequest = new GameLeaveUserRequest(game.getName(), (UserDTO) userToLogOut);
-                        if (request.getMessageContext().isPresent()) {
-                            gameLeaveUserRequest.setMessageContext(request.getMessageContext().get());
-                            this.onGameLeaveUserRequest(gameLeaveUserRequest);
-                        }
-                    }
-                    i++;
-                }
-                var lobbyString = i > 1 ? " games" : " game";
-                LOG.debug("Left " + i + lobbyString + " for User: " + userToLogOut.getUsername());
-            }
+        /**
+         * Returns the gameManagement
+         *
+         * @return the gameManagement
+         */
+        public GameManagement getGameManagement () {
+            return this.gameManagement;
         }
 
-    }
+        /**
+         * Handles LogoutRequests found on the EventBus
+         * <p>
+         * If a LogoutRequest is detected on the EventBus, this method is called. It gets all games from the GameManagement
+         * and loops through them. If the user is part of a game, he gets removed from it. If he is the last user in the
+         * game, the game gets dropped. Finally we log how many games the user left.
+         *
+         * @param request LogoutRequest found on the eventBus
+         * @author René Meyer, Sergej Tulnev
+         * @see de.uol.swp.common.user.request.LogoutRequest
+         * @see de.uol.swp.common.game.request.GameLeaveUserRequest
+         * @see de.uol.swp.server.lobby.LobbyService
+         * @since 2021-04-08
+         */
+        @Subscribe
+        public void onLogoutRequest (LogoutRequest request){
+            if (request.getSession().isPresent()) {
+                Session session = request.getSession().get();
+                var userToLogOut = session.getUser();
+                // Could be already logged out
+                if (userToLogOut != null) {
+                    var games = gameManagement.getAllGames();
+                    // Create gamesCopy because of ConcurrentModificationException,
+                    // so it doesn't matter when in the meantime the games Object gets modified, while we still loop through it
+                    var gamesCopy = games.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+                    // Loop games
+                    Iterator<Map.Entry<String, Game>> it = gamesCopy.entrySet().iterator();
+                    var i = 0;
+                    while (it.hasNext()) {
+                        Map.Entry<String, Game> entry = it.next();
+                        Game game = entry.getValue();
+                        if (game.getUsers().contains(userToLogOut)) {
+                            // leave every game the user is part of
+                            var gameLeaveUserRequest = new GameLeaveUserRequest(game.getName(), (UserDTO) userToLogOut);
+                            if (request.getMessageContext().isPresent()) {
+                                gameLeaveUserRequest.setMessageContext(request.getMessageContext().get());
+                                this.onGameLeaveUserRequest(gameLeaveUserRequest);
+                            }
+                        }
+                        i++;
+                    }
+                    var lobbyString = i > 1 ? " games" : " game";
+                    LOG.debug("Left " + i + lobbyString + " for User: " + userToLogOut.getUsername());
+                }
+            }
+
+        }
 
     /**
      * either initiates a new trade or adds a bid to an existing trade
@@ -1242,17 +1267,17 @@ public class GameService extends AbstractService {
         game.get().getInventory(request.getUser()).incCardStack("Brick", 10);
         Inventory easyPrüfen = game.get().getInventory(request.getUser());
 */
-        if (optionalGame.isPresent()) {
-            Game game = optionalGame.get();
-            boolean numberOfCardsCorrect = true;
+            if (optionalGame.isPresent()) {
+                Game game = optionalGame.get();
+                boolean numberOfCardsCorrect = true;
 
-            for (TradeItem tradeItem : request.getTradeItems()) {
-                boolean notEnoughInInventoryCheck = tradeItem.getCount() > game.getInventory(request.getUser()).getPrivateView().get(tradeItem.getName());
-                if (tradeItem.getCount() < 0 || notEnoughInInventoryCheck) {
-                    numberOfCardsCorrect = false;
-                    break;
+                for (TradeItem tradeItem : request.getTradeItems()) {
+                    boolean notEnoughInInventoryCheck = tradeItem.getCount() > game.getInventory(request.getUser()).getPrivateView().get(tradeItem.getName());
+                    if (tradeItem.getCount() < 0 || notEnoughInInventoryCheck) {
+                        numberOfCardsCorrect = false;
+                        break;
+                    }
                 }
-            }
 
             if (numberOfCardsCorrect) {
                 String tradeCode = request.getTradeCode();
@@ -1303,46 +1328,46 @@ public class GameService extends AbstractService {
     }
 
 
-    /**
-     * finalises the trade
-     * <p>
-     * if a bid was accepted by the seller
-     * trades the items between the users
-     * if rejected, nothing happens
-     * calls tradeEndedChatMessageHelper to inform the players about the result of the trade
-     * TradeEndedMessage is send to all player in game
-     * the specified trade is removed from the game
-     *
-     * @param request TradeChoiceRequest containing the choice the seller made
-     * @author Alexander Losse, Ricardo Mook
-     * @since 2021-04-13
-     */
-    @Subscribe
-    public void onTradeChoiceRequest(TradeChoiceRequest request) {
-        Optional<Game> optionalGame = gameManagement.getGame(request.getName());
-        if (optionalGame.isPresent()) {
-            Game game = optionalGame.get();
-            Trade trade = game.getTradeList().get(request.getTradeCode());
+        /**
+         * finalises the trade
+         * <p>
+         * if a bid was accepted by the seller
+         * trades the items between the users
+         * if rejected, nothing happens
+         * calls tradeEndedChatMessageHelper to inform the players about the result of the trade
+         * TradeEndedMessage is send to all player in game
+         * the specified trade is removed from the game
+         *
+         * @param request TradeChoiceRequest containing the choice the seller made
+         * @author Alexander Losse, Ricardo Mook
+         * @since 2021-04-13
+         */
+        @Subscribe
+        public void onTradeChoiceRequest (TradeChoiceRequest request){
+            Optional<Game> optionalGame = gameManagement.getGame(request.getName());
+            if (optionalGame.isPresent()) {
+                Game game = optionalGame.get();
+                Trade trade = game.getTradeList().get(request.getTradeCode());
 
-            if (request.getTradeAccepted() && !request.getUser().getUsername().equals(trade.getSeller().getUsername())) {
-                Inventory inventorySeller = game.getInventory(trade.getSeller());
-                Inventory inventoryBidder = game.getInventory(request.getUser());
+                if (request.getTradeAccepted() && !request.getUser().getUsername().equals(trade.getSeller().getUsername())) {
+                    Inventory inventorySeller = game.getInventory(trade.getSeller());
+                    Inventory inventoryBidder = game.getInventory(request.getUser());
 
-                for (TradeItem soldItem : trade.getSellingItems()) {
-                    inventorySeller.decCardStack(soldItem.getName(), soldItem.getCount());
-                    inventoryBidder.incCardStack(soldItem.getName(), soldItem.getCount());
+                    for (TradeItem soldItem : trade.getSellingItems()) {
+                        inventorySeller.decCardStack(soldItem.getName(), soldItem.getCount());
+                        inventoryBidder.incCardStack(soldItem.getName(), soldItem.getCount());
+                    }
+                    for (TradeItem bidItem : trade.getBids().get(request.getUser())) {
+                        inventorySeller.incCardStack(bidItem.getName(), bidItem.getCount());
+                        inventoryBidder.decCardStack(bidItem.getName(), bidItem.getCount());
+                    }
                 }
-                for (TradeItem bidItem : trade.getBids().get(request.getUser())) {
-                    inventorySeller.incCardStack(bidItem.getName(), bidItem.getCount());
-                    inventoryBidder.decCardStack(bidItem.getName(), bidItem.getCount());
-                }
+                tradeEndedChatMessageHelper(game.getName(), request.getTradeCode(), request.getUser().getUsername(), request.getTradeAccepted());
+                sendToAllInGame(request.getName(), new TradeEndedMessage(request.getTradeCode()));
+                game.removeTrade(request.getTradeCode());
+                updateInventory(game);
             }
-            tradeEndedChatMessageHelper(game.getName(), request.getTradeCode(), request.getUser().getUsername(), request.getTradeAccepted());
-            sendToAllInGame(request.getName(), new TradeEndedMessage(request.getTradeCode()));
-            game.removeTrade(request.getTradeCode());
-            updateInventory(game);
         }
-    }
 
     /**
      * help method to deliver a chatMessage to all players of the game how the trade ended
@@ -1371,20 +1396,20 @@ public class GameService extends AbstractService {
         }
     }
 
-    /**
-     * sends tradeStartedMessage to the seller when his request to start a trade is handled by the server
-     *
-     * @param request TradeStartRequest
-     * @author Alexander Losse, Ricardo Mook
-     * @see TradeStartRequest
-     * @since 2021-04-11
-     */
-    @Subscribe
-    public void onTradeStartedRequest(TradeStartRequest request) {
-        UserDTO user = request.getUser();
-        TradeStartedMessage tsm = new TradeStartedMessage(user, request.getName(), request.getTradeCode());
-        sendToSpecificUserInGame(tsm, user);
-    }
+        /**
+         * sends tradeStartedMessage to the seller when his request to start a trade is handled by the server
+         *
+         * @param request TradeStartRequest
+         * @author Alexander Losse, Ricardo Mook
+         * @see TradeStartRequest
+         * @since 2021-04-11
+         */
+        @Subscribe
+        public void onTradeStartedRequest (TradeStartRequest request){
+            UserDTO user = request.getUser();
+            TradeStartedMessage tsm = new TradeStartedMessage(user, request.getName(), request.getTradeCode());
+            sendToSpecificUserInGame(tsm, user);
+        }
 
     /**
      * Draws a random card from the user, that was chosen from the player that moved the robber.
