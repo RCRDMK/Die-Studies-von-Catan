@@ -867,6 +867,7 @@ public class GameService extends AbstractService {
      * then remove the DevelopmentCard from the inventory of the player and inform him that he
      * may proceed with the resolution of the card. If something went wrong, also inform him.
      *
+     * enhanced by Alexander Losse on 2021-05-30
      * @param request the PlayDevelopmentCardRequest sent by the client
      * @author Marc Hermes
      * @since 2021-05-01
@@ -888,6 +889,7 @@ public class GameService extends AbstractService {
                 inventory.cardYearOfPlenty.incNumber();
                 inventory.cardKnight.incNumber();
 
+                //checks if user can play developmentCard
                 if(!game.canUserPlayDevCard(request.getUser(), devCard)){
                     devCard = "default";
                 }

@@ -434,6 +434,9 @@ public class GamePresenter extends AbstractPresenter {
      * @since 2021-01-13
      * <p>
      * I have changed the place of the method to the new GamePresenter.
+     * Enhanced by Alexander Losse on 2021-05-30
+     * <p>
+     * remembers that the dice was rolled and changes the buttons
      */
     @FXML
     public void onRollDice() {
@@ -855,6 +858,8 @@ public class GamePresenter extends AbstractPresenter {
      * <p>
      * Enhanced by Carsten Dekker
      * @since 2021-04-30
+     * <p>
+     * Enhanced by Alexander Losse on 2021-05-30
      */
     @Subscribe
     public void nextPlayerTurn(NextTurnMessage response) {
@@ -863,25 +868,12 @@ public class GamePresenter extends AbstractPresenter {
             if (response.getPlayerWithCurrentTurn().equals(joinedLobbyUser.getUsername())) {
                 startingTurn = response.isInStartingTurn();
                 itsMyTurn = true;
-                if (response.isInStartingTurn()) {
-                    // endTurnButton.setDisable(true);
-                    // rollDiceButton.setDisable(false);
-                    // buyDevCard.setDisable(false);
-                    // tradeButton.setDisable(false);
-                    switchTurnPhaseButtons();
-                } else {
-                    switchTurnPhaseButtons();
-                }
+
+                switchTurnPhaseButtons();
+
             } else {
                 itsMyTurn = false;
                 switchTurnPhaseButtons();
-                /*
-                endTurnButton.setDisable(true);
-                rollDiceButton.setDisable(true);
-                buyDevCard.setDisable(true);
-                tradeButton.setDisable(true);
-                buyDevCard.setDisable((true));
-            */
             }
             if (!response.isInStartingTurn()) {
                 if (response.getTurn() == 0) {
@@ -1449,12 +1441,6 @@ public class GamePresenter extends AbstractPresenter {
                                 if (container.getHexagon().getTerrainType() != 6) {
                                     for (HexagonContainer container1 : hexagonContainers) {
                                         container1.getHexagonShape().removeEventHandler(MouseEvent.MOUSE_PRESSED, this);
-/**
- rollDiceButton.setDisable(false);
- buildMenu.setDisable(false);
- endTurnButton.setDisable(false);
- buyDevCard.setDisable(false);
- **/
                                         switchTurnPhaseButtons();
                                     }
                                     if (currentDevelopmentCard.equals("Knight")) {
@@ -2226,6 +2212,15 @@ public class GamePresenter extends AbstractPresenter {
         }
     }
 
+    /**
+     * help method to disable/enable buttons
+     * <p>
+     * method is used to check for specific variables and enables/disables button accordingly
+     * e.g it is not users turn
+     *
+     * @author Alexander Losse
+     * @since 2021-05-30
+     */
     private void switchTurnPhaseButtons() {
         if (itsMyTurn) { //it's users turn
             if (!startingTurn) { //not in opening phase
@@ -2250,8 +2245,7 @@ public class GamePresenter extends AbstractPresenter {
                 rollDiceButton.setDisable(true);
                 buyDevCard.setDisable(true);
             }
-        }
-        else{ //not users turn
+        } else { //not users turn
             endTurnButton.setDisable(true);
             rollDiceButton.setDisable(true);
             buyDevCard.setDisable(true);

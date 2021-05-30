@@ -325,9 +325,30 @@ public interface Game extends Serializable {
 
     void rememberDevCardBoughtThisTurn(String card, int amount);
 
-    HashMap<String, Integer> getAllBoughtCardThisTurn();
+    /**
+     * getter for the HasMap containing the development cards bought this turn
+     * @return HashMap<String, Integer> boughtDevCardsThisTurn
+     * @author Alexander Losse
+     * @since 2021-05-30
+     */
+    HashMap<String, Integer> getBoughtDevCardsThisTurn();
 
+    /**
+     *  getter for how many cards of a type were bought this turn
+     * @param card String name of the card
+     * @return itn amount of cards
+     * @author Alexander Losse
+     * @since 2021-05-30
+     */
     int getHowManyCardsOfTypeWereBoughtThisTurn(String card);
 
+    /**
+     * checks if user can play a development card
+     * @param user User
+     * @param card String name of the card
+     * @return boolean
+     * @author Alexander Losse
+     * @since 2021-05-30
+     */
     boolean canUserPlayDevCard(User user, String card);
 }
