@@ -1260,7 +1260,7 @@ public class GameService extends AbstractService {
      */
     @Subscribe
     public void onTradeItemRequest(TradeItemRequest request) {
-        System.out.println("Got message " + request.getUser().getUsername());
+        LOG.debug("Got message " + request.getUser().getUsername());
         Optional<Game> optionalGame = gameManagement.getGame(request.getName());
 
         if (optionalGame.isPresent()) {

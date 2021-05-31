@@ -12,6 +12,16 @@ public class BankRequest extends AbstractGameRequest {
     private String cardName;
 
     /**
+     * Default Constructor needs for serialization
+     *
+     * @author Anton Nikiforov
+     * @since 2021-05-29
+     */
+    public BankRequest() {
+
+    }
+
+    /**
      * The constructor
      *
      * @param name      the game name

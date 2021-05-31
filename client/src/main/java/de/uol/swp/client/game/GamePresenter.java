@@ -1687,7 +1687,6 @@ public class GamePresenter extends AbstractPresenter {
 
             if (itsMyTurn) {
                 tradeButton.setDisable(false);
-                rollDice.setDisable(false);
                 buildMenu.setDisable(false);
                 buyDevCard.setDisable(false);
                 EndTurnButton.setDisable(false);

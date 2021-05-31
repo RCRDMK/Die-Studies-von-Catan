@@ -19,8 +19,6 @@ public class GameSerializableTest {
     private static final UserDTO defaultUser = new UserDTO("marco", "marco", "marco@grawunder.de");
     private static final ArrayList<String> defaultUserList = new ArrayList<>();
     private static final HashMap<String, Integer> defaultHashMap = new HashMap<>();
-    private static final ArrayList<TradeItem> defaultOffer1 = new ArrayList<>();
-    private static final ArrayList<ArrayList<TradeItem>> defaultOffer2 = new ArrayList<>();
     private static final UUID defaultUuid = UUID.randomUUID();
 
     @Test
@@ -71,7 +69,7 @@ public class GameSerializableTest {
                 TradeEndedMessage.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new TradeCardErrorMessage(),
                 TradeCardErrorMessage.class));
-        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new BankResponseMessage(defaultUser, "", "", defaultOffer2),
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new BankResponseMessage(),
                 BankResponseMessage.class));
     }
 
@@ -113,9 +111,9 @@ public class GameSerializableTest {
                 TradeChoiceRequest.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new TradeItemRequest(),
                 TradeItemRequest.class));
-        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new BankRequest("test", defaultUser, "", ""),
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new BankRequest(),
                 BankRequest.class));
-        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new BankBuyRequest("test", defaultUser, "", "", defaultOffer1),
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new BankBuyRequest(),
                 BankBuyRequest.class));
     }
 

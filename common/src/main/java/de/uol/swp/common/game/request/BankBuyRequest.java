@@ -11,9 +11,19 @@ import java.util.ArrayList;
  */
 public class BankBuyRequest extends AbstractGameRequest {
 
-    private final String tradeCode;
-    private final String chosenCard;
-    private final ArrayList<TradeItem> chosenOffer;
+    private  String tradeCode;
+    private  String chosenCard;
+    private  ArrayList<TradeItem> chosenOffer;
+
+    /**
+     * Default Constructor needs for serialization
+     *
+     * @author Anton Nikiforov
+     * @since 2021-05-29
+     */
+    public BankBuyRequest() {
+
+    }
 
     /**
      * The constructor
