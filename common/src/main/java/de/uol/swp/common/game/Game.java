@@ -112,6 +112,14 @@ public interface Game extends Serializable {
     void setUpUserArrayList();
 
     /**
+     * Returns an integer, indicating the number of starting phase.
+     *
+     * @author Kirstin Beyer
+     * @since 2021-04-25
+     */
+    int getStartingPhase();
+
+    /**
      * Returns a number, indicating whos turn it is.
      *
      * <p>The number represents the index inside the playersList, pointing to a certain Player.</p>

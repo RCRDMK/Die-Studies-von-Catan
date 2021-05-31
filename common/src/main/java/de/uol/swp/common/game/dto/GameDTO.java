@@ -31,6 +31,7 @@ public class GameDTO implements Game {
     private final ArrayList<User> userArrayList = new ArrayList<User>();
     private User owner;
     private boolean startingTurns = true;
+    private int startingPhase = 1;
     private boolean countingUp = true;
     private boolean lastPlayerSecondTurn = false;
     private boolean playedCardThisTurn = false;
@@ -203,7 +204,7 @@ public class GameDTO implements Game {
      * Organizing the opening-phase for the set amount of players.
      *
      * <p>
-     * This is checking many different statements for boolean value to evaluate wich players turn is up next. It does
+     * This is checking many different statements for boolean value to evaluate which players turn is up next. It does
      * this until every player did his move according to the games rules. For n players, the opening-phase goes from
      * player 1 upwards to player n, then player n again and then backwards to player 1. After that, it disables the
      * opening-phase for the rest of the game. It also creates a list of the built buildings from which raw materials
@@ -220,18 +221,22 @@ public class GameDTO implements Game {
         if (overallTurns == userArrayList.size() - 1 && !lastPlayerSecondTurn) { // 1)... and if the last player did his first turn but he did not use his second turn:
             lastPlayerSecondTurn = true; // now he did.
             countingUp = false; // we count backwards from now on.
+            startingPhase = 2;
             return;
         } else if (overallTurns <= userArrayList.size()) { // 2)... and if we are not at the last player ...
             if (countingUp) { // 2a)... and if we still count up:
                 overallTurns++; //count one up.
+                startingPhase = 1;
                 return;
             } else { // 2b)... and if we dont count up anymore ...
                 if (overallTurns > 0) {  // 2b1) ... and if we did not arrive back at player 1:
                     overallTurns--; // count one down.
                     countingUp = false; // dont count up anymore.
+                    startingPhase = 2;
                     return;
                 } else {
                     startingTurns = false; // 2b2) if we are at player 1 and were already counting backwards, end the openingphase.
+                    startingPhase = 0;
                     for (int i = 0; i < userArrayList.size(); i++) {
                         lastBuildingOfOpeningTurn.add(mapGraph.getBuiltBuildings().get(mapGraph.getBuiltBuildings().size() - 1 - i));
                     }
@@ -328,6 +333,11 @@ public class GameDTO implements Game {
     @Override
     public void setMapGraph(MapGraph mapGraph) {
         this.mapGraph = mapGraph;
+    }
+
+    @Override
+    public int getStartingPhase() {
+        return startingPhase;
     }
 
     /**

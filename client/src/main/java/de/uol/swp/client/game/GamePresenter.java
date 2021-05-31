@@ -151,6 +151,10 @@ public class GamePresenter extends AbstractPresenter {
     private Button tradeButton;
 
     @FXML
+    public Label BuildingNotSuccessfulLabel;
+
+
+    @FXML
     private Pane picturePlayerView1;
 
     @FXML
@@ -892,6 +896,8 @@ public class GamePresenter extends AbstractPresenter {
                     playerThreeDiceView.setVisible(false);
                     playerFourDiceView.setVisible(true);
                 }
+            } else {
+                endTurnButton.setDisable(true);
             }
         }
     }
@@ -1841,6 +1847,7 @@ public class GamePresenter extends AbstractPresenter {
             }
         }
     }
+
 
     /**
      * This method will be invoked if the robber is successfully moved on the gamefield.
