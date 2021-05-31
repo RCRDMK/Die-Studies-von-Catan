@@ -1236,23 +1236,23 @@ public class GameServiceTest {
         Inventory inventory2 = game.getInventory(userDTO2);
 
 
-        assertEquals(bank.getNumberFromCardStack("Lumber"), 19);
-        assertEquals(bank.getNumberFromCardStack("Brick"), 19);
-        assertEquals(bank.getNumberFromCardStack("Grain"), 19);
-        assertEquals(bank.getNumberFromCardStack("Wool"), 19);
-        assertEquals(bank.getNumberFromCardStack("Ore"), 19);
+        assertEquals(bank.getSpecificResourceAmount("Lumber"), 19);
+        assertEquals(bank.getSpecificResourceAmount("Brick"), 19);
+        assertEquals(bank.getSpecificResourceAmount("Grain"), 19);
+        assertEquals(bank.getSpecificResourceAmount("Wool"), 19);
+        assertEquals(bank.getSpecificResourceAmount("Ore"), 19);
 
-        assertEquals(inventory1.getNumberFromCardStack("Lumber"), 0);
-        assertEquals(inventory1.getNumberFromCardStack("Brick"), 0);
-        assertEquals(inventory1.getNumberFromCardStack("Grain"), 0);
-        assertEquals(inventory1.getNumberFromCardStack("Wool"), 0);
-        assertEquals(inventory1.getNumberFromCardStack("Ore"), 0);
+        assertEquals(inventory1.getSpecificResourceAmount("Lumber"), 0);
+        assertEquals(inventory1.getSpecificResourceAmount("Brick"), 0);
+        assertEquals(inventory1.getSpecificResourceAmount("Grain"), 0);
+        assertEquals(inventory1.getSpecificResourceAmount("Wool"), 0);
+        assertEquals(inventory1.getSpecificResourceAmount("Ore"), 0);
 
-        assertEquals(inventory2.getNumberFromCardStack("Lumber"), 0);
-        assertEquals(inventory2.getNumberFromCardStack("Brick"), 0);
-        assertEquals(inventory2.getNumberFromCardStack("Grain"), 0);
-        assertEquals(inventory2.getNumberFromCardStack("Wool"), 0);
-        assertEquals(inventory2.getNumberFromCardStack("Ore"), 0);
+        assertEquals(inventory2.getSpecificResourceAmount("Lumber"), 0);
+        assertEquals(inventory2.getSpecificResourceAmount("Brick"), 0);
+        assertEquals(inventory2.getSpecificResourceAmount("Grain"), 0);
+        assertEquals(inventory2.getSpecificResourceAmount("Wool"), 0);
+        assertEquals(inventory2.getSpecificResourceAmount("Ore"), 0);
 
         // giveResourceTest
         gameService.giveResource(game, userDTO1, "Lumber", 15);
@@ -1261,23 +1261,23 @@ public class GameServiceTest {
         gameService.giveResource(game, userDTO1, "Wool", 15);
         gameService.giveResource(game, userDTO1, "Ore", 15);
 
-        assertEquals(bank.getNumberFromCardStack("Lumber"), 4);
-        assertEquals(bank.getNumberFromCardStack("Brick"), 4);
-        assertEquals(bank.getNumberFromCardStack("Grain"), 4);
-        assertEquals(bank.getNumberFromCardStack("Wool"), 4);
-        assertEquals(bank.getNumberFromCardStack("Ore"), 4);
+        assertEquals(bank.getSpecificResourceAmount("Lumber"), 4);
+        assertEquals(bank.getSpecificResourceAmount("Brick"), 4);
+        assertEquals(bank.getSpecificResourceAmount("Grain"), 4);
+        assertEquals(bank.getSpecificResourceAmount("Wool"), 4);
+        assertEquals(bank.getSpecificResourceAmount("Ore"), 4);
 
-        assertEquals(inventory1.getNumberFromCardStack("Lumber"), 15);
-        assertEquals(inventory1.getNumberFromCardStack("Brick"), 15);
-        assertEquals(inventory1.getNumberFromCardStack("Grain"), 15);
-        assertEquals(inventory1.getNumberFromCardStack("Wool"), 15);
-        assertEquals(inventory1.getNumberFromCardStack("Ore"), 15);
+        assertEquals(inventory1.getSpecificResourceAmount("Lumber"), 15);
+        assertEquals(inventory1.getSpecificResourceAmount("Brick"), 15);
+        assertEquals(inventory1.getSpecificResourceAmount("Grain"), 15);
+        assertEquals(inventory1.getSpecificResourceAmount("Wool"), 15);
+        assertEquals(inventory1.getSpecificResourceAmount("Ore"), 15);
 
-        assertEquals(inventory2.getNumberFromCardStack("Lumber"), 0);
-        assertEquals(inventory2.getNumberFromCardStack("Brick"), 0);
-        assertEquals(inventory2.getNumberFromCardStack("Grain"), 0);
-        assertEquals(inventory2.getNumberFromCardStack("Wool"), 0);
-        assertEquals(inventory2.getNumberFromCardStack("Ore"), 0);
+        assertEquals(inventory2.getSpecificResourceAmount("Lumber"), 0);
+        assertEquals(inventory2.getSpecificResourceAmount("Brick"), 0);
+        assertEquals(inventory2.getSpecificResourceAmount("Grain"), 0);
+        assertEquals(inventory2.getSpecificResourceAmount("Wool"), 0);
+        assertEquals(inventory2.getSpecificResourceAmount("Ore"), 0);
 
 
         gameService.giveResource(game, userDTO2, "Lumber", 10);
@@ -1286,23 +1286,23 @@ public class GameServiceTest {
         gameService.giveResource(game, userDTO2, "Wool", 10);
         gameService.giveResource(game, userDTO2, "Ore", 10);
 
-        assertEquals(bank.getNumberFromCardStack("Lumber"), 0);
-        assertEquals(bank.getNumberFromCardStack("Brick"), 0);
-        assertEquals(bank.getNumberFromCardStack("Grain"), 0);
-        assertEquals(bank.getNumberFromCardStack("Wool"), 0);
-        assertEquals(bank.getNumberFromCardStack("Ore"), 0);
+        assertEquals(bank.getSpecificResourceAmount("Lumber"), 0);
+        assertEquals(bank.getSpecificResourceAmount("Brick"), 0);
+        assertEquals(bank.getSpecificResourceAmount("Grain"), 0);
+        assertEquals(bank.getSpecificResourceAmount("Wool"), 0);
+        assertEquals(bank.getSpecificResourceAmount("Ore"), 0);
 
-        assertEquals(inventory1.getNumberFromCardStack("Lumber"), 15);
-        assertEquals(inventory1.getNumberFromCardStack("Brick"), 15);
-        assertEquals(inventory1.getNumberFromCardStack("Grain"), 15);
-        assertEquals(inventory1.getNumberFromCardStack("Wool"), 15);
-        assertEquals(inventory1.getNumberFromCardStack("Ore"), 15);
+        assertEquals(inventory1.getSpecificResourceAmount("Lumber"), 15);
+        assertEquals(inventory1.getSpecificResourceAmount("Brick"), 15);
+        assertEquals(inventory1.getSpecificResourceAmount("Grain"), 15);
+        assertEquals(inventory1.getSpecificResourceAmount("Wool"), 15);
+        assertEquals(inventory1.getSpecificResourceAmount("Ore"), 15);
 
-        assertEquals(inventory2.getNumberFromCardStack("Lumber"), 4);
-        assertEquals(inventory2.getNumberFromCardStack("Brick"), 4);
-        assertEquals(inventory2.getNumberFromCardStack("Grain"), 4);
-        assertEquals(inventory2.getNumberFromCardStack("Wool"), 4);
-        assertEquals(inventory2.getNumberFromCardStack("Ore"), 4);
+        assertEquals(inventory2.getSpecificResourceAmount("Lumber"), 4);
+        assertEquals(inventory2.getSpecificResourceAmount("Brick"), 4);
+        assertEquals(inventory2.getSpecificResourceAmount("Grain"), 4);
+        assertEquals(inventory2.getSpecificResourceAmount("Wool"), 4);
+        assertEquals(inventory2.getSpecificResourceAmount("Ore"), 4);
 
 
         // takeResourceTest
@@ -1312,23 +1312,23 @@ public class GameServiceTest {
         gameService.takeResource(game, userDTO1, "Wool", 15);
         gameService.takeResource(game, userDTO1, "Ore", 15);
 
-        assertEquals(bank.getNumberFromCardStack("Lumber"), 15);
-        assertEquals(bank.getNumberFromCardStack("Brick"), 15);
-        assertEquals(bank.getNumberFromCardStack("Grain"), 15);
-        assertEquals(bank.getNumberFromCardStack("Wool"), 15);
-        assertEquals(bank.getNumberFromCardStack("Ore"), 15);
+        assertEquals(bank.getSpecificResourceAmount("Lumber"), 15);
+        assertEquals(bank.getSpecificResourceAmount("Brick"), 15);
+        assertEquals(bank.getSpecificResourceAmount("Grain"), 15);
+        assertEquals(bank.getSpecificResourceAmount("Wool"), 15);
+        assertEquals(bank.getSpecificResourceAmount("Ore"), 15);
 
-        assertEquals(inventory1.getNumberFromCardStack("Lumber"), 0);
-        assertEquals(inventory1.getNumberFromCardStack("Brick"), 0);
-        assertEquals(inventory1.getNumberFromCardStack("Grain"), 0);
-        assertEquals(inventory1.getNumberFromCardStack("Wool"), 0);
-        assertEquals(inventory1.getNumberFromCardStack("Ore"), 0);
+        assertEquals(inventory1.getSpecificResourceAmount("Lumber"), 0);
+        assertEquals(inventory1.getSpecificResourceAmount("Brick"), 0);
+        assertEquals(inventory1.getSpecificResourceAmount("Grain"), 0);
+        assertEquals(inventory1.getSpecificResourceAmount("Wool"), 0);
+        assertEquals(inventory1.getSpecificResourceAmount("Ore"), 0);
 
-        assertEquals(inventory2.getNumberFromCardStack("Lumber"), 4);
-        assertEquals(inventory2.getNumberFromCardStack("Brick"), 4);
-        assertEquals(inventory2.getNumberFromCardStack("Grain"), 4);
-        assertEquals(inventory2.getNumberFromCardStack("Wool"), 4);
-        assertEquals(inventory2.getNumberFromCardStack("Ore"), 4);
+        assertEquals(inventory2.getSpecificResourceAmount("Lumber"), 4);
+        assertEquals(inventory2.getSpecificResourceAmount("Brick"), 4);
+        assertEquals(inventory2.getSpecificResourceAmount("Grain"), 4);
+        assertEquals(inventory2.getSpecificResourceAmount("Wool"), 4);
+        assertEquals(inventory2.getSpecificResourceAmount("Ore"), 4);
 
 
         gameService.takeResource(game, userDTO2, "Lumber", 10);
@@ -1337,23 +1337,23 @@ public class GameServiceTest {
         gameService.takeResource(game, userDTO2, "Wool", 10);
         gameService.takeResource(game, userDTO2, "Ore", 10);
 
-        assertEquals(bank.getNumberFromCardStack("Lumber"), 19);
-        assertEquals(bank.getNumberFromCardStack("Brick"), 19);
-        assertEquals(bank.getNumberFromCardStack("Grain"), 19);
-        assertEquals(bank.getNumberFromCardStack("Wool"), 19);
-        assertEquals(bank.getNumberFromCardStack("Ore"), 19);
+        assertEquals(bank.getSpecificResourceAmount("Lumber"), 19);
+        assertEquals(bank.getSpecificResourceAmount("Brick"), 19);
+        assertEquals(bank.getSpecificResourceAmount("Grain"), 19);
+        assertEquals(bank.getSpecificResourceAmount("Wool"), 19);
+        assertEquals(bank.getSpecificResourceAmount("Ore"), 19);
 
-        assertEquals(inventory1.getNumberFromCardStack("Lumber"), 0);
-        assertEquals(inventory1.getNumberFromCardStack("Brick"), 0);
-        assertEquals(inventory1.getNumberFromCardStack("Grain"), 0);
-        assertEquals(inventory1.getNumberFromCardStack("Wool"), 0);
-        assertEquals(inventory1.getNumberFromCardStack("Ore"), 0);
+        assertEquals(inventory1.getSpecificResourceAmount("Lumber"), 0);
+        assertEquals(inventory1.getSpecificResourceAmount("Brick"), 0);
+        assertEquals(inventory1.getSpecificResourceAmount("Grain"), 0);
+        assertEquals(inventory1.getSpecificResourceAmount("Wool"), 0);
+        assertEquals(inventory1.getSpecificResourceAmount("Ore"), 0);
 
-        assertEquals(inventory2.getNumberFromCardStack("Lumber"), 0);
-        assertEquals(inventory2.getNumberFromCardStack("Brick"), 0);
-        assertEquals(inventory2.getNumberFromCardStack("Grain"), 0);
-        assertEquals(inventory2.getNumberFromCardStack("Wool"), 0);
-        assertEquals(inventory2.getNumberFromCardStack("Ore"), 0);
+        assertEquals(inventory2.getSpecificResourceAmount("Lumber"), 0);
+        assertEquals(inventory2.getSpecificResourceAmount("Brick"), 0);
+        assertEquals(inventory2.getSpecificResourceAmount("Grain"), 0);
+        assertEquals(inventory2.getSpecificResourceAmount("Wool"), 0);
+        assertEquals(inventory2.getSpecificResourceAmount("Ore"), 0);
     }
 
     /**

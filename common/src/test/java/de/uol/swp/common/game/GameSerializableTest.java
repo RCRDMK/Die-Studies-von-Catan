@@ -5,6 +5,7 @@ import de.uol.swp.common.SerializationTestHelper;
 import de.uol.swp.common.game.message.*;
 import de.uol.swp.common.game.request.*;
 import de.uol.swp.common.game.response.*;
+import de.uol.swp.common.game.trade.TradeItem;
 import de.uol.swp.common.user.UserDTO;
 import org.junit.jupiter.api.Test;
 
@@ -16,7 +17,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class GameSerializableTest {
     private static final UserDTO defaultUser = new UserDTO("marco", "marco", "marco@grawunder.de");
-    private static final ArrayList<Game> defaultCollection = new ArrayList<>();
     private static final ArrayList<String> defaultUserList = new ArrayList<>();
     private static final HashMap<String, Integer> defaultHashMap = new HashMap<>();
     private static final UUID defaultUuid = UUID.randomUUID();
@@ -69,8 +69,8 @@ public class GameSerializableTest {
                 TradeEndedMessage.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new TradeCardErrorMessage(),
                 TradeCardErrorMessage.class));
-
-
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new BankResponseMessage(),
+                BankResponseMessage.class));
     }
 
     @Test
@@ -111,6 +111,10 @@ public class GameSerializableTest {
                 TradeChoiceRequest.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new TradeItemRequest(),
                 TradeItemRequest.class));
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new BankRequest(),
+                BankRequest.class));
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new BankBuyRequest(),
+                BankBuyRequest.class));
     }
 
     @Test

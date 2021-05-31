@@ -120,11 +120,11 @@ public class GamePresenter extends AbstractPresenter {
 
     // Used for the DevelopmentCard alerts and functionality
     private Alert resolveDevelopmentCardAlert;
-    private final ImagePattern brick = new ImagePattern(new Image("textures/resized/RES_Lehm.png"));
-    private final ImagePattern ore = new ImagePattern(new Image("textures/resized/RES_Erz.png"));
-    private final ImagePattern wool = new ImagePattern(new Image("textures/resized/RES_Wolle.png"));
-    private final ImagePattern grain = new ImagePattern(new Image("textures/resized/RES_Getreide.png"));
     private final ImagePattern lumber = new ImagePattern(new Image("textures/resized/RES_Holz.png"));
+    private final ImagePattern brick = new ImagePattern(new Image("textures/resized/RES_Lehm.png"));
+    private final ImagePattern grain = new ImagePattern(new Image("textures/resized/RES_Getreide.png"));
+    private final ImagePattern wool = new ImagePattern(new Image("textures/resized/RES_Wolle.png"));
+    private final ImagePattern ore = new ImagePattern(new Image("textures/resized/RES_Erz.png"));
     private final ArrayList<Rectangle> resourceRectangles = new ArrayList<>();
     private String currentDevelopmentCard = "";
     private String resource1 = "";
@@ -151,6 +151,10 @@ public class GamePresenter extends AbstractPresenter {
 
     @FXML
     private Button tradeButton;
+
+    @FXML
+    public Label BuildingNotSuccessfulLabel;
+
 
     @FXML
     private Pane picturePlayerView1;
@@ -292,37 +296,6 @@ public class GamePresenter extends AbstractPresenter {
     }
 
     /**
-     * Adds the ResponseChatMessage to the textArea
-     *
-     * @param message
-     * @author René Meyer
-     * @see de.uol.swp.common.chat.ResponseChatMessage
-     * @since 2021-03-13
-     */
-    private void updateChat(ResponseChatMessage message) {
-        updateChatLogic(message);
-    }
-
-    /**
-     * Adds the ResponseChatMessage to the textArea
-     * <p>
-     * First the message gets formatted with the readableTime.
-     * After the formatting the Message gets added to the textArea.
-     * The formatted Message contains the username, readableTime and message
-     *
-     * @param rcm the ResponseChatMessage given by the original subscriber method.
-     * @author René Meyer
-     * @see de.uol.swp.common.chat.ResponseChatMessage
-     * @since 2021-03-13
-     */
-    private void updateChatLogic(ResponseChatMessage rcm) {
-        var time = new SimpleDateFormat("HH:mm");
-        Date resultdate = new Date((long) rcm.getTime().doubleValue());
-        var readableTime = time.format(resultdate);
-        gameChatArea.insertText(gameChatArea.getLength(), readableTime + " " + rcm.getUsername() + ": " + rcm.getMessage() + "\n");
-    }
-
-    /**
      * The Method invoked by onResponseChatMessage()
      * <p>
      * If the currentLobby is not null, meaning this is an not an empty LobbyPresenter and the lobby name stored in this
@@ -345,21 +318,59 @@ public class GamePresenter extends AbstractPresenter {
     }
 
     /**
+     * Adds the ResponseChatMessage to the textArea
+     * <p>
+     * First the message gets formatted with the readableTime.
+     * After the formatting the Message gets added to the textArea.
+     * The formatted Message contains the username, readableTime and message
+     *
+     * @param rcm the ResponseChatMessage given by the original subscriber method.
+     * @author René Meyer
+     * @see de.uol.swp.common.chat.ResponseChatMessage
+     * @since 2021-03-13
+     */
+    private void updateChat(ResponseChatMessage rcm) {
+        var time = new SimpleDateFormat("HH:mm");
+        Date resultdate = new Date((long) rcm.getTime().doubleValue());
+        var readableTime = time.format(resultdate);
+        gameChatArea.insertText(gameChatArea.getLength(), readableTime + " " + rcm.getUsername() + ": " + rcm.getMessage() + "\n");
+    }
+
+    /**
      * This method is called when the Trade button is pressed
      * <p>
-     * When the user presses the trade button a popup window appears. Within it the user can select which ressources
+     * When the user presses the trade button a teb appears. Within it the user can select which ressources
      * he wants to trade and which amount of it. With a click on the Start a Trade button the startTrade method from the
      * Gameservice on the client side gets called.
      *
      * @author Alexander Losse, Ricardo Mook
      * @since 2021-04-07
      */
-
     @FXML
     public void onTrade(ActionEvent event) {
+        this.buildMenu.setDisable(true);
+        this.buyDevCard.setDisable(true);
+        this.EndTurnButton.setDisable(true);
         String tradeCode = UUID.randomUUID().toString().trim().substring(0, 7);
         gameService.sendTradeStartedRequest((UserDTO) this.joinedLobbyUser, this.currentLobby, tradeCode);
 
+    }
+
+    /**
+     * Enabled the buttons when the trade ended
+     *
+     * @param message TradeEndedMessage
+     *
+     * @author Anton Nikiforov
+     * @since 2021-05-29
+     */
+    @Subscribe
+    public void onTradeEndedMessage(TradeEndedMessage message) {
+        if (itsMyTurn) {
+            this.buildMenu.setDisable(false);
+            this.buyDevCard.setDisable(false);
+            this.EndTurnButton.setDisable(false);
+        }
     }
 
 
@@ -572,9 +583,9 @@ public class GamePresenter extends AbstractPresenter {
         resources[4] = new Rectangle(30, 30);
 
         resources[0].setFill(new ImagePattern(new Image("textures/originals/RES_Holz.png")));
-        resources[1].setFill(new ImagePattern(new Image("textures/originals/RES_Getreide.png")));
-        resources[2].setFill(new ImagePattern(new Image("textures/originals/RES_Wolle.png")));
-        resources[3].setFill(new ImagePattern(new Image("textures/originals/RES_Lehm.png")));
+        resources[1].setFill(new ImagePattern(new Image("textures/originals/RES_Lehm.png")));
+        resources[2].setFill(new ImagePattern(new Image("textures/originals/RES_Getreide.png")));
+        resources[3].setFill(new ImagePattern(new Image("textures/originals/RES_Wolle.png")));
         resources[4].setFill(new ImagePattern(new Image("textures/originals/RES_Erz.png")));
 
         choose = new Button[10];
@@ -598,15 +609,15 @@ public class GamePresenter extends AbstractPresenter {
         }
         lumberLabelRobberMenu = new Label();
         brickLabelRobberMenu = new Label();
+        grainLabelRobberMenu = new Label();
         woolLabelRobberMenu = new Label();
         oreLabelRobberMenu = new Label();
-        grainLabelRobberMenu = new Label();
         toDiscardLabel = new Label();
 
         chooseResource.add(lumberLabelRobberMenu, 0, 2);
-        chooseResource.add(grainLabelRobberMenu, 1, 2);
-        chooseResource.add(woolLabelRobberMenu, 2, 2);
-        chooseResource.add(brickLabelRobberMenu, 3, 2);
+        chooseResource.add(brickLabelRobberMenu, 1, 2);
+        chooseResource.add(grainLabelRobberMenu, 2, 2);
+        chooseResource.add(woolLabelRobberMenu, 3, 2);
         chooseResource.add(oreLabelRobberMenu, 4, 2);
         chooseResource.add(new Label("Amount of Cards to discard:"), 0, 4, 3, 1);
         chooseResource.add(toDiscardLabel, 3, 4);
@@ -634,22 +645,6 @@ public class GamePresenter extends AbstractPresenter {
         });
 
         choose[1].setOnAction(event -> {
-            if (Integer.parseInt(grainLabelRobberMenu.getText()) > 0) {
-                if (Integer.parseInt(toDiscardLabel.getText()) > 0) {
-                    toDiscardLabel.setText(Integer.toString(Integer.parseInt(toDiscardLabel.getText()) - 1));
-                    grainLabelRobberMenu.setText(Integer.toString(Integer.parseInt(grainLabelRobberMenu.getText()) - 1));
-                }
-            }
-        });
-        choose[2].setOnAction(event -> {
-            if (Integer.parseInt(woolLabelRobberMenu.getText()) > 0) {
-                if (Integer.parseInt(toDiscardLabel.getText()) > 0) {
-                    toDiscardLabel.setText(Integer.toString(Integer.parseInt(toDiscardLabel.getText()) - 1));
-                    woolLabelRobberMenu.setText(Integer.toString(Integer.parseInt(woolLabelRobberMenu.getText()) - 1));
-                }
-            }
-        });
-        choose[3].setOnAction(event -> {
             if (Integer.parseInt(brickLabelRobberMenu.getText()) > 0) {
                 if (Integer.parseInt(toDiscardLabel.getText()) > 0) {
                     toDiscardLabel.setText(Integer.toString(Integer.parseInt(toDiscardLabel.getText()) - 1));
@@ -657,6 +652,25 @@ public class GamePresenter extends AbstractPresenter {
                 }
             }
         });
+
+        choose[2].setOnAction(event -> {
+            if (Integer.parseInt(grainLabelRobberMenu.getText()) > 0) {
+                if (Integer.parseInt(toDiscardLabel.getText()) > 0) {
+                    toDiscardLabel.setText(Integer.toString(Integer.parseInt(toDiscardLabel.getText()) - 1));
+                    grainLabelRobberMenu.setText(Integer.toString(Integer.parseInt(grainLabelRobberMenu.getText()) - 1));
+                }
+            }
+        });
+
+        choose[3].setOnAction(event -> {
+            if (Integer.parseInt(woolLabelRobberMenu.getText()) > 0) {
+                if (Integer.parseInt(toDiscardLabel.getText()) > 0) {
+                    toDiscardLabel.setText(Integer.toString(Integer.parseInt(toDiscardLabel.getText()) - 1));
+                    woolLabelRobberMenu.setText(Integer.toString(Integer.parseInt(woolLabelRobberMenu.getText()) - 1));
+                }
+            }
+        });
+
         choose[4].setOnAction(event -> {
             if (Integer.parseInt(oreLabelRobberMenu.getText()) > 0) {
                 if (Integer.parseInt(toDiscardLabel.getText()) > 0) {
@@ -674,25 +688,24 @@ public class GamePresenter extends AbstractPresenter {
             }
         });
 
-
         choose[6].setOnAction(event -> {
+            if (privateInventory.get("Brick") > Integer.parseInt(brickLabelRobberMenu.getText())) {
+                toDiscardLabel.setText(Integer.toString(Integer.parseInt(toDiscardLabel.getText()) + 1));
+                brickLabelRobberMenu.setText(Integer.toString(Integer.parseInt(brickLabelRobberMenu.getText()) + 1));
+            }
+        });
+
+        choose[7].setOnAction(event -> {
             if (privateInventory.get("Grain") > Integer.parseInt(grainLabelRobberMenu.getText())) {
                 toDiscardLabel.setText(Integer.toString(Integer.parseInt(toDiscardLabel.getText()) + 1));
                 grainLabelRobberMenu.setText(Integer.toString(Integer.parseInt(grainLabelRobberMenu.getText()) + 1));
             }
         });
 
-        choose[7].setOnAction(event -> {
+        choose[8].setOnAction(event -> {
             if (privateInventory.get("Wool") > Integer.parseInt(woolLabelRobberMenu.getText())) {
                 toDiscardLabel.setText(Integer.toString(Integer.parseInt(toDiscardLabel.getText()) + 1));
                 woolLabelRobberMenu.setText(Integer.toString(Integer.parseInt(woolLabelRobberMenu.getText()) + 1));
-            }
-        });
-
-        choose[8].setOnAction(event -> {
-            if (privateInventory.get("Brick") > Integer.parseInt(brickLabelRobberMenu.getText())) {
-                toDiscardLabel.setText(Integer.toString(Integer.parseInt(toDiscardLabel.getText()) + 1));
-                brickLabelRobberMenu.setText(Integer.toString(Integer.parseInt(brickLabelRobberMenu.getText()) + 1));
             }
         });
 
@@ -752,16 +765,15 @@ public class GamePresenter extends AbstractPresenter {
 
             tooMuchAlert.setOnCloseRequest(windowEvent -> {
                 if (Integer.parseInt(toDiscardLabel.getText()) == 0) {
-                    HashMap<String, Integer> inventory = new HashMap();
+                    HashMap<String, Integer> inventory = new HashMap<>();
                     inventory.put("Lumber", Integer.parseInt(lumberLabelRobberMenu.getText()));
-                    inventory.put("Grain", Integer.parseInt(grainLabelRobberMenu.getText()));
                     inventory.put("Brick", Integer.parseInt(brickLabelRobberMenu.getText()));
-                    inventory.put("Ore", Integer.parseInt(oreLabelRobberMenu.getText()));
+                    inventory.put("Grain", Integer.parseInt(grainLabelRobberMenu.getText()));
                     inventory.put("Wool", Integer.parseInt(woolLabelRobberMenu.getText()));
+                    inventory.put("Ore", Integer.parseInt(oreLabelRobberMenu.getText()));
 
-                    if (itsMyTurn == true) {
+                    if (itsMyTurn) {
                         tradeButton.setDisable(false);
-                        rollDice.setDisable(false);
                         buildMenu.setDisable(false);
                         buyDevCard.setDisable(false);
                         EndTurnButton.setDisable(false);
@@ -783,22 +795,22 @@ public class GamePresenter extends AbstractPresenter {
             if (this.privateInventory.containsKey("Lumber")) {
                 this.privateInventory.remove("Lumber");
             }
+            if (this.privateInventory.containsKey("Brick")) {
+                this.privateInventory.remove("Brick");
+            }
             if (this.privateInventory.containsKey("Grain")) {
                 this.privateInventory.remove("Grain");
             }
             if (this.privateInventory.containsKey("Wool")) {
                 this.privateInventory.remove("Wool");
             }
-            if (this.privateInventory.containsKey("Brick")) {
-                this.privateInventory.remove("Brick");
-            }
             if (this.privateInventory.containsKey("Ore")) {
                 this.privateInventory.remove("Ore");
             }
             this.privateInventory.put("Lumber", tooMuchResourceCardsMessage.getInventory().get("Lumber"));
+            this.privateInventory.put("Brick", tooMuchResourceCardsMessage.getInventory().get("Brick"));
             this.privateInventory.put("Grain", tooMuchResourceCardsMessage.getInventory().get("Grain"));
             this.privateInventory.put("Wool", tooMuchResourceCardsMessage.getInventory().get("Wool"));
-            this.privateInventory.put("Brick", tooMuchResourceCardsMessage.getInventory().get("Brick"));
             this.privateInventory.put("Ore", tooMuchResourceCardsMessage.getInventory().get("Ore"));
 
 
@@ -809,21 +821,21 @@ public class GamePresenter extends AbstractPresenter {
                 choose[0].setDisable(true);
                 choose[5].setDisable(true);
             }
-            if (privateInventory.get("Grain") != 0) {
+            if (privateInventory.get("Brick") != 0) {
                 choose[1].setDisable(false);
                 choose[6].setDisable(false);
             } else {
                 choose[1].setDisable(true);
                 choose[6].setDisable(true);
             }
-            if (privateInventory.get("Wool") != 0) {
+            if (privateInventory.get("Grain") != 0) {
                 choose[2].setDisable(false);
                 choose[7].setDisable(false);
             } else {
                 choose[2].setDisable(true);
                 choose[7].setDisable(true);
             }
-            if (privateInventory.get("Brick") != 0) {
+            if (privateInventory.get("Wool") != 0) {
                 choose[3].setDisable(false);
                 choose[8].setDisable(false);
             } else {
@@ -839,10 +851,10 @@ public class GamePresenter extends AbstractPresenter {
             }
 
             lumberLabelRobberMenu.setText(Integer.toString(privateInventory.get("Lumber")));
-            grainLabelRobberMenu.setText(Integer.toString(privateInventory.get("Grain")));
             brickLabelRobberMenu.setText(Integer.toString(privateInventory.get("Brick")));
-            oreLabelRobberMenu.setText(Integer.toString(privateInventory.get("Ore")));
+            grainLabelRobberMenu.setText(Integer.toString(privateInventory.get("Grain")));
             woolLabelRobberMenu.setText(Integer.toString(privateInventory.get("Wool")));
+            oreLabelRobberMenu.setText(Integer.toString(privateInventory.get("Ore")));
 
             Window window = tooMuchAlert.getDialogPane().getScene().getWindow();
             window.setOnCloseRequest(e -> e.consume());
@@ -850,16 +862,15 @@ public class GamePresenter extends AbstractPresenter {
             tooMuchAlert.initModality(Modality.APPLICATION_MODAL);
             tooMuchAlert.show();
             tradeButton.setDisable(true);
-            rollDice.setDisable(true);
             buildMenu.setDisable(true);
             buyDevCard.setDisable(true);
             EndTurnButton.setDisable(true);
         } else {
             lumberLabelRobberMenu.setText(Integer.toString(privateInventory.get("Lumber")));
-            grainLabelRobberMenu.setText(Integer.toString(privateInventory.get("Grain")));
             brickLabelRobberMenu.setText(Integer.toString(privateInventory.get("Brick")));
-            oreLabelRobberMenu.setText(Integer.toString(privateInventory.get("Ore")));
+            grainLabelRobberMenu.setText(Integer.toString(privateInventory.get("Grain")));
             woolLabelRobberMenu.setText(Integer.toString(privateInventory.get("Wool")));
+            oreLabelRobberMenu.setText(Integer.toString(privateInventory.get("Ore")));
             toDiscardLabel.setText(String.valueOf((tooMuchResourceCardsMessage.getCards())));
         }
     }
@@ -898,12 +909,14 @@ public class GamePresenter extends AbstractPresenter {
         if (response.getGameName().equals(currentLobby)) {
             if (response.getPlayerWithCurrentTurn().equals(joinedLobbyUser.getUsername())) {
                 itsMyTurn = true;
+                buildMenu.setDisable(false);
                 EndTurnButton.setDisable(false);
                 rollDice.setDisable(false);
                 buyDevCard.setDisable(false);
                 tradeButton.setDisable(false);
             } else {
                 itsMyTurn = false;
+                buildMenu.setDisable(true);
                 EndTurnButton.setDisable(true);
                 rollDice.setDisable(true);
                 buyDevCard.setDisable(true);
@@ -927,6 +940,8 @@ public class GamePresenter extends AbstractPresenter {
                     playerThreeDiceView.setVisible(false);
                     playerFourDiceView.setVisible(true);
                 }
+            } else {
+                EndTurnButton.setDisable(true);
             }
         }
     }
@@ -1631,24 +1646,6 @@ public class GamePresenter extends AbstractPresenter {
                     selectedResource1.setLayoutY(rect.getLayoutY() + selectedResource1.getRadius());
                     selectedResource2.setVisible(false);
                 }
-            } else if (rect.getFill().equals(ore)) {
-                if (resource1.equals("")) {
-                    resource1 = "Ore";
-                    selectedResource1.setLayoutX(rect.getLayoutX() + selectedResource1.getRadius());
-                    selectedResource1.setLayoutY(rect.getLayoutY() + selectedResource1.getRadius());
-                    selectedResource1.setVisible(true);
-                } else if (resource2.equals("") && currentDevelopmentCard.equals("Year of Plenty")) {
-                    resource2 = "Ore";
-                    selectedResource2.setLayoutX(rect.getLayoutX() + selectedResource2.getRadius() / 2 + rect.getWidth() - selectedResource2.getRadius());
-                    selectedResource2.setLayoutY(rect.getLayoutY() + selectedResource2.getRadius());
-                    selectedResource2.setVisible(true);
-                } else {
-                    resource1 = "Ore";
-                    resource2 = "";
-                    selectedResource1.setLayoutX(rect.getLayoutX() + selectedResource1.getRadius());
-                    selectedResource1.setLayoutY(rect.getLayoutY() + selectedResource1.getRadius());
-                    selectedResource2.setVisible(false);
-                }
             } else if (rect.getFill().equals(brick)) {
                 if (resource1.equals("")) {
                     resource1 = "Brick";
@@ -1703,6 +1700,24 @@ public class GamePresenter extends AbstractPresenter {
                     selectedResource1.setLayoutY(rect.getLayoutY() + selectedResource1.getRadius());
                     selectedResource2.setVisible(false);
                 }
+            } else if (rect.getFill().equals(ore)) {
+                if (resource1.equals("")) {
+                    resource1 = "Ore";
+                    selectedResource1.setLayoutX(rect.getLayoutX() + selectedResource1.getRadius());
+                    selectedResource1.setLayoutY(rect.getLayoutY() + selectedResource1.getRadius());
+                    selectedResource1.setVisible(true);
+                } else if (resource2.equals("") && currentDevelopmentCard.equals("Year of Plenty")) {
+                    resource2 = "Ore";
+                    selectedResource2.setLayoutX(rect.getLayoutX() + selectedResource2.getRadius() / 2 + rect.getWidth() - selectedResource2.getRadius());
+                    selectedResource2.setLayoutY(rect.getLayoutY() + selectedResource2.getRadius());
+                    selectedResource2.setVisible(true);
+                } else {
+                    resource1 = "Ore";
+                    resource2 = "";
+                    selectedResource1.setLayoutX(rect.getLayoutX() + selectedResource1.getRadius());
+                    selectedResource1.setLayoutY(rect.getLayoutY() + selectedResource1.getRadius());
+                    selectedResource2.setVisible(false);
+                }
             }
         };
 
@@ -1718,18 +1733,18 @@ public class GamePresenter extends AbstractPresenter {
         Rectangle lumberRectangle = new Rectangle(rectWidth, rectHeight);
         lumberRectangle.setFill(lumber);
         resourceRectangles.add(lumberRectangle);
-        Rectangle oreRectangle = new Rectangle(rectWidth, rectHeight);
-        oreRectangle.setFill(ore);
-        resourceRectangles.add(oreRectangle);
-        Rectangle grainRectangle = new Rectangle(rectWidth, rectHeight);
-        grainRectangle.setFill(grain);
-        resourceRectangles.add(grainRectangle);
         Rectangle brickRectangle = new Rectangle(rectWidth, rectHeight);
         brickRectangle.setFill(brick);
         resourceRectangles.add(brickRectangle);
+        Rectangle grainRectangle = new Rectangle(rectWidth, rectHeight);
+        grainRectangle.setFill(grain);
+        resourceRectangles.add(grainRectangle);
         Rectangle woolRectangle = new Rectangle(rectWidth, rectHeight);
         woolRectangle.setFill(wool);
         resourceRectangles.add(woolRectangle);
+        Rectangle oreRectangle = new Rectangle(rectWidth, rectHeight);
+        oreRectangle.setFill(ore);
+        resourceRectangles.add(oreRectangle);
         double position = 0;
         for (Rectangle rectangle : resourceRectangles) {
             rectangle.setOnMouseClicked(clickOnResourceRectangleHandler);
@@ -1768,6 +1783,13 @@ public class GamePresenter extends AbstractPresenter {
                     break;
             }
             event.consume();
+
+            if (itsMyTurn) {
+                tradeButton.setDisable(false);
+                buildMenu.setDisable(false);
+                buyDevCard.setDisable(false);
+                EndTurnButton.setDisable(false);
+            }
         });
         resolveDevelopmentCardAlert.initModality(Modality.NONE);
         resolveDevelopmentCardAlert.getDialogPane().getChildren().addAll(resourceRectangles);
@@ -1932,6 +1954,7 @@ public class GamePresenter extends AbstractPresenter {
         }
     }
 
+
     /**
      * This method will be invoked if the robber is successfully moved on the gamefield.
      * <p>
@@ -1973,9 +1996,9 @@ public class GamePresenter extends AbstractPresenter {
                 if (tooMuchAlert != null) {
                     Platform.runLater(() -> {
                         lumberLabelRobberMenu.setText(String.valueOf(privateInventoryChangeMessage.getPrivateInventory().get("Lumber")));
+                        brickLabelRobberMenu.setText(String.valueOf(privateInventoryChangeMessage.getPrivateInventory().get("Brick")));
                         grainLabelRobberMenu.setText(String.valueOf(privateInventoryChangeMessage.getPrivateInventory().get("Grain")));
                         woolLabelRobberMenu.setText(String.valueOf(privateInventoryChangeMessage.getPrivateInventory().get("Wool")));
-                        brickLabelRobberMenu.setText(String.valueOf(privateInventoryChangeMessage.getPrivateInventory().get("Brick")));
                         oreLabelRobberMenu.setText(String.valueOf(privateInventoryChangeMessage.getPrivateInventory().get("Ore")));
                         int toDiscard = Integer.parseInt(lumberLabelRobberMenu.getText()) + Integer.parseInt(grainLabelRobberMenu.getText()) + Integer.parseInt(woolLabelRobberMenu.getText()) + Integer.parseInt(brickLabelRobberMenu.getText()) + Integer.parseInt(oreLabelRobberMenu.getText());
                         if (toDiscard % 2 == 0) {
@@ -2131,6 +2154,11 @@ public class GamePresenter extends AbstractPresenter {
                     this.resolveDevelopmentCardAlert.setTitle(currentDevelopmentCard + " in " + rdcns.getGameName());
                     this.resolveDevelopmentCardAlert.setHeaderText(rdcns.getErrorDescription());
                     this.resolveDevelopmentCardAlert.show();
+                    this.tradeButton.setDisable(true);
+                    this.rollDice.setDisable(true);
+                    this.buildMenu.setDisable(true);
+                    this.buyDevCard.setDisable(true);
+                    this.EndTurnButton.setDisable(true);
                 });
 
             }
@@ -2184,6 +2212,11 @@ public class GamePresenter extends AbstractPresenter {
                                 }
                             }
                             this.resolveDevelopmentCardAlert.show();
+                            this.tradeButton.setDisable(true);
+                            this.rollDice.setDisable(true);
+                            this.buildMenu.setDisable(true);
+                            this.buyDevCard.setDisable(true);
+                            this.EndTurnButton.setDisable(true);
 
                         });
 

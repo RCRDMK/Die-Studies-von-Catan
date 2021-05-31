@@ -159,9 +159,10 @@ public class GameService extends AbstractService {
         Optional<Game> optionalGame = gameManagement.getGame(message.getName());
         if (optionalGame.isPresent()) {
             Game game = optionalGame.get();
-            int playerIndex = 666;
-            if (message.getUuid() != null) {
-                for (int i = 0; i < game.getUsersList().size(); i++) {
+            Inventory inventory = game.getInventory(message.getUser());
+        int playerIndex = 666;
+        if (message.getUuid() != null) {
+            for (int i = 0; i < game.getUsersList().size(); i++) {
                     if (game.getUsersList().get(i).equals(message.getUser())) {
                         playerIndex = i;
                         break;
@@ -171,23 +172,66 @@ public class GameService extends AbstractService {
                     if (message.getTypeOfNode().equals("BuildingNode")) { //If the node from the message is a building node...
                         for (MapGraph.BuildingNode buildingNode : game.getMapGraph().getBuildingNodeHashSet()) {
                             if (message.getUuid().equals(buildingNode.getUuid())) { // ... and if the node in the message is a node in the MapGraph BuildingNodeSet...
-                                if (buildingNode.buildOrDevelopSettlement(playerIndex)) {
+                                if (game.isStartingTurns() || ((buildingNode.getSizeOfSettlement() == 0 && inventory.lumber.getNumber() > 0 && inventory.brick.getNumber()>0
+                                    && inventory.wool.getNumber() > 0 && inventory.grain.getNumber()>0) ||
+                                    (buildingNode.getSizeOfSettlement() == 1 && inventory.ore.getNumber() > 2 && inventory.grain.getNumber()>2))) {
+                                if (buildingNode.tryBuildOrDevelopSettlement(playerIndex, game.getStartingPhase())) {
                                     game.getMapGraph().addBuiltBuilding(buildingNode);
                                     sendToAllInGame(game.getName(), new SuccessfulConstructionMessage(game.getName(), message.getUser().getWithoutPassword(), playerIndex,
                                             message.getUuid(), "BuildingNode"));
+                                    if (game.isStartingTurns() && game.getMapGraph().getNumOfRoads()[playerIndex] == game.getStartingPhase()
+                                            && game.getMapGraph().getNumOfRoads()[playerIndex] == game.getMapGraph().getNumOfBuildings()[playerIndex]) {
+                                        endTurn(game, message.getUser());
+                                    }
+                                    if (buildingNode.getSizeOfSettlement() == 1) {
+                                        if (!game.isStartingTurns()){
+                                            inventory.lumber.decNumber(1);
+                                            inventory.brick.decNumber(1);
+                                            inventory.wool.decNumber(1);
+                                            inventory.grain.decNumber(1);
+                                        }
+                                        inventory.settlement.decNumber();
+                                        inventory.setVictoryPoints(inventory.getVictoryPoints()+1);
+                                    } else if (buildingNode.getSizeOfSettlement() == 2) {
+                                        inventory.ore.decNumber(3);
+                                        inventory.grain.decNumber(2);
+                                        inventory.city.decNumber();
+                                        inventory.setVictoryPoints(inventory.getVictoryPoints()+1);
+                                    }
+                                    updateInventory(game);
                                     return true;
-                                }
+                                } //else sendToAllInGame(game.getName(), new NotSuccessfulConstructionMessage(playerIndex, message.getUuid(), "BuildingNode"));
+                            } else {
+                                NotEnoughRessourcesMessage nerm = new NotEnoughRessourcesMessage();
+                                nerm.setName(game.getName());
+                                sendToSpecificUserInGame(nerm, message.getUser());
+                            }
                             }
                         }
                     } else {
                         for (MapGraph.StreetNode streetNode : game.getMapGraph().getStreetNodeHashSet()) {
-                            if (message.getUuid().equals(streetNode.getUuid())) {
-                                if (streetNode.buildRoad(playerIndex)) {
+                        if (message.getUuid().equals(streetNode.getUuid())) {
+                            if (game.isStartingTurns() || (inventory.lumber.getNumber() > 0 && inventory.brick.getNumber()>0)) {
+                                if (streetNode.tryBuildRoad(playerIndex, game.getStartingPhase())) {
                                     sendToAllInGame(game.getName(), new SuccessfulConstructionMessage(game.getName(), message.getUser().getWithoutPassword(), playerIndex,
                                             message.getUuid(), "StreetNode"));
+                                    if (game.isStartingTurns() && game.getMapGraph().getNumOfRoads()[playerIndex] == game.getStartingPhase()
+                                            && game.getMapGraph().getNumOfRoads()[playerIndex] == game.getMapGraph().getNumOfBuildings()[playerIndex]) {
+                                        endTurn(game, message.getUser());
+                                    }
+                                    if (!game.isStartingTurns()){
+                                        inventory.lumber.decNumber(1);
+                                        inventory.brick.decNumber(1);
+                                    }
+                                    inventory.road.decNumber();
+                                    updateInventory(game);
                                     return true;
-                                }
-
+                                } //else sendToAllInGame(game.getName(), new NotSuccessfulConstructionMessage(playerIndex, message.getUuid(), "StreetNode"));
+                            } else {
+                                NotEnoughRessourcesMessage nerm = new NotEnoughRessourcesMessage();
+                                nerm.setName(game.getName());
+                                sendToSpecificUserInGame(nerm, message.getUser());
+                            }
                             }
                         }
                     }
@@ -275,15 +319,14 @@ public class GameService extends AbstractService {
      */
     @Subscribe
     public void onResourcesToDiscard(ResourcesToDiscardRequest resourcesToDiscardRequest) {
-        //TODO Hier muss nach Implementierung der Bank nochmal etwas ergänzt werden.
         Optional<Game> optionalGame = gameManagement.getGame(resourcesToDiscardRequest.getName());
         if (optionalGame.isPresent()) {
             Game game = optionalGame.get();
-            takeResource(game, resourcesToDiscardRequest.getUser(), "Lumber", game.getInventory(resourcesToDiscardRequest.getUser()).getNumberFromCardStack("Lumber") - resourcesToDiscardRequest.getInventory().get("Lumber"));
-            takeResource(game, resourcesToDiscardRequest.getUser(), "Brick", game.getInventory(resourcesToDiscardRequest.getUser()).getNumberFromCardStack("Brick") - resourcesToDiscardRequest.getInventory().get("Brick"));
-            takeResource(game, resourcesToDiscardRequest.getUser(), "Grain", game.getInventory(resourcesToDiscardRequest.getUser()).getNumberFromCardStack("Grain") - resourcesToDiscardRequest.getInventory().get("Grain"));
-            takeResource(game, resourcesToDiscardRequest.getUser(), "Wool", game.getInventory(resourcesToDiscardRequest.getUser()).getNumberFromCardStack("Wool") - resourcesToDiscardRequest.getInventory().get("Wool"));
-            takeResource(game, resourcesToDiscardRequest.getUser(), "Ore", game.getInventory(resourcesToDiscardRequest.getUser()).getNumberFromCardStack("Ore") - resourcesToDiscardRequest.getInventory().get("Ore"));
+            takeResource(game, resourcesToDiscardRequest.getUser(), "Lumber", game.getInventory(resourcesToDiscardRequest.getUser()).getSpecificResourceAmount("Lumber") - resourcesToDiscardRequest.getInventory().get("Lumber"));
+            takeResource(game, resourcesToDiscardRequest.getUser(), "Brick", game.getInventory(resourcesToDiscardRequest.getUser()).getSpecificResourceAmount("Brick") - resourcesToDiscardRequest.getInventory().get("Brick"));
+            takeResource(game, resourcesToDiscardRequest.getUser(), "Grain", game.getInventory(resourcesToDiscardRequest.getUser()).getSpecificResourceAmount("Grain") - resourcesToDiscardRequest.getInventory().get("Grain"));
+            takeResource(game, resourcesToDiscardRequest.getUser(), "Wool", game.getInventory(resourcesToDiscardRequest.getUser()).getSpecificResourceAmount("Wool") - resourcesToDiscardRequest.getInventory().get("Wool"));
+            takeResource(game, resourcesToDiscardRequest.getUser(), "Ore", game.getInventory(resourcesToDiscardRequest.getUser()).getSpecificResourceAmount("Ore") - resourcesToDiscardRequest.getInventory().get("Ore"));
             updateInventory(game);
         }
     }
@@ -483,22 +526,25 @@ public class GameService extends AbstractService {
      * @since 2012-05-19
      */
     public boolean giveResource(Game game, User user, String resourceTyp, int amount) {
-        Inventory bank = game.getBankInventory();
-        boolean success = bank.getNumberFromCardStack(resourceTyp) >= amount;
-        boolean firstTime = bank.getNumberFromCardStack(resourceTyp) != 0 && bank.getNumberFromCardStack(resourceTyp) <= amount;
-        for (int i = amount; i > 0; i--) {
-            if (bank.getNumberFromCardStack(resourceTyp) > 0) {
-                bank.decCardStack(resourceTyp, 1);
-                game.getInventory(user).incCardStack(resourceTyp, 1);
-            } else break;
+        if(resourceTyp.equals("")) return false;
+        else {
+            Inventory bank = game.getBankInventory();
+            boolean success = bank.getSpecificResourceAmount(resourceTyp) >= amount;
+            boolean firstTime = bank.getSpecificResourceAmount(resourceTyp) != 0 && bank.getSpecificResourceAmount(resourceTyp) <= amount;
+            for (int i = amount; i > 0; i--) {
+                if (bank.getSpecificResourceAmount(resourceTyp) > 0) {
+                    bank.decCardStack(resourceTyp, 1);
+                    game.getInventory(user).incCardStack(resourceTyp, 1);
+                } else break;
+            }
+            if (firstTime) {
+                String chatMessage = resourceTyp + " storage is empty now";
+                String chatId = "game_" + game.getName();
+                ResponseChatMessage msg = new ResponseChatMessage(chatMessage, chatId, "Bank", System.currentTimeMillis());
+                post(msg);
+            }
+            return success;
         }
-        if (firstTime) {
-            String chatMessage = resourceTyp + " storage is empty now";
-            String chatId = "game_" + game.getName();
-            ResponseChatMessage msg = new ResponseChatMessage(chatMessage, chatId, "Bank", System.currentTimeMillis());
-            post(msg);
-        }
-        return success;
     }
 
     /**
@@ -518,22 +564,25 @@ public class GameService extends AbstractService {
      * @since 2012-04-09
      */
     public boolean takeResource(Game game, User user, String resourceTyp, int amount) {
-        Inventory bank = game.getBankInventory();
-        boolean success = game.getInventory(user).getNumberFromCardStack(resourceTyp) >= amount;
-        boolean wasEmpty = bank.getNumberFromCardStack(resourceTyp) == 0 && amount > 0;
-        for (int i = amount; i > 0; i--) {
-            if (game.getInventory(user).getNumberFromCardStack(resourceTyp) > 0) {
-                game.getInventory(user).decCardStack(resourceTyp, 1);
-                bank.incCardStack(resourceTyp, 1);
-            } else break;
+        if(resourceTyp.equals("")) return false;
+        else {
+            Inventory bank = game.getBankInventory();
+            boolean success = game.getInventory(user).getSpecificResourceAmount(resourceTyp) >= amount;
+            boolean wasEmpty = bank.getSpecificResourceAmount(resourceTyp) == 0 && amount > 0;
+            for (int i = amount; i > 0; i--) {
+                if (game.getInventory(user).getSpecificResourceAmount(resourceTyp) > 0) {
+                    game.getInventory(user).decCardStack(resourceTyp, 1);
+                    bank.incCardStack(resourceTyp, 1);
+                } else break;
+            }
+            if (wasEmpty) {
+                String chatMessage = resourceTyp + " storage is now filled";
+                String chatId = "game_" + game.getName();
+                ResponseChatMessage msg = new ResponseChatMessage(chatMessage, chatId, "Bank", System.currentTimeMillis());
+                post(msg);
+            }
+            return success;
         }
-        if (wasEmpty) {
-            String chatMessage = resourceTyp + " storage is now filled";
-            String chatId = "game_" + game.getName();
-            ResponseChatMessage msg = new ResponseChatMessage(chatMessage, chatId, "Bank", System.currentTimeMillis());
-            post(msg);
-        }
-        return success;
     }
 
     /**
@@ -817,31 +866,37 @@ public class GameService extends AbstractService {
         if (optionalGame.isPresent()) {
             Game game = optionalGame.get();
             LOG.debug("EndTurn Request");
-            if (request.getUser().getUsername().equals(game.getUser(game.getTurn()).getUsername()) && game.getCurrentCard().equals("") && (game.rolledDiceThisTurn() || game.isStartingTurns())) {
-                try {
-                    boolean priorGamePhase = game.isStartingTurns();
-                    game.nextRound();
-                    if (priorGamePhase && !game.isStartingTurns()) {
-                        distributeResources(request.getName());
+            endTurn(game, request.getUser());
+        }
+    }
+
+    public void endTurn(Game game, UserDTO user){
+        if (user.getUsername().equals(game.getUser(game.getTurn()).getUsername()) && game.getCurrentCard().equals("") && (game.rolledDiceThisTurn() || game.isStartingTurns())) {
+            try {
+                boolean priorGamePhase = game.isStartingTurns();
+                game.nextRound();
+                if (priorGamePhase && !game.isStartingTurns()) {
+                    distributeResources(game.getName());
+                }
+                sendToAllInGame(game.getName(), new NextTurnMessage(game.getName(),
+                        game.getUser(game.getTurn()).getUsername(), game.getTurn(), game.isStartingTurns()));
+                // Check if the turnPlayer is an actual user in the game, if not, start the AI
+                if (!game.getUsers().contains(game.getUser(game.getTurn()))) {
+                    if (!game.isStartingTurns()) {
+                        RollDiceRequest rdr = new RollDiceRequest(game.getName(), game.getUser(game.getTurn()));
+                        onRollDiceRequest(rdr);
                     }
-                    sendToAllInGame(game.getName(), new NextTurnMessage(game.getName(),
-                            game.getUser(game.getTurn()).getUsername(), game.getTurn(), game.isStartingTurns()));
-                    // Check if the turnPlayer is an actual user in the game, if not, start the AI
-                    if (!game.getUsers().contains(game.getUser(game.getTurn()))) {
-                        if (!game.isStartingTurns()) {
-                            RollDiceRequest rdr = new RollDiceRequest(game.getName(), game.getUser(game.getTurn()));
-                            onRollDiceRequest(rdr);
-                        }
-                        startTurnForAI((GameDTO) game);
+                    startTurnForAI((GameDTO) game);
 
                     }
-                } catch (GameManagementException e) {
-                    LOG.debug(e);
-                    LOG.debug("Sender " + request.getUser().getUsername() + " was not player with current turn");
-                }
+            } catch (GameManagementException e) {
+                LOG.debug(e);
+                LOG.debug("Sender " + user.getUsername() + " was not player with current turn");
             }
         }
     }
+
+
 
     /**
      * Method used to call the AI and start it's turn
@@ -864,6 +919,7 @@ public class GameService extends AbstractService {
             AIToServerTranslator.translate(new RandomAI(game).startTurnOrder(), this);
         }
     }
+
 
     /**
      * Handles BuyDevelopmentCardRequest found on the eventbus.
@@ -1234,62 +1290,61 @@ public class GameService extends AbstractService {
         sendToAllInGame(game.getName(), publicInventoryChangeMessage);
     }
 
-        /**
-         * Returns the gameManagement
-         *
-         * @return the gameManagement
-         */
-        public GameManagement getGameManagement () {
-            return this.gameManagement;
-        }
+    /**
+     * Returns the gameManagement
+     *
+     * @return the gameManagement
+     */
+    public GameManagement getGameManagement() {
+        return this.gameManagement;
+    }
 
-        /**
-         * Handles LogoutRequests found on the EventBus
-         * <p>
-         * If a LogoutRequest is detected on the EventBus, this method is called. It gets all games from the GameManagement
-         * and loops through them. If the user is part of a game, he gets removed from it. If he is the last user in the
-         * game, the game gets dropped. Finally we log how many games the user left.
-         *
-         * @param request LogoutRequest found on the eventBus
-         * @author René Meyer, Sergej Tulnev
-         * @see de.uol.swp.common.user.request.LogoutRequest
-         * @see de.uol.swp.common.game.request.GameLeaveUserRequest
-         * @see de.uol.swp.server.lobby.LobbyService
-         * @since 2021-04-08
-         */
-        @Subscribe
-        public void onLogoutRequest (LogoutRequest request){
-            if (request.getSession().isPresent()) {
-                Session session = request.getSession().get();
-                var userToLogOut = session.getUser();
-                // Could be already logged out
-                if (userToLogOut != null) {
-                    var games = gameManagement.getAllGames();
-                    // Create gamesCopy because of ConcurrentModificationException,
-                    // so it doesn't matter when in the meantime the games Object gets modified, while we still loop through it
-                    var gamesCopy = games.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-                    // Loop games
-                    Iterator<Map.Entry<String, Game>> it = gamesCopy.entrySet().iterator();
-                    var i = 0;
-                    while (it.hasNext()) {
-                        Map.Entry<String, Game> entry = it.next();
-                        Game game = entry.getValue();
-                        if (game.getUsers().contains(userToLogOut)) {
-                            // leave every game the user is part of
-                            var gameLeaveUserRequest = new GameLeaveUserRequest(game.getName(), (UserDTO) userToLogOut);
-                            if (request.getMessageContext().isPresent()) {
-                                gameLeaveUserRequest.setMessageContext(request.getMessageContext().get());
-                                this.onGameLeaveUserRequest(gameLeaveUserRequest);
-                            }
+    /**
+     * Handles LogoutRequests found on the EventBus
+     * <p>
+     * If a LogoutRequest is detected on the EventBus, this method is called. It gets all games from the GameManagement
+     * and loops through them. If the user is part of a game, he gets removed from it. If he is the last user in the
+     * game, the game gets dropped. Finally we log how many games the user left.
+     *
+     * @param request LogoutRequest found on the eventBus
+     * @author René Meyer, Sergej Tulnev
+     * @see de.uol.swp.common.user.request.LogoutRequest
+     * @see de.uol.swp.common.game.request.GameLeaveUserRequest
+     * @see de.uol.swp.server.lobby.LobbyService
+     * @since 2021-04-08
+     */
+    @Subscribe
+    public void onLogoutRequest(LogoutRequest request) {
+        if (request.getSession().isPresent()) {
+            Session session = request.getSession().get();
+            var userToLogOut = session.getUser();
+            // Could be already logged out
+            if (userToLogOut != null) {
+                var games = gameManagement.getAllGames();
+                // Create gamesCopy because of ConcurrentModificationException,
+                // so it doesn't matter when in the meantime the games Object gets modified, while we still loop through it
+                var gamesCopy = games.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+                // Loop games
+                Iterator<Map.Entry<String, Game>> it = gamesCopy.entrySet().iterator();
+                var i = 0;
+                while (it.hasNext()) {
+                    Map.Entry<String, Game> entry = it.next();
+                    Game game = entry.getValue();
+                    if (game.getUsers().contains(userToLogOut)) {
+                        // leave every game the user is part of
+                        var gameLeaveUserRequest = new GameLeaveUserRequest(game.getName(), (UserDTO) userToLogOut);
+                        if (request.getMessageContext().isPresent()) {
+                            gameLeaveUserRequest.setMessageContext(request.getMessageContext().get());
+                            this.onGameLeaveUserRequest(gameLeaveUserRequest);
                         }
-                        i++;
                     }
-                    var lobbyString = i > 1 ? " games" : " game";
-                    LOG.debug("Left " + i + lobbyString + " for User: " + userToLogOut.getUsername());
+                    i++;
                 }
+                var lobbyString = i > 1 ? " games" : " game";
+                LOG.debug("Left " + i + lobbyString + " for User: " + userToLogOut.getUsername());
             }
-
         }
+    }
 
     /**
      * either initiates a new trade or adds a bid to an existing trade
@@ -1315,25 +1370,26 @@ public class GameService extends AbstractService {
     public void onTradeItemRequest(TradeItemRequest request) {
         LOG.debug("Got message " + request.getUser().getUsername());
         Optional<Game> optionalGame = gameManagement.getGame(request.getName());
-        // TODO: Wird nur zum testen verwendet
-      /*  game.get().getInventory(request.getUser()).incCardStack("Lumber", 10);
-        game.get().getInventory(request.getUser()).incCardStack("Ore", 10);
-        game.get().getInventory(request.getUser()).incCardStack("Wool", 10);
-        game.get().getInventory(request.getUser()).incCardStack("Grain", 10);
-        game.get().getInventory(request.getUser()).incCardStack("Brick", 10);
-        Inventory easyPrüfen = game.get().getInventory(request.getUser());
-*/
-            if (optionalGame.isPresent()) {
-                Game game = optionalGame.get();
-                boolean numberOfCardsCorrect = true;
 
-                for (TradeItem tradeItem : request.getTradeItems()) {
-                    boolean notEnoughInInventoryCheck = tradeItem.getCount() > game.getInventory(request.getUser()).getPrivateView().get(tradeItem.getName());
-                    if (tradeItem.getCount() < 0 || notEnoughInInventoryCheck) {
-                        numberOfCardsCorrect = false;
-                        break;
-                    }
+        if (optionalGame.isPresent()) {
+            Game game = optionalGame.get();
+
+            /*// TODO: Wird nur zum testen verwendet
+            game.getInventory(request.getUser()).incCardStack("Lumber", 5);
+            game.getInventory(request.getUser()).incCardStack("Brick", 5);
+            game.getInventory(request.getUser()).incCardStack("Grain", 5);
+            game.getInventory(request.getUser()).incCardStack("Wool", 5);
+            game.getInventory(request.getUser()).incCardStack("Ore", 5);*/
+
+            boolean numberOfCardsCorrect = true;
+
+            for (TradeItem tradeItem : request.getTradeItems()) {
+                boolean notEnoughInInventoryCheck = tradeItem.getCount() > game.getInventory(request.getUser()).getPrivateView().get(tradeItem.getName());
+                if (tradeItem.getCount() < 0 || notEnoughInInventoryCheck) {
+                    numberOfCardsCorrect = false;
+                    break;
                 }
+            }
 
             if (numberOfCardsCorrect) {
                 String tradeCode = request.getTradeCode();
@@ -1382,47 +1438,46 @@ public class GameService extends AbstractService {
         }
     }
 
+    /**
+     * finalises the trade
+     * <p>
+     * if a bid was accepted by the seller
+     * trades the items between the users
+     * if rejected, nothing happens
+     * calls tradeEndedChatMessageHelper to inform the players about the result of the trade
+     * TradeEndedMessage is send to all player in game
+     * the specified trade is removed from the game
+     *
+     * @param request TradeChoiceRequest containing the choice the seller made
+     * @author Alexander Losse, Ricardo Mook
+     * @since 2021-04-13
+     */
+    @Subscribe
+    public void onTradeChoiceRequest(TradeChoiceRequest request) {
+        Optional<Game> optionalGame = gameManagement.getGame(request.getName());
+        if (optionalGame.isPresent()) {
+            Game game = optionalGame.get();
+            Trade trade = game.getTradeList().get(request.getTradeCode());
 
-        /**
-         * finalises the trade
-         * <p>
-         * if a bid was accepted by the seller
-         * trades the items between the users
-         * if rejected, nothing happens
-         * calls tradeEndedChatMessageHelper to inform the players about the result of the trade
-         * TradeEndedMessage is send to all player in game
-         * the specified trade is removed from the game
-         *
-         * @param request TradeChoiceRequest containing the choice the seller made
-         * @author Alexander Losse, Ricardo Mook
-         * @since 2021-04-13
-         */
-        @Subscribe
-        public void onTradeChoiceRequest (TradeChoiceRequest request){
-            Optional<Game> optionalGame = gameManagement.getGame(request.getName());
-            if (optionalGame.isPresent()) {
-                Game game = optionalGame.get();
-                Trade trade = game.getTradeList().get(request.getTradeCode());
+            if (request.getTradeAccepted() && !request.getUser().getUsername().equals(trade.getSeller().getUsername())) {
+                Inventory inventorySeller = game.getInventory(trade.getSeller());
+                Inventory inventoryBidder = game.getInventory(request.getUser());
 
-                if (request.getTradeAccepted() && !request.getUser().getUsername().equals(trade.getSeller().getUsername())) {
-                    Inventory inventorySeller = game.getInventory(trade.getSeller());
-                    Inventory inventoryBidder = game.getInventory(request.getUser());
-
-                    for (TradeItem soldItem : trade.getSellingItems()) {
-                        inventorySeller.decCardStack(soldItem.getName(), soldItem.getCount());
-                        inventoryBidder.incCardStack(soldItem.getName(), soldItem.getCount());
-                    }
-                    for (TradeItem bidItem : trade.getBids().get(request.getUser())) {
-                        inventorySeller.incCardStack(bidItem.getName(), bidItem.getCount());
-                        inventoryBidder.decCardStack(bidItem.getName(), bidItem.getCount());
-                    }
+                for (TradeItem soldItem : trade.getSellingItems()) {
+                    inventorySeller.decCardStack(soldItem.getName(), soldItem.getCount());
+                    inventoryBidder.incCardStack(soldItem.getName(), soldItem.getCount());
                 }
-                tradeEndedChatMessageHelper(game.getName(), request.getTradeCode(), request.getUser().getUsername(), request.getTradeAccepted());
-                sendToAllInGame(request.getName(), new TradeEndedMessage(request.getTradeCode()));
-                game.removeTrade(request.getTradeCode());
-                updateInventory(game);
+                for (TradeItem bidItem : trade.getBids().get(request.getUser())) {
+                    inventorySeller.incCardStack(bidItem.getName(), bidItem.getCount());
+                    inventoryBidder.decCardStack(bidItem.getName(), bidItem.getCount());
+                }
             }
+            tradeEndedChatMessageHelper(game.getName(), request.getTradeCode(), request.getUser().getUsername(), request.getTradeAccepted());
+            sendToAllInGame(request.getName(), new TradeEndedMessage(request.getName(), request.getTradeCode()));
+            game.removeTrade(request.getTradeCode());
+            updateInventory(game);
         }
+    }
 
     /**
      * help method to deliver a chatMessage to all players of the game how the trade ended
@@ -1431,6 +1486,7 @@ public class GameService extends AbstractService {
      * @param tradeCode    the trade code
      * @param winnerBidder the winners name
      * @param success      bool if successful or not
+     *
      * @author Alexander Losse, Ricardo Mook
      * @since 2021-04-11
      */
@@ -1451,20 +1507,149 @@ public class GameService extends AbstractService {
         }
     }
 
-        /**
-         * sends tradeStartedMessage to the seller when his request to start a trade is handled by the server
-         *
-         * @param request TradeStartRequest
-         * @author Alexander Losse, Ricardo Mook
-         * @see TradeStartRequest
-         * @since 2021-04-11
-         */
-        @Subscribe
-        public void onTradeStartedRequest (TradeStartRequest request){
-            UserDTO user = request.getUser();
-            TradeStartedMessage tsm = new TradeStartedMessage(user, request.getName(), request.getTradeCode());
-            sendToSpecificUserInGame(tsm, user);
+    /**
+     * sends tradeStartedMessage to the seller when his request to start a trade is handled by the server
+     *
+     * @param request TradeStartRequest
+     * @author Alexander Losse, Ricardo Mook
+     * @see TradeStartRequest
+     * @since 2021-04-11
+     */
+    @Subscribe
+    public void onTradeStartedRequest(TradeStartRequest request) {
+        UserDTO user = request.getUser();
+        TradeStartedMessage tsm = new TradeStartedMessage(user, request.getName(), request.getTradeCode());
+        sendToSpecificUserInGame(tsm, user);
+    }
+
+    /**
+     * Handles BankRequest found on the EventBus
+     * <p>
+     * First it checks whether and which harbor the player has.
+     * Then it uses this information to create the correct offer.
+     * At the end it sends the BankResponseMessage to the SpecificUserInGame
+     *
+     * @param request BankRequest
+     * @author Anton Nikiforov
+     * @see TradeItem
+     * @see BankResponseMessage
+     * @since 2021-05-29
+     */
+    @Subscribe
+    public void onBankRequest(BankRequest request) {
+        Optional<Game> optionalGame = gameManagement.getGame(request.getName());
+        if (optionalGame.isPresent()) {
+            Game game = optionalGame.get();
+            Inventory inventory = game.getInventory(request.getUser());
+            ArrayList<ArrayList<TradeItem>> bankOffer = new ArrayList<>();
+            if (game.getBankInventory().getSpecificResourceAmount(request.getCardName()) > 0) {
+
+                boolean lumberHarbor = false;
+                boolean brickHarbor = false;
+                boolean grainHarbor = false;
+                boolean woolHarbor = false;
+                boolean oreHarbor = false;
+                boolean anyHarbor = false;
+
+                for(MapGraph.BuildingNode buildingNode : game.getMapGraph().getBuiltBuildings()) {
+                    if (game.getUser(buildingNode.getOccupiedByPlayer()).equals(request.getUser())) {
+                        // 1 = 2:1 Wool, 2 = 2:1 Brick, 3 = 2:1 Lumber, 4 = 2:1 Grain, 5 = 2:1 Ore, 6 = 3:1 Any
+                        switch (buildingNode.getTypeOfHarbor()) {
+                            case 1: woolHarbor = true; break;
+                            case 2: brickHarbor = true; break;
+                            case 3: lumberHarbor = true; break;
+                            case 4: grainHarbor = true; break;
+                            case 5: oreHarbor = true; break;
+                            case 6: anyHarbor = true; break;
+                        }
+                    }
+                }
+                int defaultRate = anyHarbor ? 3 : 4;
+
+                ArrayList<TradeItem> lumberOffer = buildOffer("Lumber", defaultRate);
+                ArrayList<TradeItem> brickOffer = buildOffer("Brick", defaultRate);
+                ArrayList<TradeItem> grainOffer = buildOffer("Grain", defaultRate);
+                ArrayList<TradeItem> woolOffer = buildOffer("Wool", defaultRate);
+                ArrayList<TradeItem> oreOffer = buildOffer("Ore", defaultRate);
+
+                if (lumberHarbor) lumberOffer.get(0).setCount(2);
+                if (brickHarbor) brickOffer.get(1).setCount(2);
+                if (grainHarbor) grainOffer.get(2).setCount(2);
+                if (woolHarbor) woolOffer.get(3).setCount(2);
+                if (oreHarbor) oreOffer.get(4).setCount(2);
+
+                if (lumberOffer.get(0).getCount() > inventory.lumber.getNumber()) lumberOffer.get(0).setNotEnough(true);
+                if (brickOffer.get(1).getCount() > inventory.brick.getNumber()) brickOffer.get(0).setNotEnough(true);
+                if (grainOffer.get(2).getCount() > inventory.grain.getNumber()) grainOffer.get(0).setNotEnough(true);
+                if (woolOffer.get(3).getCount() > inventory.wool.getNumber()) woolOffer.get(0).setNotEnough(true);
+                if (oreOffer.get(4).getCount() > inventory.ore.getNumber()) oreOffer.get(0).setNotEnough(true);
+
+                if (!request.getCardName().equals("Lumber")) bankOffer.add(lumberOffer);
+                if (!request.getCardName().equals("Brick")) bankOffer.add(brickOffer);
+                if (!request.getCardName().equals("Grain")) bankOffer.add(grainOffer);
+                if (!request.getCardName().equals("Wool")) bankOffer.add(woolOffer);
+                if (!request.getCardName().equals("Ore")) bankOffer.add(oreOffer);
+            }
+
+            BankResponseMessage bankResponseMessage = new BankResponseMessage(request.getUser(), request.getTradeCode(), request.getCardName(), bankOffer);
+            sendToSpecificUserInGame(bankResponseMessage, request.getUser());
         }
+    }
+
+    /**
+     * Helper method to build one offer
+     * <p>
+     * It takes the parameters and build with it an offer
+     *
+     * @param cardName  String
+     * @param count     int
+     * @return offer ArrayList<TradeItem>
+     * @author Anton Nikiforov
+     * @see TradeItem
+     * @since 2021.05.31
+     */
+    public ArrayList<TradeItem> buildOffer(String cardName, int count) {
+        ArrayList<TradeItem> offer = new ArrayList<>();
+        offer.add(new TradeItem("Lumber", cardName.equals("Lumber") ? count : 0));
+        offer.add(new TradeItem("Brick", cardName.equals("Brick") ? count : 0));
+        offer.add(new TradeItem("Grain", cardName.equals("Grain") ? count : 0));
+        offer.add(new TradeItem("Wool", cardName.equals("Wool") ? count : 0));
+        offer.add(new TradeItem("Ore", cardName.equals("Ore") ? count : 0));
+        return offer;
+    }
+
+    /**
+     * Handles BankBuyRequest found on the EventBus
+     * <p>
+     * handles the sale
+     * send a chad massage if success
+     * and ends the tab
+     *
+     * @param request BankBuyRequest
+     * @author Anton Nikiforov
+     * @see TradeItem
+     * @see BankResponseMessage
+     * @since 2021-05-29
+     */
+    @Subscribe
+    public void onBankBuyRequest(BankBuyRequest request) {
+        Optional<Game> optionalGame = gameManagement.getGame(request.getName());
+        if (optionalGame.isPresent()) {
+            Game game = optionalGame.get();
+            User user = request.getUser();
+            if (request.getChosenOffer() != null) {
+                for (TradeItem item : request.getChosenOffer()) {
+                    if (item.getCount() > 0) {
+                        takeResource(game, user, item.getName(), item.getCount());
+                    }
+                }
+                giveResource(game, user, request.getChosenCard(), 1);
+                updateInventory(game);
+                post(new ResponseChatMessage(user.getUsername() + " just had a successful trade with the bank.", "game_" + request.getName(), "TradeInfo", System.currentTimeMillis()));
+            }
+            post(new TradeEndedMessage(request.getName(), request.getTradeCode()));
+        }
+    }
 
     /**
      * Draws a random card from the user, that was chosen from the player that moved the robber.

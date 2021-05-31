@@ -104,9 +104,6 @@ public class InventoryTest {
         inventory.cardYearOfPlenty.incNumber();
         inventory.incCardStackVictoryPoint();
 
-        // Building Unit inc
-        inventory.settlement.incNumber();
-
         // Inventory analysis
         privateInventory = inventory.getPrivateView();
         assertEquals(privateInventory.get("Lumber"), 1);

@@ -899,7 +899,7 @@ public class SceneManager {
      */
     public void removeTradeTab(TradeEndedMessage tem) {
         Platform.runLater(() -> {
-            tabHelper.removeTab("Trade " + tem.getTradeCode());
+            tabHelper.removeTab("Trade " + tem.getName() + " " + tem.getTradeCode());
         });
     }
 
