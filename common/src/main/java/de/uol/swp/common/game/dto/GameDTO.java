@@ -333,12 +333,6 @@ public class GameDTO implements Game {
         this.mapGraph = mapGraph;
     }
 
-    //TODO: This method needs to be deleted as soon as the dependencies to the obsolete classes are fixed!!!
-    @Override
-    public GameField getGameField() {
-        return null;
-    }
-
     @Override
     public int getStartingPhase() {
         return startingPhase;

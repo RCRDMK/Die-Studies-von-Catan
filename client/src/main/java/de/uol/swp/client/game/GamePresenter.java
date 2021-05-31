@@ -1821,7 +1821,6 @@ public class GamePresenter extends AbstractPresenter {
     public void onSuccessfulConstructionMessage(SuccessfulConstructionMessage message) {
         if (this.currentLobby != null) {
             if (this.currentLobby.equals(message.getName())) {
-                BuildingNotSuccessfulLabel.setVisible(false);
                 if (message.getTypeOfNode().equals("BuildingNode")) {
                     for (MapGraphNodeContainer mapGraphNodeContainer : mapGraphNodeContainers) {
                         if (mapGraphNodeContainer.getMapGraphNode().getUuid().equals(message.getUuid())) {
@@ -1851,18 +1850,6 @@ public class GamePresenter extends AbstractPresenter {
         }
     }
 
-    /**
-     * Sets BuildingNotSuccessfulLabel visible.
-     *
-     * @param message NotSuccessfulConstructionMessage
-     *
-     * @author Kirstin Beyer
-     * @since 2021-04-15
-     */
-    @Subscribe
-    public void onNotSuccessfulConstructionMessage(NotSuccessfulConstructionMessage message) {
-        BuildingNotSuccessfulLabel.setVisible(true);
-    }
 
     /**
      * This method will be invoked if the robber is successfully moved on the gamefield.
