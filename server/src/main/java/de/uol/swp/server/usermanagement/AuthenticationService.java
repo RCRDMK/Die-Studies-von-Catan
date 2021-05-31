@@ -119,7 +119,7 @@ public class AuthenticationService extends AbstractService {
     @Subscribe
     public void onLoginRequest(LoginRequest msg) {
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Got new auth message with " + msg.getUsername() + " " + msg.getPassword());
+            LOG.debug("Got new auth message with " + msg.getUsername());
         }
         ServerInternalMessage returnMessage;
         try {

@@ -86,12 +86,9 @@ public class LobbyService extends AbstractService {
     @Subscribe
     public void onCreateLobbyRequest(CreateLobbyRequest createLobbyRequest) {
         if (lobbyManagement.getLobby(createLobbyRequest.getName()).isEmpty()) {
-            try {
-                lobbyManagement.createLobby(createLobbyRequest.getName(), createLobbyRequest.getUser());
-                sendToAll(new LobbyCreatedMessage(createLobbyRequest.getName(), createLobbyRequest.getUser()));
-            } catch (IllegalArgumentException e) {
-                LOG.debug(e);
-            }
+            lobbyManagement.createLobby(createLobbyRequest.getName(),
+                    createLobbyRequest.getUser());
+            sendToAll(new LobbyCreatedMessage(createLobbyRequest.getName(), createLobbyRequest.getUser()));
             if (createLobbyRequest.getMessageContext().isPresent()) {
                 sendToSpecificUser(createLobbyRequest.getMessageContext().get(), new LobbyCreatedSuccessfulResponse(createLobbyRequest.getName(), createLobbyRequest.getUser()));
             }
@@ -178,10 +175,6 @@ public class LobbyService extends AbstractService {
                     lobbyManagement.dropLobby(lobbyLeaveUserRequest.getName());
                     sendToAll(new LobbyDroppedMessage(lobbyLeaveUserRequest.getName()));
                 }
-            } else if (lobby.get().getUsers() == null) {
-                lobbyManagement.dropLobby(lobbyLeaveUserRequest.getName());
-                sendToAll(new LobbyDroppedMessage(lobbyLeaveUserRequest.getName()));
-
             } else {
                 if (lobbyLeaveUserRequest.getMessageContext().isPresent()) {
                     Optional<MessageContext> ctx = lobbyLeaveUserRequest.getMessageContext();
@@ -240,7 +233,6 @@ public class LobbyService extends AbstractService {
             post(message);
         } else {
             throw new LobbyManagementException("Lobby unknown!");
-
         }
     }
 
