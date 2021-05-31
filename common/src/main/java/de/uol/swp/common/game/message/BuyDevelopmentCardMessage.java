@@ -21,7 +21,6 @@ public class BuyDevelopmentCardMessage extends AbstractGameMessage {
      * @implNote this constructor is needed for serialization
      * @since 2021-03-31
      */
-
     public BuyDevelopmentCardMessage() {
     }
 
