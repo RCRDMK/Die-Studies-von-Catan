@@ -340,4 +340,42 @@ public interface Game extends Serializable {
      * @param inventoryWithLargestArmy the inventory referencing the inventory with the largest army
      */
     void setInventoryWithLargestArmy(Inventory inventoryWithLargestArmy);
+
+
+    /**
+     * method used to remember the DevelopmentCards bought in a turn
+     *
+     * @param card   String name of the Card
+     * @param amount int amount of the card
+     * @author Alexander Losse
+     * @since 2021-05-30
+     */
+    void rememberDevCardBoughtThisTurn(String card, int amount);
+
+    /**
+     * getter for the HasMap containing the development cards bought this turn
+     * @return HashMap<String, Integer> boughtDevCardsThisTurn
+     * @author Alexander Losse
+     * @since 2021-05-30
+     */
+    HashMap<String, Integer> getBoughtDevCardsThisTurn();
+
+    /**
+     *  getter for how many cards of a type were bought this turn
+     * @param card String name of the card
+     * @return itn amount of cards
+     * @author Alexander Losse
+     * @since 2021-05-30
+     */
+    int getHowManyCardsOfTypeWereBoughtThisTurn(String card);
+
+    /**
+     * checks if user can play a development card
+     * @param user User
+     * @param card String name of the card
+     * @return boolean
+     * @author Alexander Losse
+     * @since 2021-05-30
+     */
+    boolean canUserPlayDevCard(User user, String card);
 }

@@ -833,7 +833,7 @@ public class MapGraph implements Serializable {
 
         public boolean buildOrDevelopSettlement(int playerIndex) {
             this.occupiedByPlayer = playerIndex;
-            if (sizeOfSettlement == 1) {
+            if (sizeOfSettlement == 0) {
                 longestStreetPathCalculator.updateMatrixWithNewBuilding(this, playerIndex);
             }
             sizeOfSettlement++;

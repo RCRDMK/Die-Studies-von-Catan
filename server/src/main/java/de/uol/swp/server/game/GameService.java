@@ -170,7 +170,7 @@ public class GameService extends AbstractService {
                             if (message.getUuid().equals(buildingNode.getUuid())) { // ... and if the node in the message is a node in the MapGraph BuildingNodeSet...
                                 if (game.isStartingTurns() || ((buildingNode.getSizeOfSettlement() == 0 && inventory.lumber.getNumber() > 0 && inventory.brick.getNumber()>0
                                     && inventory.wool.getNumber() > 0 && inventory.grain.getNumber()>0) ||
-                                    (buildingNode.getSizeOfSettlement() == 1 && inventory.ore.getNumber() > 2 && inventory.grain.getNumber()>2))) {
+                                    (buildingNode.getSizeOfSettlement() == 1 && inventory.ore.getNumber() > 2 && inventory.grain.getNumber()>1))) {
                                 if (buildingNode.tryBuildOrDevelopSettlement(playerIndex, game.getStartingPhase())) {
                                     game.getMapGraph().addBuiltBuilding(buildingNode);
                                     sendToAllInGame(game.getName(), new SuccessfulConstructionMessage(game.getName(), message.getUser().getWithoutPassword(), playerIndex,
@@ -888,7 +888,7 @@ public class GameService extends AbstractService {
         Optional<Game> optionalGame = gameManagement.getGame(request.getName());
         if (optionalGame.isPresent()) {
             Game game = optionalGame.get();
-            if (request.getUser().equals(game.getUser(game.getTurn()))) {
+            if (request.getUser().equals(game.getUser(game.getTurn())) && optionalGame.get().rolledDiceThisTurn()) {
                 Inventory inventory = game.getInventory(request.getUser());
                 if (inventory.wool.getNumber() >= 1 && inventory.ore.getNumber() >= 1 && inventory.grain.getNumber() >= 1) {
                     String devCard = game.getDevelopmentCardDeck().drawnCard();
@@ -897,6 +897,7 @@ public class GameService extends AbstractService {
                         takeResource(game, request.getUser(), "Ore", 1);
                         takeResource(game, request.getUser(), "Grain", 1);
                         inventory.incCardStack(devCard, 1);
+                        game.rememberDevCardBoughtThisTurn(devCard, 1);
                         BuyDevelopmentCardMessage response = new BuyDevelopmentCardMessage(request.getName(), request.getUser(), devCard);
                         sendToSpecificUserInGame(response, request.getUser());
                     } else {
@@ -922,6 +923,8 @@ public class GameService extends AbstractService {
      * if a DevelopmentCard wasn't already played this turn, or is currently being played,
      * then remove the DevelopmentCard from the inventory of the player and inform him that he
      * may proceed with the resolution of the card. If something went wrong, also inform him.
+     * <p>
+     * enhanced by Alexander Losse on 2021-05-30
      *
      * @param request the PlayDevelopmentCardRequest sent by the client
      * @author Marc Hermes
@@ -943,7 +946,11 @@ public class GameService extends AbstractService {
                 inventory.cardRoadBuilding.incNumber();
                 inventory.cardYearOfPlenty.incNumber();
                 inventory.cardKnight.incNumber();
-                // TODO: Check if the card was bought THIS turn, because it cannot be used then
+
+                //checks if user can play developmentCard
+                if (!game.canUserPlayDevCard(request.getUser(), devCard) && game.rolledDiceThisTurn()) {
+                    devCard = "default";
+                }
                 switch (devCard) {
 
                     case "Monopoly":
@@ -1461,9 +1468,12 @@ public class GameService extends AbstractService {
      */
     @Subscribe
     public void onTradeStartedRequest(TradeStartRequest request) {
-        UserDTO user = request.getUser();
-        TradeStartedMessage tsm = new TradeStartedMessage(user, request.getName(), request.getTradeCode());
-        sendToSpecificUserInGame(tsm, user);
+        Optional<Game> optionalGame = gameManagement.getGame(request.getName());
+        if (optionalGame.get().rolledDiceThisTurn()) {
+            UserDTO user = request.getUser();
+            TradeStartedMessage tsm = new TradeStartedMessage(user, request.getName(), request.getTradeCode());
+            sendToSpecificUserInGame(tsm, user);
+        }
     }
 
     /**
