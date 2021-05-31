@@ -102,7 +102,7 @@ public class UserDTO implements User {
 
     @Override
     public User getWithoutPassword() {
-        return new UserDTO(username, "", eMail);
+        return new UserDTO(username, "", eMail, profilePictureID);
     }
 
     @Override

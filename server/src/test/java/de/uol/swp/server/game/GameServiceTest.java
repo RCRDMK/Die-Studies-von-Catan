@@ -22,6 +22,7 @@ import de.uol.swp.server.lobby.LobbyService;
 import de.uol.swp.server.usermanagement.AuthenticationService;
 import de.uol.swp.server.usermanagement.UserManagement;
 import de.uol.swp.server.usermanagement.UserService;
+import de.uol.swp.server.usermanagement.store.MainMemoryBasedUserStore;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,15 +33,15 @@ import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-//TODO um diese Klasse werde ich mich kümmern, sobald meine Tickets fertig sind (Carsten Dekker)
 
 public class GameServiceTest {
 
     final EventBus bus = new EventBus();
     GameManagement gameManagement = new GameManagement();
     LobbyManagement lobbyManagement = new LobbyManagement();
-    final UserManagement userManagement = new UserManagement();
-    LobbyService lobbyService = new LobbyService(lobbyManagement, new AuthenticationService(bus, new UserManagement()), bus);
+    MainMemoryBasedUserStore mainMemoryBasedUserStore = new MainMemoryBasedUserStore();
+    final UserManagement userManagement = new UserManagement(mainMemoryBasedUserStore);
+    LobbyService lobbyService = new LobbyService(lobbyManagement, new AuthenticationService(bus, userManagement), bus);
     UserService userService = new UserService(bus, userManagement);
     final AuthenticationService authenticationService = new AuthenticationService(bus, userManagement);
     GameService gameService = new GameService(gameManagement, lobbyService, authenticationService, bus, userService);
