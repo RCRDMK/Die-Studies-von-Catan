@@ -5,7 +5,7 @@ import java.io.Serializable;
 /**
  * This class is used to save information about an item to be traded
  * <p>
- * enhanced by Anton Nikiforov 'boolean enoughInWallet from user'
+ * enhanced by Anton Nikiforov 'boolean notEnough in the inventory from user'
  *
  * @author Alexander Losse, Ricardo Mook
  * @since 2021-04-07
@@ -13,9 +13,9 @@ import java.io.Serializable;
  */
 public class TradeItem implements Serializable {
     //name of the item e.g. "Lumber"
-    private String name;
+    private final String name;
     private int count;
-    private boolean enoughInWallet;
+    private boolean notEnough = false;
 
     /**
      * Constructor
@@ -43,7 +43,7 @@ public class TradeItem implements Serializable {
     }
 
     /**
-     * getter
+     * getter and setter
      *
      * @author Alexander Losse, Ricardo Mook
      * @since 2021-04-07
@@ -51,6 +51,10 @@ public class TradeItem implements Serializable {
      */
     public int getCount() {
         return count;
+    }
+
+    public void setCount(int count) {
+        this.count = count;
     }
 
     /**
@@ -61,7 +65,7 @@ public class TradeItem implements Serializable {
      * @return boolean enoughInWallet
      */
     public boolean isEnoughInWallet() {
-        return enoughInWallet;
+        return notEnough;
     }
 
     /**
@@ -72,7 +76,7 @@ public class TradeItem implements Serializable {
      * @author Anton Nikiforov
      * @since 2021-05-28
      */
-    public void setEnoughInWallet(boolean enoughInWallet) {
-        this.enoughInWallet = enoughInWallet;
+    public void setNotEnough(boolean enoughInWallet) {
+        this.notEnough = enoughInWallet;
     }
 }

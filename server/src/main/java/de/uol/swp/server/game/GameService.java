@@ -1436,12 +1436,14 @@ public class GameService extends AbstractService {
     /**
      * Handles BankRequest found on the EventBus
      * <p>
+     * First it checks whether and which harbor the player has.
+     * Then it uses this information to create the correct offer.
+     * At the end it sends the BankResponseMessage to the SpecificUserInGame
      *
      * @param request BankRequest
-     *
      * @author Anton Nikiforov
      * @see TradeItem
-     * @see BankRequest
+     * @see BankResponseMessage
      * @since 2021-05-29
      */
     @Subscribe
@@ -1449,57 +1451,81 @@ public class GameService extends AbstractService {
         Optional<Game> optionalGame = gameManagement.getGame(request.getName());
         if (optionalGame.isPresent()) {
             Game game = optionalGame.get();
-            if (game.getBankInventory().getNumberFromCardStack(request.getCardName()) == 0) {
-                BankResponseMessage bankResponseMessage = new BankResponseMessage(request.getUser(), request.getTradeCode(), null, false);
-                sendToSpecificUserInGame(bankResponseMessage, request.getUser());
-            } else {
-                int defaultRate = 4;
-                boolean notLumber = true, notBrick = true, notGrain = true, notWool = true, notOre =true;
-                switch (request.getCardName()) {
-                    case "Lumber" : notLumber = false; break;
-                    case "Brick" : notBrick = false; break;
-                    case "Grain" : notGrain = false; break;
-                    case "Wool" : notWool = false; break;
-                    case "Ore" : notOre = false; break;
-                }
-                boolean harbor1 = false, harbor2 = false, harbor3 = false, harbor4= false, harbor5= false, harbor6 = false;
-                // 1 = 2:1 Wool, 2 = 2:1 Brick, 3 = 2:1 Lumber, 4 = 2:1 Grain, 5 = 2:1 Ore, 6 = 3:1 Any
+            Inventory inventory = game.getInventory(request.getUser());
+            ArrayList<ArrayList<TradeItem>> bankOffer = new ArrayList<>();
+            if (game.getBankInventory().getNumberFromCardStack(request.getCardName()) > 0) {
+
+                boolean lumberHarbor = false;
+                boolean brickHarbor = false;
+                boolean grainHarbor = false;
+                boolean woolHarbor = false;
+                boolean oreHarbor = false;
+                boolean anyHarbor = false;
+
                 for(MapGraph.BuildingNode buildingNode : game.getMapGraph().getBuiltBuildings()) {
                     if (game.getUser(buildingNode.getOccupiedByPlayer()).equals(request.getUser())) {
+                        // 1 = 2:1 Wool, 2 = 2:1 Brick, 3 = 2:1 Lumber, 4 = 2:1 Grain, 5 = 2:1 Ore, 6 = 3:1 Any
                         switch (buildingNode.getTypeOfHarbor()) {
-                            case 1 : harbor1 = true; break;
-                            case 2 : harbor2 = true; break;
-                            case 3 : harbor3 = true; break;
-                            case 4 : harbor4 = true; break;
-                            case 5 : harbor5 = true; break;
-                            case 6 : harbor6 = true; break;
+                            case 1: woolHarbor = true; break;
+                            case 2: brickHarbor = true; break;
+                            case 3: lumberHarbor = true; break;
+                            case 4: grainHarbor = true; break;
+                            case 5: oreHarbor = true; break;
+                            case 6: anyHarbor = true; break;
                         }
                     }
                 }
-                Inventory inventory = game.getInventory(request.getUser());
-                ArrayList<ArrayList<TradeItem>> bankOffer = new ArrayList<>();
-                ArrayList<TradeItem> lumberOffer = new ArrayList<>(),
-                                     brickOffer = new ArrayList<>(),
-                                     grainOffer = new ArrayList<>(),
-                                     woolOffer = new ArrayList<>(),
-                                     oreOffer = new ArrayList<>();
+                ArrayList<TradeItem> lumberOffer = buildOffer(request.getCardName(), anyHarbor ? 3 : 4);
+                ArrayList<TradeItem> brickOffer = buildOffer(request.getCardName(), anyHarbor ? 3 : 4);
+                ArrayList<TradeItem> grainOffer = buildOffer(request.getCardName(), anyHarbor ? 3 : 4);
+                ArrayList<TradeItem> woolOffer = buildOffer(request.getCardName(), anyHarbor ? 3 : 4);
+                ArrayList<TradeItem> oreOffer = buildOffer(request.getCardName(), anyHarbor ? 3 : 4);
 
-                if (harbor6) defaultRate = 3;
-                if (!(harbor1 || harbor2 || harbor3 || harbor4 || harbor5)) {
-                    if (notLumber) {
-                        lumberOffer.add(new TradeItem("Lumber", defaultRate));
-                        lumberOffer.add(new TradeItem("Brick", 0));
-                        lumberOffer.add(new TradeItem("Grain", 0));
-                        lumberOffer.add(new TradeItem("Wool", 0));
-                        lumberOffer.add(new TradeItem("Ore", 0));
-                    }
+                if (lumberHarbor) lumberOffer.get(0).setCount(2);
+                if (brickHarbor) brickOffer.get(1).setCount(2);
+                if (grainHarbor) grainOffer.get(2).setCount(2);
+                if (woolHarbor) woolOffer.get(3).setCount(2);
+                if (oreHarbor) oreOffer.get(4).setCount(2);
+
+                if (lumberOffer.get(0).getCount() > inventory.lumber.getNumber()) lumberOffer.get(0).setNotEnough(true);
+                if (brickOffer.get(1).getCount() > inventory.brick.getNumber()) brickOffer.get(0).setNotEnough(true);
+                if (grainOffer.get(2).getCount() > inventory.grain.getNumber()) grainOffer.get(0).setNotEnough(true);
+                if (woolOffer.get(3).getCount() > inventory.wool.getNumber()) woolOffer.get(0).setNotEnough(true);
+                if (oreOffer.get(4).getCount() > inventory.ore.getNumber()) oreOffer.get(0).setNotEnough(true);
+
+                if (!request.getCardName().equals("Lumber")) bankOffer.add(lumberOffer);
+                if (!request.getCardName().equals("Brick")) bankOffer.add(lumberOffer);
+                if (!request.getCardName().equals("Grain")) bankOffer.add(lumberOffer);
+                if (!request.getCardName().equals("Wool")) bankOffer.add(lumberOffer);
+                if (!request.getCardName().equals("Ore")) bankOffer.add(lumberOffer);
             }
+
+            BankResponseMessage bankResponseMessage = new BankResponseMessage(request.getUser(), request.getTradeCode(), bankOffer);
+            sendToSpecificUserInGame(bankResponseMessage, request.getUser());
         }
     }
 
-    public ArrayList<TradeItem> buildOffer() {
-
-        }
+    /**
+     * Helper method to build one offer
+     * <p>
+     * It takes the parameters and build with it an offer
+     *
+     * @param cardName  String
+     * @param count     int
+     * @return offer ArrayList<TradeItem>
+     * @author Anton Nikiforov
+     * @see TradeItem
+     * @since 2021.05.31
+     */
+    public ArrayList<TradeItem> buildOffer(String cardName, int count) {
+        ArrayList<TradeItem> offer = new ArrayList<>();
+        offer.add(new TradeItem("Lumber", cardName.equals("Lumber") ? count : 0));
+        offer.add(new TradeItem("Brick", cardName.equals("Brick") ? count : 0));
+        offer.add(new TradeItem("Grain", cardName.equals("Grain") ? count : 0));
+        offer.add(new TradeItem("Wool", cardName.equals("Wool") ? count : 0));
+        offer.add(new TradeItem("Ore", cardName.equals("Ore") ? count : 0));
+        return offer;
+    }
 
     /**
      * This method checks if the users have more than 7 resources.
