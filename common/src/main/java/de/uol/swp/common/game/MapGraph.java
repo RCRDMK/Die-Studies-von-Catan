@@ -725,7 +725,7 @@ public class MapGraph implements Serializable {
 
         private final UUID uuid;
         private String positionToParent;
-        private int typeOfHarbor;
+        private int typeOfHarbor = 0;
         private int occupiedByPlayer = 666;
         private Hexagon parent;
         private int sizeOfSettlement = 0;

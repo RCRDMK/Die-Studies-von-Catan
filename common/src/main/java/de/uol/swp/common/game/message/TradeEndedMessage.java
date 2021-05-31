@@ -14,7 +14,8 @@ public class TradeEndedMessage extends AbstractGameMessage {
      * @author Alexander Losse, Ricardo Mok
      * @since 2021-04-25
      */
-    public TradeEndedMessage(String tradeCode) {
+    public TradeEndedMessage(String name, String tradeCode) {
+        this.name = name;
         this.tradeCode = tradeCode;
     }
 

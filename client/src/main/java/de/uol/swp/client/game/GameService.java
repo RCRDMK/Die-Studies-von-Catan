@@ -171,16 +171,48 @@ public class GameService {
     }
 
     /**
+     * Sends the choice of the buyer to the server
+     *
+     * @param gameName      game name
+     * @param tradeCode     the specific trade code
+     * @author Alexander Losse, Ricardo Mook
+     * @see de.uol.swp.common.game.request.TradeItemRequest
+     * @since 2021-04-21
+     */
+    public void sendBuyChoice(String gameName, UserDTO user,String tradeCode, String cardName, ArrayList<TradeItem> offer) {
+        BankBuyRequest bbr = new BankBuyRequest(gameName, user, tradeCode, cardName, offer);
+        eventBus.post(bbr);
+    }
+
+    /**
+     * This method creates a bank request to buy a resource via BankRequest
+     *
+     * @param gameName  the game name
+     * @param user      the user who wanna buy
+     * @param tradeCode the tradeCode
+     * @param cardName  the name form the card he wanna buy
+     *
+     * @author Anton Nikiforov
+     * @see de.uol.swp.common.game.request.BankRequest
+     * @since 2021-05-29
+     */
+    public void createBankRequest(String gameName, UserDTO user, String tradeCode, String cardName) {
+        BankRequest br = new BankRequest(gameName, user, tradeCode, cardName);
+        eventBus.post(br);
+    }
+
+    /**
      * Sends a TradeEndedMessage
      * <p>
      * used to close the TradeTab if no Trade is saved at the server, e.g. the seller hit the TradeButton by accident and doesnt want to Trade( didnt send a TradeItemRequest)
      *
+     * @param gameName String
      * @param tradeCode String
      * @author Alexander Losse, Ricardo Mook
      * @since 2021-04-21
      */
-    public void endTradeBeforeItStarted(String tradeCode) {
-        TradeEndedMessage tem = new TradeEndedMessage(tradeCode);
+    public void endTradeBeforeItStarted(String gameName, String tradeCode) {
+        TradeEndedMessage tem = new TradeEndedMessage(gameName, tradeCode);
         eventBus.post(tem);
     }
 

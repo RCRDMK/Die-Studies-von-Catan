@@ -19,7 +19,7 @@ public class CardStack implements Serializable {
 
     //Setter
     public void setNumber(int number) {
-        this.number = Math.max(number, 0); // (number >= 0)
+        this.number = number;
     }
 
     //Incrementer
@@ -34,11 +34,11 @@ public class CardStack implements Serializable {
 
     //Decrementer
     public void decNumber() {
-        if (this.number > 0) this.number--; // (number >= 0)
+        this.number--;
     }
 
     //Decrementer with number
     public void decNumber(int number) {
-        this.number = Math.max(this.number - number, 0);  // (number >= 0)
+        this.number -= number;
     }
 }
