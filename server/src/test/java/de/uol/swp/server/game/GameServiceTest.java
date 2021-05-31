@@ -17,6 +17,7 @@ import de.uol.swp.common.user.Session;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.user.request.LoginRequest;
+import de.uol.swp.common.user.request.RegisterUserRequest;
 import de.uol.swp.server.AI.AIToServerTranslator;
 import de.uol.swp.server.AI.TestAI;
 import de.uol.swp.server.lobby.LobbyManagement;
@@ -64,6 +65,10 @@ public class GameServiceTest {
     }
 
     void loginUsers() {
+        bus.post(new RegisterUserRequest(userDTO));
+        bus.post(new RegisterUserRequest(userDTO1));
+        bus.post(new RegisterUserRequest(userDTO2));
+        bus.post(new RegisterUserRequest(userDTO3));
         authenticationService.onLoginRequest(new LoginRequest(userDTO.getUsername(), userDTO.getPassword()));
         authenticationService.onLoginRequest(new LoginRequest(userDTO1.getUsername(), userDTO1.getPassword()));
         authenticationService.onLoginRequest(new LoginRequest(userDTO2.getUsername(), userDTO2.getPassword()));
