@@ -150,7 +150,7 @@ public class GameDTO implements Game {
         int players = userArrayList.size();
         int i = 0;
         while (amountOfPlayers > players) {
-            UserDTO aiUser = new UserDTO("KI" + i, "", "", 1);
+            UserDTO aiUser = new UserDTO("KI" + i, "", "", 65+i);
             aiUsers.add(aiUser);
             userArrayList.add(aiUser);
             players++;

@@ -488,7 +488,7 @@ public class GamePresenter extends AbstractPresenter {
             this.gameFieldVariant = gcm.getGameFieldVariant();
             updateGameUsersList(gcm.getUsers(), gcm.getHumans());
             initializeMatch(gcm.getMapGraph());
-            for (int i = 1; i <= 64; i++) {
+            for (int i = 1; i <= 67; i++) {
                 Image image;
                 image = new Image("img/profilePictures/" + i + ".png");
                 ImagePattern imagePattern;
