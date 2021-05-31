@@ -1,5 +1,6 @@
 package de.uol.swp.server.AI;
 
+import de.uol.swp.common.game.request.DrawRandomResourceFromPlayerRequest;
 import de.uol.swp.common.game.message.RobbersNewFieldMessage;
 import de.uol.swp.common.game.request.*;
 import de.uol.swp.common.user.UserDTO;
@@ -35,7 +36,6 @@ public class AIToServerTranslator {
             UserDTO user = (UserDTO) aiAction.getUser();
 
             if (aiAction instanceof EndTurnAction) {
-                EndTurnAction eta = (EndTurnAction) aiAction;
                 EndTurnRequest etr = new EndTurnRequest(gameName, user);
                 gameService.onEndTurnRequest(etr);
 
@@ -68,6 +68,11 @@ public class AIToServerTranslator {
                 ResourcesToDiscardRequest rdr = new ResourcesToDiscardRequest(gameName, user, dra.getResourcesToDiscard());
                 gameService.onResourcesToDiscard(rdr);
 
+            } else if (aiAction instanceof DrawRandomResourceFromPlayerAction) {
+                DrawRandomResourceFromPlayerAction drrfpa = (DrawRandomResourceFromPlayerAction) aiAction;
+                DrawRandomResourceFromPlayerRequest drrfpm = new DrawRandomResourceFromPlayerRequest(gameName, user, drrfpa.getPlayerName(), drrfpa.getResource());
+                gameService.onDrawRandomResourceFromPlayerMessage(drrfpm);
+
             } else if (aiAction instanceof PlayDevelopmentCardAction) {
                 PlayDevelopmentCardAction pda = (PlayDevelopmentCardAction) aiAction;
                 PlayDevelopmentCardRequest pdcr = new PlayDevelopmentCardRequest(pda.getDevCard(), gameName, user);
@@ -97,8 +102,6 @@ public class AIToServerTranslator {
 
             } else if (aiAction instanceof TradeStartAction) {
                 TradeStartAction tsa = (TradeStartAction) aiAction;
-                TradeStartRequest tsr = new TradeStartRequest(user, gameName, tsa.getTradeCode());
-                gameService.onTradeStartedRequest(tsr);
                 TradeItemRequest tir = new TradeItemRequest(user, gameName, tsa.getOfferList(), tsa.getTradeCode(), tsa.getWishList());
                 gameService.onTradeItemRequest(tir);
 

@@ -263,12 +263,13 @@ public class Inventory implements Serializable {
      * String Card specifies the Ressource Card and Development Cards
      * valid Strings: Lumber, Brick, Grain, Wool, Ore, Knight, Monopoly, Road Building,
      * Year of Plenty, Victory Point Card.
-     *
+     * <p>
      * enhanced by Anton Nikiforov, Alexander Losse, Iskander Yusupov
-     * @since 2021-05-16
+     *
      * @param card   the name of the Ressource Card
      * @param amount how much of the Card should be increased
      * @author Alexander Losse, Ricardo Mook
+     * @since 2021-05-16
      * @since 2021-04-08
      */
     public void incCardStack(String card, int amount) {
@@ -347,6 +348,31 @@ public class Inventory implements Serializable {
             case "Year of Plenty":
                 cardYearOfPlenty.decNumber(amount);
                 break;
+        }
+    }
+
+    /**
+     * Method used to return the amount of a certain resource
+     *
+     * @param resource the String name of the resource
+     * @return the int amount of the resource in this inventory
+     * @author Marc Hermes
+     * @since 2021-05-19
+     */
+    public int getSpecificResourceAmount(String resource) {
+        switch (resource) {
+            case "Lumber":
+                return lumber.getNumber();
+            case "Brick":
+                return brick.getNumber();
+            case "Grain":
+                return grain.getNumber();
+            case "Wool":
+                return wool.getNumber();
+            case "Ore":
+                return ore.getNumber();
+            default:
+                return 0;
         }
     }
 
