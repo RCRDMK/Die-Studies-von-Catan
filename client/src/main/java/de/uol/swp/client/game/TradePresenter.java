@@ -83,6 +83,7 @@ public class TradePresenter extends AbstractPresenter {
                 offerNoneRadioButton.setVisible(true);
                 row1HBox.setVisible(true);
                 offer1RadioButton.setVisible(true);
+                textCol.setVisible(true);
 
                 int biddersCount = message.getBidders().size();
                 if (biddersCount > 1) {
@@ -173,18 +174,11 @@ public class TradePresenter extends AbstractPresenter {
     public void onBankResponseMessage(BankResponseMessage message) {
         if (this.tradeCode != null) {
             if (user.equals(message.getUser()) && tradeCode.equals(message.getTradeCode())) {
-                if (message.getBankOffer() != null) {
+                if (message.getBankOffer() != null && message.getBankOffer().size() > 1) {
                     buyerGotBankOffer = true;
                     setUPBankOfferView(message.getCardName(), message.getBankOffer());
                 } else {
-                    Alert noValidInput = new Alert(Alert.AlertType.CONFIRMATION);
-                    noValidInput.setContentText("Sorry, but this resource is not available right now.\nTry something else. ");
-                    Button conformation;
-                    ButtonType ok = new ButtonType("OK", ButtonBar.ButtonData.YES);
-                    noValidInput.getButtonTypes().setAll(ok);
-                    conformation = (Button) noValidInput.getDialogPane().lookupButton(ok);
-                    noValidInput.showAndWait();
-                    conformation.setOnAction(event -> noValidInput.hide());
+                    alert.setVisible(true);
                 }
             }
         }
@@ -205,31 +199,43 @@ public class TradePresenter extends AbstractPresenter {
     public void setOffer(ArrayList<TradeItem> sellingItems, ArrayList<TradeItem> wantedItems) {
         for (TradeItem item : sellingItems) {
             String valueOfCount = String.valueOf(item.getCount());
-            if (item.getName().equals(lumberString)) {
-                lumber1.setText(valueOfCount);
-            } else if (item.getName().equals(brickString)) {
-                brick1.setText(valueOfCount);
-            } else if (item.getName().equals(grainString)) {
-                grain1.setText(valueOfCount);
-            } else if (item.getName().equals(woolString)) {
-                wool1.setText(valueOfCount);
-            } else if (item.getName().equals(oreString)) {
-                ore1.setText(valueOfCount);
+            switch (item.getName()) {
+                case lumberString:
+                    lumber1.setText(valueOfCount);
+                    break;
+                case brickString:
+                    brick1.setText(valueOfCount);
+                    break;
+                case grainString:
+                    grain1.setText(valueOfCount);
+                    break;
+                case woolString:
+                    wool1.setText(valueOfCount);
+                    break;
+                case oreString:
+                    ore1.setText(valueOfCount);
+                    break;
             }
         }
 
         for (TradeItem item : wantedItems) {
             String valueOfCount = String.valueOf(item.getCount());
-            if (item.getName().equals(lumberString)) {
-                lumber2.setText(valueOfCount);
-            } else if (item.getName().equals(brickString)) {
-                brick2.setText(valueOfCount);
-            } else if (item.getName().equals(grainString)) {
-                grain2.setText(valueOfCount);
-            } else if (item.getName().equals(woolString)) {
-                wool2.setText(valueOfCount);
-            } else if (item.getName().equals(oreString)) {
-                ore2.setText(valueOfCount);
+            switch (item.getName()) {
+                case lumberString:
+                    lumber2.setText(valueOfCount);
+                    break;
+                case brickString:
+                    brick2.setText(valueOfCount);
+                    break;
+                case grainString:
+                    grain2.setText(valueOfCount);
+                    break;
+                case woolString:
+                    wool2.setText(valueOfCount);
+                    break;
+                case oreString:
+                    ore2.setText(valueOfCount);
+                    break;
             }
         }
         isBidder = true;
@@ -359,6 +365,7 @@ public class TradePresenter extends AbstractPresenter {
         for (TradeItem item : sendTradeOfferItemArrayList) {
             if (item.getCount() > 0) {
                 minimalItems = true;
+                break;
             }
         }
 
@@ -368,7 +375,7 @@ public class TradePresenter extends AbstractPresenter {
         }
         else {
             Alert noValidInput = new Alert(Alert.AlertType.CONFIRMATION);
-            noValidInput.setContentText("Please only input valid resources and numbers.\nIt should be 1 item in the offer at least.");
+            noValidInput.setContentText("Please only input valid resources and numbers.\nIt should be one item in the offer at least.");
             Button conformation;
             ButtonType ok = new ButtonType("OK", ButtonBar.ButtonData.YES);
             noValidInput.getButtonTypes().setAll(ok);
@@ -412,16 +419,22 @@ public class TradePresenter extends AbstractPresenter {
         String ressourceOfferInputValueText = ressourceInputValue.getText();
         if (isStringNumber(ressourceOfferInputValueText)) {
             String ressourceChoiceString = ressourceChoice.getValue().toString();
-            if (ressourceChoiceString.equals(lumberString)) {
-                lumber0.setText(ressourceOfferInputValueText);
-            } else if (ressourceChoiceString.equals(brickString)) {
-                brick0.setText(ressourceOfferInputValueText);
-            } else if (ressourceChoiceString.equals(grainString)) {
-                grain0.setText(ressourceOfferInputValueText);
-            } else if (ressourceChoiceString.equals(woolString)) {
-                wool0.setText(ressourceOfferInputValueText);
-            } else if (ressourceChoiceString.equals(oreString)) {
-                ore0.setText(ressourceOfferInputValueText);
+            switch (ressourceChoiceString) {
+                case lumberString:
+                    lumber0.setText(ressourceOfferInputValueText);
+                    break;
+                case brickString:
+                    brick0.setText(ressourceOfferInputValueText);
+                    break;
+                case grainString:
+                    grain0.setText(ressourceOfferInputValueText);
+                    break;
+                case woolString:
+                    wool0.setText(ressourceOfferInputValueText);
+                    break;
+                case oreString:
+                    ore0.setText(ressourceOfferInputValueText);
+                    break;
             }
         }
     }
@@ -436,16 +449,22 @@ public class TradePresenter extends AbstractPresenter {
         String ressourceWishInputValueText = ressourceInputValue.getText();
         if (isStringNumber(ressourceWishInputValueText)) {
             String ressourceChoiceString = ressourceChoice.getValue().toString();
-            if (ressourceChoiceString.equals(lumberString)) {
-                lumberW.setText(ressourceWishInputValueText);
-            } else if (ressourceChoiceString.equals(brickString)) {
-                brickW.setText(ressourceWishInputValueText);
-            } else if (ressourceChoiceString.equals(grainString)) {
-                grainW.setText(ressourceWishInputValueText);
-            } else if (ressourceChoiceString.equals(woolString)) {
-                woolW.setText(ressourceWishInputValueText);
-            } else if (ressourceChoiceString.equals(oreString)) {
-                oreW.setText(ressourceWishInputValueText);
+            switch (ressourceChoiceString) {
+                case lumberString:
+                    lumberW.setText(ressourceWishInputValueText);
+                    break;
+                case brickString:
+                    brickW.setText(ressourceWishInputValueText);
+                    break;
+                case grainString:
+                    grainW.setText(ressourceWishInputValueText);
+                    break;
+                case woolString:
+                    woolW.setText(ressourceWishInputValueText);
+                    break;
+                case oreString:
+                    oreW.setText(ressourceWishInputValueText);
+                    break;
             }
         }
     }
@@ -512,16 +531,22 @@ public class TradePresenter extends AbstractPresenter {
 
             for (TradeItem item : itemsOffer1) {
                 String valueOfCount = String.valueOf(item.getCount());
-                if (item.getName().equals(lumberString)) {
-                    lumber1.setText(valueOfCount);
-                } else if (item.getName().equals(brickString)) {
-                    brick1.setText(valueOfCount);
-                } else if (item.getName().equals(grainString)) {
-                    grain1.setText(valueOfCount);
-                } else if (item.getName().equals(woolString)) {
-                    wool1.setText(valueOfCount);
-                } else if (item.getName().equals(oreString)) {
-                    ore1.setText(valueOfCount);
+                switch (item.getName()) {
+                    case lumberString:
+                        lumber1.setText(valueOfCount);
+                        break;
+                    case brickString:
+                        brick1.setText(valueOfCount);
+                        break;
+                    case grainString:
+                        grain1.setText(valueOfCount);
+                        break;
+                    case woolString:
+                        wool1.setText(valueOfCount);
+                        break;
+                    case oreString:
+                        ore1.setText(valueOfCount);
+                        break;
                 }
             }
             if (bids.size() > 1) {
@@ -529,16 +554,22 @@ public class TradePresenter extends AbstractPresenter {
                 ArrayList<TradeItem> itemsOffer2 = bids.get(bidders.get(1));
                 for (TradeItem item : itemsOffer2) {
                     String valueOfCount = String.valueOf(item.getCount());
-                    if (item.getName().equals(lumberString)) {
-                        lumber2.setText(valueOfCount);
-                    } else if (item.getName().equals(brickString)) {
-                        brick2.setText(valueOfCount);
-                    } else if (item.getName().equals(grainString)) {
-                        grain2.setText(valueOfCount);
-                    } else if (item.getName().equals(woolString)) {
-                        wool2.setText(valueOfCount);
-                    } else if (item.getName().equals(oreString)) {
-                        ore2.setText(valueOfCount);
+                    switch (item.getName()) {
+                        case lumberString:
+                            lumber2.setText(valueOfCount);
+                            break;
+                        case brickString:
+                            brick2.setText(valueOfCount);
+                            break;
+                        case grainString:
+                            grain2.setText(valueOfCount);
+                            break;
+                        case woolString:
+                            wool2.setText(valueOfCount);
+                            break;
+                        case oreString:
+                            ore2.setText(valueOfCount);
+                            break;
                     }
                 }
                 if (bids.size() > 2) {
@@ -546,16 +577,22 @@ public class TradePresenter extends AbstractPresenter {
                     ArrayList<TradeItem> itemsOffer3 = bids.get(bidders.get(2));
                     for (TradeItem item : itemsOffer3) {
                         String valueOfCount = String.valueOf(item.getCount());
-                        if (item.getName().equals(lumberString)) {
-                            lumber3.setText(valueOfCount);
-                        } else if (item.getName().equals(brickString)) {
-                            brick3.setText(valueOfCount);
-                        } else if (item.getName().equals(grainString)) {
-                            grain3.setText(valueOfCount);
-                        } else if (item.getName().equals(woolString)) {
-                            wool3.setText(valueOfCount);
-                        } else if (item.getName().equals(oreString)) {
-                            ore3.setText(valueOfCount);
+                        switch (item.getName()) {
+                            case lumberString:
+                                lumber3.setText(valueOfCount);
+                                break;
+                            case brickString:
+                                brick3.setText(valueOfCount);
+                                break;
+                            case grainString:
+                                grain3.setText(valueOfCount);
+                                break;
+                            case woolString:
+                                wool3.setText(valueOfCount);
+                                break;
+                            case oreString:
+                                ore3.setText(valueOfCount);
+                                break;
                         }
                     }
                 }
@@ -575,7 +612,8 @@ public class TradePresenter extends AbstractPresenter {
      * @since 2021-05-31
      */
     public void setUPBankOfferView(String card, ArrayList<ArrayList<TradeItem>> bankOffer) {
-        tradeLable1.setText("Trade with the bank and harbors");
+        textCol.setVisible(true);
+        tradeLable1.setVisible(false);
         textRow0.setText("You want:");
         offerNoneRadioButton.setVisible(true);
         lumber0.setText(card.equals(lumberString) ? "1" : "0");
@@ -599,67 +637,90 @@ public class TradePresenter extends AbstractPresenter {
         this.bankOffer = bankOffer;
 
         for (TradeItem item : bankOffer.get(0)) {
-
-            String valueOfCount = String.valueOf(item.getCount());
-            if (item.getName().equals(lumberString)) {
-                lumber1.setText(valueOfCount);
-                offer1RadioButton.setDisable(item.isNotEnough());
-            } else if (item.getName().equals(brickString)) {
-                brick1.setText(valueOfCount);
-            } else if (item.getName().equals(grainString)) {
-                grain1.setText(valueOfCount);
-            } else if (item.getName().equals(woolString)) {
-                wool1.setText(valueOfCount);
-            } else if (item.getName().equals(oreString)) {
-                ore1.setText(valueOfCount);
-            }
+                String valueOfCount = String.valueOf(item.getCount());
+                switch (item.getName()) {
+                    case lumberString:
+                        lumber1.setText(valueOfCount);
+                        offer1RadioButton.setDisable(item.isNotEnough());
+                        break;
+                    case brickString:
+                        brick1.setText(valueOfCount);
+                        break;
+                    case grainString:
+                        grain1.setText(valueOfCount);
+                        break;
+                    case woolString:
+                        wool1.setText(valueOfCount);
+                        break;
+                    case oreString:
+                        ore1.setText(valueOfCount);
+                        break;
+                }
         }
 
         for (TradeItem item : bankOffer.get(1)) {
             String valueOfCount = String.valueOf(item.getCount());
-            if (item.getName().equals(lumberString)) {
-                lumber2.setText(valueOfCount);
-                offer2RadioButton.setDisable(item.isNotEnough());
-            } else if (item.getName().equals(brickString)) {
-                brick2.setText(valueOfCount);
-            } else if (item.getName().equals(grainString)) {
-                grain2.setText(valueOfCount);
-            } else if (item.getName().equals(woolString)) {
-                wool2.setText(valueOfCount);
-            } else if (item.getName().equals(oreString)) {
-                ore2.setText(valueOfCount);
+            switch (item.getName()) {
+                case lumberString:
+                    lumber2.setText(valueOfCount);
+                    offer2RadioButton.setDisable(item.isNotEnough());
+                    break;
+                case brickString:
+                    brick2.setText(valueOfCount);
+                    break;
+                case grainString:
+                    grain2.setText(valueOfCount);
+                    break;
+                case woolString:
+                    wool2.setText(valueOfCount);
+                    break;
+                case oreString:
+                    ore2.setText(valueOfCount);
+                    break;
             }
         }
 
         for (TradeItem item : bankOffer.get(2)) {
             String valueOfCount = String.valueOf(item.getCount());
-            if (item.getName().equals(lumberString)) {
-                lumber3.setText(valueOfCount);
-                offer3RadioButton.setDisable(item.isNotEnough());
-            } else if (item.getName().equals(brickString)) {
-                brick3.setText(valueOfCount);
-            } else if (item.getName().equals(grainString)) {
-                grain3.setText(valueOfCount);
-            } else if (item.getName().equals(woolString)) {
-                wool3.setText(valueOfCount);
-            } else if (item.getName().equals(oreString)) {
-                ore3.setText(valueOfCount);
+            switch (item.getName()) {
+                case lumberString:
+                    lumber3.setText(valueOfCount);
+                    offer3RadioButton.setDisable(item.isNotEnough());
+                    break;
+                case brickString:
+                    brick3.setText(valueOfCount);
+                    break;
+                case grainString:
+                    grain3.setText(valueOfCount);
+                    break;
+                case woolString:
+                    wool3.setText(valueOfCount);
+                    break;
+                case oreString:
+                    ore3.setText(valueOfCount);
+                    break;
             }
         }
 
         for (TradeItem item : bankOffer.get(3)) {
             String valueOfCount = String.valueOf(item.getCount());
-            if (item.getName().equals(lumberString)) {
-                lumber4.setText(valueOfCount);
-                offer4RadioButton.setDisable(item.isNotEnough());
-            } else if (item.getName().equals(brickString)) {
-                brick4.setText(valueOfCount);
-            } else if (item.getName().equals(grainString)) {
-                grain4.setText(valueOfCount);
-            } else if (item.getName().equals(woolString)) {
-                wool4.setText(valueOfCount);
-            } else if (item.getName().equals(oreString)) {
-                ore4.setText(valueOfCount);
+            switch (item.getName()) {
+                case lumberString:
+                    lumber4.setText(valueOfCount);
+                    offer4RadioButton.setDisable(item.isNotEnough());
+                    break;
+                case brickString:
+                    brick4.setText(valueOfCount);
+                    break;
+                case grainString:
+                    grain4.setText(valueOfCount);
+                    break;
+                case woolString:
+                    wool4.setText(valueOfCount);
+                    break;
+                case oreString:
+                    ore4.setText(valueOfCount);
+                    break;
             }
         }
 
@@ -721,6 +782,7 @@ public class TradePresenter extends AbstractPresenter {
         ressourceChoice.setDisable(true);
         ressourceChoiceBank.setVisible(false);
         createRequestButton.setVisible(false);
+        alert.setVisible(false);
         tradeLable2.setVisible(false);
         endTradeButton.setVisible(false);
         if (isBidder) {
@@ -780,6 +842,9 @@ public class TradePresenter extends AbstractPresenter {
 
     @FXML
     RadioButton offer4RadioButton;
+
+    @FXML
+    Text alert;
 
     @FXML
     Text textCol;

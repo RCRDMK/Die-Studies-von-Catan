@@ -1496,10 +1496,10 @@ public class GameService extends AbstractService {
                 if (oreOffer.get(4).getCount() > inventory.ore.getNumber()) oreOffer.get(0).setNotEnough(true);
 
                 if (!request.getCardName().equals("Lumber")) bankOffer.add(lumberOffer);
-                if (!request.getCardName().equals("Brick")) bankOffer.add(lumberOffer);
-                if (!request.getCardName().equals("Grain")) bankOffer.add(lumberOffer);
-                if (!request.getCardName().equals("Wool")) bankOffer.add(lumberOffer);
-                if (!request.getCardName().equals("Ore")) bankOffer.add(lumberOffer);
+                if (!request.getCardName().equals("Brick")) bankOffer.add(brickOffer);
+                if (!request.getCardName().equals("Grain")) bankOffer.add(grainOffer);
+                if (!request.getCardName().equals("Wool")) bankOffer.add(woolOffer);
+                if (!request.getCardName().equals("Ore")) bankOffer.add(oreOffer);
             }
 
             BankResponseMessage bankResponseMessage = new BankResponseMessage(request.getUser(), request.getTradeCode(), request.getCardName(), bankOffer);
@@ -1555,6 +1555,7 @@ public class GameService extends AbstractService {
                     }
                 }
                 giveResource(game, user, request.getChosenCard(), 1);
+                updateInventory(game);
                 post(new ResponseChatMessage(user.getUsername() + " just had a successful trade with the bank.", "game_" + request.getName(), "TradeInfo", System.currentTimeMillis()));
             }
             post(new TradeEndedMessage(request.getName(), request.getTradeCode()));

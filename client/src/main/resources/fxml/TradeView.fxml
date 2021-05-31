@@ -8,16 +8,16 @@
 <?import javafx.scene.shape.*?>
 <?import javafx.scene.text.*?>
 
-<AnchorPane stylesheets="@../css/swp.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.uol.swp.client.game.TradePresenter">
-   <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#1f1f1f" height="260.0" layoutX="5.0" layoutY="69.0" opacity="0.45" width="726.0" />
+<AnchorPane prefHeight="427.0" prefWidth="736.0" stylesheets="@../css/swp.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.uol.swp.client.game.TradePresenter">
+   <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#1f1f1f" height="260.0" layoutX="5.0" layoutY="68.0" opacity="0.70" width="643.0" />
    <VBox prefHeight="400.0">
       <HBox>
          <VBox.margin>
             <Insets top="2.0" />
          </VBox.margin>
-         <Label id="tradeLable1" fx:id="tradeLable1" style="-fx-background-color: rgba(0,0,0,0.44)" text="Trade with players">
+         <Label fx:id="tradeLable1" style="-fx-background-color: rgba(0,0,0,0.70)" text="Trade with players">
            <font>
-              <Font name="Times New Roman Bold" size="23.0" />
+              <Font name="Castellar" size="23.0" />
            </font>
             <HBox.margin>
                <Insets left="5.0" />
@@ -84,68 +84,68 @@
                   </HBox.margin>
                   <Text />
                   <Text />
-                  <Text fx:id="textRow0" fill="white" text="You chosenOffer:">
+                  <Text fx:id="textRow0" fill="white" text="You Offer:">
                      <font>
                         <Font size="16.0" />
                      </font></Text>
                </VBox>
-               <VBox prefWidth="100.0">
-                  <Text fill="white" text="Lumber">
+               <VBox prefWidth="60.0">
+                  <Text fill="white" text="Lumber" textAlignment="CENTER" wrappingWidth="60.0">
                      <font>
                         <Font size="16.0" />
                      </font></Text>
                   <Text />
-                  <Text fx:id="lumber0" fill="white" text="0">
+                  <Text fx:id="lumber0" fill="white" text="0" textAlignment="CENTER" wrappingWidth="60.0">
                      <font>
                         <Font size="16.0" />
                      </font></Text>
                </VBox>
-               <VBox prefWidth="100.0">
-                  <Text fill="white" text="Brick">
+               <VBox prefWidth="60.0">
+                  <Text fill="white" text="Brick" textAlignment="CENTER" wrappingWidth="60.0">
                      <font>
                         <Font size="16.0" />
                      </font></Text>
                   <Text />
-                  <Text fx:id="brick0" fill="white" text="0">
+                  <Text fx:id="brick0" fill="white" text="0" textAlignment="CENTER" wrappingWidth="60.0">
                      <font>
                         <Font size="16.0" />
                      </font></Text>
                </VBox>
-               <VBox prefWidth="100.0">
-                  <Text fill="white" text="Grain">
+               <VBox prefWidth="60.0">
+                  <Text fill="white" text="Grain" textAlignment="CENTER" wrappingWidth="60.0">
                      <font>
                         <Font size="16.0" />
                      </font></Text>
                   <Text />
-                  <Text fx:id="grain0" fill="white" text="0">
+                  <Text fx:id="grain0" fill="white" text="0" textAlignment="CENTER" wrappingWidth="60.0">
                      <font>
                         <Font size="16.0" />
                      </font></Text>
                </VBox>
-               <VBox prefWidth="100.0">
-                  <Text fill="white" text="Wool">
+               <VBox prefWidth="60.0">
+                  <Text fill="white" text="Wool" textAlignment="CENTER" wrappingWidth="60.0">
                      <font>
                         <Font size="16.0" />
                      </font></Text>
                   <Text />
-                  <Text fx:id="wool0" fill="white" text="0">
+                  <Text fx:id="wool0" fill="white" text="0" textAlignment="CENTER" wrappingWidth="60.0">
                      <font>
                         <Font size="16.0" />
                      </font></Text>
                </VBox>
-               <VBox prefWidth="80.0">
-                  <Text fill="white" text="Ore">
+               <VBox prefWidth="110.0">
+                  <Text fill="white" text="Ore" textAlignment="CENTER" wrappingWidth="60.0">
                      <font>
                         <Font size="16.0" />
                      </font></Text>
                   <Text />
-                  <Text fx:id="ore0" fill="white" text="0">
+                  <Text fx:id="ore0" fill="white" text="0" textAlignment="CENTER" wrappingWidth="60.0">
                      <font>
                         <Font size="16.0" />
                      </font></Text>
                </VBox>
-               <VBox prefWidth="121.0">
-                  <Text fx:id="textCol" fill="white" text="Accept an chosenOffer:" visible="false">
+               <VBox prefWidth="150.0">
+                  <Text fx:id="textCol" fill="white" text="Accept an offer:" visible="false">
                      <font>
                         <Font size="16.0" />
                      </font></Text>
@@ -165,42 +165,42 @@
                         <Font size="16.0" />
                      </font></Text>
                </VBox>
-               <VBox prefWidth="100.0">
+               <VBox prefWidth="60.0">
                   <Text />
-                  <Text fx:id="lumberW" fill="white" text="0">
+                  <Text fx:id="lumberW" fill="white" text="0" textAlignment="CENTER" wrappingWidth="60.0">
                      <font>
                         <Font size="16.0" />
                      </font></Text>
                </VBox>
-               <VBox prefWidth="100.0">
+               <VBox prefWidth="60.0">
                   <Text />
-                  <Text fx:id="brickW" fill="white" text="0">
+                  <Text fx:id="brickW" fill="white" text="0" textAlignment="CENTER" wrappingWidth="60.0">
                      <font>
                         <Font size="16.0" />
                      </font></Text>
                </VBox>
-               <VBox prefWidth="100.0">
+               <VBox prefWidth="60.0">
                   <Text />
-                  <Text fx:id="grainW" fill="white" text="0">
+                  <Text fx:id="grainW" fill="white" text="0" textAlignment="CENTER" wrappingWidth="60.0">
                      <font>
                         <Font size="16.0" />
                      </font></Text>
                </VBox>
-               <VBox prefWidth="100.0">
+               <VBox prefWidth="60.0">
                   <Text />
-                  <Text fx:id="woolW" fill="white" text="0">
+                  <Text fx:id="woolW" fill="white" text="0" textAlignment="CENTER" wrappingWidth="60.0">
                      <font>
                         <Font size="16.0" />
                      </font></Text>
                </VBox>
-               <VBox prefWidth="80.0">
+               <VBox prefWidth="110.0">
                   <Text />
-                  <Text fx:id="oreW" fill="white" text="0">
+                  <Text fx:id="oreW" fill="white" text="0" textAlignment="CENTER" wrappingWidth="60.0">
                      <font>
                         <Font size="16.0" />
                      </font></Text>
                </VBox>
-               <VBox prefWidth="121.0">
+               <VBox prefWidth="150.0">
                   <Text />
                </VBox>
                <VBox.margin>
@@ -222,44 +222,44 @@
                         <Font size="16.0" />
                      </font></Text>
                </VBox>
-               <VBox prefWidth="100.0">
+               <VBox prefWidth="60.0">
                   <Text />
-                  <Text fx:id="lumber1" fill="white" text="0">
+                  <Text fx:id="lumber1" fill="white" text="0" textAlignment="CENTER" wrappingWidth="60.0">
                      <font>
                         <Font size="16.0" />
                      </font></Text>
                </VBox>
-               <VBox prefWidth="100.0">
+               <VBox prefWidth="60.0">
                   <Text />
-                  <Text fx:id="brick1" fill="white" text="0">
+                  <Text fx:id="brick1" fill="white" text="0" textAlignment="CENTER" wrappingWidth="60.0">
                      <font>
                         <Font size="16.0" />
                      </font></Text>
                </VBox>
-               <VBox prefWidth="100.0">
+               <VBox prefWidth="60.0">
                   <Text />
-                  <Text fx:id="grain1" fill="white" text="0">
+                  <Text fx:id="grain1" fill="white" text="0" textAlignment="CENTER" wrappingWidth="60.0">
                      <font>
                         <Font size="16.0" />
                      </font></Text>
                </VBox>
-               <VBox prefWidth="100.0">
+               <VBox prefWidth="60.0">
                   <Text />
-                  <Text fx:id="wool1" fill="white" text="0">
+                  <Text fx:id="wool1" fill="white" text="0" textAlignment="CENTER" wrappingWidth="60.0">
                      <font>
                         <Font size="16.0" />
                      </font></Text>
                </VBox>
-               <VBox prefWidth="80.0">
+               <VBox prefWidth="110.0">
                   <Text />
-                  <Text fx:id="ore1" fill="white" text="0">
+                  <Text fx:id="ore1" fill="white" text="0" textAlignment="CENTER" wrappingWidth="60.0">
                      <font>
                         <Font size="16.0" />
                      </font></Text>
                </VBox>
-               <VBox prefWidth="121.0">
-                  <Text fx:id="offer1RadioText" text="You don't have enough resources" visible="false" />
-                  <RadioButton fx:id="offer1RadioButton" mnemonicParsing="false" text="Accept chosenOffer 1" toggleGroup="$choiceTrade" />
+               <VBox prefWidth="150.0">
+                  <Text fx:id="offer1RadioText" fill="white" text="You don't have enough" visible="false" />
+                  <RadioButton fx:id="offer1RadioButton" mnemonicParsing="false" text="Accept offer 1" toggleGroup="$choiceTrade" />
                </VBox>
             </HBox>
             <HBox fx:id="row2HBox" visible="false">
@@ -270,44 +270,44 @@
                         <Font size="16.0" />
                      </font></Text>
                </VBox>
-               <VBox prefWidth="100.0">
+               <VBox prefWidth="60.0">
                   <Text />
-                  <Text fx:id="lumber2" fill="white" text="0">
+                  <Text fx:id="lumber2" fill="white" text="0" textAlignment="CENTER" wrappingWidth="60.0">
                      <font>
                         <Font size="16.0" />
                      </font></Text>
                </VBox>
-               <VBox prefWidth="100.0">
+               <VBox prefWidth="60.0">
                   <Text />
-                  <Text fx:id="brick2" fill="white" text="0">
+                  <Text fx:id="brick2" fill="white" text="0" textAlignment="CENTER" wrappingWidth="60.0">
                      <font>
                         <Font size="16.0" />
                      </font></Text>
                </VBox>
-               <VBox prefWidth="100.0">
+               <VBox prefWidth="60.0">
                   <Text />
-                  <Text fx:id="grain2" fill="white" text="0">
+                  <Text fx:id="grain2" fill="white" text="0" textAlignment="CENTER" wrappingWidth="60.0">
                      <font>
                         <Font size="16.0" />
                      </font></Text>
                </VBox>
-               <VBox prefWidth="100.0">
+               <VBox prefWidth="60.0">
                   <Text />
-                  <Text fx:id="wool2" fill="white" text="0">
+                  <Text fx:id="wool2" fill="white" text="0" textAlignment="CENTER" wrappingWidth="60.0">
                      <font>
                         <Font size="16.0" />
                      </font></Text>
                </VBox>
-               <VBox prefWidth="80.0">
+               <VBox prefWidth="110.0">
                   <Text />
-                  <Text fx:id="ore2" fill="white" text="0">
+                  <Text fx:id="ore2" fill="white" text="0" textAlignment="CENTER" wrappingWidth="60.0">
                      <font>
                         <Font size="16.0" />
                      </font></Text>
                </VBox>
-               <VBox prefWidth="121.0">
-                  <Text fx:id="offer2RadioText" text="You don't have enough resources" visible="false" />
-                  <RadioButton fx:id="offer2RadioButton" mnemonicParsing="false" text="Accept chosenOffer 2" toggleGroup="$choiceTrade" />
+               <VBox prefWidth="150.0">
+                  <Text fx:id="offer2RadioText" fill="white" text="You don't have enough" visible="false" />
+                  <RadioButton fx:id="offer2RadioButton" mnemonicParsing="false" text="Accept offer 2" toggleGroup="$choiceTrade" />
                </VBox>
             </HBox>
             <HBox fx:id="row3HBox" visible="false">
@@ -318,44 +318,44 @@
                         <Font size="16.0" />
                      </font></Text>
                </VBox>
-               <VBox prefWidth="100.0">
+               <VBox prefWidth="60.0">
                   <Text />
-                  <Text fx:id="lumber3" fill="white" text="0">
+                  <Text fx:id="lumber3" fill="white" text="0" textAlignment="CENTER" wrappingWidth="60.0">
                      <font>
                         <Font size="16.0" />
                      </font></Text>
                </VBox>
-               <VBox prefWidth="100.0">
+               <VBox prefWidth="60.0">
                   <Text />
-                  <Text fx:id="brick3" fill="white" text="0">
+                  <Text fx:id="brick3" fill="white" text="0" textAlignment="CENTER" wrappingWidth="60.0">
                      <font>
                         <Font size="16.0" />
                      </font></Text>
                </VBox>
-               <VBox prefWidth="100.0">
+               <VBox prefWidth="60.0">
                   <Text />
-                  <Text fx:id="grain3" fill="white" text="0">
+                  <Text fx:id="grain3" fill="white" text="0" textAlignment="CENTER" wrappingWidth="60.0">
                      <font>
                         <Font size="16.0" />
                      </font></Text>
                </VBox>
-               <VBox prefWidth="100.0">
+               <VBox prefWidth="60.0">
                   <Text />
-                  <Text fx:id="wool3" fill="white" text="0">
+                  <Text fx:id="wool3" fill="white" text="0" textAlignment="CENTER" wrappingWidth="60.0">
                      <font>
                         <Font size="16.0" />
                      </font></Text>
                </VBox>
-               <VBox prefWidth="80.0">
+               <VBox prefWidth="110.0">
                   <Text />
-                  <Text fx:id="ore3" fill="white" text="0">
+                  <Text fx:id="ore3" fill="white" text="0" textAlignment="CENTER" wrappingWidth="60.0">
                      <font>
                         <Font size="16.0" />
                      </font></Text>
                </VBox>
-               <VBox prefWidth="121.0">
-                  <Text fx:id="offer3RadioText" text="You don't have enough resources" visible="false" />
-                  <RadioButton fx:id="offer3RadioButton" mnemonicParsing="false" text="Accept chosenOffer 3" toggleGroup="$choiceTrade" />
+               <VBox prefWidth="150.0">
+                  <Text fx:id="offer3RadioText" fill="white" text="You don't have enough" visible="false" />
+                  <RadioButton fx:id="offer3RadioButton" mnemonicParsing="false" text="Accept offer 3" toggleGroup="$choiceTrade" />
                </VBox>
             </HBox>
             <HBox fx:id="row4HBox" visible="false">
@@ -366,44 +366,44 @@
                         <Font size="16.0" />
                      </font></Text>
                </VBox>
-               <VBox prefWidth="100.0">
+               <VBox prefWidth="60.0">
                   <Text />
-                  <Text fx:id="lumber4" fill="white" text="0">
+                  <Text fx:id="lumber4" fill="white" text="0" textAlignment="CENTER" wrappingWidth="60.0">
                      <font>
                         <Font size="16.0" />
                      </font></Text>
                </VBox>
-               <VBox prefWidth="100.0">
+               <VBox prefWidth="60.0">
                   <Text />
-                  <Text fx:id="brick4" fill="white" text="0">
+                  <Text fx:id="brick4" fill="white" text="0" textAlignment="CENTER" wrappingWidth="60.0">
                      <font>
                         <Font size="16.0" />
                      </font></Text>
                </VBox>
-               <VBox prefWidth="100.0">
+               <VBox prefWidth="60.0">
                   <Text />
-                  <Text fx:id="grain4" fill="white" text="0">
+                  <Text fx:id="grain4" fill="white" text="0" textAlignment="CENTER" wrappingWidth="60.0">
                      <font>
                         <Font size="16.0" />
                      </font></Text>
                </VBox>
-               <VBox prefWidth="100.0">
+               <VBox prefWidth="60.0">
                   <Text />
-                  <Text fx:id="wool4" fill="white" text="0">
+                  <Text fx:id="wool4" fill="white" text="0" textAlignment="CENTER" wrappingWidth="60.0">
                      <font>
                         <Font size="16.0" />
                      </font></Text>
                </VBox>
-               <VBox prefWidth="80.0">
+               <VBox prefWidth="110.0">
                   <Text />
-                  <Text fx:id="ore4" fill="white" text="0">
+                  <Text fx:id="ore4" fill="white" text="0" textAlignment="CENTER" wrappingWidth="60.0">
                      <font>
                         <Font size="16.0" />
                      </font></Text>
                </VBox>
-               <VBox prefWidth="121.0">
-                  <Text fx:id="offer4RadioText" text="You don't have enough resources" visible="false" />
-                  <RadioButton fx:id="offer4RadioButton" mnemonicParsing="false" text="Accept chosenOffer 4" toggleGroup="$choiceTrade" />
+               <VBox prefWidth="150.0">
+                  <Text fx:id="offer4RadioText" fill="white" text="You don't have enough" visible="false" />
+                  <RadioButton fx:id="offer4RadioButton" mnemonicParsing="false" text="Accept offer 4" toggleGroup="$choiceTrade" />
                </VBox>
             </HBox>
          </VBox>
@@ -416,9 +416,9 @@
             <VBox.margin>
                <Insets top="45.0" />
             </VBox.margin>
-            <Label fx:id="tradeLable2" style="-fx-background-color: rgba(0,0,0,0.44)" text="Trade with the bank and harbors">
+            <Label fx:id="tradeLable2" style="-fx-background-color: rgba(0,0,0,0.70)" text="Trade with the bank and harbors">
                <font>
-                  <Font name="Times New Roman Bold" size="23.0" />
+                  <Font name="Castellar" size="23.0" />
                </font>
             </Label>
          </HBox>
@@ -442,12 +442,20 @@
             </Button>
             <Button fx:id="endTradeButton" mnemonicParsing="false" onAction="#onEndTradeButtonPressed" text="end Trade">
                <HBox.margin>
-                  <Insets left="290.0" />
+                  <Insets left="293.0" />
                </HBox.margin>
             </Button>
             <VBox.margin>
                <Insets top="4.0" />
             </VBox.margin>
+         </HBox>
+         <HBox prefHeight="21.0" prefWidth="731.0">
+            <children>
+               <Text fx:id="alert" fill="white" text="Sorry, but this resource is not available right now. Pleas try something else." visible="false">
+                  <font>
+                     <Font name="System Bold" size="15.0" />
+                  </font></Text>
+            </children>
          </HBox>
       </VBox>
    </VBox>
