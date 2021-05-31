@@ -50,16 +50,16 @@ public class GameSerializableTest {
                 RollDiceResultMessage.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new ChoosePlayerMessage("test", defaultUser, defaultUserList),
                 ChoosePlayerMessage.class));
-        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new DrawRandomResourceFromPlayerMessage("test", defaultUser, "test1"),
-                DrawRandomResourceFromPlayerMessage.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new MoveRobberMessage("test", defaultUser),
                 MoveRobberMessage.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new RobbersNewFieldMessage("test", defaultUser, defaultUuid),
                 RobbersNewFieldMessage.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new SuccessfullMovedRobberMessage(defaultUuid),
                 SuccessfullMovedRobberMessage.class));
-        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new TooMuchResourceCardsMessage("test", defaultUser, 5, defaultHashMap),
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new TooMuchResourceCardsMessage(),
                 TooMuchResourceCardsMessage.class));
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new TradeInformSellerAboutBidsMessage(),
+                TradeInformSellerAboutBidsMessage.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new BankResponseMessage(defaultUser, "", "", defaultOffer2),
                 BankResponseMessage.class));
     }
@@ -94,6 +94,10 @@ public class GameSerializableTest {
                 ResolveDevelopmentCardRoadBuildingRequest.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new ResolveDevelopmentCardYearOfPlentyRequest(),
                 ResolveDevelopmentCardYearOfPlentyRequest.class));
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new DrawRandomResourceFromPlayerRequest(),
+                DrawRandomResourceFromPlayerRequest.class));
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new TradeItemRequest(),
+                TradeItemRequest.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new BankRequest("test", defaultUser, "", ""),
                 BankRequest.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new BankBuyRequest("test", defaultUser, "", "", defaultOffer1),

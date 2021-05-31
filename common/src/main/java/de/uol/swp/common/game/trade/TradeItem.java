@@ -22,7 +22,6 @@ public class TradeItem implements Serializable {
      *
      * @param count how many items
      * @param name the name of the item
-     *
      * @author Alexander Losse, Ricardo Mook
      * @since 2021-04-07
      */
@@ -34,27 +33,45 @@ public class TradeItem implements Serializable {
     /**
      * getter
      *
+     * @return String name of the item
      * @author Alexander Losse, Ricardo Mook
      * @since 2021-04-07
-     * @return String name of the item
      */
     public String getName() {
         return name;
     }
 
     /**
-     * getter and setter
+     * getter
      *
+     * @return int count
      * @author Alexander Losse, Ricardo Mook
      * @since 2021-04-07
-     * @return int count
      */
     public int getCount() {
         return count;
     }
 
+    /**
+     * setter
+     *
+     * @param count int
+     * @author Anton Nikiforov
+     * @since 2021-05-31
+     */
     public void setCount(int count) {
         this.count = count;
+    }
+
+    /**
+     * decrements Count
+     *
+     * @param i the amount to decrease
+     * @author Alexander Losse, Marc Hermes
+     * @since 2021-05-22
+     */
+    public void decCount(int i) {
+        count = count - i;
     }
 
     /**

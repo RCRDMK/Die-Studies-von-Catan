@@ -9,7 +9,6 @@
 }
 
 .text-field {/* Sets behaviour for the Textfield class*/
-     visibility: true;
     -fx-background-color: white;
     -fx-text-fill: black;
 }
