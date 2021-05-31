@@ -274,7 +274,6 @@ public class GameService extends AbstractService {
      */
     @Subscribe
     public void onResourcesToDiscard(ResourcesToDiscardRequest resourcesToDiscardRequest) {
-        //TODO Hier muss nach Implementierung der Bank nochmal etwas ergänzt werden.
         Optional<Game> optionalGame = gameManagement.getGame(resourcesToDiscardRequest.getName());
         if (optionalGame.isPresent()) {
             Game game = optionalGame.get();
@@ -1267,12 +1266,12 @@ public class GameService extends AbstractService {
         if (optionalGame.isPresent()) {
             Game game = optionalGame.get();
 
-            // TODO: Wird nur zum testen verwendet
+            /*// TODO: Wird nur zum testen verwendet
             game.getInventory(request.getUser()).incCardStack("Lumber", 5);
-            game.getInventory(request.getUser()).incCardStack("Ore", 5);
-            game.getInventory(request.getUser()).incCardStack("Wool", 5);
-            game.getInventory(request.getUser()).incCardStack("Grain", 5);
             game.getInventory(request.getUser()).incCardStack("Brick", 5);
+            game.getInventory(request.getUser()).incCardStack("Grain", 5);
+            game.getInventory(request.getUser()).incCardStack("Wool", 5);
+            game.getInventory(request.getUser()).incCardStack("Ore", 5);*/
 
             boolean numberOfCardsCorrect = true;
 
