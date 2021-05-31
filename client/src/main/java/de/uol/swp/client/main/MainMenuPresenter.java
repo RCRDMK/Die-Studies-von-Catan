@@ -8,8 +8,8 @@ import de.uol.swp.client.account.event.ShowUserSettingsViewEvent;
 import de.uol.swp.client.chat.ChatService;
 import de.uol.swp.client.lobby.LobbyCell;
 import de.uol.swp.client.lobby.LobbyService;
-import de.uol.swp.client.message.MuteMusicMessage;
-import de.uol.swp.client.message.UnmuteMusicMessage;
+import de.uol.swp.client.main.event.MuteMusicEvent;
+import de.uol.swp.client.main.event.UnmuteMusicEvent;
 import de.uol.swp.client.register.event.ShowGameRulesEvent;
 import de.uol.swp.common.chat.RequestChatMessage;
 import de.uol.swp.common.chat.ResponseChatMessage;
@@ -103,8 +103,6 @@ public class MainMenuPresenter extends AbstractPresenter {
     @FXML
     private Button unmuteMusicButton;
 
-    private Object ChangeMusicMessage;
-    private Object UnmuteMusicMessage;
 
     /**
      * Handles successful login
@@ -621,7 +619,7 @@ public class MainMenuPresenter extends AbstractPresenter {
     @FXML
     public void onMuteMusicButtonPressed(ActionEvent actionEvent) {
         LOG.debug("User muted the game music.");
-        eventBus.post(new MuteMusicMessage());
+        eventBus.post(new MuteMusicEvent());
         muteMusicButton.setVisible(false);
         unmuteMusicButton.setVisible(true);
     }
@@ -639,7 +637,7 @@ public class MainMenuPresenter extends AbstractPresenter {
     @FXML
     public void onUnmuteMusicButtonPressed(ActionEvent actionEvent) {
         LOG.debug("User unmuted the game music.");
-        eventBus.post(new UnmuteMusicMessage());
+        eventBus.post(new UnmuteMusicEvent());
         muteMusicButton.setVisible(true);
         unmuteMusicButton.setVisible(false);
     }

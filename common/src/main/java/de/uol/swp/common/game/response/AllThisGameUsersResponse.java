@@ -1,4 +1,4 @@
-package de.uol.swp.common.user.response.game;
+package de.uol.swp.common.game.response;
 
 import de.uol.swp.common.message.AbstractResponseMessage;
 import de.uol.swp.common.user.User;

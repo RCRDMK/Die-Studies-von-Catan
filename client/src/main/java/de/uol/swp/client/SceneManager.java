@@ -17,8 +17,8 @@ import de.uol.swp.client.game.SummaryPresenter;
 import de.uol.swp.client.game.TradePresenter;
 import de.uol.swp.client.lobby.LobbyPresenter;
 import de.uol.swp.client.main.MainMenuPresenter;
-import de.uol.swp.client.message.MuteMusicMessage;
-import de.uol.swp.client.message.UnmuteMusicMessage;
+import de.uol.swp.client.main.event.MuteMusicEvent;
+import de.uol.swp.client.main.event.UnmuteMusicEvent;
 import de.uol.swp.client.register.RegistrationPresenter;
 import de.uol.swp.client.register.event.RegistrationCanceledEvent;
 import de.uol.swp.client.register.event.RegistrationErrorEvent;
@@ -512,7 +512,7 @@ public class SceneManager {
      * @since 2021-05-08
      */
     @Subscribe
-    public void onMuteMusicEvent(MuteMusicMessage mmm) {
+    public void onMuteMusicEvent(MuteMusicEvent mmm){
         player.pause();
     }
 
@@ -524,7 +524,7 @@ public class SceneManager {
      * @since 2021-05-08
      */
     @Subscribe
-    public void onUnmuteMusicEvent(UnmuteMusicMessage umm) {
+    public void onUnmuteMusicEvent(UnmuteMusicEvent umm){
         player.play();
     }
 

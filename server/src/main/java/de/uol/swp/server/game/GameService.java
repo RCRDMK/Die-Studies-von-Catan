@@ -28,8 +28,6 @@ import de.uol.swp.common.user.Session;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.user.request.LogoutRequest;
-import de.uol.swp.common.user.response.game.AllThisGameUsersResponse;
-import de.uol.swp.common.user.response.game.GameLeftSuccessfulResponse;
 import de.uol.swp.server.AI.AIToServerTranslator;
 import de.uol.swp.server.AI.RandomAI;
 import de.uol.swp.server.AI.TestAI;
@@ -158,7 +156,7 @@ public class GameService extends AbstractService {
     @Subscribe
     public boolean onConstructionMessage(ConstructionRequest message) {
         LOG.debug("Received new ConstructionMessage from user " + message.getUser());
-        Optional<Game> optionalGame = gameManagement.getGame(message.getGame());
+        Optional<Game> optionalGame = gameManagement.getGame(message.getName());
         if (optionalGame.isPresent()) {
             Game game = optionalGame.get();
             int playerIndex = 666;
@@ -342,6 +340,7 @@ public class GameService extends AbstractService {
                 } else {
                     distributeResources(addedEyes, rollDiceRequest.getName());
                 }
+                //Auskommentierter Bereich sinnvoll für einen Interaktionslog
                 /*try {
                     String chatMessage;
                     var chatId = "game_" + rollDiceRequest.getName();
@@ -898,7 +897,7 @@ public class GameService extends AbstractService {
                         takeResource(game, request.getUser(), "Ore", 1);
                         takeResource(game, request.getUser(), "Grain", 1);
                         inventory.incCardStack(devCard, 1);
-                        BuyDevelopmentCardMessage response = new BuyDevelopmentCardMessage(devCard);
+                        BuyDevelopmentCardMessage response = new BuyDevelopmentCardMessage(request.getName(), request.getUser(), devCard);
                         sendToSpecificUserInGame(response, request.getUser());
                     } else {
                         var chatId = "game_" + game.getName();

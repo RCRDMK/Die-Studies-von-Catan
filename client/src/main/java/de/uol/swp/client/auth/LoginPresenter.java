@@ -25,7 +25,7 @@ public class LoginPresenter extends AbstractPresenter {
 
     public static final String fxml = "/fxml/LoginView.fxml";
 
-    private static final ShowRegistrationViewEvent showRegViewMessage = new ShowRegistrationViewEvent();
+    private static final ShowRegistrationViewEvent showRegViewEvent = new ShowRegistrationViewEvent();
 
     @FXML
     private PasswordField passwordField;
@@ -76,6 +76,6 @@ public class LoginPresenter extends AbstractPresenter {
      */
     @FXML
     private void onRegisterButtonPressed(ActionEvent event) {
-        eventBus.post(showRegViewMessage);
+        eventBus.post(showRegViewEvent);
     }
 }

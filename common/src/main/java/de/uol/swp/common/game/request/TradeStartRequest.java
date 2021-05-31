@@ -27,6 +27,9 @@ public class TradeStartRequest extends AbstractGameRequest {
         this.tradeCode = tradeCode;
     }
 
+    public TradeStartRequest() {
+    }
+
     /**
      * getter for the tradeCode
      *

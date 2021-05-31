@@ -1,6 +1,6 @@
 package de.uol.swp.common.game.request;
 
-import de.uol.swp.common.user.response.game.AllThisGameUsersResponse;
+import de.uol.swp.common.game.response.AllThisGameUsersResponse;
 
 /**
  * Request for initialising the user list in the game
