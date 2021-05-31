@@ -831,33 +831,33 @@ public class GameService extends AbstractService {
         Optional<Game> optionalGame = gameManagement.getGame(request.getName());
         if (optionalGame.isPresent()) {
             Game game = optionalGame.get();
-                if (request.getUser().equals(game.getUser(game.getTurn()))) {
-                    Inventory inventory = game.getInventory(request.getUser());
-                    if (inventory.wool.getNumber() >= 1 && inventory.ore.getNumber() >= 1 && inventory.grain.getNumber() >= 1) {
-                        String devCard = game.getDevelopmentCardDeck().drawnCard();
-                        if (devCard != null) {
-                            takeResource(game, request.getUser(), "Wool", 1);
-                            takeResource(game, request.getUser(), "Ore", 1);
-                            takeResource(game, request.getUser(), "Grain", 1);
-                            inventory.incCardStack(devCard, 1);
-                            game.rememberDevCardBoughtThisTurn(devCard, 1);
-                            BuyDevelopmentCardMessage response = new BuyDevelopmentCardMessage(devCard);
-                            sendToSpecificUserInGame(response, request.getUser());
-                        } else {
-                            var chatId = "game_" + game.getName();
-                            ResponseChatMessage msg = new ResponseChatMessage("No development cards are available.", chatId, "Bank", System.currentTimeMillis());
-                            post(msg);
-                            LOG.debug("Posted ResponseChatMessage on eventBus");
-                        }
+            if (request.getUser().equals(game.getUser(game.getTurn())) && optionalGame.get().rolledDiceThisTurn()) {
+                Inventory inventory = game.getInventory(request.getUser());
+                if (inventory.wool.getNumber() >= 1 && inventory.ore.getNumber() >= 1 && inventory.grain.getNumber() >= 1) {
+                    String devCard = game.getDevelopmentCardDeck().drawnCard();
+                    if (devCard != null) {
+                        takeResource(game, request.getUser(), "Wool", 1);
+                        takeResource(game, request.getUser(), "Ore", 1);
+                        takeResource(game, request.getUser(), "Grain", 1);
+                        inventory.incCardStack(devCard, 1);
+                        game.rememberDevCardBoughtThisTurn(devCard, 1);
+                        BuyDevelopmentCardMessage response = new BuyDevelopmentCardMessage(devCard);
+                        sendToSpecificUserInGame(response, request.getUser());
                     } else {
-                        NotEnoughRessourcesMessage nerm = new NotEnoughRessourcesMessage();
-                        nerm.setName(game.getName());
-                        sendToSpecificUserInGame(nerm, request.getUser());
+                        var chatId = "game_" + game.getName();
+                        ResponseChatMessage msg = new ResponseChatMessage("No development cards are available.", chatId, "Bank", System.currentTimeMillis());
+                        post(msg);
+                        LOG.debug("Posted ResponseChatMessage on eventBus");
                     }
+                } else {
+                    NotEnoughRessourcesMessage nerm = new NotEnoughRessourcesMessage();
+                    nerm.setName(game.getName());
+                    sendToSpecificUserInGame(nerm, request.getUser());
                 }
-                updateInventory(game);
             }
+            updateInventory(game);
         }
+    }
 
     /**
      * Handles Requests from a client to play a DevelopmentCard
@@ -866,8 +866,9 @@ public class GameService extends AbstractService {
      * if a DevelopmentCard wasn't already played this turn, or is currently being played,
      * then remove the DevelopmentCard from the inventory of the player and inform him that he
      * may proceed with the resolution of the card. If something went wrong, also inform him.
-     *
+     * <p>
      * enhanced by Alexander Losse on 2021-05-30
+     *
      * @param request the PlayDevelopmentCardRequest sent by the client
      * @author Marc Hermes
      * @since 2021-05-01
@@ -890,7 +891,7 @@ public class GameService extends AbstractService {
                 inventory.cardKnight.incNumber();
 
                 //checks if user can play developmentCard
-                if(!game.canUserPlayDevCard(request.getUser(), devCard) && game.rolledDiceThisTurn()){
+                if (!game.canUserPlayDevCard(request.getUser(), devCard) && game.rolledDiceThisTurn()) {
                     devCard = "default";
                 }
                 switch (devCard) {
@@ -1373,9 +1374,12 @@ public class GameService extends AbstractService {
      */
     @Subscribe
     public void onTradeStartedRequest(TradeStartRequest request) {
-        UserDTO user = request.getUser();
-        TradeStartedMessage tsm = new TradeStartedMessage(user, request.getName(), request.getTradeCode());
-        sendToSpecificUserInGame(tsm, user);
+        Optional<Game> optionalGame = gameManagement.getGame(request.getName());
+        if (optionalGame.get().rolledDiceThisTurn()) {
+            UserDTO user = request.getUser();
+            TradeStartedMessage tsm = new TradeStartedMessage(user, request.getName(), request.getTradeCode());
+            sendToSpecificUserInGame(tsm, user);
+        }
     }
 
     /**
