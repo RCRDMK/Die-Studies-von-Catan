@@ -17,7 +17,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class GameSerializableTest {
     private static final UserDTO defaultUser = new UserDTO("marco", "marco", "marco@grawunder.de");
-    private static final ArrayList<Game> defaultCollection = new ArrayList<>();
     private static final ArrayList<String> defaultUserList = new ArrayList<>();
     private static final HashMap<String, Integer> defaultHashMap = new HashMap<>();
     private static final ArrayList<TradeItem> defaultOffer1 = new ArrayList<>();

@@ -128,7 +128,7 @@ public class GameServiceTest {
 
     @Test
     public void endTradeBeforeItStartedTest(){
-        gameService.endTradeBeforeItStarted("123");
+        gameService.endTradeBeforeItStarted("test","123");
 
         assertTrue(event instanceof TradeEndedMessage);
         assertEquals("123", ((TradeEndedMessage) event).getTradeCode());
