@@ -6,13 +6,11 @@ import com.google.common.eventbus.Subscribe;
 import de.uol.swp.client.game.event.SummaryConfirmedEvent;
 import de.uol.swp.common.game.dto.StatsDTO;
 import de.uol.swp.common.game.inventory.Inventory;
-import de.uol.swp.common.game.message.DrawRandomResourceFromPlayerMessage;
+import de.uol.swp.common.game.request.DrawRandomResourceFromPlayerRequest;
 import de.uol.swp.common.game.message.RobbersNewFieldMessage;
 import de.uol.swp.common.game.message.TradeEndedMessage;
-import de.uol.swp.common.game.message.TradeStartedMessage;
 import de.uol.swp.common.game.request.*;
 import de.uol.swp.common.user.UserDTO;
-import org.checkerframework.checker.units.qual.A;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -159,9 +157,9 @@ public class GameServiceTest {
     public void drawRandomCardFromPlayerTest(){
         gameService.drawRandomCardFromPlayer("Test", userDTO, "Wool");
 
-        assertTrue(event instanceof DrawRandomResourceFromPlayerMessage);
-        assertEquals(userDTO.getUsername(), ((DrawRandomResourceFromPlayerMessage) event).getUser().getUsername());
-        assertEquals("Test", ((DrawRandomResourceFromPlayerMessage) event).getName());
+        assertTrue(event instanceof DrawRandomResourceFromPlayerRequest);
+        assertEquals(userDTO.getUsername(), ((DrawRandomResourceFromPlayerRequest) event).getUser().getUsername());
+        assertEquals("Test", ((DrawRandomResourceFromPlayerRequest) event).getName());
     }
 
     @Test
