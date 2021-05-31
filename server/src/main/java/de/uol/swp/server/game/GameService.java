@@ -196,7 +196,7 @@ public class GameService extends AbstractService {
                                     }
                                     updateInventory(game);
                                     return true;
-                                } else sendToAllInGame(game.getName(), new NotSuccessfulConstructionMessage(playerIndex, message.getUuid(), "BuildingNode"));
+                                } //else sendToAllInGame(game.getName(), new NotSuccessfulConstructionMessage(playerIndex, message.getUuid(), "BuildingNode"));
                             } else {
                                 NotEnoughRessourcesMessage nerm = new NotEnoughRessourcesMessage();
                                 nerm.setName(game.getName());
@@ -222,7 +222,7 @@ public class GameService extends AbstractService {
                                     inventory.road.decNumber();
                                     updateInventory(game);
                                     return true;
-                                } else sendToAllInGame(game.getName(), new NotSuccessfulConstructionMessage(playerIndex, message.getUuid(), "StreetNode"));
+                                } //else sendToAllInGame(game.getName(), new NotSuccessfulConstructionMessage(playerIndex, message.getUuid(), "StreetNode"));
                             } else {
                                 NotEnoughRessourcesMessage nerm = new NotEnoughRessourcesMessage();
                                 nerm.setName(game.getName());
