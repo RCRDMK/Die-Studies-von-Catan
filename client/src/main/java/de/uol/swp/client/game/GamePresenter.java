@@ -2019,7 +2019,7 @@ public class GamePresenter extends AbstractPresenter {
                 publicInventory3 = FXCollections.observableArrayList();
                 publicInventory3View.setItems(publicInventory3);
             }
-            if (publicInventory4 == null && gameUsers.size() == 3) {
+            if (publicInventory4 == null && gameUsers.size() > 2) {
                 publicInventory4 = FXCollections.observableArrayList();
                 publicInventory4View.setItems(publicInventory4);
             }
@@ -2044,16 +2044,16 @@ public class GamePresenter extends AbstractPresenter {
             if(gameUsers.size() > 0) {
                 publicInventory2.add(gameUsers.get(1));
             }
-            publicInventory1.add("Points: " + pu.get(1).get("Public Victory Points").toString());
-            publicInventory1.add("Resources: " + pu.get(1).get("Resource").toString());
-            publicInventory1.add("Cards: " + pu.get(1).get("Development Cards").toString());
-            publicInventory1.add("Knights: " + pu.get(1).get("Played Knights").toString());
-            publicInventory1.add("Roads: " + pu.get(1).get("Continuous Road").toString());
+            publicInventory2.add("Points: " + pu.get(1).get("Public Victory Points").toString());
+            publicInventory2.add("Resources: " + pu.get(1).get("Resource").toString());
+            publicInventory2.add("Cards: " + pu.get(1).get("Development Cards").toString());
+            publicInventory2.add("Knights: " + pu.get(1).get("Played Knights").toString());
+            publicInventory2.add("Roads: " + pu.get(1).get("Continuous Road").toString());
             if(pu.get(1).get("Largest Army").toString().equals("1")){
-                publicInventory1.add("Largest Army");
+                publicInventory2.add("Largest Army");
             }
             if(pu.get(1).get("Longest Road").toString().equals("1")){
-                publicInventory1.add("Longest Road");
+                publicInventory2.add("Longest Road");
             }
 
             if (gameUsers.size() >= 2) {
@@ -2072,22 +2072,22 @@ public class GamePresenter extends AbstractPresenter {
                 if(pu.get(2).get("Longest Road").toString().equals("1")){
                     publicInventory3.add("Longest Road");
                 }
-                if (gameUsers.size() == 3) {
-                    publicInventory4.clear();
-                    if(gameUsers.size() > 0) {
-                        publicInventory4.add(gameUsers.get(3));
-                    }
-                    publicInventory4.add("Points: " + pu.get(3).get("Public Victory Points").toString());
-                    publicInventory4.add("Resources: " + pu.get(3).get("Resource").toString());
-                    publicInventory4.add("Cards: " + pu.get(3).get("Development Cards").toString());
-                    publicInventory4.add("Knights: " + pu.get(3).get("Played Knights").toString());
-                    publicInventory4.add("Roads: " + pu.get(3).get("Continuous Road").toString());
-                    if(pu.get(3).get("Largest Army").toString().equals("1")){
-                        publicInventory4.add("Largest Army");
-                    }
-                    if(pu.get(3).get("Longest Road").toString().equals("1")){
-                        publicInventory4.add("Longest Road");
-                    }
+                }
+            if (gameUsers.size() > 2) {
+                publicInventory4.clear();
+                if(gameUsers.size() > 0) {
+                    publicInventory4.add(gameUsers.get(3));
+                }
+                publicInventory4.add("Points: " + pu.get(3).get("Public Victory Points").toString());
+                publicInventory4.add("Resources: " + pu.get(3).get("Resource").toString());
+                publicInventory4.add("Cards: " + pu.get(3).get("Development Cards").toString());
+                publicInventory4.add("Knights: " + pu.get(3).get("Played Knights").toString());
+                publicInventory4.add("Roads: " + pu.get(3).get("Continuous Road").toString());
+                if(pu.get(3).get("Largest Army").toString().equals("1")){
+                    publicInventory4.add("Largest Army");
+                }
+                if(pu.get(3).get("Longest Road").toString().equals("1")){
+                    publicInventory4.add("Longest Road");
                 }
             }
         });
