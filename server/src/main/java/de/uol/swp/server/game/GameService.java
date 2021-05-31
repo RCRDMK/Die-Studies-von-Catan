@@ -828,13 +828,13 @@ public class GameService extends AbstractService {
                     startTurnForAI((GameDTO) game);
 
                     }
-                } catch (GameManagementException e) {
-                    LOG.debug(e);
-                    LOG.debug("Sender " + user.getUsername() + " was not player with current turn");
-                }
+            } catch (GameManagementException e) {
+                LOG.debug(e);
+                LOG.debug("Sender " + user.getUsername() + " was not player with current turn");
             }
         }
     }
+
 
 
     /**
