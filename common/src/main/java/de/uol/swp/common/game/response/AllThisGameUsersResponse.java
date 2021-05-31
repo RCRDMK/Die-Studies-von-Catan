@@ -1,4 +1,4 @@
-package de.uol.swp.common.user.response.game;
+package de.uol.swp.common.game.response;
 
 import de.uol.swp.common.message.AbstractResponseMessage;
 import de.uol.swp.common.user.Session;
@@ -35,7 +35,6 @@ public class AllThisGameUsersResponse extends AbstractResponseMessage {
      * @since 2021-01-15
      */
     public AllThisGameUsersResponse() {
-        // needed for serialization
     }
 
     /**

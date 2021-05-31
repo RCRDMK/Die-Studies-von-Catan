@@ -320,9 +320,6 @@ public class LongestStreetPathCalculator implements Serializable {
                     }
                 }
                 if (cond) {
-                    if (!walkedPath.contains(currentMatrixEntry.getUuidForColumn())) {
-                        walkedPath.add(currentMatrixEntry.getUuidForColumn());
-                    }
                     walkedPath.add(currentMatrixEntry.getUuidForRow());
                     ArrayList<UUID> result = new ArrayList<>(horizontal(walkedPath, i, column, matrix, playerIndex));
                     pathArrayList.get(playerIndex).add(result);

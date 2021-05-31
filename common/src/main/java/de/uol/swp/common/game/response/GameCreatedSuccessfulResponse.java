@@ -1,4 +1,4 @@
-package de.uol.swp.common.user.response.game;
+package de.uol.swp.common.game.response;
 
 import de.uol.swp.common.message.AbstractResponseMessage;
 import de.uol.swp.common.user.User;
@@ -53,8 +53,8 @@ public class GameCreatedSuccessfulResponse extends AbstractResponseMessage {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        de.uol.swp.common.user.response.game.GameCreatedSuccessfulResponse that =
-                (de.uol.swp.common.user.response.game.GameCreatedSuccessfulResponse) o;
+        GameCreatedSuccessfulResponse that =
+                (GameCreatedSuccessfulResponse) o;
         return Objects.equals(user, that.user);
     }
 

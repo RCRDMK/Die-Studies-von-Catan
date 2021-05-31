@@ -18,6 +18,9 @@ public class TradeEndedMessage extends AbstractGameMessage {
         this.tradeCode = tradeCode;
     }
 
+    public TradeEndedMessage() {
+    }
+
     /**
      * getter for the tradeCode
      *

@@ -44,7 +44,6 @@ public class AuthenticationService extends AbstractService {
      * The list of current logged in users
      */
     final private Map<Session, User> userSessions = new HashMap<>();
-
     private final UserManagement userManagement;
     private Timer timer = new Timer();
     private final ActiveUserList activeUserList = new ActiveUserList();
@@ -59,10 +58,9 @@ public class AuthenticationService extends AbstractService {
      * @since 2019-08-30
      */
     @Inject
-    public AuthenticationService(EventBus bus, UserManagement userManagement) throws SQLException {
+    public AuthenticationService(EventBus bus, UserManagement userManagement) {
         super(bus);
         this.userManagement = userManagement;
-        this.userManagement.buildConnection();
         startTimerForActiveUserList();
     }
 
@@ -121,7 +119,7 @@ public class AuthenticationService extends AbstractService {
     @Subscribe
     public void onLoginRequest(LoginRequest msg) {
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Got new auth message with " + msg.getUsername() + " " + msg.getPassword());
+            LOG.debug("Got new auth message with " + msg.getUsername());
         }
         ServerInternalMessage returnMessage;
         try {

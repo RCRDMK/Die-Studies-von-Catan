@@ -1,7 +1,6 @@
 package de.uol.swp.common.game.dto;
 
 import de.uol.swp.common.game.Game;
-import de.uol.swp.common.game.GameField;
 import de.uol.swp.common.game.MapGraph;
 import de.uol.swp.common.game.inventory.DevelopmentCardDeck;
 import de.uol.swp.common.game.inventory.Inventory;
