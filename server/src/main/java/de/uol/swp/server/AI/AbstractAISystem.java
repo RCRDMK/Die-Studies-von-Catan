@@ -293,14 +293,21 @@ public abstract class AbstractAISystem implements AISystem {
 
     @Override
     public ArrayList<String> canPlayDevelopmentCard() {
-        // TODO: check if the card was bought this turn
         ArrayList<String> playableCards = new ArrayList<>();
-        if (playedCardThisTurn.equals("")) {
-            if (inventory.cardYearOfPlenty.getNumber() > 0) playableCards.add("Year of Plenty");
-            if (inventory.cardMonopoly.getNumber() > 0) playableCards.add("Monopoly");
-            if (inventory.cardRoadBuilding.getNumber() > 0) playableCards.add("Road Building");
-            if (inventory.cardKnight.getNumber() > 0) playableCards.add("Knight");
+        if(game.canUserPlayDevCard(user,"Year of Plenty")){
+            playableCards.add("Year of Plenty");
         }
+        if(game.canUserPlayDevCard(user,"Monopoly")){
+            playableCards.add("Monopoly");
+        }
+        if(game.canUserPlayDevCard(user,"Road Building")){
+            playableCards.add("Road Building");
+        }
+        if(game.canUserPlayDevCard(user,"Knight")){
+            playableCards.add("Knight");
+        }
+
+
         return playableCards;
     }
 }

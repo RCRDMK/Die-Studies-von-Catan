@@ -333,6 +333,15 @@ public interface Game extends Serializable {
      */
     void setInventoryWithLargestArmy(Inventory inventoryWithLargestArmy);
 
+
+    /**
+     * method used to remember the DevelopmentCards bought in a turn
+     *
+     * @param card   String name of the Card
+     * @param amount int amount of the card
+     * @author Alexander Losse
+     * @since 2021-05-30
+     */
     void rememberDevCardBoughtThisTurn(String card, int amount);
 
     /**
