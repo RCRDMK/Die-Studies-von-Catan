@@ -86,6 +86,10 @@ public class RandomAI extends AbstractAISystem {
 
     /**
      * When the turn continues for the AI (after the players in the game bid on the ongoing trade) the Server will call this function
+     * <p>
+     * First the AI chooses a bid from the other players,
+     * then it makes some random actions.
+     * After that it tries to play a developmentCard and ends it's turn.
      *
      * @param tisabm   the TradeInformSellerAboutBidsMessage containing information about the bids of the trade
      * @param wishList the original wishList of the AI
@@ -138,6 +142,8 @@ public class RandomAI extends AbstractAISystem {
      * Method called when the bandit is to be moved
      * <p>
      * When invoked this method will move the bandit as well as discard resources should it be necessary.
+     * Furthermore, if a hexagon was chosen with a player's building on it, a random player will be chosen to
+     * draw 1 random resource from.
      *
      * @param hx the UUID of the field the robber should be moved to
      * @author Alexander Losse, Marc Hermes
@@ -339,6 +345,10 @@ public class RandomAI extends AbstractAISystem {
 
     /**
      * Method used to choose a certain bid after the AI was reactivated by the server during a trade that the AI initiated
+     * <p>
+     * The AI will put a big focus on trying to find the bid which best fulfills it's original wishList.
+     * The second focus is put on the amount of resources being offered by the other players that do fulfil
+     * most parts of the original wishList.
      *
      * @param tisabm the TradeInformSellerAboutBidsMessage that the Server would usually send to a User
      * @param wishList the original wishList of the AI
@@ -439,6 +449,13 @@ public class RandomAI extends AbstractAISystem {
 
     /**
      * Method used for the AI in order to participate in an ongoing trade through bidding
+     * <p>
+     * First a new wish and offerList is created.
+     * These will be used for evaluating which resources may be traded and in what amount, and which may not.
+     * One parameter for the quality of an offer by the other player is whether the amount of a certain resource on
+     * the wishList is higher than the amount being offered.
+     * Thus if the offer by the other player doesn't fulfill enough of the wishes of the AI the AI will not even try
+     * to create a bid and engage in the trade.
      *
      * @param toibm the TradeInformBiddersMessage sent that would be sent to a client
      * @author Alexander Losse, Marc Hermes
@@ -485,6 +502,10 @@ public class RandomAI extends AbstractAISystem {
 
     /**
      * Method used for discarding resources when the robber is activated
+     * <p>
+     * First, a wishList and an offerList are created.
+     * The resources on the wishList will be focussed to not get discarded, whilst the resources on the offerList
+     * will be tried to be discarded first.
      *
      * @param amountOfResourcesToBeDiscarded the int amount indicating how many resources need to be discarded
      * @author Alexander Losse, Marc Hermes
@@ -666,6 +687,13 @@ public class RandomAI extends AbstractAISystem {
 
     /**
      * Method used to create a wish and an offer list for the AI so that it may make decisions accordingly
+     * <p>
+     * First an ArrayList of actions for which the AI currently doesn't have enough resources for will be created.
+     * From this List one random action will be chosen as a "goal".
+     * Based on the missing resources to achieve this "goal" the wishList will be created.
+     * After that the offerList is created with regards to the wishList.
+     * Resources that are in the wishList cannot be in the offerList.
+     * Furthermore the amount of resources on the offerList will not exceed the amount of resources on the wishList by a lot.
      *
      * @return An arrayList holding 2 arrayLists of TradeItems, the first arrayList is used as the wishList, the second as the offerList
      * @author Alexander Losse, Marc Hermes

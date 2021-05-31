@@ -6,13 +6,28 @@ import de.uol.swp.common.user.UserDTO;
 import java.util.ArrayList;
 
 /**
- * The inform the server about the items to be traded
+ * The request to inform the server about the items to be traded
+ *
+ * @author Alexander Losse, Ricardo Mook
+ * @since 2021-04-11
  */
 public class TradeItemRequest extends AbstractGameRequest {
 
     private final ArrayList<TradeItem> tradeItems;
     private final ArrayList<TradeItem> wishItems;
     private final String tradeCode;
+
+    /**
+     * Constructor used for serialization
+     *
+     * @author Marc Hermes
+     * @since 2021-05-30
+     */
+    public TradeItemRequest() {
+        tradeItems = null;
+        wishItems = null;
+        tradeCode = null;
+    }
 
     /**
      * the constructor

@@ -35,6 +35,10 @@ public class TestAI extends AbstractAISystem {
 
     /**
      * This method will try to make use of every possible action the AI may do for test purposes
+     * <p>
+     * If it is the starting turn only the startingTurnLogic() method as well as endTurn() will be used.
+     * If the starting phase is over however, the AI will try to buy a developmentCard, play all developmentCards possible
+     * once each, and then start a trade.
      *
      * @return the List of AIActions
      * @author Marc Hermes
@@ -108,12 +112,33 @@ public class TestAI extends AbstractAISystem {
         return this.aiActions;
     }
 
+    /**
+     * Function called by the server when the trade bids have come in from the users in the game and thus the AI
+     * needs to continue it's turn.
+     * <p>
+     * First, an offer is chosen by the AI, then the turn is ended.
+     * @param tisabm the TradeInformSellerAboutBidsMessage usually sent to the client
+     * @param wishList the original wishList of the AI
+     * @return the ArrayList of AIActions, at the end of which a endTurnAction will be
+     * @author Marc Hermes
+     * @since 2021-05-12
+     */
     public ArrayList<AIAction> continueTurnOrder(TradeInformSellerAboutBidsMessage tisabm, ArrayList<TradeItem> wishList) {
         tradeOfferAccept(tisabm.getTradeCode(), false, user);
         endTurn();
         return this.aiActions;
     }
 
+    /**
+     * Function called by the server when the AI has to participate in an ongoing trade by bidding.
+     * <p>
+     * A bid will be placed where the AI offers 0 of every resource
+     *
+     * @param toibm the TradeOfferInformBiddersMessage usually sent to the client
+     * @return the ArrayList of AIActions, will only include the TradeBidAction here
+     * @author Marc Hermes
+     * @since 2021-05-12
+     */
     public ArrayList<AIAction> tradeBidOrder(TradeOfferInformBiddersMessage toibm) {
         TradeItem ti1 = new TradeItem("Lumber", 0);
         TradeItem ti2 = new TradeItem("Brick", 0);
@@ -126,6 +151,19 @@ public class TestAI extends AbstractAISystem {
         return this.aiActions;
     }
 
+    /**
+     * Function called by the server when the AI has too many resources currently and thus will have to discard some
+     * after the robber was moved.
+     * <p>
+     * A HashMap will be created in which the resources wool, brick, grain, lumber and ore are given as keys.
+     * Randomly a resource will be selected from the inventory to put into the HashMap so that it may be discarded.
+     * If enough resources were chosen, the method discardResources is called by parsing the aforementioned hashMap.
+     *
+     * @param tmrcm the TooMuchResourceCardsMessage usually sent to the client
+     * @return the ArrayList of AIAction, here only containing the DiscardResourcesAction
+     * @author Marc Hermes
+     * @since 2021-05-12
+     */
     public ArrayList<AIAction> discardResourcesOrder(TooMuchResourceCardsMessage tmrcm) {
         this.user = tmrcm.getUser();
         this.inventory = game.getInventory(user);
@@ -150,6 +188,17 @@ public class TestAI extends AbstractAISystem {
         return this.aiActions;
     }
 
+    /**
+     * Method used to initialize a trade by the AI
+     * <p>
+     * An ArrayList wishList and an ArrayList offerList are created.
+     * The wishList contains only resources with 0 as a value except for Lumber, of which the AI wishes 1
+     * The offerList only contains 1 non zero resource, grain.
+     * With these 2 lists a trade is then started.
+     *
+     * @author Marc Hermes
+     * @since 2021-05-12
+     */
     public void trade() {
 
         TradeItem ti1 = new TradeItem("Lumber", 1);
@@ -159,7 +208,7 @@ public class TestAI extends AbstractAISystem {
         TradeItem ti5 = new TradeItem("Wool", 0);
 
         TradeItem ti6 = new TradeItem("Lumber", 0);
-        TradeItem ti7 = new TradeItem("Grain", 0);
+        TradeItem ti7 = new TradeItem("Grain", 1);
 
         ArrayList<TradeItem> wishList = new ArrayList<>(Arrays.asList(ti1, ti2, ti3, ti4, ti5));
         ArrayList<TradeItem> offerList = new ArrayList<>(Arrays.asList(ti2, ti3, ti5, ti6, ti7));
