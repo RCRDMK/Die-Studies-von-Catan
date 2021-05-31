@@ -5,7 +5,6 @@ import de.uol.swp.common.SerializationTestHelper;
 import de.uol.swp.common.game.message.*;
 import de.uol.swp.common.game.request.*;
 import de.uol.swp.common.game.response.*;
-import de.uol.swp.common.game.trade.TradeItem;
 import de.uol.swp.common.user.UserDTO;
 import org.junit.jupiter.api.Test;
 
@@ -48,15 +47,13 @@ public class GameSerializableTest {
                 RollDiceResultMessage.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new ChoosePlayerMessage("test", defaultUser, defaultUserList),
                 ChoosePlayerMessage.class));
-        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new DrawRandomResourceFromPlayerMessage("test", defaultUser, "test1"),
-                DrawRandomResourceFromPlayerMessage.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new MoveRobberMessage("test", defaultUser),
                 MoveRobberMessage.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new RobbersNewFieldMessage("test", defaultUser, defaultUuid),
                 RobbersNewFieldMessage.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new SuccessfullMovedRobberMessage(defaultUuid),
                 SuccessfullMovedRobberMessage.class));
-        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new TooMuchResourceCardsMessage("test", defaultUser, 5, defaultHashMap),
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new TooMuchResourceCardsMessage(),
                 TooMuchResourceCardsMessage.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new TradeSuccessfulMessage(),
                 TradeSuccessfulMessage.class));
@@ -112,7 +109,8 @@ public class GameSerializableTest {
                 TradeItemRequest.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new TradeChoiceRequest(),
                 TradeChoiceRequest.class));
-
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new TradeItemRequest(),
+                TradeItemRequest.class));
     }
 
     @Test

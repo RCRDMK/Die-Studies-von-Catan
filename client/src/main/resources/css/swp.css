@@ -8,11 +8,6 @@
     -fx-text-fill: #000000;
 }
 
-.text-field { /* Sets behaviour for the Textfield class*/
-    -fx-background-color: #ffffff;
-    -fx-text-fill: #000000;
-}
-
 .radio-button {
     -fx-text-fill: #ffffff;
 }

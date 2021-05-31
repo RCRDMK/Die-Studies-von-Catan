@@ -29,6 +29,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import de.uol.swp.server.usermanagement.store.MainMemoryBasedUserStore;
+import org.junit.jupiter.api.*;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -46,11 +48,14 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class LobbyServiceTest {
     final EventBus bus = new EventBus();
+    MainMemoryBasedUserStore mainMemoryBasedUserStore = new MainMemoryBasedUserStore();
     LobbyManagement lobbyManagement = new LobbyManagement();
-    LobbyService lobbyService = new LobbyService(lobbyManagement, new AuthenticationService(bus, new UserManagement()),
+    UserManagement userManagement = new UserManagement(mainMemoryBasedUserStore);
+    LobbyService lobbyService = new LobbyService(lobbyManagement, new AuthenticationService(bus, userManagement),
             bus);
-    final UserManagement userManagement = new UserManagement();
     final AuthenticationService authenticationService = new AuthenticationService(bus, userManagement);
+    UserDTO userDTO = new UserDTO("Peter", "lustig", "peter.lustig@uol.de");
+    UserDTO userDTO1 = new UserDTO("Carsten", "stahl", "carsten.stahl@uol.de");
 
     final User defaultUser = new UserDTO("Peter", "lustig", "peter.lustig@uol.de");
 
