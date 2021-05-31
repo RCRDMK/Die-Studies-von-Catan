@@ -1364,19 +1364,20 @@ public class GameServiceTest {
     @Test
     void checkForLargestArmy() {
         loginUsers();
-
-        GameService gameService = new GameService(gameManagement, lobbyService, authenticationService, bus, userService);
-
-        gameManagement.createGame("test", userDTO, "Standard");
+        lobbyManagement.createLobby("test", userDTO);
+        Optional<Lobby> optionalLobby = lobbyManagement.getLobby("test");
+        assertTrue(optionalLobby.isPresent());
+        Lobby lobby = optionalLobby.get();
+        lobby.joinUser(userDTO1);
+        lobby.setMinimumAmountOfPlayers(2);
+        lobby.joinPlayerReady(userDTO);
+        lobby.joinPlayerReady(userDTO1);
+        gameService.startGame(lobby, "Standard");
         Optional<Game> optionalGame = gameManagement.getGame("test");
         assertTrue(optionalGame.isPresent());
-
         Game game = optionalGame.get();
 
         game.joinUser(userDTO1);
-
-        game.setUpUserArrayList();
-        game.setUpInventories();
 
         game.getInventory(userDTO).setPlayedKnights(2);
 
