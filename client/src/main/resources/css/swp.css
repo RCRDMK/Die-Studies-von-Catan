@@ -55,7 +55,7 @@ For more information see https://www.pexels.com/license/ and https://unsplash.co
 }
 
 .trade {
-    -fx-background-image: url("../textures/images/TradeBackground.jpg");
+    -fx-background-image: url("../textures/images/Trading.jpg");
     -fx-background-size: cover;
     -fx-background-repeat: no-repeat;
 }
