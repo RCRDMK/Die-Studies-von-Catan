@@ -276,11 +276,11 @@ public class GameService extends AbstractService {
         Optional<Game> optionalGame = gameManagement.getGame(resourcesToDiscardRequest.getName());
         if (optionalGame.isPresent()) {
             Game game = optionalGame.get();
-            takeResource(game, resourcesToDiscardRequest.getUser(), "Lumber", game.getInventory(resourcesToDiscardRequest.getUser()).getNumberFromCardStack("Lumber") - resourcesToDiscardRequest.getInventory().get("Lumber"));
-            takeResource(game, resourcesToDiscardRequest.getUser(), "Brick", game.getInventory(resourcesToDiscardRequest.getUser()).getNumberFromCardStack("Brick") - resourcesToDiscardRequest.getInventory().get("Brick"));
-            takeResource(game, resourcesToDiscardRequest.getUser(), "Grain", game.getInventory(resourcesToDiscardRequest.getUser()).getNumberFromCardStack("Grain") - resourcesToDiscardRequest.getInventory().get("Grain"));
-            takeResource(game, resourcesToDiscardRequest.getUser(), "Wool", game.getInventory(resourcesToDiscardRequest.getUser()).getNumberFromCardStack("Wool") - resourcesToDiscardRequest.getInventory().get("Wool"));
-            takeResource(game, resourcesToDiscardRequest.getUser(), "Ore", game.getInventory(resourcesToDiscardRequest.getUser()).getNumberFromCardStack("Ore") - resourcesToDiscardRequest.getInventory().get("Ore"));
+            takeResource(game, resourcesToDiscardRequest.getUser(), "Lumber", game.getInventory(resourcesToDiscardRequest.getUser()).getSpecificResourceAmount("Lumber") - resourcesToDiscardRequest.getInventory().get("Lumber"));
+            takeResource(game, resourcesToDiscardRequest.getUser(), "Brick", game.getInventory(resourcesToDiscardRequest.getUser()).getSpecificResourceAmount("Brick") - resourcesToDiscardRequest.getInventory().get("Brick"));
+            takeResource(game, resourcesToDiscardRequest.getUser(), "Grain", game.getInventory(resourcesToDiscardRequest.getUser()).getSpecificResourceAmount("Grain") - resourcesToDiscardRequest.getInventory().get("Grain"));
+            takeResource(game, resourcesToDiscardRequest.getUser(), "Wool", game.getInventory(resourcesToDiscardRequest.getUser()).getSpecificResourceAmount("Wool") - resourcesToDiscardRequest.getInventory().get("Wool"));
+            takeResource(game, resourcesToDiscardRequest.getUser(), "Ore", game.getInventory(resourcesToDiscardRequest.getUser()).getSpecificResourceAmount("Ore") - resourcesToDiscardRequest.getInventory().get("Ore"));
             updateInventory(game);
         }
     }
@@ -482,10 +482,10 @@ public class GameService extends AbstractService {
         if(resourceTyp.equals("")) return false;
         else {
             Inventory bank = game.getBankInventory();
-            boolean success = bank.getNumberFromCardStack(resourceTyp) >= amount;
-            boolean firstTime = bank.getNumberFromCardStack(resourceTyp) != 0 && bank.getNumberFromCardStack(resourceTyp) <= amount;
+            boolean success = bank.getSpecificResourceAmount(resourceTyp) >= amount;
+            boolean firstTime = bank.getSpecificResourceAmount(resourceTyp) != 0 && bank.getSpecificResourceAmount(resourceTyp) <= amount;
             for (int i = amount; i > 0; i--) {
-                if (bank.getNumberFromCardStack(resourceTyp) > 0) {
+                if (bank.getSpecificResourceAmount(resourceTyp) > 0) {
                     bank.decCardStack(resourceTyp, 1);
                     game.getInventory(user).incCardStack(resourceTyp, 1);
                 } else break;
@@ -520,10 +520,10 @@ public class GameService extends AbstractService {
         if(resourceTyp.equals("")) return false;
         else {
             Inventory bank = game.getBankInventory();
-            boolean success = game.getInventory(user).getNumberFromCardStack(resourceTyp) >= amount;
-            boolean wasEmpty = bank.getNumberFromCardStack(resourceTyp) == 0 && amount > 0;
+            boolean success = game.getInventory(user).getSpecificResourceAmount(resourceTyp) >= amount;
+            boolean wasEmpty = bank.getSpecificResourceAmount(resourceTyp) == 0 && amount > 0;
             for (int i = amount; i > 0; i--) {
-                if (game.getInventory(user).getNumberFromCardStack(resourceTyp) > 0) {
+                if (game.getInventory(user).getSpecificResourceAmount(resourceTyp) > 0) {
                     game.getInventory(user).decCardStack(resourceTyp, 1);
                     bank.incCardStack(resourceTyp, 1);
                 } else break;
@@ -1436,7 +1436,7 @@ public class GameService extends AbstractService {
             Game game = optionalGame.get();
             Inventory inventory = game.getInventory(request.getUser());
             ArrayList<ArrayList<TradeItem>> bankOffer = new ArrayList<>();
-            if (game.getBankInventory().getNumberFromCardStack(request.getCardName()) > 0) {
+            if (game.getBankInventory().getSpecificResourceAmount(request.getCardName()) > 0) {
 
                 boolean lumberHarbor = false;
                 boolean brickHarbor = false;
