@@ -170,7 +170,7 @@ public class GameService extends AbstractService {
                             if (message.getUuid().equals(buildingNode.getUuid())) { // ... and if the node in the message is a node in the MapGraph BuildingNodeSet...
                                 if (game.isStartingTurns() || ((buildingNode.getSizeOfSettlement() == 0 && inventory.lumber.getNumber() > 0 && inventory.brick.getNumber()>0
                                     && inventory.wool.getNumber() > 0 && inventory.grain.getNumber()>0) ||
-                                    (buildingNode.getSizeOfSettlement() == 1 && inventory.ore.getNumber() > 2 && inventory.grain.getNumber()>2))) {
+                                    (buildingNode.getSizeOfSettlement() == 1 && inventory.ore.getNumber() > 2 && inventory.grain.getNumber()>1))) {
                                 if (buildingNode.tryBuildOrDevelopSettlement(playerIndex, game.getStartingPhase())) {
                                     game.getMapGraph().addBuiltBuilding(buildingNode);
                                     sendToAllInGame(game.getName(), new SuccessfulConstructionMessage(game.getName(), message.getUser().getWithoutPassword(), playerIndex,
