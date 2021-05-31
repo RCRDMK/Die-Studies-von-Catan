@@ -71,9 +71,6 @@ public class LobbyPresenter extends AbstractPresenter {
     private String gameFieldVariant = "Standard";
 
     @FXML
-    private ToggleGroup gameFieldToggleButtons;
-
-    @FXML
     private RadioButton standardGameField;
     @FXML
     private RadioButton randomGameField;
@@ -104,9 +101,6 @@ public class LobbyPresenter extends AbstractPresenter {
 
     @Inject
     private ChatService chatService;
-
-    @Inject
-    private GameService gameService;
 
     @FXML
     public void onStandardGameField() {

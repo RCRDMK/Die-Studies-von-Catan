@@ -112,6 +112,14 @@ public interface Game extends Serializable {
     void setUpUserArrayList();
 
     /**
+     * Returns an integer, indicating the number of starting phase.
+     *
+     * @author Kirstin Beyer
+     * @since 2021-04-25
+     */
+    int getStartingPhase();
+
+    /**
      * Returns a number, indicating whos turn it is.
      *
      * <p>The number represents the index inside the playersList, pointing to a certain Player.</p>
@@ -207,10 +215,6 @@ public interface Game extends Serializable {
     Inventory getBankInventory();
 
     DevelopmentCardDeck getDevelopmentCardDeck();
-
-    //TODO: this Methods need to be removed after all dependencies on the 3 obsolete classes had been resolved!!!
-    GameField getGameField();
-
 
     /**
      * adds a Trade to the game
@@ -322,4 +326,18 @@ public interface Game extends Serializable {
      * @since 2021-05-14
      */
     boolean rolledDiceThisTurn();
+
+    /**
+     * Getter for the largest Army reference
+     *
+     * @return refernced inventory with the largest army
+     */
+    Inventory getInventoryWithLargestArmy();
+
+    /**
+     * setter for the largest Army reference
+     *
+     * @param inventoryWithLargestArmy the inventory referencing the inventory with the largest army
+     */
+    void setInventoryWithLargestArmy(Inventory inventoryWithLargestArmy);
 }
