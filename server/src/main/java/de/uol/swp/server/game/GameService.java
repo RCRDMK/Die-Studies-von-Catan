@@ -890,7 +890,7 @@ public class GameService extends AbstractService {
                 inventory.cardKnight.incNumber();
 
                 //checks if user can play developmentCard
-                if(!game.canUserPlayDevCard(request.getUser(), devCard)){
+                if(!game.canUserPlayDevCard(request.getUser(), devCard) && game.rolledDiceThisTurn()){
                     devCard = "default";
                 }
                 switch (devCard) {
