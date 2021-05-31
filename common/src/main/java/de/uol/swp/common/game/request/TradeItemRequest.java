@@ -48,9 +48,6 @@ public class TradeItemRequest extends AbstractGameRequest {
         this.wishItems = fillEmptySpotsInList(wishItems);
     }
 
-    public TradeItemRequest() {
-    }
-
     /**
      * returns the tradeItems
      *

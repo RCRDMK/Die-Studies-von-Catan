@@ -54,8 +54,6 @@ public class LobbyServiceTest {
     LobbyService lobbyService = new LobbyService(lobbyManagement, new AuthenticationService(bus, userManagement),
             bus);
     final AuthenticationService authenticationService = new AuthenticationService(bus, userManagement);
-    UserDTO userDTO = new UserDTO("Peter", "lustig", "peter.lustig@uol.de");
-    UserDTO userDTO1 = new UserDTO("Carsten", "stahl", "carsten.stahl@uol.de");
 
     final User defaultUser = new UserDTO("Peter", "lustig", "peter.lustig@uol.de");
 
@@ -110,9 +108,11 @@ public class LobbyServiceTest {
         bus.unregister(this);
     }
 
-    private void loginUser() {
+    private void loginUser() throws Exception {
+        userManagement.createUser(defaultUser);
         LoginRequest loginRequest = new LoginRequest(defaultUser.getUsername(), defaultUser.getPassword());
         authenticationService.onLoginRequest(loginRequest);
+
     }
 
     @Test
@@ -122,7 +122,7 @@ public class LobbyServiceTest {
     }
 
     @Test
-    void createLobbyTestLobbyExistsResponse() throws SQLException, InterruptedException {
+    void createLobbyTestLobbyExistsResponse() throws Exception {
         loginUser();
         CreateLobbyRequest request1 = new CreateLobbyRequest("Test", (UserDTO) defaultUser);
         MessageContext ctx = new MessageContext() {
@@ -158,7 +158,7 @@ public class LobbyServiceTest {
     }
 
     @Test
-    public void leaveLobbyAndDropLobbyTest() throws SQLException, InterruptedException {
+    public void leaveLobbyAndDropLobbyTest() throws Exception {
         loginUser();
         CreateLobbyRequest request1 = new CreateLobbyRequest("Test", (UserDTO) defaultUser);
         lobbyService.onCreateLobbyRequest(request1);
@@ -281,7 +281,7 @@ public class LobbyServiceTest {
     }
 
     @Test
-    public void retrieveAllLobbiesRequestTest() throws SQLException, InterruptedException {
+    public void retrieveAllLobbiesRequestTest() throws Exception {
         loginUser();
         RetrieveAllLobbiesRequest request = new RetrieveAllLobbiesRequest();
         MessageContext context = new MessageContext() {
@@ -527,7 +527,7 @@ public class LobbyServiceTest {
 
 
     @Test
-    public void userLogoutDropLobby() throws InterruptedException {
+    public void userLogoutDropLobby() throws Exception {
         loginUser();
         MessageContext msg = new MessageContext() {
             @Override

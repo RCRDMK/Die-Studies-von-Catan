@@ -49,9 +49,6 @@ public class TradeInformSellerAboutBidsMessage extends AbstractGameMessage {
 
     }
 
-    public TradeInformSellerAboutBidsMessage() {
-    }
-
     /**
      * returns an ArrayList<UserDTO> containing the bidders
      *
