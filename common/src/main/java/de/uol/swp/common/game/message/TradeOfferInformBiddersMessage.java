@@ -42,6 +42,8 @@ public class TradeOfferInformBiddersMessage extends AbstractGameMessage {
         this.wantedItems = wantedItems;
     }
 
+    public TradeOfferInformBiddersMessage() {
+    }
 
     /**
      * getter for String tradeCode
