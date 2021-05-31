@@ -212,11 +212,9 @@ public interface Game extends Serializable {
      */
     void setMapGraph(MapGraph mapGraph);
 
+    Inventory getBankInventory();
+
     DevelopmentCardDeck getDevelopmentCardDeck();
-
-    //TODO: this Methods need to be removed after all dependencies on the 3 obsolete classes had been resolved!!!
-    GameField getGameField();
-
 
     /**
      * adds a Trade to the game
@@ -283,4 +281,63 @@ public interface Game extends Serializable {
      * @since 2021-05-03
      */
     void setPlayedCardThisTurn(boolean value);
+
+    /**
+     * Setter for the current Dice value of the game
+     *
+     * @param eyes the number that was last rolled
+     * @author Marc Hermes
+     * @since 2021-05-12
+     */
+    void setLastRolledDiceValue(int eyes);
+
+    /**
+     * Getter for the current Dice value of the game
+     *
+     * @return the integer value representation of the dice
+     * @author Marc Hermes
+     * @since 2021-05-12
+     */
+    int getLastRolledDiceValue();
+
+    /**
+     * Getter for the boolean value if this game is used for the JUNIT tests (and thus uses a different AI potentially)
+     *
+     * @return boolean value, true if yes, false if not
+     * @author Marc Hermes
+     * @since 2021-05-12
+     */
+    boolean isUsedForTest();
+
+    /**
+     * Setter for the boolean value if this game is used for the JUNIT tests (and thus uses a different AI potentially)
+     *
+     * @param value the boolean value
+     * @author Marc Hermes
+     * @since 2021-05-12
+     */
+    void setIsUsedForTest(boolean value);
+
+    /**
+     * Getter for the boolean value showing whether the dice were already rolled this turn or not.
+     *
+     * @return true if yes, false if not
+     * @author Marc Hermes
+     * @since 2021-05-14
+     */
+    boolean rolledDiceThisTurn();
+
+    /**
+     * Getter for the largest Army reference
+     *
+     * @return refernced inventory with the largest army
+     */
+    Inventory getInventoryWithLargestArmy();
+
+    /**
+     * setter for the largest Army reference
+     *
+     * @param inventoryWithLargestArmy the inventory referencing the inventory with the largest army
+     */
+    void setInventoryWithLargestArmy(Inventory inventoryWithLargestArmy);
 }

@@ -7,6 +7,7 @@ import de.uol.swp.common.game.inventory.DevelopmentCardDeck;
 import de.uol.swp.common.game.inventory.Inventory;
 import de.uol.swp.common.game.trade.Trade;
 import de.uol.swp.common.user.User;
+import de.uol.swp.common.user.UserDTO;
 
 import java.util.*;
 
@@ -35,28 +36,36 @@ public class GameDTO implements Game {
     private boolean countingUp = true;
     private boolean lastPlayerSecondTurn = false;
     private boolean playedCardThisTurn = false;
+    private int lastRolledDiceValue = 0;
     private final DevelopmentCardDeck developmentCardDeck = new DevelopmentCardDeck();
     private final ArrayList<MapGraph.BuildingNode> lastBuildingOfOpeningTurn = new ArrayList<>();
+
+    private Inventory inventoryWithLargestArmy = null;
 
     private Inventory inventory1;
     private Inventory inventory2;
     private Inventory inventory3;
     private Inventory inventory4;
+    private Inventory bankInventory;
 
     private final HashMap<String, Trade> tradeList = new HashMap<>();
     private String currentCard = "";
+    private boolean isTest;
+    private boolean rolledDiceThisTurn = false;
 
     /**
      * Constructor
      *
-     * @param name    The name the game should have
-     * @param creator The user who created the game and therefore shall be the owner
+     * @param name              The name the game should have
+     * @param creator           The user who created the game and therefore shall be the owner
+     * @param gameFieldVariant  The variant that the game field should have
      * @since 2021-01-15
      */
-    public GameDTO(String name, User creator) {
+    public GameDTO(String name, User creator, String gameFieldVariant) {
         this.name = name;
         this.owner = creator;
         this.users.add(creator);
+        this.mapGraph = new MapGraph(gameFieldVariant);
     }
 
     @Override
@@ -137,7 +146,7 @@ public class GameDTO implements Game {
      */
     @Override
     public int getTurn() {
-        return overallTurns % users.size();
+        return overallTurns % userArrayList.size();
     }
 
     /**
@@ -170,6 +179,7 @@ public class GameDTO implements Game {
             openingPhase();
         } else overallTurns++;
         playedCardThisTurn = false;
+        rolledDiceThisTurn = false;
     }
 
     /**
@@ -233,9 +243,11 @@ public class GameDTO implements Game {
     }
 
     /**
-     * Gives the inventory 1-4 a User
+     * Gives the inventory 1-4 a User and creates the Bank
      * <p>
-     * It gives the inventory 1-4 a User from the userArrayList if its not empty and the user exists in the ArrayList
+     * It gives the inventory 1-4 a User from the userArrayList if
+     * its not empty and the user exists in the ArrayList.
+     * Then it creates the Bank and loads them with resources
      *
      * @author Anton Nikiforov
      * @since 2021-04-01
@@ -248,6 +260,12 @@ public class GameDTO implements Game {
             if (userArrayList.size() > 2) inventory3 = new Inventory(userArrayList.get(2));
             if (userArrayList.size() > 3) inventory4 = new Inventory(userArrayList.get(3));
         }
+        bankInventory = new Inventory(new UserDTO("Bank", "password", "rich@man.net"));
+        bankInventory.lumber.setNumber(19);
+        bankInventory.brick.setNumber(19);
+        bankInventory.grain.setNumber(19);
+        bankInventory.wool.setNumber(19);
+        bankInventory.ore.setNumber(19);
     }
 
     /**
@@ -255,7 +273,8 @@ public class GameDTO implements Game {
      * <p>
      * It compares the user with the inventory user and returns the inventory from user
      *
-     * @param user
+     * @param user form the inventory you want
+     *
      * @return The Inventory from user
      * @author Anton Nikiforov
      * @see de.uol.swp.common.game.inventory.Inventory
@@ -267,6 +286,7 @@ public class GameDTO implements Game {
         if (user.equals(inventory2.getUser())) return inventory2;
         if (user.equals(inventory3.getUser())) return inventory3;
         if (user.equals(inventory4.getUser())) return inventory4;
+        if (user.equals(bankInventory.getUser())) return bankInventory;
         return null;
     }
 
@@ -286,6 +306,11 @@ public class GameDTO implements Game {
         var users = this.getUsersList();
         users.forEach((user) -> inventories.add(getInventory(user)));
         return inventories;
+    }
+
+    @Override
+    public Inventory getBankInventory() {
+        return bankInventory;
     }
 
     @Override
@@ -377,4 +402,39 @@ public class GameDTO implements Game {
         playedCardThisTurn = value;
     }
 
+    @Override
+    public void setLastRolledDiceValue(int eyes) {
+        this.rolledDiceThisTurn = true;
+        this.lastRolledDiceValue = eyes;
+    }
+
+    @Override
+    public int getLastRolledDiceValue() {
+        return lastRolledDiceValue;
+    }
+
+    @Override
+    public boolean isUsedForTest() {
+        return this.isTest;
+    }
+
+    @Override
+    public void setIsUsedForTest(boolean value) {
+        this.isTest = value;
+    }
+
+    @Override
+    public boolean rolledDiceThisTurn() {
+        return this.rolledDiceThisTurn;
+    }
+
+    @Override
+    public Inventory getInventoryWithLargestArmy() {
+        return inventoryWithLargestArmy;
+    }
+
+    @Override
+    public void setInventoryWithLargestArmy(Inventory inventoryWithLargestArmy) {
+        this.inventoryWithLargestArmy = inventoryWithLargestArmy;
+    }
 }

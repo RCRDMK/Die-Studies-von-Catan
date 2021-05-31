@@ -25,13 +25,13 @@ public class HexagonContainer {
 
     private final MapGraph.Hexagon hexagon;
 
-    private final Polygon hexagonShape = new Polygon();
+    private final Polygon hexagonShape;
 
     //Constructor
 
     public HexagonContainer(MapGraph.Hexagon hexagon, double cardSize) {
         this.hexagon = hexagon;
-        calculateHexagon(cardSize);
+        hexagonShape = calculateHexagon(cardSize);
     }
 
     //Getter Setter
@@ -54,11 +54,11 @@ public class HexagonContainer {
      * @author Marc Hermes
      * @since 2021-04-28
      */
-    private void calculateHexagon(double cardSize) {
+    private Polygon calculateHexagon(double cardSize) {
         double resizingFactor = cardSize/Math.sqrt(3);
+        Polygon hexagonShape = new Polygon();
 
         Vector direction = Vector.right(resizingFactor);
-
         hexagonShape.getPoints().add(direction.getY());
         hexagonShape.getPoints().add(direction.getX());
 
@@ -81,5 +81,7 @@ public class HexagonContainer {
         direction = Vector.bottomRight(resizingFactor);
         hexagonShape.getPoints().add(direction.getY());
         hexagonShape.getPoints().add(direction.getX());
+
+        return hexagonShape;
     }
 }
