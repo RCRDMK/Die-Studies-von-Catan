@@ -5,7 +5,6 @@ import com.google.common.eventbus.EventBus;
 import com.google.inject.Inject;
 import de.uol.swp.client.game.event.SummaryConfirmedEvent;
 import de.uol.swp.common.game.dto.StatsDTO;
-import de.uol.swp.common.game.request.DrawRandomResourceFromPlayerRequest;
 import de.uol.swp.common.game.message.RobbersNewFieldMessage;
 import de.uol.swp.common.game.message.TradeEndedMessage;
 import de.uol.swp.common.game.request.*;
@@ -140,7 +139,7 @@ public class GameService {
     }
 
     /**
-     * this methods sends the added trade items to the server via an TradeItemRequest
+     * This methods sends the added trade items to the server via an TradeItemRequest
      *
      * @param bidder    the bidder
      * @param gameName  the game name
@@ -156,7 +155,7 @@ public class GameService {
     }
 
     /**
-     * sends the choice of the seller to the server
+     * Sends the choice of the seller to the server
      *
      * @param tradePartner  the user from which the offer is accepted
      * @param tradeAccepted boolean for true or false
@@ -203,13 +202,12 @@ public class GameService {
     }
 
     /**
-     * sends a TradeEndedMessage
+     * Sends a TradeEndedMessage
      * <p>
      * used to close the TradeTab if no Trade is saved at the server, e.g. the seller hit the TradeButton by accident and doesnt want to Trade( didnt send a TradeItemRequest)
      *
      * @param gameName String
      * @param tradeCode String
-     *
      * @author Alexander Losse, Ricardo Mook
      * @since 2021-04-21
      */
@@ -250,7 +248,7 @@ public class GameService {
     }
 
     /**
-     * sends a request to play a certain DevelopmentCard to the server
+     * Sends a request to play a certain DevelopmentCard to the server
      *
      * @param joinedLobbyUser the user who wants to play the card
      * @param currentLobby    the name of the game in which the card is to be played
@@ -263,7 +261,7 @@ public class GameService {
     }
 
     /**
-     * sends a request to resolve the Monopoly DevelopmentCard to the server
+     * Sends a request to resolve the Monopoly DevelopmentCard to the server
      *
      * @param joinedLobbyUser the user who wants to resolve the Monopoly card
      * @param currentLobby    the name of the game in which the card is to be resolved
@@ -277,7 +275,7 @@ public class GameService {
     }
 
     /**
-     * sends a request to resolve the Year of Plenty DevelopmentCard to the server
+     * Sends a request to resolve the Year of Plenty DevelopmentCard to the server
      *
      * @param joinedLobbyUser the user who wants to resolve the Year of Plenty card
      * @param currentLobby    the name of the game in which the card is to be resolved
@@ -292,7 +290,7 @@ public class GameService {
     }
 
     /**
-     * sends a request to resolve the Road Building DevelopmentCard to the server
+     * Sends a request to resolve the Road Building DevelopmentCard to the server
      *
      * @param joinedLobbyUser the user who wants to resolve the Road Building card
      * @param currentLobby    the name of the game in which the card is to be resolved

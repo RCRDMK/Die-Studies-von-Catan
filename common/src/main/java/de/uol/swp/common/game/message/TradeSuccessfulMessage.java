@@ -39,6 +39,9 @@ public class TradeSuccessfulMessage extends AbstractGameMessage{
         this.tradeCode = tradeCode;
     }
 
+    public TradeSuccessfulMessage() {
+    }
+
     /**
      * adds the successful bidder to the message
      *

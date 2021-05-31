@@ -1,5 +1,7 @@
 package de.uol.swp.common.game.message;
 
+import de.uol.swp.common.user.UserDTO;
+
 /**
  * Message for the BuyDevelopmentCardMessage
  * <p>
@@ -22,7 +24,8 @@ public class BuyDevelopmentCardMessage extends AbstractGameMessage {
     public BuyDevelopmentCardMessage() {
     }
 
-    public BuyDevelopmentCardMessage(String devCard) {
+    public BuyDevelopmentCardMessage(String name, UserDTO user, String devCard) {
+        super(name, user);
         this.devCard = devCard;
     }
 

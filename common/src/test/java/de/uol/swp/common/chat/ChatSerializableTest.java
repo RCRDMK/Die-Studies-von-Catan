@@ -14,6 +14,9 @@ public class ChatSerializableTest {
                 RequestChatMessage.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new ResponseChatMessage("test",
                 "TestLobby", "Peter", 12.15), ResponseChatMessage.class));
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new ResponseEmptyChatMessage("test",
+                "TestLobby", "Peter", 12.15), ResponseEmptyChatMessage.class));
+
     }
 }
 

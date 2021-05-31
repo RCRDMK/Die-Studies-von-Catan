@@ -31,6 +31,9 @@ public class TradeChoiceRequest extends  AbstractGameRequest{
         this.tradeAccepted = tradeAccepted;
     }
 
+    public TradeChoiceRequest() {
+    }
+
     /**
      * getter for String tradeCode
      *

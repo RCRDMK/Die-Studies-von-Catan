@@ -217,6 +217,7 @@ public class TradePresenter extends AbstractPresenter {
                     break;
             }
         }
+        textRow1.setText("Seller offers:");
 
         for (TradeItem item : wantedItems) {
             String valueOfCount = String.valueOf(item.getCount());
