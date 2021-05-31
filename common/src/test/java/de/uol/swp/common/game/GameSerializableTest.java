@@ -20,7 +20,8 @@ public class GameSerializableTest {
     private static final ArrayList<Game> defaultCollection = new ArrayList<>();
     private static final ArrayList<String> defaultUserList = new ArrayList<>();
     private static final HashMap<String, Integer> defaultHashMap = new HashMap<>();
-    private static final ArrayList<ArrayList<TradeItem>> defaultOffer = new ArrayList<>();
+    private static final ArrayList<TradeItem> defaultOffer1 = new ArrayList<>();
+    private static final ArrayList<ArrayList<TradeItem>> defaultOffer2 = new ArrayList<>();
     private static final UUID defaultUuid = UUID.randomUUID();
 
     @Test
@@ -59,7 +60,7 @@ public class GameSerializableTest {
                 SuccessfullMovedRobberMessage.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new TooMuchResourceCardsMessage("test", defaultUser, 5, defaultHashMap),
                 TooMuchResourceCardsMessage.class));
-        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new BankResponseMessage(defaultUser, "", defaultOffer),
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new BankResponseMessage(defaultUser, "", "", defaultOffer2),
                 BankResponseMessage.class));
     }
 
@@ -95,6 +96,8 @@ public class GameSerializableTest {
                 ResolveDevelopmentCardYearOfPlentyRequest.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new BankRequest("test", defaultUser, "", ""),
                 BankRequest.class));
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new BankBuyRequest("test", defaultUser, "", "", defaultOffer1),
+                BankBuyRequest.class));
     }
 
     @Test

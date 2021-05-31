@@ -64,7 +64,7 @@ public class TradeItem implements Serializable {
      * @since 2021-05-28
      * @return boolean enoughInWallet
      */
-    public boolean isEnoughInWallet() {
+    public boolean isNotEnough() {
         return notEnough;
     }
 
@@ -76,7 +76,7 @@ public class TradeItem implements Serializable {
      * @author Anton Nikiforov
      * @since 2021-05-28
      */
-    public void setNotEnough(boolean enoughInWallet) {
-        this.notEnough = enoughInWallet;
+    public void setNotEnough(boolean notEnough) {
+        this.notEnough = notEnough;
     }
 }

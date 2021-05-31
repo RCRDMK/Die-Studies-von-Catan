@@ -15,6 +15,7 @@ import java.util.ArrayList;
 public class BankResponseMessage extends AbstractGameMessage {
 
     private String tradeCode;
+    private String cardName;
     private ArrayList<ArrayList<TradeItem>> bankOffer;
 
     /**
@@ -24,6 +25,7 @@ public class BankResponseMessage extends AbstractGameMessage {
      * @since 2021-05-29
      */
     public BankResponseMessage() {
+
     }
 
     /**
@@ -31,22 +33,29 @@ public class BankResponseMessage extends AbstractGameMessage {
      *
      * @param user UserDTO
      * @param tradeCode String
+     * @param cardName the name form the card he wanna buy
      * @param bankOffer offer from bank
      *
      * @author Anton Nikiforov
      * @since 2021-05-29
      */
-    public BankResponseMessage(UserDTO user, String tradeCode, ArrayList<ArrayList<TradeItem>> bankOffer) {
+    public BankResponseMessage(UserDTO user, String tradeCode, String cardName, ArrayList<ArrayList<TradeItem>> bankOffer) {
         this.user = user;
         this.tradeCode = tradeCode;
+        this.cardName = cardName;
         this.bankOffer = bankOffer;
-    }
 
-    public ArrayList<ArrayList<TradeItem>> getBankOffer() {
-        return bankOffer;
     }
 
     public String getTradeCode() {
         return tradeCode;
+    }
+
+    public String getCardName() {
+        return cardName;
+    }
+
+    public ArrayList<ArrayList<TradeItem>> getBankOffer() {
+        return bankOffer;
     }
 }

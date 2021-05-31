@@ -172,6 +172,20 @@ public class GameService {
     }
 
     /**
+     * Sends the choice of the buyer to the server
+     *
+     * @param gameName      game name
+     * @param tradeCode     the specific trade code
+     * @author Alexander Losse, Ricardo Mook
+     * @see de.uol.swp.common.game.request.TradeItemRequest
+     * @since 2021-04-21
+     */
+    public void sendBuyChoice(String gameName, UserDTO user,String tradeCode, String cardName, ArrayList<TradeItem> offer) {
+        BankBuyRequest bbr = new BankBuyRequest(gameName, user, tradeCode, cardName, offer);
+        eventBus.post(bbr);
+    }
+
+    /**
      * This method creates a bank request to buy a resource via BankRequest
      *
      * @param gameName  the game name

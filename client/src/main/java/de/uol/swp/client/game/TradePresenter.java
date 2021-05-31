@@ -36,7 +36,7 @@ public class TradePresenter extends AbstractPresenter {
     private static final String oreString = "Ore";
 
     private boolean sellerGotBids = false;
-    private boolean sellerGotBankOffer = false;
+    private boolean buyerGotBankOffer = false;
     private boolean isBidder = false;
     private String tradeCode;
     private String gameName;
@@ -131,8 +131,8 @@ public class TradePresenter extends AbstractPresenter {
      * reacts to the TradeCardErrorMessage
      * <p>
      * checks if the TradeCardErrorMessage is for the user
-     * reenables addItemOfferButton, sendItemsButton, ressourceInputValue, ressourceChoice, endTradeButton
-     * they are disabled íf the sendItemsButton is pressed
+     * reenables addItemOfferButton, sendItemsSuggestButton, ressourceInputValue, ressourceChoice, endTradeButton
+     * they are disabled íf the sendItemsSuggestButton is pressed
      * the message is received if the user has not enough items in the inventory
      *
      * @param message TradeCardErrorMessage
@@ -146,7 +146,7 @@ public class TradePresenter extends AbstractPresenter {
             if (message.getUser().getUsername().equals(user.getUsername()) && message.getTradeCode().equals(tradeCode)) {
                 addItemOfferButton.setDisable(false);
                 addItemWishButton.setDisable(false);
-                sendItemsButton.setDisable(false);
+                sendItemsSuggestButton.setDisable(false);
                 ressourceInputValue.setDisable(false);
                 ressourceChoice.setDisable(false);
                 if (!isBidder) {
@@ -161,9 +161,10 @@ public class TradePresenter extends AbstractPresenter {
     /**
      * Reacts to the BankResponseMessage
      * <p>
+     * Reacts to the BankResponseMessage and if everything is alright it sends the bankOffer to setUPBankOfferView
+     * if it's not it gives an Alert that the user should try something else.
      *
      * @param message BankResponseMessage
-     *
      * @author Anton Nikiforov
      * @see BankResponseMessage
      * @since 2021-05-29
@@ -172,7 +173,19 @@ public class TradePresenter extends AbstractPresenter {
     public void onBankResponseMessage(BankResponseMessage message) {
         if (this.tradeCode != null) {
             if (user.equals(message.getUser()) && tradeCode.equals(message.getTradeCode())) {
-
+                if (message.getBankOffer() != null) {
+                    buyerGotBankOffer = true;
+                    setUPBankOfferView(message.getCardName(), message.getBankOffer());
+                } else {
+                    Alert noValidInput = new Alert(Alert.AlertType.CONFIRMATION);
+                    noValidInput.setContentText("Sorry, but this resource is not available right now.\nTry something else. ");
+                    Button conformation;
+                    ButtonType ok = new ButtonType("OK", ButtonBar.ButtonData.YES);
+                    noValidInput.getButtonTypes().setAll(ok);
+                    conformation = (Button) noValidInput.getDialogPane().lookupButton(ok);
+                    noValidInput.showAndWait();
+                    conformation.setOnAction(event -> noValidInput.hide());
+                }
             }
         }
     }
@@ -281,19 +294,21 @@ public class TradePresenter extends AbstractPresenter {
             } else if (selectedRadioButton == offer3RadioButton) {
                 gameService.sendTradeChoice(bidders.get(2), true, gameName, tradeCode);
             }
-        } else if (sellerGotBankOffer) {
+        } else if (buyerGotBankOffer) {
             RadioButton selectedRadioButton = (RadioButton) choiceTrade.getSelectedToggle();
+            String chosenCard = ressourceChoiceBank.getValue().toString();
 
             if (selectedRadioButton == offerNoneRadioButton) {
-                gameService.sendTradeChoice(user, false, gameName, tradeCode);
+                gameService.sendBuyChoice(gameName, user, tradeCode, chosenCard, null);
             } else if (selectedRadioButton == offer1RadioButton) {
-                gameService.sendTradeChoice(bidders.get(0), true, gameName, tradeCode);
+                gameService.sendBuyChoice(gameName, user, tradeCode, chosenCard, bankOffer.get(0));
             } else if (selectedRadioButton == offer2RadioButton) {
-                gameService.sendTradeChoice(bidders.get(1), true, gameName, tradeCode);
+                gameService.sendBuyChoice(gameName, user, tradeCode, chosenCard, bankOffer.get(1));
             } else if (selectedRadioButton == offer3RadioButton) {
-                gameService.sendTradeChoice(bidders.get(2), true, gameName, tradeCode);
+                gameService.sendBuyChoice(gameName, user, tradeCode, chosenCard, bankOffer.get(2));
+            } else if (selectedRadioButton == offer4RadioButton) {
+                gameService.sendBuyChoice(gameName, user, tradeCode, chosenCard, bankOffer.get(3));
             }
-
         } else {
             gameService.endTradeBeforeItStarted(gameName, tradeCode);
         }
@@ -328,7 +343,7 @@ public class TradePresenter extends AbstractPresenter {
      * ArrayList<TradeItem> sendTradeItemArrayList is created with createTradeItemList()
      * boolean minimalItems tracks if at least one item ha a count of > 0
      * if minimalItems == true a TradeItemRequest is send via the GameService
-     * disables addItemOfferButton, sendItemsButton, ressourceInputValue, ressourceChoice, endTradeButton
+     * disables addItemOfferButton, sendItemsSuggestButton, ressourceInputValue, ressourceChoice, endTradeButton
      * else nothing happens
      *
      * @author Alexander Losse, Ricardo Mook
@@ -353,7 +368,7 @@ public class TradePresenter extends AbstractPresenter {
         }
         else {
             Alert noValidInput = new Alert(Alert.AlertType.CONFIRMATION);
-            noValidInput.setContentText("Please only input valid resources and numbers. It should be 1 item in the offer at least.");
+            noValidInput.setContentText("Please only input valid resources and numbers.\nIt should be 1 item in the offer at least.");
             Button conformation;
             ButtonType ok = new ButtonType("OK", ButtonBar.ButtonData.YES);
             noValidInput.getButtonTypes().setAll(ok);
@@ -549,6 +564,112 @@ public class TradePresenter extends AbstractPresenter {
     }
 
     /**
+     * This help method sets the bank offer in the view for the buyer
+     * <p>
+     * so that the user can see the offers from the bank and select one of them.
+     *
+     * @param card that was selected
+     * @param bankOffer ArrayList<ArrayList<TradeItem>>
+     * @author Anton Nikiforov
+     * @see TradeItem
+     * @since 2021-05-31
+     */
+    public void setUPBankOfferView(String card, ArrayList<ArrayList<TradeItem>> bankOffer) {
+        tradeLable1.setText("Trade with the bank and harbors");
+        textRow0.setText("You want:");
+        offerNoneRadioButton.setVisible(true);
+        lumber0.setText(card.equals(lumberString) ? "1" : "0");
+        brick0.setText(card.equals(brickString) ? "1" : "0");
+        grain0.setText(card.equals(grainString) ? "1" : "0");
+        wool0.setText(card.equals(woolString) ? "1" : "0");
+        ore0.setText(card.equals(oreString) ? "1" : "0");
+        textRowW.setText("Bank wants:");
+        lumberW.setVisible(false);
+        brickW.setVisible(false);
+        grainW.setVisible(false);
+        woolW.setVisible(false);
+        oreW.setVisible(false);
+        disableAbilityToSentItems();
+        endTradeButton.setVisible(true);
+        row1HBox.setVisible(true);
+        row2HBox.setVisible(true);
+        row3HBox.setVisible(true);
+        row4HBox.setVisible(true);
+
+        this.bankOffer = bankOffer;
+
+        for (TradeItem item : bankOffer.get(0)) {
+
+            String valueOfCount = String.valueOf(item.getCount());
+            if (item.getName().equals(lumberString)) {
+                lumber1.setText(valueOfCount);
+                offer1RadioButton.setDisable(item.isNotEnough());
+            } else if (item.getName().equals(brickString)) {
+                brick1.setText(valueOfCount);
+            } else if (item.getName().equals(grainString)) {
+                grain1.setText(valueOfCount);
+            } else if (item.getName().equals(woolString)) {
+                wool1.setText(valueOfCount);
+            } else if (item.getName().equals(oreString)) {
+                ore1.setText(valueOfCount);
+            }
+        }
+
+        for (TradeItem item : bankOffer.get(1)) {
+            String valueOfCount = String.valueOf(item.getCount());
+            if (item.getName().equals(lumberString)) {
+                lumber2.setText(valueOfCount);
+                offer2RadioButton.setDisable(item.isNotEnough());
+            } else if (item.getName().equals(brickString)) {
+                brick2.setText(valueOfCount);
+            } else if (item.getName().equals(grainString)) {
+                grain2.setText(valueOfCount);
+            } else if (item.getName().equals(woolString)) {
+                wool2.setText(valueOfCount);
+            } else if (item.getName().equals(oreString)) {
+                ore2.setText(valueOfCount);
+            }
+        }
+
+        for (TradeItem item : bankOffer.get(2)) {
+            String valueOfCount = String.valueOf(item.getCount());
+            if (item.getName().equals(lumberString)) {
+                lumber3.setText(valueOfCount);
+                offer3RadioButton.setDisable(item.isNotEnough());
+            } else if (item.getName().equals(brickString)) {
+                brick3.setText(valueOfCount);
+            } else if (item.getName().equals(grainString)) {
+                grain3.setText(valueOfCount);
+            } else if (item.getName().equals(woolString)) {
+                wool3.setText(valueOfCount);
+            } else if (item.getName().equals(oreString)) {
+                ore3.setText(valueOfCount);
+            }
+        }
+
+        for (TradeItem item : bankOffer.get(3)) {
+            String valueOfCount = String.valueOf(item.getCount());
+            if (item.getName().equals(lumberString)) {
+                lumber4.setText(valueOfCount);
+                offer4RadioButton.setDisable(item.isNotEnough());
+            } else if (item.getName().equals(brickString)) {
+                brick4.setText(valueOfCount);
+            } else if (item.getName().equals(grainString)) {
+                grain4.setText(valueOfCount);
+            } else if (item.getName().equals(woolString)) {
+                wool4.setText(valueOfCount);
+            } else if (item.getName().equals(oreString)) {
+                ore4.setText(valueOfCount);
+            }
+        }
+
+        offer1RadioText.setVisible(offer1RadioButton.isDisable());
+        offer2RadioText.setVisible(offer2RadioButton.isDisable());
+        offer3RadioText.setVisible(offer3RadioButton.isDisable());
+        offer4RadioText.setVisible(offer4RadioButton.isDisable());
+    }
+
+    /**
      * checks if given string is a int
      * <p>
      * the method initialises isCheckedStringInt as false
@@ -595,7 +716,7 @@ public class TradePresenter extends AbstractPresenter {
     private void disableAbilityToSentItems() {
         addItemOfferButton.setDisable(true);
         addItemWishButton.setDisable(true);
-        sendItemsButton.setDisable(true);
+        sendItemsSuggestButton.setDisable(true);
         ressourceInputValue.setDisable(true);
         ressourceChoice.setDisable(true);
         ressourceChoiceBank.setVisible(false);
@@ -622,10 +743,10 @@ public class TradePresenter extends AbstractPresenter {
     Button addItemOfferButton;
 
     @FXML
-    Button sendItemsButton;
+    Button addItemWishButton;
 
     @FXML
-    Button addItemWishButton;
+    Button sendItemsSuggestButton;
 
     @FXML
     Button endTradeButton;
@@ -770,6 +891,18 @@ public class TradePresenter extends AbstractPresenter {
 
     @FXML
     Text textRow4;
+
+    @FXML
+    Text offer1RadioText;
+
+    @FXML
+    Text offer2RadioText;
+
+    @FXML
+    Text offer3RadioText;
+
+    @FXML
+    Text offer4RadioText;
 
     @FXML
     HBox row1HBox;

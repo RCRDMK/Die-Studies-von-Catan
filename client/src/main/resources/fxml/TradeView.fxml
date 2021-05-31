@@ -9,13 +9,13 @@
 <?import javafx.scene.text.*?>
 
 <AnchorPane stylesheets="@../css/swp.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.uol.swp.client.game.TradePresenter">
-   <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#1f1f1f" height="260.0" layoutX="5.0" layoutY="45.0" opacity="0.60" width="726.0" />
+   <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#1f1f1f" height="260.0" layoutX="5.0" layoutY="69.0" opacity="0.45" width="726.0" />
    <VBox prefHeight="400.0">
       <HBox>
          <VBox.margin>
             <Insets top="2.0" />
          </VBox.margin>
-         <Label fx:id="tradeLable1" style="-fx-background-color: rgba(0,0,0,0.44)" text="Trade with players">
+         <Label id="tradeLable1" fx:id="tradeLable1" style="-fx-background-color: rgba(0,0,0,0.44)" text="Trade with players">
            <font>
               <Font name="Times New Roman Bold" size="23.0" />
            </font>
@@ -45,7 +45,7 @@
                      <Insets left="5.0" />
                   </HBox.margin>
                </ChoiceBox>
-               <TextField fx:id="ressourceInputValue" prefHeight="25.0" prefWidth="127.0">
+               <TextField fx:id="ressourceInputValue" prefHeight="25.0" prefWidth="127.0" text="1">
                   <HBox.margin>
                      <Insets left="10.0" />
                   </HBox.margin>
@@ -63,7 +63,7 @@
                      <Insets left="5.0" />
                   </HBox.margin>
                </Button>
-               <Button fx:id="sendItemsButton" mnemonicParsing="false" onAction="#onSendItemsSuggestButtonsPressed" text="send Suggestion">
+               <Button fx:id="sendItemsSuggestButton" mnemonicParsing="false" onAction="#onSendItemsSuggestButtonsPressed" text="send Suggestion">
                   <HBox.margin>
                      <Insets left="73.0" />
                   </HBox.margin>
@@ -84,7 +84,7 @@
                   </HBox.margin>
                   <Text />
                   <Text />
-                  <Text fx:id="textRow0" fill="white" text="You offer:">
+                  <Text fx:id="textRow0" fill="white" text="You chosenOffer:">
                      <font>
                         <Font size="16.0" />
                      </font></Text>
@@ -145,7 +145,7 @@
                      </font></Text>
                </VBox>
                <VBox prefWidth="121.0">
-                  <Text fx:id="textCol" fill="white" text="Accept an offer:" visible="false">
+                  <Text fx:id="textCol" fill="white" text="Accept an chosenOffer:" visible="false">
                      <font>
                         <Font size="16.0" />
                      </font></Text>
@@ -258,8 +258,8 @@
                      </font></Text>
                </VBox>
                <VBox prefWidth="121.0">
-                  <Text />
-                  <RadioButton fx:id="offer1RadioButton" mnemonicParsing="false" text="Accept offer 1" toggleGroup="$choiceTrade" />
+                  <Text fx:id="offer1RadioText" text="You don't have enough resources" visible="false" />
+                  <RadioButton fx:id="offer1RadioButton" mnemonicParsing="false" text="Accept chosenOffer 1" toggleGroup="$choiceTrade" />
                </VBox>
             </HBox>
             <HBox fx:id="row2HBox" visible="false">
@@ -306,8 +306,8 @@
                      </font></Text>
                </VBox>
                <VBox prefWidth="121.0">
-                  <Text />
-                  <RadioButton fx:id="offer2RadioButton" mnemonicParsing="false" text="Accept offer 2" toggleGroup="$choiceTrade" />
+                  <Text fx:id="offer2RadioText" text="You don't have enough resources" visible="false" />
+                  <RadioButton fx:id="offer2RadioButton" mnemonicParsing="false" text="Accept chosenOffer 2" toggleGroup="$choiceTrade" />
                </VBox>
             </HBox>
             <HBox fx:id="row3HBox" visible="false">
@@ -354,8 +354,8 @@
                      </font></Text>
                </VBox>
                <VBox prefWidth="121.0">
-                  <Text />
-                  <RadioButton fx:id="offer3RadioButton" mnemonicParsing="false" text="Accept offer 3" toggleGroup="$choiceTrade" />
+                  <Text fx:id="offer3RadioText" text="You don't have enough resources" visible="false" />
+                  <RadioButton fx:id="offer3RadioButton" mnemonicParsing="false" text="Accept chosenOffer 3" toggleGroup="$choiceTrade" />
                </VBox>
             </HBox>
             <HBox fx:id="row4HBox" visible="false">
@@ -402,8 +402,8 @@
                      </font></Text>
                </VBox>
                <VBox prefWidth="121.0">
-                  <Text />
-                  <RadioButton fx:id="offer4RadioButton" mnemonicParsing="false" text="Accept offer 4" toggleGroup="$choiceTrade" />
+                  <Text fx:id="offer4RadioText" text="You don't have enough resources" visible="false" />
+                  <RadioButton fx:id="offer4RadioButton" mnemonicParsing="false" text="Accept chosenOffer 4" toggleGroup="$choiceTrade" />
                </VBox>
             </HBox>
          </VBox>

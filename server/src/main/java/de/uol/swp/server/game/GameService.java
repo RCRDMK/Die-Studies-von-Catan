@@ -1475,11 +1475,13 @@ public class GameService extends AbstractService {
                         }
                     }
                 }
-                ArrayList<TradeItem> lumberOffer = buildOffer(request.getCardName(), anyHarbor ? 3 : 4);
-                ArrayList<TradeItem> brickOffer = buildOffer(request.getCardName(), anyHarbor ? 3 : 4);
-                ArrayList<TradeItem> grainOffer = buildOffer(request.getCardName(), anyHarbor ? 3 : 4);
-                ArrayList<TradeItem> woolOffer = buildOffer(request.getCardName(), anyHarbor ? 3 : 4);
-                ArrayList<TradeItem> oreOffer = buildOffer(request.getCardName(), anyHarbor ? 3 : 4);
+                int defaultRate = anyHarbor ? 3 : 4;
+
+                ArrayList<TradeItem> lumberOffer = buildOffer("Lumber", defaultRate);
+                ArrayList<TradeItem> brickOffer = buildOffer("Brick", defaultRate);
+                ArrayList<TradeItem> grainOffer = buildOffer("Grain", defaultRate);
+                ArrayList<TradeItem> woolOffer = buildOffer("Wool", defaultRate);
+                ArrayList<TradeItem> oreOffer = buildOffer("Ore", defaultRate);
 
                 if (lumberHarbor) lumberOffer.get(0).setCount(2);
                 if (brickHarbor) brickOffer.get(1).setCount(2);
@@ -1500,7 +1502,7 @@ public class GameService extends AbstractService {
                 if (!request.getCardName().equals("Ore")) bankOffer.add(lumberOffer);
             }
 
-            BankResponseMessage bankResponseMessage = new BankResponseMessage(request.getUser(), request.getTradeCode(), bankOffer);
+            BankResponseMessage bankResponseMessage = new BankResponseMessage(request.getUser(), request.getTradeCode(), request.getCardName(), bankOffer);
             sendToSpecificUserInGame(bankResponseMessage, request.getUser());
         }
     }
@@ -1525,6 +1527,38 @@ public class GameService extends AbstractService {
         offer.add(new TradeItem("Wool", cardName.equals("Wool") ? count : 0));
         offer.add(new TradeItem("Ore", cardName.equals("Ore") ? count : 0));
         return offer;
+    }
+
+    /**
+     * Handles BankBuyRequest found on the EventBus
+     * <p>
+     * handles the sale
+     * send a chad massage if success
+     * and ends the tab
+     *
+     * @param request BankBuyRequest
+     * @author Anton Nikiforov
+     * @see TradeItem
+     * @see BankResponseMessage
+     * @since 2021-05-29
+     */
+    @Subscribe
+    public void onBankBuyRequest(BankBuyRequest request) {
+        Optional<Game> optionalGame = gameManagement.getGame(request.getName());
+        if (optionalGame.isPresent()) {
+            Game game = optionalGame.get();
+            User user = request.getUser();
+            if (request.getChosenOffer() != null) {
+                for (TradeItem item : request.getChosenOffer()) {
+                    if (item.getCount() > 0) {
+                        takeResource(game, user, item.getName(), item.getCount());
+                    }
+                }
+                giveResource(game, user, request.getChosenCard(), 1);
+                post(new ResponseChatMessage(user.getUsername() + " just had a successful trade with the bank.", "game_" + request.getName(), "TradeInfo", System.currentTimeMillis()));
+            }
+            post(new TradeEndedMessage(request.getName(), request.getTradeCode()));
+        }
     }
 
     /**
