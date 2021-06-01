@@ -2475,7 +2475,7 @@ public class GamePresenter extends AbstractPresenter {
 
                     r.setOnMouseClicked(new EventHandler<MouseEvent>() {
                         String title = hover.getText();
-                        String description = "If you play this card, you can move the robber to another field and can draw " + "\\u001B[1m one" + "card from an affected player";
+                        String description = "If you play this card, you can move the robber to another field and can draw one card from an affected player";
                         Boolean isDevelopmentCard = true;
                         @Override
                         public void handle(MouseEvent mouseEvent) {
