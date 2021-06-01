@@ -62,7 +62,7 @@ public class ChatService extends AbstractService {
      * @since 2020-11-30
      */
     @Subscribe
-    private void onRequestChatMessage(RequestChatMessage message) {
+    public void onRequestChatMessage(RequestChatMessage message) {
         //  Proceed when message isn't a cheat
         if (!cheatService.isCheat(message)) {
             // Store Message in chatList
