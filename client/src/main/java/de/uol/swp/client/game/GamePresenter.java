@@ -2398,7 +2398,6 @@ public class GamePresenter extends AbstractPresenter {
 
                 case 2:
                     hover.setText("Brick");
-                    hover.setText("Lumber");
                     Tooltip.install(r, hover);
                     hover.setShowDelay(Duration.millis(0));
 
@@ -2417,7 +2416,6 @@ public class GamePresenter extends AbstractPresenter {
 
                 case 3:
                     hover.setText("Grain");
-                    hover.setText("Lumber");
                     Tooltip.install(r, hover);
                     hover.setShowDelay(Duration.millis(0));
 
@@ -2436,7 +2434,6 @@ public class GamePresenter extends AbstractPresenter {
 
                 case 4:
                     hover.setText("Wool");
-                    hover.setText("Lumber");
                     Tooltip.install(r, hover);
                     hover.setShowDelay(Duration.millis(0));
 
@@ -2455,7 +2452,6 @@ public class GamePresenter extends AbstractPresenter {
 
                 case 5:
                     hover.setText("Ore");
-                    hover.setText("Lumber");
                     Tooltip.install(r, hover);
                     hover.setShowDelay(Duration.millis(0));
 
@@ -2474,7 +2470,6 @@ public class GamePresenter extends AbstractPresenter {
 
                 case 6:
                     hover.setText("Knight");
-                    hover.setText("Lumber");
                     Tooltip.install(r, hover);
                     hover.setShowDelay(Duration.millis(0));
 
@@ -2501,7 +2496,6 @@ public class GamePresenter extends AbstractPresenter {
 
                 case 7:
                     hover.setText("Monopoly");
-                    hover.setText("Lumber");
                     Tooltip.install(r, hover);
                     hover.setShowDelay(Duration.millis(0));
 
@@ -2528,7 +2522,6 @@ public class GamePresenter extends AbstractPresenter {
 
                 case 8:
                     hover.setText("Road Building");
-                    hover.setText("Lumber");
                     Tooltip.install(r, hover);
                     hover.setShowDelay(Duration.millis(0));
 
@@ -2555,7 +2548,6 @@ public class GamePresenter extends AbstractPresenter {
 
                 case 9:
                     hover.setText("Year of Plenty");
-                    hover.setText("Lumber");
                     Tooltip.install(r, hover);
                     hover.setShowDelay(Duration.millis(0));
 
@@ -2582,7 +2574,6 @@ public class GamePresenter extends AbstractPresenter {
 
                 case 10:
                     hover.setText("Victory Points");
-                    hover.setText("Lumber");
                     Tooltip.install(r, hover);
                     hover.setShowDelay(Duration.millis(0));
 
@@ -2601,7 +2592,6 @@ public class GamePresenter extends AbstractPresenter {
 
                 case 11:
                     hover.setText("Cities");
-                    hover.setText("Lumber");
                     Tooltip.install(r, hover);
                     hover.setShowDelay(Duration.millis(0));
 
@@ -2620,7 +2610,6 @@ public class GamePresenter extends AbstractPresenter {
 
                 case 12:
                     hover.setText("Roads");
-                    hover.setText("Lumber");
                     Tooltip.install(r, hover);
                     hover.setShowDelay(Duration.millis(0));
 
@@ -2639,7 +2628,6 @@ public class GamePresenter extends AbstractPresenter {
 
                 case 13:
                     hover.setText("Settlements");
-                    hover.setText("Lumber");
                     Tooltip.install(r, hover);
                     hover.setShowDelay(Duration.millis(0));
 
