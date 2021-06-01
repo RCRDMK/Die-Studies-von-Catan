@@ -180,4 +180,22 @@ public interface Lobby extends Serializable {
      */
     void stopTimerForGameStart();
 
+    /**
+     * Setter for the minimum amount of players for the game corresponding to this lobby
+     *
+     * @param amount the minimum amount of users to play in the game
+     * @author Marc Hermes
+     * @since 2021-05-27
+     */
+    void setMinimumAmountOfPlayers(int amount);
+
+    /**
+     * Getter for the minimum amount of players for the game corresponding to this lobby
+     *
+     * @return the minimum amount of users to play in the game
+     * @author Marc Hermes
+     * @since 2021-05-27
+     */
+    int getMinimumAmountOfPlayers();
+
 }

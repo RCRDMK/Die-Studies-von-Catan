@@ -16,6 +16,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -112,19 +113,20 @@ public abstract class AbstractAISystem implements AISystem {
     }
 
     @Override
-    public void buildStreet(UUID field) {
-        BuildAction pa = new BuildAction("BuildStreet", user, game.getName(), field);
+    public void buildStreet(MapGraph.StreetNode field) {
+        BuildAction pa = new BuildAction("BuildStreet", user, game.getName(), field.getUuid());
         inventory.decCardStack("Brick", 1);
         inventory.decCardStack("Lumber", 1);
         game.getBankInventory().incCardStack("Brick", 1);
         game.getBankInventory().incCardStack("Lumber", 1);
+        field.buildRoad(game.getTurn());
         aiActions.add(pa);
 
     }
 
     @Override
-    public void buildTown(UUID field) {
-        BuildAction pa = new BuildAction("BuildTown", user, game.getName(), field);
+    public void buildTown(MapGraph.BuildingNode field) {
+        BuildAction pa = new BuildAction("BuildTown", user, game.getName(), field.getUuid());
         inventory.decCardStack("Brick", 1);
         inventory.decCardStack("Lumber", 1);
         inventory.decCardStack("Grain", 1);
@@ -133,17 +135,20 @@ public abstract class AbstractAISystem implements AISystem {
         game.getBankInventory().incCardStack("Lumber", 1);
         game.getBankInventory().incCardStack("Grain", 1);
         game.getBankInventory().incCardStack("Wool", 1);
+        field.buildOrDevelopSettlement(game.getTurn());
+        game.getMapGraph().addBuiltBuilding(field);
         aiActions.add(pa);
 
     }
 
     @Override
-    public void buildCity(UUID field) {
-        BuildAction pa = new BuildAction("BuildCity", user, game.getName(), field);
+    public void buildCity(MapGraph.BuildingNode field) {
+        BuildAction pa = new BuildAction("BuildCity", user, game.getName(), field.getUuid());
         inventory.decCardStack("Ore", 3);
         inventory.decCardStack("Grain", 2);
         game.getBankInventory().incCardStack("Ore", 3);
         game.getBankInventory().incCardStack("Grain", 2);
+        field.buildOrDevelopSettlement(game.getTurn());
         aiActions.add(pa);
 
     }
@@ -309,5 +314,59 @@ public abstract class AbstractAISystem implements AISystem {
 
 
         return playableCards;
+    }
+
+    /**
+     * This method will check the streetNodeHashSet of the mapGraph for a streetNode which might be built for this AI.
+     *
+     * @return an Optional UUID of the streetNode. Will be empty if there is no legal building spot for streets currently.
+     * @author Marc Hermes
+     * @since 2021-05-19
+     */
+    public Optional<MapGraph.StreetNode> returnPossibleStreet() {
+        for (MapGraph.StreetNode sn : mapGraph.getStreetNodeHashSet()) {
+            if (sn.getOccupiedByPlayer() == 666) {
+                if(sn.tryBuildRoad(game.getTurn(), game.getStartingPhase())) {
+                return Optional.of(sn);
+                }
+            }
+        }
+        return Optional.empty();
+    }
+
+    /**
+     * This method will check the buildingNodeHashSet of the mapGraph for a buildingNode which might be built as a town for this AI.
+     *
+     * @return an Optional UUID of the buildingNode. Will be empty if there is no legal building spot for towns.
+     * @author Marc Hermes
+     * @since 2021-05-19
+     */
+    public Optional<MapGraph.BuildingNode> returnPossibleTown() {
+        for (MapGraph.BuildingNode bn : mapGraph.getBuildingNodeHashSet()) {
+            if (bn.getOccupiedByPlayer() == 666) {
+                if(bn.tryBuildOrDevelopSettlement(game.getTurn(), game.getStartingPhase())) {
+                return Optional.of(bn);
+                }
+            }
+        }
+        return Optional.empty();
+    }
+
+    /**
+     * This method will check the buildingNodeHashSet of the mapGraph for a buildingNode which might be built as a city for this AI.
+     *
+     * @return an Optional UUID of the buildingNode. Will be empty if there is no legal building spot for cities.
+     * @author Marc Hermes
+     * @since 2021-05-19
+     */
+    public Optional<MapGraph.BuildingNode> returnPossibleCity() {
+        for (MapGraph.BuildingNode bn : mapGraph.getBuiltBuildings()) {
+            if (bn.getOccupiedByPlayer() == game.getTurn()) {
+                if(bn.tryBuildOrDevelopSettlement(game.getTurn(), game.getStartingPhase())) {
+                return Optional.of(bn);
+                }
+            }
+        }
+        return Optional.empty();
     }
 }

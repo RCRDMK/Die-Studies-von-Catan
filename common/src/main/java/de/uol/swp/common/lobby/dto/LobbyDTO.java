@@ -31,6 +31,7 @@ public class LobbyDTO implements Lobby {
     private boolean gameStarted = false;
     private transient final Timer timerForGameStart = new Timer();
     private boolean timerStarted = false;
+    private int minimumAmountOfPlayers;
 
     /**
      * Constructor
@@ -153,4 +154,13 @@ public class LobbyDTO implements Lobby {
         timerStarted = false;
     }
 
+    @Override
+    public void setMinimumAmountOfPlayers(int minimumAmountOfPlayers) {
+        this.minimumAmountOfPlayers = minimumAmountOfPlayers;
+    }
+
+    @Override
+    public int getMinimumAmountOfPlayers() {
+        return minimumAmountOfPlayers;
+    }
 }

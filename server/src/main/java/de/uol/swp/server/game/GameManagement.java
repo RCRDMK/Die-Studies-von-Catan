@@ -6,9 +6,7 @@ import de.uol.swp.common.game.MapGraph;
 import de.uol.swp.common.game.dto.GameDTO;
 import de.uol.swp.common.user.User;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Manages starting, deletion and storing of games
@@ -39,8 +37,8 @@ public class GameManagement extends AbstractGameManagement {
      * @since 2021-01-15
      */
     @Override
-    public void createGame(String name, User owner, String gameFieldVariant) {
-        GameDTO game = new GameDTO(name, owner, gameFieldVariant);
+    public void createGame(String name, User owner, Set<User> lobbyUsers, String gameFieldVariant) {
+        GameDTO game = new GameDTO(name, owner, gameFieldVariant, lobbyUsers);
         games.put(name, game);
     }
 
