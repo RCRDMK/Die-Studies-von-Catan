@@ -153,7 +153,7 @@ public class CheatServiceTest {
         lobby.get().joinUser(userDTO1);
         lobby.get().joinUser(userDTO2);
         lobby.get().joinUser(userDTO3);
-        gameManagement.createGame(lobby.get().getName(), lobby.get().getOwner(), "Standard");
+        gameManagement.createGame(lobby.get().getName(), lobby.get().getOwner(), lobby.get().getUsers(), "Standard");
         game = gameManagement.getGame(lobby.get().getName());
         game.get().joinUser(userDTO1);
         game.get().joinUser(userDTO2);
