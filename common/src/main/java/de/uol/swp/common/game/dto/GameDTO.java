@@ -28,8 +28,11 @@ public class GameDTO implements Game {
     private final int turn = 0; //this points to the index of the user who now makes his turn.
     private MapGraph mapGraph;
     private int overallTurns = 0; //This just counts +1 every time a player ends his turn. (good for Summaryscreen for example)
-    private final ArrayList<User> userArrayList = new ArrayList<User>();
+    private final ArrayList<User> userArrayList = new ArrayList<>();
+    private final ArrayList<User> aiUsers = new ArrayList<>();
     private User owner;
+    private int amountOfPlayers = 0;
+    private final Set<User> usersInLobby;
     private boolean startingTurns = true;
     private int startingPhase = 1;
     private boolean countingUp = true;
@@ -52,18 +55,23 @@ public class GameDTO implements Game {
     private boolean isTest;
     private boolean rolledDiceThisTurn = false;
 
+    private HashMap<String, Integer> boughtDevCardsThisTurn = new HashMap<>();
+
+
     /**
      * Constructor
      *
-     * @param name              The name the game should have
-     * @param creator           The user who created the game and therefore shall be the owner
-     * @param gameFieldVariant  The variant that the game field should have
+     * @param name             The name the game should have
+     * @param creator          The user who created the game and therefore shall be the owner
+     * @param gameFieldVariant The variant that the game field should have
+     * @param usersInLobby     The actual users in the lobby
      * @since 2021-01-15
      */
-    public GameDTO(String name, User creator, String gameFieldVariant) {
+    public GameDTO(String name, User creator, String gameFieldVariant, Set<User> usersInLobby) {
         this.name = name;
         this.owner = creator;
         this.users.add(creator);
+        this.usersInLobby = usersInLobby;
         this.mapGraph = new MapGraph(gameFieldVariant);
     }
 
@@ -129,9 +137,30 @@ public class GameDTO implements Game {
         return userArrayList.get(index);
     }
 
+    /**
+     * Method called when starting the game
+     * <p>
+     * First puts all users in the lobby into the usersArrayList.
+     * Then, if there are less players in the lobby than the lobby owner wanted to play with,
+     * the difference will be filled with AI Users.
+     * In case the other users in the lobby just didn't want to start the game, AI Users will also play until
+     * they decide they want to join.
+     *
+     * @author Marc Hermes
+     * @since 2021-05-27
+     */
     @Override
     public void setUpUserArrayList() {
-        userArrayList.addAll(users);
+        userArrayList.addAll(usersInLobby);
+        int players = userArrayList.size();
+        int i = 0;
+        while (amountOfPlayers > players) {
+            UserDTO aiUser = new UserDTO("KI" + i, "", "", 65+i);
+            aiUsers.add(aiUser);
+            userArrayList.add(aiUser);
+            players++;
+            i++;
+        }
     }
 
     /**
@@ -179,6 +208,7 @@ public class GameDTO implements Game {
         } else overallTurns++;
         playedCardThisTurn = false;
         rolledDiceThisTurn = false;
+        boughtDevCardsThisTurn.clear();
     }
 
     /**
@@ -190,7 +220,6 @@ public class GameDTO implements Game {
      * @author Philip Nitsche
      * @since 2021-04-26
      */
-
     @Override
     public ArrayList<MapGraph.BuildingNode> getLastBuildingOfOpeningTurn() {
         return lastBuildingOfOpeningTurn;
@@ -273,7 +302,6 @@ public class GameDTO implements Game {
      * It compares the user with the inventory user and returns the inventory from user
      *
      * @param user form the inventory you want
-     *
      * @return The Inventory from user
      * @author Anton Nikiforov
      * @see de.uol.swp.common.game.inventory.Inventory
@@ -422,6 +450,11 @@ public class GameDTO implements Game {
     }
 
     @Override
+    public void setAmountOfPlayers(int amount) {
+        this.amountOfPlayers = amount;
+    }
+
+    @Override
     public Inventory getInventoryWithLargestArmy() {
         return inventoryWithLargestArmy;
     }
@@ -429,5 +462,77 @@ public class GameDTO implements Game {
     @Override
     public void setInventoryWithLargestArmy(Inventory inventoryWithLargestArmy) {
         this.inventoryWithLargestArmy = inventoryWithLargestArmy;
+    }
+    /**
+     * method used to remember the DevelopmentCards bought in a turn
+     * <p>
+     * saved in HashMap<String, Integer>String,>boughtDevCardThisTurn
+     *
+     * @param card   String name of the Card
+     * @param amount int amount of the card
+     * @author Alexander Losse
+     * @since 2021-05-30
+     */
+    @Override
+    public void rememberDevCardBoughtThisTurn(String card, int amount) {
+        if (card.equals("Monopoly") || card.equals("Road Building") || card.equals("Year of Plenty") || card.equals("Knight")) {
+            boughtDevCardsThisTurn.put(card, boughtDevCardsThisTurn.getOrDefault(card, 0) + amount);
+        }
+    }
+
+    /**
+     * returns HashMap<String, Integer> boughtDevCardsThisTurn
+     *
+     * @return HashMap<String, Integer> boughtDevCardsThisTurn
+     * @author Alexander Losse
+     * @since 2021-05-30
+     */
+    @Override
+    public HashMap<String, Integer> getBoughtDevCardsThisTurn() {
+        return boughtDevCardsThisTurn;
+    }
+
+    /**
+     * returns how many Cards of type were bought this turn.
+     * <p>
+     * returns 0 if Card not in HashMap
+     *
+     * @param card String name of the card
+     * @return int
+     * @author Alexander Losse
+     * @since 2021-05-30
+     */
+    @Override
+    public int getHowManyCardsOfTypeWereBoughtThisTurn(String card) {
+        if (!boughtDevCardsThisTurn.isEmpty() && boughtDevCardsThisTurn.containsKey(card)) {
+            return boughtDevCardsThisTurn.get(card);
+        } else {
+            return 0;
+        }
+    }
+
+    /**
+     * checks if a user can play a development card
+     * <p>
+     * methods checks if String card is an development card
+     * method compares the an development card in inventory of user with cards bought this turn,
+     * checks that he he can play an development card that was not bought this turn
+     * returns true if successful
+     * return false if not
+     *
+     * @param user User
+     * @param card String name of the card
+     * @return boolean
+     * @author Alexander Losse
+     * @since 2021-05-30
+     */
+    @Override
+    public boolean canUserPlayDevCard(User user, String card) {
+        if (card.equals("Monopoly") || card.equals("Road Building") || card.equals("Year of Plenty") || card.equals("Knight")) {
+            Inventory inventoryDummy = getInventory(user);
+            int cardsInInventory = inventoryDummy.getCardStack(card).getNumber();
+            int boughtCards = getHowManyCardsOfTypeWereBoughtThisTurn(card);
+            return cardsInInventory - boughtCards > 0;
+        } else return false;
     }
 }

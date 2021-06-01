@@ -15,6 +15,8 @@ import de.uol.swp.common.game.request.EndTurnRequest;
 import de.uol.swp.common.game.request.ResourcesToDiscardRequest;
 import de.uol.swp.common.game.response.PlayDevelopmentCardResponse;
 import de.uol.swp.common.game.response.ResolveDevelopmentCardNotSuccessfulResponse;
+import de.uol.swp.common.lobby.message.JoinOnGoingGameMessage;
+import de.uol.swp.common.lobby.response.JoinOnGoingGameResponse;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.game.response.AllThisGameUsersResponse;
@@ -148,7 +150,7 @@ public class GamePresenter extends AbstractPresenter {
     private ListView<String> gameUsersView;
 
     @FXML
-    private Button EndTurnButton;
+    private Button endTurnButton;
 
     @FXML
     private Button tradeButton;
@@ -226,7 +228,7 @@ public class GamePresenter extends AbstractPresenter {
     final private Rectangle rectangleDie2 = new Rectangle(50, 50);
 
     @FXML
-    private Button rollDice;
+    private Button rollDiceButton;
 
     @FXML
     private Button buyDevCard;
@@ -251,6 +253,9 @@ public class GamePresenter extends AbstractPresenter {
     private Button[] choose;
 
     private Rectangle robber;
+
+    private boolean rolledDice = false;
+    private boolean startingTurn;
 
     /**
      * Method called when the send Message button is pressed
@@ -351,10 +356,9 @@ public class GamePresenter extends AbstractPresenter {
     public void onTrade(ActionEvent event) {
         this.buildMenu.setDisable(true);
         this.buyDevCard.setDisable(true);
-        this.EndTurnButton.setDisable(true);
+        this.endTurnButton.setDisable(true);
         String tradeCode = UUID.randomUUID().toString().trim().substring(0, 7);
         gameService.sendTradeStartedRequest((UserDTO) this.joinedLobbyUser, this.currentLobby, tradeCode);
-
     }
 
     /**
@@ -370,7 +374,7 @@ public class GamePresenter extends AbstractPresenter {
         if (itsMyTurn) {
             this.buildMenu.setDisable(false);
             this.buyDevCard.setDisable(false);
-            this.EndTurnButton.setDisable(false);
+            this.endTurnButton.setDisable(false);
         }
     }
 
@@ -446,11 +450,16 @@ public class GamePresenter extends AbstractPresenter {
      * @since 2021-01-13
      * <p>
      * I have changed the place of the method to the new GamePresenter.
+     * Enhanced by Alexander Losse on 2021-05-30
+     * <p>
+     * remembers that the dice was rolled and changes the buttons
      */
     @FXML
     public void onRollDice() {
         if (this.currentLobby != null) {
             gameService.rollDice(this.currentLobby, (UserDTO) this.joinedLobbyUser);
+            rolledDice = true;
+            switchTurnPhaseButtons();
         }
     }
 
@@ -493,13 +502,13 @@ public class GamePresenter extends AbstractPresenter {
      */
     public void gameStartedSuccessfulLogic(GameCreatedMessage gcm) {
         if (this.currentLobby == null) {
-            LOG.debug("Requesting update of User list in game scene because game scene was created.");
+            LOG.debug("Updating User list in game scene because game was created.");
             this.joinedLobbyUser = gcm.getUser();
             this.currentLobby = gcm.getName();
             this.gameFieldVariant = gcm.getGameFieldVariant();
-            updateGameUsersList(gcm.getUsers());
+            updateGameUsersList(gcm.getUsers(), gcm.getHumans());
             initializeMatch(gcm.getMapGraph());
-            for (int i = 1; i <= 64; i++) {
+            for (int i = 1; i <= 67; i++) {
                 Image image;
                 image = new Image("img/profilePictures/" + i + ".png");
                 ImagePattern imagePattern;
@@ -517,6 +526,46 @@ public class GamePresenter extends AbstractPresenter {
             });
         }
     }
+
+    /**
+     * When a JoinOnGoinGameResponse is detected on the EventBus this method is invoked
+     * <p>
+     * First the usual actions when joining a game are done to initialize the visuals of the presenter.
+     * Then the method updateGameField() is called to update the mapGraphNodes that are already built by players.
+     *
+     * @param joggr the JoinOnGoingGameResponse detected on the EventBus
+     * @author Marc Hermes
+     * @since 2021-05-27
+     */
+    @Subscribe
+    public void onJoinOnGoingGameResponse(JoinOnGoingGameResponse joggr) {
+        if (this.currentLobby == null && joggr.isJoinedSuccessful()) {
+            LOG.debug("Updating User list in game scene because game was joined.");
+            this.joinedLobbyUser = joggr.getUser();
+            this.currentLobby = joggr.getGameName();
+            this.gameFieldVariant = joggr.getGameFieldVariant();
+            updateGameUsersList(joggr.getUsers(), joggr.getHumans());
+            initializeMatch(joggr.getMapGraph());
+            for (int i = 1; i <= 67; i++) {
+                Image image;
+                image = new Image("img/profilePictures/" + i + ".png");
+                ImagePattern imagePattern;
+                imagePattern = new ImagePattern(image);
+                profilePicturePatterns.add(imagePattern);
+            }
+            Platform.runLater(() -> {
+                setupPlayerPictures(joggr.getUsers());
+                setupRessourceAlert();
+                initializeRobberResourceMenu();
+                setupRobberAlert();
+                setupDicesAtGameStart();
+                setUpPrivateInventoryView();
+                setupResolveDevelopmentCardAlert();
+                updateGameField();
+            });
+        }
+    }
+
 
     /**
      * This method initializes the menu where the player has to choose, which resource he wants to give to the player,
@@ -688,10 +737,10 @@ public class GamePresenter extends AbstractPresenter {
      * @author Carsten Dekker
      * @since 2021-04-18
      */
-    public void setupPlayerPictures(ArrayList<UserDTO> list) {
-        for (UserDTO userDTO : list) {
+    public void setupPlayerPictures(ArrayList<User> list) {
+        for (User user : list) {
             Rectangle rectangle = new Rectangle(68, 68);
-            rectangle.setFill(profilePicturePatterns.get(userDTO.getProfilePictureID() - 1));
+            rectangle.setFill(profilePicturePatterns.get(user.getProfilePictureID() - 1));
             rectangles.add(rectangle);
         }
         picturePlayerView1.getChildren().add(rectangles.get(0));
@@ -735,9 +784,10 @@ public class GamePresenter extends AbstractPresenter {
 
                     if (itsMyTurn) {
                         tradeButton.setDisable(false);
+                        rollDiceButton.setDisable(false);
                         buildMenu.setDisable(false);
                         buyDevCard.setDisable(false);
-                        EndTurnButton.setDisable(false);
+                        endTurnButton.setDisable(false);
                     }
 
                     ResourcesToDiscardRequest resourcesToDiscard = new ResourcesToDiscardRequest(tooMuchResourceCardsMessage.getName(), (UserDTO) tooMuchResourceCardsMessage.getUser(), inventory);
@@ -823,9 +873,10 @@ public class GamePresenter extends AbstractPresenter {
             tooMuchAlert.initModality(Modality.APPLICATION_MODAL);
             tooMuchAlert.show();
             tradeButton.setDisable(true);
+            rollDiceButton.setDisable(true);
             buildMenu.setDisable(true);
             buyDevCard.setDisable(true);
-            EndTurnButton.setDisable(true);
+            endTurnButton.setDisable(true);
         } else {
             lumberLabelRobberMenu.setText(Integer.toString(privateInventory.get("Lumber")));
             brickLabelRobberMenu.setText(Integer.toString(privateInventory.get("Brick")));
@@ -864,24 +915,22 @@ public class GamePresenter extends AbstractPresenter {
      * <p>
      * Enhanced by Carsten Dekker
      * @since 2021-04-30
+     * <p>
+     * Enhanced by Alexander Losse on 2021-05-30
      */
     @Subscribe
     public void nextPlayerTurn(NextTurnMessage response) {
         if (response.getGameName().equals(currentLobby)) {
+            rolledDice = false;
             if (response.getPlayerWithCurrentTurn().equals(joinedLobbyUser.getUsername())) {
+                startingTurn = response.isInStartingTurn();
                 itsMyTurn = true;
-                buildMenu.setDisable(false);
-                EndTurnButton.setDisable(false);
-                rollDice.setDisable(false);
-                buyDevCard.setDisable(false);
-                tradeButton.setDisable(false);
+
+                switchTurnPhaseButtons();
+
             } else {
                 itsMyTurn = false;
-                buildMenu.setDisable(true);
-                EndTurnButton.setDisable(true);
-                rollDice.setDisable(true);
-                buyDevCard.setDisable(true);
-                tradeButton.setDisable(true);
+                switchTurnPhaseButtons();
             }
             if (!response.isInStartingTurn()) {
                 if (response.getTurn() == 0) {
@@ -902,7 +951,7 @@ public class GamePresenter extends AbstractPresenter {
                     playerFourDiceView.setVisible(true);
                 }
             } else {
-                EndTurnButton.setDisable(true);
+                endTurnButton.setDisable(true);
             }
         }
     }
@@ -1009,30 +1058,50 @@ public class GamePresenter extends AbstractPresenter {
         if (this.currentLobby != null) {
             if (this.currentLobby.equals(atgur.getName())) {
                 LOG.debug("Update of user list " + atgur.getUsers());
-                updateGameUsersList(atgur.getUsers());
+                updateGameUsersList(atgur.getUsers(), atgur.getHumanUsers());
 
             }
         }
     }
 
     /**
+     * When a JoinOnGoingGameMessage is detected on the EventBus this method is invoked
+     * <p>
+     * If the currentLobby is not null, meaning this is not an empty presenter and the currentLobby equals
+     * one in the JoinOnGoingGameMessage an update of the users in this presenter is done
+     *
+     * @param joggm the JoinOnGoingGameMessage detected on the EventBus
+     * @author Marc Hermes
+     * @since 2021-05-27
+     */
+    @Subscribe
+    public void onJoinOnGoingGameMessage(JoinOnGoingGameMessage joggm) {
+        if (this.currentLobby != null) {
+            if (this.currentLobby.equals(joggm.getName())) {
+                LOG.debug("The user " + joggm.getUser().getUsername() + " joined the game!");
+                updateGameUsersList(joggm.getUsers(), joggm.getHumans());
+            }
+        }
+    }
+
+
+    /**
      * Updates the game menu user list of the current game according to the list given
      * <p>
      * This method clears the entire user list and then adds the name of each user in the list given to the game menu
      * user list. If there ist no user list this creates one.
+     * <p>
+     * enhanced by Marc Hermes, 2021-05-27
      *
-     * @param gameUserList A list of UserDTO objects including all currently logged in users
+     * @param l      A list of User objects including all users in the game
+     * @param humans a set of Users that contains all human users in the game
      * @implNote The code inside this Method has to run in the JavaFX-application thread. Therefore it is crucial not to
      * remove the {@code Platform.runLater()}
-     * @author Iskander Yusupov , @design Marc Hermes, Ricardo Mook
+     * @author Iskander Yusupov, Marc Hermes, Ricardo Mook
      * @see de.uol.swp.common.user.UserDTO
      * @since 2020-03-14
      */
-    private void updateGameUsersList(List<UserDTO> gameUserList) {
-        updateGameUsersListLogic(gameUserList);
-    }
-
-    public void updateGameUsersListLogic(List<UserDTO> l) {
+    public void updateGameUsersList(ArrayList<User> l, Set<User> humans) {
         // Attention: This must be done on the FX Thread!
         Platform.runLater(() -> {
             if (gameUsers == null) {
@@ -1040,7 +1109,13 @@ public class GamePresenter extends AbstractPresenter {
                 gameUsersView.setItems(gameUsers);
             }
             gameUsers.clear();
-            l.forEach(u -> gameUsers.add(u.getUsername()));
+            l.forEach(u -> {
+                if (humans.contains(u)) {
+                    gameUsers.add(u.getUsername());
+                } else {
+                    gameUsers.add(u.getUsername() + " (KI)");
+                }
+            });
         });
     }
 
@@ -1168,8 +1243,8 @@ public class GamePresenter extends AbstractPresenter {
 
             Vector placementVector = Vector.convertStringListToVector(hexagonContainer.getHexagon().getSelfPosition(), cardSize(), centerOfCanvasVector);
             Platform.runLater(() -> {
-            hexagonContainer.getHexagonShape().setLayoutX(placementVector.getX());
-            hexagonContainer.getHexagonShape().setLayoutY(placementVector.getY());
+                hexagonContainer.getHexagonShape().setLayoutX(placementVector.getX());
+                hexagonContainer.getHexagonShape().setLayoutY(placementVector.getY());
                 hexagonContainer.getHexagonShape().setFill(determinePictureOfTerrain(hexagonContainer.getHexagon()));
             });
 
@@ -1250,7 +1325,6 @@ public class GamePresenter extends AbstractPresenter {
      * Enhanced, with a drawing of a robber
      *
      * @param mapGraph the MapGraph created by the Server
-     *
      * @author Marius Birk
      * @author Marc Hermes
      * @see de.uol.swp.client.game.GameObjects.TerrainField
@@ -1354,6 +1428,30 @@ public class GamePresenter extends AbstractPresenter {
         }
     }
 
+    /**
+     * Updates the gameField based on the information currently available in this gamePresenter
+     * <p>
+     * This method is primarily used to update the gameField after (re)-joining an ongoing game.
+     *
+     * @author Marc Hermes
+     * @since 2021-05-27
+     */
+    public void updateGameField() {
+        for (MapGraphNodeContainer mapGraphNodeContainer : mapGraphNodeContainers) {
+            Platform.runLater(() -> {
+                mapGraphNodeContainer.getCircle().setFill(determinePlayerColorByIndex(mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer()));
+                if (mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer() != 666)
+                    mapGraphNodeContainer.getCircle().setVisible(true);
+            });
+        }
+        for (HexagonContainer hexagonContainer : hexagonContainers) {
+            if (hexagonContainer.getHexagon().isOccupiedByRobber()) {
+                robber.setLayoutX(hexagonContainer.getHexagonShape().getLayoutX());
+                robber.setLayoutY(hexagonContainer.getHexagonShape().getLayoutY());
+            }
+        }
+    }
+
     @Subscribe
     public void onBuyDevelopmentCardMessage(BuyDevelopmentCardMessage buyDevelopmentCardMessage) {
         buyDevelopmentCardLogic(buyDevelopmentCardMessage.getDevCard());
@@ -1451,13 +1549,9 @@ public class GamePresenter extends AbstractPresenter {
                                 if (container.getHexagon().getTerrainType() != 6) {
                                     for (HexagonContainer container1 : hexagonContainers) {
                                         container1.getHexagonShape().removeEventHandler(MouseEvent.MOUSE_PRESSED, this);
-
-                                        rollDice.setDisable(false);
-                                        buildMenu.setDisable(false);
-                                        EndTurnButton.setDisable(false);
-                                        buyDevCard.setDisable(false);
+                                        switchTurnPhaseButtons();
                                     }
-                                    if(currentDevelopmentCard.equals("Knight")) {
+                                    if (currentDevelopmentCard.equals("Knight")) {
                                         gameService.resolveDevelopmentCardKnight((UserDTO) moveRobberMessage.getUser(), moveRobberMessage.getName(), currentDevelopmentCard, container.getHexagon().getUuid());
                                     }
                                     gameService.movedRobber(moveRobberMessage.getName(), moveRobberMessage.getUser(), container.getHexagon().getUuid());
@@ -1469,9 +1563,9 @@ public class GamePresenter extends AbstractPresenter {
                 };
                 for (HexagonContainer container : hexagonContainers) {
                     container.getHexagonShape().addEventHandler(MouseEvent.MOUSE_PRESSED, clickOnHexagonHandler);
-                    rollDice.setDisable(true);
+                    rollDiceButton.setDisable(true);
                     buildMenu.setDisable(true);
-                    EndTurnButton.setDisable(true);
+                    endTurnButton.setDisable(true);
                     buyDevCard.setDisable(true);
                 }
             }
@@ -1700,7 +1794,7 @@ public class GamePresenter extends AbstractPresenter {
                 tradeButton.setDisable(false);
                 buildMenu.setDisable(false);
                 buyDevCard.setDisable(false);
-                EndTurnButton.setDisable(false);
+                endTurnButton.setDisable(false);
             }
         });
         resolveDevelopmentCardAlert.initModality(Modality.NONE);
@@ -1754,10 +1848,10 @@ public class GamePresenter extends AbstractPresenter {
             oldGridPane.getChildren().remove(rectangleDie2);
             rectangleDie1.setFill(diceImages.get(0));
             rectangleDie2.setFill(diceImages.get(0));
-            if(!newGridPane.getChildren().contains(rectangleDie1))
-            newGridPane.add(rectangleDie1, 0, 0);
-            if(!newGridPane.getChildren().contains(rectangleDie2))
-            newGridPane.add(rectangleDie2, 1, 0);
+            if (!newGridPane.getChildren().contains(rectangleDie1))
+                newGridPane.add(rectangleDie1, 0, 0);
+            if (!newGridPane.getChildren().contains(rectangleDie2))
+                newGridPane.add(rectangleDie2, 1, 0);
         });
     }
 
@@ -1840,7 +1934,8 @@ public class GamePresenter extends AbstractPresenter {
                     for (MapGraphNodeContainer mapGraphNodeContainer : mapGraphNodeContainers) {
                         if (mapGraphNodeContainer.getMapGraphNode().getUuid().equals(message.getUuid())) {
                             MapGraph.BuildingNode buildingNode = (MapGraph.BuildingNode) mapGraphNodeContainer.getMapGraphNode();
-                            buildingNode.buildOrDevelopSettlement(message.getPlayerIndex());
+                            buildingNode.setOccupiedByPlayer(message.getPlayerIndex());
+                            buildingNode.incSizeOfSettlement();
                             if (mapGraphNodeContainer.getCircle().getFill().equals(Color.WHITE)) {
                                 Platform.runLater(() -> {
                                     mapGraphNodeContainer.getCircle().setRadius(cardSize() / 3.5);
@@ -1860,7 +1955,7 @@ public class GamePresenter extends AbstractPresenter {
                     for (MapGraphNodeContainer mapGraphNodeContainer : mapGraphNodeContainers) {
                         if (mapGraphNodeContainer.getMapGraphNode().getUuid().equals(message.getUuid())) {
                             MapGraph.StreetNode streetNode = (MapGraph.StreetNode) mapGraphNodeContainer.getMapGraphNode();
-                            streetNode.buildRoad(message.getPlayerIndex());
+                            streetNode.setOccupiedByPlayer(message.getPlayerIndex());
                             Platform.runLater(() -> {
                                 mapGraphNodeContainer.getCircle().setFill(determinePlayerColorByIndex(mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer()));
                                 mapGraphNodeContainer.getCircle().setVisible(true);
@@ -2111,10 +2206,10 @@ public class GamePresenter extends AbstractPresenter {
                     this.resolveDevelopmentCardAlert.setHeaderText(rdcns.getErrorDescription());
                     this.resolveDevelopmentCardAlert.show();
                     this.tradeButton.setDisable(true);
-                    this.rollDice.setDisable(true);
+                    this.rollDiceButton.setDisable(true);
                     this.buildMenu.setDisable(true);
                     this.buyDevCard.setDisable(true);
-                    this.EndTurnButton.setDisable(true);
+                    this.endTurnButton.setDisable(true);
                 });
 
             }
@@ -2169,10 +2264,10 @@ public class GamePresenter extends AbstractPresenter {
                             }
                             this.resolveDevelopmentCardAlert.show();
                             this.tradeButton.setDisable(true);
-                            this.rollDice.setDisable(true);
+                            this.rollDiceButton.setDisable(true);
                             this.buildMenu.setDisable(true);
                             this.buyDevCard.setDisable(true);
-                            this.EndTurnButton.setDisable(true);
+                            this.endTurnButton.setDisable(true);
 
                         });
 
@@ -2288,4 +2383,48 @@ public class GamePresenter extends AbstractPresenter {
             }
         }
     }
+
+    /**
+     * help method to disable/enable buttons
+     * <p>
+     * method is used to check for specific variables and enables/disables button accordingly
+     * e.g it is not users turn
+     *
+     * @author Alexander Losse
+     * @since 2021-05-30
+     */
+    private void switchTurnPhaseButtons() {
+        if (itsMyTurn) { //it's users turn
+            if (!startingTurn) { //not in opening phase
+                if (!rolledDice) { //part 1(resources)
+                    buildMenu.setDisable(true);
+                    endTurnButton.setDisable(true);
+                    tradeButton.setDisable(true);
+                    rollDiceButton.setDisable(false);
+                    buyDevCard.setDisable(true);
+                } else { //part 2 trading, building
+                    buildMenu.setDisable(false);
+                    endTurnButton.setDisable(false);
+                    tradeButton.setDisable(false);
+                    rollDiceButton.setDisable(true);
+                    buyDevCard.setDisable(false);
+                }
+
+            } else { //opening phase
+                buildMenu.setDisable(false);
+                endTurnButton.setDisable(false);
+                tradeButton.setDisable(true);
+                rollDiceButton.setDisable(true);
+                buyDevCard.setDisable(true);
+            }
+        } else { //not users turn
+            endTurnButton.setDisable(true);
+            rollDiceButton.setDisable(true);
+            buyDevCard.setDisable(true);
+            tradeButton.setDisable(true);
+            buyDevCard.setDisable((true));
+            buildMenu.setDisable(true);
+        }
+    }
+
 }

@@ -172,7 +172,7 @@ public interface Game extends Serializable {
     /**
      * Getter for the Inventory from user
      *
-     * @param user
+     * @param user the User whose inventory to get
      * @return The Inventory from user
      * @author Anton Nikiforov
      * @see de.uol.swp.common.game.inventory.Inventory
@@ -199,13 +199,12 @@ public interface Game extends Serializable {
      * @author Philip Nitsche
      * @since 2021-04-26
      */
-
     boolean isStartingTurns();
 
     /**
      * Puts the parsed MapGraph into the DTO.
      *
-     * @param mapGraph
+     * @param mapGraph the mapGraph to set as the mapGraph of this gameDTO
      * @author Pieter Vogt
      * @see MapGraph
      * @since 2021-04-11
@@ -267,7 +266,7 @@ public interface Game extends Serializable {
      * getter for the boolean value whether or not a card was already played this turn.
      * useful, as only 1 card may be played each turn
      *
-     * @return
+     * @return true, if already played one card, false if not
      * @author Marc Hermes
      * @since 2021-05-03
      */
@@ -328,6 +327,15 @@ public interface Game extends Serializable {
     boolean rolledDiceThisTurn();
 
     /**
+     * Setter for the minimum amount of players the owner wants to play with in the game
+     *
+     * @param amount the minimum amount of players
+     * @author Marc Hermes
+     * @since 2021-05-27
+     */
+    void setAmountOfPlayers(int amount);
+
+    /**
      * Getter for the largest Army reference
      *
      * @return refernced inventory with the largest army
@@ -340,4 +348,42 @@ public interface Game extends Serializable {
      * @param inventoryWithLargestArmy the inventory referencing the inventory with the largest army
      */
     void setInventoryWithLargestArmy(Inventory inventoryWithLargestArmy);
+
+
+    /**
+     * method used to remember the DevelopmentCards bought in a turn
+     *
+     * @param card   String name of the Card
+     * @param amount int amount of the card
+     * @author Alexander Losse
+     * @since 2021-05-30
+     */
+    void rememberDevCardBoughtThisTurn(String card, int amount);
+
+    /**
+     * getter for the HasMap containing the development cards bought this turn
+     * @return HashMap<String, Integer> boughtDevCardsThisTurn
+     * @author Alexander Losse
+     * @since 2021-05-30
+     */
+    HashMap<String, Integer> getBoughtDevCardsThisTurn();
+
+    /**
+     *  getter for how many cards of a type were bought this turn
+     * @param card String name of the card
+     * @return itn amount of cards
+     * @author Alexander Losse
+     * @since 2021-05-30
+     */
+    int getHowManyCardsOfTypeWereBoughtThisTurn(String card);
+
+    /**
+     * checks if user can play a development card
+     * @param user User
+     * @param card String name of the card
+     * @return boolean
+     * @author Alexander Losse
+     * @since 2021-05-30
+     */
+    boolean canUserPlayDevCard(User user, String card);
 }

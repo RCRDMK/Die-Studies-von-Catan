@@ -1,5 +1,6 @@
 package de.uol.swp.server.AI;
 
+import de.uol.swp.common.game.MapGraph;
 import de.uol.swp.common.game.message.TooMuchResourceCardsMessage;
 import de.uol.swp.common.game.message.TradeInformSellerAboutBidsMessage;
 import de.uol.swp.common.game.message.TradeOfferInformBiddersMessage;
@@ -42,7 +43,7 @@ public interface AISystem {
      * @author Marc Hermes
      * @since 2021-05-08
      */
-    void buildStreet(UUID field);
+    void buildStreet(MapGraph.StreetNode field);
 
     /**
      * Method used for building a town
@@ -51,7 +52,7 @@ public interface AISystem {
      * @author Marc Hermes
      * @since 2021-05-08
      */
-    void buildTown(UUID field);
+    void buildTown(MapGraph.BuildingNode field);
 
     /**
      * Method used for building a city
@@ -60,7 +61,7 @@ public interface AISystem {
      * @author Marc Hermes
      * @since 2021-05-08
      */
-    void buildCity(UUID field);
+    void buildCity(MapGraph.BuildingNode field);
 
     /**
      * Method used for starting a trade

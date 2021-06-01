@@ -4,6 +4,7 @@ import de.uol.swp.common.SerializationTestHelper;
 import de.uol.swp.common.lobby.message.*;
 import de.uol.swp.common.lobby.request.*;
 import de.uol.swp.common.lobby.response.AllCreatedLobbiesResponse;
+import de.uol.swp.common.lobby.response.JoinOnGoingGameResponse;
 import de.uol.swp.common.lobby.response.LobbyAlreadyExistsResponse;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.user.response.lobby.JoinDeletedLobbyResponse;
@@ -48,5 +49,11 @@ public class LobbyMessageSerializableTest {
                 LobbySizeChangedMessage.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new LobbyDroppedMessage("test"),
                 LobbyDroppedMessage.class));
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new JoinOnGoingGameMessage(),
+                JoinOnGoingGameMessage.class));
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new JoinOnGoingGameRequest(),
+                JoinOnGoingGameRequest.class));
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new JoinOnGoingGameResponse(),
+                JoinOnGoingGameResponse.class));
     }
 }

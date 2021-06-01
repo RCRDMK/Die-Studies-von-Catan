@@ -74,12 +74,13 @@ public class RandomAI extends AbstractAISystem {
             // do some random actions
             makeRandomActionsLogic();
             startedTrade = makeRandomTradeLogic();
-        }
-        if (!startedTrade) {
-            // try to play a developmentCard
-            playDevelopmentCardLogic();
 
-            endTurn();
+            if (!startedTrade) {
+                // try to play a developmentCard
+                playDevelopmentCardLogic();
+
+                endTurn();
+            }
         }
         return this.aiActions;
     }
@@ -174,7 +175,7 @@ public class RandomAI extends AbstractAISystem {
                 break;
             }
         }
-        if(usersNearTheRobber.size() > 0) {
+        if (usersNearTheRobber.size() > 0) {
             Inventory randomInventory = game.getInventory(usersNearTheRobber.get(randomInt(0, usersNearTheRobber.size() - 1)));
             HashMap<String, Integer> privateView = randomInventory.getPrivateView();
             ArrayList<String> resources = new ArrayList<>();
@@ -183,7 +184,7 @@ public class RandomAI extends AbstractAISystem {
             if (privateView.get("Grain") > 0) resources.add("Grain");
             if (privateView.get("Wool") > 0) resources.add("Wool");
             if (privateView.get("Ore") > 0) resources.add("Ore");
-            if(resources.size() > 0) {
+            if (resources.size() > 0) {
                 String randomResource = resources.get(randomInt(0, resources.size() - 1));
                 inventory.incCardStack(randomResource, 1);
                 drawRandomResourceFromPlayer(randomInventory.getUser().getUsername(), randomResource);
@@ -207,11 +208,11 @@ public class RandomAI extends AbstractAISystem {
             if (doneBuilding) {
                 break;
             }
-            if (bn.getOccupiedByPlayer() == 666 && bn.getParent().getHexagons().size() == 6) {
+            if (bn.tryBuildOrDevelopSettlement(game.getTurn(), game.getStartingPhase())) {
+                buildTown(bn);
                 for (MapGraph.StreetNode sn : bn.getConnectedStreetNodes()) {
-                    if (sn.getOccupiedByPlayer() == 666) {
-                        buildTown(bn.getUuid());
-                        buildStreet(sn.getUuid());
+                    if (sn.tryBuildRoad(game.getTurn(), game.getStartingPhase())) {
+                        buildStreet(sn);
                         doneBuilding = true;
                         break;
                     }
@@ -254,15 +255,15 @@ public class RandomAI extends AbstractAISystem {
                     int streets = 0;
                     for (MapGraph.StreetNode sn : mapGraph.getStreetNodeHashSet()) {
                         if (sn.getOccupiedByPlayer() == 666) {
-                            //if(sn.tryBuildRoad(game.getTurn(), game.getStartingPhase())) {
-                            if (street1 == null) {
-                                street1 = sn.getUuid();
-                                streets = streets + 1;
-                            } else if (streets == 1) {
-                                street2 = sn.getUuid();
-                                break;
+                            if (sn.tryBuildRoad(game.getTurn(), game.getStartingPhase())) {
+                                if (street1 == null) {
+                                    street1 = sn.getUuid();
+                                    streets = streets + 1;
+                                } else if (streets == 1) {
+                                    street2 = sn.getUuid();
+                                    break;
+                                }
                             }
-                            //}
                         }
                     }
                     if (street1 != null & street2 != null) {
@@ -289,20 +290,20 @@ public class RandomAI extends AbstractAISystem {
             switch (actionType) {
                 case 0:
                     if (canBuildStreet()) {
-                        Optional<UUID> streetUUID = returnPossibleStreet();
-                        streetUUID.ifPresent(this::buildStreet);
+                        Optional<MapGraph.StreetNode> street = returnPossibleStreet();
+                        street.ifPresent(this::buildStreet);
                         break;
                     }
                 case 1:
                     if (canBuildTown()) {
-                        Optional<UUID> townUUID = returnPossibleTown();
-                        townUUID.ifPresent(this::buildTown);
+                        Optional<MapGraph.BuildingNode> town = returnPossibleTown();
+                        town.ifPresent(this::buildTown);
                         break;
                     }
                 case 2:
                     if (canBuildCity()) {
-                        Optional<UUID> cityUUID = returnPossibleCity();
-                        cityUUID.ifPresent(this::buildCity);
+                        Optional<MapGraph.BuildingNode> city = returnPossibleCity();
+                        city.ifPresent(this::buildCity);
                         break;
                     }
                 case 3:
@@ -350,7 +351,7 @@ public class RandomAI extends AbstractAISystem {
      * The second focus is put on the amount of resources being offered by the other players that do fulfil
      * most parts of the original wishList.
      *
-     * @param tisabm the TradeInformSellerAboutBidsMessage that the Server would usually send to a User
+     * @param tisabm   the TradeInformSellerAboutBidsMessage that the Server would usually send to a User
      * @param wishList the original wishList of the AI
      * @author Alexander Losse, Marc Hermes
      * @since 2021-05-25
@@ -596,61 +597,6 @@ public class RandomAI extends AbstractAISystem {
             }
         }
         discardResources(resourcesToDiscard);
-    }
-
-    /**
-     * This method will check the streetNodeHashSet of the mapGraph for a streetNode which might be built for this AI.
-     *
-     * @return an Optional UUID of the streetNode. Will be empty if there is no legal building spot for streets currently.
-     * @author Marc Hermes
-     * @since 2021-05-19
-     */
-    private Optional<UUID> returnPossibleStreet() {
-        for (MapGraph.StreetNode sn : mapGraph.getStreetNodeHashSet()) {
-            if (sn.getOccupiedByPlayer() == 666) {
-                // TODO: when the rules for building streets is done
-                //if(sn.tryBuildRoad(game.getTurn(), game.getStartingPhase())) {
-                return Optional.of(sn.getUuid());
-                //}
-            }
-        }
-        return Optional.empty();
-    }
-
-    /**
-     * This method will check the buildingNodeHashSet of the mapGraph for a buildingNode which might be built as a town for this AI.
-     *
-     * @return an Optional UUID of the buildingNode. Will be empty if there is no legal building spot for towns.
-     * @author Marc Hermes
-     * @since 2021-05-19
-     */
-    private Optional<UUID> returnPossibleTown() {
-        for (MapGraph.BuildingNode bn : mapGraph.getBuildingNodeHashSet()) {
-            if (bn.getOccupiedByPlayer() == 666) {
-                //if(bn.tryBuildOrDevelopSettlement(game.getTurn(), game.getStartingPhase())) {
-                return Optional.of(bn.getUuid());
-                //}
-            }
-        }
-        return Optional.empty();
-    }
-
-    /**
-     * This method will check the buildingNodeHashSet of the mapGraph for a buildingNode which might be built as a city for this AI.
-     *
-     * @return an Optional UUID of the buildingNode. Will be empty if there is no legal building spot for cities.
-     * @author Marc Hermes
-     * @since 2021-05-19
-     */
-    private Optional<UUID> returnPossibleCity() {
-        for (MapGraph.BuildingNode bn : mapGraph.getBuiltBuildings()) {
-            if (bn.getOccupiedByPlayer() == game.getTurn()) {
-                //if(bn.tryBuildOrDevelopSettlement(game.getTurn(), game.getStartingPhase())) {
-                return Optional.of(bn.getUuid());
-                //}
-            }
-        }
-        return Optional.empty();
     }
 
     /**

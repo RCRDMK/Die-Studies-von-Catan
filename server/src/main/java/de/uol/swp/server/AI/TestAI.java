@@ -48,7 +48,7 @@ public class TestAI extends AbstractAISystem {
 
         if (game.isStartingTurns()) {
             startingTurnLogic();
-            endTurn();
+
         } else {
 
             if (canBuyDevelopmentCard())
@@ -66,29 +66,32 @@ public class TestAI extends AbstractAISystem {
             UUID street1 = null;
             UUID street2 = null;
             for (MapGraph.StreetNode street : game.getMapGraph().getStreetNodeHashSet()) {
-                if (i == 0 && street.getOccupiedByPlayer() == 666) {
+                if (street.tryBuildRoad(game.getTurn(), game.getStartingPhase()) && i == 0) {
                     street1 = street.getUuid();
+                    i++;
 
                 }
-                if (i == 1 && street.getOccupiedByPlayer() == 666) {
+                 else if (street.tryBuildRoad(game.getTurn(), game.getStartingPhase()) && i == 1) {
                     street2 = street.getUuid();
+                    i++;
                 }
-                if (i == 2) {
+                else if (street.tryBuildRoad(game.getTurn(), game.getStartingPhase()) && i == 2) {
                     if (canBuildStreet())
-                        buildStreet(street.getUuid());
+                        buildStreet(street);
                     break;
                 }
-                i++;
             }
 
             if (cardsToPlay.contains("Road Building"))
                 playDevelopmentCardRoadBuilding(street1, street2);
 
             for (MapGraph.BuildingNode building : game.getMapGraph().getBuildingNodeHashSet()) {
-                if (canBuildTown())
-                    buildTown(building.getUuid());
-                if (canBuildCity())
-                    buildCity(building.getUuid());
+                if (building.tryBuildOrDevelopSettlement(game.getTurn(), game.getStartingPhase()) && canBuildTown()) {
+                    buildTown(building);
+
+                }
+                if (building.tryBuildOrDevelopSettlement(game.getTurn(), game.getStartingPhase()) && canBuildCity())
+                    buildCity(building);
                 break;
             }
 
@@ -117,7 +120,8 @@ public class TestAI extends AbstractAISystem {
      * needs to continue it's turn.
      * <p>
      * First, an offer is chosen by the AI, then the turn is ended.
-     * @param tisabm the TradeInformSellerAboutBidsMessage usually sent to the client
+     *
+     * @param tisabm   the TradeInformSellerAboutBidsMessage usually sent to the client
      * @param wishList the original wishList of the AI
      * @return the ArrayList of AIActions, at the end of which a endTurnAction will be
      * @author Marc Hermes
@@ -230,11 +234,11 @@ public class TestAI extends AbstractAISystem {
             if (doneBuilding) {
                 break;
             }
-            if (bn.getOccupiedByPlayer() == 666 && bn.getParent().getHexagons().size() == 6) {
+            if (bn.tryBuildOrDevelopSettlement(game.getTurn(), game.getStartingPhase())) {
+                buildTown(bn);
                 for (MapGraph.StreetNode sn : bn.getConnectedStreetNodes()) {
-                    if (sn.getOccupiedByPlayer() == 666) {
-                        buildTown(bn.getUuid());
-                        buildStreet(sn.getUuid());
+                    if (sn.tryBuildRoad(game.getTurn(), game.getStartingPhase())) {
+                        buildStreet(sn);
                         doneBuilding = true;
                         break;
                     }
