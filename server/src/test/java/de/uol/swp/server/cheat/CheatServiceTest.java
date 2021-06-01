@@ -33,6 +33,15 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+/**
+ * Test class for the CheatService
+ * <p>
+ * Covers all of the available cheats
+ *
+ * @author René Meyer
+ * @see CheatService
+ * @since 2021-06-01
+ */
 public class CheatServiceTest {
     boolean gameFinished = false;
     final EventBus bus = new EventBus();
@@ -48,6 +57,7 @@ public class CheatServiceTest {
     CheatService cheatService = new CheatService(gameService, bus);
     ChatService chatService = new ChatService(cheatService, bus);
 
+    // Setup UserDTOs
     UserDTO userDTO = new UserDTO("test1", "47b7d407c2e2f3aff0e21aa16802006ba1793fd47b2d3cacee7cf7360e751bff7b7d0c7946b42b97a5306c6708ab006d0d81ef41a0c9f94537a2846327c51236", "peter.lustig@uol.de");
     UserDTO userDTO1 = new UserDTO("test2", "994dac907995937160371992ecbdf9b34242db0abb3943807b5baa6be0c6908f72ea87b7dadd2bce6cf700c8dfb7d57b0566f544af8c30336a15d5f732d85613", "carsten.stahl@uol.de");
     UserDTO userDTO2 = new UserDTO("test3", "b74a37371ca548bfd937410737b27f383e03021766e90f1180169691b8b15fc50aef49932c7413c0450823777ba46a34fd649b4da20b2e701c394c582ff6df55", "peterlustig@uol.de");
@@ -57,9 +67,22 @@ public class CheatServiceTest {
 
     Object event;
 
+    /**
+     * Constructor for the CheatServiceTest
+     *
+     * @author René Meyer
+     * @see SQLException
+     * @since 2021-06-01
+     */
     public CheatServiceTest() throws SQLException {
     }
 
+    /**
+     * Handle dead events on the eventbus
+     *
+     * @author René Meyer
+     * @since 2021-06-01
+     */
     @Subscribe
     void handle(DeadEvent e) {
         this.event = e.getEvent();
@@ -76,6 +99,13 @@ public class CheatServiceTest {
         bus.unregister(this);
     }
 
+    /**
+     * Logout all Users 1-4 after Test finished
+     *
+     * @author René Meyer
+     * @see CheatService
+     * @since 2021-06-01
+     */
     @AfterEach
     void logOutAllUsers() {
         userManagement.logout(userDTO);
@@ -84,6 +114,13 @@ public class CheatServiceTest {
         userManagement.logout(userDTO3);
     }
 
+    /**
+     * Login all Users 1-4
+     *
+     * @author René Meyer
+     * @see CheatService
+     * @since 2021-06-01
+     */
     void loginUsers() {
         authenticationService.onLoginRequest(new LoginRequest(userDTO.getUsername(), userDTO.getPassword()));
         authenticationService.onLoginRequest(new LoginRequest(userDTO1.getUsername(), userDTO1.getPassword()));
@@ -91,6 +128,21 @@ public class CheatServiceTest {
         authenticationService.onLoginRequest(new LoginRequest(userDTO3.getUsername(), userDTO3.getPassword()));
     }
 
+    /**
+     * Setup Lobby and Game before each test
+     * <p>
+     * This function logs in the users 1-4 <br>
+     * Then it creates a lobby <br>
+     * Then it checks if the lobby is present <br>
+     * Then it joins all users into the lobby <br>
+     * Then it creates a game <br>
+     * Then it joins all users into the game <br>
+     * Then it sets up the Inventories for all players <br>
+     * Then it checks if the game is present <br>
+     *
+     * @author René Meyer
+     * @since 2021-06-01
+     */
     @BeforeEach
     void setupLobbyAndGame() {
         loginUsers();
@@ -110,6 +162,19 @@ public class CheatServiceTest {
         assertTrue(game.isPresent());
     }
 
+    /**
+     * Test for the givemecard Cheat - Testing the Development Card
+     * <p>
+     * This test creates a new RequestChatMessage to emulate a sent ChatMessage from a client <br>
+     * Then it sets the session of the RequestChatMessage <br>
+     * Then it checks if the sent Message "givemecard knight 1" is recognized as a cheat. <br>
+     * Then it calls the onRequestChatMessage function from the chatService <br>
+     * Then it gets all inventories of the users  <br>
+     * Then it checks all inventories if only the cheatUser has 1 knight card in the inventory <br>
+     *
+     * @author René Meyer
+     * @since 2021-06-01
+     */
     @Test
     @DisplayName("givemecard x Development Cheat Test")
     void giveMeCardXDevelopmentCheat() {
@@ -174,6 +239,19 @@ public class CheatServiceTest {
         assertEquals(normalInventory3.cardRoadBuilding.getNumber(), 0);
     }
 
+    /**
+     * Test for the givemecard Cheat - Testing the Ressource Card
+     * <p>
+     * This test creates a new RequestChatMessage to emulate a sent ChatMessage from a client <br>
+     * Then it sets the session of the RequestChatMessage <br>
+     * Then it checks if the sent Message "givemecard ore 15" is recognized as a cheat. <br>
+     * Then it calls the onRequestChatMessage function from the chatService <br>
+     * Then it gets all inventories of the users  <br>
+     * Then it checks all inventories if only the cheatUser has 15 ore cards in the inventory <br>
+     *
+     * @author René Meyer
+     * @since 2021-06-01
+     */
     @Test
     @DisplayName("givemecard x Ressource Cheat Test")
     void giveMeCardXRessourceCheat() {
@@ -238,6 +316,19 @@ public class CheatServiceTest {
         assertEquals(normalInventory3.cardRoadBuilding.getNumber(), 0);
     }
 
+    /**
+     * Test for the roll Cheat
+     * <p>
+     * This test creates a new RequestChatMessage to emulate a sent ChatMessage from a client <br>
+     * Then it sets the session of the RequestChatMessage <br>
+     * Then it checks if the sent Message "roll 5" is recognized as a cheat. <br>
+     * Then it calls the onRequestChatMessage function from the chatService <br>
+     * Then it checks if the event is an instance of the RollDiceResultMessage  <br>
+     * Then it checks if the diceResult from the RollDiceResultMessage actually equals the provided integer in the roll cheat (5) <br>
+     *
+     * @author René Meyer
+     * @since 2021-06-01
+     */
     @Test
     @DisplayName("roll Cheat Test")
     void rollCheat() {
@@ -263,11 +354,33 @@ public class CheatServiceTest {
         assertEquals(diceResult, 5);
     }
 
+    /**
+     * Subscribe to the GameFinishedMessage
+     * <p>
+     * This subscribe method is needed to check if the user receives a GameFinishedMessage after the endgame Cheat
+     *
+     * @author René Meyer
+     * @since 2021-06-01
+     */
     @Subscribe
     void onGameFinishedMessage(GameFinishedMessage message) {
         gameFinished = true;
     }
 
+    /**
+     * Test for the endgame Cheat
+     * <p>
+     * This test creates a new RequestChatMessage to emulate a sent ChatMessage from a client <br>
+     * Then it sets the session of the RequestChatMessage <br>
+     * Then it checks if the sent Message "endgame 1" is recognized as a cheat. <br>
+     * Then it calls the onRequestChatMessage function from the chatService <br>
+     * Then it checks if the event is an instanceof PublicInventoryMessage  <br>
+     * Then it gets and checks all inventories to if only the cheatUser has 10 victory points in the inventory <br>
+     * Finally it checks if the user received a GameFinishedMessage on the bus.
+     *
+     * @author René Meyer
+     * @since 2021-06-01
+     */
     @Test
     @DisplayName("endgame Cheat Test")
     void endGameCheat() {
@@ -300,6 +413,19 @@ public class CheatServiceTest {
         assertTrue(gameFinished);
     }
 
+    /**
+     * Test for the givemeAll Cheat
+     * <p>
+     * This test creates a new RequestChatMessage to emulate a sent ChatMessage from a client <br>
+     * Then it sets the session of the RequestChatMessage <br>
+     * Then it checks if the sent Message "givemeall 15" is recognized as a cheat. <br>
+     * Then it calls the onRequestChatMessage function from the chatService <br>
+     * Then it gets all inventories of the users  <br>
+     * Then it checks all inventories if only the cheatUser has 15 of all ressource cards and 1 of every development card in the inventory <br>
+     *
+     * @author René Meyer
+     * @since 2021-06-01
+     */
     @Test
     @DisplayName("giveMeAll Cheat Test")
     void giveMeAllCheat() {
