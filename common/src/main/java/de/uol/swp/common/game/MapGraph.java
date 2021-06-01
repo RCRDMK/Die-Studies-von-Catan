@@ -20,7 +20,7 @@ public class MapGraph implements Serializable {
     private final HashSet<StreetNode> streetNodeHashSet = new HashSet<>();
     private final HashSet<BuildingNode> buildingNodeHashSet = new HashSet<>();
     private final HashSet<Hexagon> hexagonHashSet = new HashSet<>();
-    private int[] numOfRoads = new int[]{0,0,0,0};
+    private final int[] numOfRoads = new int[]{0,0,0,0};
     private int[] numOfBuildings = new int[]{0,0,0,0};
     private final ArrayList<BuildingNode> builtBuildings = new ArrayList<>();
     // middle hexagon for reference
@@ -56,6 +56,10 @@ public class MapGraph implements Serializable {
 
     public int[] getNumOfRoads() {return numOfRoads; }
     public int[] getNumOfBuildings() {return numOfBuildings; }
+
+    public void setNumOfBuildings(int[] numOfBuildings) {
+        this.numOfBuildings = numOfBuildings;
+    }
 
     /**
      * Initializes MapGraph
@@ -681,7 +685,7 @@ public class MapGraph implements Serializable {
                     ((startingPhase == 1 || (startingPhase == 2 && correctBuildingPhaseTwo)) &&
                     numOfRoads[playerIndex] == startingPhase-1 && numOfRoads[playerIndex] < numOfBuildings[playerIndex]))) {
                 numOfRoads[playerIndex]++;
-                return buildRoad(playerIndex);
+                return true;
             } else return false;
         }
 
@@ -787,7 +791,7 @@ public class MapGraph implements Serializable {
                         (startingPhase == 0 || numOfBuildings[playerIndex] == startingPhase-1)) ||
                         (startingPhase == 0 && sizeOfSettlement == 1 && occupiedByPlayer == playerIndex)) {
                     numOfBuildings[playerIndex]++;
-                    return buildOrDevelopSettlement(playerIndex);
+                    return true;
                 } else return false;
             } else return false;
         }
@@ -1113,22 +1117,22 @@ public class MapGraph implements Serializable {
          * @since 2021-04-08
          */
         public void updateHexagonList() {
-            if (hexTopLeft != null && !hexagons.contains(hexTopLeft)) {
+            if (hexTopLeft != null) {
                 hexagons.add(hexTopLeft);
             }
-            if (hexTopRight != null && !hexagons.contains(hexTopRight)) {
+            if (hexTopRight != null) {
                 hexagons.add(hexTopRight);
             }
-            if (hexRight != null && !hexagons.contains(hexRight)) {
+            if (hexRight != null) {
                 hexagons.add(hexRight);
             }
-            if (hexLeft != null && !hexagons.contains(hexLeft)) {
+            if (hexLeft != null) {
                 hexagons.add(hexLeft);
             }
-            if (hexBottomLeft != null && !hexagons.contains(hexBottomLeft)) {
+            if (hexBottomLeft != null) {
                 hexagons.add(hexBottomLeft);
             }
-            if (hexBottomRight != null && !hexagons.contains(hexBottomRight)) {
+            if (hexBottomRight != null) {
                 hexagons.add(hexBottomRight);
             }
         }

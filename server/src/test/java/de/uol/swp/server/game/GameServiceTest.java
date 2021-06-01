@@ -603,6 +603,7 @@ public class GameServiceTest {
         Inventory inv2 = game.getInventory(game.getUser(2));
         Inventory inv3 = game.getInventory(game.getUser(3));
 
+
         inv0.cardYearOfPlenty.incNumber();
         inv0.cardRoadBuilding.incNumber();
         inv1.cardMonopoly.incNumber();
@@ -610,6 +611,19 @@ public class GameServiceTest {
         inv2.brick.incNumber(2);
         inv3.lumber.incNumber(3);
         inv3.cardKnight.incNumber();
+
+        // do the opening turn so we may play developmentCards
+        buildStreetAndBuildingForOpeningTurn(game);
+        buildStreetAndBuildingForOpeningTurn(game);
+        buildStreetAndBuildingForOpeningTurn(game);
+        buildStreetAndBuildingForOpeningTurn(game);
+        buildStreetAndBuildingForOpeningTurn(game);
+        buildStreetAndBuildingForOpeningTurn(game);
+        buildStreetAndBuildingForOpeningTurn(game);
+        buildStreetAndBuildingForOpeningTurn(game);
+
+        RollDiceRequest rdr = new RollDiceRequest(game.getName(), userThatPlaysTheCard, 3);
+        gameService.onRollDiceRequest(rdr);
 
         // Check if player 1 is allowed to play his decCardStack
         PlayDevelopmentCardRequest pdcr = new PlayDevelopmentCardRequest("Year of Plenty", "test", (UserDTO) userThatPlaysTheCard);
@@ -629,50 +643,90 @@ public class GameServiceTest {
         int i = 0;
         MapGraph.StreetNode street1 = null;
         MapGraph.StreetNode street2 = null;
-        for (MapGraph.StreetNode street : game.getMapGraph().getStreetNodeHashSet()) {
-            if (i == 0) street1 = street;
-            if (i == 1) street2 = street;
-            else i++;
-            if (i == 2) break;
+        for (MapGraph.BuildingNode bn : game.getMapGraph().getBuildingNodeHashSet()) {
+            if (bn.getOccupiedByPlayer() == 0) {
+                for (MapGraph.StreetNode street : bn.getConnectedStreetNodes()) {
+                    if (i == 0 && street.tryBuildRoad(game.getTurn(), game.getStartingPhase())) {
+                        street1 = street;
+                        i++;
+                    } else if (i == 1 && street.tryBuildRoad(game.getTurn(), game.getStartingPhase())) {
+                        street2 = street;
+                        i++;
+                        break;
+                    }
+                }
+            }
         }
         assert street1 != null;
         assert street2 != null;
+
         ResolveDevelopmentCardRoadBuildingRequest rdcrbr = new ResolveDevelopmentCardRoadBuildingRequest("Road Building", (UserDTO) userThatPlaysTheCard, game.getName(), street1.getUuid(), street2.getUuid());
         gameService.onResolveDevelopmentCardRequest(rdcrbr);
         assertFalse(event instanceof ResolveDevelopmentCardMessage);
 
         // Check if player 1 is allowed to resolve his devCard and if it resolves successfully
+        int brick = inv0.brick.getNumber();
+        int ore = inv0.ore.getNumber();
+        int lumber = inv0.lumber.getNumber();
         ResolveDevelopmentCardYearOfPlentyRequest rdcyopr = new ResolveDevelopmentCardYearOfPlentyRequest("Year of Plenty", (UserDTO) userThatPlaysTheCard, game.getName(), "Lumber", "Ore");
         gameService.onResolveDevelopmentCardRequest(rdcyopr);
         assertTrue(event instanceof PublicInventoryChangeMessage);
-        assertEquals(inv0.brick.getNumber(), 0);
-        assertEquals(inv0.ore.getNumber(), 1);
-        assertEquals(inv0.lumber.getNumber(), 1);
+        assertEquals(inv0.brick.getNumber(), brick);
+        assertEquals(inv0.ore.getNumber(), ore + 1);
+        assertEquals(inv0.lumber.getNumber(), lumber + 1);
 
         // End the turn and let player 2 try to play the Monopoly devCard
         EndTurnRequest endTurnRequest = new EndTurnRequest(game.getName(), (UserDTO) userThatPlaysTheCard);
         gameService.onEndTurnRequest(endTurnRequest);
         assertTrue(event instanceof NextTurnMessage);
         userThatPlaysTheCard = game.getUser(1);
+
+        rdr = new RollDiceRequest(game.getName(), userThatPlaysTheCard, 3);
+        gameService.onRollDiceRequest(rdr);
+
         pdcr = new PlayDevelopmentCardRequest("Monopoly", game.getName(), (UserDTO) userThatPlaysTheCard);
         gameService.onPlayDevelopmentCardRequest(pdcr);
         assertTrue(event instanceof PublicInventoryChangeMessage);
+        int amountOfAllLumber = inv0.lumber.getNumber() + inv1.lumber.getNumber() + inv2.lumber.getNumber() + inv3.lumber.getNumber();
         ResolveDevelopmentCardMonopolyRequest rdcMr = new ResolveDevelopmentCardMonopolyRequest("Monopoly", (UserDTO) userThatPlaysTheCard, game.getName(), "Lumber");
         gameService.onResolveDevelopmentCardRequest(rdcMr);
         assertTrue(event instanceof PublicInventoryChangeMessage);
         assertEquals(inv0.lumber.getNumber(), 0);
-        assertEquals(inv1.lumber.getNumber(), 4);
+        assertEquals(inv1.lumber.getNumber(), amountOfAllLumber);
         assertEquals(inv2.lumber.getNumber(), 0);
         assertEquals(inv3.lumber.getNumber(), 0);
+
 
         // End the turn and let player 3 try to play the Road Building card
         endTurnRequest = new EndTurnRequest(game.getName(), (UserDTO) userThatPlaysTheCard);
         gameService.onEndTurnRequest(endTurnRequest);
         userThatPlaysTheCard = game.getUser(2);
 
+        rdr = new RollDiceRequest(game.getName(), userThatPlaysTheCard, 3);
+        gameService.onRollDiceRequest(rdr);
+
         pdcr = new PlayDevelopmentCardRequest("Road Building", game.getName(), (UserDTO) userThatPlaysTheCard);
         gameService.onPlayDevelopmentCardRequest(pdcr);
         assertTrue(event instanceof PublicInventoryChangeMessage);
+
+        i = 0;
+        for(MapGraph.BuildingNode bn : game.getMapGraph().getBuildingNodeHashSet()) {
+            if(bn.getOccupiedByPlayer() == game.getTurn()) {
+                for(MapGraph.StreetNode sn : bn.getConnectedStreetNodes()) {
+                    if (sn.getOccupiedByPlayer() == 666 && i == 0) {
+                        street1 = sn;
+                        i++;
+                    } else if(sn.getOccupiedByPlayer() == 666 && i ==1) {
+                        street2 = sn;
+                        i++;
+                        break;
+                    }
+                }
+                if(i == 2) {
+                    break;
+                }
+            }
+        }
 
         rdcrbr = new ResolveDevelopmentCardRoadBuildingRequest("Road Building", (UserDTO) userThatPlaysTheCard, game.getName(), street1.getUuid(), street2.getUuid());
         gameService.onResolveDevelopmentCardRequest(rdcrbr);
@@ -695,8 +749,8 @@ public class GameServiceTest {
         assertTrue(event instanceof PublicInventoryChangeMessage);
 
         UUID hexagon = null;
-        for(MapGraph.Hexagon hx : game.getMapGraph().getHexagonHashSet()) {
-            if(!hx.isOccupiedByRobber()) {
+        for (MapGraph.Hexagon hx : game.getMapGraph().getHexagonHashSet()) {
+            if (!hx.isOccupiedByRobber()) {
                 hexagon = hx.getUuid();
                 break;
             }
@@ -740,8 +794,8 @@ public class GameServiceTest {
         gameService.onPlayDevelopmentCardRequest(pdcr);
         assertTrue(event instanceof PublicInventoryChangeMessage);
 
-        for(MapGraph.Hexagon hx : game.getMapGraph().getHexagonHashSet()) {
-            if(!hx.isOccupiedByRobber()) {
+        for (MapGraph.Hexagon hx : game.getMapGraph().getHexagonHashSet()) {
+            if (!hx.isOccupiedByRobber()) {
                 hexagon = hx.getUuid();
                 break;
             }
@@ -968,8 +1022,8 @@ public class GameServiceTest {
         assertEquals(streetCounter, 1);
 
         // Check if the turn started for the correct player (and thus the AI ended the turn)
-        assertTrue(event instanceof NextTurnMessage);
-        assertEquals(userDTO2.getUsername(), ((NextTurnMessage) event).getPlayerWithCurrentTurn());
+        assertTrue(event instanceof PublicInventoryChangeMessage);
+        assertEquals(userDTO2, game.getUser(game.getTurn()));
     }
 
     /**
@@ -1017,38 +1071,38 @@ public class GameServiceTest {
         // play the opening turn for the AI
 
         // Check if the turn started for the correct player (and thus the AI ended the turn)
-        assertTrue(event instanceof NextTurnMessage);
-        assertEquals(userDTO1.getUsername(), ((NextTurnMessage) event).getPlayerWithCurrentTurn());
+        assertTrue(event instanceof PublicInventoryChangeMessage);
+        assertEquals(userDTO1, game.getUser(game.getTurn()));
 
         // player 1 opening turn 1
         buildStreetAndBuildingForOpeningTurn(game);
 
-        assertTrue(event instanceof NextTurnMessage);
-        assertEquals(userDTO2.getUsername(), ((NextTurnMessage) event).getPlayerWithCurrentTurn());
+        assertTrue(event instanceof PublicInventoryChangeMessage);
+        assertEquals(userDTO2, game.getUser(game.getTurn()));
 
         // player 2 opening turn 1
         buildStreetAndBuildingForOpeningTurn(game);
 
-        assertTrue(event instanceof NextTurnMessage);
-        assertEquals(userDTO3.getUsername(), ((NextTurnMessage) event).getPlayerWithCurrentTurn());
+        assertTrue(event instanceof PublicInventoryChangeMessage);
+        assertEquals(userDTO3, game.getUser(game.getTurn()));
 
         // player 3 opening turn 1
         buildStreetAndBuildingForOpeningTurn(game);
 
-        assertTrue(event instanceof NextTurnMessage);
-        assertEquals(userDTO3.getUsername(), ((NextTurnMessage) event).getPlayerWithCurrentTurn());
+        assertTrue(event instanceof PublicInventoryChangeMessage);
+        assertEquals(userDTO3, game.getUser(game.getTurn()));
 
         // player 3 opening turn 2
         buildStreetAndBuildingForOpeningTurn(game);
 
-        assertTrue(event instanceof NextTurnMessage);
-        assertEquals(userDTO2.getUsername(), ((NextTurnMessage) event).getPlayerWithCurrentTurn());
+        assertTrue(event instanceof PublicInventoryChangeMessage);
+        assertEquals(userDTO2, game.getUser(game.getTurn()));
 
         // player 2 opening turn 2
         buildStreetAndBuildingForOpeningTurn(game);
 
-        assertTrue(event instanceof NextTurnMessage);
-        assertEquals(userDTO1.getUsername(), ((NextTurnMessage) event).getPlayerWithCurrentTurn());
+        assertTrue(event instanceof PublicInventoryChangeMessage);
+        assertEquals(userDTO1, game.getUser(game.getTurn()));
 
 
         //give the AI the developmentCards to play
@@ -1070,8 +1124,6 @@ public class GameServiceTest {
 
         // Opening turn is done, so now resources were distributed
 
-        assertTrue(event instanceof TradeOfferInformBiddersMessage);
-
 
         ArrayList<UserDTO> bidders = new ArrayList<>();
         ArrayList<TradeItem> wishList = new ArrayList<>();
@@ -1089,7 +1141,7 @@ public class GameServiceTest {
         // Check if the turn started for the correct player (and thus the AI ended the turn)
         // the opening phase is now over and the AI finished it's first actual turn
         assertTrue(event instanceof NextTurnMessage);
-        assertEquals(userDTO1.getUsername(), ((NextTurnMessage) event).getPlayerWithCurrentTurn());
+        assertEquals(userDTO1, game.getUser(game.getTurn()));
 
         int resourceAmountBefore = aiInventory.sumResource();
 
@@ -1115,26 +1167,24 @@ public class GameServiceTest {
     }
 
     public void buildStreetAndBuildingForOpeningTurn(Game game) {
-        boolean doneBuilding = false;
         for (MapGraph.BuildingNode bn : game.getMapGraph().getBuildingNodeHashSet()) {
-            if (doneBuilding) {
-                break;
-            }
-            if (bn.getOccupiedByPlayer() == 666 && bn.getParent().getHexagons().size() == 6) {
+
+            if (bn.tryBuildOrDevelopSettlement(game.getTurn(), game.getStartingPhase())) {
+                game.getMapGraph().getNumOfBuildings()[game.getTurn()] = game.getMapGraph().getNumOfBuildings()[game.getTurn()] - 1;
+                ConstructionRequest cr1 = new ConstructionRequest((UserDTO) game.getUser(game.getTurn()), game.getName(), bn.getUuid(), "BuildingNode");
+                gameService.onConstructionMessage(cr1);
+
                 for (MapGraph.StreetNode sn : bn.getConnectedStreetNodes()) {
-                    if (sn.getOccupiedByPlayer() == 666) {
-                        ConstructionRequest cr1 = new ConstructionRequest((UserDTO) game.getUser(game.getTurn()), game.getName(), bn.getUuid(), "BuildingNode");
-                        ConstructionRequest cr2 = new ConstructionRequest((UserDTO) game.getUser(game.getTurn()), game.getName(), bn.getUuid(), "StreetNode");
-                        gameService.onConstructionMessage(cr1);
+                    if (sn.tryBuildRoad(game.getTurn(), game.getStartingPhase())) {
+                        game.getMapGraph().getNumOfRoads()[game.getTurn()] = game.getMapGraph().getNumOfRoads()[game.getTurn()] - 1;
+                        ConstructionRequest cr2 = new ConstructionRequest((UserDTO) game.getUser(game.getTurn()), game.getName(), sn.getUuid(), "StreetNode");
                         gameService.onConstructionMessage(cr2);
-                        doneBuilding = true;
                         break;
                     }
                 }
+                break;
             }
         }
-        EndTurnRequest etr = new EndTurnRequest(game.getName(), (UserDTO) game.getUser(game.getTurn()));
-        gameService.onEndTurnRequest(etr);
     }
 
     /**
@@ -1186,8 +1236,8 @@ public class GameServiceTest {
         gameService.onGameLeaveUserRequest(glur);
 
         // Check if the turn started for the correct player (and thus the AI ended the turn)
-        assertTrue(event instanceof NextTurnMessage);
-        assertEquals(userDTO1.getUsername(), ((NextTurnMessage) event).getPlayerWithCurrentTurn());
+        assertTrue(event instanceof PublicInventoryChangeMessage);
+        assertEquals(userDTO1, game.getUser(game.getTurn()));
 
         // End the turn twice for player 1, because its the opening phase
         EndTurnRequest etr = new EndTurnRequest(game.getName(), userDTO1);
@@ -1398,7 +1448,7 @@ public class GameServiceTest {
 
         ResolveDevelopmentCardKnightRequest resolveDevelopmentCardKnightRequest = new ResolveDevelopmentCardKnightRequest();
 
-        for(MapGraph.Hexagon hexagon : game.getMapGraph().getHexagonHashSet()) {
+        for (MapGraph.Hexagon hexagon : game.getMapGraph().getHexagonHashSet()) {
             if (!hexagon.isOccupiedByRobber()) {
                 resolveDevelopmentCardKnightRequest = new ResolveDevelopmentCardKnightRequest("Knight", userDTO, game.getName(), hexagon.getUuid());
                 break;
@@ -1419,7 +1469,7 @@ public class GameServiceTest {
 
         ResolveDevelopmentCardKnightRequest resolveDevelopmentCardKnightRequest1 = new ResolveDevelopmentCardKnightRequest();
 
-        for(MapGraph.Hexagon hexagon : game.getMapGraph().getHexagonHashSet()) {
+        for (MapGraph.Hexagon hexagon : game.getMapGraph().getHexagonHashSet()) {
             if (!hexagon.isOccupiedByRobber()) {
                 resolveDevelopmentCardKnightRequest1 = new ResolveDevelopmentCardKnightRequest("Knight", userDTO1, game.getName(), hexagon.getUuid());
                 break;
@@ -1440,7 +1490,7 @@ public class GameServiceTest {
 
         ResolveDevelopmentCardKnightRequest resolveDevelopmentCardKnightRequest2 = new ResolveDevelopmentCardKnightRequest();
 
-        for(MapGraph.Hexagon hexagon : game.getMapGraph().getHexagonHashSet()) {
+        for (MapGraph.Hexagon hexagon : game.getMapGraph().getHexagonHashSet()) {
             if (!hexagon.isOccupiedByRobber()) {
                 resolveDevelopmentCardKnightRequest2 = new ResolveDevelopmentCardKnightRequest("Knight", userDTO1, game.getName(), hexagon.getUuid());
                 break;

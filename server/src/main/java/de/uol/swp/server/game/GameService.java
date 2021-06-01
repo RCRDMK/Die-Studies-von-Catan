@@ -160,9 +160,9 @@ public class GameService extends AbstractService {
         if (optionalGame.isPresent()) {
             Game game = optionalGame.get();
             Inventory inventory = game.getInventory(message.getUser());
-        int playerIndex = 666;
-        if (message.getUuid() != null) {
-            for (int i = 0; i < game.getUsersList().size(); i++) {
+            int playerIndex = 666;
+            if (message.getUuid() != null) {
+                for (int i = 0; i < game.getUsersList().size(); i++) {
                     if (game.getUsersList().get(i).equals(message.getUser())) {
                         playerIndex = i;
                         break;
@@ -172,66 +172,70 @@ public class GameService extends AbstractService {
                     if (message.getTypeOfNode().equals("BuildingNode")) { //If the node from the message is a building node...
                         for (MapGraph.BuildingNode buildingNode : game.getMapGraph().getBuildingNodeHashSet()) {
                             if (message.getUuid().equals(buildingNode.getUuid())) { // ... and if the node in the message is a node in the MapGraph BuildingNodeSet...
-                                if (game.isStartingTurns() || ((buildingNode.getSizeOfSettlement() == 0 && inventory.lumber.getNumber() > 0 && inventory.brick.getNumber()>0
-                                    && inventory.wool.getNumber() > 0 && inventory.grain.getNumber()>0) ||
-                                    (buildingNode.getSizeOfSettlement() == 1 && inventory.ore.getNumber() > 2 && inventory.grain.getNumber()>2))) {
-                                if (buildingNode.tryBuildOrDevelopSettlement(playerIndex, game.getStartingPhase())) {
-                                    game.getMapGraph().addBuiltBuilding(buildingNode);
-                                    sendToAllInGame(game.getName(), new SuccessfulConstructionMessage(game.getName(), message.getUser().getWithoutPassword(), playerIndex,
-                                            message.getUuid(), "BuildingNode"));
-                                    if (game.isStartingTurns() && game.getMapGraph().getNumOfRoads()[playerIndex] == game.getStartingPhase()
-                                            && game.getMapGraph().getNumOfRoads()[playerIndex] == game.getMapGraph().getNumOfBuildings()[playerIndex]) {
-                                        endTurn(game, message.getUser());
-                                    }
-                                    if (buildingNode.getSizeOfSettlement() == 1) {
-                                        if (!game.isStartingTurns()){
-                                            inventory.lumber.decNumber(1);
-                                            inventory.brick.decNumber(1);
-                                            inventory.wool.decNumber(1);
-                                            inventory.grain.decNumber(1);
+                                if (game.isStartingTurns() || ((buildingNode.getSizeOfSettlement() == 0 && inventory.lumber.getNumber() > 0 && inventory.brick.getNumber() > 0
+                                        && inventory.wool.getNumber() > 0 && inventory.grain.getNumber() > 0) ||
+                                        (buildingNode.getSizeOfSettlement() == 1 && inventory.ore.getNumber() > 2 && inventory.grain.getNumber() > 2))) {
+                                    if (buildingNode.tryBuildOrDevelopSettlement(playerIndex, game.getStartingPhase())) {
+                                        buildingNode.buildOrDevelopSettlement(playerIndex);
+                                        game.getMapGraph().addBuiltBuilding(buildingNode);
+                                        sendToAllInGame(game.getName(), new SuccessfulConstructionMessage(game.getName(), message.getUser().getWithoutPassword(), playerIndex,
+                                                message.getUuid(), "BuildingNode"));
+                                        if (buildingNode.getSizeOfSettlement() == 1) {
+                                            if (!game.isStartingTurns()) {
+                                                inventory.lumber.decNumber(1);
+                                                inventory.brick.decNumber(1);
+                                                inventory.wool.decNumber(1);
+                                                inventory.grain.decNumber(1);
+                                            }
+                                            inventory.settlement.decNumber();
+                                            inventory.setVictoryPoints(inventory.getVictoryPoints() + 1);
+                                        } else if (buildingNode.getSizeOfSettlement() == 2) {
+                                            inventory.ore.decNumber(3);
+                                            inventory.grain.decNumber(2);
+                                            inventory.city.decNumber();
+                                            inventory.setVictoryPoints(inventory.getVictoryPoints() + 1);
                                         }
-                                        inventory.settlement.decNumber();
-                                        inventory.setVictoryPoints(inventory.getVictoryPoints()+1);
-                                    } else if (buildingNode.getSizeOfSettlement() == 2) {
-                                        inventory.ore.decNumber(3);
-                                        inventory.grain.decNumber(2);
-                                        inventory.city.decNumber();
-                                        inventory.setVictoryPoints(inventory.getVictoryPoints()+1);
-                                    }
-                                    updateInventory(game);
-                                    return true;
-                                } //else sendToAllInGame(game.getName(), new NotSuccessfulConstructionMessage(playerIndex, message.getUuid(), "BuildingNode"));
-                            } else {
-                                NotEnoughRessourcesMessage nerm = new NotEnoughRessourcesMessage();
-                                nerm.setName(game.getName());
-                                sendToSpecificUserInGame(nerm, message.getUser());
-                            }
+                                        if (game.isStartingTurns() && game.getMapGraph().getNumOfRoads()[playerIndex] == game.getStartingPhase()
+                                                && game.getMapGraph().getNumOfRoads()[playerIndex] == game.getMapGraph().getNumOfBuildings()[playerIndex]) {
+                                            endTurn(game, message.getUser());
+                                        }
+
+                                        updateInventory(game);
+                                        return true;
+                                    } //else sendToAllInGame(game.getName(), new NotSuccessfulConstructionMessage(playerIndex, message.getUuid(), "BuildingNode"));
+                                } else {
+                                    NotEnoughRessourcesMessage nerm = new NotEnoughRessourcesMessage();
+                                    nerm.setName(game.getName());
+                                    sendToSpecificUserInGame(nerm, message.getUser());
+                                }
                             }
                         }
                     } else {
                         for (MapGraph.StreetNode streetNode : game.getMapGraph().getStreetNodeHashSet()) {
-                        if (message.getUuid().equals(streetNode.getUuid())) {
-                            if (game.isStartingTurns() || (inventory.lumber.getNumber() > 0 && inventory.brick.getNumber()>0)) {
-                                if (streetNode.tryBuildRoad(playerIndex, game.getStartingPhase())) {
-                                    sendToAllInGame(game.getName(), new SuccessfulConstructionMessage(game.getName(), message.getUser().getWithoutPassword(), playerIndex,
-                                            message.getUuid(), "StreetNode"));
-                                    if (game.isStartingTurns() && game.getMapGraph().getNumOfRoads()[playerIndex] == game.getStartingPhase()
-                                            && game.getMapGraph().getNumOfRoads()[playerIndex] == game.getMapGraph().getNumOfBuildings()[playerIndex]) {
-                                        endTurn(game, message.getUser());
-                                    }
-                                    if (!game.isStartingTurns()){
-                                        inventory.lumber.decNumber(1);
-                                        inventory.brick.decNumber(1);
-                                    }
-                                    inventory.road.decNumber();
-                                    updateInventory(game);
-                                    return true;
-                                } //else sendToAllInGame(game.getName(), new NotSuccessfulConstructionMessage(playerIndex, message.getUuid(), "StreetNode"));
-                            } else {
-                                NotEnoughRessourcesMessage nerm = new NotEnoughRessourcesMessage();
-                                nerm.setName(game.getName());
-                                sendToSpecificUserInGame(nerm, message.getUser());
-                            }
+                            if (message.getUuid().equals(streetNode.getUuid())) {
+                                if (game.isStartingTurns() || (inventory.lumber.getNumber() > 0 && inventory.brick.getNumber() > 0) || game.getCurrentCard().equals("Road Building")) {
+                                    if (streetNode.tryBuildRoad(playerIndex, game.getStartingPhase())) {
+                                        streetNode.buildRoad(playerIndex);
+                                        if (!game.isStartingTurns() && !game.getCurrentCard().equals("Road Building")) {
+                                            inventory.lumber.decNumber(1);
+                                            inventory.brick.decNumber(1);
+                                        }
+                                        sendToAllInGame(game.getName(), new SuccessfulConstructionMessage(game.getName(), message.getUser().getWithoutPassword(), playerIndex,
+                                                message.getUuid(), "StreetNode"));
+                                        if (game.isStartingTurns() && game.getMapGraph().getNumOfRoads()[playerIndex] == game.getStartingPhase()
+                                                && game.getMapGraph().getNumOfRoads()[playerIndex] == game.getMapGraph().getNumOfBuildings()[playerIndex]) {
+                                            endTurn(game, message.getUser());
+                                        }
+
+                                        inventory.road.decNumber();
+                                        updateInventory(game);
+                                        return true;
+                                    } //else sendToAllInGame(game.getName(), new NotSuccessfulConstructionMessage(playerIndex, message.getUuid(), "StreetNode"));
+                                } else {
+                                    NotEnoughRessourcesMessage nerm = new NotEnoughRessourcesMessage();
+                                    nerm.setName(game.getName());
+                                    sendToSpecificUserInGame(nerm, message.getUser());
+                                }
                             }
                         }
                     }
@@ -526,7 +530,7 @@ public class GameService extends AbstractService {
      * @since 2012-05-19
      */
     public boolean giveResource(Game game, User user, String resourceTyp, int amount) {
-        if(resourceTyp.equals("")) return false;
+        if (resourceTyp.equals("")) return false;
         else {
             Inventory bank = game.getBankInventory();
             boolean success = bank.getSpecificResourceAmount(resourceTyp) >= amount;
@@ -564,7 +568,7 @@ public class GameService extends AbstractService {
      * @since 2012-04-09
      */
     public boolean takeResource(Game game, User user, String resourceTyp, int amount) {
-        if(resourceTyp.equals("")) return false;
+        if (resourceTyp.equals("")) return false;
         else {
             Inventory bank = game.getBankInventory();
             boolean success = game.getInventory(user).getSpecificResourceAmount(resourceTyp) >= amount;
@@ -870,7 +874,7 @@ public class GameService extends AbstractService {
         }
     }
 
-    public void endTurn(Game game, UserDTO user){
+    public void endTurn(Game game, UserDTO user) {
         if (user.getUsername().equals(game.getUser(game.getTurn()).getUsername()) && game.getCurrentCard().equals("") && (game.rolledDiceThisTurn() || game.isStartingTurns())) {
             try {
                 boolean priorGamePhase = game.isStartingTurns();
@@ -888,14 +892,13 @@ public class GameService extends AbstractService {
                     }
                     startTurnForAI((GameDTO) game);
 
-                    }
+                }
             } catch (GameManagementException e) {
                 LOG.debug(e);
                 LOG.debug("Sender " + user.getUsername() + " was not player with current turn");
             }
         }
     }
-
 
 
     /**
@@ -911,6 +914,7 @@ public class GameService extends AbstractService {
      */
     public void startTurnForAI(GameDTO game) {
         if (game.isUsedForTest()) {
+            game.setLastRolledDiceValue(5);
             TestAI testAI = new TestAI(game);
             AIToServerTranslator.translate(testAI.startTurnOrder(), this);
         } else {
@@ -1210,8 +1214,7 @@ public class GameService extends AbstractService {
                             turnPlayerInventory.setPlayedKnights(turnPlayerInventory.getPlayedKnights() + 1);
                             checkForLargestArmy(game);
                             updateInventory(game);
-                        }
-                        else {
+                        } else {
                             notSuccessfulResponse.initWithMessage(request);
                             post(notSuccessfulResponse);
                         }
@@ -1486,7 +1489,6 @@ public class GameService extends AbstractService {
      * @param tradeCode    the trade code
      * @param winnerBidder the winners name
      * @param success      bool if successful or not
-     *
      * @author Alexander Losse, Ricardo Mook
      * @since 2021-04-11
      */
@@ -1551,16 +1553,28 @@ public class GameService extends AbstractService {
                 boolean oreHarbor = false;
                 boolean anyHarbor = false;
 
-                for(MapGraph.BuildingNode buildingNode : game.getMapGraph().getBuiltBuildings()) {
+                for (MapGraph.BuildingNode buildingNode : game.getMapGraph().getBuiltBuildings()) {
                     if (game.getUser(buildingNode.getOccupiedByPlayer()).equals(request.getUser())) {
                         // 1 = 2:1 Wool, 2 = 2:1 Brick, 3 = 2:1 Lumber, 4 = 2:1 Grain, 5 = 2:1 Ore, 6 = 3:1 Any
                         switch (buildingNode.getTypeOfHarbor()) {
-                            case 1: woolHarbor = true; break;
-                            case 2: brickHarbor = true; break;
-                            case 3: lumberHarbor = true; break;
-                            case 4: grainHarbor = true; break;
-                            case 5: oreHarbor = true; break;
-                            case 6: anyHarbor = true; break;
+                            case 1:
+                                woolHarbor = true;
+                                break;
+                            case 2:
+                                brickHarbor = true;
+                                break;
+                            case 3:
+                                lumberHarbor = true;
+                                break;
+                            case 4:
+                                grainHarbor = true;
+                                break;
+                            case 5:
+                                oreHarbor = true;
+                                break;
+                            case 6:
+                                anyHarbor = true;
+                                break;
                         }
                     }
                 }
@@ -1601,8 +1615,8 @@ public class GameService extends AbstractService {
      * <p>
      * It takes the parameters and build with it an offer
      *
-     * @param cardName  String
-     * @param count     int
+     * @param cardName String
+     * @param count    int
      * @return offer ArrayList<TradeItem>
      * @author Anton Nikiforov
      * @see TradeItem

@@ -216,6 +216,8 @@ public interface Game extends Serializable {
 
     DevelopmentCardDeck getDevelopmentCardDeck();
 
+    void setStartingPhase(int startingPhase);
+
     /**
      * adds a Trade to the game
      *

@@ -361,6 +361,11 @@ public class GameDTO implements Game {
         return startingPhase;
     }
 
+    @Override
+    public void setStartingPhase(int startingPhase) {
+        this.startingPhase = startingPhase;
+    }
+
     /**
      * adds a Trade to the game
      *
