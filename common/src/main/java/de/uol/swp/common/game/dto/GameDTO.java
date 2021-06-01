@@ -55,6 +55,9 @@ public class GameDTO implements Game {
     private boolean isTest;
     private boolean rolledDiceThisTurn = false;
 
+    private HashMap<String, Integer> boughtDevCardsThisTurn = new HashMap<>();
+
+
     /**
      * Constructor
      *
@@ -205,6 +208,7 @@ public class GameDTO implements Game {
         } else overallTurns++;
         playedCardThisTurn = false;
         rolledDiceThisTurn = false;
+        boughtDevCardsThisTurn.clear();
     }
 
     /**
@@ -463,5 +467,77 @@ public class GameDTO implements Game {
     @Override
     public void setInventoryWithLargestArmy(Inventory inventoryWithLargestArmy) {
         this.inventoryWithLargestArmy = inventoryWithLargestArmy;
+    }
+    /**
+     * method used to remember the DevelopmentCards bought in a turn
+     * <p>
+     * saved in HashMap<String, Integer>String,>boughtDevCardThisTurn
+     *
+     * @param card   String name of the Card
+     * @param amount int amount of the card
+     * @author Alexander Losse
+     * @since 2021-05-30
+     */
+    @Override
+    public void rememberDevCardBoughtThisTurn(String card, int amount) {
+        if (card.equals("Monopoly") || card.equals("Road Building") || card.equals("Year of Plenty") || card.equals("Knight")) {
+            boughtDevCardsThisTurn.put(card, boughtDevCardsThisTurn.getOrDefault(card, 0) + amount);
+        }
+    }
+
+    /**
+     * returns HashMap<String, Integer> boughtDevCardsThisTurn
+     *
+     * @return HashMap<String, Integer> boughtDevCardsThisTurn
+     * @author Alexander Losse
+     * @since 2021-05-30
+     */
+    @Override
+    public HashMap<String, Integer> getBoughtDevCardsThisTurn() {
+        return boughtDevCardsThisTurn;
+    }
+
+    /**
+     * returns how many Cards of type were bought this turn.
+     * <p>
+     * returns 0 if Card not in HashMap
+     *
+     * @param card String name of the card
+     * @return int
+     * @author Alexander Losse
+     * @since 2021-05-30
+     */
+    @Override
+    public int getHowManyCardsOfTypeWereBoughtThisTurn(String card) {
+        if (!boughtDevCardsThisTurn.isEmpty() && boughtDevCardsThisTurn.containsKey(card)) {
+            return boughtDevCardsThisTurn.get(card);
+        } else {
+            return 0;
+        }
+    }
+
+    /**
+     * checks if a user can play a development card
+     * <p>
+     * methods checks if String card is an development card
+     * method compares the an development card in inventory of user with cards bought this turn,
+     * checks that he he can play an development card that was not bought this turn
+     * returns true if successful
+     * return false if not
+     *
+     * @param user User
+     * @param card String name of the card
+     * @return boolean
+     * @author Alexander Losse
+     * @since 2021-05-30
+     */
+    @Override
+    public boolean canUserPlayDevCard(User user, String card) {
+        if (card.equals("Monopoly") || card.equals("Road Building") || card.equals("Year of Plenty") || card.equals("Knight")) {
+            Inventory inventoryDummy = getInventory(user);
+            int cardsInInventory = inventoryDummy.getCardStack(card).getNumber();
+            int boughtCards = getHowManyCardsOfTypeWereBoughtThisTurn(card);
+            return cardsInInventory - boughtCards > 0;
+        } else return false;
     }
 }
