@@ -90,6 +90,7 @@ public class CheatServiceTest {
 
     @BeforeEach
     void registerBus() {
+        gameFinished = false;
         event = null;
         bus.register(this);
     }
@@ -160,6 +161,91 @@ public class CheatServiceTest {
         game.get().setUpUserArrayList();
         game.get().setUpInventories();
         assertTrue(game.isPresent());
+    }
+
+    /**
+     * Test for the givemecard Cheat - Testing the Victory Card and checks if the game ends instantly after a user cheats 10 victory cards
+     * <p>
+     * This test creates a new RequestChatMessage to emulate a sent ChatMessage from a client <br>
+     * Then it sets the session of the RequestChatMessage <br>
+     * Then it checks if the sent Message "givemecard victory 10" is recognized as a cheat. <br>
+     * Then it calls the onRequestChatMessage function from the chatService <br>
+     * Then it gets all inventories of the users  <br>
+     * Then it checks all inventories if only the cheatUser has 10 victory points in the inventory <br>
+     * Then it checks if the game is finished instantly after the cheat <br>
+     *
+     * @author René Meyer
+     * @since 2021-06-01
+     */
+    @Test
+    @DisplayName("givemecard victory Cheat Test")
+    void giveMeCardVictoryCheat() {
+        RequestChatMessage chatMessage = new RequestChatMessage("givemecard victory 10", "game_testLobby", userDTO2.getUsername(), 0);
+        chatMessage.setSession(new Session() {
+            @Override
+            public String getSessionId() {
+                return "";
+            }
+
+            @Override
+            public User getUser() {
+                return userDTO2;
+            }
+        });
+        assertTrue(cheatService.isCheat(chatMessage));
+        chatService.onRequestChatMessage(chatMessage);
+
+        var cheatInventory = game.get().getInventory(userDTO2);
+        var normalInventory1 = game.get().getInventory(userDTO1);
+        var normalInventory2 = game.get().getInventory(userDTO3);
+        var normalInventory3 = game.get().getInventory(userDTO);
+
+        assertEquals(cheatInventory.lumber.getNumber(), 0);
+        assertEquals(cheatInventory.grain.getNumber(), 0);
+        assertEquals(cheatInventory.brick.getNumber(), 0);
+        assertEquals(cheatInventory.wool.getNumber(), 0);
+        assertEquals(cheatInventory.ore.getNumber(), 0);
+        assertEquals(cheatInventory.cardKnight.getNumber(), 0);
+        assertEquals(cheatInventory.cardYearOfPlenty.getNumber(), 0);
+        assertEquals(cheatInventory.cardMonopoly.getNumber(), 0);
+        assertEquals(cheatInventory.cardRoadBuilding.getNumber(), 0);
+        assertEquals(cheatInventory.getVictoryPoints(), 10);
+
+        assertEquals(normalInventory1.lumber.getNumber(), 0);
+        assertEquals(normalInventory1.grain.getNumber(), 0);
+        assertEquals(normalInventory1.brick.getNumber(), 0);
+        assertEquals(normalInventory1.wool.getNumber(), 0);
+        assertEquals(normalInventory1.ore.getNumber(), 0);
+        assertEquals(normalInventory1.cardKnight.getNumber(), 0);
+        assertEquals(normalInventory1.cardYearOfPlenty.getNumber(), 0);
+        assertEquals(normalInventory1.cardMonopoly.getNumber(), 0);
+        assertEquals(normalInventory1.cardRoadBuilding.getNumber(), 0);
+        assertEquals(normalInventory1.getVictoryPoints(), 0);
+
+
+        assertEquals(normalInventory2.lumber.getNumber(), 0);
+        assertEquals(normalInventory2.grain.getNumber(), 0);
+        assertEquals(normalInventory2.brick.getNumber(), 0);
+        assertEquals(normalInventory2.wool.getNumber(), 0);
+        assertEquals(normalInventory2.ore.getNumber(), 0);
+        assertEquals(normalInventory2.cardKnight.getNumber(), 0);
+        assertEquals(normalInventory2.cardYearOfPlenty.getNumber(), 0);
+        assertEquals(normalInventory2.cardMonopoly.getNumber(), 0);
+        assertEquals(normalInventory2.cardRoadBuilding.getNumber(), 0);
+        assertEquals(normalInventory2.getVictoryPoints(), 0);
+
+
+        assertEquals(normalInventory3.lumber.getNumber(), 0);
+        assertEquals(normalInventory3.grain.getNumber(), 0);
+        assertEquals(normalInventory3.brick.getNumber(), 0);
+        assertEquals(normalInventory3.wool.getNumber(), 0);
+        assertEquals(normalInventory3.ore.getNumber(), 0);
+        assertEquals(normalInventory3.cardKnight.getNumber(), 0);
+        assertEquals(normalInventory3.cardYearOfPlenty.getNumber(), 0);
+        assertEquals(normalInventory3.cardMonopoly.getNumber(), 0);
+        assertEquals(normalInventory3.cardRoadBuilding.getNumber(), 0);
+        assertEquals(normalInventory3.getVictoryPoints(), 0);
+        assertTrue(gameFinished);
     }
 
     /**
