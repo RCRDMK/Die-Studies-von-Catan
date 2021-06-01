@@ -42,6 +42,7 @@ import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
+import javafx.scene.transform.Rotate;
 import javafx.stage.Modality;
 import javafx.stage.Screen;
 import javafx.stage.StageStyle;
@@ -54,6 +55,9 @@ import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+
+import static java.awt.Color.WHITE;
+import static java.awt.Color.white;
 
 /**
  * Manages the GameView
@@ -362,7 +366,6 @@ public class GamePresenter extends AbstractPresenter {
      * Enabled the buttons when the trade ended
      *
      * @param message TradeEndedMessage
-     *
      * @author Anton Nikiforov
      * @since 2021-05-29
      */
@@ -635,8 +638,8 @@ public class GamePresenter extends AbstractPresenter {
         initializedResourceButtons();
 
         //Initializing robber on the canvas
-        robber.setLayoutX((canvas.getWidth() / 2 + canvas.getLayoutX()));
-        robber.setLayoutY((canvas.getHeight() / 2 + canvas.getLayoutY()));
+        robber.setLayoutX((canvas.getWidth() / 2 + canvas.getLayoutX() - robber.getWidth() / 2));
+        robber.setLayoutY((canvas.getHeight() / 2 + canvas.getLayoutY() - robber.getHeight() / 2));
         gameAnchorPane.getChildren().add(robber);
 
     }
@@ -1270,7 +1273,7 @@ public class GamePresenter extends AbstractPresenter {
                 circle.setLayoutY(drawVector.getY());
                 circle.setVisible(false);
 
-                circle.setFill(determinePlayerColorByIndex(mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer()));
+                circle.setFill(Color.color(0.5, 0.5, 0.5));
             } else {
                 double itemSize = cardSize() / 15;
                 MapGraph.StreetNode streetNode = (MapGraph.StreetNode) mapGraphNodeContainer.getMapGraphNode();
@@ -1280,13 +1283,24 @@ public class GamePresenter extends AbstractPresenter {
                 Vector selfVector = Vector.getVectorFromMapGraphNode(streetNode, cardSize());
                 Vector drawVector = Vector.addVector(parentVector, selfVector);
 
+                Rectangle rectangle = mapGraphNodeContainer.getRectangle();
+                rectangle.setLayoutX(drawVector.getX() - rectangle.getWidth() / 2);
+                rectangle.setLayoutY(drawVector.getY() - rectangle.getHeight() / 2);
+                rectangle.setVisible(false);
+
+                if (mapGraphNodeContainer.getMapGraphNode().getPositionToParent().equals("topRight") || mapGraphNodeContainer.getMapGraphNode().getPositionToParent().equals("bottomLeft")) {
+                    rectangle.setRotate(120);
+                } else if (mapGraphNodeContainer.getMapGraphNode().getPositionToParent().equals("topLeft") || mapGraphNodeContainer.getMapGraphNode().getPositionToParent().equals("bottomRight")) {
+                    rectangle.setRotate(60);
+                }
+
                 Circle circle = mapGraphNodeContainer.getCircle();
                 circle.setRadius(itemSize);
                 circle.setLayoutX(drawVector.getX());
                 circle.setLayoutY(drawVector.getY());
                 circle.setVisible(false);
 
-                circle.setFill(determinePlayerColorByIndex(mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer()));
+                circle.setFill(Color.color(0.5, 0.5, 0.5));
             }
         }
     }
@@ -1352,9 +1366,12 @@ public class GamePresenter extends AbstractPresenter {
         LOG.debug("Setting up " + mapGraph.getStreetNodeHashSet().size() + " StreetNodeContainers...");
 
         for (MapGraph.StreetNode streetNode : mapGraph.getStreetNodeHashSet()) {
-            MapGraphNodeContainer mapGraphNodeContainer = new MapGraphNodeContainer(new Circle(cardSize() / 8), streetNode);
+            MapGraphNodeContainer mapGraphNodeContainer = new MapGraphNodeContainer(new Circle(cardSize() / 8), streetNode, new Rectangle(cardSize() / 8.4, cardSize() / 1.9));
             this.mapGraphNodeContainers.add(mapGraphNodeContainer);
-            Platform.runLater(() -> gameAnchorPane.getChildren().add(mapGraphNodeContainer.getCircle()));
+            Platform.runLater(() -> {
+                gameAnchorPane.getChildren().add(mapGraphNodeContainer.getCircle());
+                gameAnchorPane.getChildren().add(mapGraphNodeContainer.getRectangle());
+            });
         }
         initializeNodeSpots();
         //Draw robber
@@ -1468,7 +1485,7 @@ public class GamePresenter extends AbstractPresenter {
      * <p>
      * This method reacts to the NotEnoughRessourcesMessage and shows the corresponding alert window.
      *
-     * @param notEnoughRessourcesMessage
+     * @param notEnoughRessourcesMessage //TODO: fehlt
      * @implNote The code inside this Method has to run in the JavaFX-application thread. Therefore it is crucial not to
      * remove the {@code Platform.runLater()}
      * @author Marius Birk
@@ -1521,7 +1538,7 @@ public class GamePresenter extends AbstractPresenter {
      * method we iterate over every hexagon and check if the mouse was pressed on it. Now it can call the movedRobber method
      * in the gameService and it can remove the eventhandler from the hexagons.
      *
-     * @param moveRobberMessage
+     * @param moveRobberMessage TODO: fehlt
      * @author Marius Birk
      * @since 2021-04-20
      */
@@ -1933,10 +1950,18 @@ public class GamePresenter extends AbstractPresenter {
                             MapGraph.BuildingNode buildingNode = (MapGraph.BuildingNode) mapGraphNodeContainer.getMapGraphNode();
                             buildingNode.setOccupiedByPlayer(message.getPlayerIndex());
                             buildingNode.incSizeOfSettlement();
-                            Platform.runLater(() -> {
-                                mapGraphNodeContainer.getCircle().setFill(determinePlayerColorByIndex(mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer()));
-                                mapGraphNodeContainer.getCircle().setVisible(true);
-                            });
+                            if (mapGraphNodeContainer.getCircle().getFill().equals(Color.color(0.5, 0.5, 0.5))) {
+                                Platform.runLater(() -> {
+                                    mapGraphNodeContainer.getCircle().setRadius(cardSize() / 3.5);
+                                    mapGraphNodeContainer.getCircle().setFill(determineBuildingPicture(mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer(), 1));
+                                    mapGraphNodeContainer.getCircle().setVisible(true);
+                                });
+                            } else {
+                                Platform.runLater(() -> {
+                                    mapGraphNodeContainer.getCircle().setRadius(cardSize() / 3.5);
+                                    mapGraphNodeContainer.getCircle().setFill(determineBuildingPicture(mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer(), 2));
+                                });
+                            }
                             break;
                         }
                     }
@@ -1946,13 +1971,65 @@ public class GamePresenter extends AbstractPresenter {
                             MapGraph.StreetNode streetNode = (MapGraph.StreetNode) mapGraphNodeContainer.getMapGraphNode();
                             streetNode.setOccupiedByPlayer(message.getPlayerIndex());
                             Platform.runLater(() -> {
-                                mapGraphNodeContainer.getCircle().setFill(determinePlayerColorByIndex(mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer()));
-                                mapGraphNodeContainer.getCircle().setVisible(true);
+                                mapGraphNodeContainer.getCircle().setVisible(false);
+                                mapGraphNodeContainer.getRectangle().setFill(determineBuildingPicture(mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer(), 0));
+                                mapGraphNodeContainer.getRectangle().setVisible(true);
+                                for (MapGraphNodeContainer mapGraphNodeContainer1 : mapGraphNodeContainers) {
+                                    if (mapGraphNodeContainer1.getMapGraphNode().getOccupiedByPlayer() != 666 && mapGraphNodeContainer1.getMapGraphNode() instanceof MapGraph.BuildingNode) {
+                                        mapGraphNodeContainer1.getCircle().toFront();
+                                    }
+                                }
                             });
                             break;
                         }
                     }
                 }
+            }
+        }
+    }
+
+    /**
+     * This method selects the right picture or color for the building/street-nodes
+     *
+     * @param playerIndex the currently playing player
+     * @param typeOfBuilding int with the type of the building
+     * @return this paint gets filled into the circles or rectangles
+     * @author Carsten Dekker
+     * @since 2021-06-01
+     */
+    public Paint determineBuildingPicture(int playerIndex, int typeOfBuilding) {
+        if (typeOfBuilding == 1) {
+            switch (playerIndex) {
+                case 0:
+                    return new ImagePattern(new Image("img/buildings/settlement_red.png"));
+                case 1:
+                    return new ImagePattern(new Image("img/buildings/settlement_blue.png"));
+                case 2:
+                    return new ImagePattern(new Image("img/buildings/settlement_purple.png"));
+                default:
+                    return new ImagePattern(new Image("img/buildings/settlement_green.png"));
+            }
+        } else if (typeOfBuilding == 2) {
+            switch (playerIndex) {
+                case 0:
+                    return new ImagePattern(new Image("img/buildings/city_red.png"));
+                case 1:
+                    return new ImagePattern(new Image("img/buildings/city_blue.png"));
+                case 2:
+                    return new ImagePattern(new Image("img/buildings/city_purple.png"));
+                default:
+                    return new ImagePattern(new Image("img/buildings/city_green.png"));
+            }
+        } else {
+            switch (playerIndex) {
+                case 0:
+                    return Color.color(0.5, 0, 0);
+                case 1:
+                    return Color.color(0.11, 0.56, 1);
+                case 2:
+                    return Color.color(0.29, 0, 0.5);
+                default:
+                    return Color.color(0, 0.5, 0);
             }
         }
     }
@@ -1967,7 +2044,7 @@ public class GamePresenter extends AbstractPresenter {
      * hexagons layout. From that layout we substract the half of the height/width of the robber, because the layout
      * is determined as the upper left edge of the robber.
      *
-     * @param successfullMovedRobberMessage
+     * @param successfullMovedRobberMessage //TODO: Beschreibung fehlt
      * @author Marius Birk
      * @since 2021-04-22
      */
@@ -1975,8 +2052,8 @@ public class GamePresenter extends AbstractPresenter {
     public void onSuccessfullMovedRobberMessage(SuccessfullMovedRobberMessage successfullMovedRobberMessage) {
         for (HexagonContainer hexagonContainer : hexagonContainers) {
             if (hexagonContainer.getHexagon().getUuid().equals(successfullMovedRobberMessage.getNewField())) {
-                robber.setLayoutX(hexagonContainer.getHexagonShape().getLayoutX());
-                robber.setLayoutY(hexagonContainer.getHexagonShape().getLayoutY());
+                robber.setLayoutX(hexagonContainer.getHexagonShape().getLayoutX() - robber.getWidth() / 2);
+                robber.setLayoutY(hexagonContainer.getHexagonShape().getLayoutY() - robber.getHeight() / 2);
             }
         }
     }
@@ -2302,7 +2379,7 @@ public class GamePresenter extends AbstractPresenter {
     /**
      * This method is invoked if a TooMuchResourceCardsMessage is layed on the bus.
      *
-     * @param tooMuchResourceCardsMessage
+     * @param tooMuchResourceCardsMessage //TODO: JavaDoc fehlt
      */
     @Subscribe
     public void onTooMuchRessourceCardsMessage(TooMuchResourceCardsMessage tooMuchResourceCardsMessage) {
@@ -2319,7 +2396,7 @@ public class GamePresenter extends AbstractPresenter {
      * The method sets up an alert to choose a player to draw a card from.
      * That will be done on another Thread.
      *
-     * @param choosePlayerMessage
+     * @param choosePlayerMessage //TODO: fehlt
      * @author Marius Birk
      * @since 2021-05-01
      */
