@@ -111,8 +111,72 @@ public class CheatServiceTest {
     }
 
     @Test
-    @DisplayName("givemecard x Cheat Test")
-    void giveMeCardXCheat() {
+    @DisplayName("givemecard x Development Cheat Test")
+    void giveMeCardXDevelopmentCheat() {
+        RequestChatMessage chatMessage = new RequestChatMessage("givemecard knight 1", "game_testLobby", userDTO2.getUsername(), 0);
+        chatMessage.setSession(new Session() {
+            @Override
+            public String getSessionId() {
+                return "";
+            }
+
+            @Override
+            public User getUser() {
+                return userDTO2;
+            }
+        });
+        assertTrue(cheatService.isCheat(chatMessage));
+        chatService.onRequestChatMessage(chatMessage);
+
+        var cheatInventory = game.get().getInventory(userDTO2);
+        var normalInventory1 = game.get().getInventory(userDTO1);
+        var normalInventory2 = game.get().getInventory(userDTO3);
+        var normalInventory3 = game.get().getInventory(userDTO);
+
+        assertEquals(cheatInventory.lumber.getNumber(), 0);
+        assertEquals(cheatInventory.grain.getNumber(), 0);
+        assertEquals(cheatInventory.brick.getNumber(), 0);
+        assertEquals(cheatInventory.wool.getNumber(), 0);
+        assertEquals(cheatInventory.ore.getNumber(), 0);
+        assertEquals(cheatInventory.cardKnight.getNumber(), 1);
+        assertEquals(cheatInventory.cardYearOfPlenty.getNumber(), 0);
+        assertEquals(cheatInventory.cardMonopoly.getNumber(), 0);
+        assertEquals(cheatInventory.cardRoadBuilding.getNumber(), 0);
+
+        assertEquals(normalInventory1.lumber.getNumber(), 0);
+        assertEquals(normalInventory1.grain.getNumber(), 0);
+        assertEquals(normalInventory1.brick.getNumber(), 0);
+        assertEquals(normalInventory1.wool.getNumber(), 0);
+        assertEquals(normalInventory1.ore.getNumber(), 0);
+        assertEquals(normalInventory1.cardKnight.getNumber(), 0);
+        assertEquals(normalInventory1.cardYearOfPlenty.getNumber(), 0);
+        assertEquals(normalInventory1.cardMonopoly.getNumber(), 0);
+        assertEquals(normalInventory1.cardRoadBuilding.getNumber(), 0);
+
+        assertEquals(normalInventory2.lumber.getNumber(), 0);
+        assertEquals(normalInventory2.grain.getNumber(), 0);
+        assertEquals(normalInventory2.brick.getNumber(), 0);
+        assertEquals(normalInventory2.wool.getNumber(), 0);
+        assertEquals(normalInventory2.ore.getNumber(), 0);
+        assertEquals(normalInventory2.cardKnight.getNumber(), 0);
+        assertEquals(normalInventory2.cardYearOfPlenty.getNumber(), 0);
+        assertEquals(normalInventory2.cardMonopoly.getNumber(), 0);
+        assertEquals(normalInventory2.cardRoadBuilding.getNumber(), 0);
+
+        assertEquals(normalInventory3.lumber.getNumber(), 0);
+        assertEquals(normalInventory3.grain.getNumber(), 0);
+        assertEquals(normalInventory3.brick.getNumber(), 0);
+        assertEquals(normalInventory3.wool.getNumber(), 0);
+        assertEquals(normalInventory3.ore.getNumber(), 0);
+        assertEquals(normalInventory3.cardKnight.getNumber(), 0);
+        assertEquals(normalInventory3.cardYearOfPlenty.getNumber(), 0);
+        assertEquals(normalInventory3.cardMonopoly.getNumber(), 0);
+        assertEquals(normalInventory3.cardRoadBuilding.getNumber(), 0);
+    }
+
+    @Test
+    @DisplayName("givemecard x Ressource Cheat Test")
+    void giveMeCardXRessourceCheat() {
         RequestChatMessage chatMessage = new RequestChatMessage("givemecard ore 15", "game_testLobby", userDTO2.getUsername(), 0);
         chatMessage.setSession(new Session() {
             @Override
@@ -127,6 +191,51 @@ public class CheatServiceTest {
         });
         assertTrue(cheatService.isCheat(chatMessage));
         chatService.onRequestChatMessage(chatMessage);
+
+        var cheatInventory = game.get().getInventory(userDTO2);
+        var normalInventory1 = game.get().getInventory(userDTO1);
+        var normalInventory2 = game.get().getInventory(userDTO3);
+        var normalInventory3 = game.get().getInventory(userDTO);
+
+        assertEquals(cheatInventory.lumber.getNumber(), 0);
+        assertEquals(cheatInventory.grain.getNumber(), 0);
+        assertEquals(cheatInventory.brick.getNumber(), 0);
+        assertEquals(cheatInventory.wool.getNumber(), 0);
+        assertEquals(cheatInventory.ore.getNumber(), 15);
+        assertEquals(cheatInventory.cardKnight.getNumber(), 0);
+        assertEquals(cheatInventory.cardYearOfPlenty.getNumber(), 0);
+        assertEquals(cheatInventory.cardMonopoly.getNumber(), 0);
+        assertEquals(cheatInventory.cardRoadBuilding.getNumber(), 0);
+
+        assertEquals(normalInventory1.lumber.getNumber(), 0);
+        assertEquals(normalInventory1.grain.getNumber(), 0);
+        assertEquals(normalInventory1.brick.getNumber(), 0);
+        assertEquals(normalInventory1.wool.getNumber(), 0);
+        assertEquals(normalInventory1.ore.getNumber(), 0);
+        assertEquals(normalInventory1.cardKnight.getNumber(), 0);
+        assertEquals(normalInventory1.cardYearOfPlenty.getNumber(), 0);
+        assertEquals(normalInventory1.cardMonopoly.getNumber(), 0);
+        assertEquals(normalInventory1.cardRoadBuilding.getNumber(), 0);
+
+        assertEquals(normalInventory2.lumber.getNumber(), 0);
+        assertEquals(normalInventory2.grain.getNumber(), 0);
+        assertEquals(normalInventory2.brick.getNumber(), 0);
+        assertEquals(normalInventory2.wool.getNumber(), 0);
+        assertEquals(normalInventory2.ore.getNumber(), 0);
+        assertEquals(normalInventory2.cardKnight.getNumber(), 0);
+        assertEquals(normalInventory2.cardYearOfPlenty.getNumber(), 0);
+        assertEquals(normalInventory2.cardMonopoly.getNumber(), 0);
+        assertEquals(normalInventory2.cardRoadBuilding.getNumber(), 0);
+
+        assertEquals(normalInventory3.lumber.getNumber(), 0);
+        assertEquals(normalInventory3.grain.getNumber(), 0);
+        assertEquals(normalInventory3.brick.getNumber(), 0);
+        assertEquals(normalInventory3.wool.getNumber(), 0);
+        assertEquals(normalInventory3.ore.getNumber(), 0);
+        assertEquals(normalInventory3.cardKnight.getNumber(), 0);
+        assertEquals(normalInventory3.cardYearOfPlenty.getNumber(), 0);
+        assertEquals(normalInventory3.cardMonopoly.getNumber(), 0);
+        assertEquals(normalInventory3.cardRoadBuilding.getNumber(), 0);
     }
 
     @Test
