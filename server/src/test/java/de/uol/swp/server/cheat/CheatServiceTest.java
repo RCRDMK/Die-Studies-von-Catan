@@ -5,6 +5,7 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import de.uol.swp.common.chat.RequestChatMessage;
 import de.uol.swp.common.game.Game;
+import de.uol.swp.common.game.message.RollDiceResultMessage;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.user.Session;
 import de.uol.swp.common.user.User;
@@ -21,6 +22,7 @@ import de.uol.swp.server.usermanagement.UserService;
 import de.uol.swp.server.usermanagement.store.MainMemoryBasedUserStore;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.sql.SQLException;
@@ -31,11 +33,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class CheatServiceTest {
     final EventBus bus = new EventBus();
-    final AuthenticationService authenticationService = new AuthenticationService(bus, userManagement);
     GameManagement gameManagement = new GameManagement();
     LobbyManagement lobbyManagement = new LobbyManagement();
     MainMemoryBasedUserStore mainMemoryBasedUserStore = new MainMemoryBasedUserStore();
     final UserManagement userManagement = new UserManagement(mainMemoryBasedUserStore);
+    final AuthenticationService authenticationService = new AuthenticationService(bus, userManagement);
+
     LobbyService lobbyService = new LobbyService(lobbyManagement, new AuthenticationService(bus, userManagement), bus);
     UserService userService = new UserService(bus, userManagement);
     GameService gameService = new GameService(gameManagement, lobbyService, authenticationService, bus, userService);
@@ -105,6 +108,70 @@ public class CheatServiceTest {
     }
 
     @Test
+    @DisplayName("givemecard x Cheat Test")
+    void giveMeCardXCheat() {
+        RequestChatMessage chatMessage = new RequestChatMessage("givemecard ore 15", "game_testLobby", userDTO2.getUsername(), 0);
+        chatMessage.setSession(new Session() {
+            @Override
+            public String getSessionId() {
+                return "";
+            }
+
+            @Override
+            public User getUser() {
+                return userDTO2;
+            }
+        });
+        assertTrue(cheatService.isCheat(chatMessage));
+        chatService.onRequestChatMessage(chatMessage);
+    }
+
+    @Test
+    @DisplayName("roll Cheat Test")
+    void rollCheat() {
+        // Get user that currently is onTurn
+        var userTurn = game.get().getUser(game.get().getTurn());
+        RequestChatMessage chatMessage = new RequestChatMessage("roll 5", "game_testLobby", userTurn.getUsername(), 0);
+        chatMessage.setSession(new Session() {
+            @Override
+            public String getSessionId() {
+                return "";
+            }
+
+            @Override
+            public User getUser() {
+                return userTurn;
+            }
+        });
+        assertTrue(cheatService.isCheat(chatMessage));
+
+        chatService.onRequestChatMessage(chatMessage);
+        assertTrue(event instanceof RollDiceResultMessage);
+        var diceResult = ((RollDiceResultMessage) event).getDiceEyes1() + ((RollDiceResultMessage) event).getDiceEyes2();
+        assertEquals(diceResult, 5);
+    }
+
+    @Test
+    @DisplayName("endgame Cheat Test")
+    void endGameCheat() {
+        RequestChatMessage chatMessage = new RequestChatMessage("endgame 1", "game_testLobby", userDTO2.getUsername(), 0);
+        chatMessage.setSession(new Session() {
+            @Override
+            public String getSessionId() {
+                return "";
+            }
+
+            @Override
+            public User getUser() {
+                return userDTO2;
+            }
+        });
+        assertTrue(cheatService.isCheat(chatMessage));
+        chatService.onRequestChatMessage(chatMessage);
+    }
+
+    @Test
+    @DisplayName("giveMeAll Cheat Test")
     void giveMeAllCheat() {
         RequestChatMessage chatMessage = new RequestChatMessage("givemeall 15", "game_testLobby", userDTO2.getUsername(), 0);
         chatMessage.setSession(new Session() {
