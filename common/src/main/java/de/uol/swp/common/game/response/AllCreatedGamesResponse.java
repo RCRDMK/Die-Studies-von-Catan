@@ -51,7 +51,7 @@ public class AllCreatedGamesResponse extends AbstractResponseMessage {
      */
     public AllCreatedGamesResponse(Collection<Game> gameCollection) {
         for (Game game : gameCollection) {
-            this.games.add(new GameDTO(game.getName(), game.getOwner(), ""));
+            this.games.add(new GameDTO(game.getName(), game.getOwner(), "", null));
         }
     }
 

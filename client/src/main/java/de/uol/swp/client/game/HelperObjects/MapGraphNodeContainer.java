@@ -2,6 +2,7 @@ package de.uol.swp.client.game.HelperObjects;
 
 import de.uol.swp.common.game.MapGraph;
 import javafx.scene.shape.Circle;
+import javafx.scene.shape.Rectangle;
 
 /**
  * Links a Circle to a MapGraphNode and vice versa.
@@ -23,12 +24,20 @@ public class MapGraphNodeContainer {
 
     private final Circle circle;
     private final MapGraph.MapGraphNode mapGraphNode;
+    private final Rectangle rectangle;
 
     //Constructor
 
     public MapGraphNodeContainer(Circle c, MapGraph.MapGraphNode m) {
         circle = c;
         mapGraphNode = m;
+        rectangle = null;
+    }
+
+    public MapGraphNodeContainer(Circle c, MapGraph.MapGraphNode m, Rectangle r) {
+        circle = c;
+        mapGraphNode = m;
+        rectangle = r;
     }
 
     //Getter Setter
@@ -39,5 +48,9 @@ public class MapGraphNodeContainer {
 
     public MapGraph.MapGraphNode getMapGraphNode() {
         return mapGraphNode;
+    }
+
+    public Rectangle getRectangle() {
+        return rectangle;
     }
 }

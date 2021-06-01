@@ -12,7 +12,9 @@ import de.uol.swp.common.user.UserDTO;
  * @since 2021-01-24
  */
 public class StartGameRequest extends AbstractLobbyRequest {
- private String gameFieldVariant;
+    private String gameFieldVariant;
+    private int minimumAmountOfPlayers;
+
     /**
      * Default constructor
      * <p>
@@ -33,13 +35,25 @@ public class StartGameRequest extends AbstractLobbyRequest {
      * @author Kirstin Beyer, Iskander Yusupov
      * @since 2021-01-24
      */
-    public StartGameRequest(String lobbyName, UserDTO user, String gameFieldVariant) {
-        this.name=lobbyName;
-        this.user=user;
-        this.gameFieldVariant=gameFieldVariant;
+    public StartGameRequest(String lobbyName, UserDTO user, String gameFieldVariant, int minimumAmountOfPlayers) {
+        this.name = lobbyName;
+        this.user = user;
+        this.gameFieldVariant = gameFieldVariant;
+        this.minimumAmountOfPlayers = minimumAmountOfPlayers;
     }
 
     public String getGameFieldVariant() {
         return gameFieldVariant;
+    }
+
+    /**
+     * Getter for the minimum amount of players for the game
+     *
+     * @return the minimum amount of players the lobby owner wants in his game
+     * @author Marc Hermes
+     * @since 2021-05-27
+     */
+    public int getMinimumAmountOfPlayers() {
+        return minimumAmountOfPlayers;
     }
 }
