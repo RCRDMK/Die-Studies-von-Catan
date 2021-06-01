@@ -45,6 +45,7 @@ import javafx.stage.Modality;
 import javafx.stage.Screen;
 import javafx.stage.StageStyle;
 import javafx.stage.Window;
+import javafx.util.Duration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -2187,7 +2188,7 @@ public class GamePresenter extends AbstractPresenter {
      * Lastly it adds thirteen corresponding labels to the privateInventoryView.
      *
      * Enhanced by Ricardo Mook, 2021-05-27
-     * added hover and exit methods for the mouse
+     * added Tooltip.install method for the mouse
      *
      * Enhanced by Ricardo Mook, 2021-05-30
      * added drag method and method call by clicking on a card
@@ -2204,24 +2205,13 @@ public class GamePresenter extends AbstractPresenter {
 
             Tooltip hover = new Tooltip("");
 
+
             switch (i){
 
                 case 1:
                     hover.setText("Lumber");
-
-                    r.setOnMouseEntered(new EventHandler<MouseEvent>() {
-                        @Override
-                        public void handle(MouseEvent mouseEvent) {
-                            hover.show(r, mouseEvent.getScreenX(), mouseEvent.getScreenY());
-
-                        }
-                    });
-                    r.setOnMouseExited(new EventHandler<MouseEvent>() {
-                        @Override
-                        public void handle(MouseEvent mouseEvent) {
-                            hover.hide();
-                        }
-                    });
+                    Tooltip.install(r, hover);
+                    hover.setShowDelay(Duration.millis(0));
 
                     r.setOnMouseClicked(new EventHandler<MouseEvent>() {
                         String title = hover.getText();
@@ -2238,19 +2228,9 @@ public class GamePresenter extends AbstractPresenter {
 
                 case 2:
                     hover.setText("Brick");
-
-                    r.setOnMouseEntered(new EventHandler<MouseEvent>() {
-                        @Override
-                        public void handle(MouseEvent mouseEvent) {
-                            hover.show(r,mouseEvent.getScreenX(), mouseEvent.getScreenY());
-                        }
-                    });
-                    r.setOnMouseExited(new EventHandler<MouseEvent>() {
-                        @Override
-                        public void handle(MouseEvent mouseEvent) {
-                            hover.hide();
-                        }
-                    });
+                    hover.setText("Lumber");
+                    Tooltip.install(r, hover);
+                    hover.setShowDelay(Duration.millis(0));
 
                     r.setOnMouseClicked(new EventHandler<MouseEvent>() {
                         String title = hover.getText();
@@ -2267,20 +2247,9 @@ public class GamePresenter extends AbstractPresenter {
 
                 case 3:
                     hover.setText("Grain");
-
-                    r.setOnMouseEntered(new EventHandler<MouseEvent>() {
-                        @Override
-                        public void handle(MouseEvent mouseEvent) {
-                            hover.show(r,mouseEvent.getScreenX(), mouseEvent.getScreenY());
-                        }
-                    });
-
-                    r.setOnMouseExited(new EventHandler<MouseEvent>() {
-                        @Override
-                        public void handle(MouseEvent mouseEvent) {
-                            hover.hide();
-                        }
-                    });
+                    hover.setText("Lumber");
+                    Tooltip.install(r, hover);
+                    hover.setShowDelay(Duration.millis(0));
 
                     r.setOnMouseClicked(new EventHandler<MouseEvent>() {
                         String title = hover.getText();
@@ -2297,20 +2266,9 @@ public class GamePresenter extends AbstractPresenter {
 
                 case 4:
                     hover.setText("Wool");
-
-                    r.setOnMouseEntered(new EventHandler<MouseEvent>() {
-                        @Override
-                        public void handle(MouseEvent mouseEvent) {
-                            hover.show(r,mouseEvent.getScreenX(), mouseEvent.getScreenY());
-                        }
-                    });
-
-                    r.setOnMouseExited(new EventHandler<MouseEvent>() {
-                        @Override
-                        public void handle(MouseEvent mouseEvent) {
-                            hover.hide();
-                        }
-                    });
+                    hover.setText("Lumber");
+                    Tooltip.install(r, hover);
+                    hover.setShowDelay(Duration.millis(0));
 
                     r.setOnMouseClicked(new EventHandler<MouseEvent>() {
                         String title = hover.getText();
@@ -2327,20 +2285,9 @@ public class GamePresenter extends AbstractPresenter {
 
                 case 5:
                     hover.setText("Ore");
-
-                    r.setOnMouseEntered(new EventHandler<MouseEvent>() {
-                        @Override
-                        public void handle(MouseEvent mouseEvent) {
-                            hover.show(r,mouseEvent.getScreenX(), mouseEvent.getScreenY());
-                        }
-                    });
-
-                    r.setOnMouseExited(new EventHandler<MouseEvent>() {
-                        @Override
-                        public void handle(MouseEvent mouseEvent) {
-                            hover.hide();
-                        }
-                    });
+                    hover.setText("Lumber");
+                    Tooltip.install(r, hover);
+                    hover.setShowDelay(Duration.millis(0));
 
                     r.setOnMouseClicked(new EventHandler<MouseEvent>() {
                         String title = hover.getText();
@@ -2357,20 +2304,9 @@ public class GamePresenter extends AbstractPresenter {
 
                 case 6:
                     hover.setText("Knight");
-
-                    r.setOnMouseEntered(new EventHandler<MouseEvent>() {
-                        @Override
-                        public void handle(MouseEvent mouseEvent) {
-                            hover.show(r,mouseEvent.getScreenX(), mouseEvent.getScreenY());
-                        }
-                    });
-
-                    r.setOnMouseExited(new EventHandler<MouseEvent>() {
-                        @Override
-                        public void handle(MouseEvent mouseEvent) {
-                            hover.hide();
-                        }
-                    });
+                    hover.setText("Lumber");
+                    Tooltip.install(r, hover);
+                    hover.setShowDelay(Duration.millis(0));
 
                     r.setOnMouseClicked(new EventHandler<MouseEvent>() {
                         String title = hover.getText();
@@ -2395,20 +2331,9 @@ public class GamePresenter extends AbstractPresenter {
 
                 case 7:
                     hover.setText("Monopoly");
-
-                    r.setOnMouseEntered(new EventHandler<MouseEvent>() {
-                        @Override
-                        public void handle(MouseEvent mouseEvent) {
-                            hover.show(r,mouseEvent.getScreenX(), mouseEvent.getScreenY());
-                        }
-                    });
-
-                    r.setOnMouseExited(new EventHandler<MouseEvent>() {
-                        @Override
-                        public void handle(MouseEvent mouseEvent) {
-                            hover.hide();
-                        }
-                    });
+                    hover.setText("Lumber");
+                    Tooltip.install(r, hover);
+                    hover.setShowDelay(Duration.millis(0));
 
                     r.setOnMouseClicked(new EventHandler<MouseEvent>() {
                         String title = hover.getText();
@@ -2433,20 +2358,9 @@ public class GamePresenter extends AbstractPresenter {
 
                 case 8:
                     hover.setText("Road Building");
-
-                    r.setOnMouseEntered(new EventHandler<MouseEvent>() {
-                        @Override
-                        public void handle(MouseEvent mouseEvent) {
-                            hover.show(r,mouseEvent.getScreenX(), mouseEvent.getScreenY());
-                        }
-                    });
-
-                    r.setOnMouseExited(new EventHandler<MouseEvent>() {
-                        @Override
-                        public void handle(MouseEvent mouseEvent) {
-                            hover.hide();
-                        }
-                    });
+                    hover.setText("Lumber");
+                    Tooltip.install(r, hover);
+                    hover.setShowDelay(Duration.millis(0));
 
                     r.setOnMouseClicked(new EventHandler<MouseEvent>() {
                         String title = hover.getText();
@@ -2471,20 +2385,9 @@ public class GamePresenter extends AbstractPresenter {
 
                 case 9:
                     hover.setText("Year of Plenty");
-
-                    r.setOnMouseEntered(new EventHandler<MouseEvent>() {
-                        @Override
-                        public void handle(MouseEvent mouseEvent) {
-                            hover.show(r,mouseEvent.getScreenX(), mouseEvent.getScreenY());
-                        }
-                    });
-
-                    r.setOnMouseExited(new EventHandler<MouseEvent>() {
-                        @Override
-                        public void handle(MouseEvent mouseEvent) {
-                            hover.hide();
-                        }
-                    });
+                    hover.setText("Lumber");
+                    Tooltip.install(r, hover);
+                    hover.setShowDelay(Duration.millis(0));
 
                     r.setOnMouseClicked(new EventHandler<MouseEvent>() {
                         String title = hover.getText();
@@ -2509,20 +2412,9 @@ public class GamePresenter extends AbstractPresenter {
 
                 case 10:
                     hover.setText("Victory Points");
-
-                    r.setOnMouseEntered(new EventHandler<MouseEvent>() {
-                        @Override
-                        public void handle(MouseEvent mouseEvent) {
-                            hover.show(r,mouseEvent.getScreenX(), mouseEvent.getScreenY());
-                        }
-                    });
-
-                    r.setOnMouseExited(new EventHandler<MouseEvent>() {
-                        @Override
-                        public void handle(MouseEvent mouseEvent) {
-                            hover.hide();
-                        }
-                    });
+                    hover.setText("Lumber");
+                    Tooltip.install(r, hover);
+                    hover.setShowDelay(Duration.millis(0));
 
                     r.setOnMouseClicked(new EventHandler<MouseEvent>() {
                         String title = hover.getText();
@@ -2539,20 +2431,9 @@ public class GamePresenter extends AbstractPresenter {
 
                 case 11:
                     hover.setText("Cities");
-
-                    r.setOnMouseEntered(new EventHandler<MouseEvent>() {
-                        @Override
-                        public void handle(MouseEvent mouseEvent) {
-                            hover.show(r,mouseEvent.getScreenX(), mouseEvent.getScreenY());
-                        }
-                    });
-
-                    r.setOnMouseExited(new EventHandler<MouseEvent>() {
-                        @Override
-                        public void handle(MouseEvent mouseEvent) {
-                            hover.hide();
-                        }
-                    });
+                    hover.setText("Lumber");
+                    Tooltip.install(r, hover);
+                    hover.setShowDelay(Duration.millis(0));
 
                     r.setOnMouseClicked(new EventHandler<MouseEvent>() {
                         String title = hover.getText();
@@ -2569,20 +2450,9 @@ public class GamePresenter extends AbstractPresenter {
 
                 case 12:
                     hover.setText("Roads");
-
-                    r.setOnMouseEntered(new EventHandler<MouseEvent>() {
-                        @Override
-                        public void handle(MouseEvent mouseEvent) {
-                            hover.show(r,mouseEvent.getScreenX(), mouseEvent.getScreenY());
-                        }
-                    });
-
-                    r.setOnMouseExited(new EventHandler<MouseEvent>() {
-                        @Override
-                        public void handle(MouseEvent mouseEvent) {
-                            hover.hide();
-                        }
-                    });
+                    hover.setText("Lumber");
+                    Tooltip.install(r, hover);
+                    hover.setShowDelay(Duration.millis(0));
 
                     r.setOnMouseClicked(new EventHandler<MouseEvent>() {
                         String title = hover.getText();
@@ -2599,20 +2469,9 @@ public class GamePresenter extends AbstractPresenter {
 
                 case 13:
                     hover.setText("Settlements");
-
-                    r.setOnMouseEntered(new EventHandler<MouseEvent>() {
-                        @Override
-                        public void handle(MouseEvent mouseEvent) {
-                            hover.show(r,mouseEvent.getScreenX(), mouseEvent.getScreenY());
-                        }
-                    });
-
-                    r.setOnMouseExited(new EventHandler<MouseEvent>() {
-                        @Override
-                        public void handle(MouseEvent mouseEvent) {
-                            hover.hide();
-                        }
-                    });
+                    hover.setText("Lumber");
+                    Tooltip.install(r, hover);
+                    hover.setShowDelay(Duration.millis(0));
 
                     r.setOnMouseClicked(new EventHandler<MouseEvent>() {
                         String title = hover.getText();

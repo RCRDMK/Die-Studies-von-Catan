@@ -942,10 +942,10 @@ public class GameService extends AbstractService {
                 String currentCardOfGame = game.getCurrentCard();
                 boolean alreadyPlayedCard = game.playedCardThisTurn();
                 //TODO: delete these 4, only used for testing
-                inventory.cardMonopoly.incNumber();
+                /*inventory.cardMonopoly.incNumber();
                 inventory.cardRoadBuilding.incNumber();
                 inventory.cardYearOfPlenty.incNumber();
-                inventory.cardKnight.incNumber();
+                inventory.cardKnight.incNumber();*/
 
                 //checks if user can play developmentCard
                 if (!game.canUserPlayDevCard(request.getUser(), devCard) && game.rolledDiceThisTurn()) {
