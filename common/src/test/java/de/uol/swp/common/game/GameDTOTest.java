@@ -6,7 +6,7 @@ import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -22,8 +22,9 @@ public class GameDTOTest {
     private final UserDTO userDTO1 = new UserDTO("test1", "", "");
     private final UserDTO userDTO2 = new UserDTO("test2", "", "");
     private final UserDTO userDTO3 = new UserDTO("test3", "", "");
+    private final Set<User> users = new TreeSet<>();
 
-    private GameDTO defaultGame = new GameDTO("test", new UserDTO("test", "", ""), "", null);
+    private GameDTO defaultGame = new GameDTO("test", new UserDTO("test", "", ""), "",users );
 
     /**
      * This test checks if the user can join the game correctly.
@@ -128,6 +129,8 @@ public class GameDTOTest {
 
     @Test
     public void setUpInventoriesTest(){
+        users.addAll(Arrays.asList(userDTO, userDTO1, userDTO2, userDTO3));
+        defaultGame = new GameDTO("test", userDTO, "Standard", users);
         defaultGame.joinUser(userDTO);
         defaultGame.joinUser(userDTO1);
         defaultGame.joinUser(userDTO2);
@@ -140,11 +143,13 @@ public class GameDTOTest {
         assertEquals(userDTO1.getUsername(), defaultGame.getInventory(userDTO1).getUser().getUsername());
         assertEquals(userDTO2.getUsername(), defaultGame.getInventory(userDTO2).getUser().getUsername());
         assertEquals(userDTO3.getUsername(), defaultGame.getInventory(userDTO3).getUser().getUsername());
-        assertNotEquals(userDTO.getUsername(), defaultGame.getInventory(userDTO3).getUser());
+        assertNotEquals(userDTO.getUsername(), defaultGame.getInventory(userDTO3).getUser().getUsername());
     }
 
     @Test
     public void getInventoriesArrayListTest(){
+        users.addAll(Arrays.asList(userDTO, userDTO1, userDTO2, userDTO3));
+        defaultGame = new GameDTO("test", userDTO, "Standard", users);
         defaultGame.joinUser(userDTO);
         defaultGame.joinUser(userDTO1);
         defaultGame.joinUser(userDTO2);
