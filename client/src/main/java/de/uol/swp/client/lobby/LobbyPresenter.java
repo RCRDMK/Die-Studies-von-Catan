@@ -12,6 +12,7 @@ import de.uol.swp.common.game.response.NotLobbyOwnerResponse;
 import de.uol.swp.common.lobby.message.StartGameMessage;
 import de.uol.swp.common.lobby.message.UserJoinedLobbyMessage;
 import de.uol.swp.common.lobby.message.UserLeftLobbyMessage;
+import de.uol.swp.common.lobby.response.JoinOnGoingGameResponse;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.user.response.lobby.AllThisLobbyUsersResponse;
@@ -54,6 +55,8 @@ public class LobbyPresenter extends AbstractPresenter {
     private String currentLobby;
 
     private Alert alert;
+
+    private String lobbyOwnerName;
 
     private boolean isLobbyOwner = false;
 
@@ -103,6 +106,9 @@ public class LobbyPresenter extends AbstractPresenter {
 
     @FXML
     public Label gameAlreadyExistsLabel;
+
+    @FXML
+    public Label reasonWhyNotAbleToJoinGame;
 
     @Inject
     private LobbyService lobbyService;
@@ -193,6 +199,7 @@ public class LobbyPresenter extends AbstractPresenter {
         gameAlreadyExistsLabel.setVisible(false);
         notLobbyOwnerLabel.setVisible(false);
         notEnoughPlayersLabel.setVisible(false);
+        reasonWhyNotAbleToJoinGame.setVisible(false);
     }
 
     /**
@@ -205,6 +212,10 @@ public class LobbyPresenter extends AbstractPresenter {
     public void onJoinGame() {
         LOG.debug("JoinGame Button Presse");
         lobbyService.joinGame(this.currentLobby, (UserDTO) this.joinedLobbyUser);
+        gameAlreadyExistsLabel.setVisible(false);
+        notLobbyOwnerLabel.setVisible(false);
+        notEnoughPlayersLabel.setVisible(false);
+        reasonWhyNotAbleToJoinGame.setVisible(false);
     }
 
     /**
@@ -316,6 +327,7 @@ public class LobbyPresenter extends AbstractPresenter {
             this.joinedLobbyUser = lcsr.getUser();
             ArrayList<UserDTO> onlyLobbyOwner = new ArrayList<UserDTO>();
             onlyLobbyOwner.add((UserDTO) joinedLobbyUser);
+            this.lobbyOwnerName = joinedLobbyUser.getUsername();
             updateLobbyUsersList(onlyLobbyOwner);
             this.currentLobby = lcsr.getName();
             this.lobbyChatInput.setText("");
@@ -537,6 +549,7 @@ public class LobbyPresenter extends AbstractPresenter {
         if (this.currentLobby != null) {
             if (this.currentLobby.equals(ullm.getName())) {
                 LOG.debug("Requesting update of User list in lobby because a User left the lobby.");
+                this.lobbyOwnerName = ullm.getLobbyOwner();
                 updateLobbyUsersList(ullm.getUsers());
                 if (ullm.getLobbyOwner().equals(joinedLobbyUser.getUsername())) {
                     isLobbyOwner = true;
@@ -577,6 +590,7 @@ public class LobbyPresenter extends AbstractPresenter {
         if (this.currentLobby != null) {
             if (this.currentLobby.equals(atlur.getName())) {
                 LOG.debug("Update of user list " + atlur.getUsers());
+                this.lobbyOwnerName = atlur.getLobbyOwnerName();
                 updateLobbyUsersList(atlur.getUsers());
 
             }
@@ -587,7 +601,7 @@ public class LobbyPresenter extends AbstractPresenter {
      * Updates the lobby menu user list of the current lobby according to the list given
      * <p>
      * This method clears the entire user list and then adds the name of each user in the list given to the lobby menu
-     * user list. If there ist no user list this creates one.
+     * user list. If there ist no user list this creates one. Also if a user is identified as the lobby owner, "(Owner)" will be shown after their name.
      *
      * @param lobbyUserList A list of UserDTO objects including all currently logged in users
      * @implNote The code inside this Method has to run in the JavaFX-application thread. Therefore it is crucial not to
@@ -608,7 +622,7 @@ public class LobbyPresenter extends AbstractPresenter {
                 lobbyUsersView.setItems(lobbyUsers);
             }
             lobbyUsers.clear();
-            l.forEach(u -> lobbyUsers.add(u.getUsername()));
+            l.forEach(u -> lobbyUsers.add(u.getUsername() + (u.getUsername().equals(lobbyOwnerName) ? " (Owner)" : "")));
         });
     }
 
@@ -700,6 +714,7 @@ public class LobbyPresenter extends AbstractPresenter {
                 gameAlreadyExistsLabel.setVisible(false);
                 notLobbyOwnerLabel.setVisible(false);
                 notEnoughPlayersLabel.setVisible(false);
+                reasonWhyNotAbleToJoinGame.setVisible(false);
                 Platform.runLater(() -> {
                     this.alert.setTitle("Start Game " + sgm.getName());
                     this.alert.setHeaderText("Ready to play?");
@@ -744,6 +759,7 @@ public class LobbyPresenter extends AbstractPresenter {
                 gameAlreadyExistsLabel.setVisible(false);
                 notLobbyOwnerLabel.setVisible(false);
                 notEnoughPlayersLabel.setVisible(true);
+                reasonWhyNotAbleToJoinGame.setVisible(false);
             }
         }
     }
@@ -779,6 +795,7 @@ public class LobbyPresenter extends AbstractPresenter {
                 notEnoughPlayersLabel.setVisible(false);
                 gameAlreadyExistsLabel.setVisible(false);
                 notLobbyOwnerLabel.setVisible(true);
+                reasonWhyNotAbleToJoinGame.setVisible(false);
             }
         }
     }
@@ -815,6 +832,31 @@ public class LobbyPresenter extends AbstractPresenter {
                 notEnoughPlayersLabel.setVisible(false);
                 notLobbyOwnerLabel.setVisible(false);
                 gameAlreadyExistsLabel.setVisible(true);
+                reasonWhyNotAbleToJoinGame.setVisible(false);
+            }
+        }
+    }
+
+    /**
+     * When a JoinOnGoingGameResponse is detected on the EventBus this method is invoked.
+     * <p>
+     * If this is not an empty lobbyPresenter, this lobbyPresenter corresponds to the Response detected, and the user didn't successfully join the game
+     * the reasonWhyNotAbleToJoinGame label is shown containing the reason for the failure.
+     *
+     * @param joggr the JoinOnGoingGameResponse detected on the EventBus
+     * @author Marc Hermes
+     * @since 2021-06-01
+     */
+    @Subscribe
+    public void onJoinGameOnGoingResponse(JoinOnGoingGameResponse joggr) {
+        if(this.currentLobby != null) {
+            if(this.currentLobby.equals(joggr.getGameName()) && !joggr.isJoinedSuccessful()) {
+                LOG.debug("Couldn't join ongoing game because: " + joggr.getReasonForFailedJoin());
+                notEnoughPlayersLabel.setVisible(false);
+                notLobbyOwnerLabel.setVisible(false);
+                gameAlreadyExistsLabel.setVisible(false);
+                Platform.runLater(() ->reasonWhyNotAbleToJoinGame.setText(joggr.getReasonForFailedJoin()));
+                reasonWhyNotAbleToJoinGame.setVisible(true);
             }
         }
     }

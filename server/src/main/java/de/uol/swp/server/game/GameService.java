@@ -814,7 +814,7 @@ public class GameService extends AbstractService {
         Optional<Game> optionalGame = gameManagement.getGame(request.getName());
         if (optionalLobby.isPresent() && request.getMessageContext().isPresent()) {
             Lobby lobby = optionalLobby.get();
-            var response = new JoinOnGoingGameResponse(lobby.getName(), request.getUser(), false, null, null, null, lobby.getGameFieldVariant());
+            var response = new JoinOnGoingGameResponse(lobby.getName(), request.getUser(), false, null, null, null, lobby.getGameFieldVariant(), "The game doesn't exist!");
             if (lobby.getGameStarted() && optionalGame.isPresent()) {
                 Game game = optionalGame.get();
                 boolean foundUser = false;
@@ -826,21 +826,23 @@ public class GameService extends AbstractService {
                         break;
                     }
                 }
-                if (foundUser && user != null) {
+                if (foundUser && user != null && game.getTradeList().size() == 0) {
                     if (!game.getUsers().contains(user)) {
                         game.joinUser(user);
                         // send information to user
-                        response = new JoinOnGoingGameResponse(game.getName(), request.getUser(), true, game.getMapGraph(), game.getUsersList(), game.getUsers(), lobby.getGameFieldVariant());
+                        response = new JoinOnGoingGameResponse(game.getName(), request.getUser(), true, game.getMapGraph(), game.getUsersList(), game.getUsers(), lobby.getGameFieldVariant(), "");
                         sendToSpecificUser(request.getMessageContext().get(), response);
                         var gameMessage = new JoinOnGoingGameMessage(game.getName(), request.getUser(), game.getUsersList(), game.getUsers());
                         sendToAllInGame(game.getName(), gameMessage);
                         updateInventory(game);
                         var currentTurnMessage = new NextTurnMessage(game.getName(), game.getUser(game.getTurn()).getUsername(), game.getTurn(), game.isStartingTurns());
                         sendToAllInGame(game.getName(), currentTurnMessage);
-
-                    } else {
-                        sendToSpecificUser(request.getMessageContext().get(), response);
                     }
+                } else {
+                    String reason = game.getTradeList().size() != 0 ? "A Trade is currently ongoing." : "You are not registered in this game!";
+                    response = new JoinOnGoingGameResponse(game.getName(), request.getUser(), false, null, null, null, lobby.getGameFieldVariant(), reason);
+                    sendToSpecificUser(request.getMessageContext().get(), response);
+
                 }
             } else {
                 sendToSpecificUser(request.getMessageContext().get(), response);

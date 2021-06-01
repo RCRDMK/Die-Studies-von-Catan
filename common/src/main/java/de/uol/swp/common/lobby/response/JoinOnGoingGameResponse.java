@@ -23,6 +23,7 @@ public class JoinOnGoingGameResponse extends AbstractResponseMessage {
     private final String gameName;
     private final UserDTO user;
     private final boolean joinedSuccessful;
+    private final String reasonForFailedJoin;
 
     /**
      * Constructor used for serialization
@@ -38,6 +39,7 @@ public class JoinOnGoingGameResponse extends AbstractResponseMessage {
         this.gameName = null;
         this.user = null;
         this.joinedSuccessful = false;
+        this.reasonForFailedJoin = null;
     }
 
     /**
@@ -50,8 +52,9 @@ public class JoinOnGoingGameResponse extends AbstractResponseMessage {
      * @param users            all the users currently in the game
      * @param humans           the human users currently in the game
      * @param gameFieldVariant the gameFieldVariant of the mapGraph
+     * @param reasonForFailedJoin the reason why the user wasn't able to join, empty if he was able to
      */
-    public JoinOnGoingGameResponse(String gameName, UserDTO user, boolean joinedSuccessful, MapGraph mapGraph, ArrayList<User> users, Set<User> humans, String gameFieldVariant) {
+    public JoinOnGoingGameResponse(String gameName, UserDTO user, boolean joinedSuccessful, MapGraph mapGraph, ArrayList<User> users, Set<User> humans, String gameFieldVariant, String reasonForFailedJoin) {
         this.gameName = gameName;
         this.user = user;
         this.joinedSuccessful = joinedSuccessful;
@@ -59,6 +62,7 @@ public class JoinOnGoingGameResponse extends AbstractResponseMessage {
         this.users = users;
         this.humans = humans;
         this.gameFieldVariant = gameFieldVariant;
+        this.reasonForFailedJoin = reasonForFailedJoin;
     }
 
     /**
@@ -136,5 +140,16 @@ public class JoinOnGoingGameResponse extends AbstractResponseMessage {
      */
     public boolean isJoinedSuccessful() {
         return joinedSuccessful;
+    }
+
+    /**
+     * Getter for the reason why the user wasn't able to join the game
+     *
+     * @return the String reason for the failure
+     * @author Marc Hermes
+     * @since 2021-06-01
+     */
+    public String getReasonForFailedJoin() {
+        return reasonForFailedJoin;
     }
 }
