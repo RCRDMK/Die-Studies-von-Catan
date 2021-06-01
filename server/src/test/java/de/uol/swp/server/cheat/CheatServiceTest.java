@@ -5,6 +5,8 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import de.uol.swp.common.chat.RequestChatMessage;
 import de.uol.swp.common.game.Game;
+import de.uol.swp.common.game.message.GameFinishedMessage;
+import de.uol.swp.common.game.message.PublicInventoryChangeMessage;
 import de.uol.swp.common.game.message.RollDiceResultMessage;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.user.Session;
@@ -32,6 +34,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class CheatServiceTest {
+    boolean gameFinished = false;
     final EventBus bus = new EventBus();
     GameManagement gameManagement = new GameManagement();
     LobbyManagement lobbyManagement = new LobbyManagement();
@@ -151,6 +154,11 @@ public class CheatServiceTest {
         assertEquals(diceResult, 5);
     }
 
+    @Subscribe
+    void onGameFinishedMessage(GameFinishedMessage message) {
+        gameFinished = true;
+    }
+
     @Test
     @DisplayName("endgame Cheat Test")
     void endGameCheat() {
@@ -168,6 +176,19 @@ public class CheatServiceTest {
         });
         assertTrue(cheatService.isCheat(chatMessage));
         chatService.onRequestChatMessage(chatMessage);
+        assertTrue(event instanceof PublicInventoryChangeMessage);
+
+        var cheatInventory = game.get().getInventory(userDTO2);
+        var normalInventory1 = game.get().getInventory(userDTO1);
+        var normalInventory2 = game.get().getInventory(userDTO3);
+        var normalInventory3 = game.get().getInventory(userDTO);
+
+        assertEquals(cheatInventory.getVictoryPoints(), 10);
+        assertEquals(normalInventory1.getVictoryPoints(), 0);
+        assertEquals(normalInventory2.getVictoryPoints(), 0);
+        assertEquals(normalInventory3.getVictoryPoints(), 0);
+
+        assertTrue(gameFinished);
     }
 
     @Test
