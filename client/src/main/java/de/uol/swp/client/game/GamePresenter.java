@@ -32,6 +32,7 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
@@ -47,6 +48,7 @@ import javafx.stage.Modality;
 import javafx.stage.Screen;
 import javafx.stage.StageStyle;
 import javafx.stage.Window;
+import javafx.util.Duration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -278,8 +280,6 @@ public class GamePresenter extends AbstractPresenter {
                 RequestChatMessage message = new RequestChatMessage(chatMessage, chatId, joinedLobbyUser.getUsername(),
                         System.currentTimeMillis());
                 chatService.sendMessage(message);
-                // TODO: das muss entfernt werden sobald der Spieler selbst aussuchen kann, welche Karte er spielen möchte
-                gameService.playDevelopmentCard((UserDTO) joinedLobbyUser, currentLobby, chatMessage);
             }
             this.gameChatInput.setText("");
         } catch (Exception e) {
@@ -2349,7 +2349,19 @@ public class GamePresenter extends AbstractPresenter {
      * <p>
      * This method creates thirteen images and rectangles. Then it creates and fills imagePatterns
      * with the images from first to thirteens. Every imagePattern is added to the privateInventoryView.
-     * Then adds thirteen corresponding labels to the privateInventoryView.
+     *
+     * After this, hover, exits and drag methods are being executed. When the user is entering the rectangle
+     * of a card, a tooltip, with what the card under the mouse cursor represents, appear. If the user clicks
+     * on the card, the onClickOnDevelopmentCard method gets executed and the user can choose to play the card.
+     * Alternatively, the user can also just drag the card to play it.
+     *
+     * Lastly it adds thirteen corresponding labels to the privateInventoryView.
+     *
+     * Enhanced by Ricardo Mook, 2021-05-27
+     * added Tooltip.install method for the mouse
+     *
+     * Enhanced by Ricardo Mook, 2021-05-30
+     * added drag method and method call by clicking on a card
      *
      * @author Carsten Dekker, Iskander Yusupov
      * @since 2021-05-14
@@ -2360,6 +2372,279 @@ public class GamePresenter extends AbstractPresenter {
             Rectangle r = new Rectangle(42, 60);
             r.setFill(new ImagePattern(image));
             privateInventoryView.add(r, i - 1, 0);
+
+            Tooltip hover = new Tooltip("");
+
+
+            switch (i){
+
+                case 1:
+                    hover.setText("Lumber");
+                    Tooltip.install(r, hover);
+                    hover.setShowDelay(Duration.millis(0));
+
+                    r.setOnMouseClicked(new EventHandler<MouseEvent>() {
+                        String title = hover.getText();
+                        String description = "A resource you can get from forest fields";
+                        Boolean isDevelopmentCard = false;
+                        @Override
+                        public void handle(MouseEvent mouseEvent) {
+                           onClickOnDevelopmentCard(title,description,image,isDevelopmentCard);
+
+                        }
+                    });
+
+                    break;
+
+                case 2:
+                    hover.setText("Brick");
+                    Tooltip.install(r, hover);
+                    hover.setShowDelay(Duration.millis(0));
+
+                    r.setOnMouseClicked(new EventHandler<MouseEvent>() {
+                        String title = hover.getText();
+                        String description = "This ressource can be found on hill fields";
+                        Boolean isDevelopmentCard = false;
+                        @Override
+                        public void handle(MouseEvent mouseEvent) {
+                            onClickOnDevelopmentCard(title,description,image,isDevelopmentCard);
+
+                        }
+                    });
+
+                    break;
+
+                case 3:
+                    hover.setText("Grain");
+                    Tooltip.install(r, hover);
+                    hover.setShowDelay(Duration.millis(0));
+
+                    r.setOnMouseClicked(new EventHandler<MouseEvent>() {
+                        String title = hover.getText();
+                        String description = "This ressource can be harvested on grain fields";
+                        Boolean isDevelopmentCard = false;
+                        @Override
+                        public void handle(MouseEvent mouseEvent) {
+                            onClickOnDevelopmentCard(title,description,image,isDevelopmentCard);
+
+                        }
+                    });
+
+                    break;
+
+                case 4:
+                    hover.setText("Wool");
+                    Tooltip.install(r, hover);
+                    hover.setShowDelay(Duration.millis(0));
+
+                    r.setOnMouseClicked(new EventHandler<MouseEvent>() {
+                        String title = hover.getText();
+                        String description = "This ressource is getting produced on pasture fields";
+                        Boolean isDevelopmentCard = false;
+                        @Override
+                        public void handle(MouseEvent mouseEvent) {
+                            onClickOnDevelopmentCard(title,description,image,isDevelopmentCard);
+
+                        }
+                    });
+
+                    break;
+
+                case 5:
+                    hover.setText("Ore");
+                    Tooltip.install(r, hover);
+                    hover.setShowDelay(Duration.millis(0));
+
+                    r.setOnMouseClicked(new EventHandler<MouseEvent>() {
+                        String title = hover.getText();
+                        String description = "This ressource can be won from mountain fields";
+                        Boolean isDevelopmentCard = false;
+                        @Override
+                        public void handle(MouseEvent mouseEvent) {
+                            onClickOnDevelopmentCard(title,description,image,isDevelopmentCard);
+
+                        }
+                    });
+
+                    break;
+
+                case 6:
+                    hover.setText("Knight");
+                    Tooltip.install(r, hover);
+                    hover.setShowDelay(Duration.millis(0));
+
+                    r.setOnMouseClicked(new EventHandler<MouseEvent>() {
+                        String title = hover.getText();
+                        String description = "If you play this card, you can move the robber to another field and can draw one card from an affected player";
+                        Boolean isDevelopmentCard = true;
+                        @Override
+                        public void handle(MouseEvent mouseEvent) {
+                            onClickOnDevelopmentCard(title,description,image,isDevelopmentCard);
+
+                        }
+                    });
+
+                    r.setOnDragDetected(new EventHandler<MouseEvent>() {
+                        String title = hover.getText();
+                        @Override
+                        public void handle(MouseEvent mouseEvent) {
+                            gameService.playDevelopmentCard((UserDTO) joinedLobbyUser, currentLobby,title);
+                        }
+                    });
+
+                    break;
+
+                case 7:
+                    hover.setText("Monopoly");
+                    Tooltip.install(r, hover);
+                    hover.setShowDelay(Duration.millis(0));
+
+                    r.setOnMouseClicked(new EventHandler<MouseEvent>() {
+                        String title = hover.getText();
+                        String description = "With this card played out, you can choose a ressource. All players, who are currently having the chosen ressource on their hand, must give you all of them";
+                        Boolean isDevelopmentCard = true;
+                        @Override
+                        public void handle(MouseEvent mouseEvent) {
+                            onClickOnDevelopmentCard(title,description,image,isDevelopmentCard);
+
+                        }
+                    });
+
+                    r.setOnDragDetected(new EventHandler<MouseEvent>() {
+                        String title = hover.getText();
+                        @Override
+                        public void handle(MouseEvent mouseEvent) {
+                            gameService.playDevelopmentCard((UserDTO) joinedLobbyUser, currentLobby,title);
+                        }
+                    });
+
+                    break;
+
+                case 8:
+                    hover.setText("Road Building");
+                    Tooltip.install(r, hover);
+                    hover.setShowDelay(Duration.millis(0));
+
+                    r.setOnMouseClicked(new EventHandler<MouseEvent>() {
+                        String title = hover.getText();
+                        String description = "The Road Building development card. When this card is played out, you immediately get two ressource cards of your choice from the bank";
+                        Boolean isDevelopmentCard = true;
+                        @Override
+                        public void handle(MouseEvent mouseEvent) {
+                            onClickOnDevelopmentCard(title,description,image,isDevelopmentCard);
+
+                        }
+                    });
+
+                    r.setOnDragDetected(new EventHandler<MouseEvent>() {
+                        String title = hover.getText();
+                        @Override
+                        public void handle(MouseEvent mouseEvent) {
+                            gameService.playDevelopmentCard((UserDTO) joinedLobbyUser, currentLobby,title);
+                        }
+                    });
+
+                    break;
+
+                case 9:
+                    hover.setText("Year of Plenty");
+                    Tooltip.install(r, hover);
+                    hover.setShowDelay(Duration.millis(0));
+
+                    r.setOnMouseClicked(new EventHandler<MouseEvent>() {
+                        String title = hover.getText();
+                        String description = "The Year of Plenty development car. With this card played out, you can build wo roads this turn free of charge";
+                        Boolean isDevelopmentCard = true;
+                        @Override
+                        public void handle(MouseEvent mouseEvent) {
+                            onClickOnDevelopmentCard(title,description,image,isDevelopmentCard);
+
+                        }
+                    });
+
+                    r.setOnDragDetected(new EventHandler<MouseEvent>() {
+                        String title = hover.getText();
+                        @Override
+                        public void handle(MouseEvent mouseEvent) {
+                            gameService.playDevelopmentCard((UserDTO) joinedLobbyUser, currentLobby,title);
+                        }
+                    });
+
+                    break;
+
+                case 10:
+                    hover.setText("Victory Points");
+                    Tooltip.install(r, hover);
+                    hover.setShowDelay(Duration.millis(0));
+
+                    r.setOnMouseClicked(new EventHandler<MouseEvent>() {
+                        String title = hover.getText();
+                        String description = "your victory points for the game you earned until now";
+                        Boolean isDevelopmentCard = false;
+                        @Override
+                        public void handle(MouseEvent mouseEvent) {
+                            onClickOnDevelopmentCard(title,description,image,isDevelopmentCard);
+
+                        }
+                    });
+
+                    break;
+
+                case 11:
+                    hover.setText("Cities");
+                    Tooltip.install(r, hover);
+                    hover.setShowDelay(Duration.millis(0));
+
+                    r.setOnMouseClicked(new EventHandler<MouseEvent>() {
+                        String title = hover.getText();
+                        String description = "A bigger version of the settlements";
+                        Boolean isDevelopmentCard = false;
+                        @Override
+                        public void handle(MouseEvent mouseEvent) {
+                            onClickOnDevelopmentCard(title,description,image,isDevelopmentCard);
+
+                        }
+                    });
+
+                    break;
+
+                case 12:
+                    hover.setText("Roads");
+                    Tooltip.install(r, hover);
+                    hover.setShowDelay(Duration.millis(0));
+
+                    r.setOnMouseClicked(new EventHandler<MouseEvent>() {
+                        String title = hover.getText();
+                        String description = "With these you can connect your settlements and cities with each other";
+                        Boolean isDevelopmentCard = false;
+                        @Override
+                        public void handle(MouseEvent mouseEvent) {
+                            onClickOnDevelopmentCard(title,description,image,isDevelopmentCard);
+
+                        }
+                    });
+
+                    break;
+
+                case 13:
+                    hover.setText("Settlements");
+                    Tooltip.install(r, hover);
+                    hover.setShowDelay(Duration.millis(0));
+
+                    r.setOnMouseClicked(new EventHandler<MouseEvent>() {
+                        String title = hover.getText();
+                        String description = "You can build these to get resources from tiles";
+                        Boolean isDevelopmentCard = false;
+                        @Override
+                        public void handle(MouseEvent mouseEvent) {
+                            onClickOnDevelopmentCard(title,description,image,isDevelopmentCard);
+
+                        }
+                    });
+
+                    break;
+            }
+
         }
         privateInventoryView.add(privateLumberLabel, 0, 1);
         privateInventoryView.add(privateBrickLabel, 1, 1);
@@ -2374,6 +2659,44 @@ public class GamePresenter extends AbstractPresenter {
         privateInventoryView.add(privateCitiesLabel, 10, 1);
         privateInventoryView.add(privateRoadsLabel, 11, 1);
         privateInventoryView.add(privateSettlementsLabel, 12, 1);
+    }
+
+    /**
+     * This method can be called when the user clicks on a card in the private inventory.
+     * <p>
+     *  When this method is called, a close-up of the clicked card with a short description appears. If the card is a
+     *  development card, it can be played directly from the close-up.
+     *
+     * @param cardName The name of the clicked card
+     * @param description A short description of the played card
+     * @param cardImage An enlarged image of the clicked card
+     * @param isDevelopmentCard Boolean value if the card is a development card or not
+     *
+     * @author Ricardo Mook
+     * @since 2021-05-30
+     */
+
+    public void onClickOnDevelopmentCard(String cardName, String description, Image cardImage, Boolean isDevelopmentCard){
+        Alert clickAlert = new Alert(Alert.AlertType.CONFIRMATION);
+        ButtonType ok = new ButtonType("Ok", ButtonBar.ButtonData.NO);
+        clickAlert.getButtonTypes().setAll(ok);
+
+        if (isDevelopmentCard){
+            ButtonType playThisCard = new ButtonType("Play this card", ButtonBar.ButtonData.YES);
+            clickAlert.getButtonTypes().setAll(ok,playThisCard);
+
+            Button playCard = (Button) clickAlert.getDialogPane().lookupButton(playThisCard);
+            playCard.setOnAction(event -> {
+                gameService.playDevelopmentCard((UserDTO) joinedLobbyUser, currentLobby, cardName);
+            });
+        }
+        clickAlert.setHeaderText(cardName);
+        clickAlert.setContentText(description);
+        clickAlert.setGraphic(new ImageView(cardImage));
+
+        clickAlert.show();
+
+
     }
 
     /**
