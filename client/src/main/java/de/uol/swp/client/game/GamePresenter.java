@@ -48,6 +48,7 @@ import javafx.stage.Window;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import javax.swing.text.html.parser.Entity;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.Executors;
@@ -97,10 +98,10 @@ public class GamePresenter extends AbstractPresenter {
     private String gameFieldVariant;
 
     private final ArrayList<HexagonContainer> hexagonContainers = new ArrayList<>();
-    private ObservableList<String> publicInventory1;
-    private ObservableList<String> publicInventory2;
-    private ObservableList<String> publicInventory3;
-    private ObservableList<String> publicInventory4;
+    private ObservableList<HashMap.Entry<String, Integer>> publicInventory1;
+    private ObservableList<HashMap.Entry<String, Integer>> publicInventory2;
+    private ObservableList<HashMap.Entry<String, Integer>> publicInventory3;
+    private ObservableList<HashMap.Entry<String, Integer>> publicInventory4;
 
     private final ArrayList<MapGraphNodeContainer> mapGraphNodeContainers = new ArrayList<>();
 
@@ -176,13 +177,13 @@ public class GamePresenter extends AbstractPresenter {
     private GridPane playerFourDiceView;
 
     @FXML
-    private ListView<String> publicInventory1View;
+    private ListView<HashMap.Entry<String, Integer>> publicInventory1View;
     @FXML
-    private ListView<String> publicInventory2View;
+    private ListView<HashMap.Entry<String, Integer>> publicInventory2View;
     @FXML
-    private ListView<String> publicInventory3View;
+    private ListView<HashMap.Entry<String, Integer>> publicInventory3View;
     @FXML
-    private ListView<String> publicInventory4View;
+    private ListView<HashMap.Entry<String, Integer>> publicInventory4View;
 
     @FXML
     private GridPane privateInventoryView;
@@ -2004,7 +2005,7 @@ public class GamePresenter extends AbstractPresenter {
      * @see de.uol.swp.common.game.inventory.Inventory
      * @since 2021-05-28
      */
-    public void updatePublicInventory(ArrayList<HashMap<String, Integer>> pu) {
+    public void updatePublicInventory(ArrayList<HashMap<String, Integer>> publicInventoriesList) {
         // Attention: This must be done on the FX Thread!
         Platform.runLater(() -> {
             if (publicInventory1 == null) {
@@ -2023,77 +2024,60 @@ public class GamePresenter extends AbstractPresenter {
                 publicInventory4 = FXCollections.observableArrayList();
                 publicInventory4View.setItems(publicInventory4);
             }
-            publicInventory1.clear();
-            if(gameUsers.size() > 0) {
-                publicInventory1.add(gameUsers.get(0));
-            }
-            publicInventory1.add("Points: " + pu.get(0).get("Public Victory Points").toString());
-            publicInventory1.add("Resources: " + pu.get(0).get("Resource").toString());
-            publicInventory1.add("Cards: " + pu.get(0).get("Development Cards").toString());
-            publicInventory1.add("Knights: " + pu.get(0).get("Played Knights").toString());
-            publicInventory1.add("Roads: " + pu.get(0).get("Continuous Road").toString());
-            if(pu.get(0).get("Largest Army").toString().equals("1")){
-                publicInventory1.add("Largest Army");
-            }
-            if(pu.get(0).get("Longest Road").toString().equals("1")){
-                publicInventory1.add("Longest Road");
-            }
-           // publicInventory1View.setCellFactory(y -> new PublicInventoryCell());
+            initializePublicInventory(publicInventory1, publicInventoriesList);
+            publicInventory1View.setCellFactory(y -> new PublicInventoryCell(publicInventoriesList.get(0)));
 
-            publicInventory2.clear();
-            if(gameUsers.size() > 0) {
-                publicInventory2.add(gameUsers.get(1));
-            }
-            publicInventory2.add("Points: " + pu.get(1).get("Public Victory Points").toString());
-            publicInventory2.add("Resources: " + pu.get(1).get("Resource").toString());
-            publicInventory2.add("Cards: " + pu.get(1).get("Development Cards").toString());
-            publicInventory2.add("Knights: " + pu.get(1).get("Played Knights").toString());
-            publicInventory2.add("Roads: " + pu.get(1).get("Continuous Road").toString());
-            if(pu.get(1).get("Largest Army").toString().equals("1")){
-                publicInventory2.add("Largest Army");
-            }
-            if(pu.get(1).get("Longest Road").toString().equals("1")){
-                publicInventory2.add("Longest Road");
-            }
+            initializePublicInventory(publicInventory2, publicInventoriesList);
+            publicInventory2View.setCellFactory(y -> new PublicInventoryCell(publicInventoriesList.get(1)));
 
-            if (gameUsers.size() >= 2) {
-                publicInventory3.clear();
-                if(gameUsers.size() > 0) {
-                    publicInventory3.add(gameUsers.get(2));
-                }
-                publicInventory3.add("Points: " + pu.get(2).get("Public Victory Points").toString());
-                publicInventory3.add("Resources: " + pu.get(2).get("Resource").toString());
-                publicInventory3.add("Cards: " + pu.get(2).get("Development Cards").toString());
-                publicInventory3.add("Knights: " + pu.get(2).get("Played Knights").toString());
-                publicInventory3.add("Roads: " + pu.get(2).get("Continuous Road").toString());
-                if(pu.get(2).get("Largest Army").toString().equals("1")){
-                    publicInventory3.add("Largest Army");
-                }
-                if(pu.get(2).get("Longest Road").toString().equals("1")){
-                    publicInventory3.add("Longest Road");
-                }
-                }
             if (gameUsers.size() > 2) {
-                publicInventory4.clear();
-                if(gameUsers.size() > 0) {
-                    publicInventory4.add(gameUsers.get(3));
-                }
-                publicInventory4.add("Points: " + pu.get(3).get("Public Victory Points").toString());
-                publicInventory4.add("Resources: " + pu.get(3).get("Resource").toString());
-                publicInventory4.add("Cards: " + pu.get(3).get("Development Cards").toString());
-                publicInventory4.add("Knights: " + pu.get(3).get("Played Knights").toString());
-                publicInventory4.add("Roads: " + pu.get(3).get("Continuous Road").toString());
-                if(pu.get(3).get("Largest Army").toString().equals("1")){
-                    publicInventory4.add("Largest Army");
-                }
-                if(pu.get(3).get("Longest Road").toString().equals("1")){
-                    publicInventory4.add("Longest Road");
-                }
+                initializePublicInventory(publicInventory3, publicInventoriesList);
+                publicInventory3View.setCellFactory(y -> new PublicInventoryCell(publicInventoriesList.get(2)));
+                publicInventory3View.setVisible(true);
+            }
+
+            if (gameUsers.size() > 3) {
+                initializePublicInventory(publicInventory4, publicInventoriesList);
+                publicInventory4View.setCellFactory(y -> new PublicInventoryCell(publicInventoriesList.get(2)));
+                publicInventory4View.setVisible(true);
             }
         });
     }
 
-
+    public void initializePublicInventory (ObservableList<HashMap.Entry<String, Integer>> observableListOfHashMap, ArrayList<HashMap<String, Integer>> arrayListOfHashMap) {
+        observableListOfHashMap.clear();
+        observableListOfHashMap.add(null);
+        observableListOfHashMap.add(null);
+        observableListOfHashMap.add(null);
+        observableListOfHashMap.add(null);
+        observableListOfHashMap.add(null);
+        for (Map.Entry<String, Integer> entry : arrayListOfHashMap.get(0).entrySet()) {
+            if(!entry.getKey().equals("Largest Army") && !entry.getKey().equals("Longest Road")) {
+                switch (entry.getKey()) {
+                    case "Public Victory Points":
+                        observableListOfHashMap.add(0, entry);
+                        observableListOfHashMap.remove(1);
+                        break;
+                    case "Resource":
+                        observableListOfHashMap.add(1, entry);
+                        observableListOfHashMap.remove(2);
+                        break;
+                    case "Development Cards":
+                        observableListOfHashMap.add(2, entry);
+                        observableListOfHashMap.remove(3);
+                        break;
+                    case "Played Knights":
+                        observableListOfHashMap.add(3, entry);
+                        observableListOfHashMap.remove(4);
+                        break;
+                    case "Continuous Road":
+                        observableListOfHashMap.add(4, entry);
+                        observableListOfHashMap.remove(5);
+                        break;
+                }
+            }
+        }
+    }
     /**
      * The method called when a ResolveDevelopmentCardNotSuccessfulResponse is received
      * <p>

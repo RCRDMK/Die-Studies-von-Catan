@@ -11,40 +11,41 @@ import java.util.HashMap;
 
 public class PublicInventoryCell extends ListCell<HashMap.Entry<String, Integer>> {
     VBox vbox = new VBox();
-    Label playerName = new Label("");
-    Label victoryPoints = new Label("");
-    Label resource = new Label("");
-    Label developmentCards = new Label("");
-    Label playedKnights = new Label("");
-    Label continuousRoad = new Label("");
-    Pane pane = new Pane();
+    Label inventoryEntry = new Label("");
     Pane pane1 = new Pane();
-    Pane pane2 = new Pane();
-    Pane pane3 = new Pane();
-    Pane pane4 = new Pane();
-    Pane pane5 = new Pane();
+    HashMap<String, Integer> publicInventory;
 
-    public PublicInventoryCell() {
+    public PublicInventoryCell(HashMap<String, Integer> publicInventory) {
         super();
-        vbox.getChildren().addAll(playerName, pane,victoryPoints , pane1, resource, pane2, developmentCards, pane3,
-                playedKnights, pane4, continuousRoad, pane5);
-        VBox.setVgrow(pane, Priority.ALWAYS);
+        this.publicInventory = publicInventory;
+        vbox.getChildren().addAll(inventoryEntry, pane1);
         VBox.setVgrow(pane1, Priority.ALWAYS);
-        VBox.setVgrow(pane2, Priority.ALWAYS);
-        VBox.setVgrow(pane3, Priority.ALWAYS);
-        VBox.setVgrow(pane4, Priority.ALWAYS);
-        VBox.setVgrow(pane4, Priority.ALWAYS);
     }
-
     @Override
     protected void updateItem(HashMap.Entry<String, Integer> item, boolean empty) {
         super.updateItem(item, empty);
         setText(null);
         setGraphic(null);
-
         if (item != null && !empty) {
-           // playerName.setText(item.);
+            switch (item.getKey()) {
+                case "Public Victory Points":
+                    inventoryEntry.setText("Points: " + item.getValue().toString());
+                    break;
+                case "Resource":
+                    inventoryEntry.setText("Resources: " + item.getValue().toString());
+                    break;
+                case "Development Cards":
+                    inventoryEntry.setText("Cards: " + item.getValue().toString());
+                    break;
+                case "Played Knights":
+                    inventoryEntry.setText("Knights: " + item.getValue().toString());
+                    break;
+                case "Continuous Road":
+                    inventoryEntry.setText("Roads: " + item.getValue().toString());
+                    break;
+            }
         }
+        setGraphic(vbox);
     }
-
 }
+

@@ -11,8 +11,8 @@
         <TextArea fx:id="gameChatArea" editable="false" layoutX="370.0" layoutY="279.0" prefHeight="96.0" prefWidth="356.0" GridPane.rowIndex="2" />
         <ListView fx:id="publicInventory1View" layoutX="439.0" layoutY="30.0" prefHeight="69.0" prefWidth="109.0" />
         <ListView fx:id="publicInventory2View" layoutX="618.0" layoutY="30.0" prefHeight="69.0" prefWidth="109.0" />
-        <ListView fx:id="publicInventory3View" layoutX="439.0" layoutY="153.0" prefHeight="69.0" prefWidth="109.0" />
-        <ListView fx:id="publicInventory4View" layoutX="618.0" layoutY="153.0" prefHeight="69.0" prefWidth="109.0" />
+        <ListView fx:id="publicInventory3View" layoutX="439.0" layoutY="153.0" prefHeight="69.0" prefWidth="109.0" visible="false"/>
+        <ListView fx:id="publicInventory4View" layoutX="618.0" layoutY="153.0" prefHeight="69.0" prefWidth="109.0" visible="false" />
         <ToolBar layoutY="-5.0" prefHeight="35.0" prefWidth="735.0">
             <items>
                 <Button fx:id="rollDice" mnemonicParsing="false" onAction="#onRollDice" text="Roll Dice" />
