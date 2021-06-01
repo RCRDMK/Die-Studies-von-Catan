@@ -543,7 +543,7 @@ public class GamePresenter extends AbstractPresenter {
             this.gameFieldVariant = joggr.getGameFieldVariant();
             updateGameUsersList(joggr.getUsers(), joggr.getHumans());
             initializeMatch(joggr.getMapGraph());
-            for (int i = 1; i <= 64; i++) {
+            for (int i = 1; i <= 67; i++) {
                 Image image;
                 image = new Image("img/profilePictures/" + i + ".png");
                 ImagePattern imagePattern;
