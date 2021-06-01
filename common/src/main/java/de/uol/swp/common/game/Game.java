@@ -199,7 +199,6 @@ public interface Game extends Serializable {
      * @author Philip Nitsche
      * @since 2021-04-26
      */
-
     boolean isStartingTurns();
 
     /**
@@ -215,8 +214,6 @@ public interface Game extends Serializable {
     Inventory getBankInventory();
 
     DevelopmentCardDeck getDevelopmentCardDeck();
-
-    void setStartingPhase(int startingPhase);
 
     /**
      * adds a Trade to the game

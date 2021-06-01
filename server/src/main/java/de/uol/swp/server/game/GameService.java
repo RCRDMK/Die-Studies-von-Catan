@@ -174,7 +174,7 @@ public class GameService extends AbstractService {
                             if (message.getUuid().equals(buildingNode.getUuid())) { // ... and if the node in the message is a node in the MapGraph BuildingNodeSet...
                                 if (game.isStartingTurns() || ((buildingNode.getSizeOfSettlement() == 0 && inventory.lumber.getNumber() > 0 && inventory.brick.getNumber() > 0
                                         && inventory.wool.getNumber() > 0 && inventory.grain.getNumber() > 0) ||
-                                        (buildingNode.getSizeOfSettlement() == 1 && inventory.ore.getNumber() > 2 && inventory.grain.getNumber() > 2))) {
+                                        (buildingNode.getSizeOfSettlement() == 1 && inventory.ore.getNumber() > 2 && inventory.grain.getNumber() > 1))) {
                                     if (buildingNode.tryBuildOrDevelopSettlement(playerIndex, game.getStartingPhase())) {
                                         buildingNode.buildOrDevelopSettlement(playerIndex);
                                         game.getMapGraph().addBuiltBuilding(buildingNode);
@@ -182,16 +182,17 @@ public class GameService extends AbstractService {
                                                 message.getUuid(), "BuildingNode"));
                                         if (buildingNode.getSizeOfSettlement() == 1) {
                                             if (!game.isStartingTurns()) {
-                                                inventory.lumber.decNumber(1);
-                                                inventory.brick.decNumber(1);
-                                                inventory.wool.decNumber(1);
-                                                inventory.grain.decNumber(1);
+                                                takeResource(game, message.getUser(), "Lumber", 1);
+                                                takeResource(game, message.getUser(), "Brick", 1);
+                                                takeResource(game, message.getUser(), "Wool", 1);
+                                                takeResource(game, message.getUser(), "Grain", 1);
                                             }
                                             inventory.settlement.decNumber();
                                             inventory.setVictoryPoints(inventory.getVictoryPoints() + 1);
                                         } else if (buildingNode.getSizeOfSettlement() == 2) {
-                                            inventory.ore.decNumber(3);
-                                            inventory.grain.decNumber(2);
+                                            takeResource(game, message.getUser(), "Ore", 3);
+                                            takeResource(game, message.getUser(), "Grain", 2);
+                                            inventory.settlement.incNumber();
                                             inventory.city.decNumber();
                                             inventory.setVictoryPoints(inventory.getVictoryPoints() + 1);
                                         }
@@ -217,8 +218,8 @@ public class GameService extends AbstractService {
                                     if (streetNode.tryBuildRoad(playerIndex, game.getStartingPhase())) {
                                         streetNode.buildRoad(playerIndex);
                                         if (!game.isStartingTurns() && !game.getCurrentCard().equals("Road Building")) {
-                                            inventory.lumber.decNumber(1);
-                                            inventory.brick.decNumber(1);
+                                            takeResource(game, message.getUser(), "Lumber", 1);
+                                            takeResource(game, message.getUser(), "Brick", 1);
                                         }
                                         sendToAllInGame(game.getName(), new SuccessfulConstructionMessage(game.getName(), message.getUser().getWithoutPassword(), playerIndex,
                                                 message.getUuid(), "StreetNode"));

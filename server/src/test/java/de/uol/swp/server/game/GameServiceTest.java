@@ -858,7 +858,6 @@ public class GameServiceTest {
         gameService.onResolveDevelopmentCardRequest(rdcrbr);
         assertTrue(event instanceof ResolveDevelopmentCardNotSuccessfulResponse);
 
-
     }
 
     @Test
