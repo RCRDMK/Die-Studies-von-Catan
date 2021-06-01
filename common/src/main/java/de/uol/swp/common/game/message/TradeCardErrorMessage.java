@@ -33,6 +33,8 @@ public class TradeCardErrorMessage extends AbstractGameMessage {
         this.tradeCode = tradeCode;
     }
 
+    public TradeCardErrorMessage() {
+    }
 
     /**
      * getter for String tradeCode

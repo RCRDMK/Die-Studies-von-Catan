@@ -2,6 +2,7 @@ package de.uol.swp.common.game.trade;
 
 import de.uol.swp.common.user.UserDTO;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -12,15 +13,16 @@ import java.util.HashMap;
  * @author Alexander Losse, Ricardo Mook
  * @since 2021-04-07
  */
-public class Trade {
+public class Trade implements Serializable {
     //the seller
-    private UserDTO seller;
+    private final UserDTO seller;
     //the bidders, also used to save the keys of the bids HashMap
-    private ArrayList<UserDTO> bidders;
+    private final ArrayList<UserDTO> bidders;
     //the items to be sold
-    private ArrayList<TradeItem> sellingItems;
+    private final ArrayList<TradeItem> sellingItems;
     //saves the bids(Bidders and their offers)
-    private HashMap<UserDTO,ArrayList<TradeItem>> bids;
+    private final HashMap<UserDTO,ArrayList<TradeItem>> bids;
+    private final ArrayList<TradeItem> wishList;
 
     /**
      * constructor
@@ -29,15 +31,17 @@ public class Trade {
      *
      * @param seller UserDTO of the user who started the trade
      * @param sellingItems ArrayList<TradeItem> of the Items to be sold
+     * @param wishList the original wishList of this Trade
      *
      * @author Alexander Losse, Ricardo Mook
      * @since 2021-04-12
      */
-    public Trade(UserDTO seller, ArrayList<TradeItem> sellingItems){
+    public Trade(UserDTO seller, ArrayList<TradeItem> sellingItems, ArrayList<TradeItem> wishList){
         this.seller = seller;
         this.sellingItems = sellingItems;
-        bidders = new ArrayList();
-        bids = new HashMap<UserDTO, ArrayList<TradeItem>>();
+        bidders = new ArrayList<>();
+        bids = new HashMap<>();
+        this.wishList = wishList;
     }
 
 
@@ -107,5 +111,16 @@ public class Trade {
      */
     public HashMap<UserDTO, ArrayList<TradeItem>> getBids() {
         return bids;
+    }
+
+    /**
+     * getter for the wishList
+     *
+     * @return the original wishList of the trade
+     * @author Alexander Losse, Marc Hermes
+     * @since 2021-05-21
+     */
+    public ArrayList<TradeItem> getWishList() {
+        return wishList;
     }
 }

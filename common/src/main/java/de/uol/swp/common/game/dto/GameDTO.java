@@ -1,7 +1,6 @@
 package de.uol.swp.common.game.dto;
 
 import de.uol.swp.common.game.Game;
-import de.uol.swp.common.game.GameField;
 import de.uol.swp.common.game.MapGraph;
 import de.uol.swp.common.game.inventory.DevelopmentCardDeck;
 import de.uol.swp.common.game.inventory.Inventory;
@@ -32,12 +31,15 @@ public class GameDTO implements Game {
     private final ArrayList<User> userArrayList = new ArrayList<User>();
     private User owner;
     private boolean startingTurns = true;
+    private int startingPhase = 1;
     private boolean countingUp = true;
     private boolean lastPlayerSecondTurn = false;
     private boolean playedCardThisTurn = false;
     private int lastRolledDiceValue = 0;
     private final DevelopmentCardDeck developmentCardDeck = new DevelopmentCardDeck();
     private final ArrayList<MapGraph.BuildingNode> lastBuildingOfOpeningTurn = new ArrayList<>();
+
+    private Inventory inventoryWithLargestArmy = null;
 
     private Inventory inventory1;
     private Inventory inventory2;
@@ -50,12 +52,15 @@ public class GameDTO implements Game {
     private boolean isTest;
     private boolean rolledDiceThisTurn = false;
 
+    private HashMap<String, Integer> boughtDevCardsThisTurn = new HashMap<>();
+
+
     /**
      * Constructor
      *
-     * @param name              The name the game should have
-     * @param creator           The user who created the game and therefore shall be the owner
-     * @param gameFieldVariant  The variant that the game field should have
+     * @param name             The name the game should have
+     * @param creator          The user who created the game and therefore shall be the owner
+     * @param gameFieldVariant The variant that the game field should have
      * @since 2021-01-15
      */
     public GameDTO(String name, User creator, String gameFieldVariant) {
@@ -177,6 +182,7 @@ public class GameDTO implements Game {
         } else overallTurns++;
         playedCardThisTurn = false;
         rolledDiceThisTurn = false;
+        boughtDevCardsThisTurn.clear();
     }
 
     /**
@@ -198,7 +204,7 @@ public class GameDTO implements Game {
      * Organizing the opening-phase for the set amount of players.
      *
      * <p>
-     * This is checking many different statements for boolean value to evaluate wich players turn is up next. It does
+     * This is checking many different statements for boolean value to evaluate which players turn is up next. It does
      * this until every player did his move according to the games rules. For n players, the opening-phase goes from
      * player 1 upwards to player n, then player n again and then backwards to player 1. After that, it disables the
      * opening-phase for the rest of the game. It also creates a list of the built buildings from which raw materials
@@ -215,18 +221,22 @@ public class GameDTO implements Game {
         if (overallTurns == userArrayList.size() - 1 && !lastPlayerSecondTurn) { // 1)... and if the last player did his first turn but he did not use his second turn:
             lastPlayerSecondTurn = true; // now he did.
             countingUp = false; // we count backwards from now on.
+            startingPhase = 2;
             return;
         } else if (overallTurns <= userArrayList.size()) { // 2)... and if we are not at the last player ...
             if (countingUp) { // 2a)... and if we still count up:
                 overallTurns++; //count one up.
+                startingPhase = 1;
                 return;
             } else { // 2b)... and if we dont count up anymore ...
                 if (overallTurns > 0) {  // 2b1) ... and if we did not arrive back at player 1:
                     overallTurns--; // count one down.
                     countingUp = false; // dont count up anymore.
+                    startingPhase = 2;
                     return;
                 } else {
                     startingTurns = false; // 2b2) if we are at player 1 and were already counting backwards, end the openingphase.
+                    startingPhase = 0;
                     for (int i = 0; i < userArrayList.size(); i++) {
                         lastBuildingOfOpeningTurn.add(mapGraph.getBuiltBuildings().get(mapGraph.getBuiltBuildings().size() - 1 - i));
                     }
@@ -267,7 +277,6 @@ public class GameDTO implements Game {
      * It compares the user with the inventory user and returns the inventory from user
      *
      * @param user form the inventory you want
-     *
      * @return The Inventory from user
      * @author Anton Nikiforov
      * @see de.uol.swp.common.game.inventory.Inventory
@@ -326,10 +335,9 @@ public class GameDTO implements Game {
         this.mapGraph = mapGraph;
     }
 
-    //TODO: This method needs to be deleted as soon as the dependencies to the obsolete classes are fixed!!!
     @Override
-    public GameField getGameField() {
-        return null;
+    public int getStartingPhase() {
+        return startingPhase;
     }
 
     /**
@@ -416,4 +424,85 @@ public class GameDTO implements Game {
         return this.rolledDiceThisTurn;
     }
 
+    @Override
+    public Inventory getInventoryWithLargestArmy() {
+        return inventoryWithLargestArmy;
+    }
+
+    @Override
+    public void setInventoryWithLargestArmy(Inventory inventoryWithLargestArmy) {
+        this.inventoryWithLargestArmy = inventoryWithLargestArmy;
+    }
+    /**
+     * method used to remember the DevelopmentCards bought in a turn
+     * <p>
+     * saved in HashMap<String, Integer>String,>boughtDevCardThisTurn
+     *
+     * @param card   String name of the Card
+     * @param amount int amount of the card
+     * @author Alexander Losse
+     * @since 2021-05-30
+     */
+    @Override
+    public void rememberDevCardBoughtThisTurn(String card, int amount) {
+        if (card.equals("Monopoly") || card.equals("Road Building") || card.equals("Year of Plenty") || card.equals("Knight")) {
+            boughtDevCardsThisTurn.put(card, boughtDevCardsThisTurn.getOrDefault(card, 0) + amount);
+        }
+    }
+
+    /**
+     * returns HashMap<String, Integer> boughtDevCardsThisTurn
+     *
+     * @return HashMap<String, Integer> boughtDevCardsThisTurn
+     * @author Alexander Losse
+     * @since 2021-05-30
+     */
+    @Override
+    public HashMap<String, Integer> getBoughtDevCardsThisTurn() {
+        return boughtDevCardsThisTurn;
+    }
+
+    /**
+     * returns how many Cards of type were bought this turn.
+     * <p>
+     * returns 0 if Card not in HashMap
+     *
+     * @param card String name of the card
+     * @return int
+     * @author Alexander Losse
+     * @since 2021-05-30
+     */
+    @Override
+    public int getHowManyCardsOfTypeWereBoughtThisTurn(String card) {
+        if (!boughtDevCardsThisTurn.isEmpty() && boughtDevCardsThisTurn.containsKey(card)) {
+            return boughtDevCardsThisTurn.get(card);
+        } else {
+            return 0;
+        }
+    }
+
+    /**
+     * checks if a user can play a development card
+     * <p>
+     * methods checks if String card is an development card
+     * method compares the an development card in inventory of user with cards bought this turn,
+     * checks that he he can play an development card that was not bought this turn
+     * returns true if successful
+     * return false if not
+     *
+     * @param user User
+     * @param card String name of the card
+     * @return boolean
+     * @author Alexander Losse
+     * @since 2021-05-30
+     */
+    @Override
+    public boolean canUserPlayDevCard(User user, String card) {
+        if (card.equals("Monopoly") || card.equals("Road Building") || card.equals("Year of Plenty") || card.equals("Knight")) {
+            Inventory inventoryDummy = getInventory(user);
+            int cardsInInventory = inventoryDummy.getCardStack(card).getNumber();
+            int boughtCards = getHowManyCardsOfTypeWereBoughtThisTurn(card);
+            return cardsInInventory - boughtCards > 0;
+        } else return false;
+    }
 }

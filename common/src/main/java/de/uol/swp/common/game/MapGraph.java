@@ -20,6 +20,8 @@ public class MapGraph implements Serializable {
     private final HashSet<StreetNode> streetNodeHashSet = new HashSet<>();
     private final HashSet<BuildingNode> buildingNodeHashSet = new HashSet<>();
     private final HashSet<Hexagon> hexagonHashSet = new HashSet<>();
+    private int[] numOfRoads = new int[]{0,0,0,0};
+    private int[] numOfBuildings = new int[]{0,0,0,0};
     private final ArrayList<BuildingNode> builtBuildings = new ArrayList<>();
     // middle hexagon for reference
     private final Hexagon middle = new Hexagon("middle");
@@ -51,6 +53,9 @@ public class MapGraph implements Serializable {
     public LongestStreetPathCalculator getLongestStreetPathCalculator() {
         return longestStreetPathCalculator;
     }
+
+    public int[] getNumOfRoads() {return numOfRoads; }
+    public int[] getNumOfBuildings() {return numOfBuildings; }
 
     /**
      * Initializes MapGraph
@@ -662,15 +667,46 @@ public class MapGraph implements Serializable {
          * enhanced by Marc, Kirstin, 2021-04-23
          * @param playerIndex Index of the player who wants to build a road
          * @return True if construction was successful, false if not.
-         * @author Pieter Vogt
+         * @author Pieter Vogt, enhanced by Kirstin Beyer
          * @since 2021-04-15
          */
-        public Boolean buildRoad(int playerIndex) {
-            if (this.occupiedByPlayer == 666) {
-                this.occupiedByPlayer = playerIndex;
-                longestStreetPathCalculator.updateMatrixWithNewStreet(this.getUuid(), playerIndex);
-                return true;
+        public Boolean tryBuildRoad(int playerIndex, int startingPhase) {
+
+            boolean existingConnection = false;
+            boolean buildingAllowed = false;
+            boolean correctBuildingPhaseTwo = false;
+            if (startingPhase > 0){
+                buildingAllowed = true;
+            }
+
+            for (MapGraph.BuildingNode connectedBuildingNode : this.getConnectedBuildingNodes()) {
+                if (connectedBuildingNode.getOccupiedByPlayer() == playerIndex) {
+                    existingConnection = true;
+                    correctBuildingPhaseTwo = builtBuildings.get(builtBuildings.size()-1).getUuid().equals(connectedBuildingNode.getUuid());
+                }
+                for (MapGraph.StreetNode connectedStreetNode : connectedBuildingNode.getConnectedStreetNodes()) {
+                    if (connectedStreetNode.getOccupiedByPlayer() == playerIndex) {
+                        existingConnection = true;
+                        if (connectedBuildingNode.getOccupiedByPlayer() == 666 || connectedBuildingNode.getOccupiedByPlayer() == playerIndex) {
+                            buildingAllowed = true;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (this.occupiedByPlayer == 666 && existingConnection && buildingAllowed && (startingPhase == 0 ||
+                    ((startingPhase == 1 || (startingPhase == 2 && correctBuildingPhaseTwo)) &&
+                    numOfRoads[playerIndex] == startingPhase-1 && numOfRoads[playerIndex] < numOfBuildings[playerIndex]))) {
+                numOfRoads[playerIndex]++;
+                return buildRoad(playerIndex);
             } else return false;
+        }
+
+        public boolean buildRoad(int playerIndex) {
+            this.occupiedByPlayer = playerIndex;
+            longestStreetPathCalculator.updateMatrixWithNewStreet(this.getUuid(), playerIndex);
+            return true;
         }
     }
 
@@ -689,7 +725,7 @@ public class MapGraph implements Serializable {
 
         private final UUID uuid;
         private String positionToParent;
-        private int typeOfHarbor;
+        private int typeOfHarbor = 0;
         private int occupiedByPlayer = 666;
         private Hexagon parent;
         private int sizeOfSettlement = 0;
@@ -763,20 +799,45 @@ public class MapGraph implements Serializable {
          * enhanced by Marc, Kirstin, 2021-04-23
          * @param playerIndex Index of the player who wants to build or upgrade a building.
          * @return True if construction was successful, false if not.
-         * @author Pieter Vogt
+         * @author Pieter Vogt, enhanced by Kirstin Beyer
          * @since 2021-04-15
          */
-        public Boolean buildOrDevelopSettlement(int playerIndex) {
-            if (occupiedByPlayer == 666 || occupiedByPlayer == playerIndex) {
-                if (sizeOfSettlement < 2) {
-                    sizeOfSettlement++;
-                    this.occupiedByPlayer = playerIndex;
-                    if (sizeOfSettlement == 1) {
-                        longestStreetPathCalculator.updateMatrixWithNewBuilding(this, playerIndex);
+        public Boolean tryBuildOrDevelopSettlement(int playerIndex, int startingPhase) {
+
+            boolean existingStreet = false;
+            boolean buildingAllowed = true;
+            if (startingPhase > 0) {
+                existingStreet = true;
+            }
+
+            for (MapGraph.StreetNode connectedStreetNode : this.getConnectedStreetNodes()) {
+                if (connectedStreetNode.getOccupiedByPlayer() == playerIndex) {
+                    existingStreet = true;
+                }
+                for (MapGraph.BuildingNode connectedBuildingNode : connectedStreetNode.getConnectedBuildingNodes()) {
+                    if (connectedBuildingNode.getOccupiedByPlayer() != 666) {
+                        buildingAllowed = false;
                     }
-                    return true;
+                }
+            }
+
+            if (occupiedByPlayer == 666 || occupiedByPlayer == playerIndex) {
+                if ((sizeOfSettlement < 1 && existingStreet && buildingAllowed &&
+                        (startingPhase == 0 || numOfBuildings[playerIndex] == startingPhase-1)) ||
+                        (startingPhase == 0 && sizeOfSettlement == 1 && occupiedByPlayer == playerIndex)) {
+                    numOfBuildings[playerIndex]++;
+                    return buildOrDevelopSettlement(playerIndex);
                 } else return false;
             } else return false;
+        }
+
+        public boolean buildOrDevelopSettlement(int playerIndex) {
+            this.occupiedByPlayer = playerIndex;
+            if (sizeOfSettlement == 0) {
+                longestStreetPathCalculator.updateMatrixWithNewBuilding(this, playerIndex);
+            }
+            sizeOfSettlement++;
+            return true;
         }
     }
 

@@ -13,8 +13,6 @@ import java.util.UUID;
  */
 public class ConstructionRequest extends AbstractGameRequest {
 
-    UserDTO user;
-    String game;
     UUID uuid;
     String typeOfNode;
 
@@ -29,19 +27,9 @@ public class ConstructionRequest extends AbstractGameRequest {
      * @since 2021-04-14
      */
     public ConstructionRequest(UserDTO user, String game, UUID uuid, String typeOfNode) {
-        this.user = user;
-        this.game = game;
+        super(game, user);
         this.uuid = uuid;
         this.typeOfNode = typeOfNode;
-    }
-
-    @Override
-    public UserDTO getUser() {
-        return user;
-    }
-
-    public String getGame() {
-        return game;
     }
 
     public UUID getUuid() {
