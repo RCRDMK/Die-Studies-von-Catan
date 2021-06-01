@@ -28,8 +28,11 @@ public class GameDTO implements Game {
     private final int turn = 0; //this points to the index of the user who now makes his turn.
     private MapGraph mapGraph;
     private int overallTurns = 0; //This just counts +1 every time a player ends his turn. (good for Summaryscreen for example)
-    private final ArrayList<User> userArrayList = new ArrayList<User>();
+    private final ArrayList<User> userArrayList = new ArrayList<>();
+    private final ArrayList<User> aiUsers = new ArrayList<>();
     private User owner;
+    private int amountOfPlayers = 0;
+    private final Set<User> usersInLobby;
     private boolean startingTurns = true;
     private int startingPhase = 1;
     private boolean countingUp = true;
@@ -61,12 +64,14 @@ public class GameDTO implements Game {
      * @param name             The name the game should have
      * @param creator          The user who created the game and therefore shall be the owner
      * @param gameFieldVariant The variant that the game field should have
+     * @param usersInLobby     The actual users in the lobby
      * @since 2021-01-15
      */
-    public GameDTO(String name, User creator, String gameFieldVariant) {
+    public GameDTO(String name, User creator, String gameFieldVariant, Set<User> usersInLobby) {
         this.name = name;
         this.owner = creator;
         this.users.add(creator);
+        this.usersInLobby = usersInLobby;
         this.mapGraph = new MapGraph(gameFieldVariant);
     }
 
@@ -132,9 +137,30 @@ public class GameDTO implements Game {
         return userArrayList.get(index);
     }
 
+    /**
+     * Method called when starting the game
+     * <p>
+     * First puts all users in the lobby into the usersArrayList.
+     * Then, if there are less players in the lobby than the lobby owner wanted to play with,
+     * the difference will be filled with AI Users.
+     * In case the other users in the lobby just didn't want to start the game, AI Users will also play until
+     * they decide they want to join.
+     *
+     * @author Marc Hermes
+     * @since 2021-05-27
+     */
     @Override
     public void setUpUserArrayList() {
-        userArrayList.addAll(users);
+        userArrayList.addAll(usersInLobby);
+        int players = userArrayList.size();
+        int i = 0;
+        while (amountOfPlayers > players) {
+            UserDTO aiUser = new UserDTO("KI" + i, "", "", 65+i);
+            aiUsers.add(aiUser);
+            userArrayList.add(aiUser);
+            players++;
+            i++;
+        }
     }
 
     /**
@@ -194,7 +220,6 @@ public class GameDTO implements Game {
      * @author Philip Nitsche
      * @since 2021-04-26
      */
-
     @Override
     public ArrayList<MapGraph.BuildingNode> getLastBuildingOfOpeningTurn() {
         return lastBuildingOfOpeningTurn;
@@ -422,6 +447,11 @@ public class GameDTO implements Game {
     @Override
     public boolean rolledDiceThisTurn() {
         return this.rolledDiceThisTurn;
+    }
+
+    @Override
+    public void setAmountOfPlayers(int amount) {
+        this.amountOfPlayers = amount;
     }
 
     @Override

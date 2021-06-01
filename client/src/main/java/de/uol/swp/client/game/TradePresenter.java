@@ -3,11 +3,8 @@ package de.uol.swp.client.game;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
-import de.uol.swp.common.game.message.TradeCardErrorMessage;
-import de.uol.swp.common.game.message.TradeInformSellerAboutBidsMessage;
-import de.uol.swp.common.game.message.TradeOfferInformBiddersMessage;
-import de.uol.swp.common.game.message.TradeStartedMessage;
-import de.uol.swp.common.game.message.BankResponseMessage;
+import de.uol.swp.common.game.message.*;
+import de.uol.swp.common.game.response.GameLeftSuccessfulResponse;
 import de.uol.swp.common.game.trade.TradeItem;
 import de.uol.swp.common.user.UserDTO;
 import javafx.fxml.FXML;
@@ -180,6 +177,25 @@ public class TradePresenter extends AbstractPresenter {
                 } else {
                     alert.setVisible(true);
                 }
+            }
+        }
+    }
+
+    /**
+     * When the to this tradePresenter corresponding game is left this method will be invoked
+     * <p>
+     * The client will post a TradeEndedMessage on it's own eventBus, so that the Trade tab may be closed.
+     *
+     * @param response the GameLeftSuccessfulResponse detected on the EventBus
+     * @author Marc Hermes
+     * @since 2021-06-01
+     */
+    @Subscribe
+    public void onLeftGameSuccessfulResponse(GameLeftSuccessfulResponse response) {
+        if (this.tradeCode != null) {
+            if(this.gameName.equals(response.getName())) {
+                eventBus.post(new TradeEndedMessage(gameName, tradeCode));
+                clearEventBus();
             }
         }
     }
