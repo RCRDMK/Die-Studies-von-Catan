@@ -53,6 +53,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import static java.awt.Color.WHITE;
+import static java.awt.Color.white;
+
 /**
  * Manages the GameView
  * <p>
@@ -1195,7 +1198,7 @@ public class GamePresenter extends AbstractPresenter {
                 circle.setLayoutY(drawVector.getY());
                 circle.setVisible(false);
 
-                circle.setFill(determinePlayerColorByIndex(mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer()));
+                circle.setFill(Color.WHITE);
             } else {
                 double itemSize = cardSize() / 15;
                 MapGraph.StreetNode streetNode = (MapGraph.StreetNode) mapGraphNodeContainer.getMapGraphNode();
@@ -1211,7 +1214,7 @@ public class GamePresenter extends AbstractPresenter {
                 circle.setLayoutY(drawVector.getY());
                 circle.setVisible(false);
 
-                circle.setFill(determinePlayerColorByIndex(mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer()));
+                circle.setFill(Color.WHITE);
             }
         }
     }
@@ -1838,10 +1841,18 @@ public class GamePresenter extends AbstractPresenter {
                         if (mapGraphNodeContainer.getMapGraphNode().getUuid().equals(message.getUuid())) {
                             MapGraph.BuildingNode buildingNode = (MapGraph.BuildingNode) mapGraphNodeContainer.getMapGraphNode();
                             buildingNode.buildOrDevelopSettlement(message.getPlayerIndex());
-                            Platform.runLater(() -> {
-                                mapGraphNodeContainer.getCircle().setFill(determinePlayerColorByIndex(mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer()));
-                                mapGraphNodeContainer.getCircle().setVisible(true);
-                            });
+                            if (mapGraphNodeContainer.getCircle().getFill().equals(Color.WHITE)) {
+                                Platform.runLater(() -> {
+                                    mapGraphNodeContainer.getCircle().setRadius(cardSize() / 3.5);
+                                    mapGraphNodeContainer.getCircle().setFill(determineBuildingPicture(mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer(), 1));
+                                    mapGraphNodeContainer.getCircle().setVisible(true);
+                                });
+                            } else {
+                                Platform.runLater(() -> {
+                                    mapGraphNodeContainer.getCircle().setRadius(cardSize() / 3.5);
+                                    mapGraphNodeContainer.getCircle().setFill(determineBuildingPicture(mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer(), 2));
+                                });
+                            }
                             break;
                         }
                     }
@@ -1858,6 +1869,43 @@ public class GamePresenter extends AbstractPresenter {
                         }
                     }
                 }
+            }
+        }
+    }
+
+    public ImagePattern determineBuildingPicture(int playerIndex, int typeOfBuilding) {
+        if (typeOfBuilding == 1) {
+            switch (playerIndex) {
+                case 0:
+                    return new ImagePattern(new Image("img/buildings/settlement_red.png"));
+                case 1:
+                    return new ImagePattern(new Image("img/buildings/settlement_blue.png"));
+                case 2:
+                    return new ImagePattern(new Image("img/buildings/settlement_purple.png"));
+                default:
+                    return new ImagePattern(new Image("img/buildings/settlement_green.png"));
+            }
+        } else if (typeOfBuilding == 2) {
+            switch (playerIndex) {
+                case 0:
+                    return new ImagePattern(new Image("img/buildings/city_red.png"));
+                case 1:
+                    return new ImagePattern(new Image("img/buildings/city_blue.png"));
+                case 2:
+                    return new ImagePattern(new Image("img/buildings/city_purple.png"));
+                default:
+                    return new ImagePattern(new Image("img/buildings/city_green.png"));
+            }
+        } else {
+            switch (playerIndex) {
+                case 0:
+                    return new ImagePattern(new Image("img/buildings/settlement_red.png"));
+                case 1:
+                    return new ImagePattern(new Image("img/buildings/settlement_blue.png"));
+                case 2:
+                    return new ImagePattern(new Image("img/buildings/settlement_purple.png"));
+                default:
+                    return new ImagePattern(new Image("img/buildings/settlement_green.png"));
             }
         }
     }
