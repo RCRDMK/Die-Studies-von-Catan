@@ -1647,10 +1647,11 @@ public class GamePresenter extends AbstractPresenter {
                     chooseAlert.getButtonTypes().add(new ButtonType(choosePlayerMessage.getUserList().get(i)));
                 }
             }
+            chooseAlert.showAndWait();
+            gameService.drawRandomCardFromPlayer(choosePlayerMessage.getName(), choosePlayerMessage.getUser(), chooseAlert.getResult().getText());
+            chooseAlert.close();
         });
-        chooseAlert.showAndWait();
-        gameService.drawRandomCardFromPlayer(choosePlayerMessage.getName(), choosePlayerMessage.getUser(), chooseAlert.getResult().getText());
-        chooseAlert.close();
+
     }
 
     /**
