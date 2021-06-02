@@ -51,7 +51,6 @@ public class Server {
      * @param port port number the server shall be reachable on
      * @throws Exception server failed to start e.g. because the port is already in use
      * @author Marco Grawunder
-     * @author Marius Birk
      * @see InetSocketAddress
      * @since 2019-11-20
      * <p>

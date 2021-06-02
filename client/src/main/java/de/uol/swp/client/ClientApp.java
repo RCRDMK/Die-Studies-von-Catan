@@ -64,7 +64,8 @@ public class ClientApp extends Application implements ConnectionListener {
         List<String> args = p.getRaw();
 
         if (args.size() != 2) {
-            host = "duemmer.informatik.uni-oldenburg.de";
+            host="77.77.22.0.142";
+            //host = "duemmer.informatik.uni-oldenburg.de";
             port = 50100;
             System.err.println("Usage: " + ClientConnection.class.getSimpleName() + " host port");
             System.err.println("Using default port " + port + " on " + host);
@@ -77,7 +78,6 @@ public class ClientApp extends Application implements ConnectionListener {
         // if connection is established in this stage, no GUI is shown and
         // exceptions are only visible in console!
     }
-
 
     @Override
     public void start(Stage primaryStage) {
