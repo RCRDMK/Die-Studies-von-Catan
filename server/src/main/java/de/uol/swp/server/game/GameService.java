@@ -623,7 +623,9 @@ public class GameService extends AbstractService {
                     for (MapGraph.BuildingNode node : hexagon.getBuildingNodes()) {
                         if (node.getOccupiedByPlayer() != 666) {
                             if (!userList.contains(game.getUser(node.getOccupiedByPlayer()).getUsername()) && !robbersNewFieldMessage.getUser().equals(game.getUser(node.getOccupiedByPlayer()))) {
-                                userList.add(game.getUser(node.getOccupiedByPlayer()).getUsername());
+                                if(game.getInventory(game.getUser(node.getOccupiedByPlayer())).sumResource()>0){
+                                    userList.add(game.getUser(node.getOccupiedByPlayer()).getUsername());
+                                }
                             }
                         }
                     }

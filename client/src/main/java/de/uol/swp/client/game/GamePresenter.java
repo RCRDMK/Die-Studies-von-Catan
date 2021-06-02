@@ -85,6 +85,8 @@ public class GamePresenter extends AbstractPresenter {
 
     public Dialog tooMuchAlert;
 
+    public Alert chooseAlert;
+
     private User joinedLobbyUser;
 
     private String currentLobby;
@@ -521,6 +523,7 @@ public class GamePresenter extends AbstractPresenter {
                 setupDicesAtGameStart();
                 setUpPrivateInventoryView();
                 setupResolveDevelopmentCardAlert();
+                setupChoosePlayerAlert();
             });
         }
     }
@@ -1613,21 +1616,38 @@ public class GamePresenter extends AbstractPresenter {
      * The rest is added to the alert and the alert shows and waits for result. If one user is chosen the drawRandomCardFromPlayer method is invoked.
      * The alert closes.
      *
-     * @param choosePlayerMessage message from the eventbus, to choose a player to draw a card from
      * @author Marius Birk
      * @since 2021-04-20
      */
-    public void setupChoosePlayerAlert(ChoosePlayerMessage choosePlayerMessage) {
-        Alert chooseAlert = new Alert(Alert.AlertType.WARNING);
-        chooseAlert.getButtonTypes().setAll();
-        chooseAlert.setTitle(choosePlayerMessage.getName());
-        chooseAlert.setContentText("Choose a player to draw a card from!");
-        for (int i = 0; i < choosePlayerMessage.getUserList().size(); i++) {
-            if (!choosePlayerMessage.getUserList().get(i).equals(choosePlayerMessage.getUser().getUsername())) {
-                chooseAlert.getButtonTypes().add(new ButtonType(choosePlayerMessage.getUserList().get(i)));
-            }
-        }
+    public void setupChoosePlayerAlert() {
+        Platform.runLater(()-> {
+            chooseAlert = new Alert(Alert.AlertType.CONFIRMATION);
+            chooseAlert.getButtonTypes().setAll();
+            chooseAlert.setContentText("Choose a player to draw a card from!");
+        });
+    }
 
+    /**
+     * This method shows the choosePlayerAlert.
+     * <p>
+     * The method sets the title of the alert to the gamename and then configures the buttons in it. The buttons
+     * are getting named after the names of the user in the choosePlayerMessage.
+     * Then the alert will be shown and the user can choose a player, so the method can call the drawRandomResource Method
+     * in the gameservice.
+     *
+     * @param choosePlayerMessage
+     * @since 2021-06-02
+     * @author Marius Birk
+     */
+    public void showChoosePlayerAlert(ChoosePlayerMessage choosePlayerMessage){
+        Platform.runLater(()->{
+            chooseAlert.setTitle(choosePlayerMessage.getName());
+            for (int i = 0; i < choosePlayerMessage.getUserList().size(); i++) {
+                if (!choosePlayerMessage.getUserList().get(i).equals(choosePlayerMessage.getUser().getUsername())) {
+                    chooseAlert.getButtonTypes().add(new ButtonType(choosePlayerMessage.getUserList().get(i)));
+                }
+            }
+        });
         chooseAlert.showAndWait();
         gameService.drawRandomCardFromPlayer(choosePlayerMessage.getName(), choosePlayerMessage.getUser(), chooseAlert.getResult().getText());
         chooseAlert.close();
@@ -2726,9 +2746,7 @@ public class GamePresenter extends AbstractPresenter {
         if (this.currentLobby != null) {
             if (this.currentLobby.equals(choosePlayerMessage.getName())) {
                 if (!choosePlayerMessage.getUserList().isEmpty()) {
-                    Platform.runLater(() -> setupChoosePlayerAlert(choosePlayerMessage));
-                } else {
-
+                    showChoosePlayerAlert(choosePlayerMessage);
                 }
             }
         }
