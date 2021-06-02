@@ -1303,6 +1303,8 @@ public class GamePresenter extends AbstractPresenter {
         }
     }
 
+    //TODO: Kann ecentuell weg, falls am Ende nicht mehr benötigt
+
     /**
      * Determine the right color for a drawn, player-owned object.
      *
@@ -1449,17 +1451,46 @@ public class GamePresenter extends AbstractPresenter {
      * @since 2021-05-27
      */
     public void updateGameField() {
+
         for (MapGraphNodeContainer mapGraphNodeContainer : mapGraphNodeContainers) {
-            Platform.runLater(() -> {
-                mapGraphNodeContainer.getCircle().setFill(determinePlayerColorByIndex(mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer()));
-                if (mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer() != 666)
-                    mapGraphNodeContainer.getCircle().setVisible(true);
-            });
+            if (mapGraphNodeContainer.getMapGraphNode() instanceof MapGraph.BuildingNode) {
+                MapGraph.BuildingNode buildingNode = (MapGraph.BuildingNode) mapGraphNodeContainer.getMapGraphNode();
+                if (buildingNode.getSizeOfSettlement() == 1) {
+                    Platform.runLater(() -> {
+                        mapGraphNodeContainer.getCircle().setFill(determineBuildingPicture(mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer(), 1));
+                        if (mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer() != 666) {
+                            mapGraphNodeContainer.getCircle().setRadius(cardSize() / 3.5);
+                            mapGraphNodeContainer.getCircle().setVisible(true);
+                        }
+                    });
+                } else if (buildingNode.getSizeOfSettlement() == 2) {
+                    Platform.runLater(() -> {
+                        mapGraphNodeContainer.getCircle().setFill(determineBuildingPicture(mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer(), 2));
+                        if (mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer() != 666) {
+                            mapGraphNodeContainer.getCircle().setRadius(cardSize() / 3.5);
+                            mapGraphNodeContainer.getCircle().setVisible(true);
+                        }
+                    });
+                }
+            } else if (mapGraphNodeContainer.getMapGraphNode() instanceof MapGraph.StreetNode) {
+                Platform.runLater(() -> {
+                    mapGraphNodeContainer.getRectangle().setFill(determineBuildingPicture(mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer(), 0));
+                    if (mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer() != 666) {
+                        mapGraphNodeContainer.getRectangle().setVisible(true);
+                    }
+                });
+            }
+        }
+        for (MapGraphNodeContainer mapGraphNodeContainer1 : mapGraphNodeContainers) {
+            if (mapGraphNodeContainer1.getMapGraphNode().getOccupiedByPlayer() != 666 && mapGraphNodeContainer1.getMapGraphNode() instanceof MapGraph.BuildingNode) {
+                mapGraphNodeContainer1.getCircle().toFront();
+            }
         }
         for (HexagonContainer hexagonContainer : hexagonContainers) {
             if (hexagonContainer.getHexagon().isOccupiedByRobber()) {
                 robber.setLayoutX(hexagonContainer.getHexagonShape().getLayoutX());
                 robber.setLayoutY(hexagonContainer.getHexagonShape().getLayoutY());
+                robber.setVisible(true);
             }
         }
     }
@@ -1972,11 +2003,6 @@ public class GamePresenter extends AbstractPresenter {
                                 mapGraphNodeContainer.getCircle().setVisible(false);
                                 mapGraphNodeContainer.getRectangle().setFill(determineBuildingPicture(mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer(), 0));
                                 mapGraphNodeContainer.getRectangle().setVisible(true);
-                                for (MapGraphNodeContainer mapGraphNodeContainer1 : mapGraphNodeContainers) {
-                                    if (mapGraphNodeContainer1.getMapGraphNode().getOccupiedByPlayer() != 666 && mapGraphNodeContainer1.getMapGraphNode() instanceof MapGraph.BuildingNode) {
-                                        mapGraphNodeContainer1.getCircle().toFront();
-                                    }
-                                }
                             });
                             break;
                         }
@@ -1984,12 +2010,20 @@ public class GamePresenter extends AbstractPresenter {
                 }
             }
         }
+        Platform.runLater(() -> {
+        for (MapGraphNodeContainer mapGraphNodeContainer1 : mapGraphNodeContainers) {
+            if (mapGraphNodeContainer1.getMapGraphNode().getOccupiedByPlayer() != 666 && mapGraphNodeContainer1.getMapGraphNode() instanceof MapGraph.BuildingNode) {
+                mapGraphNodeContainer1.getCircle().toFront();
+            }
+        }
+        });
     }
+
 
     /**
      * This method selects the right picture or color for the building/street-nodes
      *
-     * @param playerIndex the currently playing player
+     * @param playerIndex    the currently playing player
      * @param typeOfBuilding int with the type of the building
      * @return this paint gets filled into the circles or rectangles
      * @author Carsten Dekker
@@ -2347,17 +2381,17 @@ public class GamePresenter extends AbstractPresenter {
      * <p>
      * This method creates thirteen images and rectangles. Then it creates and fills imagePatterns
      * with the images from first to thirteens. Every imagePattern is added to the privateInventoryView.
-     *
+     * <p>
      * After this, hover, exits and drag methods are being executed. When the user is entering the rectangle
      * of a card, a tooltip, with what the card under the mouse cursor represents, appear. If the user clicks
      * on the card, the onClickOnDevelopmentCard method gets executed and the user can choose to play the card.
      * Alternatively, the user can also just drag the card to play it.
-     *
+     * <p>
      * Lastly it adds thirteen corresponding labels to the privateInventoryView.
-     *
+     * <p>
      * Enhanced by Ricardo Mook, 2021-05-27
      * added Tooltip.install method for the mouse
-     *
+     * <p>
      * Enhanced by Ricardo Mook, 2021-05-30
      * added drag method and method call by clicking on a card
      *
@@ -2374,7 +2408,7 @@ public class GamePresenter extends AbstractPresenter {
             Tooltip hover = new Tooltip("");
 
 
-            switch (i){
+            switch (i) {
 
                 case 1:
                     hover.setText("Lumber");
@@ -2385,9 +2419,10 @@ public class GamePresenter extends AbstractPresenter {
                         String title = hover.getText();
                         String description = "A resource you can get from forest fields";
                         Boolean isDevelopmentCard = false;
+
                         @Override
                         public void handle(MouseEvent mouseEvent) {
-                           onClickOnDevelopmentCard(title,description,image,isDevelopmentCard);
+                            onClickOnDevelopmentCard(title, description, image, isDevelopmentCard);
 
                         }
                     });
@@ -2403,9 +2438,10 @@ public class GamePresenter extends AbstractPresenter {
                         String title = hover.getText();
                         String description = "This ressource can be found on hill fields";
                         Boolean isDevelopmentCard = false;
+
                         @Override
                         public void handle(MouseEvent mouseEvent) {
-                            onClickOnDevelopmentCard(title,description,image,isDevelopmentCard);
+                            onClickOnDevelopmentCard(title, description, image, isDevelopmentCard);
 
                         }
                     });
@@ -2421,9 +2457,10 @@ public class GamePresenter extends AbstractPresenter {
                         String title = hover.getText();
                         String description = "This ressource can be harvested on grain fields";
                         Boolean isDevelopmentCard = false;
+
                         @Override
                         public void handle(MouseEvent mouseEvent) {
-                            onClickOnDevelopmentCard(title,description,image,isDevelopmentCard);
+                            onClickOnDevelopmentCard(title, description, image, isDevelopmentCard);
 
                         }
                     });
@@ -2439,9 +2476,10 @@ public class GamePresenter extends AbstractPresenter {
                         String title = hover.getText();
                         String description = "This ressource is getting produced on pasture fields";
                         Boolean isDevelopmentCard = false;
+
                         @Override
                         public void handle(MouseEvent mouseEvent) {
-                            onClickOnDevelopmentCard(title,description,image,isDevelopmentCard);
+                            onClickOnDevelopmentCard(title, description, image, isDevelopmentCard);
 
                         }
                     });
@@ -2457,9 +2495,10 @@ public class GamePresenter extends AbstractPresenter {
                         String title = hover.getText();
                         String description = "This ressource can be won from mountain fields";
                         Boolean isDevelopmentCard = false;
+
                         @Override
                         public void handle(MouseEvent mouseEvent) {
-                            onClickOnDevelopmentCard(title,description,image,isDevelopmentCard);
+                            onClickOnDevelopmentCard(title, description, image, isDevelopmentCard);
 
                         }
                     });
@@ -2475,18 +2514,20 @@ public class GamePresenter extends AbstractPresenter {
                         String title = hover.getText();
                         String description = "If you play this card, you can move the robber to another field and can draw one card from an affected player";
                         Boolean isDevelopmentCard = true;
+
                         @Override
                         public void handle(MouseEvent mouseEvent) {
-                            onClickOnDevelopmentCard(title,description,image,isDevelopmentCard);
+                            onClickOnDevelopmentCard(title, description, image, isDevelopmentCard);
 
                         }
                     });
 
                     r.setOnDragDetected(new EventHandler<MouseEvent>() {
                         String title = hover.getText();
+
                         @Override
                         public void handle(MouseEvent mouseEvent) {
-                            gameService.playDevelopmentCard((UserDTO) joinedLobbyUser, currentLobby,title);
+                            gameService.playDevelopmentCard((UserDTO) joinedLobbyUser, currentLobby, title);
                         }
                     });
 
@@ -2501,18 +2542,20 @@ public class GamePresenter extends AbstractPresenter {
                         String title = hover.getText();
                         String description = "With this card played out, you can choose a ressource. All players, who are currently having the chosen ressource on their hand, must give you all of them";
                         Boolean isDevelopmentCard = true;
+
                         @Override
                         public void handle(MouseEvent mouseEvent) {
-                            onClickOnDevelopmentCard(title,description,image,isDevelopmentCard);
+                            onClickOnDevelopmentCard(title, description, image, isDevelopmentCard);
 
                         }
                     });
 
                     r.setOnDragDetected(new EventHandler<MouseEvent>() {
                         String title = hover.getText();
+
                         @Override
                         public void handle(MouseEvent mouseEvent) {
-                            gameService.playDevelopmentCard((UserDTO) joinedLobbyUser, currentLobby,title);
+                            gameService.playDevelopmentCard((UserDTO) joinedLobbyUser, currentLobby, title);
                         }
                     });
 
@@ -2527,18 +2570,20 @@ public class GamePresenter extends AbstractPresenter {
                         String title = hover.getText();
                         String description = "The Road Building development card. When this card is played out, you immediately get two ressource cards of your choice from the bank";
                         Boolean isDevelopmentCard = true;
+
                         @Override
                         public void handle(MouseEvent mouseEvent) {
-                            onClickOnDevelopmentCard(title,description,image,isDevelopmentCard);
+                            onClickOnDevelopmentCard(title, description, image, isDevelopmentCard);
 
                         }
                     });
 
                     r.setOnDragDetected(new EventHandler<MouseEvent>() {
                         String title = hover.getText();
+
                         @Override
                         public void handle(MouseEvent mouseEvent) {
-                            gameService.playDevelopmentCard((UserDTO) joinedLobbyUser, currentLobby,title);
+                            gameService.playDevelopmentCard((UserDTO) joinedLobbyUser, currentLobby, title);
                         }
                     });
 
@@ -2553,18 +2598,20 @@ public class GamePresenter extends AbstractPresenter {
                         String title = hover.getText();
                         String description = "The Year of Plenty development car. With this card played out, you can build wo roads this turn free of charge";
                         Boolean isDevelopmentCard = true;
+
                         @Override
                         public void handle(MouseEvent mouseEvent) {
-                            onClickOnDevelopmentCard(title,description,image,isDevelopmentCard);
+                            onClickOnDevelopmentCard(title, description, image, isDevelopmentCard);
 
                         }
                     });
 
                     r.setOnDragDetected(new EventHandler<MouseEvent>() {
                         String title = hover.getText();
+
                         @Override
                         public void handle(MouseEvent mouseEvent) {
-                            gameService.playDevelopmentCard((UserDTO) joinedLobbyUser, currentLobby,title);
+                            gameService.playDevelopmentCard((UserDTO) joinedLobbyUser, currentLobby, title);
                         }
                     });
 
@@ -2579,9 +2626,10 @@ public class GamePresenter extends AbstractPresenter {
                         String title = hover.getText();
                         String description = "your victory points for the game you earned until now";
                         Boolean isDevelopmentCard = false;
+
                         @Override
                         public void handle(MouseEvent mouseEvent) {
-                            onClickOnDevelopmentCard(title,description,image,isDevelopmentCard);
+                            onClickOnDevelopmentCard(title, description, image, isDevelopmentCard);
 
                         }
                     });
@@ -2597,9 +2645,10 @@ public class GamePresenter extends AbstractPresenter {
                         String title = hover.getText();
                         String description = "A bigger version of the settlements";
                         Boolean isDevelopmentCard = false;
+
                         @Override
                         public void handle(MouseEvent mouseEvent) {
-                            onClickOnDevelopmentCard(title,description,image,isDevelopmentCard);
+                            onClickOnDevelopmentCard(title, description, image, isDevelopmentCard);
 
                         }
                     });
@@ -2615,9 +2664,10 @@ public class GamePresenter extends AbstractPresenter {
                         String title = hover.getText();
                         String description = "With these you can connect your settlements and cities with each other";
                         Boolean isDevelopmentCard = false;
+
                         @Override
                         public void handle(MouseEvent mouseEvent) {
-                            onClickOnDevelopmentCard(title,description,image,isDevelopmentCard);
+                            onClickOnDevelopmentCard(title, description, image, isDevelopmentCard);
 
                         }
                     });
@@ -2633,9 +2683,10 @@ public class GamePresenter extends AbstractPresenter {
                         String title = hover.getText();
                         String description = "You can build these to get resources from tiles";
                         Boolean isDevelopmentCard = false;
+
                         @Override
                         public void handle(MouseEvent mouseEvent) {
-                            onClickOnDevelopmentCard(title,description,image,isDevelopmentCard);
+                            onClickOnDevelopmentCard(title, description, image, isDevelopmentCard);
 
                         }
                     });
@@ -2662,26 +2713,25 @@ public class GamePresenter extends AbstractPresenter {
     /**
      * This method can be called when the user clicks on a card in the private inventory.
      * <p>
-     *  When this method is called, a close-up of the clicked card with a short description appears. If the card is a
-     *  development card, it can be played directly from the close-up.
+     * When this method is called, a close-up of the clicked card with a short description appears. If the card is a
+     * development card, it can be played directly from the close-up.
      *
-     * @param cardName The name of the clicked card
-     * @param description A short description of the played card
-     * @param cardImage An enlarged image of the clicked card
+     * @param cardName          The name of the clicked card
+     * @param description       A short description of the played card
+     * @param cardImage         An enlarged image of the clicked card
      * @param isDevelopmentCard Boolean value if the card is a development card or not
-     *
      * @author Ricardo Mook
      * @since 2021-05-30
      */
 
-    public void onClickOnDevelopmentCard(String cardName, String description, Image cardImage, Boolean isDevelopmentCard){
+    public void onClickOnDevelopmentCard(String cardName, String description, Image cardImage, Boolean isDevelopmentCard) {
         Alert clickAlert = new Alert(Alert.AlertType.CONFIRMATION);
         ButtonType ok = new ButtonType("Ok", ButtonBar.ButtonData.NO);
         clickAlert.getButtonTypes().setAll(ok);
 
-        if (isDevelopmentCard){
+        if (isDevelopmentCard) {
             ButtonType playThisCard = new ButtonType("Play this card", ButtonBar.ButtonData.YES);
-            clickAlert.getButtonTypes().setAll(ok,playThisCard);
+            clickAlert.getButtonTypes().setAll(ok, playThisCard);
 
             Button playCard = (Button) clickAlert.getDialogPane().lookupButton(playThisCard);
             playCard.setOnAction(event -> {
