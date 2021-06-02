@@ -880,7 +880,7 @@ public class GameService extends AbstractService {
     }
 
     public void endTurn(Game game, UserDTO user) {
-        if (user.getUsername().equals(game.getUser(game.getTurn()).getUsername()) && game.getCurrentCard().equals("") && (game.rolledDiceThisTurn() || game.isStartingTurns())) {
+        if (user.equals(game.getUser(game.getTurn())) && game.getCurrentCard().equals("") && (game.rolledDiceThisTurn() || game.isStartingTurns())) {
             try {
                 boolean priorGamePhase = game.isStartingTurns();
                 game.nextRound();
@@ -1063,11 +1063,11 @@ public class GameService extends AbstractService {
                             game.setPlayedCardThisTurn(true);
                             PlayDevelopmentCardResponse response = new PlayDevelopmentCardResponse(devCard, true, turnPlayer.getUsername(), game.getName());
                             MoveRobberMessage moveRobberMessage = new MoveRobberMessage(request.getName(), request.getUser());
-                            sendToSpecificUserInGame(moveRobberMessage, request.getUser());
                             response.initWithMessage(request);
                             post(response);
                             inventory.setPlayedKnights(inventory.getPlayedKnights() + 1);
                             inventory.cardKnight.decNumber();
+                            sendToSpecificUserInGame(moveRobberMessage, request.getUser());
                             updateInventory(game);
                             break;
                         }
@@ -1122,39 +1122,41 @@ public class GameService extends AbstractService {
                         if (request instanceof ResolveDevelopmentCardMonopolyRequest) {
                             ResolveDevelopmentCardMonopolyRequest monopolyRequest = (ResolveDevelopmentCardMonopolyRequest) request;
                             String resource = monopolyRequest.getResource();
-                            for (User user : game.getUsers()) {
-                                if (!user.equals(turnPlayer)) {
-                                    Inventory x = game.getInventory(user);
-                                    switch (resource) {
-                                        case "Lumber":
-                                            turnPlayerInventory.incCardStack(resource, x.lumber.getNumber());
-                                            x.lumber.decNumber(x.lumber.getNumber());
-                                            resolvedDevelopmentCardSuccessfully = true;
-                                            break;
-                                        case "Ore":
-                                            turnPlayerInventory.incCardStack(resource, x.ore.getNumber());
-                                            x.ore.decNumber(x.ore.getNumber());
-                                            resolvedDevelopmentCardSuccessfully = true;
-                                            break;
-                                        case "Wool":
-                                            turnPlayerInventory.incCardStack(resource, x.wool.getNumber());
-                                            x.wool.decNumber(x.wool.getNumber());
-                                            resolvedDevelopmentCardSuccessfully = true;
-                                            break;
-                                        case "Brick":
-                                            turnPlayerInventory.incCardStack(resource, x.brick.getNumber());
-                                            x.brick.decNumber(x.brick.getNumber());
-                                            resolvedDevelopmentCardSuccessfully = true;
-                                            break;
-                                        case "Grain":
-                                            turnPlayerInventory.incCardStack(resource, x.grain.getNumber());
-                                            x.grain.decNumber(x.grain.getNumber());
-                                            resolvedDevelopmentCardSuccessfully = true;
-                                            break;
-                                        default:
-                                            resolvedDevelopmentCardSuccessfully = false;
-                                            break;
+                            if (resource.equals("Lumber") || resource.equals("Brick") || resource.equals("Ore") || resource.equals("Grain") || resource.equals("Wool")) {
+                                for (User user : game.getUsersList()) {
+                                    if (!user.equals(turnPlayer)) {
+                                        Inventory x = game.getInventory(user);
+                                        switch (resource) {
+                                            case "Lumber":
+                                                turnPlayerInventory.incCardStack(resource, x.getSpecificResourceAmount(resource));
+                                                x.decCardStack(resource, x.getSpecificResourceAmount(resource));
+                                                resolvedDevelopmentCardSuccessfully = true;
+                                                break;
+                                            case "Ore":
+                                                turnPlayerInventory.incCardStack(resource, x.ore.getNumber());
+                                                x.ore.decNumber(x.ore.getNumber());
+                                                resolvedDevelopmentCardSuccessfully = true;
+                                                break;
+                                            case "Wool":
+                                                turnPlayerInventory.incCardStack(resource, x.wool.getNumber());
+                                                x.wool.decNumber(x.wool.getNumber());
+                                                resolvedDevelopmentCardSuccessfully = true;
+                                                break;
+                                            case "Brick":
+                                                turnPlayerInventory.incCardStack(resource, x.brick.getNumber());
+                                                x.brick.decNumber(x.brick.getNumber());
+                                                resolvedDevelopmentCardSuccessfully = true;
+                                                break;
+                                            case "Grain":
+                                                turnPlayerInventory.incCardStack(resource, x.grain.getNumber());
+                                                x.grain.decNumber(x.grain.getNumber());
+                                                resolvedDevelopmentCardSuccessfully = true;
+                                                break;
+                                            default:
+                                                resolvedDevelopmentCardSuccessfully = false;
+                                                break;
 
+                                        }
                                     }
                                 }
                             }
