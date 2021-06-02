@@ -1124,37 +1124,9 @@ public class GameService extends AbstractService {
                                 for (User user : game.getUsersList()) {
                                     if (!user.equals(turnPlayer)) {
                                         Inventory x = game.getInventory(user);
-                                        switch (resource) {
-                                            case "Lumber":
-                                                turnPlayerInventory.incCardStack(resource, x.getSpecificResourceAmount(resource));
-                                                x.decCardStack(resource, x.getSpecificResourceAmount(resource));
-                                                resolvedDevelopmentCardSuccessfully = true;
-                                                break;
-                                            case "Ore":
-                                                turnPlayerInventory.incCardStack(resource, x.ore.getNumber());
-                                                x.ore.decNumber(x.ore.getNumber());
-                                                resolvedDevelopmentCardSuccessfully = true;
-                                                break;
-                                            case "Wool":
-                                                turnPlayerInventory.incCardStack(resource, x.wool.getNumber());
-                                                x.wool.decNumber(x.wool.getNumber());
-                                                resolvedDevelopmentCardSuccessfully = true;
-                                                break;
-                                            case "Brick":
-                                                turnPlayerInventory.incCardStack(resource, x.brick.getNumber());
-                                                x.brick.decNumber(x.brick.getNumber());
-                                                resolvedDevelopmentCardSuccessfully = true;
-                                                break;
-                                            case "Grain":
-                                                turnPlayerInventory.incCardStack(resource, x.grain.getNumber());
-                                                x.grain.decNumber(x.grain.getNumber());
-                                                resolvedDevelopmentCardSuccessfully = true;
-                                                break;
-                                            default:
-                                                resolvedDevelopmentCardSuccessfully = false;
-                                                break;
-
-                                        }
+                                        turnPlayerInventory.incCardStack(resource, x.getSpecificResourceAmount(resource));
+                                        x.decCardStack(resource, x.getSpecificResourceAmount(resource));
+                                        resolvedDevelopmentCardSuccessfully = true;
                                     }
                                 }
                             }
@@ -1234,6 +1206,7 @@ public class GameService extends AbstractService {
                 }
             }
         }
+
     }
 
     /**
