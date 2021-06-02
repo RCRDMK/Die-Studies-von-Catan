@@ -5,14 +5,14 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<AnchorPane fx:id="gameAnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="500.0" prefWidth="735.0" stylesheets="@../css/swp.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.uol.swp.client.game.GamePresenter">
+<AnchorPane fx:id="gameAnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="500.0" prefWidth="969.0" stylesheets="@../css/swp.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.uol.swp.client.game.GamePresenter">
 
     <children>
-        <TextArea fx:id="gameChatArea" editable="false" layoutX="370.0" layoutY="279.0" prefHeight="96.0" prefWidth="356.0" GridPane.rowIndex="2" />
-        <ListView fx:id="publicInventory1View" layoutX="439.0" layoutY="30.0" prefHeight="69.0" prefWidth="109.0" />
-        <ListView fx:id="publicInventory2View" layoutX="618.0" layoutY="30.0" prefHeight="69.0" prefWidth="109.0" />
-        <ListView fx:id="publicInventory3View" layoutX="439.0" layoutY="153.0" prefHeight="69.0" prefWidth="109.0" visible="false"/>
-        <ListView fx:id="publicInventory4View" layoutX="618.0" layoutY="153.0" prefHeight="69.0" prefWidth="109.0" visible="false" />
+        <TextArea fx:id="gameChatArea" editable="false" layoutX="730.0" layoutY="32.0" prefHeight="339.0" prefWidth="229.0" GridPane.rowIndex="2" />
+        <ListView fx:id="publicInventory1View" layoutX="439.0" layoutY="30.0" prefHeight="132.0" prefWidth="110.0" style="-fx-border-color: #8B0000" />
+        <ListView fx:id="publicInventory2View" layoutX="618.0" layoutY="30.0" prefHeight="132.0" prefWidth="110.0" style="-fx-border-color: #1E90FF" />
+        <ListView fx:id="publicInventory3View" layoutX="439.0" layoutY="215.0" prefHeight="132.0" prefWidth="110.0" style="-fx-border-color: #4B0082" visible="false" />
+        <ListView fx:id="publicInventory4View" layoutX="618.0" layoutY="215.0" prefHeight="132.0" prefWidth="110.0" style="-fx-border-color: #008000" visible="false" />
         <ToolBar layoutY="-5.0" prefHeight="35.0" prefWidth="735.0">
             <items>
                 <Button fx:id="rollDice" mnemonicParsing="false" onAction="#onRollDice" text="Roll Dice" />
@@ -34,13 +34,13 @@
             </items>
         </ToolBar>
         <Canvas fx:id="canvas" height="370.0" layoutX="0.0" layoutY="30.0" width="370" />
-        <Button layoutX="662.0" layoutY="375.0" mnemonicParsing="false" onAction="#onSendMessage" prefHeight="25.0" prefWidth="59.0" text="Send" />
-        <TextField fx:id="gameChatInput" layoutX="370.0" layoutY="375.0" onAction="#onSendMessage" prefHeight="25.0" prefWidth="290.0" promptText="Send Message.." />
-      <Pane fx:id="picturePlayerView1" layoutX="370.0" layoutY="30.0" prefHeight="68.0" prefWidth="68.0" />
-      <Pane fx:id="picturePlayerView3" layoutX="370.0" layoutY="153.0" prefHeight="69.0" prefWidth="68.0" />
-      <Pane fx:id="picturePlayerView2" layoutX="550.0" layoutY="30.0" prefHeight="69.0" prefWidth="68.0" />
-      <Pane fx:id="picturePlayerView4" layoutX="550.0" layoutY="153.0" prefHeight="69.0" prefWidth="68.0" />
-      <GridPane fx:id="playerTwoDiceView" layoutX="550.0" layoutY="99.0" prefHeight="50.0" prefWidth="100.0">
+        <Button layoutX="900.0" layoutY="375.0" mnemonicParsing="false" onAction="#onSendMessage" prefHeight="25.0" prefWidth="59.0" text="Send" />
+        <TextField fx:id="gameChatInput" layoutX="730.0" layoutY="375.0" onAction="#onSendMessage" prefHeight="25.0" prefWidth="170.0" promptText="Send Message.." />
+      <Pane fx:id="picturePlayerView1" layoutX="370.0" layoutY="30.0" prefHeight="69.0" prefWidth="69.0" />
+      <Pane fx:id="picturePlayerView3" layoutX="370.0" layoutY="215.0" prefHeight="69.0" prefWidth="69.0" />
+      <Pane fx:id="picturePlayerView2" layoutX="550.0" layoutY="30.0" prefHeight="69.0" prefWidth="69.0" />
+      <Pane fx:id="picturePlayerView4" layoutX="550.0" layoutY="215.0" prefHeight="69.0" prefWidth="69.0" />
+      <GridPane fx:id="playerTwoDiceView" layoutX="550.0" layoutY="165.0" prefHeight="50.0" prefWidth="100.0">
          <columnConstraints>
             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -49,7 +49,7 @@
             <RowConstraints minHeight="10.0" prefHeight="100.0" vgrow="SOMETIMES" />
          </rowConstraints>
       </GridPane>
-      <GridPane fx:id="playerOneDiceView" layoutX="370.0" layoutY="101.0" prefHeight="50.0" prefWidth="100.0">
+      <GridPane fx:id="playerOneDiceView" layoutX="370.0" layoutY="165.0" prefHeight="50.0" prefWidth="100.0">
         <columnConstraints>
           <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -58,7 +58,7 @@
           <RowConstraints minHeight="10.0" prefHeight="100.0" vgrow="SOMETIMES" />
         </rowConstraints>
       </GridPane>
-      <GridPane fx:id="playerFourDiceView" layoutX="550.0" layoutY="225.0" prefHeight="50.0" prefWidth="100.0">
+      <GridPane fx:id="playerFourDiceView" layoutX="550.0" layoutY="350.0" prefHeight="50.0" prefWidth="100.0">
          <columnConstraints>
             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -67,7 +67,7 @@
             <RowConstraints minHeight="10.0" prefHeight="100.0" vgrow="SOMETIMES" />
          </rowConstraints>
       </GridPane>
-      <GridPane fx:id="playerThreeDiceView" layoutX="370.0" layoutY="225.0" prefHeight="50.0" prefWidth="100.0">
+      <GridPane fx:id="playerThreeDiceView" layoutX="368.0" layoutY="350.0" prefHeight="50.0" prefWidth="100.0">
          <columnConstraints>
             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />

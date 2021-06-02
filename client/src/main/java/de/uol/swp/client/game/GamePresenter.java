@@ -1013,7 +1013,7 @@ public class GamePresenter extends AbstractPresenter {
      * @see de.uol.swp.common.user.UserDTO
      * @since 2020-03-14
      */
-   private void updateGameUsersList(List<UserDTO> gameUserList) {
+    private void updateGameUsersList(List<UserDTO> gameUserList) {
         updateGameUsersListLogic(gameUserList);
     }
 
@@ -1022,7 +1022,7 @@ public class GamePresenter extends AbstractPresenter {
         Platform.runLater(() -> {
             if (gameUsers == null) {
                 gameUsers = FXCollections.observableArrayList();
-               // gameUsersView.setItems(gameUsers);
+                // gameUsersView.setItems(gameUsers);
             }
             gameUsers.clear();
             l.forEach(u -> gameUsers.add(u.getUsername()));
@@ -2024,60 +2024,61 @@ public class GamePresenter extends AbstractPresenter {
                 publicInventory4 = FXCollections.observableArrayList();
                 publicInventory4View.setItems(publicInventory4);
             }
-            initializePublicInventory(publicInventory1, publicInventoriesList);
+            initializePublicInventory(publicInventory1, publicInventoriesList.get(0));
             publicInventory1View.setCellFactory(y -> new PublicInventoryCell(publicInventoriesList.get(0)));
 
-            initializePublicInventory(publicInventory2, publicInventoriesList);
+            initializePublicInventory(publicInventory2, publicInventoriesList.get(1));
             publicInventory2View.setCellFactory(y -> new PublicInventoryCell(publicInventoriesList.get(1)));
 
             if (gameUsers.size() > 2) {
-                initializePublicInventory(publicInventory3, publicInventoriesList);
+                initializePublicInventory(publicInventory3, publicInventoriesList.get(2));
                 publicInventory3View.setCellFactory(y -> new PublicInventoryCell(publicInventoriesList.get(2)));
                 publicInventory3View.setVisible(true);
             }
 
             if (gameUsers.size() > 3) {
-                initializePublicInventory(publicInventory4, publicInventoriesList);
-                publicInventory4View.setCellFactory(y -> new PublicInventoryCell(publicInventoriesList.get(2)));
+                initializePublicInventory(publicInventory4, publicInventoriesList.get(3));
+                publicInventory4View.setCellFactory(y -> new PublicInventoryCell(publicInventoriesList.get(3)));
                 publicInventory4View.setVisible(true);
             }
         });
     }
 
-    public void initializePublicInventory (ObservableList<HashMap.Entry<String, Integer>> observableListOfHashMap, ArrayList<HashMap<String, Integer>> arrayListOfHashMap) {
-        observableListOfHashMap.clear();
-        observableListOfHashMap.add(null);
-        observableListOfHashMap.add(null);
-        observableListOfHashMap.add(null);
-        observableListOfHashMap.add(null);
-        observableListOfHashMap.add(null);
-        for (Map.Entry<String, Integer> entry : arrayListOfHashMap.get(0).entrySet()) {
-            if(!entry.getKey().equals("Largest Army") && !entry.getKey().equals("Longest Road")) {
+    public void initializePublicInventory(ObservableList<HashMap.Entry<String, Integer>> hashMapEntriesList, HashMap<String, Integer> hashMap) {
+        hashMapEntriesList.clear();
+        hashMapEntriesList.add(null);
+        hashMapEntriesList.add(null);
+        hashMapEntriesList.add(null);
+        hashMapEntriesList.add(null);
+        hashMapEntriesList.add(null);
+        for (Map.Entry<String, Integer> entry : hashMap.entrySet()) {
+            if (!entry.getKey().equals("Largest Army") && !entry.getKey().equals("Longest Road")) {
                 switch (entry.getKey()) {
                     case "Public Victory Points":
-                        observableListOfHashMap.add(0, entry);
-                        observableListOfHashMap.remove(1);
+                        hashMapEntriesList.add(0, entry);
+                        hashMapEntriesList.remove(1);
                         break;
                     case "Resource":
-                        observableListOfHashMap.add(1, entry);
-                        observableListOfHashMap.remove(2);
+                        hashMapEntriesList.add(1, entry);
+                        hashMapEntriesList.remove(2);
                         break;
                     case "Development Cards":
-                        observableListOfHashMap.add(2, entry);
-                        observableListOfHashMap.remove(3);
+                        hashMapEntriesList.add(2, entry);
+                        hashMapEntriesList.remove(3);
                         break;
                     case "Played Knights":
-                        observableListOfHashMap.add(3, entry);
-                        observableListOfHashMap.remove(4);
+                        hashMapEntriesList.add(3, entry);
+                        hashMapEntriesList.remove(4);
                         break;
                     case "Continuous Road":
-                        observableListOfHashMap.add(4, entry);
-                        observableListOfHashMap.remove(5);
+                        hashMapEntriesList.add(4, entry);
+                        hashMapEntriesList.remove(5);
                         break;
                 }
             }
         }
     }
+
     /**
      * The method called when a ResolveDevelopmentCardNotSuccessfulResponse is received
      * <p>
