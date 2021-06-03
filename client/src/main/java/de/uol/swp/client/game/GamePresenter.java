@@ -100,10 +100,10 @@ public class GamePresenter extends AbstractPresenter {
     private String gameFieldVariant;
 
     private final ArrayList<HexagonContainer> hexagonContainers = new ArrayList<>();
-    private ObservableList<String> publicInventory1;
-    private ObservableList<String> publicInventory2;
-    private ObservableList<String> publicInventory3;
-    private ObservableList<String> publicInventory4;
+    private ObservableList<HashMap.Entry<String, Integer>> publicInventory1;
+    private ObservableList<HashMap.Entry<String, Integer>> publicInventory2;
+    private ObservableList<HashMap.Entry<String, Integer>> publicInventory3;
+    private ObservableList<HashMap.Entry<String, Integer>> publicInventory4;
 
     private final ArrayList<MapGraphNodeContainer> mapGraphNodeContainers = new ArrayList<>();
 
@@ -183,13 +183,13 @@ public class GamePresenter extends AbstractPresenter {
     private GridPane playerFourDiceView;
 
     @FXML
-    private ListView<String> publicInventory1View;
+    private ListView<HashMap.Entry<String, Integer>> publicInventory1View;
     @FXML
-    private ListView<String> publicInventory2View;
+    private ListView<HashMap.Entry<String, Integer>> publicInventory2View;
     @FXML
-    private ListView<String> publicInventory3View;
+    private ListView<HashMap.Entry<String, Integer>> publicInventory3View;
     @FXML
-    private ListView<String> publicInventory4View;
+    private ListView<HashMap.Entry<String, Integer>> publicInventory4View;
 
     @FXML
     private GridPane privateInventoryView;
@@ -2147,72 +2147,126 @@ public class GamePresenter extends AbstractPresenter {
         });
     }
 
-/*    @Subscribe
+    /**
+     * Handles new PublicInventoryChangeMessage
+     * <p>
+     * If a PublicInventoryChangeMessage is detected on the EventBus the method onPublicInventoryChangeMessageLogic is invoked.
+     *
+     * @param publicInventoryChangeMessage the PublicInventoryChangeMessage object seen on the EventBus
+     * @author Iskander Yusupov
+     * @see PublicInventoryChangeMessage
+     * @since 2021-05-28
+     */
+    @Subscribe
     public void onPublicInventoryChangeMessage(PublicInventoryChangeMessage publicInventoryChangeMessage) {
         onPublicInventoryChangeMessageLogic(publicInventoryChangeMessage);
     }
-        // TODO: public inventory implementieren
+    /**
+     * The Method invoked by onPublicInventoryChangeMessage()
+     * <p>
+     * If the currentLobby is not null, meaning this is not an empty GamePresenter and the game name stored in this
+     * GamePresenter equals the one in the received Message, the method updatePublicInventory is invoked to update the
+     * public inventories in the currentLobby(current game) in regards to the arrayLists given by the message.
+     *
+     * @param puicm the PublicInventoryChangeMessage given by the original subscriber method.
+     * @author Iskander Yusupov
+     * @see de.uol.swp.common.game.message.PublicInventoryChangeMessage
+     * @since 2021-05-28
+     */
     private void onPublicInventoryChangeMessageLogic(PublicInventoryChangeMessage puicm) {
         if (this.currentLobby != null) {
             if (this.currentLobby.equals(puicm.getName())) {
-                ArrayList<HashMap<String, Integer>> p = new ArrayList<>();
-                Platform.runLater(() -> {
-                    if (publicInventory1 == null) {
-                        publicInventory1 = FXCollections.observableArrayList();
-                        publicInventory1View.setItems(publicInventory1);
-                    }
-                    if (publicInventory2 == null) {
-                        publicInventory2 = FXCollections.observableArrayList();
-                        publicInventory2View.setItems(publicInventory2);
-                    }
-                    if (publicInventory3 == null) {
-                        publicInventory3 = FXCollections.observableArrayList();
-                        publicInventory3View.setItems(publicInventory3);
-                    }
-                    if (publicInventory4 == null) {
-                        publicInventory4 = FXCollections.observableArrayList();
-                        publicInventory4View.setItems(publicInventory4);
-                    }
-                    publicInventory1.clear();
-                    publicInventory1.add(0, p.get(0).get("Resource").toString());
-                    publicInventory1.add(0, p.get(0).get("Development Cards").toString());
-                    publicInventory1.add(0, p.get(0).get("Played Knights").toString());
-                    publicInventory1.add(0, p.get(0).get("Continuous Road").toString());
-                    publicInventory1.add(0, p.get(0).get("Largest Army").toString());
-                    publicInventory1.add(0, p.get(0).get("Longest Road").toString());
-                    publicInventory1.add(0, p.get(0).get("PublicVictoryPoints").toString());
-                    //      publicInventory1View.setCellFactory(x -> new PublicInventoryCell());
-                    publicInventory2.clear();
-                    publicInventory2.add(1, p.get(1).get("Resource").toString());
-                    publicInventory2.add(1, p.get(1).get("Development Cards").toString());
-                    publicInventory2.add(1, p.get(1).get("Played Knights").toString());
-                    publicInventory2.add(1, p.get(1).get("Continuous Road").toString());
-                    publicInventory2.add(1, p.get(1).get("Largest Army").toString());
-                    publicInventory2.add(1, p.get(1).get("Longest Road").toString());
-                    publicInventory2.add(1, p.get(1).get("PublicVictoryPoints").toString());
-                    //       publicInventory2View.setCellFactory(x -> new PublicInventoryCell());
-                    publicInventory3.clear();
-                    publicInventory3.add(2, p.get(2).get("Resource").toString());
-                    publicInventory3.add(2, p.get(2).get("Development Cards").toString());
-                    publicInventory3.add(2, p.get(2).get("Played Knights").toString());
-                    publicInventory3.add(2, p.get(2).get("Continuous Road").toString());
-                    publicInventory3.add(2, p.get(2).get("Largest Army").toString());
-                    publicInventory3.add(2, p.get(2).get("Longest Road").toString());
-                    publicInventory3.add(2, p.get(2).get("PublicVictoryPoints").toString());
-                    //     publicInventory3View.setCellFactory(x -> new PublicInventoryCell());
-                    publicInventory4.clear();
-                    publicInventory4.add(3, p.get(3).get("Resource").toString());
-                    publicInventory4.add(3, p.get(3).get("Development Cards").toString());
-                    publicInventory4.add(3, p.get(3).get("Played Knights").toString());
-                    publicInventory4.add(3, p.get(3).get("Continuous Road").toString());
-                    publicInventory4.add(3, p.get(3).get("Largest Army").toString());
-                    publicInventory4.add(3, p.get(3).get("Longest Road").toString());
-                    publicInventory4.add(3, p.get(3).get("PublicVictoryPoints").toString());
-                    //     publicInventory4View.setCellFactory(x -> new PublicInventoryCell());
-                });
+                updatePublicInventory(puicm.getPublicInventories());
             }
         }
-    } */
+    }
+    /**
+     * Updates the publicInventoryViews according to the Arraylists given
+     * <p>
+     * This method clears each publicInventory (ObservableList) and then adds the names of users and
+     * contents of public inventories in each publicInventory(1-4).
+     * If there is no publicInventory (ObservableList), method creates one.
+     *
+     * @implNote The code inside this Method has to run in the JavaFX-application thread. Therefore it is crucial not to
+     * remove the {@code Platform.runLater()}
+     * @author Iskander Yusupov
+     * @see de.uol.swp.common.game.inventory.Inventory
+     * @since 2021-05-28
+     */
+    public void updatePublicInventory(ArrayList<HashMap<String, Integer>> publicInventoriesList) {
+        // Attention: This must be done on the FX Thread!
+        Platform.runLater(() -> {
+            if (publicInventory1 == null) {
+                publicInventory1 = FXCollections.observableArrayList();
+                publicInventory1View.setItems(publicInventory1);
+            }
+            if (publicInventory2 == null) {
+                publicInventory2 = FXCollections.observableArrayList();
+                publicInventory2View.setItems(publicInventory2);
+            }
+            if (publicInventory3 == null && gameUsers.size() >= 2) {
+                publicInventory3 = FXCollections.observableArrayList();
+                publicInventory3View.setItems(publicInventory3);
+            }
+            if (publicInventory4 == null && gameUsers.size() > 2) {
+                publicInventory4 = FXCollections.observableArrayList();
+                publicInventory4View.setItems(publicInventory4);
+            }
+            initializePublicInventory(publicInventory1, publicInventoriesList.get(0));
+            publicInventory1View.setCellFactory(y -> new PublicInventoryCell(publicInventoriesList.get(0)));
+            initializePublicInventory(publicInventory2, publicInventoriesList.get(1));
+            publicInventory2View.setCellFactory(y -> new PublicInventoryCell(publicInventoriesList.get(1)));
+            if (gameUsers.size() > 2) {
+            initializePublicInventory(publicInventory3, publicInventoriesList.get(2));
+            publicInventory3View.setCellFactory(y -> new PublicInventoryCell(publicInventoriesList.get(2)));
+            publicInventory3View.setVisible(true);
+            }
+
+            if (gameUsers.size() > 3) {
+                initializePublicInventory(publicInventory4, publicInventoriesList.get(3));
+                publicInventory4View.setCellFactory(y -> new PublicInventoryCell(publicInventoriesList.get(3)));
+                publicInventory4View.setVisible(true);
+            }
+    });
+}
+
+
+    public void initializePublicInventory (ObservableList<HashMap.Entry<String, Integer>> hashMapEntriesList, HashMap<String, Integer> hashMap) {
+        hashMapEntriesList.clear();
+        hashMapEntriesList.add(null);
+        hashMapEntriesList.add(null);
+        hashMapEntriesList.add(null);
+        hashMapEntriesList.add(null);
+        hashMapEntriesList.add(null);
+        for (Map.Entry<String, Integer> entry : hashMap.entrySet()) {
+            if(!entry.getKey().equals("Largest Army") && !entry.getKey().equals("Longest Road")) {
+                switch (entry.getKey()) {
+                    case "Public Victory Points":
+                        hashMapEntriesList.add(0, entry);
+                        hashMapEntriesList.remove(1);
+                        break;
+                    case "Resource":
+                        hashMapEntriesList.add(1, entry);
+                        hashMapEntriesList.remove(2);
+                        break;
+                    case "Development Cards":
+                        hashMapEntriesList.add(2, entry);
+                        hashMapEntriesList.remove(3);
+                        break;
+                    case "Played Knights":
+                        hashMapEntriesList.add(3, entry);
+                        hashMapEntriesList.remove(4);
+                        break;
+                    case "Continuous Road":
+                        hashMapEntriesList.add(4, entry);
+                        hashMapEntriesList.remove(5);
+                        break;
+                }
+            }
+        }
+    }
+
+
 
     /**
      * The method called when a ResolveDevelopmentCardNotSuccessfulResponse is received
