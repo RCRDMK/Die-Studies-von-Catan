@@ -93,10 +93,6 @@ public class GameService extends AbstractService {
                         lobby.ifPresent(value -> value.setGameStarted(false));
                         sendToAll(new GameDroppedMessage(gameLeaveUserRequest.getName()));
                     }
-                } else if (game.getUsers() == null) {
-                    gameManagement.dropGame(gameLeaveUserRequest.getName());
-                    lobby.ifPresent(value -> value.setGameStarted(false));
-                    sendToAll(new GameDroppedMessage(gameLeaveUserRequest.getName()));
 
                 } else {
                     if (gameLeaveUserRequest.getMessageContext().isPresent()) {
