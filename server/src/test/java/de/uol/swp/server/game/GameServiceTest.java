@@ -30,7 +30,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.sql.Array;
 import java.sql.SQLException;
 import java.util.*;
 
@@ -1154,7 +1153,7 @@ public class GameServiceTest {
                 uuidForRobber = hx.getUuid();
             }
         }
-        RobbersNewFieldMessage mrm = new RobbersNewFieldMessage(game.getName(), userDTO1, uuidForRobber);
+        RobbersNewFieldRequest mrm = new RobbersNewFieldRequest(game.getName(), userDTO1, uuidForRobber);
         gameService.onRobbersNewFieldRequest(mrm);
 
         // Check if the AI discarded its resources and now has less than before and therefore discarded resources
