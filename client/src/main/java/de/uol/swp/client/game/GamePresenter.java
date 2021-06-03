@@ -1948,6 +1948,18 @@ public class GamePresenter extends AbstractPresenter {
                             MapGraph.BuildingNode buildingNode = (MapGraph.BuildingNode) mapGraphNodeContainer.getMapGraphNode();
                             buildingNode.setOccupiedByPlayer(message.getPlayerIndex());
                             buildingNode.incSizeOfSettlement();
+                            for (MapGraph.StreetNode streetNode : ((MapGraph.BuildingNode) mapGraphNodeContainer.getMapGraphNode()).getConnectedStreetNodes()) {
+                                for (MapGraph.BuildingNode buildingNode1 : streetNode.getConnectedBuildingNodes()) {
+                                    if (!buildingNode1.equals(buildingNode)) {
+                                        buildingNode1.setOccupiedByPlayer(420);
+                                    }
+                                }
+                            }
+                            for (MapGraphNodeContainer mapGraphNodeContainer1 : mapGraphNodeContainers) {
+                                if (mapGraphNodeContainer1.getMapGraphNode().getOccupiedByPlayer() == 420 && mapGraphNodeContainer1.getMapGraphNode() instanceof MapGraph.BuildingNode) {
+                                    mapGraphNodeContainer1.getCircle().setVisible(false);
+                                }
+                            }
                             if (mapGraphNodeContainer.getCircle().getFill().equals(Color.color(0.5, 0.5, 0.5))) {
                                 Platform.runLater(() -> {
                                     mapGraphNodeContainer.getCircle().setRadius(cardSize() / 3.5);
@@ -1972,9 +1984,9 @@ public class GamePresenter extends AbstractPresenter {
                                 mapGraphNodeContainer.getCircle().setVisible(false);
                                 mapGraphNodeContainer.getRectangle().setFill(determineBuildingPicture(mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer(), 0));
                                 mapGraphNodeContainer.getRectangle().setVisible(true);
-                                for (MapGraphNodeContainer mapGraphNodeContainer1 : mapGraphNodeContainers) {
-                                    if (mapGraphNodeContainer1.getMapGraphNode().getOccupiedByPlayer() != 666 && mapGraphNodeContainer1.getMapGraphNode() instanceof MapGraph.BuildingNode) {
-                                        mapGraphNodeContainer1.getCircle().toFront();
+                                for (MapGraphNodeContainer mapGraphNodeContainer2 : mapGraphNodeContainers) {
+                                    if (mapGraphNodeContainer2.getMapGraphNode().getOccupiedByPlayer() != 666 && mapGraphNodeContainer2.getMapGraphNode().getOccupiedByPlayer() != 420 && mapGraphNodeContainer2.getMapGraphNode() instanceof MapGraph.BuildingNode) {
+                                        mapGraphNodeContainer2.getCircle().toFront();
                                     }
                                 }
                             });
