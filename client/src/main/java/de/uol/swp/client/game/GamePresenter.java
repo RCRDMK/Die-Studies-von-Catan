@@ -507,7 +507,7 @@ public class GamePresenter extends AbstractPresenter {
             this.currentLobby = gcm.getName();
             this.gameFieldVariant = gcm.getGameFieldVariant();
             updateGameUsersList(gcm.getUsers(), gcm.getHumans());
-            initializeMatch(gcm.getMapGraph());
+            Platform.runLater(() -> initializeMatch(gcm.getMapGraph()));
             for (int i = 1; i <= 67; i++) {
                 Image image;
                 image = new Image("img/profilePictures/" + i + ".png");
@@ -546,7 +546,7 @@ public class GamePresenter extends AbstractPresenter {
             this.currentLobby = joggr.getGameName();
             this.gameFieldVariant = joggr.getGameFieldVariant();
             updateGameUsersList(joggr.getUsers(), joggr.getHumans());
-            initializeMatch(joggr.getMapGraph());
+            Platform.runLater(() -> initializeMatch(joggr.getMapGraph()));
             for (int i = 1; i <= 67; i++) {
                 Image image;
                 image = new Image("img/profilePictures/" + i + ".png");
@@ -1242,16 +1242,14 @@ public class GamePresenter extends AbstractPresenter {
         for (HexagonContainer hexagonContainer : this.hexagonContainers) {
 
             Vector placementVector = Vector.convertStringListToVector(hexagonContainer.getHexagon().getSelfPosition(), cardSize(), centerOfCanvasVector);
-            Platform.runLater(() -> {
-                hexagonContainer.getHexagonShape().setLayoutX(placementVector.getX());
-                hexagonContainer.getHexagonShape().setLayoutY(placementVector.getY());
-                hexagonContainer.getHexagonShape().setFill(determinePictureOfTerrain(hexagonContainer.getHexagon()));
-            });
+            hexagonContainer.getHexagonShape().setLayoutX(placementVector.getX());
+            hexagonContainer.getHexagonShape().setLayoutY(placementVector.getY());
+            hexagonContainer.getHexagonShape().setFill(determinePictureOfTerrain(hexagonContainer.getHexagon()));
 
             if (hexagonContainer.getHexagon().getDiceToken() != 0) {
                 Text text = new Text(placementVector.getX(), placementVector.getY(), Integer.toString(hexagonContainer.getHexagon().getDiceToken()));
                 text.setFill(Color.BLACK);
-                Platform.runLater(() -> gameAnchorPane.getChildren().add(text));
+                gameAnchorPane.getChildren().add(text);
             }
         }
 
@@ -1350,7 +1348,7 @@ public class GamePresenter extends AbstractPresenter {
         for (MapGraph.Hexagon hexagon : mapGraph.getHexagonHashSet()) {
             HexagonContainer hexagonContainer = new HexagonContainer(hexagon, cardSize());
             this.hexagonContainers.add(hexagonContainer);
-            Platform.runLater(() -> gameAnchorPane.getChildren().add(hexagonContainer.getHexagonShape()));
+            gameAnchorPane.getChildren().add(hexagonContainer.getHexagonShape());
         }
 
         //Setting up the BuildingNodeContainers
@@ -1359,7 +1357,7 @@ public class GamePresenter extends AbstractPresenter {
         for (MapGraph.BuildingNode buildingNode : mapGraph.getBuildingNodeHashSet()) {
             MapGraphNodeContainer mapGraphNodeContainer = new MapGraphNodeContainer(new Circle(cardSize() / 6), buildingNode);
             this.mapGraphNodeContainers.add(mapGraphNodeContainer);
-            Platform.runLater(() -> gameAnchorPane.getChildren().add(mapGraphNodeContainer.getCircle()));
+            gameAnchorPane.getChildren().add(mapGraphNodeContainer.getCircle());
         }
 
         //Setting up the StreetNodeContainers
@@ -1368,10 +1366,8 @@ public class GamePresenter extends AbstractPresenter {
         for (MapGraph.StreetNode streetNode : mapGraph.getStreetNodeHashSet()) {
             MapGraphNodeContainer mapGraphNodeContainer = new MapGraphNodeContainer(new Circle(cardSize() / 8), streetNode, new Rectangle(cardSize() / 8.4, cardSize() / 1.9));
             this.mapGraphNodeContainers.add(mapGraphNodeContainer);
-            Platform.runLater(() -> {
-                gameAnchorPane.getChildren().add(mapGraphNodeContainer.getCircle());
-                gameAnchorPane.getChildren().add(mapGraphNodeContainer.getRectangle());
-            });
+            gameAnchorPane.getChildren().add(mapGraphNodeContainer.getCircle());
+            gameAnchorPane.getChildren().add(mapGraphNodeContainer.getRectangle());
         }
         initializeNodeSpots();
         //Draw robber
@@ -1452,11 +1448,9 @@ public class GamePresenter extends AbstractPresenter {
      */
     public void updateGameField() {
         for (MapGraphNodeContainer mapGraphNodeContainer : mapGraphNodeContainers) {
-            Platform.runLater(() -> {
-                mapGraphNodeContainer.getCircle().setFill(determinePlayerColorByIndex(mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer()));
-                if (mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer() != 666)
-                    mapGraphNodeContainer.getCircle().setVisible(true);
-            });
+            mapGraphNodeContainer.getCircle().setFill(determinePlayerColorByIndex(mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer()));
+            if (mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer() != 666)
+                mapGraphNodeContainer.getCircle().setVisible(true);
         }
         for (HexagonContainer hexagonContainer : hexagonContainers) {
             if (hexagonContainer.getHexagon().isOccupiedByRobber()) {
@@ -1622,10 +1616,8 @@ public class GamePresenter extends AbstractPresenter {
      * @since 2021-04-20
      */
     public void setupChoosePlayerAlert() {
-        Platform.runLater(() -> {
-            chooseAlert = new Alert(Alert.AlertType.CONFIRMATION);
-            chooseAlert.setContentText("Choose a player to draw a card from!");
-        });
+        chooseAlert = new Alert(Alert.AlertType.CONFIRMATION);
+        chooseAlert.setContentText("Choose a player to draw a card from!");
     }
 
     /**
@@ -1641,14 +1633,14 @@ public class GamePresenter extends AbstractPresenter {
      * @since 2021-06-02
      */
     public void showChoosePlayerAlert(ChoosePlayerMessage choosePlayerMessage) {
-            chooseAlert.setTitle(choosePlayerMessage.getName());
-            chooseAlert.getButtonTypes().setAll();
-            for (int i = 0; i < choosePlayerMessage.getUserList().size(); i++) {
-                if (!choosePlayerMessage.getUserList().get(i).equals(choosePlayerMessage.getUser().getUsername())) {
-                    chooseAlert.getButtonTypes().add(new ButtonType(choosePlayerMessage.getUserList().get(i)));
-                }
+        chooseAlert.setTitle(choosePlayerMessage.getName());
+        chooseAlert.getButtonTypes().setAll();
+        for (int i = 0; i < choosePlayerMessage.getUserList().size(); i++) {
+            if (!choosePlayerMessage.getUserList().get(i).equals(choosePlayerMessage.getUser().getUsername())) {
+                chooseAlert.getButtonTypes().add(new ButtonType(choosePlayerMessage.getUserList().get(i)));
             }
-            chooseAlert.showAndWait();
+        }
+        chooseAlert.showAndWait();
         gameService.drawRandomCardFromPlayer(choosePlayerMessage.getName(), choosePlayerMessage.getUser(), chooseAlert.getResult().getText());
         chooseAlert.close();
     }
@@ -2759,7 +2751,7 @@ public class GamePresenter extends AbstractPresenter {
         if (this.currentLobby != null) {
             if (this.currentLobby.equals(choosePlayerMessage.getName())) {
                 if (!choosePlayerMessage.getUserList().isEmpty()) {
-                    Platform.runLater(()->showChoosePlayerAlert(choosePlayerMessage));
+                    Platform.runLater(() -> showChoosePlayerAlert(choosePlayerMessage));
 
                 }
             }
