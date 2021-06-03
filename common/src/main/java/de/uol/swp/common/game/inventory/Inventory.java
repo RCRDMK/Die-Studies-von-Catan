@@ -60,10 +60,6 @@ public class Inventory implements Serializable {
         return victoryPoints;
     }
 
-    public int getCardVictoryPoint() {
-        return this.cardVictoryPoint;
-    }
-
     public void setVictoryPoints(int victoryPoints) {
         this.victoryPoints = Math.max(victoryPoints, 0);
     }
@@ -100,6 +96,9 @@ public class Inventory implements Serializable {
         this.longestRoad = longestRoad;
     }
 
+    public int getCardVictoryPoint() {
+        return this.cardVictoryPoint;
+    }
 
     //Increment the Victory Point Card and increase the victoryPoints by one
     public void incCardStackVictoryPoint() {

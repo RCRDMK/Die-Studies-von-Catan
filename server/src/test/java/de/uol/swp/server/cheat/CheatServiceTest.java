@@ -293,6 +293,7 @@ public class CheatServiceTest {
         assertEquals(cheatInventory.cardYearOfPlenty.getNumber(), 0);
         assertEquals(cheatInventory.cardMonopoly.getNumber(), 0);
         assertEquals(cheatInventory.cardRoadBuilding.getNumber(), 0);
+        assertEquals(cheatInventory.getCardVictoryPoint(), 0);
 
         assertEquals(normalInventory1.lumber.getNumber(), 0);
         assertEquals(normalInventory1.grain.getNumber(), 0);
@@ -303,6 +304,7 @@ public class CheatServiceTest {
         assertEquals(normalInventory1.cardYearOfPlenty.getNumber(), 0);
         assertEquals(normalInventory1.cardMonopoly.getNumber(), 0);
         assertEquals(normalInventory1.cardRoadBuilding.getNumber(), 0);
+        assertEquals(normalInventory1.getCardVictoryPoint(), 0);
 
         assertEquals(normalInventory2.lumber.getNumber(), 0);
         assertEquals(normalInventory2.grain.getNumber(), 0);
@@ -313,6 +315,7 @@ public class CheatServiceTest {
         assertEquals(normalInventory2.cardYearOfPlenty.getNumber(), 0);
         assertEquals(normalInventory2.cardMonopoly.getNumber(), 0);
         assertEquals(normalInventory2.cardRoadBuilding.getNumber(), 0);
+        assertEquals(normalInventory2.getCardVictoryPoint(), 0);
 
         assertEquals(normalInventory3.lumber.getNumber(), 0);
         assertEquals(normalInventory3.grain.getNumber(), 0);
@@ -323,6 +326,7 @@ public class CheatServiceTest {
         assertEquals(normalInventory3.cardYearOfPlenty.getNumber(), 0);
         assertEquals(normalInventory3.cardMonopoly.getNumber(), 0);
         assertEquals(normalInventory3.cardRoadBuilding.getNumber(), 0);
+        assertEquals(normalInventory3.getCardVictoryPoint(), 0);
     }
 
     /**
@@ -370,6 +374,7 @@ public class CheatServiceTest {
         assertEquals(cheatInventory.cardYearOfPlenty.getNumber(), 0);
         assertEquals(cheatInventory.cardMonopoly.getNumber(), 0);
         assertEquals(cheatInventory.cardRoadBuilding.getNumber(), 0);
+        assertEquals(cheatInventory.getCardVictoryPoint(), 0);
 
         assertEquals(normalInventory1.lumber.getNumber(), 0);
         assertEquals(normalInventory1.grain.getNumber(), 0);
@@ -380,6 +385,7 @@ public class CheatServiceTest {
         assertEquals(normalInventory1.cardYearOfPlenty.getNumber(), 0);
         assertEquals(normalInventory1.cardMonopoly.getNumber(), 0);
         assertEquals(normalInventory1.cardRoadBuilding.getNumber(), 0);
+        assertEquals(normalInventory1.getCardVictoryPoint(), 0);
 
         assertEquals(normalInventory2.lumber.getNumber(), 0);
         assertEquals(normalInventory2.grain.getNumber(), 0);
@@ -390,6 +396,7 @@ public class CheatServiceTest {
         assertEquals(normalInventory2.cardYearOfPlenty.getNumber(), 0);
         assertEquals(normalInventory2.cardMonopoly.getNumber(), 0);
         assertEquals(normalInventory2.cardRoadBuilding.getNumber(), 0);
+        assertEquals(normalInventory2.getCardVictoryPoint(), 0);
 
         assertEquals(normalInventory3.lumber.getNumber(), 0);
         assertEquals(normalInventory3.grain.getNumber(), 0);
@@ -400,6 +407,7 @@ public class CheatServiceTest {
         assertEquals(normalInventory3.cardYearOfPlenty.getNumber(), 0);
         assertEquals(normalInventory3.cardMonopoly.getNumber(), 0);
         assertEquals(normalInventory3.cardRoadBuilding.getNumber(), 0);
+        assertEquals(normalInventory3.getCardVictoryPoint(), 0);
     }
 
     /**
@@ -544,6 +552,7 @@ public class CheatServiceTest {
         assertEquals(cheatInventory.cardYearOfPlenty.getNumber(), 1);
         assertEquals(cheatInventory.cardMonopoly.getNumber(), 1);
         assertEquals(cheatInventory.cardRoadBuilding.getNumber(), 1);
+        assertEquals(cheatInventory.getCardVictoryPoint(), 0);
 
         assertEquals(normalInventory1.lumber.getNumber(), 0);
         assertEquals(normalInventory1.grain.getNumber(), 0);
@@ -554,6 +563,7 @@ public class CheatServiceTest {
         assertEquals(normalInventory1.cardYearOfPlenty.getNumber(), 0);
         assertEquals(normalInventory1.cardMonopoly.getNumber(), 0);
         assertEquals(normalInventory1.cardRoadBuilding.getNumber(), 0);
+        assertEquals(normalInventory1.getCardVictoryPoint(), 0);
 
         assertEquals(normalInventory2.lumber.getNumber(), 0);
         assertEquals(normalInventory2.grain.getNumber(), 0);
@@ -564,6 +574,7 @@ public class CheatServiceTest {
         assertEquals(normalInventory2.cardYearOfPlenty.getNumber(), 0);
         assertEquals(normalInventory2.cardMonopoly.getNumber(), 0);
         assertEquals(normalInventory2.cardRoadBuilding.getNumber(), 0);
+        assertEquals(normalInventory2.getCardVictoryPoint(), 0);
 
         assertEquals(normalInventory3.lumber.getNumber(), 0);
         assertEquals(normalInventory3.grain.getNumber(), 0);
@@ -574,5 +585,6 @@ public class CheatServiceTest {
         assertEquals(normalInventory3.cardYearOfPlenty.getNumber(), 0);
         assertEquals(normalInventory3.cardMonopoly.getNumber(), 0);
         assertEquals(normalInventory3.cardRoadBuilding.getNumber(), 0);
+        assertEquals(normalInventory3.getCardVictoryPoint(), 0);
     }
 }
