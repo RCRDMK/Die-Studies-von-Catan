@@ -13,12 +13,12 @@ import de.uol.swp.common.game.MapGraph;
 import de.uol.swp.common.game.message.*;
 import de.uol.swp.common.game.request.EndTurnRequest;
 import de.uol.swp.common.game.request.ResourcesToDiscardRequest;
+import de.uol.swp.common.game.response.AllThisGameUsersResponse;
+import de.uol.swp.common.game.response.GameLeftSuccessfulResponse;
 import de.uol.swp.common.game.response.PlayDevelopmentCardResponse;
 import de.uol.swp.common.game.response.ResolveDevelopmentCardNotSuccessfulResponse;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
-import de.uol.swp.common.game.response.AllThisGameUsersResponse;
-import de.uol.swp.common.game.response.GameLeftSuccessfulResponse;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -1203,6 +1203,20 @@ public class GamePresenter extends AbstractPresenter {
                 circle.setVisible(false);
 
                 circle.setFill(determinePlayerColorByIndex(mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer()));
+
+                if (buildingNode.getTypeOfHarbor() != 0) {
+                    //"textures/hafen.png"
+                    Rectangle harborSymbol = new Rectangle();
+                    Platform.runLater(() -> {
+                        //TODO: Symbole werden noch nicht angezeigt.
+                        gameAnchorPane.getChildren().add(harborSymbol);
+                        harborSymbol.setFill(new ImagePattern(new Image("textures/hafen.png")));
+                        harborSymbol.setLayoutX(mapGraphNodeContainer.getCircle().getLayoutX());
+                        harborSymbol.setLayoutY(mapGraphNodeContainer.getCircle().getLayoutY());
+                    });
+
+
+                }
             } else {
                 double itemSize = cardSize() / 15;
                 MapGraph.StreetNode streetNode = (MapGraph.StreetNode) mapGraphNodeContainer.getMapGraphNode();
