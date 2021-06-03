@@ -48,8 +48,6 @@ public class GameSerializableTest {
                 ChoosePlayerMessage.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new MoveRobberMessage("test", defaultUser),
                 MoveRobberMessage.class));
-        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new RobbersNewFieldRequest("test", defaultUser, defaultUuid),
-                RobbersNewFieldRequest.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new SuccessfullMovedRobberMessage(defaultUuid),
                 SuccessfullMovedRobberMessage.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new TooMuchResourceCardsMessage(),
@@ -114,6 +112,8 @@ public class GameSerializableTest {
                 BankRequest.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new BankBuyRequest(),
                 BankBuyRequest.class));
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new RobbersNewFieldRequest("test", defaultUser, defaultUuid),
+                RobbersNewFieldRequest.class));
     }
 
     @Test
