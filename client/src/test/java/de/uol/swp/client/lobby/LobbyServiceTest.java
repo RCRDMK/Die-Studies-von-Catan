@@ -4,11 +4,9 @@ import com.google.common.eventbus.DeadEvent;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import de.uol.swp.client.user.UserService;
+import de.uol.swp.common.game.request.PlayerReadyRequest;
 import de.uol.swp.common.lobby.message.UserJoinedLobbyMessage;
-import de.uol.swp.common.lobby.request.CreateLobbyRequest;
-import de.uol.swp.common.lobby.request.LobbyJoinUserRequest;
-import de.uol.swp.common.lobby.request.LobbyLeaveUserRequest;
-import de.uol.swp.common.lobby.request.RetrieveAllLobbiesRequest;
+import de.uol.swp.common.lobby.request.*;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.user.request.LoginRequest;
@@ -24,6 +22,7 @@ import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -42,6 +41,7 @@ class LobbyServiceTest {
     final CountDownLatch lock = new CountDownLatch(1);
     Object event;
     String lobbyname;
+    LobbyService lobbyService = new LobbyService(bus);
 
 
     /**
@@ -136,7 +136,6 @@ class LobbyServiceTest {
         initializeTextFields();
 
         assertTrue(event instanceof LoginRequest);
-        LobbyService lobbyService = new LobbyService(bus);
         UserDTO userDTO = new UserDTO(defaultUser.getUsername(), defaultUser.getPassword(), defaultUser.getEMail());
 
         lobbyService.createNewLobby(lobbyname, userDTO);
@@ -171,7 +170,6 @@ class LobbyServiceTest {
         initializeTextFields();
 
         assertTrue(event instanceof LoginRequest);
-        LobbyService lobbyService = new LobbyService(bus);
         UserDTO userDTO = new UserDTO(defaultUser.getUsername(), defaultUser.getPassword(), defaultUser.getEMail());
 
         lobbyService.createNewLobby(lobbyname, userDTO);
@@ -210,7 +208,6 @@ class LobbyServiceTest {
         lobbyname = "äüÖÄöÜ";
 
         assertTrue(event instanceof LoginRequest);
-        LobbyService lobbyService = new LobbyService(bus);
         UserDTO userDTO = new UserDTO(defaultUser.getUsername(), defaultUser.getPassword(), defaultUser.getEMail());
 
         lobbyService.createNewLobby(lobbyname, userDTO);
@@ -236,7 +233,6 @@ class LobbyServiceTest {
     @Test
     void retrieveAllLobbiesTest() throws InterruptedException {
 
-        LobbyService lobbyService = new LobbyService(bus);
 
         lobbyService.retrieveAllLobbies();
 
@@ -256,7 +252,6 @@ class LobbyServiceTest {
     @Test
     @DisplayName("Creator can leave")
     void lobbyCreatorCanLeaveTest() throws InterruptedException {
-        LobbyService lobbyService = new LobbyService(bus);
         CreateLobbyRequest message = new CreateLobbyRequest("test", (UserDTO) defaultUser);
         lobbyService.createNewLobby("test", (UserDTO) defaultUser);
         LobbyCreatedSuccessfulResponse message2 = new LobbyCreatedSuccessfulResponse(defaultUser);
@@ -277,14 +272,13 @@ class LobbyServiceTest {
     @Test
     @DisplayName("joined User can leave")
     void lobbyJoinedUserCanLeaveTest() throws InterruptedException {
-        LobbyService lobbyService = new LobbyService(bus);
         CreateLobbyRequest message = new CreateLobbyRequest("test", (UserDTO) defaultUser);
         lobbyService.createNewLobby("test", (UserDTO) defaultUser);
         LobbyCreatedSuccessfulResponse message2 = new LobbyCreatedSuccessfulResponse(defaultUser);
         lobbyService.joinLobby("test", (UserDTO) defaultUser2);
         ArrayList<UserDTO> users = new ArrayList<>();
         users.add((UserDTO) defaultUser);
-        UserJoinedLobbyMessage message3 = new UserJoinedLobbyMessage("test", (UserDTO) defaultUser2,users);
+        UserJoinedLobbyMessage message3 = new UserJoinedLobbyMessage("test", (UserDTO) defaultUser2, users);
         lobbyService.leaveLobby("test", (UserDTO) defaultUser2);
         lock.await(1000, TimeUnit.MILLISECONDS);
         assertTrue(event instanceof LobbyLeaveUserRequest);
@@ -301,7 +295,6 @@ class LobbyServiceTest {
     @Test
     @DisplayName("Owner leaves, joined User stays in the lobby")
     void lobbyOwnerLeavesJoinedUserStaysTest() throws InterruptedException {
-        LobbyService lobbyService = new LobbyService(bus);
         CreateLobbyRequest message = new CreateLobbyRequest("test", (UserDTO) defaultUser);
         lobbyService.createNewLobby("test", (UserDTO) defaultUser);
         LobbyCreatedSuccessfulResponse message2 = new LobbyCreatedSuccessfulResponse(defaultUser);
@@ -331,7 +324,6 @@ class LobbyServiceTest {
         loginUser();
         initializeTextFields();
         assertTrue(event instanceof LoginRequest);
-        LobbyService lobbyService = new LobbyService(bus);
         UserDTO userDTO = new UserDTO(defaultUser.getUsername(), defaultUser.getPassword(), defaultUser.getEMail());
         UserDTO userDTO2 = new UserDTO(defaultUser2.getUsername(), defaultUser2.getPassword(), defaultUser2.getEMail());
         lobbyService.createNewLobby(lobbyname, userDTO);
@@ -342,4 +334,22 @@ class LobbyServiceTest {
         assertTrue(event instanceof LobbyJoinUserRequest);
     }
 
+    @Test
+    public void sendPlayerReadyRequestTest() {
+        lobbyService.sendPlayerReadyRequest("Test", (UserDTO) defaultUser, true);
+
+        assertTrue(event instanceof PlayerReadyRequest);
+        assertEquals(defaultUser.getUsername(), ((PlayerReadyRequest) event).getUser().getUsername());
+        assertEquals("Test", ((PlayerReadyRequest) event).getName());
+    }
+
+    @Test
+    public void startGameTest() {
+        lobbyService.startGame("Test", (UserDTO) defaultUser, "Standart", 2);
+
+        assertTrue(event instanceof StartGameRequest);
+        assertEquals("Test", ((StartGameRequest) event).getName());
+        assertEquals("Standart", ((StartGameRequest) event).getGameFieldVariant());
+        assertEquals(defaultUser.getUsername(), ((StartGameRequest) event).getUser().getUsername());
+    }
 }

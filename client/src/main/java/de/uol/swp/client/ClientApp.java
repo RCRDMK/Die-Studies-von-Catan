@@ -9,12 +9,13 @@ import de.uol.swp.client.di.ClientModule;
 import de.uol.swp.client.game.event.SummaryConfirmedEvent;
 import de.uol.swp.client.user.ClientUserService;
 import de.uol.swp.common.game.message.*;
+import de.uol.swp.common.lobby.response.JoinOnGoingGameResponse;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.exception.RegistrationExceptionMessage;
 import de.uol.swp.common.user.exception.UpdateUserExceptionMessage;
 import de.uol.swp.common.user.request.LogoutRequest;
 import de.uol.swp.common.user.response.*;
-import de.uol.swp.common.user.response.game.GameLeftSuccessfulResponse;
+import de.uol.swp.common.game.response.GameLeftSuccessfulResponse;
 import de.uol.swp.common.user.response.lobby.LobbyCreatedSuccessfulResponse;
 import de.uol.swp.common.user.response.lobby.LobbyJoinedSuccessfulResponse;
 import de.uol.swp.common.user.response.lobby.LobbyLeftSuccessfulResponse;
@@ -51,7 +52,7 @@ public class ClientApp extends Application implements ConnectionListener {
     private EventBus eventBus;
     private SceneManager sceneManager;
     private long lastPingResponse;
-    private static Timer timer = new Timer();
+    private final static Timer timer = new Timer();
 
     // -----------------------------------------------------
     // Java FX Methods
@@ -139,10 +140,10 @@ public class ClientApp extends Application implements ConnectionListener {
      * <p>
      * If an LoginSuccessfulResponse object is detected on the EventBus this
      * method is called. It tells the SceneManager to show the main menu and sets
-     * this clients user to the user found in the object. If the loglevel is set
+     * this clients user to the user found in the object. If the log level is set
      * to DEBUG or higher "user logged in successfully " and the username of the
      * logged in user are written to the log.
-     * It also starts a timer for the ping message and a sperate timer for the client to check if he has a timeout.
+     * It also starts a timer for the ping message and a separate timer for the client to check if he has a timeout.
      *
      * @param message The LoginSuccessfulResponse object detected on the EventBus
      * @author Marco Grawunder, Philip
@@ -188,7 +189,6 @@ public class ClientApp extends Application implements ConnectionListener {
      * @see de.uol.swp.client.SceneManager
      * @since 2021-01-21
      */
-
     @Subscribe
     public void userLoggedOut(LogoutRequest message) {
         LOG.debug("user logged out ");
@@ -265,6 +265,25 @@ public class ClientApp extends Application implements ConnectionListener {
     }
 
     /**
+     * When a JoinOnGoingGameResponse is detected on the EventBus this method is invoked
+     * <p>
+     * The same actions are done as when a GameCreatedMessage is detected
+     *
+     * @param response the JoinOnGoingGameResponse detected on the EventBus
+     * @author Marc Hermes
+     * @since 2021-05-27
+     */
+    @Subscribe
+    public void userJoinedOnGoingGame(JoinOnGoingGameResponse response) {
+        LOG.debug("Received JoinOnGoingGameResponse from Server, may " + (!response.isJoinedSuccessful() ? "not" : "") + " join the game.");
+        if (response.isJoinedSuccessful()) {
+            sceneManager.showGameScreen(response.getGameName());
+            sceneManager.suspendLobbyTab(response.getGameName());
+            sceneManager.createSummaryTab(response.getGameName());
+        }
+    }
+
+    /**
      * reacts to TradeStartedMessage
      *
      * @param message TradeStartedMessage
@@ -274,7 +293,7 @@ public class ClientApp extends Application implements ConnectionListener {
     @Subscribe
     public void userStartedTrade(TradeStartedMessage message) {
         LOG.debug("Started a trade " + message.getGame());
-        sceneManager.showTradeScreen(message.getTradeCode());
+        sceneManager.showTradeScreen(message.getGame() + " " + message.getTradeCode());
     }
 
     /**
@@ -287,7 +306,7 @@ public class ClientApp extends Application implements ConnectionListener {
     @Subscribe
     public void tradeRegistered(TradeOfferInformBiddersMessage message) {
         LOG.debug("A trade request was registered");
-        sceneManager.showTradeScreen(message.getTradeCode());
+        sceneManager.showTradeScreen(message.getName() + " " + message.getTradeCode());
     }
 
     /**
@@ -341,7 +360,7 @@ public class ClientApp extends Application implements ConnectionListener {
      *
      * @param message the LobbyLeftSuccessfulResponse detected on the EventBus
      * @author Marc Hermes
-     * @see de.uol.swp.common.user.response.game.GameLeftSuccessfulResponse
+     * @see GameLeftSuccessfulResponse
      * @since 2021-01-21
      */
     @Subscribe

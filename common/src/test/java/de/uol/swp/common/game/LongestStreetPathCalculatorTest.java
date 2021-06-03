@@ -14,10 +14,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  */
 
 public class LongestStreetPathCalculatorTest {
-    private MapGraph mapGraph = new MapGraph("");
-    private HashSet<MapGraph.StreetNode> streetNodes = mapGraph.getStreetNodeHashSet();
-    private HashSet<MapGraph.BuildingNode> buildingNodes = mapGraph.getBuildingNodeHashSet();
-    private HashSet<MapGraph.Hexagon> hexagons =  mapGraph.getHexagonHashSet();
+    private final MapGraph mapGraph = new MapGraph("");
+    private final HashSet<MapGraph.StreetNode> streetNodes = mapGraph.getStreetNodeHashSet();
+    private final HashSet<MapGraph.BuildingNode> buildingNodes = mapGraph.getBuildingNodeHashSet();
+    private final HashSet<MapGraph.Hexagon> hexagons =  mapGraph.getHexagonHashSet();
 
 
     /**
@@ -117,4 +117,31 @@ public class LongestStreetPathCalculatorTest {
         assertEquals(mapGraph.getLongestStreetPathCalculator().getLongestPath(1),3);
     }
 
+    /**
+     * This test checks if the longest street path is calculated correctly if a junction appears in the mapgraph.
+     * <p>
+     * We build 7 streets for player 1 and 6 of them at the left hexagon and one at the left side of the topleft hexagon.
+     *
+     * @author Marc, Marius
+     * @since 2021-05-25
+     */
+
+    @Test
+    void blackBoxTest5(){
+        for (MapGraph.Hexagon hexagon: hexagons){
+            if (hexagon.getSelfPosition().contains("left") && hexagon.getSelfPosition().size() == 2){
+                hexagon.getStreetTopLeft().buildRoad(1);
+                hexagon.getStreetBottomLeft().buildRoad(1);
+                hexagon.getStreetLeft().buildRoad(1);
+                hexagon.getStreetRight().buildRoad(1);
+                hexagon.getStreetBottomRight().buildRoad(1);
+                hexagon.getStreetTopRight().buildRoad(1);
+            }
+            if(hexagon.getSelfPosition().contains("topLeft") && hexagon.getSelfPosition().size() == 2){
+                hexagon.getStreetLeft().buildRoad(1);
+            }
+        }
+        assertEquals(mapGraph.getLongestStreetPathCalculator().getLongestPath(1),7);
+        mapGraph.getLongestStreetPathCalculator().printAdjacencyMatrix(1);
+    }
 }

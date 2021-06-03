@@ -1,14 +1,12 @@
 package de.uol.swp.server.AI;
 
+import de.uol.swp.common.game.MapGraph;
 import de.uol.swp.common.game.message.TooMuchResourceCardsMessage;
 import de.uol.swp.common.game.message.TradeInformSellerAboutBidsMessage;
 import de.uol.swp.common.game.message.TradeOfferInformBiddersMessage;
-import de.uol.swp.common.game.trade.Trade;
 import de.uol.swp.common.game.trade.TradeItem;
 import de.uol.swp.common.user.User;
 import de.uol.swp.server.AI.AIActions.AIAction;
-import de.uol.swp.server.AI.AIActions.DiscardResourcesAction;
-import de.uol.swp.server.AI.AIActions.TradeBidAction;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -45,7 +43,7 @@ public interface AISystem {
      * @author Marc Hermes
      * @since 2021-05-08
      */
-    void buildStreet(UUID field);
+    void buildStreet(MapGraph.StreetNode field);
 
     /**
      * Method used for building a town
@@ -54,7 +52,7 @@ public interface AISystem {
      * @author Marc Hermes
      * @since 2021-05-08
      */
-    void buildTown(UUID field);
+    void buildTown(MapGraph.BuildingNode field);
 
     /**
      * Method used for building a city
@@ -63,7 +61,7 @@ public interface AISystem {
      * @author Marc Hermes
      * @since 2021-05-08
      */
-    void buildCity(UUID field);
+    void buildCity(MapGraph.BuildingNode field);
 
     /**
      * Method used for starting a trade
@@ -153,6 +151,16 @@ public interface AISystem {
     void discardResources(HashMap<String, Integer> resourcesToDiscard);
 
     /**
+     * Method used to draw a certain resource from a player
+     *
+     * @param playerName to name of the player to draw the resource from
+     * @param resource the resource to draw from the player
+     * @author Marc Hermes
+     * @since 2021-05-25
+     */
+    void drawRandomResourceFromPlayer(String playerName, String resource);
+
+    /**
      * Method used to start the turn of the AI.
      * <p>
      * This method is called by the server to engage the AI to start it's turn.
@@ -190,7 +198,55 @@ public interface AISystem {
      * it had to wait on trade responses of the other players.
      *
      * @param tisabm the TradeInformSellerAboutBidsMessage directed for this AI
+     * @param wishList the original wishList of the AI
      * @return an ArrayList of AIActions dedicated through the AI which the server will have to resolve
+     * @author Marc Hermes
+     * @since 2021-05-25
      */
-    ArrayList<AIAction> continueTurnOrder(TradeInformSellerAboutBidsMessage tisabm);
+    ArrayList<AIAction> continueTurnOrder(TradeInformSellerAboutBidsMessage tisabm, ArrayList<TradeItem> wishList);
+
+    /**
+     * Method used to check if a street may be attempted to be built, resource-wise
+     *
+     * @return true if yes, false if not
+     * @author Marc Hermes
+     * @since 2021-05-19
+     */
+    boolean canBuildStreet();
+
+    /**
+     * Method used to check if a town may be attempted to be built, resource-wise
+     *
+     * @return true if yes, false if not
+     * @author Marc Hermes
+     * @since 2021-05-19
+     */
+    boolean canBuildTown();
+
+    /**
+     * Method used to check if a city may be attempted to be built, resource-wise
+     *
+     * @return true if yes, false if not
+     * @author Marc Hermes
+     * @since 2021-05-19
+     */
+    boolean canBuildCity();
+
+    /**
+     * Method used to check if a developmentCard may be attempted to be bought, resource-wise
+     *
+     * @return true if yes, false if not
+     * @author Marc Hermes
+     * @since 2021-05-19
+     */
+    boolean canBuyDevelopmentCard();
+
+    /**
+     * Method used to check if a developmentCard may be attempted to be played with regards to the amount of cards in the inventory
+     *
+     * @return true if yes, false if not
+     * @author Marc Hermes
+     * @since 2021-05-19
+     */
+    ArrayList<String> canPlayDevelopmentCard();
 }

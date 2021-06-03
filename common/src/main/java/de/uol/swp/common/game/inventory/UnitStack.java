@@ -23,11 +23,11 @@ public class UnitStack implements Serializable {
 
     //Decrementer until 0
     public void decNumber() {
-        if (this.number > 0) this.number--;
+        this.number--;
     }
 
     //Incrementer until 5 for the Settlement
     public void incNumber() {
-        if (this.number < 5) this.number++;
+        this.number++;
     }
 }

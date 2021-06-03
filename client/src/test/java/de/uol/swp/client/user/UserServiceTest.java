@@ -199,8 +199,8 @@ class UserServiceTest {
      * @throws InterruptedException thrown by lock.await()
      * @author Marco Grawunder
      * @since 2019-10-10
-
-    @Test
+     */
+    /*@Test
     void updateUserTest() throws InterruptedException, InvalidKeySpecException, NoSuchAlgorithmException {
         UserService userService = new UserService(bus);
         userService.updateUser(defaultUser);
