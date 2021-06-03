@@ -80,8 +80,12 @@ public class GamePresenter extends AbstractPresenter {
 
     @FXML
     public MenuButton buildMenu;
+
     @FXML
     public TextArea gameChatArea;
+
+    @FXML
+    public TextArea gameEventLogArea;
 
     public Dialog tooMuchAlert;
 
@@ -141,6 +145,8 @@ public class GamePresenter extends AbstractPresenter {
     private final ArrayList<ImagePattern> profilePicturePatterns = new ArrayList<>();
 
     private final ArrayList<Rectangle> rectangles = new ArrayList<>();
+    @FXML
+    public Button gameChatSendMessage;
 
     @FXML
     private AnchorPane gameAnchorPane;
@@ -153,6 +159,11 @@ public class GamePresenter extends AbstractPresenter {
 
     @FXML
     private Button tradeButton;
+    private boolean EventLogIsVisible = false;
+    @FXML
+    private Button chatButton;
+    @FXML
+    private Button eventLogButton;
 
     @FXML
     public Label BuildingNotSuccessfulLabel;
@@ -919,6 +930,9 @@ public class GamePresenter extends AbstractPresenter {
     @Subscribe
     public void nextPlayerTurn(NextTurnMessage response) {
         if (response.getGameName().equals(currentLobby)) {
+            String text = "is on";
+            LOG.debug("Updated game Event Log area with new message");
+            updateEventLogLogic(text, response.getPlayerWithCurrentTurn());
             rolledDice = false;
             if (response.getPlayerWithCurrentTurn().equals(joinedLobbyUser.getUsername())) {
                 startingTurn = response.isInStartingTurn();
@@ -1011,6 +1025,9 @@ public class GamePresenter extends AbstractPresenter {
      */
     @Subscribe
     public void otherUserLeftSuccessful(UserLeftGameMessage message) {
+        String text = "left the Lobby";
+        LOG.debug("Updated game Event Log area with new message");
+        updateEventLogLogic(text, message.getUser().getUsername());
         otherUserLeftSuccessfulLogic(message);
     }
 
@@ -1466,6 +1483,9 @@ public class GamePresenter extends AbstractPresenter {
 
     @Subscribe
     public void onBuyDevelopmentCardMessage(BuyDevelopmentCardMessage buyDevelopmentCardMessage) {
+        String text = "bought a Development Card";
+        LOG.debug("Updated game Event Log area with new message");
+        updateEventLogLogic(text, buyDevelopmentCardMessage.getUser().getUsername());
         buyDevelopmentCardLogic(buyDevelopmentCardMessage.getDevCard());
     }
 
@@ -1475,6 +1495,9 @@ public class GamePresenter extends AbstractPresenter {
 
     @Subscribe
     public void onNotEnoughResourcesMessages(NotEnoughRessourcesMessage notEnoughRessourcesMessage) {
+        String text = "have not enough ressources";
+        LOG.debug("Updated game Event Log area with new message");
+        updateEventLogLogic(text, "You");
         notEnoughRessourcesMessageLogic(notEnoughRessourcesMessage);
     }
 
@@ -1524,6 +1547,9 @@ public class GamePresenter extends AbstractPresenter {
 
     @Subscribe
     public void onMoveRobberMessage(MoveRobberMessage moveRobberMessage) {
+        String text = "have to move the robber";
+        LOG.debug("Updated game Event Log area with new message");
+        updateEventLogLogic(text, "You");
         moveRobberMessageLogic(moveRobberMessage);
     }
 
@@ -1879,6 +1905,9 @@ public class GamePresenter extends AbstractPresenter {
     @Subscribe
     public void onRollDiceResultMessage(RollDiceResultMessage message) {
         if (this.currentLobby != null) {
+            String text = "rolled a " + message.getDiceEyes1() + " and a " + message.getDiceEyes2();
+            LOG.debug("Updated game Event Log area with new message");
+            updateEventLogLogic(text, message.getUser().getUsername());
             if (message.getName().equals(currentLobby)) {
                 shuffleTheDice(message.getDiceEyes1(), message.getDiceEyes2());
             }
@@ -1946,6 +1975,15 @@ public class GamePresenter extends AbstractPresenter {
                     for (MapGraphNodeContainer mapGraphNodeContainer : mapGraphNodeContainers) {
                         if (mapGraphNodeContainer.getMapGraphNode().getUuid().equals(message.getUuid())) {
                             MapGraph.BuildingNode buildingNode = (MapGraph.BuildingNode) mapGraphNodeContainer.getMapGraphNode();
+                            if (buildingNode.getSizeOfSettlement() == 1) {
+                                String text = "developed a Settlement";
+                                LOG.debug("Updated game Event Log area with new message");
+                                updateEventLogLogic(text, message.getUser().getUsername());
+                            } else {
+                                String text = "build a Settlement";
+                                LOG.debug("Updated game Event Log area with new message");
+                                updateEventLogLogic(text, message.getUser().getUsername());
+                            }
                             buildingNode.setOccupiedByPlayer(message.getPlayerIndex());
                             buildingNode.incSizeOfSettlement();
                             if (mapGraphNodeContainer.getCircle().getFill().equals(Color.color(0.5, 0.5, 0.5))) {
@@ -1978,6 +2016,9 @@ public class GamePresenter extends AbstractPresenter {
                                     }
                                 }
                             });
+                            String text = "build a Street";
+                            LOG.debug("Updated game Event Log area with new message");
+                            updateEventLogLogic(text, message.getUser().getUsername());
                             break;
                         }
                     }
@@ -2048,6 +2089,9 @@ public class GamePresenter extends AbstractPresenter {
      */
     @Subscribe
     public void onSuccessfullMovedRobberMessage(SuccessfullMovedRobberMessage successfullMovedRobberMessage) {
+        String text = "moved the robber";
+        LOG.debug("Updated game Event Log area with new message");
+        updateEventLogLogic(text, successfullMovedRobberMessage.getUser().getUsername());
         for (HexagonContainer hexagonContainer : hexagonContainers) {
             if (hexagonContainer.getHexagon().getUuid().equals(successfullMovedRobberMessage.getNewField())) {
                 robber.setLayoutX(hexagonContainer.getHexagonShape().getLayoutX() - robber.getWidth() / 2);
@@ -2070,6 +2114,14 @@ public class GamePresenter extends AbstractPresenter {
     @Subscribe
     public void onPrivateInventoryChangeMessage(PrivateInventoryChangeMessage privateInventoryChangeMessage) {
         if (this.currentLobby != null) {
+            String text = "ressources are now Lumber: " +
+                    privateInventoryChangeMessage.getPrivateInventory().get("Lumber") + " Grain: " +
+                    privateInventoryChangeMessage.getPrivateInventory().get("Grain") + " Wool: " +
+                    privateInventoryChangeMessage.getPrivateInventory().get("Wool") + " Brick: " +
+                    privateInventoryChangeMessage.getPrivateInventory().get("Grain") + " Ore: " +
+                    privateInventoryChangeMessage.getPrivateInventory().get("Ore");
+            LOG.debug("Updated game Event Log area with new message");
+            updateEventLogLogic(text, "Your");
             if (this.currentLobby.equals(privateInventoryChangeMessage.getName())) {
                 if (tooMuchAlert != null) {
                     Platform.runLater(() -> {
@@ -2078,7 +2130,11 @@ public class GamePresenter extends AbstractPresenter {
                         grainLabelRobberMenu.setText(String.valueOf(privateInventoryChangeMessage.getPrivateInventory().get("Grain")));
                         woolLabelRobberMenu.setText(String.valueOf(privateInventoryChangeMessage.getPrivateInventory().get("Wool")));
                         oreLabelRobberMenu.setText(String.valueOf(privateInventoryChangeMessage.getPrivateInventory().get("Ore")));
-                        int toDiscard = Integer.parseInt(lumberLabelRobberMenu.getText()) + Integer.parseInt(grainLabelRobberMenu.getText()) + Integer.parseInt(woolLabelRobberMenu.getText()) + Integer.parseInt(brickLabelRobberMenu.getText()) + Integer.parseInt(oreLabelRobberMenu.getText());
+                        int toDiscard = Integer.parseInt(lumberLabelRobberMenu.getText()) +
+                                Integer.parseInt(grainLabelRobberMenu.getText()) +
+                                Integer.parseInt(woolLabelRobberMenu.getText()) +
+                                Integer.parseInt(brickLabelRobberMenu.getText()) +
+                                Integer.parseInt(oreLabelRobberMenu.getText());
                         if (toDiscard % 2 == 0) {
                             toDiscardLabel.setText(String.valueOf(toDiscard / 2));
                         } else {
@@ -2279,6 +2335,7 @@ public class GamePresenter extends AbstractPresenter {
                                     }
                                 }
                             } else if (this.currentDevelopmentCard.equals("Road Building")) {
+
                                 for (MapGraphNodeContainer container : mapGraphNodeContainers) {
                                     if (container.getMapGraphNode().getOccupiedByPlayer() == 666) {
                                         container.getCircle().setVisible(container.getMapGraphNode() instanceof MapGraph.StreetNode);
@@ -2332,6 +2389,9 @@ public class GamePresenter extends AbstractPresenter {
     @Subscribe
     public void notEnoughResTrade(TradeCardErrorMessage message) {
         if (this.currentLobby != null) {
+            String text = "have to enough ressources to trade";
+            LOG.debug("Updated game Event Log area with new message");
+            updateEventLogLogic(text, "You");
             if (this.currentLobby.equals(message.getName())) {
                 Platform.runLater(() -> {
                     this.alert.setTitle(message.getName());
@@ -2721,6 +2781,9 @@ public class GamePresenter extends AbstractPresenter {
     @Subscribe
     public void onTooMuchRessourceCardsMessage(TooMuchResourceCardsMessage tooMuchResourceCardsMessage) {
         if (this.currentLobby != null) {
+            String text = "have to much ressources";
+            LOG.debug("Updated game Event Log area with new message");
+            updateEventLogLogic(text, "You");
             if (this.currentLobby.equals(tooMuchResourceCardsMessage.getName())) {
                 Platform.runLater(() -> showRobberResourceMenu(tooMuchResourceCardsMessage));
             }
@@ -2740,6 +2803,9 @@ public class GamePresenter extends AbstractPresenter {
     @Subscribe
     public void onChoosePlayerMessage(ChoosePlayerMessage choosePlayerMessage) {
         if (this.currentLobby != null) {
+            String text = "have to choose a player";
+            LOG.debug("Updated game Event Log area with new message");
+            updateEventLogLogic(text, "You");
             if (this.currentLobby.equals(choosePlayerMessage.getName())) {
                 if (!choosePlayerMessage.getUserList().isEmpty()) {
                     Platform.runLater(() -> setupChoosePlayerAlert(choosePlayerMessage));
@@ -2793,4 +2859,65 @@ public class GamePresenter extends AbstractPresenter {
         }
     }
 
+    /**
+     * Method called when the Chat button is pressed
+     * <p>
+     * This method hides the event log and shows the chat with input field and send button.
+     * Additionally it disables the button (show Chat) and enables the show EventLog button.
+     *
+     * @author Philip
+     * @since 2021-05-31
+     */
+    @FXML
+    void onShowChat() {
+        EventLogIsVisible = false;
+        chatButton.setDisable(true);
+        eventLogButton.setDisable(false);
+        gameEventLogArea.setVisible(false);
+        gameChatArea.setVisible(true);
+        gameChatInput.setVisible(true);
+        gameChatSendMessage.setVisible(true);
+    }
+
+    /**
+     * Method called when the Event Log button is pressed
+     * <p>
+     * This method shows the event log and hides the chat with input field and send button.
+     * Additionally it enables the button (show Chat) and disables the show EventLog button.
+     *
+     * @author Philip
+     * @since 2021-05-31
+     */
+    @FXML
+    void onShowEventLog() {
+        EventLogIsVisible = true;
+        chatButton.setDisable(false);
+        eventLogButton.setDisable(true);
+        gameEventLogArea.setVisible(true);
+        gameChatArea.setVisible(false);
+        gameChatInput.setVisible(false);
+        gameChatSendMessage.setVisible(false);
+    }
+
+    /**
+     * Adds the Message to the eventLogTextArea
+     * <p>
+     * First the message gets formatted with the readableTime.
+     * After the formatting the Message gets added to the textArea.
+     * The formatted Message contains the readableTime and message
+     *
+     * @param text the Message given by the original subscriber methods.
+     * @author Philip
+     * @see de.uol.swp.common.chat.ResponseChatMessage
+     * @since 2021-05-31
+     */
+    private void updateEventLogLogic(String text, String player) {
+        var time = new SimpleDateFormat("HH:mm");
+        Date resultdate = new Date((long) System.currentTimeMillis());
+        var readableTime = time.format(resultdate);
+        gameEventLogArea.insertText(gameEventLogArea.getLength(), readableTime + " : Player " + player + " " + text + "\n");
+        if (EventLogIsVisible) {
+            gameChatInput.setVisible(false);
+        }
+    }
 }

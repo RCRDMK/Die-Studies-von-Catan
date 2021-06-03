@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.canvas.*?>
+<?import javafx.scene.canvas.Canvas?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
-
+<?import javafx.scene.text.Font?>
 <AnchorPane fx:id="gameAnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="500.0" prefWidth="735.0" stylesheets="@../css/swp.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.uol.swp.client.game.GamePresenter">
 
     <children>
+        <TextArea fx:id="gameEventLogArea" editable="false" layoutX="370.0" layoutY="279.0" prefHeight="122.0"
+                  prefWidth="356.0" visible="false"/>
         <TextArea fx:id="gameChatArea" editable="false" layoutX="370.0" layoutY="279.0" prefHeight="96.0" prefWidth="356.0" GridPane.rowIndex="2" />
         <Label fx:id="BuildingNotSuccessfulLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="547.0" layoutY="115.0" prefHeight="16.0" prefWidth="182.0" text="You are not allowed to build here" textAlignment="CENTER" textFill="WHITE" visible="false">
          <font>
@@ -20,25 +21,30 @@
         <ToolBar layoutY="-5.0" prefHeight="35.0" prefWidth="735.0">
             <items>
                 <Button fx:id="rollDiceButton" mnemonicParsing="false" onAction="#onRollDice" text="Roll Dice" />
-                <Text fx:id="DiceOutput" strokeType="OUTSIDE" strokeWidth="0.0" text="Text" />
                 <Separator orientation="VERTICAL" />
                 <Button fx:id="tradeButton" mnemonicParsing="false" onAction="#onTrade" text="Trade">
                 </Button>
                 <MenuButton fx:id="buildMenu" layoutX="103.0" layoutY="11.0" mnemonicParsing="false" text="Build">
                     <items>
-                        <MenuItem mnemonicParsing="false" onAction="#onBuildStreet" text="Street" />
-                        <MenuItem mnemonicParsing="false" onAction="#onBuildSettlement" text="Settlement" />
-                        <MenuItem mnemonicParsing="false" onAction="#onBuildTown" text="Town" />
+                        <MenuItem mnemonicParsing="false" onAction="#onBuildStreet" text="Street"/>
+                        <MenuItem mnemonicParsing="false" onAction="#onBuildSettlement" text="Settlement"/>
+                        <MenuItem mnemonicParsing="false" onAction="#onBuildTown" text="Town"/>
                     </items>
                 </MenuButton>
-                <Button fx:id="buyDevCard" layoutX="153.0" layoutY="11.0" mnemonicParsing="false" onAction="#onBuyDevelopmentCard" text="Buy DevelopmentCard" />
-                <Button fx:id="endTurnButton" layoutX="10.0" layoutY="11.0" mnemonicParsing="false" onAction="#onEndTurn" text="End Turn" />
-                <Region prefHeight="25.0" prefWidth="73.0" />
-                <Button mnemonicParsing="false" onAction="#onLeaveGame" text="Leave Game" />
+                <Button fx:id="buyDevCard" layoutX="153.0" layoutY="11.0" mnemonicParsing="false"
+                        onAction="#onBuyDevelopmentCard" text="Buy DevelopmentCard"/>
+                <Button fx:id="endTurnButton" layoutX="10.0" layoutY="11.0" mnemonicParsing="false"
+                        onAction="#onEndTurn" text="End Turn"/>
+                <Region prefHeight="25.0" prefWidth="50.0"/>
+                <Button fx:id="chatButton" disable="true" mnemonicParsing="false" onAction="#onShowChat" text="Chat"/>
+                <Button fx:id="eventLogButton" mnemonicParsing="false" onAction="#onShowEventLog" text="Event Log"/>
+                <Region prefHeight="25.0" prefWidth="60.0"/>
+                <Button mnemonicParsing="false" onAction="#onLeaveGame" text="Leave Game"/>
             </items>
         </ToolBar>
         <Canvas id="canvas" fx:id="canvas" height="370.0" layoutX="0.0" layoutY="30.0" width="370" />
-        <Button layoutX="662.0" layoutY="375.0" mnemonicParsing="false" onAction="#onSendMessage" prefHeight="25.0" prefWidth="59.0" text="Send" />
+        <Button fx:id="gameChatSendMessage" layoutX="662.0" layoutY="375.0" mnemonicParsing="false"
+                onAction="#onSendMessage" prefHeight="25.0" prefWidth="59.0" text="Send"/>
         <TextField fx:id="gameChatInput" layoutX="370.0" layoutY="375.0" onAction="#onSendMessage" prefHeight="25.0" prefWidth="290.0" promptText="Send Message.." />
         <Pane fx:id="picturePlayerView1" layoutX="370.0" layoutY="30.0" prefHeight="68.0" prefWidth="68.0" />
         <Pane fx:id="picturePlayerView3" layoutX="370.0" layoutY="153.0" prefHeight="69.0" prefWidth="68.0" />
