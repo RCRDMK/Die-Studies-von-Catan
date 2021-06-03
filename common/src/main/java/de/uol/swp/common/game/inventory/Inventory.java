@@ -60,6 +60,10 @@ public class Inventory implements Serializable {
         return victoryPoints;
     }
 
+    public int getCardVictoryPoint() {
+        return this.cardVictoryPoint;
+    }
+
     public void setVictoryPoints(int victoryPoints) {
         this.victoryPoints = Math.max(victoryPoints, 0);
     }
