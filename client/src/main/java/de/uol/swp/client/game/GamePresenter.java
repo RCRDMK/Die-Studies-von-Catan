@@ -785,7 +785,6 @@ public class GamePresenter extends AbstractPresenter {
 
                     if (itsMyTurn) {
                         tradeButton.setDisable(false);
-                        rollDiceButton.setDisable(false);
                         buildMenu.setDisable(false);
                         buyDevCard.setDisable(false);
                         endTurnButton.setDisable(false);
@@ -1623,9 +1622,8 @@ public class GamePresenter extends AbstractPresenter {
      * @since 2021-04-20
      */
     public void setupChoosePlayerAlert() {
-        Platform.runLater(()-> {
+        Platform.runLater(() -> {
             chooseAlert = new Alert(Alert.AlertType.CONFIRMATION);
-            chooseAlert.getButtonTypes().setAll();
             chooseAlert.setContentText("Choose a player to draw a card from!");
         });
     }
@@ -1639,22 +1637,20 @@ public class GamePresenter extends AbstractPresenter {
      * in the gameservice.
      *
      * @param choosePlayerMessage
-     * @since 2021-06-02
      * @author Marius Birk
+     * @since 2021-06-02
      */
-    public void showChoosePlayerAlert(ChoosePlayerMessage choosePlayerMessage){
-        Platform.runLater(()->{
+    public void showChoosePlayerAlert(ChoosePlayerMessage choosePlayerMessage) {
             chooseAlert.setTitle(choosePlayerMessage.getName());
+            chooseAlert.getButtonTypes().setAll();
             for (int i = 0; i < choosePlayerMessage.getUserList().size(); i++) {
                 if (!choosePlayerMessage.getUserList().get(i).equals(choosePlayerMessage.getUser().getUsername())) {
                     chooseAlert.getButtonTypes().add(new ButtonType(choosePlayerMessage.getUserList().get(i)));
                 }
             }
             chooseAlert.showAndWait();
-            gameService.drawRandomCardFromPlayer(choosePlayerMessage.getName(), choosePlayerMessage.getUser(), chooseAlert.getResult().getText());
-            chooseAlert.close();
-        });
-
+        gameService.drawRandomCardFromPlayer(choosePlayerMessage.getName(), choosePlayerMessage.getUser(), chooseAlert.getResult().getText());
+        chooseAlert.close();
     }
 
     /**
@@ -2763,7 +2759,8 @@ public class GamePresenter extends AbstractPresenter {
         if (this.currentLobby != null) {
             if (this.currentLobby.equals(choosePlayerMessage.getName())) {
                 if (!choosePlayerMessage.getUserList().isEmpty()) {
-                    showChoosePlayerAlert(choosePlayerMessage);
+                    Platform.runLater(()->showChoosePlayerAlert(choosePlayerMessage));
+
                 }
             }
         }
