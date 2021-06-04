@@ -14,7 +14,7 @@ import java.util.Stack;
  */
 public class DevelopmentCardDeck implements Serializable {
 
-    private Stack<String> deck = new Stack<>();
+    private final Stack<String> deck = new Stack<>();
 
     public DevelopmentCardDeck() {
 

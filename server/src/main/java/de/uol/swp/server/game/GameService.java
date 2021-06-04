@@ -1014,7 +1014,7 @@ public class GameService extends AbstractService {
                 inventory.cardKnight.incNumber();*/
 
                 //checks if user can play developmentCard
-                if (!game.canUserPlayDevCard(request.getUser(), devCard) && game.rolledDiceThisTurn()) {
+                if (!game.canUserPlayDevCard(request.getUser(), devCard) || !game.rolledDiceThisTurn()) {
                     devCard = "default";
                 }
                 switch (devCard) {
@@ -1679,22 +1679,24 @@ public class GameService extends AbstractService {
         if (optionalGame.isPresent()) {
             Game game = optionalGame.get();
             String resource = "";
-            // Check if the player who wants to draw a random resource is an AI player in which case he already drew a random resource by himself
-            if (!game.getUsers().contains(drawRandomResourceFromPlayerRequest.getUser())) {
-                resource = drawRandomResourceFromPlayerRequest.getResource();
-            }
+            if (drawRandomResourceFromPlayerRequest.getUser().equals(game.getUser(game.getTurn()))) {
+                // Check if the player who wants to draw a random resource is an AI player in which case he already drew a random resource by himself
+                if (!game.getUsers().contains(drawRandomResourceFromPlayerRequest.getUser())) {
+                    resource = drawRandomResourceFromPlayerRequest.getResource();
+                }
 
-            for (User user : game.getUsersList()) {
-                if (user.getUsername().equals(drawRandomResourceFromPlayerRequest.getChosenName())) {
-                    HashMap<String, Integer> inventory = game.getInventory(user).getPrivateView();
-                    if (resource.equals("")) {
-                        resource = randomResource(inventory);
+                for (User user : game.getUsersList()) {
+                    if (user.getUsername().equals(drawRandomResourceFromPlayerRequest.getChosenName())) {
+                        HashMap<String, Integer> inventory = game.getInventory(user).getPrivateView();
+                        if (resource.equals("")) {
+                            resource = randomResource(inventory);
+                        }
+                        game.getInventory(user).decCardStack(resource, 1);
+                        game.getInventory(drawRandomResourceFromPlayerRequest.getUser()).incCardStack(resource, 1);
+                        updateInventory(game);
+                        break;
+
                     }
-                    game.getInventory(user).decCardStack(resource, 1);
-                    game.getInventory(drawRandomResourceFromPlayerRequest.getUser()).incCardStack(resource, 1);
-                    updateInventory(game);
-                    break;
-
                 }
             }
         }
@@ -1757,6 +1759,6 @@ public class GameService extends AbstractService {
         if (inventory.get("Grain") > 0) resources.add("Grain");
         if (inventory.get("Wool") > 0) resources.add("Wool");
         if (inventory.get("Ore") > 0) resources.add("Ore");
-        return resources.get((int) (Math.random() * resources.size()));
+        return resources.get((int) (Math.random() * (resources.size() - 1)));
     }
 }
