@@ -1675,7 +1675,11 @@ public class GamePresenter extends AbstractPresenter {
      * @since 2021-06-02
      */
     public void showChoosePlayerAlert(ChoosePlayerMessage choosePlayerMessage) {
-        chooseAlert.setTitle(choosePlayerMessage.getName());
+        if(choosePlayerMessage.getName()!=null){
+            chooseAlert.setTitle(choosePlayerMessage.getName());
+        }else{
+            chooseAlert.setTitle("Choose a Player");
+        }
         chooseAlert.getButtonTypes().setAll();
         for (int i = 0; i < choosePlayerMessage.getUserList().size(); i++) {
             if (!choosePlayerMessage.getUserList().get(i).equals(choosePlayerMessage.getUser().getUsername())) {
