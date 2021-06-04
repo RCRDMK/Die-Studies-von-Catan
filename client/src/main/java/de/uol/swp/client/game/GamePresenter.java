@@ -783,11 +783,14 @@ public class GamePresenter extends AbstractPresenter {
                     inventory.put("Wool", Integer.parseInt(woolLabelRobberMenu.getText()));
                     inventory.put("Ore", Integer.parseInt(oreLabelRobberMenu.getText()));
 
-                    if (itsMyTurn) {
+                    if (itsMyTurn && rolledDice) {
                         tradeButton.setDisable(false);
                         buildMenu.setDisable(false);
                         buyDevCard.setDisable(false);
                         endTurnButton.setDisable(false);
+                    }
+                    if (itsMyTurn && !rolledDice){
+                        rollDiceButton.setDisable(false);
                     }
 
                     ResourcesToDiscardRequest resourcesToDiscard = new ResourcesToDiscardRequest(tooMuchResourceCardsMessage.getName(), (UserDTO) tooMuchResourceCardsMessage.getUser(), inventory);
