@@ -1,20 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
 
-<AnchorPane prefHeight="196.0" prefWidth="407.0" xmlns="http://javafx.com/javafx/11.0.1"
-            xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.uol.swp.client.auth.LoginPresenter" stylesheets="@../css/swp.css">
-    <Label layoutX="23.0" layoutY="89.0" text="Login" textFill="white"/>
-    <TextField id="loginField" fx:id="loginField" layoutX="122.0" layoutY="84.0" promptText="Enter Login">
-        <tooltip>
-            <Tooltip text="Enter your login here"/>
-        </tooltip>
-    </TextField>
-    <PasswordField id="passwordField" fx:id="passwordField" layoutX="122.0" layoutY="128.0" promptText="Enter Password"/>
-    <Button id="loginButton" defaultButton="true" layoutX="126.0" layoutY="183.0" mnemonicParsing="false"
-            onAction="#onLoginButtonPressed" text="Login"/>
-    <Button id="registerButton" layoutX="212.0" layoutY="183.0" mnemonicParsing="false"
-            onAction="#onRegisterButtonPressed" text="Register"/>
-    <Label layoutX="14.0" layoutY="133.0" text="Password" />
-</AnchorPane>
+
+<GridPane xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.uol.swp.client.auth.LoginPresenter">
+   <columnConstraints>
+      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+   </columnConstraints>
+   <rowConstraints>
+      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+      <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+   </rowConstraints>
+   <children>
+      <AnchorPane prefHeight="196.0" prefWidth="407.0" stylesheets="@../css/swp.css" GridPane.columnIndex="1" GridPane.rowIndex="1">
+          <Label layoutX="23.0" layoutY="89.0" text="Login" textFill="WHITE" />
+          <TextField id="loginField" fx:id="loginField" layoutX="122.0" layoutY="84.0" promptText="Enter Login">
+              <tooltip>
+                  <Tooltip text="Enter your login here" />
+              </tooltip>
+          </TextField>
+          <PasswordField id="passwordField" fx:id="passwordField" layoutX="122.0" layoutY="128.0" promptText="Enter Password" />
+          <Button id="loginButton" defaultButton="true" layoutX="126.0" layoutY="183.0" mnemonicParsing="false" onAction="#onLoginButtonPressed" text="Login" />
+          <Button id="registerButton" layoutX="212.0" layoutY="183.0" mnemonicParsing="false" onAction="#onRegisterButtonPressed" text="Register" />
+          <Label layoutX="14.0" layoutY="133.0" text="Password" />
+      </AnchorPane>
+   </children>
+</GridPane>
