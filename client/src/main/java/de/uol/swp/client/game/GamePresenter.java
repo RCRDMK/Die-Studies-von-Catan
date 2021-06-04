@@ -1303,6 +1303,8 @@ public class GamePresenter extends AbstractPresenter {
         }
     }
 
+    //TODO: Kann ecentuell weg, falls am Ende nicht mehr benötigt
+
     /**
      * Determine the right color for a drawn, player-owned object.
      *
@@ -1447,15 +1449,46 @@ public class GamePresenter extends AbstractPresenter {
      * @since 2021-05-27
      */
     public void updateGameField() {
+
         for (MapGraphNodeContainer mapGraphNodeContainer : mapGraphNodeContainers) {
-            mapGraphNodeContainer.getCircle().setFill(determinePlayerColorByIndex(mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer()));
-            if (mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer() != 666)
-                mapGraphNodeContainer.getCircle().setVisible(true);
+            if (mapGraphNodeContainer.getMapGraphNode() instanceof MapGraph.BuildingNode) {
+                MapGraph.BuildingNode buildingNode = (MapGraph.BuildingNode) mapGraphNodeContainer.getMapGraphNode();
+                if (buildingNode.getSizeOfSettlement() == 1) {
+                    Platform.runLater(() -> {
+                        mapGraphNodeContainer.getCircle().setFill(determineBuildingPicture(mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer(), 1));
+                        if (mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer() != 666) {
+                            mapGraphNodeContainer.getCircle().setRadius(cardSize() / 3.5);
+                            mapGraphNodeContainer.getCircle().setVisible(true);
+                        }
+                    });
+                } else if (buildingNode.getSizeOfSettlement() == 2) {
+                    Platform.runLater(() -> {
+                        mapGraphNodeContainer.getCircle().setFill(determineBuildingPicture(mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer(), 2));
+                        if (mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer() != 666) {
+                            mapGraphNodeContainer.getCircle().setRadius(cardSize() / 3.5);
+                            mapGraphNodeContainer.getCircle().setVisible(true);
+                        }
+                    });
+                }
+            } else if (mapGraphNodeContainer.getMapGraphNode() instanceof MapGraph.StreetNode) {
+                Platform.runLater(() -> {
+                    mapGraphNodeContainer.getRectangle().setFill(determineBuildingPicture(mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer(), 0));
+                    if (mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer() != 666) {
+                        mapGraphNodeContainer.getRectangle().setVisible(true);
+                    }
+                });
+            }
+        }
+        for (MapGraphNodeContainer mapGraphNodeContainer1 : mapGraphNodeContainers) {
+            if (mapGraphNodeContainer1.getMapGraphNode().getOccupiedByPlayer() != 666 && mapGraphNodeContainer1.getMapGraphNode() instanceof MapGraph.BuildingNode) {
+                mapGraphNodeContainer1.getCircle().toFront();
+            }
         }
         for (HexagonContainer hexagonContainer : hexagonContainers) {
             if (hexagonContainer.getHexagon().isOccupiedByRobber()) {
                 robber.setLayoutX(hexagonContainer.getHexagonShape().getLayoutX());
                 robber.setLayoutY(hexagonContainer.getHexagonShape().getLayoutY());
+                robber.setVisible(true);
             }
         }
     }
@@ -1981,11 +2014,6 @@ public class GamePresenter extends AbstractPresenter {
                                 mapGraphNodeContainer.getCircle().setVisible(false);
                                 mapGraphNodeContainer.getRectangle().setFill(determineBuildingPicture(mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer(), 0));
                                 mapGraphNodeContainer.getRectangle().setVisible(true);
-                                for (MapGraphNodeContainer mapGraphNodeContainer1 : mapGraphNodeContainers) {
-                                    if (mapGraphNodeContainer1.getMapGraphNode().getOccupiedByPlayer() != 666 && mapGraphNodeContainer1.getMapGraphNode() instanceof MapGraph.BuildingNode) {
-                                        mapGraphNodeContainer1.getCircle().toFront();
-                                    }
-                                }
                             });
                             break;
                         }
@@ -1993,6 +2021,13 @@ public class GamePresenter extends AbstractPresenter {
                 }
             }
         }
+        Platform.runLater(() -> {
+        for (MapGraphNodeContainer mapGraphNodeContainer1 : mapGraphNodeContainers) {
+            if (mapGraphNodeContainer1.getMapGraphNode().getOccupiedByPlayer() != 666 && mapGraphNodeContainer1.getMapGraphNode() instanceof MapGraph.BuildingNode) {
+                mapGraphNodeContainer1.getCircle().toFront();
+            }
+        }
+        });
     }
 
     /**
