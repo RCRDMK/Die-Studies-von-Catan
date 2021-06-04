@@ -384,6 +384,7 @@ public class GameService extends AbstractService {
                 game.setLastRolledDiceValue(addedEyes);
                 if (addedEyes == 7 && game.getUsers().contains(rollDiceRequest.getUser())) {
                     MoveRobberMessage moveRobberMessage = new MoveRobberMessage(rollDiceRequest.getName(), (UserDTO) rollDiceRequest.getUser());
+                    System.out.println("GameService inside IF");
                     sendToSpecificUserInGame(moveRobberMessage, rollDiceRequest.getUser());
                 } else {
                     distributeResources(addedEyes, rollDiceRequest.getName());
@@ -1064,6 +1065,7 @@ public class GameService extends AbstractService {
                             game.setPlayedCardThisTurn(true);
                             PlayDevelopmentCardResponse response = new PlayDevelopmentCardResponse(devCard, true, turnPlayer.getUsername(), game.getName());
                             MoveRobberMessage moveRobberMessage = new MoveRobberMessage(request.getName(), request.getUser());
+                            System.out.println("GameService knightCard");
                             response.initWithMessage(request);
                             post(response);
                             inventory.setPlayedKnights(inventory.getPlayedKnights() + 1);
