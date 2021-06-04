@@ -789,7 +789,7 @@ public class GamePresenter extends AbstractPresenter {
                         buyDevCard.setDisable(false);
                         endTurnButton.setDisable(false);
                     }
-                    if (itsMyTurn && !rolledDice){
+                    if (itsMyTurn && !rolledDice) {
                         rollDiceButton.setDisable(false);
                     }
 
@@ -1675,14 +1675,16 @@ public class GamePresenter extends AbstractPresenter {
      * @since 2021-06-02
      */
     public void showChoosePlayerAlert(ChoosePlayerMessage choosePlayerMessage) {
-            chooseAlert.setTitle(choosePlayerMessage.getName());
-            chooseAlert.getButtonTypes().setAll();
-            for (int i = 0; i < choosePlayerMessage.getUserList().size(); i++) {
-                if (!choosePlayerMessage.getUserList().get(i).equals(choosePlayerMessage.getUser().getUsername())) {
-                    chooseAlert.getButtonTypes().add(new ButtonType(choosePlayerMessage.getUserList().get(i)));
-                }
+        chooseAlert.setTitle(choosePlayerMessage.getName());
+        chooseAlert.getButtonTypes().setAll();
+        for (int i = 0; i < choosePlayerMessage.getUserList().size(); i++) {
+            if (!choosePlayerMessage.getUserList().get(i).equals(choosePlayerMessage.getUser().getUsername())) {
+                chooseAlert.getButtonTypes().add(new ButtonType(choosePlayerMessage.getUserList().get(i)));
             }
+        }
+        if (!chooseAlert.isShowing()) {
             chooseAlert.showAndWait();
+        }
         gameService.drawRandomCardFromPlayer(choosePlayerMessage.getName(), choosePlayerMessage.getUser(), chooseAlert.getResult().getText());
         chooseAlert.close();
     }
@@ -2031,11 +2033,11 @@ public class GamePresenter extends AbstractPresenter {
             }
         }
         Platform.runLater(() -> {
-        for (MapGraphNodeContainer mapGraphNodeContainer1 : mapGraphNodeContainers) {
-            if (mapGraphNodeContainer1.getMapGraphNode().getOccupiedByPlayer() != 666 && mapGraphNodeContainer1.getMapGraphNode() instanceof MapGraph.BuildingNode) {
-                mapGraphNodeContainer1.getCircle().toFront();
+            for (MapGraphNodeContainer mapGraphNodeContainer1 : mapGraphNodeContainers) {
+                if (mapGraphNodeContainer1.getMapGraphNode().getOccupiedByPlayer() != 666 && mapGraphNodeContainer1.getMapGraphNode() instanceof MapGraph.BuildingNode) {
+                    mapGraphNodeContainer1.getCircle().toFront();
+                }
             }
-        }
         });
     }
 
@@ -2796,7 +2798,7 @@ public class GamePresenter extends AbstractPresenter {
         if (this.currentLobby != null) {
             if (this.currentLobby.equals(choosePlayerMessage.getName())) {
                 if (!choosePlayerMessage.getUserList().isEmpty()) {
-                    Platform.runLater(()->showChoosePlayerAlert(choosePlayerMessage));
+                    Platform.runLater(() -> showChoosePlayerAlert(choosePlayerMessage));
 
                 }
             }
