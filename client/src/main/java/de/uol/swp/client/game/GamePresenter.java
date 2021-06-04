@@ -27,6 +27,7 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -1121,13 +1122,17 @@ public class GamePresenter extends AbstractPresenter {
                 }
             });
             gameUserView1.setText(gameUsers.get(0));
+            gameUserView1.setAlignment(Pos.CENTER);
             gameUserView2.setText(gameUsers.get(1));
+            gameUserView2.setAlignment(Pos.CENTER);
             if(gameUsers.size() > 2){
                 gameUserView3.setText(gameUsers.get(2));
+                gameUserView3.setAlignment(Pos.CENTER);
                 gameUserView3.setVisible(true);
             }
             if(gameUsers.size() > 3){
                 gameUserView4.setText(gameUsers.get(3));
+                gameUserView4.setAlignment(Pos.CENTER);
                 gameUserView4.setVisible(true);
             }
         });
@@ -2439,9 +2444,10 @@ public class GamePresenter extends AbstractPresenter {
     public void setUpPrivateInventoryView() {
         for (int i = 1; i < 14; i++) {
             Image image = new Image("textures/privateInventory/privateInventoryImage" + i + ".png");
-            Rectangle r = new Rectangle(42, 60);
+            Rectangle r = new Rectangle(50, 80);
             r.setFill(new ImagePattern(image));
             privateInventoryView.add(r, i - 1, 0);
+            privateInventoryView.setAlignment(Pos.CENTER);
 
             Tooltip hover = new Tooltip("");
 

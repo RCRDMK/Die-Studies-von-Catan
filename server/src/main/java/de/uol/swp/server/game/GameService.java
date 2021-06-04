@@ -196,10 +196,12 @@ public class GameService extends AbstractService {
                                             inventory.city.decNumber();
                                             inventory.setVictoryPoints(inventory.getVictoryPoints() + 1);
                                         }
-                                        for (int i = 0; i < game.getUsersList().size(); i++) {
-                                            if (i != game.getTurn()) {
-                                                int longestRoad = game.getMapGraph().getLongestStreetPathCalculator().getLongestPath(i);
-                                                game.getInventory(game.getUsersList().get(i)).setContinuousRoad(longestRoad == 0 ? 1 : longestRoad);
+                                        if (!game.isStartingTurns()) {
+                                            for (int i = 0; i < game.getUsersList().size(); i++) {
+                                                if (i != game.getTurn()) {
+                                                    int longestRoad = game.getMapGraph().getLongestStreetPathCalculator().getLongestPath(i);
+                                                    game.getInventory(game.getUsersList().get(i)).setContinuousRoad(longestRoad == 0 ? 1 : longestRoad);
+                                                }
                                             }
                                         }
                                         if (game.isStartingTurns() && game.getMapGraph().getNumOfRoads()[playerIndex] == game.getStartingPhase()

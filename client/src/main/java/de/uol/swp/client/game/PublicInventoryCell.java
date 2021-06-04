@@ -38,10 +38,10 @@ public class PublicInventoryCell extends ListCell<HashMap.Entry<String, Integer>
                     inventoryEntry.setText("Cards: " + item.getValue().toString());
                     break;
                 case "Played Knights":
-                    inventoryEntry.setText("Knights: " + item.getValue().toString());
+                    inventoryEntry.setText("Pl.Knights: " + item.getValue().toString());
                     break;
                 case "Continuous Road":
-                    inventoryEntry.setText("Roads: " + item.getValue().toString());
+                    inventoryEntry.setText("Con.Road: " + item.getValue().toString());
                     break;
             }
         }
