@@ -196,6 +196,12 @@ public class GameService extends AbstractService {
                                             inventory.city.decNumber();
                                             inventory.setVictoryPoints(inventory.getVictoryPoints() + 1);
                                         }
+                                        for (int i = 0; i < game.getUsersList().size(); i++) {
+                                            if (i != game.getTurn()) {
+                                                int longestRoad = game.getMapGraph().getLongestStreetPathCalculator().getLongestPath(i);
+                                                game.getInventory(game.getUsersList().get(i)).setContinuousRoad(longestRoad == 0 ? 1 : longestRoad);
+                                            }
+                                        }
                                         if (game.isStartingTurns() && game.getMapGraph().getNumOfRoads()[playerIndex] == game.getStartingPhase()
                                                 && game.getMapGraph().getNumOfRoads()[playerIndex] == game.getMapGraph().getNumOfBuildings()[playerIndex]) {
                                             endTurn(game, message.getUser());
@@ -223,11 +229,12 @@ public class GameService extends AbstractService {
                                         }
                                         sendToAllInGame(game.getName(), new SuccessfulConstructionMessage(game.getName(), message.getUser().getWithoutPassword(), playerIndex,
                                                 message.getUuid(), "StreetNode"));
+                                        int longestRoad = game.getMapGraph().getLongestStreetPathCalculator().getLongestPath(game.getTurn());
+                                        inventory.setContinuousRoad(longestRoad == 0 ? 1 : longestRoad);
                                         if (game.isStartingTurns() && game.getMapGraph().getNumOfRoads()[playerIndex] == game.getStartingPhase()
                                                 && game.getMapGraph().getNumOfRoads()[playerIndex] == game.getMapGraph().getNumOfBuildings()[playerIndex]) {
                                             endTurn(game, message.getUser());
                                         }
-
                                         inventory.road.decNumber();
                                         updateInventory(game);
                                         return true;
@@ -1158,6 +1165,7 @@ public class GameService extends AbstractService {
                             } else {
                                 sendToAllInGame(gameName, message);
                                 game.setCurrentCard("");
+                                turnPlayerInventory.setContinuousRoad(game.getMapGraph().getLongestStreetPathCalculator().getLongestPath(game.getTurn()));
                                 updateInventory(game);
                             }
                         } else {

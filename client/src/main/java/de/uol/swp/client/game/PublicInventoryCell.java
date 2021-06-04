@@ -2,15 +2,15 @@ package de.uol.swp.client.game;
 
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
-import javafx.scene.layout.VBox;
 
 import java.util.HashMap;
 
 
 public class PublicInventoryCell extends ListCell<HashMap.Entry<String, Integer>> {
-    VBox vbox = new VBox();
+    HBox hbox = new HBox();
     Label inventoryEntry = new Label("");
     Pane pane1 = new Pane();
     HashMap<String, Integer> publicInventory;
@@ -18,8 +18,8 @@ public class PublicInventoryCell extends ListCell<HashMap.Entry<String, Integer>
     public PublicInventoryCell(HashMap<String, Integer> publicInventory) {
         super();
         this.publicInventory = publicInventory;
-        vbox.getChildren().addAll(inventoryEntry, pane1);
-        VBox.setVgrow(pane1, Priority.ALWAYS);
+        hbox.getChildren().addAll(inventoryEntry, pane1);
+        HBox.setHgrow(pane1, Priority.ALWAYS);
     }
     @Override
     protected void updateItem(HashMap.Entry<String, Integer> item, boolean empty) {
@@ -45,7 +45,7 @@ public class PublicInventoryCell extends ListCell<HashMap.Entry<String, Integer>
                     break;
             }
         }
-        setGraphic(vbox);
+        setGraphic(hbox);
     }
 }
 

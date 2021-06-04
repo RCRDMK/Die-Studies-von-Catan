@@ -146,7 +146,13 @@ public class GamePresenter extends AbstractPresenter {
     private AnchorPane gameAnchorPane;
 
     @FXML
-    private ListView<String> gameUsersView;
+    private Label gameUserView1;
+    @FXML
+    private Label gameUserView2;
+    @FXML
+    private Label gameUserView3;
+    @FXML
+    private Label gameUserView4;
 
     @FXML
     private Button endTurnButton;
@@ -222,9 +228,9 @@ public class GamePresenter extends AbstractPresenter {
 
     final private ArrayList<ImagePattern> diceImages = new ArrayList<>();
 
-    final private Rectangle rectangleDie1 = new Rectangle(50, 50);
+    final private Rectangle rectangleDie1 = new Rectangle(60, 60);
 
-    final private Rectangle rectangleDie2 = new Rectangle(50, 50);
+    final private Rectangle rectangleDie2 = new Rectangle(60, 60);
 
     @FXML
     private Button rollDiceButton;
@@ -737,7 +743,7 @@ public class GamePresenter extends AbstractPresenter {
      */
     public void setupPlayerPictures(ArrayList<User> list) {
         for (User user : list) {
-            Rectangle rectangle = new Rectangle(68, 68);
+            Rectangle rectangle = new Rectangle(90, 90);
             rectangle.setFill(profilePicturePatterns.get(user.getProfilePictureID() - 1));
             rectangles.add(rectangle);
         }
@@ -1087,8 +1093,9 @@ public class GamePresenter extends AbstractPresenter {
      * Updates the game menu user list of the current game according to the list given
      * <p>
      * This method clears the entire user list and then adds the name of each user in the list given to the game menu
-     * user list. If there ist no user list this creates one.
+     * user list. If there is no user list this creates one.
      * <p>
+     * enhanced by Iskander Yusupov, 2021-06-04
      * enhanced by Marc Hermes, 2021-05-27
      *
      * @param l      A list of User objects including all users in the game
@@ -1104,7 +1111,6 @@ public class GamePresenter extends AbstractPresenter {
         Platform.runLater(() -> {
             if (gameUsers == null) {
                 gameUsers = FXCollections.observableArrayList();
-                gameUsersView.setItems(gameUsers);
             }
             gameUsers.clear();
             l.forEach(u -> {
@@ -1114,6 +1120,16 @@ public class GamePresenter extends AbstractPresenter {
                     gameUsers.add(u.getUsername() + " (KI)");
                 }
             });
+            gameUserView1.setText(gameUsers.get(0));
+            gameUserView2.setText(gameUsers.get(1));
+            if(gameUsers.size() > 2){
+                gameUserView3.setText(gameUsers.get(2));
+                gameUserView3.setVisible(true);
+            }
+            if(gameUsers.size() > 3){
+                gameUserView4.setText(gameUsers.get(3));
+                gameUserView4.setVisible(true);
+            }
         });
     }
 
@@ -2161,6 +2177,7 @@ public class GamePresenter extends AbstractPresenter {
     public void onPublicInventoryChangeMessage(PublicInventoryChangeMessage publicInventoryChangeMessage) {
         onPublicInventoryChangeMessageLogic(publicInventoryChangeMessage);
     }
+
     /**
      * The Method invoked by onPublicInventoryChangeMessage()
      * <p>
@@ -2180,6 +2197,7 @@ public class GamePresenter extends AbstractPresenter {
             }
         }
     }
+
     /**
      * Updates the publicInventoryViews according to the Arraylists given
      * <p>
@@ -2204,34 +2222,35 @@ public class GamePresenter extends AbstractPresenter {
                 publicInventory2 = FXCollections.observableArrayList();
                 publicInventory2View.setItems(publicInventory2);
             }
-            if (publicInventory3 == null && gameUsers.size() >= 2) {
+            if (publicInventory3 == null && gameUsers.size() > 2) {
                 publicInventory3 = FXCollections.observableArrayList();
                 publicInventory3View.setItems(publicInventory3);
+                publicInventory3View.setVisible(true);
             }
-            if (publicInventory4 == null && gameUsers.size() > 2) {
+            if (publicInventory4 == null && gameUsers.size() > 3) {
                 publicInventory4 = FXCollections.observableArrayList();
                 publicInventory4View.setItems(publicInventory4);
+                publicInventory4View.setVisible(true);
             }
             initializePublicInventory(publicInventory1, publicInventoriesList.get(0));
             publicInventory1View.setCellFactory(y -> new PublicInventoryCell(publicInventoriesList.get(0)));
             initializePublicInventory(publicInventory2, publicInventoriesList.get(1));
             publicInventory2View.setCellFactory(y -> new PublicInventoryCell(publicInventoriesList.get(1)));
             if (gameUsers.size() > 2) {
-            initializePublicInventory(publicInventory3, publicInventoriesList.get(2));
-            publicInventory3View.setCellFactory(y -> new PublicInventoryCell(publicInventoriesList.get(2)));
-            publicInventory3View.setVisible(true);
+                initializePublicInventory(publicInventory3, publicInventoriesList.get(2));
+                publicInventory3View.setCellFactory(y -> new PublicInventoryCell(publicInventoriesList.get(2)));
+                publicInventory3View.setVisible(true);
             }
-
             if (gameUsers.size() > 3) {
                 initializePublicInventory(publicInventory4, publicInventoriesList.get(3));
                 publicInventory4View.setCellFactory(y -> new PublicInventoryCell(publicInventoriesList.get(3)));
                 publicInventory4View.setVisible(true);
             }
-    });
-}
+        });
+    }
 
 
-    public void initializePublicInventory (ObservableList<HashMap.Entry<String, Integer>> hashMapEntriesList, HashMap<String, Integer> hashMap) {
+    public void initializePublicInventory(ObservableList<HashMap.Entry<String, Integer>> hashMapEntriesList, HashMap<String, Integer> hashMap) {
         hashMapEntriesList.clear();
         hashMapEntriesList.add(null);
         hashMapEntriesList.add(null);
@@ -2239,7 +2258,7 @@ public class GamePresenter extends AbstractPresenter {
         hashMapEntriesList.add(null);
         hashMapEntriesList.add(null);
         for (Map.Entry<String, Integer> entry : hashMap.entrySet()) {
-            if(!entry.getKey().equals("Largest Army") && !entry.getKey().equals("Longest Road")) {
+            if (!entry.getKey().equals("Largest Army") && !entry.getKey().equals("Longest Road")) {
                 switch (entry.getKey()) {
                     case "Public Victory Points":
                         hashMapEntriesList.add(0, entry);
@@ -2265,7 +2284,6 @@ public class GamePresenter extends AbstractPresenter {
             }
         }
     }
-
 
 
     /**
