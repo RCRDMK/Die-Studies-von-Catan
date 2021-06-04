@@ -1496,18 +1496,36 @@ public class GamePresenter extends AbstractPresenter {
                                 selectedStreet1.setLayoutY(container.getCircle().getLayoutY());
                                 selectedStreet1.setRadius(container.getCircle().getRadius() * 2);
                                 selectedStreet1.setVisible(true);
+                                MapGraphNodeContainer streetNode = nodeContainerHashMap.get(street1);
+                                streetNode.getMapGraphNode().setOccupiedByPlayer(myPlayerNumber);
+                                updatePossibleBuildingSpots(0);
                             } else if (street2 == null) {
                                 street2 = container.getMapGraphNode().getUuid();
                                 selectedStreet2.setLayoutX(container.getCircle().getLayoutX());
                                 selectedStreet2.setLayoutY(container.getCircle().getLayoutY());
                                 selectedStreet2.setRadius(container.getCircle().getRadius() * 2);
                                 selectedStreet2.setVisible(true);
+                                MapGraphNodeContainer streetNode = nodeContainerHashMap.get(street1);
+                                MapGraph.StreetNode streetNode1 = (MapGraph.StreetNode) streetNode.getMapGraphNode();
+                                for (MapGraph.BuildingNode buildingNode : streetNode1.getConnectedBuildingNodes()) {
+                                    for (MapGraph.StreetNode streetNode2 : buildingNode.getConnectedStreetNodes()) {
+                                        if (streetNode2.getOccupiedByPlayer() == 666) {
+                                            MapGraphNodeContainer mapGraphNodeContainer = nodeContainerHashMap.get(streetNode2.getUuid());
+                                            mapGraphNodeContainer.getCircle().setVisible(false);
+                                        }
+                                    }
+                                }
+                                streetNode.getMapGraphNode().setOccupiedByPlayer(666);
+                                updatePossibleBuildingSpots(0);
                             } else {
                                 street2 = null;
                                 street1 = container.getMapGraphNode().getUuid();
                                 selectedStreet2.setVisible(false);
                                 selectedStreet1.setLayoutX(container.getCircle().getLayoutX());
                                 selectedStreet1.setLayoutY(container.getCircle().getLayoutY());
+                                MapGraphNodeContainer streetNode = nodeContainerHashMap.get(street1);
+                                streetNode.getMapGraphNode().setOccupiedByPlayer(myPlayerNumber);
+                                updatePossibleBuildingSpots(0);
                             }
                         }
                     }
@@ -2428,11 +2446,7 @@ public class GamePresenter extends AbstractPresenter {
                                     }
                                 }
                             } else if (this.currentDevelopmentCard.equals("Road Building")) {
-                                for (MapGraphNodeContainer container : mapGraphNodeContainers) {
-                                    if (container.getMapGraphNode().getOccupiedByPlayer() == 666) {
-                                        container.getCircle().setVisible(container.getMapGraphNode() instanceof MapGraph.StreetNode);
-                                    }
-                                }
+                                updatePossibleBuildingSpots(0);
                                 this.resolveDevelopmentCardAlert.setHeaderText("Select 2 building spots for the streets");
                                 for (Rectangle rect : resourceRectangles) {
                                     rect.setVisible(false);
