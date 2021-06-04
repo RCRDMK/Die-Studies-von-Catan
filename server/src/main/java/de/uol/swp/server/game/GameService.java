@@ -382,7 +382,7 @@ public class GameService extends AbstractService {
                 }
                 int addedEyes = dice.getDiceEyes1() + dice.getDiceEyes2();
                 game.setLastRolledDiceValue(addedEyes);
-                if (addedEyes == 7) {
+                if (addedEyes == 7 && game.getUsers().contains(rollDiceRequest.getUser())) {
                     MoveRobberMessage moveRobberMessage = new MoveRobberMessage(rollDiceRequest.getName(), (UserDTO) rollDiceRequest.getUser());
                     sendToSpecificUserInGame(moveRobberMessage, rollDiceRequest.getUser());
                 } else {
@@ -602,13 +602,13 @@ public class GameService extends AbstractService {
      * <p>
      * enhanced by Marc Hermes 2021-05-25
      *
-     * @param robbersNewFieldMessage The message, that will be send, if a user rolled a 7.
+     * @param robbersNewFieldrequest The message, that will be send, if a user rolled a 7.
      * @author Marius Birk
      * @since 2021-04-25
      */
     @Subscribe
-    public void onRobbersNewFieldRequest(RobbersNewFieldMessage robbersNewFieldMessage) {
-        Optional<Game> optionalGame = gameManagement.getGame(robbersNewFieldMessage.getName());
+    public void onRobbersNewFieldRequest(RobbersNewFieldRequest robbersNewFieldrequest) {
+        Optional<Game> optionalGame = gameManagement.getGame(robbersNewFieldrequest.getName());
         if (optionalGame.isPresent()) {
             Game game = optionalGame.get();
             List<String> userList = new ArrayList<>();
@@ -617,26 +617,29 @@ public class GameService extends AbstractService {
                 if (hexagon.isOccupiedByRobber()) {
                     hexagon.setOccupiedByRobber(false);
                 }
-                if (hexagon.getUuid().equals(robbersNewFieldMessage.getNewField())) {
+                if (hexagon.getUuid().equals(robbersNewFieldrequest.getNewField())) {
                     //If the UUIDs match, the new field is set to occupied
                     hexagon.setOccupiedByRobber(true);
                     for (MapGraph.BuildingNode node : hexagon.getBuildingNodes()) {
                         if (node.getOccupiedByPlayer() != 666) {
-                            if (!userList.contains(game.getUser(node.getOccupiedByPlayer()).getUsername()) && !robbersNewFieldMessage.getUser().equals(game.getUser(node.getOccupiedByPlayer()))) {
-                                userList.add(game.getUser(node.getOccupiedByPlayer()).getUsername());
+                            if (!userList.contains(game.getUser(node.getOccupiedByPlayer()).getUsername()) && !robbersNewFieldrequest.getUser().equals(game.getUser(node.getOccupiedByPlayer()))) {
+                                if (game.getInventory(game.getUser(node.getOccupiedByPlayer())).sumResource() > 0) {
+                                    userList.add(game.getUser(node.getOccupiedByPlayer()).getUsername());
+                                }
                             }
                         }
                     }
-                    sendToAllInGame(robbersNewFieldMessage.getName(), new SuccessfullMovedRobberMessage(hexagon.getUuid()));
+                    sendToAllInGame(robbersNewFieldrequest.getName(), new SuccessfullMovedRobberMessage(hexagon.getUuid()));
                 }
             }
             // If the robber wasn't moved because of the Knight DevelopmentCard do this
             if (!game.getCurrentCard().equals("Knight")) {
                 tooMuchResources(game);
             }
-
-            ChoosePlayerMessage choosePlayerMessage = new ChoosePlayerMessage(game.getName(), robbersNewFieldMessage.getUser(), userList);
-            sendToSpecificUserInGame(choosePlayerMessage, robbersNewFieldMessage.getUser());
+            if (game.getUsers().contains(robbersNewFieldrequest.getUser())) {
+                ChoosePlayerMessage choosePlayerMessage = new ChoosePlayerMessage(game.getName(), robbersNewFieldrequest.getUser(), userList);
+                sendToSpecificUserInGame(choosePlayerMessage, robbersNewFieldrequest.getUser());
+            }
         }
     }
 
@@ -878,7 +881,7 @@ public class GameService extends AbstractService {
     }
 
     public void endTurn(Game game, UserDTO user) {
-        if (user.getUsername().equals(game.getUser(game.getTurn()).getUsername()) && game.getCurrentCard().equals("") && (game.rolledDiceThisTurn() || game.isStartingTurns())) {
+        if (user.equals(game.getUser(game.getTurn())) && game.getCurrentCard().equals("") && (game.rolledDiceThisTurn() || game.isStartingTurns())) {
             try {
                 boolean priorGamePhase = game.isStartingTurns();
                 game.nextRound();
@@ -1061,11 +1064,11 @@ public class GameService extends AbstractService {
                             game.setPlayedCardThisTurn(true);
                             PlayDevelopmentCardResponse response = new PlayDevelopmentCardResponse(devCard, true, turnPlayer.getUsername(), game.getName());
                             MoveRobberMessage moveRobberMessage = new MoveRobberMessage(request.getName(), request.getUser());
-                            sendToSpecificUserInGame(moveRobberMessage, request.getUser());
                             response.initWithMessage(request);
                             post(response);
                             inventory.setPlayedKnights(inventory.getPlayedKnights() + 1);
                             inventory.cardKnight.decNumber();
+                            sendToSpecificUserInGame(moveRobberMessage, request.getUser());
                             updateInventory(game);
                             break;
                         }
@@ -1120,39 +1123,13 @@ public class GameService extends AbstractService {
                         if (request instanceof ResolveDevelopmentCardMonopolyRequest) {
                             ResolveDevelopmentCardMonopolyRequest monopolyRequest = (ResolveDevelopmentCardMonopolyRequest) request;
                             String resource = monopolyRequest.getResource();
-                            for (User user : game.getUsers()) {
-                                if (!user.equals(turnPlayer)) {
-                                    Inventory x = game.getInventory(user);
-                                    switch (resource) {
-                                        case "Lumber":
-                                            turnPlayerInventory.incCardStack(resource, x.lumber.getNumber());
-                                            x.lumber.decNumber(x.lumber.getNumber());
-                                            resolvedDevelopmentCardSuccessfully = true;
-                                            break;
-                                        case "Ore":
-                                            turnPlayerInventory.incCardStack(resource, x.ore.getNumber());
-                                            x.ore.decNumber(x.ore.getNumber());
-                                            resolvedDevelopmentCardSuccessfully = true;
-                                            break;
-                                        case "Wool":
-                                            turnPlayerInventory.incCardStack(resource, x.wool.getNumber());
-                                            x.wool.decNumber(x.wool.getNumber());
-                                            resolvedDevelopmentCardSuccessfully = true;
-                                            break;
-                                        case "Brick":
-                                            turnPlayerInventory.incCardStack(resource, x.brick.getNumber());
-                                            x.brick.decNumber(x.brick.getNumber());
-                                            resolvedDevelopmentCardSuccessfully = true;
-                                            break;
-                                        case "Grain":
-                                            turnPlayerInventory.incCardStack(resource, x.grain.getNumber());
-                                            x.grain.decNumber(x.grain.getNumber());
-                                            resolvedDevelopmentCardSuccessfully = true;
-                                            break;
-                                        default:
-                                            resolvedDevelopmentCardSuccessfully = false;
-                                            break;
-
+                            if (resource.equals("Lumber") || resource.equals("Brick") || resource.equals("Ore") || resource.equals("Grain") || resource.equals("Wool")) {
+                                for (User user : game.getUsersList()) {
+                                    if (!user.equals(turnPlayer)) {
+                                        Inventory x = game.getInventory(user);
+                                        turnPlayerInventory.incCardStack(resource, x.getSpecificResourceAmount(resource));
+                                        x.decCardStack(resource, x.getSpecificResourceAmount(resource));
+                                        resolvedDevelopmentCardSuccessfully = true;
                                     }
                                 }
                             }
@@ -1217,7 +1194,7 @@ public class GameService extends AbstractService {
                     case "Knight":
                         if (request instanceof ResolveDevelopmentCardKnightRequest) {
                             ResolveDevelopmentCardKnightRequest knightRequest = (ResolveDevelopmentCardKnightRequest) request;
-                            RobbersNewFieldMessage rnfm = new RobbersNewFieldMessage(gameName, (UserDTO) turnPlayer, knightRequest.getField());
+                            RobbersNewFieldRequest rnfm = new RobbersNewFieldRequest(gameName, (UserDTO) turnPlayer, knightRequest.getField());
                             onRobbersNewFieldRequest(rnfm);
                             game.setCurrentCard("");
                             sendToAllInGame(gameName, message);
@@ -1232,6 +1209,7 @@ public class GameService extends AbstractService {
                 }
             }
         }
+
     }
 
     /**

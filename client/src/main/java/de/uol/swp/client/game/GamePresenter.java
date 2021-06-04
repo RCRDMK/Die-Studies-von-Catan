@@ -85,6 +85,8 @@ public class GamePresenter extends AbstractPresenter {
 
     public Dialog tooMuchAlert;
 
+    public Alert chooseAlert;
+
     private User joinedLobbyUser;
 
     private String currentLobby;
@@ -515,12 +517,13 @@ public class GamePresenter extends AbstractPresenter {
             }
             Platform.runLater(() -> {
                 setupPlayerPictures(gcm.getUsers());
-                setupRessourceAlert();
+                setupResourceAlert();
                 initializeRobberResourceMenu();
                 setupRobberAlert();
                 setupDicesAtGameStart();
                 setUpPrivateInventoryView();
                 setupResolveDevelopmentCardAlert();
+                setupChoosePlayerAlert();
             });
         }
     }
@@ -553,7 +556,7 @@ public class GamePresenter extends AbstractPresenter {
             }
             Platform.runLater(() -> {
                 setupPlayerPictures(joggr.getUsers());
-                setupRessourceAlert();
+                setupResourceAlert();
                 initializeRobberResourceMenu();
                 setupRobberAlert();
                 setupDicesAtGameStart();
@@ -782,7 +785,6 @@ public class GamePresenter extends AbstractPresenter {
 
                     if (itsMyTurn) {
                         tradeButton.setDisable(false);
-                        rollDiceButton.setDisable(false);
                         buildMenu.setDisable(false);
                         buyDevCard.setDisable(false);
                         endTurnButton.setDisable(false);
@@ -1474,7 +1476,7 @@ public class GamePresenter extends AbstractPresenter {
     }
 
     @Subscribe
-    public void onNotEnoughRessourcesMessages(NotEnoughRessourcesMessage notEnoughRessourcesMessage) {
+    public void onNotEnoughResourcesMessages(NotEnoughRessourcesMessage notEnoughRessourcesMessage) {
         notEnoughRessourcesMessageLogic(notEnoughRessourcesMessage);
     }
 
@@ -1511,7 +1513,7 @@ public class GamePresenter extends AbstractPresenter {
      * @author Marius Birk
      * @since 2021-04-03
      */
-    public void setupRessourceAlert() {
+    public void setupResourceAlert() {
         this.alert = new Alert(javafx.scene.control.Alert.AlertType.CONFIRMATION);
         this.buttonTypeOkay = new ButtonType("Okay", ButtonBar.ButtonData.OK_DONE);
         alert.getButtonTypes().setAll(buttonTypeOkay);
@@ -1563,10 +1565,13 @@ public class GamePresenter extends AbstractPresenter {
                                         container1.getHexagonShape().removeEventHandler(MouseEvent.MOUSE_PRESSED, this);
                                         switchTurnPhaseButtons();
                                     }
+
+                                    gameService.movedRobber(moveRobberMessage.getName(), moveRobberMessage.getUser(), container.getHexagon().getUuid());
+
                                     if (currentDevelopmentCard.equals("Knight")) {
                                         gameService.resolveDevelopmentCardKnight((UserDTO) moveRobberMessage.getUser(), moveRobberMessage.getName(), currentDevelopmentCard, container.getHexagon().getUuid());
+                                        currentDevelopmentCard = "";
                                     }
-                                    gameService.movedRobber(moveRobberMessage.getName(), moveRobberMessage.getUser(), container.getHexagon().getUuid());
                                 }
                             }
 
@@ -1613,22 +1618,37 @@ public class GamePresenter extends AbstractPresenter {
      * The rest is added to the alert and the alert shows and waits for result. If one user is chosen the drawRandomCardFromPlayer method is invoked.
      * The alert closes.
      *
-     * @param choosePlayerMessage message from the eventbus, to choose a player to draw a card from
      * @author Marius Birk
      * @since 2021-04-20
      */
-    public void setupChoosePlayerAlert(ChoosePlayerMessage choosePlayerMessage) {
-        Alert chooseAlert = new Alert(Alert.AlertType.WARNING);
-        chooseAlert.getButtonTypes().setAll();
-        chooseAlert.setTitle(choosePlayerMessage.getName());
-        chooseAlert.setContentText("Choose a player to draw a card from!");
-        for (int i = 0; i < choosePlayerMessage.getUserList().size(); i++) {
-            if (!choosePlayerMessage.getUserList().get(i).equals(choosePlayerMessage.getUser().getUsername())) {
-                chooseAlert.getButtonTypes().add(new ButtonType(choosePlayerMessage.getUserList().get(i)));
-            }
-        }
+    public void setupChoosePlayerAlert() {
+        Platform.runLater(() -> {
+            chooseAlert = new Alert(Alert.AlertType.CONFIRMATION);
+            chooseAlert.setContentText("Choose a player to draw a card from!");
+        });
+    }
 
-        chooseAlert.showAndWait();
+    /**
+     * This method shows the choosePlayerAlert.
+     * <p>
+     * The method sets the title of the alert to the gamename and then configures the buttons in it. The buttons
+     * are getting named after the names of the user in the choosePlayerMessage.
+     * Then the alert will be shown and the user can choose a player, so the method can call the drawRandomResource Method
+     * in the gameservice.
+     *
+     * @param choosePlayerMessage
+     * @author Marius Birk
+     * @since 2021-06-02
+     */
+    public void showChoosePlayerAlert(ChoosePlayerMessage choosePlayerMessage) {
+            chooseAlert.setTitle(choosePlayerMessage.getName());
+            chooseAlert.getButtonTypes().setAll();
+            for (int i = 0; i < choosePlayerMessage.getUserList().size(); i++) {
+                if (!choosePlayerMessage.getUserList().get(i).equals(choosePlayerMessage.getUser().getUsername())) {
+                    chooseAlert.getButtonTypes().add(new ButtonType(choosePlayerMessage.getUserList().get(i)));
+                }
+            }
+            chooseAlert.showAndWait();
         gameService.drawRandomCardFromPlayer(choosePlayerMessage.getName(), choosePlayerMessage.getUser(), chooseAlert.getResult().getText());
         chooseAlert.close();
     }
@@ -1775,7 +1795,7 @@ public class GamePresenter extends AbstractPresenter {
         resolveButton.setOnAction(event -> {
             switch (this.currentDevelopmentCard) {
                 case "Year of Plenty":
-                    gameService.resolveDevelopmentCardYearOfPlenty((UserDTO) joinedLobbyUser.getWithoutPassword(), currentLobby, currentDevelopmentCard, resource1, resource2);
+                    gameService.resolveDevelopmentCardYearOfPlenty((UserDTO) joinedLobbyUser, currentLobby, currentDevelopmentCard, resource1, resource2);
                     resource1 = "";
                     resource2 = "";
                     selectedResource1.setVisible(false);
@@ -1783,21 +1803,18 @@ public class GamePresenter extends AbstractPresenter {
                     currentDevelopmentCard = "";
                     break;
                 case "Monopoly":
-                    gameService.resolveDevelopmentCardMonopoly((UserDTO) joinedLobbyUser.getWithoutPassword(), currentLobby, currentDevelopmentCard, resource1);
+                    gameService.resolveDevelopmentCardMonopoly((UserDTO) joinedLobbyUser, currentLobby, currentDevelopmentCard, resource1);
                     resource1 = "";
                     selectedResource1.setVisible(false);
                     currentDevelopmentCard = "";
                     break;
                 case "Road Building":
-                    gameService.resolveDevelopmentCardRoadBuilding((UserDTO) joinedLobbyUser.getWithoutPassword(), currentLobby, currentDevelopmentCard, street1, street2);
+                    gameService.resolveDevelopmentCardRoadBuilding((UserDTO) joinedLobbyUser, currentLobby, currentDevelopmentCard, street1, street2);
                     street1 = null;
                     street2 = null;
                     selectedStreet1.setVisible(false);
                     selectedStreet2.setVisible(false);
                     currentDevelopmentCard = "";
-                    break;
-                case "Knight":
-                    // TODO: implement knight functionality
                     break;
             }
             event.consume();
@@ -2001,7 +2018,7 @@ public class GamePresenter extends AbstractPresenter {
     /**
      * This method selects the right picture or color for the building/street-nodes
      *
-     * @param playerIndex the currently playing player
+     * @param playerIndex    the currently playing player
      * @param typeOfBuilding int with the type of the building
      * @return this paint gets filled into the circles or rectangles
      * @author Carsten Dekker
@@ -2273,9 +2290,9 @@ public class GamePresenter extends AbstractPresenter {
     public void onPlayDevelopmentCardResponse(PlayDevelopmentCardResponse pdcr) {
         if (this.currentLobby != null) {
             if (this.currentLobby.equals(pdcr.getGameName())) {
-                this.currentDevelopmentCard = pdcr.getDevCard();
-                if (!pdcr.getDevCard().equals("Knight")) {
-                    if (pdcr.isCanPlayCard()) {
+                if (pdcr.isCanPlayCard()) {
+                    this.currentDevelopmentCard = pdcr.getDevCard();
+                    if (!pdcr.getDevCard().equals("Knight")) {
                         LOG.debug("The card " + pdcr.getDevCard() + " was played by the user " + pdcr.getUserName());
                         this.currentDevelopmentCard = pdcr.getDevCard();
                         Platform.runLater(() -> {
@@ -2359,17 +2376,17 @@ public class GamePresenter extends AbstractPresenter {
      * <p>
      * This method creates thirteen images and rectangles. Then it creates and fills imagePatterns
      * with the images from first to thirteens. Every imagePattern is added to the privateInventoryView.
-     *
+     * <p>
      * After this, hover, exits and drag methods are being executed. When the user is entering the rectangle
      * of a card, a tooltip, with what the card under the mouse cursor represents, appear. If the user clicks
      * on the card, the onClickOnDevelopmentCard method gets executed and the user can choose to play the card.
      * Alternatively, the user can also just drag the card to play it.
-     *
+     * <p>
      * Lastly it adds thirteen corresponding labels to the privateInventoryView.
-     *
+     * <p>
      * Enhanced by Ricardo Mook, 2021-05-27
      * added Tooltip.install method for the mouse
-     *
+     * <p>
      * Enhanced by Ricardo Mook, 2021-05-30
      * added drag method and method call by clicking on a card
      *
@@ -2386,7 +2403,7 @@ public class GamePresenter extends AbstractPresenter {
             Tooltip hover = new Tooltip("");
 
 
-            switch (i){
+            switch (i) {
 
                 case 1:
                     hover.setText("Lumber");
@@ -2397,9 +2414,10 @@ public class GamePresenter extends AbstractPresenter {
                         String title = hover.getText();
                         String description = "A resource you can get from forest fields";
                         Boolean isDevelopmentCard = false;
+
                         @Override
                         public void handle(MouseEvent mouseEvent) {
-                           onClickOnDevelopmentCard(title,description,image,isDevelopmentCard);
+                            onClickOnDevelopmentCard(title, description, image, isDevelopmentCard);
 
                         }
                     });
@@ -2415,9 +2433,10 @@ public class GamePresenter extends AbstractPresenter {
                         String title = hover.getText();
                         String description = "This ressource can be found on hill fields";
                         Boolean isDevelopmentCard = false;
+
                         @Override
                         public void handle(MouseEvent mouseEvent) {
-                            onClickOnDevelopmentCard(title,description,image,isDevelopmentCard);
+                            onClickOnDevelopmentCard(title, description, image, isDevelopmentCard);
 
                         }
                     });
@@ -2433,9 +2452,10 @@ public class GamePresenter extends AbstractPresenter {
                         String title = hover.getText();
                         String description = "This ressource can be harvested on grain fields";
                         Boolean isDevelopmentCard = false;
+
                         @Override
                         public void handle(MouseEvent mouseEvent) {
-                            onClickOnDevelopmentCard(title,description,image,isDevelopmentCard);
+                            onClickOnDevelopmentCard(title, description, image, isDevelopmentCard);
 
                         }
                     });
@@ -2451,9 +2471,10 @@ public class GamePresenter extends AbstractPresenter {
                         String title = hover.getText();
                         String description = "This ressource is getting produced on pasture fields";
                         Boolean isDevelopmentCard = false;
+
                         @Override
                         public void handle(MouseEvent mouseEvent) {
-                            onClickOnDevelopmentCard(title,description,image,isDevelopmentCard);
+                            onClickOnDevelopmentCard(title, description, image, isDevelopmentCard);
 
                         }
                     });
@@ -2469,9 +2490,10 @@ public class GamePresenter extends AbstractPresenter {
                         String title = hover.getText();
                         String description = "This ressource can be won from mountain fields";
                         Boolean isDevelopmentCard = false;
+
                         @Override
                         public void handle(MouseEvent mouseEvent) {
-                            onClickOnDevelopmentCard(title,description,image,isDevelopmentCard);
+                            onClickOnDevelopmentCard(title, description, image, isDevelopmentCard);
 
                         }
                     });
@@ -2487,18 +2509,20 @@ public class GamePresenter extends AbstractPresenter {
                         String title = hover.getText();
                         String description = "If you play this card, you can move the robber to another field and can draw one card from an affected player";
                         Boolean isDevelopmentCard = true;
+
                         @Override
                         public void handle(MouseEvent mouseEvent) {
-                            onClickOnDevelopmentCard(title,description,image,isDevelopmentCard);
+                            onClickOnDevelopmentCard(title, description, image, isDevelopmentCard);
 
                         }
                     });
 
                     r.setOnDragDetected(new EventHandler<MouseEvent>() {
                         String title = hover.getText();
+
                         @Override
                         public void handle(MouseEvent mouseEvent) {
-                            gameService.playDevelopmentCard((UserDTO) joinedLobbyUser, currentLobby,title);
+                            gameService.playDevelopmentCard((UserDTO) joinedLobbyUser, currentLobby, title);
                         }
                     });
 
@@ -2513,18 +2537,20 @@ public class GamePresenter extends AbstractPresenter {
                         String title = hover.getText();
                         String description = "With this card played out, you can choose a ressource. All players, who are currently having the chosen ressource on their hand, must give you all of them";
                         Boolean isDevelopmentCard = true;
+
                         @Override
                         public void handle(MouseEvent mouseEvent) {
-                            onClickOnDevelopmentCard(title,description,image,isDevelopmentCard);
+                            onClickOnDevelopmentCard(title, description, image, isDevelopmentCard);
 
                         }
                     });
 
                     r.setOnDragDetected(new EventHandler<MouseEvent>() {
                         String title = hover.getText();
+
                         @Override
                         public void handle(MouseEvent mouseEvent) {
-                            gameService.playDevelopmentCard((UserDTO) joinedLobbyUser, currentLobby,title);
+                            gameService.playDevelopmentCard((UserDTO) joinedLobbyUser, currentLobby, title);
                         }
                     });
 
@@ -2539,18 +2565,20 @@ public class GamePresenter extends AbstractPresenter {
                         String title = hover.getText();
                         String description = "The Road Building development card. When this card is played out, you immediately get two ressource cards of your choice from the bank";
                         Boolean isDevelopmentCard = true;
+
                         @Override
                         public void handle(MouseEvent mouseEvent) {
-                            onClickOnDevelopmentCard(title,description,image,isDevelopmentCard);
+                            onClickOnDevelopmentCard(title, description, image, isDevelopmentCard);
 
                         }
                     });
 
                     r.setOnDragDetected(new EventHandler<MouseEvent>() {
                         String title = hover.getText();
+
                         @Override
                         public void handle(MouseEvent mouseEvent) {
-                            gameService.playDevelopmentCard((UserDTO) joinedLobbyUser, currentLobby,title);
+                            gameService.playDevelopmentCard((UserDTO) joinedLobbyUser, currentLobby, title);
                         }
                     });
 
@@ -2565,18 +2593,20 @@ public class GamePresenter extends AbstractPresenter {
                         String title = hover.getText();
                         String description = "The Year of Plenty development car. With this card played out, you can build wo roads this turn free of charge";
                         Boolean isDevelopmentCard = true;
+
                         @Override
                         public void handle(MouseEvent mouseEvent) {
-                            onClickOnDevelopmentCard(title,description,image,isDevelopmentCard);
+                            onClickOnDevelopmentCard(title, description, image, isDevelopmentCard);
 
                         }
                     });
 
                     r.setOnDragDetected(new EventHandler<MouseEvent>() {
                         String title = hover.getText();
+
                         @Override
                         public void handle(MouseEvent mouseEvent) {
-                            gameService.playDevelopmentCard((UserDTO) joinedLobbyUser, currentLobby,title);
+                            gameService.playDevelopmentCard((UserDTO) joinedLobbyUser, currentLobby, title);
                         }
                     });
 
@@ -2591,9 +2621,10 @@ public class GamePresenter extends AbstractPresenter {
                         String title = hover.getText();
                         String description = "your victory points for the game you earned until now";
                         Boolean isDevelopmentCard = false;
+
                         @Override
                         public void handle(MouseEvent mouseEvent) {
-                            onClickOnDevelopmentCard(title,description,image,isDevelopmentCard);
+                            onClickOnDevelopmentCard(title, description, image, isDevelopmentCard);
 
                         }
                     });
@@ -2609,9 +2640,10 @@ public class GamePresenter extends AbstractPresenter {
                         String title = hover.getText();
                         String description = "A bigger version of the settlements";
                         Boolean isDevelopmentCard = false;
+
                         @Override
                         public void handle(MouseEvent mouseEvent) {
-                            onClickOnDevelopmentCard(title,description,image,isDevelopmentCard);
+                            onClickOnDevelopmentCard(title, description, image, isDevelopmentCard);
 
                         }
                     });
@@ -2627,9 +2659,10 @@ public class GamePresenter extends AbstractPresenter {
                         String title = hover.getText();
                         String description = "With these you can connect your settlements and cities with each other";
                         Boolean isDevelopmentCard = false;
+
                         @Override
                         public void handle(MouseEvent mouseEvent) {
-                            onClickOnDevelopmentCard(title,description,image,isDevelopmentCard);
+                            onClickOnDevelopmentCard(title, description, image, isDevelopmentCard);
 
                         }
                     });
@@ -2645,9 +2678,10 @@ public class GamePresenter extends AbstractPresenter {
                         String title = hover.getText();
                         String description = "You can build these to get resources from tiles";
                         Boolean isDevelopmentCard = false;
+
                         @Override
                         public void handle(MouseEvent mouseEvent) {
-                            onClickOnDevelopmentCard(title,description,image,isDevelopmentCard);
+                            onClickOnDevelopmentCard(title, description, image, isDevelopmentCard);
 
                         }
                     });
@@ -2674,26 +2708,25 @@ public class GamePresenter extends AbstractPresenter {
     /**
      * This method can be called when the user clicks on a card in the private inventory.
      * <p>
-     *  When this method is called, a close-up of the clicked card with a short description appears. If the card is a
-     *  development card, it can be played directly from the close-up.
+     * When this method is called, a close-up of the clicked card with a short description appears. If the card is a
+     * development card, it can be played directly from the close-up.
      *
-     * @param cardName The name of the clicked card
-     * @param description A short description of the played card
-     * @param cardImage An enlarged image of the clicked card
+     * @param cardName          The name of the clicked card
+     * @param description       A short description of the played card
+     * @param cardImage         An enlarged image of the clicked card
      * @param isDevelopmentCard Boolean value if the card is a development card or not
-     *
      * @author Ricardo Mook
      * @since 2021-05-30
      */
 
-    public void onClickOnDevelopmentCard(String cardName, String description, Image cardImage, Boolean isDevelopmentCard){
+    public void onClickOnDevelopmentCard(String cardName, String description, Image cardImage, Boolean isDevelopmentCard) {
         Alert clickAlert = new Alert(Alert.AlertType.CONFIRMATION);
         ButtonType ok = new ButtonType("Ok", ButtonBar.ButtonData.NO);
         clickAlert.getButtonTypes().setAll(ok);
 
-        if (isDevelopmentCard){
+        if (isDevelopmentCard) {
             ButtonType playThisCard = new ButtonType("Play this card", ButtonBar.ButtonData.YES);
-            clickAlert.getButtonTypes().setAll(ok,playThisCard);
+            clickAlert.getButtonTypes().setAll(ok, playThisCard);
 
             Button playCard = (Button) clickAlert.getDialogPane().lookupButton(playThisCard);
             playCard.setOnAction(event -> {
@@ -2738,8 +2771,7 @@ public class GamePresenter extends AbstractPresenter {
         if (this.currentLobby != null) {
             if (this.currentLobby.equals(choosePlayerMessage.getName())) {
                 if (!choosePlayerMessage.getUserList().isEmpty()) {
-                    Platform.runLater(() -> setupChoosePlayerAlert(choosePlayerMessage));
-                } else {
+                    Platform.runLater(()->showChoosePlayerAlert(choosePlayerMessage));
 
                 }
             }

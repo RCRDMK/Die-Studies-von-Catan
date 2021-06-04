@@ -78,7 +78,6 @@ public class ClientApp extends Application implements ConnectionListener {
         // exceptions are only visible in console!
     }
 
-
     @Override
     public void start(Stage primaryStage) {
 
