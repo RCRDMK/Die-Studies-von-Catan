@@ -138,7 +138,7 @@ public class LobbyService extends AbstractService {
         if (!lobby.isPresent()) {
             sendToSpecificUser(lobbyJoinUserRequest.getMessageContext().get(), new JoinDeletedLobbyResponse(lobbyJoinUserRequest.getName()));
         }
-        if (lobby.get().getUsers().size() < 4 && !lobby.get().getUsers().contains(lobbyJoinUserRequest.getUser()) && lobbyJoinUserRequest.getMessageContext().isPresent()) {
+        if (lobby.get().getUsers().size() < 4 && !lobby.get().getUsers().contains(lobbyJoinUserRequest.getUser()) && lobbyJoinUserRequest.getMessageContext().isPresent() && (lobbyJoinUserRequest.getPassword() == null || lobbyJoinUserRequest.getPassword().isEmpty())) {
             lobby.get().joinUser(lobbyJoinUserRequest.getUser());
             ArrayList<UserDTO> usersInLobby = new ArrayList<>();
             for (User user : lobby.get().getUsers()) usersInLobby.add(UserDTO.createWithoutPassword(user));

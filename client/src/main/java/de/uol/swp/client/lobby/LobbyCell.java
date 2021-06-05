@@ -10,6 +10,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 
+import javax.swing.*;
+
 /**
  * Creates LobbyCells to populate the ListView fxml-element for the lobbyBrowser
  * <p>
@@ -23,6 +25,8 @@ import javafx.scene.layout.Priority;
  */
 
 public class LobbyCell extends ListCell<LobbyDTO> {
+    LobbyService lobbyService;
+    User user;
     HBox hbox = new HBox();
     Label lobbyName = new Label("");
     Label userCount = new Label("");
@@ -59,7 +63,8 @@ public class LobbyCell extends ListCell<LobbyDTO> {
         HBox.setHgrow(pane1, Priority.ALWAYS);
         HBox.setHgrow(pane2, Priority.ALWAYS);
         HBox.setHgrow(pane3, Priority.ALWAYS);
-        button.setOnAction(event -> lobbyService.joinLobby(lobbyName.getText(), (UserDTO) user));
+        this.lobbyService = lobbyService;
+        this.user = user;
     }
 
     @Override
@@ -86,8 +91,13 @@ public class LobbyCell extends ListCell<LobbyDTO> {
             }
             if (item.getPasswordHash() != 0) {
                 lobbyProtected.setText("protected");
+                button.setOnAction(event -> {
+                    String pw = JOptionPane.showInputDialog("Enter the password");
+                    lobbyService.joinProtectedLobby(lobbyName.getText(), (UserDTO) user, pw);
+                });
             } else {
                 lobbyProtected.setText("not protected");
+                button.setOnAction(event -> lobbyService.joinLobby(lobbyName.getText(), (UserDTO) user));
             }
             setGraphic(hbox);
         }
