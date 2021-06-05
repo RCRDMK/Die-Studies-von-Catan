@@ -52,7 +52,7 @@ public class ClientApp extends Application implements ConnectionListener {
     private EventBus eventBus;
     private SceneManager sceneManager;
     private long lastPingResponse;
-    private final static Timer timer = new Timer();
+    private Timer timer;
 
     // -----------------------------------------------------
     // Java FX Methods
@@ -533,14 +533,15 @@ public class ClientApp extends Application implements ConnectionListener {
      * @since 2021-01-22
      */
     private void checkForTimeout() {
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                if ((System.currentTimeMillis() - lastPingResponse) >= 120000) {
-                    checkoutTimeout();
+        timer = new Timer();
+            timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    if ((System.currentTimeMillis() - lastPingResponse) >= 120000) {
+                        checkoutTimeout();
+                    }
                 }
-            }
-        }, 60000, 60000);
+            }, 60000, 60000);
     }
 
     /**
@@ -592,6 +593,4 @@ public class ClientApp extends Application implements ConnectionListener {
         sceneManager.removeSummaryTab(gameName);
         sceneManager.showMainTab(user);
     }
-
-
 }

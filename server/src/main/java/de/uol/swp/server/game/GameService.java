@@ -732,12 +732,15 @@ public class GameService extends AbstractService {
 
     public void startGame(Lobby lobby, String gameFieldVariant) {
         if (lobby.getPlayersReady().size() > 0) {
-            gameManagement.createGame(lobby.getName(), lobby.getOwner(), lobby.getUsers(), gameFieldVariant);
+            Set<User> newUserList = new TreeSet<>();
+            for (User user : lobby.getUsers()) {
+                newUserList.add(userService.retrieveUserInformation(user));
+            }
+            gameManagement.createGame(lobby.getName(), lobby.getOwner(), newUserList, gameFieldVariant);
             Optional<Game> optionalGame = gameManagement.getGame(lobby.getName());
             if (optionalGame.isPresent()) {
                 Game game = optionalGame.get();
                 for (User user : lobby.getPlayersReady()) {
-                    user = userService.retrieveUserInformation(user);
                     game.joinUser(user);
                 }
                 lobby.setPlayersReadyToNull();

@@ -8,8 +8,6 @@ import de.uol.swp.client.account.event.ShowUserSettingsViewEvent;
 import de.uol.swp.client.chat.ChatService;
 import de.uol.swp.client.lobby.LobbyCell;
 import de.uol.swp.client.lobby.LobbyService;
-import de.uol.swp.client.main.event.MuteMusicEvent;
-import de.uol.swp.client.main.event.UnmuteMusicEvent;
 import de.uol.swp.client.register.event.ShowGameRulesEvent;
 import de.uol.swp.common.chat.RequestChatMessage;
 import de.uol.swp.common.chat.ResponseChatMessage;
@@ -35,7 +33,10 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -97,11 +98,6 @@ public class MainMenuPresenter extends AbstractPresenter {
     @FXML
     private ListView<LobbyDTO> lobbiesView;
 
-    @FXML
-    private Button muteMusicButton;
-
-    @FXML
-    private Button unmuteMusicButton;
 
 
     /**
@@ -606,39 +602,5 @@ public class MainMenuPresenter extends AbstractPresenter {
         LOG.debug("Received GameStartedMessage from game: " + message.getLobbyName());
         lobbyService.retrieveAllLobbies();
     }
-/**
- * Method called when the user has clicked on the MuteMusicButton.
- * <p>
- * When this method gets called a MuteMusicMessage gets send to the SceneManager to pause the background music.
- * Futhermore will the MuteMusicButton become invisible and in its place a UnmuteMusicButton will appear.
- *
- * @param actionEvent the click on the MuteMusicButton
- * @author Ricardo Mook
- * @since 2021-05-08
- */
-    @FXML
-    public void onMuteMusicButtonPressed(ActionEvent actionEvent) {
-        LOG.debug("User muted the game music.");
-        eventBus.post(new MuteMusicEvent());
-        muteMusicButton.setVisible(false);
-        unmuteMusicButton.setVisible(true);
-    }
 
-    /**
-     * Method called when the user has clicked on the UnmuteMusicButton.
-     * <p>
-     * When this method gets called a UnmuuteMusicMessage gets send to the SceneManager to continue the background music.
-     * Futhermore will the UnmuteMusicButton become invisible and in its place a MuteMusicButton will appear.
-     *
-     * @param actionEvent the click on the UnmuteMusicButton
-     * @author Ricardo Mook
-     * @since 2021-05-08
-     */
-    @FXML
-    public void onUnmuteMusicButtonPressed(ActionEvent actionEvent) {
-        LOG.debug("User unmuted the game music.");
-        eventBus.post(new UnmuteMusicEvent());
-        muteMusicButton.setVisible(true);
-        unmuteMusicButton.setVisible(false);
-    }
 }
