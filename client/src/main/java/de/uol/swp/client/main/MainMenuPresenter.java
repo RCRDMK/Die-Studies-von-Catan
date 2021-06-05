@@ -40,6 +40,7 @@ import javafx.scene.control.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import javax.swing.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -355,10 +356,7 @@ public class MainMenuPresenter extends AbstractPresenter {
 
     public void onWrongPasswordResponseLogic(WrongLobbyPasswordResponse lfr) {
         LOG.debug("Can't join lobby " + lfr.getLobbyName() + " because the lobby password is wrong.");
-        var time = new SimpleDateFormat("HH:mm");
-        Date resultDate = new Date();
-        var readableTime = time.format(resultDate);
-        textArea.insertText(textArea.getLength(), readableTime + " SYSTEM: Can't join lobby " + lfr.getLobbyName() + " because of wrong password. \n");
+        JOptionPane.showConfirmDialog(null, "Can't join lobby because the password ist wrong!", "Wrong lobby password", JOptionPane.DEFAULT_OPTION, JOptionPane.ERROR_MESSAGE);
     }
 
     /**
