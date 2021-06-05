@@ -168,8 +168,8 @@ public class UserSettingsPresenter extends AbstractPresenter {
     /**
      * Method called when the user has clicked on the UnmuteMusicButton.
      * <p>
-     * When this method gets called a UnmuuteMusicMessage gets send to the SceneManager to continue the background music.
-     * Futhermore will the UnmuteMusicButton become invisible and in its place a MuteMusicButton will appear.
+     * When this method gets called a UnmuteMusicMessage gets send to the SceneManager to continue the background music.
+     * Furthermore will the UnmuteMusicButton become invisible and in its place a MuteMusicButton will appear.
      *
      * @param actionEvent the click on the UnmuteMusicButton
      * @author Sergej Tulnev
