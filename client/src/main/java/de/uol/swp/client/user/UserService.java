@@ -30,7 +30,7 @@ public class UserService implements ClientUserService {
 
     private static final Logger LOG = LogManager.getLogger(UserService.class);
     private final EventBus bus;
-    private static Timer timer = new Timer();
+    private Timer timer;
 
     /**
      * Constructor
@@ -232,12 +232,13 @@ public class UserService implements ClientUserService {
      */
     @Override
     public void startTimerForPing(User user) {
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                sendPing(user);
-            }
-        }, 30000, 30000);
+        timer = new Timer();
+            timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    sendPing(user);
+                }
+            }, 30000, 30000);
     }
 
     // TODO JavaDoc unvollständig
