@@ -7,7 +7,7 @@ import de.uol.swp.client.game.event.SummaryConfirmedEvent;
 import de.uol.swp.common.game.dto.StatsDTO;
 import de.uol.swp.common.game.inventory.Inventory;
 import de.uol.swp.common.game.request.DrawRandomResourceFromPlayerRequest;
-import de.uol.swp.common.game.message.RobbersNewFieldMessage;
+import de.uol.swp.common.game.request.RobbersNewFieldRequest;
 import de.uol.swp.common.game.message.TradeEndedMessage;
 import de.uol.swp.common.game.request.*;
 import de.uol.swp.common.user.UserDTO;
@@ -148,9 +148,9 @@ public class GameServiceTest {
     public void movedRobberTest(){
         gameService.movedRobber("Test", userDTO, UUID.randomUUID());
 
-        assertTrue(event instanceof RobbersNewFieldMessage);
-        assertEquals("Test", ((RobbersNewFieldMessage) event).getName());
-        assertEquals(userDTO.getUsername(), ((RobbersNewFieldMessage) event).getUser().getUsername());
+        assertTrue(event instanceof RobbersNewFieldRequest);
+        assertEquals("Test", ((RobbersNewFieldRequest) event).getName());
+        assertEquals(userDTO.getUsername(), ((RobbersNewFieldRequest) event).getUser().getUsername());
     }
 
     @Test

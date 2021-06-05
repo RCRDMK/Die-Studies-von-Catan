@@ -96,6 +96,9 @@ public class Inventory implements Serializable {
         this.longestRoad = longestRoad;
     }
 
+    public int getCardVictoryPoint() {
+        return this.cardVictoryPoint;
+    }
 
     //Increment the Victory Point Card and increase the victoryPoints by one
     public void incCardStackVictoryPoint() {
