@@ -23,6 +23,7 @@ import java.util.TreeSet;
 public class LobbyDTO implements Lobby {
 
     private final String name;
+    private int passwordHash;
     private User owner;
     private final Set<User> users = new TreeSet<>();
     private final Set<User> playersReady = new TreeSet<>();
@@ -52,6 +53,32 @@ public class LobbyDTO implements Lobby {
     @Override
     public String getName() {
         return name;
+    }
+
+    /**
+     * Getter for passwordHash
+     * <p>
+     *
+     * @return passwordHash integer
+     * @author René Meyer
+     * @since 2021-06-05
+     */
+    @Override
+    public int getPasswordHash() {
+        return this.passwordHash;
+    }
+
+    /**
+     * Setter for password
+     * <p>
+     *
+     * @author René Meyer
+     * @see String
+     * @since 2021-06-05
+     */
+    @Override
+    public void setPassword(String password) {
+        this.passwordHash = password.hashCode();
     }
 
     @Override

@@ -74,6 +74,8 @@ public class LobbyService extends AbstractService {
      * created. Also there is a LobbyAlreadyExistsResponse sent to the user, that wanted to create the lobby.
      * <p>
      * Method enhanced by Marius Birk and Carsten Dekker, 2020-12-02
+     * <p>
+     * Method enhanced by René Meyer for password protected lobbies, 2021-06-05
      *
      * @param createLobbyRequest The CreateLobbyRequest found on the EventBus
      * @author Marco Grawunder
@@ -86,11 +88,16 @@ public class LobbyService extends AbstractService {
     @Subscribe
     public void onCreateLobbyRequest(CreateLobbyRequest createLobbyRequest) {
         if (lobbyManagement.getLobby(createLobbyRequest.getName()).isEmpty()) {
-            lobbyManagement.createLobby(createLobbyRequest.getName(),
-                    createLobbyRequest.getUser());
+            if (createLobbyRequest.getPassword() == null || createLobbyRequest.getPassword().isEmpty()) {
+                lobbyManagement.createLobby(createLobbyRequest.getName(), createLobbyRequest.getUser());
+            } else {
+                lobbyManagement.createProtectedLobby(createLobbyRequest.getName(), createLobbyRequest.getUser(), createLobbyRequest.getPassword());
+                LOG.debug("Created password protected Lobby: " + createLobbyRequest.getName() + "with password: " + createLobbyRequest.getPassword());
+            }
             sendToAll(new LobbyCreatedMessage(createLobbyRequest.getName(), createLobbyRequest.getUser()));
             if (createLobbyRequest.getMessageContext().isPresent()) {
                 sendToSpecificUser(createLobbyRequest.getMessageContext().get(), new LobbyCreatedSuccessfulResponse(createLobbyRequest.getName(), createLobbyRequest.getUser()));
+                LOG.debug("Created Lobby: " + createLobbyRequest.getName() + "without password.");
             }
         } else {
             if (createLobbyRequest.getMessageContext().isPresent()) {
@@ -120,6 +127,7 @@ public class LobbyService extends AbstractService {
      * <p>
      * Enhanced by Carsten Dekker
      * enhanced by Marc Hermes 2021-03-25
+     * enhanced by René Meyer 2021-06-05 for password protected lobby support
      * <p>
      * If a user already joined the lobby, he gets an AlreadyJoinedThisLobbyResponse.
      * @since 2021-01-22
@@ -137,6 +145,21 @@ public class LobbyService extends AbstractService {
             sendToAllInLobby(lobbyJoinUserRequest.getName(), new UserJoinedLobbyMessage(lobbyJoinUserRequest.getName(), lobbyJoinUserRequest.getUser(), usersInLobby));
             sendToSpecificUser(lobbyJoinUserRequest.getMessageContext().get(), new LobbyJoinedSuccessfulResponse(lobbyJoinUserRequest.getName(), lobbyJoinUserRequest.getUser()));
             sendToAll(new LobbySizeChangedMessage(lobbyJoinUserRequest.getName()));
+        }
+        // in case password in lobbyJoinUserRequest is present
+        else if (lobby.get().getUsers().size() < 4 && !lobby.get().getUsers().contains(lobbyJoinUserRequest.getUser()) && lobbyJoinUserRequest.getMessageContext().isPresent() && (lobbyJoinUserRequest.getPassword() != null || !lobbyJoinUserRequest.getPassword().isEmpty())) {
+            // if password is correct
+            if (lobby.get().getPasswordHash() == lobbyJoinUserRequest.getPassword().hashCode()) {
+                lobby.get().joinUser(lobbyJoinUserRequest.getUser());
+                ArrayList<UserDTO> usersInLobby = new ArrayList<>();
+                for (User user : lobby.get().getUsers()) usersInLobby.add(UserDTO.createWithoutPassword(user));
+                sendToAllInLobby(lobbyJoinUserRequest.getName(), new UserJoinedLobbyMessage(lobbyJoinUserRequest.getName(), lobbyJoinUserRequest.getUser(), usersInLobby));
+                sendToSpecificUser(lobbyJoinUserRequest.getMessageContext().get(), new LobbyJoinedSuccessfulResponse(lobbyJoinUserRequest.getName(), lobbyJoinUserRequest.getUser()));
+                sendToAll(new LobbySizeChangedMessage(lobbyJoinUserRequest.getName()));
+            } else {
+                sendToSpecificUser(lobbyJoinUserRequest.getMessageContext().get(), new WrongLobbyPasswordResponse(lobbyJoinUserRequest.getName()));
+            }
+
         } else {
             if (lobbyJoinUserRequest.getMessageContext().isPresent() && lobby.get().getUsers().size() == 4) {
                 sendToSpecificUser(lobbyJoinUserRequest.getMessageContext().get(), new LobbyFullResponse(lobbyJoinUserRequest.getName()));

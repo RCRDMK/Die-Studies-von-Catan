@@ -17,6 +17,7 @@ public class AbstractLobbyRequest extends AbstractRequestMessage {
 
     String name;
     UserDTO user;
+    String password;
 
     /**
      * Default constructor
@@ -39,6 +40,20 @@ public class AbstractLobbyRequest extends AbstractRequestMessage {
     public AbstractLobbyRequest(String name, UserDTO user) {
         this.name = name;
         this.user = user;
+    }
+
+    public AbstractLobbyRequest(String name, UserDTO user, String password) {
+        this.name = name;
+        this.user = user;
+        this.password = password;
+    }
+
+    public String getPassword() {
+        return this.password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     /**

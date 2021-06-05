@@ -30,6 +30,7 @@ import de.uol.swp.common.user.response.AllOnlineUsersResponse;
 import de.uol.swp.common.user.response.LoginSuccessfulResponse;
 import de.uol.swp.common.user.response.lobby.JoinDeletedLobbyResponse;
 import de.uol.swp.common.user.response.lobby.LobbyFullResponse;
+import de.uol.swp.common.user.response.lobby.WrongLobbyPasswordResponse;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -68,6 +69,11 @@ public class MainMenuPresenter extends AbstractPresenter {
     private User loggedInUser;
 
     @FXML
+    CheckBox passwordCheckBox;
+    @FXML
+    private PasswordField lobbyPasswordField;
+
+    @FXML
     private TextArea textArea;
 
     @FXML
@@ -102,7 +108,6 @@ public class MainMenuPresenter extends AbstractPresenter {
 
     @FXML
     private Button unmuteMusicButton;
-
 
     /**
      * Handles successful login
@@ -333,6 +338,30 @@ public class MainMenuPresenter extends AbstractPresenter {
     }
 
     /**
+     * Method called when a WrongLobbyPasswordResponse was detected on the eventBus.
+     * <p>
+     * If a WrongLobbyPasswordResponse was posted on the eventBus, this method will let the User know the lobby password is wrong
+     * posting a 'Wrong lobby password' message to the local chat. This action will also be logged.
+     *
+     * @param response the WrongLobbyPasswordResponse that was detected on the eventBus
+     * @author René Meyer
+     * @see de.uol.swp.common.user.response.lobby.WrongLobbyPasswordResponse
+     * @since 2020-06-05
+     */
+    @Subscribe
+    public void onWrongLobbyPasswordResponse(WrongLobbyPasswordResponse response) {
+        onWrongPasswordResponseLogic(response);
+    }
+
+    public void onWrongPasswordResponseLogic(WrongLobbyPasswordResponse lfr) {
+        LOG.debug("Can't join lobby " + lfr.getLobbyName() + " because the lobby password is wrong.");
+        var time = new SimpleDateFormat("HH:mm");
+        Date resultDate = new Date();
+        var readableTime = time.format(resultDate);
+        textArea.insertText(textArea.getLength(), readableTime + " SYSTEM: Can't join lobby " + lfr.getLobbyName() + " because of wrong password. \n");
+    }
+
+    /**
      * Method called when an AlreadyJoinedThisLobbyResponse was posted on the eventBus.
      * <p>
      * If an AlreadyJoinedThisLobbyResponse was posted on the eventBus, this method will remember the User , that
@@ -494,9 +523,15 @@ public class MainMenuPresenter extends AbstractPresenter {
             lobbyNameInvalid.setVisible(true);
             lobbyAlreadyExistsLabel.setVisible(false);
         } else {
-            lobbyNameInvalid.setVisible(false);
-            lobbyAlreadyExistsLabel.setVisible(false);
-            lobbyService.createNewLobby(lobbyNameTextField.getText(), (UserDTO) this.loggedInUser);
+            if (passwordCheckBox.isSelected() && !lobbyPasswordField.getText().isEmpty()) {
+                lobbyNameInvalid.setVisible(false);
+                lobbyAlreadyExistsLabel.setVisible(false);
+                lobbyService.createNewProtectedLobby(lobbyNameTextField.getText(), (UserDTO) this.loggedInUser, lobbyPasswordField.getText());
+            } else {
+                lobbyNameInvalid.setVisible(false);
+                lobbyAlreadyExistsLabel.setVisible(false);
+                lobbyService.createNewLobby(lobbyNameTextField.getText(), (UserDTO) this.loggedInUser);
+            }
         }
         lobbyNameTextField.clear();
     }
@@ -640,5 +675,13 @@ public class MainMenuPresenter extends AbstractPresenter {
         eventBus.post(new UnmuteMusicEvent());
         muteMusicButton.setVisible(true);
         unmuteMusicButton.setVisible(false);
+    }
+
+    public void onLobbyPw(ActionEvent actionEvent) {
+        if (passwordCheckBox.isSelected()) {
+            this.lobbyPasswordField.setVisible(true);
+        } else {
+            this.lobbyPasswordField.setVisible(false);
+        }
     }
 }
