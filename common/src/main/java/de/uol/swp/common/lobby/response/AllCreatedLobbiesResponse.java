@@ -52,6 +52,7 @@ public class AllCreatedLobbiesResponse extends AbstractResponseMessage {
      * @since 2020-04-12
      *
      * Enhanced by Carsten Dekker and Marc Hermes
+     * Enhanced by René Meyer for pw protected lobbies
      * @since 2021-04-08
      */
     public AllCreatedLobbiesResponse(Collection<Lobby> lobbyCollection) {

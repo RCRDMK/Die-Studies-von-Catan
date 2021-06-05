@@ -90,14 +90,14 @@ public class LobbyService extends AbstractService {
         if (lobbyManagement.getLobby(createLobbyRequest.getName()).isEmpty()) {
             if (createLobbyRequest.getPassword() == null || createLobbyRequest.getPassword().isEmpty()) {
                 lobbyManagement.createLobby(createLobbyRequest.getName(), createLobbyRequest.getUser());
+                LOG.debug("Created Lobby: " + createLobbyRequest.getName() + " without password.");
             } else {
                 lobbyManagement.createProtectedLobby(createLobbyRequest.getName(), createLobbyRequest.getUser(), createLobbyRequest.getPassword());
-                LOG.debug("Created password protected Lobby: " + createLobbyRequest.getName() + "with password: " + createLobbyRequest.getPassword());
+                LOG.debug("Created password protected Lobby: " + createLobbyRequest.getName() + " with password: " + createLobbyRequest.getPassword());
             }
             sendToAll(new LobbyCreatedMessage(createLobbyRequest.getName(), createLobbyRequest.getUser()));
             if (createLobbyRequest.getMessageContext().isPresent()) {
                 sendToSpecificUser(createLobbyRequest.getMessageContext().get(), new LobbyCreatedSuccessfulResponse(createLobbyRequest.getName(), createLobbyRequest.getUser()));
-                LOG.debug("Created Lobby: " + createLobbyRequest.getName() + "without password.");
             }
         } else {
             if (createLobbyRequest.getMessageContext().isPresent()) {
@@ -138,6 +138,7 @@ public class LobbyService extends AbstractService {
         if (!lobby.isPresent()) {
             sendToSpecificUser(lobbyJoinUserRequest.getMessageContext().get(), new JoinDeletedLobbyResponse(lobbyJoinUserRequest.getName()));
         }
+        // if password null
         if (lobby.get().getUsers().size() < 4 && !lobby.get().getUsers().contains(lobbyJoinUserRequest.getUser()) && lobbyJoinUserRequest.getMessageContext().isPresent() && (lobbyJoinUserRequest.getPassword() == null)) {
             lobby.get().joinUser(lobbyJoinUserRequest.getUser());
             ArrayList<UserDTO> usersInLobby = new ArrayList<>();

@@ -88,13 +88,13 @@ public class LobbyService {
     }
 
     /**
-     * Posts a request to join a specified lobby on the EventBus
+     * Posts a request to join a specified password protected lobby on the EventBus
      *
-     * @param name Name of the lobby the user wants to join
+     * @param name Name of the protected lobby the user wants to join
      * @param user User who wants to join the lobby
-     * @author Marco Grawunder
+     * @author René Meyer
      * @see de.uol.swp.common.lobby.request.LobbyJoinUserRequest
-     * @since 2019-11-20
+     * @since 2021-06-05
      */
     public void joinProtectedLobby(String name, UserDTO user, String password) {
         LobbyJoinUserRequest joinUserRequest = new LobbyJoinUserRequest(name, user, password);

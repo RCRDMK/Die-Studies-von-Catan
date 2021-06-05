@@ -21,6 +21,7 @@ import javax.swing.*;
  * @since 2019-08-29
  * <p>
  * Enhanced by Carsten Dekker
+ * Enhanced by René Meyer
  * @since 2021-04-08
  */
 

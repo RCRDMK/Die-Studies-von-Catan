@@ -4,14 +4,37 @@ import de.uol.swp.common.message.AbstractResponseMessage;
 
 import java.util.Objects;
 
+/**
+ * Response that is sent to the User who tried to join a lobby with the wrong password
+ * <p>
+ * Contains the lobby name
+ *
+ * @author René Meyer
+ * @since 2021-06-05
+ */
 public class WrongLobbyPasswordResponse extends AbstractResponseMessage {
 
     private String lobbyName;
 
+    /**
+     * Constructor
+     * <p>
+     *
+     * @param lobbyName
+     * @author René Meyer
+     * @since 2021-06-05
+     */
     public WrongLobbyPasswordResponse(String lobbyName) {
         this.lobbyName = lobbyName;
     }
 
+    /**
+     * Getter for the lobbyname
+     *
+     * @return
+     * @author René Meyer
+     * @since 2021-06-05
+     */
     public String getLobbyName() {
         return lobbyName;
     }

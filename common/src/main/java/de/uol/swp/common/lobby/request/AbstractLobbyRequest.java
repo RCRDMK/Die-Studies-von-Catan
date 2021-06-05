@@ -42,16 +42,39 @@ public class AbstractLobbyRequest extends AbstractRequestMessage {
         this.user = user;
     }
 
+    /**
+     * Constructor
+     *
+     * @param name     name of the lobby
+     * @param user     user responsible for the creation of this message
+     * @param password password for the lobby
+     * @author René Meyer
+     * @since 2021-06-05
+     */
     public AbstractLobbyRequest(String name, UserDTO user, String password) {
         this.name = name;
         this.user = user;
         this.password = password;
     }
 
+    /**
+     * Getter for Password
+     *
+     * @return
+     * @author René Meyer
+     * @since 2021-06-05
+     */
     public String getPassword() {
         return this.password;
     }
 
+    /**
+     * Setter for Password
+     *
+     * @param password
+     * @author René Meyer
+     * @since 2021-06-05
+     */
     public void setPassword(String password) {
         this.password = password;
     }

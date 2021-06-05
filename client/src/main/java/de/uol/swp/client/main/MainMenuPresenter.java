@@ -342,7 +342,7 @@ public class MainMenuPresenter extends AbstractPresenter {
      * Method called when a WrongLobbyPasswordResponse was detected on the eventBus.
      * <p>
      * If a WrongLobbyPasswordResponse was posted on the eventBus, this method will let the User know the lobby password is wrong
-     * posting a 'Wrong lobby password' message to the local chat. This action will also be logged.
+     * showing a new popup with the error message. This action will also be logged.
      *
      * @param response the WrongLobbyPasswordResponse that was detected on the eventBus
      * @author René Meyer
@@ -522,11 +522,13 @@ public class MainMenuPresenter extends AbstractPresenter {
             lobbyNameInvalid.setVisible(true);
             lobbyAlreadyExistsLabel.setVisible(false);
         } else {
+            // If pw provided
             if (passwordCheckBox.isSelected() && !lobbyPasswordField.getText().isEmpty()) {
                 lobbyNameInvalid.setVisible(false);
                 lobbyAlreadyExistsLabel.setVisible(false);
                 lobbyService.createNewProtectedLobby(lobbyNameTextField.getText(), (UserDTO) this.loggedInUser, lobbyPasswordField.getText());
             } else {
+                // lobby without pw
                 lobbyNameInvalid.setVisible(false);
                 lobbyAlreadyExistsLabel.setVisible(false);
                 lobbyService.createNewLobby(lobbyNameTextField.getText(), (UserDTO) this.loggedInUser);
