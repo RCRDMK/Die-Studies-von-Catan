@@ -516,14 +516,12 @@ public class MainMenuPresenter extends AbstractPresenter {
             lobbyAlreadyExistsLabel.setVisible(false);
         } else {
             // If pw provided
+            lobbyNameInvalid.setVisible(false);
+            lobbyAlreadyExistsLabel.setVisible(false);
             if (passwordCheckBox.isSelected() && !lobbyPasswordField.getText().isEmpty()) {
-                lobbyNameInvalid.setVisible(false);
-                lobbyAlreadyExistsLabel.setVisible(false);
                 lobbyService.createNewProtectedLobby(lobbyNameTextField.getText(), (UserDTO) this.loggedInUser, lobbyPasswordField.getText());
             } else {
                 // lobby without pw
-                lobbyNameInvalid.setVisible(false);
-                lobbyAlreadyExistsLabel.setVisible(false);
                 lobbyService.createNewLobby(lobbyNameTextField.getText(), (UserDTO) this.loggedInUser);
             }
         }
