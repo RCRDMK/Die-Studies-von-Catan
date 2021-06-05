@@ -1,26 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.*?>
-<?import javafx.scene.effect.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.shape.*?>
-
-<AnchorPane fx:id="userSettingsAnchorPane" prefHeight="300.0" prefWidth="300.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.uol.swp.client.account.UserSettingsPresenter" stylesheets="@../css/swp.css">
-    <children>
-      <MenuButton layoutX="27.0" layoutY="14.0" mnemonicParsing="false" text="Options">
-        <items>
-          <MenuItem id="changePassword" mnemonicParsing="false" onAction="#onChangePasswordButtonPressed" text="Change Password" />
-          <MenuItem id="changeEmail" mnemonicParsing="false" onAction="#onChangeEmailButtonPressed" text="Change E-Mail" />
-            <MenuItem id="changeProfilePicture" mnemonicParsing="false" onAction="#onChangeProfilePictureButtonPressed" text="Change profile picture" />
-        </items>
-      </MenuButton>
-      <Label fx:id="currentPasswordLabel" layoutX="18.0" layoutY="78.0" text="Current Password" />
-      <Label fx:id="newPasswordLabel1" layoutX="25.0" layoutY="123.0" text="New Password" />
+<?import javafx.scene.shape.Rectangle?>
+<AnchorPane xmlns:fx="http://javafx.com/fxml/1" fx:id="userSettingsAnchorPane" prefHeight="300.0" prefWidth="300.0"
+            stylesheets="@../css/swp.css" xmlns="http://javafx.com/javafx/16"
+            fx:controller="de.uol.swp.client.account.UserSettingsPresenter">
+  <children>
+    <MenuButton layoutX="27.0" layoutY="14.0" mnemonicParsing="false" text="Options">
+      <items>
+        <MenuItem id="changePassword" mnemonicParsing="false" onAction="#onChangePasswordButtonPressed"
+                  text="Change Password"/>
+        <MenuItem id="changeEmail" mnemonicParsing="false" onAction="#onChangeEmailButtonPressed" text="Change E-Mail"/>
+        <MenuItem id="changeProfilePicture" mnemonicParsing="false" onAction="#onChangeProfilePictureButtonPressed"
+                  text="Change profile picture"/>
+      </items>
+    </MenuButton>
+    <Label fx:id="currentPasswordLabel" layoutX="18.0" layoutY="78.0" text="Current Password"/>
+    <Label fx:id="newPasswordLabel1" layoutX="25.0" layoutY="123.0" text="New Password"/>
       <Label fx:id="newPasswordLabel2" layoutX="26.0" layoutY="167.0" text="New Password" />
       <PasswordField id="passwordField" fx:id="currentPasswordField" layoutX="119.0" layoutY="74.0" promptText="Enter Current Password" />
       <PasswordField id="passwordField" fx:id="newPasswordField1" layoutX="119.0" layoutY="119.0" promptText="Enter New Password" />
       <PasswordField id="passwordField" fx:id="newPasswordField2" layoutX="119.0" layoutY="163.0" promptText="Repeat New Password" />
-      <Label fx:id="currentEmailLabel" layoutX="25.0" layoutY="78.0" text="Current E-Mail" visible="false"/>
+    <Label fx:id="currentEmailLabel" layoutX="25.0" layoutY="78.0" text="Current E-Mail" visible="false"/>
       <Label fx:id="newEmailLabel1" layoutX="35.0" layoutY="123.0" text="New E-Mail" visible="false" />
       <Label fx:id="newEmailLabel2" layoutX="35.0" layoutY="167.0" text="New E-Mail" visible="false" />
       <TextField id="emailField" fx:id="currentEmailField" layoutX="119.0" layoutY="74.0" visible="false" />
@@ -44,15 +46,20 @@
           <ColumnConstraints hgrow="SOMETIMES" minWidth="50.0" prefWidth="50.0" />
         </columnConstraints>
         <rowConstraints>
-          <RowConstraints minHeight="50.0" prefHeight="50.0" vgrow="SOMETIMES" />
-          <RowConstraints minHeight="50.0" prefHeight="50.0" vgrow="SOMETIMES" />
-          <RowConstraints minHeight="50.0" prefHeight="50.0" vgrow="SOMETIMES" />
-          <RowConstraints minHeight="50.0" prefHeight="50.0" vgrow="SOMETIMES" />
-          <RowConstraints minHeight="50.0" prefHeight="50.0" vgrow="SOMETIMES" />
-          <RowConstraints minHeight="50.0" prefHeight="50.0" vgrow="SOMETIMES" />
-          <RowConstraints minHeight="50.0" prefHeight="50.0" vgrow="SOMETIMES" />
-          <RowConstraints minHeight="50.0" prefHeight="50.0" vgrow="SOMETIMES" />
+          <RowConstraints minHeight="50.0" prefHeight="50.0" vgrow="SOMETIMES"/>
+          <RowConstraints minHeight="50.0" prefHeight="50.0" vgrow="SOMETIMES"/>
+          <RowConstraints minHeight="50.0" prefHeight="50.0" vgrow="SOMETIMES"/>
+          <RowConstraints minHeight="50.0" prefHeight="50.0" vgrow="SOMETIMES"/>
+          <RowConstraints minHeight="50.0" prefHeight="50.0" vgrow="SOMETIMES"/>
+          <RowConstraints minHeight="50.0" prefHeight="50.0" vgrow="SOMETIMES"/>
+          <RowConstraints minHeight="50.0" prefHeight="50.0" vgrow="SOMETIMES"/>
+          <RowConstraints minHeight="50.0" prefHeight="50.0" vgrow="SOMETIMES"/>
         </rowConstraints>
       </GridPane>
-    </children>
+    <Button fx:id="muteMusicButton" layoutX="119.0" layoutY="14.0" mnemonicParsing="false"
+            onAction="#onMuteMusicButtonPressed" prefHeight="25.0" prefWidth="93.0" text="Turn Music off"/>
+    <Button fx:id="unmuteMusicButton" layoutX="119.0" layoutY="14.0" mnemonicParsing="false"
+            onAction="#onUnmuteMusicButtonPressed" prefHeight="25.0" prefWidth="93.0" text="Turn Music on"
+            visible="false"/>
+  </children>
 </AnchorPane>

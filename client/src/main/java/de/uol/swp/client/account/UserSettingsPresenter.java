@@ -8,6 +8,8 @@ import de.uol.swp.client.account.event.LeaveUserSettingsEvent;
 import de.uol.swp.client.account.event.ShowUserSettingsViewEvent;
 import de.uol.swp.client.account.event.UserSettingsErrorEvent;
 import de.uol.swp.client.auth.events.ShowLoginViewEvent;
+import de.uol.swp.client.main.event.MuteMusicEvent;
+import de.uol.swp.client.main.event.UnmuteMusicEvent;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.user.response.RetrieveUserInformationResponse;
@@ -17,9 +19,6 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
@@ -116,6 +115,12 @@ public class UserSettingsPresenter extends AbstractPresenter {
     @FXML
     private Button leaveButton;
 
+    @FXML
+    private Button muteMusicButton;
+
+    @FXML
+    private Button unmuteMusicButton;
+
     @Inject
     private UserSettingsService userSettingsService;
 
@@ -141,6 +146,43 @@ public class UserSettingsPresenter extends AbstractPresenter {
         currentEmailField.clear();
         eventBus.post(leaveUserSettingsEvent);
     }
+
+    /**
+     * Method called when the user has clicked on the MuteMusicButton.
+     * <p>
+     * When this method gets called a MuteMusicMessage gets send to the SceneManager to pause the background music.
+     * Futhermore will the MuteMusicButton become invisible and in its place a UnmuteMusicButton will appear.
+     *
+     * @param actionEvent the click on the MuteMusicButton
+     * @author Sergej Tulnev
+     * @since 2021-06-21
+     */
+    @FXML
+    public void onMuteMusicButtonPressed(ActionEvent actionEvent) {
+        LOG.debug("User muted the game music.");
+        eventBus.post(new MuteMusicEvent());
+        muteMusicButton.setVisible(false);
+        unmuteMusicButton.setVisible(true);
+    }
+
+    /**
+     * Method called when the user has clicked on the UnmuteMusicButton.
+     * <p>
+     * When this method gets called a UnmuuteMusicMessage gets send to the SceneManager to continue the background music.
+     * Futhermore will the UnmuteMusicButton become invisible and in its place a MuteMusicButton will appear.
+     *
+     * @param actionEvent the click on the UnmuteMusicButton
+     * @author Sergej Tulnev
+     * @since 2021-06-21
+     */
+    @FXML
+    public void onUnmuteMusicButtonPressed(ActionEvent actionEvent) {
+        LOG.debug("User unmuted the game music.");
+        eventBus.post(new UnmuteMusicEvent());
+        muteMusicButton.setVisible(true);
+        unmuteMusicButton.setVisible(false);
+    }
+
 
     /**
      * Method called when the DeleteUser button is pressed.
