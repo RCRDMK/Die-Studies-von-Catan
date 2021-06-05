@@ -138,8 +138,8 @@ public class LobbyService extends AbstractService {
         if (!lobby.isPresent()) {
             sendToSpecificUser(lobbyJoinUserRequest.getMessageContext().get(), new JoinDeletedLobbyResponse(lobbyJoinUserRequest.getName()));
         }
-        // if password null
-        if (lobby.get().getUsers().size() < 4 && !lobby.get().getUsers().contains(lobbyJoinUserRequest.getUser()) && lobbyJoinUserRequest.getMessageContext().isPresent() && (lobbyJoinUserRequest.getPassword() == null)) {
+        // if passwordhash is not set and lobby unprotected
+        if (lobby.get().getUsers().size() < 4 && !lobby.get().getUsers().contains(lobbyJoinUserRequest.getUser()) && lobbyJoinUserRequest.getMessageContext().isPresent() && (lobby.get().getPasswordHash() == 0)) {
             lobby.get().joinUser(lobbyJoinUserRequest.getUser());
             ArrayList<UserDTO> usersInLobby = new ArrayList<>();
             for (User user : lobby.get().getUsers()) usersInLobby.add(UserDTO.createWithoutPassword(user));
@@ -147,10 +147,10 @@ public class LobbyService extends AbstractService {
             sendToSpecificUser(lobbyJoinUserRequest.getMessageContext().get(), new LobbyJoinedSuccessfulResponse(lobbyJoinUserRequest.getName(), lobbyJoinUserRequest.getUser()));
             sendToAll(new LobbySizeChangedMessage(lobbyJoinUserRequest.getName()));
         }
-        // in case password in lobbyJoinUserRequest is present
-        else if (lobby.get().getUsers().size() < 4 && !lobby.get().getUsers().contains(lobbyJoinUserRequest.getUser()) && lobbyJoinUserRequest.getMessageContext().isPresent() && (lobbyJoinUserRequest.getPassword() != null || !lobbyJoinUserRequest.getPassword().isEmpty())) {
+        // in case password hash set in lobby and lobby protected
+        else if (lobby.get().getUsers().size() < 4 && !lobby.get().getUsers().contains(lobbyJoinUserRequest.getUser()) && lobbyJoinUserRequest.getMessageContext().isPresent() && lobby.get().getPasswordHash() != 0) {
             // if password is correct
-            if (lobby.get().getPasswordHash() == lobbyJoinUserRequest.getPassword().hashCode() && lobbyJoinUserRequest.getPassword().hashCode() != 0) {
+            if (lobbyJoinUserRequest.getPassword() != null && lobby.get().getPasswordHash() == lobbyJoinUserRequest.getPassword().hashCode()) {
                 lobby.get().joinUser(lobbyJoinUserRequest.getUser());
                 ArrayList<UserDTO> usersInLobby = new ArrayList<>();
                 for (User user : lobby.get().getUsers()) usersInLobby.add(UserDTO.createWithoutPassword(user));
