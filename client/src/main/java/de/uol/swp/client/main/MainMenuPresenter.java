@@ -510,6 +510,7 @@ public class MainMenuPresenter extends AbstractPresenter {
      * these, the lobbyNameInvalid shows up and asks for a new name. It also works with vowel mutation.
      * <p>
      * Enhanced by Marius Birk and Carsten Dekker, 2020-02-12
+     * Enhanced by René Meyer for the support of password protected lobbies, 2021-06-05
      *
      * @param event The ActionEvent created by pressing the create lobby button
      * @author Marco Grawunder
@@ -534,6 +535,9 @@ public class MainMenuPresenter extends AbstractPresenter {
             }
         }
         lobbyNameTextField.clear();
+        lobbyPasswordField.clear();
+        passwordCheckBox.setSelected(false);
+        lobbyPasswordField.setVisible(false);
     }
 
     @FXML
@@ -677,6 +681,15 @@ public class MainMenuPresenter extends AbstractPresenter {
         unmuteMusicButton.setVisible(false);
     }
 
+    /**
+     * Action event for the passwordCheckBox
+     * <p>
+     * Triggers the lobbyPasswordField Visibility depending on the checkBox State.
+     *
+     * @param actionEvent
+     * @author René Meyer
+     * @since 2021-06-05
+     */
     public void onLobbyPw(ActionEvent actionEvent) {
         if (passwordCheckBox.isSelected()) {
             this.lobbyPasswordField.setVisible(true);

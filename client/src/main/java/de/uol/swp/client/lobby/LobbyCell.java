@@ -27,9 +27,11 @@ public class LobbyCell extends ListCell<LobbyDTO> {
     Label lobbyName = new Label("");
     Label userCount = new Label("");
     Label lobbyStatus = new Label("");
+    Label lobbyProtected = new Label("");
     Pane pane = new Pane();
     Pane pane1 = new Pane();
     Pane pane2 = new Pane();
+    Pane pane3 = new Pane();
     Button button = new Button("join");
 
     /**
@@ -52,11 +54,11 @@ public class LobbyCell extends ListCell<LobbyDTO> {
      */
     public LobbyCell(LobbyService lobbyService, User user) {
         super();
-
-        hbox.getChildren().addAll(lobbyName, pane, userCount, pane1, lobbyStatus, pane2, button);
+        hbox.getChildren().addAll(lobbyName, pane, userCount, pane1, lobbyStatus, pane2, lobbyProtected, pane3, button);
         HBox.setHgrow(pane, Priority.ALWAYS);
         HBox.setHgrow(pane1, Priority.ALWAYS);
         HBox.setHgrow(pane2, Priority.ALWAYS);
+        HBox.setHgrow(pane3, Priority.ALWAYS);
         button.setOnAction(event -> lobbyService.joinLobby(lobbyName.getText(), (UserDTO) user));
     }
 
@@ -81,6 +83,11 @@ public class LobbyCell extends ListCell<LobbyDTO> {
             } else {
                 lobbyStatus.setText("waiting");
                 button.setDisable(false);
+            }
+            if (item.getPasswordHash() != 0) {
+                lobbyProtected.setText("protected");
+            } else {
+                lobbyProtected.setText("not protected");
             }
             setGraphic(hbox);
         }
