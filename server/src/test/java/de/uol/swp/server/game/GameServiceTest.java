@@ -887,6 +887,47 @@ public class GameServiceTest {
     }
 
     /**
+     * This test checks if the MapGraph can be generated randomly with regards to the actual placement of the fields
+     *
+     * @author Marc Hermes
+     * @since 2021-05-14
+     */
+    @Test
+    void veryRandomGameFieldGenerateTest() {
+
+        loginUsers();
+        lobbyManagement.createLobby("test", userDTO);
+        Optional<Lobby> optionalLobby = lobbyManagement.getLobby("test");
+        assertTrue(optionalLobby.isPresent());
+        Lobby lobby = optionalLobby.get();
+        lobby.joinUser(userDTO1);
+        lobby.joinUser(userDTO2);
+        lobby.joinUser(userDTO3);
+        lobby.joinPlayerReady(userDTO);
+        lobby.joinPlayerReady(userDTO1);
+        lobby.joinPlayerReady(userDTO2);
+        lobby.joinPlayerReady(userDTO3);
+        gameService.startGame(lobby, "VeryRandom");
+        Optional<Game> optionalGame = gameManagement.getGame("test");
+        assertTrue(optionalGame.isPresent());
+        Game game = optionalGame.get();
+
+        // Check if the amount of building nodes, street nodes and hexagons is correct.
+        // because of the randomness of the generation an exact value for the street and buildings nodes as well as harbors cannot be checked.
+        int harborCounter = 0;
+        for (MapGraph.BuildingNode bn : game.getMapGraph().getBuildingNodeHashSet()) {
+            if (bn.getTypeOfHarbor() != 0) {
+                harborCounter++;
+            }
+        }
+
+        assertTrue(harborCounter <= 18);
+        assertEquals(game.getMapGraph().getHexagonHashSet().size(), 19);
+        assertTrue(game.getMapGraph().getBuildingNodeHashSet().size() >= 54);
+        assertTrue(game.getMapGraph().getStreetNodeHashSet().size() >= 72);
+    }
+
+    /**
      * This test checks if the MapGraph can be generated randomly
      *
      * @author Marc Hermes
@@ -907,7 +948,7 @@ public class GameServiceTest {
         lobby.joinPlayerReady(userDTO1);
         lobby.joinPlayerReady(userDTO2);
         lobby.joinPlayerReady(userDTO3);
-        gameService.startGame(lobby, "Standard");
+        gameService.startGame(lobby, "Random");
         Optional<Game> optionalGame = gameManagement.getGame("test");
         assertTrue(optionalGame.isPresent());
         Game game = optionalGame.get();
@@ -921,10 +962,10 @@ public class GameServiceTest {
             }
         }
 
-        assertTrue(harborCounter <= 18);
+        assertEquals(harborCounter, 18);
         assertEquals(game.getMapGraph().getHexagonHashSet().size(), 19);
-        assertTrue(game.getMapGraph().getBuildingNodeHashSet().size() >= 54);
-        assertTrue(game.getMapGraph().getStreetNodeHashSet().size() >= 72);
+        assertEquals(game.getMapGraph().getBuildingNodeHashSet().size(), 54);
+        assertEquals(game.getMapGraph().getStreetNodeHashSet().size(), 72);
     }
 
     /**
