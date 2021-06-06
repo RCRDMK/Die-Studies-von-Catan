@@ -323,7 +323,11 @@ public class RandomAI extends AbstractAISystem {
             for (TradeItem ti : wishList) {
                 amountOfWishes += ti.getCount();
             }
-            if (amountOfWishes > 0) {
+            int amountOfOffers = 0;
+            for (TradeItem ti : offerList) {
+                amountOfOffers += ti.getCount();
+            }
+            if (amountOfWishes > 0 && amountOfOffers > 0) {
                 tradeStart(wishList, offerList);
             } else return false;
         }
@@ -408,7 +412,7 @@ public class RandomAI extends AbstractAISystem {
                         break;
                 }
             }
-            if (goodTradeItemAmount >= 4) {
+            if (goodTradeItemAmount >= 4 && amountOfItems > 0) {
                 usersWithAcceptableOffer.put(user, amountOfItems);
             }
         }
