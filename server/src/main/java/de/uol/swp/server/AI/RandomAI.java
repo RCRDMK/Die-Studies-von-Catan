@@ -270,31 +270,37 @@ public class RandomAI extends AbstractAISystem {
      * @since 2021-05-19
      */
     private void makeRandomActionsLogic() {
-        int amountOfActions = randomInt(0, 15);
+        int amountOfActions = randomInt(0, 20);
+        Integer[] actions = {0, 1, 1, 1, 2, 2, 2, 2, 3, 3};
+        List<Integer> actionsList = new ArrayList<>(Arrays.asList(actions));
         for (int i = 0; i <= amountOfActions; i++) {
-            int actionType = randomInt(0, 4);
+            int actionType = actionsList.get(randomInt(0, actionsList.size()));
             switch (actionType) {
                 case 0:
                     if (canBuildStreet()) {
                         Optional<MapGraph.StreetNode> street = returnPossibleStreet();
                         street.ifPresent(this::buildStreet);
+                        actionsList.remove((Integer) 0);
                         break;
                     }
                 case 1:
                     if (canBuildTown()) {
                         Optional<MapGraph.BuildingNode> town = returnPossibleTown();
                         town.ifPresent(this::buildTown);
+                        actionsList.remove((Integer) 1);
                         break;
                     }
                 case 2:
                     if (canBuildCity()) {
                         Optional<MapGraph.BuildingNode> city = returnPossibleCity();
                         city.ifPresent(this::buildCity);
+                        actionsList.remove((Integer) 2);
                         break;
                     }
                 case 3:
                     if (canBuyDevelopmentCard()) {
                         buyDevelopmentCard();
+                        actionsList.remove((Integer) 3);
                         break;
                     }
             }

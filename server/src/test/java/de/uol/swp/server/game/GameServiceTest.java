@@ -742,19 +742,19 @@ public class GameServiceTest {
         assertTrue(event instanceof PublicInventoryChangeMessage);
 
         i = 0;
-        for(MapGraph.BuildingNode bn : game.getMapGraph().getBuildingNodeHashSet()) {
-            if(bn.getOccupiedByPlayer() == game.getTurn()) {
-                for(MapGraph.StreetNode sn : bn.getConnectedStreetNodes()) {
+        for (MapGraph.BuildingNode bn : game.getMapGraph().getBuildingNodeHashSet()) {
+            if (bn.getOccupiedByPlayer() == game.getTurn()) {
+                for (MapGraph.StreetNode sn : bn.getConnectedStreetNodes()) {
                     if (sn.getOccupiedByPlayer() == 666 && i == 0) {
                         street1 = sn;
                         i++;
-                    } else if(sn.getOccupiedByPlayer() == 666 && i ==1) {
+                    } else if (sn.getOccupiedByPlayer() == 666 && i == 1) {
                         street2 = sn;
                         i++;
                         break;
                     }
                 }
-                if(i == 2) {
+                if (i == 2) {
                     break;
                 }
             }
@@ -1538,6 +1538,8 @@ public class GameServiceTest {
      * To do this, create a game with 4 players and forcefully remove the last human player from the game.
      * Now the AI will continue to play for 200 turns. (Because currently the game doesn't really end yet)
      *
+     * @author March Hermes
+     * @since 2021-06-06
      */
     @Test
     void fourRandomAIsPlayGame() {
