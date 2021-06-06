@@ -1,17 +1,21 @@
 package de.uol.swp.server.usermanagement;
 
 import com.google.common.eventbus.EventBus;
+import com.google.inject.internal.cglib.core.$MethodWrapper;
 import de.uol.swp.common.message.MessageContext;
 import de.uol.swp.common.message.ResponseMessage;
 import de.uol.swp.common.message.ServerMessage;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
-import de.uol.swp.common.user.request.DropUserRequest;
-import de.uol.swp.common.user.request.RegisterUserRequest;
+import de.uol.swp.common.user.exception.RetrieveUserInformationExceptionMessage;
+import de.uol.swp.common.user.request.*;
 import de.uol.swp.server.usermanagement.store.MainMemoryBasedUserStore;
 import org.junit.jupiter.api.Test;
+import org.w3c.dom.events.Event;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -23,6 +27,8 @@ class UserServiceTest {
     static final User userToRegister = new UserDTO("Marco", "Marco", "Marco@Grawunder.com");
     static final User userWithSameName = new UserDTO("Marco", "Marco2", "Marco2@Grawunder.com");
     static final User userToDrop = new UserDTO("Carsten", "Stahl", "Carsten@Stahl.com");
+
+    Event event;
 
     final CountDownLatch lock = new CountDownLatch(1);
 
@@ -119,5 +125,215 @@ class UserServiceTest {
     @Test
     void dropUnknownUserTest() throws Exception {
 
+        userManagement.createUser(userToDrop);
+
+        final DropUserRequest dropUserRequest = new DropUserRequest(userToRegister);
+
+        bus.post(dropUserRequest);
+
+        userManagement.dropUser(userToDrop);
+    }
+
+    @Test
+    void UpdateUserPasswordTest() throws Exception {
+
+        final RegisterUserRequest registerUserRequest = new RegisterUserRequest(userToRegister);
+
+        bus.post(registerUserRequest);
+
+        User withUpdatedPassword = new UserDTO(userToRegister.getUsername(), "newPassword", "", 1);
+
+        final UpdateUserPasswordRequest updateUserPasswordRequest = new UpdateUserPasswordRequest(withUpdatedPassword, "Marco");
+
+        updateUserPasswordRequest.setMessageContext(new MessageContext() {
+            @Override
+            public void writeAndFlush(ResponseMessage message) {
+
+            }
+
+            @Override
+            public void writeAndFlush(ServerMessage message) {
+
+            }
+        });
+
+        bus.post(registerUserRequest);
+
+        assertTrue(userManagement.retrieveAllUsers().contains(registerUserRequest.getUser()));
+
+        bus.post(updateUserPasswordRequest);
+
+        userManagement.login(userToRegister.getUsername(), "newPassword");
+
+        assertTrue(userManagement.isLoggedIn(userToRegister));
+
+        userManagement.logout(userToRegister);
+
+        userManagement.dropUser(userToRegister);
+    }
+
+    @Test
+    void updateUnknownUserPasswordTest() throws Exception {
+
+        userManagement.createUser(userToRegister);
+
+        final UpdateUserPasswordRequest updateUserPasswordRequest = new UpdateUserPasswordRequest(userToDrop, userToDrop.getEMail());
+
+        bus.post(updateUserPasswordRequest);
+
+        userManagement.dropUser(userToRegister);
+    }
+
+    @Test
+    void UpdateUserPictureTest() throws Exception {
+
+        userManagement.createUser(userToRegister);
+
+        User userWithNewPicture = new UserDTO(userToRegister.getUsername(), "", "", 30);
+
+        final UpdateUserProfilePictureRequest updateUserProfilePictureRequest = new UpdateUserProfilePictureRequest(userWithNewPicture);
+
+        updateUserProfilePictureRequest.setMessageContext(new MessageContext() {
+            @Override
+            public void writeAndFlush(ResponseMessage message) {
+
+            }
+
+            @Override
+            public void writeAndFlush(ServerMessage message) {
+
+            }
+        });
+
+        bus.post(updateUserProfilePictureRequest);
+
+        User updatedUser = userManagement.retrieveUserInformation(userToRegister);
+
+        assertEquals(userWithNewPicture.getProfilePictureID(), updatedUser.getProfilePictureID());
+
+        userManagement.dropUser(userToRegister);
+    }
+
+    @Test
+    void UpdateUnknownUserPictureTest() throws Exception {
+
+        userManagement.createUser(userToRegister);
+
+        final UpdateUserProfilePictureRequest updateUserProfilePictureRequest = new UpdateUserProfilePictureRequest(userToDrop);
+
+        bus.post(updateUserProfilePictureRequest);
+
+        userManagement.dropUser(userToRegister);
+    }
+
+    @Test
+    void UpdateUserMailTest() throws Exception {
+
+        userManagement.createUser(userToRegister);
+
+        User userWithNewMail = new UserDTO(userToRegister.getUsername(), "", "newEmail@Email.de", 1);
+
+        final UpdateUserMailRequest updateUserMailRequest = new UpdateUserMailRequest(userWithNewMail);
+
+        updateUserMailRequest.setMessageContext(new MessageContext() {
+            @Override
+            public void writeAndFlush(ResponseMessage message) {
+
+            }
+
+            @Override
+            public void writeAndFlush(ServerMessage message) {
+
+            }
+        });
+
+        bus.post(updateUserMailRequest);
+
+        User updatedUser = userManagement.retrieveUserInformation(userToRegister);
+
+        assertSame(updatedUser.getEMail(), userWithNewMail.getEMail());
+
+        userManagement.dropUser(userToRegister);
+    }
+
+    @Test
+    void UpdateUnknownUserMailTest() throws Exception {
+
+        userManagement.createUser(userToRegister);
+
+        final UpdateUserMailRequest updateUserMailRequest = new UpdateUserMailRequest(userToDrop);
+
+        bus.post(updateUserMailRequest);
+
+        userManagement.dropUser(userToRegister);
+    }
+
+    @Test
+    void retrieveUserInformationTest() throws Exception {
+
+        userManagement.createUser(userToRegister);
+
+        User userWithInformation = userService.retrieveUserInformation(userToRegister);
+
+        assertEquals(userToRegister, userWithInformation);
+
+        userManagement.dropUser(userToRegister);
+    }
+
+    @Test
+    void retrieveUnknownUserInformationTest() throws Exception {
+
+        userManagement.createUser(userToRegister);
+
+        userService.retrieveUserInformation(userToDrop);
+
+        userManagement.dropUser(userToRegister);
+    }
+
+    @Test
+    void onRetrieveUserInformationTest() throws Exception {
+
+        userManagement.createUser(userToRegister);
+
+        RetrieveUserInformationRequest retrieveUserInformationRequest = new RetrieveUserInformationRequest(userToRegister);
+
+        retrieveUserInformationRequest.setMessageContext(new MessageContext() {
+            @Override
+            public void writeAndFlush(ResponseMessage message) {
+
+            }
+
+            @Override
+            public void writeAndFlush(ServerMessage message) {
+
+            }
+        });
+
+        bus.post(retrieveUserInformationRequest);
+
+        userManagement.dropUser(userToRegister);
+    }
+
+    @Test
+    void onRetrieveUnknownUserInformationTest() throws Exception {
+
+        userManagement.createUser(userToRegister);
+
+        RetrieveUserInformationRequest retrieveUserInformationRequest = new RetrieveUserInformationRequest(userToDrop);
+
+        retrieveUserInformationRequest.setMessageContext(new MessageContext() {
+            @Override
+            public void writeAndFlush(ResponseMessage message) {
+
+            }
+
+            @Override
+            public void writeAndFlush(ServerMessage message) {
+
+            }
+        });
+        bus.post(retrieveUserInformationRequest);
+
+        userManagement.dropUser(userToRegister);
     }
 }
