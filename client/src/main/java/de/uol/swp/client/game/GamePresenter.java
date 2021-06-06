@@ -144,6 +144,8 @@ public class GamePresenter extends AbstractPresenter {
     private final ArrayList<ImagePattern> profilePicturePatterns = new ArrayList<>();
 
     private final ArrayList<Rectangle> rectangles = new ArrayList<>();
+    private final ArrayList<Rectangle> rectanglesLargestArmy = new ArrayList<>();
+    private final ArrayList<Rectangle> rectanglesLongestRoad = new ArrayList<>();
 
     @FXML
     private AnchorPane gameAnchorPane;
@@ -190,6 +192,25 @@ public class GamePresenter extends AbstractPresenter {
 
     @FXML
     private GridPane playerFourDiceView;
+
+    @FXML
+    private Pane playerOneLargestArmyView;
+    @FXML
+    private Pane playerTwoLargestArmyView;
+    @FXML
+    private Pane playerThreeLargestArmyView;
+    @FXML
+    private Pane playerFourLargestArmyView;
+
+    @FXML
+    private Pane playerOneLongestRoadView;
+    @FXML
+    private Pane playerTwoLongestRoadView;
+    @FXML
+    private Pane playerThreeLongestRoadView;
+    @FXML
+    private Pane playerFourLongestRoadView;
+
 
     @FXML
     private ListView<HashMap.Entry<String, Integer>> publicInventory1View;
@@ -392,15 +413,15 @@ public class GamePresenter extends AbstractPresenter {
 
 
     /**
-     * Method called when the buildStreet button is pressed.
+     * Method called when the buildRoad button is pressed.
      * <p>
-     * makes all the buildings and streets visible that are occupied by players, as well as the empty streets spots.
+     * makes all the buildings and roads visible that are occupied by players, as well as the empty roads spots.
      *
      * @author Marc Hermes
      * @since 2021-05-04
      */
     @FXML
-    public void onBuildStreet() {
+    public void onBuildRoad() {
         updatePossibleBuildingSpots(0);
     }
 
@@ -480,7 +501,7 @@ public class GamePresenter extends AbstractPresenter {
     @FXML
     public void onBuildTown() {
         for (MapGraphNodeContainer container : mapGraphNodeContainers) {
-            if(container.getMapGraphNode().getOccupiedByPlayer() == myPlayerNumber && container.getMapGraphNode() instanceof MapGraph.BuildingNode) {
+            if (container.getMapGraphNode().getOccupiedByPlayer() == myPlayerNumber && container.getMapGraphNode() instanceof MapGraph.BuildingNode) {
                 container.getCircle().setVisible(true);
             } else if (container.getMapGraphNode().getOccupiedByPlayer() == 666) {
                 container.getCircle().setVisible(false);
@@ -587,6 +608,7 @@ public class GamePresenter extends AbstractPresenter {
                 setUpPrivateInventoryView();
                 setupResolveDevelopmentCardAlert();
                 setupChoosePlayerAlert();
+                setUpLargestArmyAndLongestRoadPanes(gcm.getUsers());
             });
             evaluateMyPlayerNumber(gcm.getUsers());
         }
@@ -643,6 +665,7 @@ public class GamePresenter extends AbstractPresenter {
                 setupDicesAtGameStart();
                 setUpPrivateInventoryView();
                 setupResolveDevelopmentCardAlert();
+                setUpLargestArmyAndLongestRoadPanes(joggr.getUsers());
                 updateGameField();
             });
         }
@@ -1201,12 +1224,12 @@ public class GamePresenter extends AbstractPresenter {
             gameUserView1.setAlignment(Pos.CENTER);
             gameUserView2.setText(gameUsers.get(1));
             gameUserView2.setAlignment(Pos.CENTER);
-            if(gameUsers.size() > 2){
+            if (gameUsers.size() > 2) {
                 gameUserView3.setText(gameUsers.get(2));
                 gameUserView3.setAlignment(Pos.CENTER);
                 gameUserView3.setVisible(true);
             }
-            if(gameUsers.size() > 3){
+            if (gameUsers.size() > 3) {
                 gameUserView4.setText(gameUsers.get(3));
                 gameUserView4.setAlignment(Pos.CENTER);
                 gameUserView4.setVisible(true);
@@ -1787,14 +1810,14 @@ public class GamePresenter extends AbstractPresenter {
      * @since 2021-06-02
      */
     public void showChoosePlayerAlert(ChoosePlayerMessage choosePlayerMessage) {
-            chooseAlert.setTitle(choosePlayerMessage.getName());
-            chooseAlert.getButtonTypes().setAll();
-            for (int i = 0; i < choosePlayerMessage.getUserList().size(); i++) {
-                if (!choosePlayerMessage.getUserList().get(i).equals(choosePlayerMessage.getUser().getUsername())) {
-                    chooseAlert.getButtonTypes().add(new ButtonType(choosePlayerMessage.getUserList().get(i)));
-                }
+        chooseAlert.setTitle(choosePlayerMessage.getName());
+        chooseAlert.getButtonTypes().setAll();
+        for (int i = 0; i < choosePlayerMessage.getUserList().size(); i++) {
+            if (!choosePlayerMessage.getUserList().get(i).equals(choosePlayerMessage.getUser().getUsername())) {
+                chooseAlert.getButtonTypes().add(new ButtonType(choosePlayerMessage.getUserList().get(i)));
             }
-            chooseAlert.showAndWait();
+        }
+        chooseAlert.showAndWait();
         gameService.drawRandomCardFromPlayer(choosePlayerMessage.getName(), choosePlayerMessage.getUser(), chooseAlert.getResult().getText());
         chooseAlert.close();
     }
@@ -2154,7 +2177,7 @@ public class GamePresenter extends AbstractPresenter {
                         }
                     }
                     if (itsMyTurn && !startingTurn) {
-                       updatePossibleBuildingSpots(0);
+                        updatePossibleBuildingSpots(0);
                     }
                     Platform.runLater(() -> {
                         mapGraphNodeContainer.getCircle().setVisible(false);
@@ -2308,6 +2331,9 @@ public class GamePresenter extends AbstractPresenter {
             if (!privateOreLabel.getText().equals(pr.get("Ore").toString())) {
                 privateOreLabel.setText(pr.get("Ore").toString());
             }
+            if (!privateVictoryPointCardLabel.getText().equals(pr.get("Victory Point Card").toString())) {
+                privateVictoryPointCardLabel.setText(pr.get("Victory Point Card").toString());
+            }
             if (!privateKnightCardLabel.getText().equals(pr.get("Knight").toString())) {
                 privateKnightCardLabel.setText(pr.get("Knight").toString());
             }
@@ -2320,17 +2346,14 @@ public class GamePresenter extends AbstractPresenter {
             if (!privateYearOfPlentyCardLabel.getText().equals(pr.get("Year of Plenty").toString())) {
                 privateYearOfPlentyCardLabel.setText(pr.get("Year of Plenty").toString());
             }
-            if (!privateVictoryPointCardLabel.getText().equals(pr.get("Victory Point Card").toString())) {
-                privateVictoryPointCardLabel.setText(pr.get("Victory Point Card").toString());
-            }
-            if (!privateCitiesLabel.getText().equals(pr.get("Cities").toString())) {
-                privateCitiesLabel.setText(pr.get("Cities").toString());
+            if (!privateSettlementsLabel.getText().equals(pr.get("Settlements").toString())) {
+                privateSettlementsLabel.setText(pr.get("Settlements").toString());
             }
             if (!privateRoadsLabel.getText().equals(pr.get("Roads").toString())) {
                 privateRoadsLabel.setText(pr.get("Roads").toString());
             }
-            if (!privateSettlementsLabel.getText().equals(pr.get("Settlements").toString())) {
-                privateSettlementsLabel.setText(pr.get("Settlements").toString());
+            if (!privateCitiesLabel.getText().equals(pr.get("Cities").toString())) {
+                privateCitiesLabel.setText(pr.get("Cities").toString());
             }
         });
     }
@@ -2430,30 +2453,114 @@ public class GamePresenter extends AbstractPresenter {
         hashMapEntriesList.add(null);
         hashMapEntriesList.add(null);
         for (Map.Entry<String, Integer> entry : hashMap.entrySet()) {
-            if (!entry.getKey().equals("Largest Army") && !entry.getKey().equals("Longest Road")) {
-                switch (entry.getKey()) {
-                    case "Public Victory Points":
-                        hashMapEntriesList.add(0, entry);
-                        hashMapEntriesList.remove(1);
-                        break;
-                    case "Resource":
-                        hashMapEntriesList.add(1, entry);
-                        hashMapEntriesList.remove(2);
-                        break;
-                    case "Development Cards":
-                        hashMapEntriesList.add(2, entry);
-                        hashMapEntriesList.remove(3);
-                        break;
-                    case "Played Knights":
-                        hashMapEntriesList.add(3, entry);
-                        hashMapEntriesList.remove(4);
-                        break;
-                    case "Continuous Road":
-                        hashMapEntriesList.add(4, entry);
-                        hashMapEntriesList.remove(5);
-                        break;
-                }
+            switch (entry.getKey()) {
+                case "Public Victory Points":
+                    hashMapEntriesList.add(0, entry);
+                    hashMapEntriesList.remove(1);
+                    break;
+                case "Resource":
+                    hashMapEntriesList.add(1, entry);
+                    hashMapEntriesList.remove(2);
+                    break;
+                case "Development Cards":
+                    hashMapEntriesList.add(2, entry);
+                    hashMapEntriesList.remove(3);
+                    break;
+                case "Played Knights":
+                    hashMapEntriesList.add(3, entry);
+                    hashMapEntriesList.remove(4);
+                    break;
+                case "Continuous Road":
+                    hashMapEntriesList.add(4, entry);
+                    hashMapEntriesList.remove(5);
+                    break;
+
+                case "Largest Army":
+                    if (entry.getValue() == 1 && hashMapEntriesList == publicInventory1) {
+                        playerOneLargestArmyView.setVisible(true);
+                        playerTwoLargestArmyView.setVisible(false);
+                        playerThreeLargestArmyView.setVisible(false);
+                        playerFourLargestArmyView.setVisible(false);
+                    } else if (entry.getValue() == 1 && hashMapEntriesList == publicInventory2) {
+                        playerOneLargestArmyView.setVisible(false);
+                        playerTwoLargestArmyView.setVisible(true);
+                        playerThreeLargestArmyView.setVisible(false);
+                        playerFourLargestArmyView.setVisible(false);
+                    } else if (entry.getValue() == 1 && hashMapEntriesList == publicInventory3) {
+                        playerOneLargestArmyView.setVisible(false);
+                        playerTwoLargestArmyView.setVisible(false);
+                        playerThreeLargestArmyView.setVisible(true);
+                        playerFourLargestArmyView.setVisible(false);
+                    } else if (entry.getValue() == 1 && hashMapEntriesList == publicInventory4) {
+                        playerOneLargestArmyView.setVisible(false);
+                        playerTwoLargestArmyView.setVisible(false);
+                        playerThreeLargestArmyView.setVisible(false);
+                        playerFourLargestArmyView.setVisible(true);
+                    }
+                    break;
+                case "Longest Road":
+                    if (entry.getValue() == 1 && hashMapEntriesList == publicInventory1) {
+                        playerOneLongestRoadView.setVisible(true);
+                        playerTwoLongestRoadView.setVisible(false);
+                        playerThreeLongestRoadView.setVisible(false);
+                        playerFourLongestRoadView.setVisible(false);
+                    } else if (entry.getValue() == 1 && hashMapEntriesList == publicInventory2) {
+                        playerOneLongestRoadView.setVisible(false);
+                        playerTwoLongestRoadView.setVisible(true);
+                        playerThreeLongestRoadView.setVisible(false);
+                        playerFourLongestRoadView.setVisible(false);
+                    } else if (entry.getValue() == 1 && hashMapEntriesList == publicInventory3) {
+                        playerOneLongestRoadView.setVisible(false);
+                        playerTwoLongestRoadView.setVisible(false);
+                        playerThreeLongestRoadView.setVisible(true);
+                        playerFourLongestRoadView.setVisible(false);
+                    } else if (entry.getValue() == 1 && hashMapEntriesList == publicInventory4) {
+                        playerOneLongestRoadView.setVisible(false);
+                        playerTwoLongestRoadView.setVisible(false);
+                        playerThreeLongestRoadView.setVisible(false);
+                        playerFourLongestRoadView.setVisible(true);
+                    }
+                    break;
             }
+        }
+    }
+
+
+    private void setUpLargestArmyAndLongestRoadPanes(ArrayList<User> list) {
+        for (int i = 0; i < list.size(); i++) {
+            Image imageLargestArmy = new Image("textures/resized/ACHVMNT_GroessteRittermacht.png");
+            Rectangle rectangleLargestArmy = new Rectangle(60, 60);
+            rectangleLargestArmy.setFill(new ImagePattern(imageLargestArmy));
+            rectanglesLargestArmy.add(rectangleLargestArmy);
+            Image imageLongestRoad = new Image("textures/resized/ACHVMNT_LaengsteStrasse.png");
+            Rectangle rectangleLongestRoad = new Rectangle(60, 60);
+            rectangleLongestRoad.setFill(new ImagePattern(imageLongestRoad));
+            rectanglesLongestRoad.add(rectangleLongestRoad);
+
+            Tooltip hoverLargestArmy = new Tooltip("");
+
+            hoverLargestArmy.setText("Largest Army");
+            Tooltip.install(rectangleLargestArmy, hoverLargestArmy);
+            hoverLargestArmy.setShowDelay(Duration.millis(0));
+
+            Tooltip hoverLongestRoad = new Tooltip("");
+
+            hoverLongestRoad.setText("Longest Road");
+            Tooltip.install(rectangleLongestRoad, hoverLongestRoad);
+            hoverLongestRoad.setShowDelay(Duration.millis(0));
+
+        }
+        playerOneLargestArmyView.getChildren().add(rectanglesLargestArmy.get(0));
+        playerOneLongestRoadView.getChildren().add(rectanglesLongestRoad.get(0));
+        playerTwoLargestArmyView.getChildren().add(rectanglesLargestArmy.get(1));
+        playerTwoLongestRoadView.getChildren().add(rectanglesLongestRoad.get(1));
+        if (list.size() > 2) {
+            playerThreeLargestArmyView.getChildren().add(rectanglesLargestArmy.get(2));
+            playerThreeLongestRoadView.getChildren().add(rectanglesLongestRoad.get(2));
+        }
+        if (list.size() > 3) {
+            playerFourLargestArmyView.getChildren().add(rectanglesLargestArmy.get(3));
+            playerFourLongestRoadView.getChildren().add(rectanglesLongestRoad.get(3));
         }
     }
 
@@ -2606,7 +2713,7 @@ public class GamePresenter extends AbstractPresenter {
      */
     public void setUpPrivateInventoryView() {
         for (int i = 1; i < 14; i++) {
-            Image image = new Image("textures/privateInventory/privateInventoryImage" + i + ".png");
+            Image image = new Image("textures/inventory/privateInventoryImage" + i + ".png");
             Rectangle r = new Rectangle(50, 80);
             r.setFill(new ImagePattern(image));
             privateInventoryView.add(r, i - 1, 0);
@@ -2711,8 +2818,27 @@ public class GamePresenter extends AbstractPresenter {
                     });
 
                     break;
-
                 case 6:
+                    hover.setText("Victory Points");
+                    Tooltip.install(r, hover);
+                    hover.setShowDelay(Duration.millis(0));
+
+                    r.setOnMouseClicked(new EventHandler<MouseEvent>() {
+                        String title = hover.getText();
+                        String description = "your victory points for the game you earned until now";
+                        Boolean isDevelopmentCard = false;
+
+                        @Override
+                        public void handle(MouseEvent mouseEvent) {
+                            onClickOnDevelopmentCard(title, description, image, isDevelopmentCard);
+
+                        }
+                    });
+
+                    break;
+
+
+                case 7:
                     hover.setText("Knight");
                     Tooltip.install(r, hover);
                     hover.setShowDelay(Duration.millis(0));
@@ -2740,7 +2866,7 @@ public class GamePresenter extends AbstractPresenter {
 
                     break;
 
-                case 7:
+                case 8:
                     hover.setText("Monopoly");
                     Tooltip.install(r, hover);
                     hover.setShowDelay(Duration.millis(0));
@@ -2768,7 +2894,7 @@ public class GamePresenter extends AbstractPresenter {
 
                     break;
 
-                case 8:
+                case 9:
                     hover.setText("Road Building");
                     Tooltip.install(r, hover);
                     hover.setShowDelay(Duration.millis(0));
@@ -2796,7 +2922,7 @@ public class GamePresenter extends AbstractPresenter {
 
                     break;
 
-                case 9:
+                case 10:
                     hover.setText("Year of Plenty");
                     Tooltip.install(r, hover);
                     hover.setShowDelay(Duration.millis(0));
@@ -2824,33 +2950,14 @@ public class GamePresenter extends AbstractPresenter {
 
                     break;
 
-                case 10:
-                    hover.setText("Victory Points");
-                    Tooltip.install(r, hover);
-                    hover.setShowDelay(Duration.millis(0));
-
-                    r.setOnMouseClicked(new EventHandler<MouseEvent>() {
-                        String title = hover.getText();
-                        String description = "your victory points for the game you earned until now";
-                        Boolean isDevelopmentCard = false;
-
-                        @Override
-                        public void handle(MouseEvent mouseEvent) {
-                            onClickOnDevelopmentCard(title, description, image, isDevelopmentCard);
-
-                        }
-                    });
-
-                    break;
-
                 case 11:
-                    hover.setText("Cities");
+                    hover.setText("Settlements");
                     Tooltip.install(r, hover);
                     hover.setShowDelay(Duration.millis(0));
 
                     r.setOnMouseClicked(new EventHandler<MouseEvent>() {
                         String title = hover.getText();
-                        String description = "A bigger version of the settlements";
+                        String description = "You can build these to get resources from tiles";
                         Boolean isDevelopmentCard = false;
 
                         @Override
@@ -2882,13 +2989,13 @@ public class GamePresenter extends AbstractPresenter {
                     break;
 
                 case 13:
-                    hover.setText("Settlements");
+                    hover.setText("Cities");
                     Tooltip.install(r, hover);
                     hover.setShowDelay(Duration.millis(0));
 
                     r.setOnMouseClicked(new EventHandler<MouseEvent>() {
                         String title = hover.getText();
-                        String description = "You can build these to get resources from tiles";
+                        String description = "A bigger version of the settlements";
                         Boolean isDevelopmentCard = false;
 
                         @Override
@@ -2899,6 +3006,8 @@ public class GamePresenter extends AbstractPresenter {
                     });
 
                     break;
+
+
             }
 
         }
@@ -2907,14 +3016,14 @@ public class GamePresenter extends AbstractPresenter {
         privateInventoryView.add(privateGrainLabel, 2, 1);
         privateInventoryView.add(privateWoolLabel, 3, 1);
         privateInventoryView.add(privateOreLabel, 4, 1);
-        privateInventoryView.add(privateKnightCardLabel, 5, 1);
-        privateInventoryView.add(privateMonopolyCardLabel, 6, 1);
-        privateInventoryView.add(privateRoadBuildingCardLabel, 7, 1);
-        privateInventoryView.add(privateYearOfPlentyCardLabel, 8, 1);
-        privateInventoryView.add(privateVictoryPointCardLabel, 9, 1);
-        privateInventoryView.add(privateCitiesLabel, 10, 1);
+        privateInventoryView.add(privateVictoryPointCardLabel, 5, 1);
+        privateInventoryView.add(privateKnightCardLabel, 6, 1);
+        privateInventoryView.add(privateMonopolyCardLabel, 7, 1);
+        privateInventoryView.add(privateRoadBuildingCardLabel, 8, 1);
+        privateInventoryView.add(privateYearOfPlentyCardLabel, 9, 1);
+        privateInventoryView.add(privateSettlementsLabel, 10, 1);
         privateInventoryView.add(privateRoadsLabel, 11, 1);
-        privateInventoryView.add(privateSettlementsLabel, 12, 1);
+        privateInventoryView.add(privateCitiesLabel, 12, 1);
     }
 
     /**
@@ -2983,7 +3092,7 @@ public class GamePresenter extends AbstractPresenter {
         if (this.currentLobby != null) {
             if (this.currentLobby.equals(choosePlayerMessage.getName())) {
                 if (!choosePlayerMessage.getUserList().isEmpty()) {
-                    Platform.runLater(()->showChoosePlayerAlert(choosePlayerMessage));
+                    Platform.runLater(() -> showChoosePlayerAlert(choosePlayerMessage));
 
                 }
             }

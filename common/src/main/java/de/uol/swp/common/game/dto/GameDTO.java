@@ -44,6 +44,8 @@ public class GameDTO implements Game {
 
     private Inventory inventoryWithLargestArmy = null;
 
+    private Inventory inventoryWithLongestRoad = null;
+
     private Inventory inventory1;
     private Inventory inventory2;
     private Inventory inventory3;
@@ -155,7 +157,7 @@ public class GameDTO implements Game {
         int players = userArrayList.size();
         int i = 0;
         while (amountOfPlayers > players) {
-            UserDTO aiUser = new UserDTO("KI" + i, "", "", 65+i);
+            UserDTO aiUser = new UserDTO("KI" + i, "", "", 65 + i);
             aiUsers.add(aiUser);
             userArrayList.add(aiUser);
             players++;
@@ -463,6 +465,17 @@ public class GameDTO implements Game {
     public void setInventoryWithLargestArmy(Inventory inventoryWithLargestArmy) {
         this.inventoryWithLargestArmy = inventoryWithLargestArmy;
     }
+
+    @Override
+    public Inventory getInventoryWithLongestRoad() {
+        return inventoryWithLongestRoad;
+    }
+
+    @Override
+    public void setInventoryWithLongestRoad(Inventory inventoryWithLongestRoad) {
+        this.inventoryWithLongestRoad = inventoryWithLongestRoad;
+    }
+
     /**
      * method used to remember the DevelopmentCards bought in a turn
      * <p>

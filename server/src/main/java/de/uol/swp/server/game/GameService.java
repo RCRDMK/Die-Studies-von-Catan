@@ -199,16 +199,17 @@ public class GameService extends AbstractService {
                                         if (!game.isStartingTurns()) {
                                             for (int i = 0; i < game.getUsersList().size(); i++) {
                                                 if (i != game.getTurn()) {
-                                                    int longestRoad = game.getMapGraph().getLongestStreetPathCalculator().getLongestPath(i);
-                                                    game.getInventory(game.getUsersList().get(i)).setContinuousRoad(longestRoad == 0 ? 1 : longestRoad);
+                                                    int continuosRoad = game.getMapGraph().getLongestStreetPathCalculator().getLongestPath(i);
+                                                    game.getInventory(game.getUsersList().get(i)).setContinuousRoad(continuosRoad == 0 ? 1 : continuosRoad);
                                                 }
                                             }
                                         }
+
                                         if (game.isStartingTurns() && game.getMapGraph().getNumOfRoads()[playerIndex] == game.getStartingPhase()
                                                 && game.getMapGraph().getNumOfRoads()[playerIndex] == game.getMapGraph().getNumOfBuildings()[playerIndex]) {
                                             endTurn(game, message.getUser());
                                         }
-
+                                        checkForLongestRoad(game);
                                         updateInventory(game);
                                         return true;
                                     } //else sendToAllInGame(game.getName(), new NotSuccessfulConstructionMessage(playerIndex, message.getUuid(), "BuildingNode"));
@@ -231,13 +232,14 @@ public class GameService extends AbstractService {
                                         }
                                         sendToAllInGame(game.getName(), new SuccessfulConstructionMessage(game.getName(), message.getUser().getWithoutPassword(), playerIndex,
                                                 message.getUuid(), "StreetNode"));
-                                        int longestRoad = game.getMapGraph().getLongestStreetPathCalculator().getLongestPath(game.getTurn());
-                                        inventory.setContinuousRoad(longestRoad == 0 ? 1 : longestRoad);
+                                        int continuosRoad = game.getMapGraph().getLongestStreetPathCalculator().getLongestPath(game.getTurn());
+                                        inventory.setContinuousRoad(continuosRoad == 0 ? 1 : continuosRoad);
                                         if (game.isStartingTurns() && game.getMapGraph().getNumOfRoads()[playerIndex] == game.getStartingPhase()
                                                 && game.getMapGraph().getNumOfRoads()[playerIndex] == game.getMapGraph().getNumOfBuildings()[playerIndex]) {
                                             endTurn(game, message.getUser());
                                         }
                                         inventory.road.decNumber();
+                                        checkForLongestRoad(game);
                                         updateInventory(game);
                                         return true;
                                     } //else sendToAllInGame(game.getName(), new NotSuccessfulConstructionMessage(playerIndex, message.getUuid(), "StreetNode"));
@@ -1245,6 +1247,36 @@ public class GameService extends AbstractService {
                     game.getInventoryWithLargestArmy().setLargestArmy(false);
                 game.setInventoryWithLargestArmy(game.getInventory(game.getUser(game.getTurn())));
                 game.getInventoryWithLargestArmy().setLargestArmy(true);
+            }
+        }
+    }
+
+    /**
+     * This method evaluates if a user gets the longest road card
+     * <p>
+     * This method gets invoked by the onConstructionMessage method and creates an ArrayList with all user
+     * inventories from the right game. With the given inventories this method evaluates, who gets the longest road
+     * card.
+     *
+     * @param game current game that is played
+     * @author Iskander Yusupov
+     * @since 2021-06-06
+     */
+    public void checkForLongestRoad(Game game) {
+        if (game.getInventoryWithLongestRoad() == null && game.getInventory(game.getUser(game.getTurn())).getContinuousRoad() > 4) {
+            game.getInventory(game.getUser(game.getTurn())).setLongestRoad(true);
+            game.setInventoryWithLongestRoad(game.getInventory(game.getUser(game.getTurn())));
+            game.getInventoryWithLongestRoad().setVictoryPoints(game.getInventoryWithLongestRoad().getVictoryPoints() + 2);
+        } else if (game.getInventoryWithLongestRoad() != null) {
+            for (User user : game.getUsersList()) {
+                if (game.getInventory(user).getContinuousRoad() > game.getInventoryWithLongestRoad().getContinuousRoad()) {
+                    if (!user.equals(game.getInventoryWithLongestRoad().getUser()))
+                        game.getInventoryWithLongestRoad().setLongestRoad(false);
+                    game.getInventoryWithLongestRoad().setVictoryPoints(game.getInventoryWithLongestRoad().getVictoryPoints() - 2);
+                    game.setInventoryWithLongestRoad(game.getInventory(user));
+                    game.getInventoryWithLongestRoad().setLongestRoad(true);
+                    game.getInventoryWithLongestRoad().setVictoryPoints(game.getInventoryWithLongestRoad().getVictoryPoints() + 2);
+                }
             }
         }
     }
