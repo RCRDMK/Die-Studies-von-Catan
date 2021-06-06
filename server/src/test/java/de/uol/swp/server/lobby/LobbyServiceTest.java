@@ -55,9 +55,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class LobbyServiceTest {
     final EventBus bus = new EventBus();
-    final UserManagement userManagement = new UserManagement(mainMemoryBasedUserStore);
     GameManagement gameManagement = new GameManagement();
     MainMemoryBasedUserStore mainMemoryBasedUserStore = new MainMemoryBasedUserStore();
+    final UserManagement userManagement = new UserManagement(mainMemoryBasedUserStore);
     LobbyManagement lobbyManagement = new LobbyManagement();
     final AuthenticationService authenticationService = new AuthenticationService(bus, userManagement);
     LobbyService lobbyService = new LobbyService(lobbyManagement, new AuthenticationService(bus, userManagement), bus);
