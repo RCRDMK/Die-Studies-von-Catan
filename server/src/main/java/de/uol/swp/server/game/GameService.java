@@ -84,40 +84,38 @@ public class GameService extends AbstractService {
         Optional<Lobby> lobby = lobbyService.getLobby(gameLeaveUserRequest.getName());
         if (optionalGame.isPresent()) {
             Game game = optionalGame.get();
-            if (game.getUsers().size() == 1) {
-                if (gameLeaveUserRequest.getMessageContext().isPresent()) {
-                    Optional<MessageContext> ctx = gameLeaveUserRequest.getMessageContext();
-                    sendToSpecificUser(ctx.get(), new GameLeftSuccessfulResponse(gameLeaveUserRequest.getName(), gameLeaveUserRequest.getUser()));
-                    gameManagement.dropGame(gameLeaveUserRequest.getName());
-                    lobby.ifPresent(value -> value.setGameStarted(false));
-                    sendToAll(new GameDroppedMessage(gameLeaveUserRequest.getName()));
-                }
-            } else if (game.getUsers() == null) {
-                gameManagement.dropGame(gameLeaveUserRequest.getName());
-                lobby.ifPresent(value -> value.setGameStarted(false));
-                sendToAll(new GameDroppedMessage(gameLeaveUserRequest.getName()));
-
-            } else {
-                if (gameLeaveUserRequest.getMessageContext().isPresent()) {
-                    Optional<MessageContext> ctx = gameLeaveUserRequest.getMessageContext();
-                    sendToSpecificUser(ctx.get(), new GameLeftSuccessfulResponse(gameLeaveUserRequest.getName(), gameLeaveUserRequest.getUser()));
-                }
-                game.leaveUser(gameLeaveUserRequest.getUser());
-                sendToAll(new GameSizeChangedMessage(gameLeaveUserRequest.getName()));
-                ArrayList<UserDTO> usersInGame = new ArrayList<>();
-                for (User user : game.getUsers()) usersInGame.add((UserDTO) user);
-                sendToAllInGame(gameLeaveUserRequest.getName(), new UserLeftGameMessage(gameLeaveUserRequest.getName(), gameLeaveUserRequest.getUser(), usersInGame));
-                // Check if the player leaving the game is the turnPlayer, so that the AI may replace him now
-                if (gameLeaveUserRequest.getUser().equals(game.getUser(game.getTurn()))) {
-                    if (!game.rolledDiceThisTurn() && !game.isStartingTurns()) {
-                        RollDiceRequest rdr = new RollDiceRequest(game.getName(), game.getUser(game.getTurn()));
-                        onRollDiceRequest(rdr);
+            if (game.getUsers().contains(gameLeaveUserRequest.getUser())) {
+                if (game.getUsers().size() == 1) {
+                    if (gameLeaveUserRequest.getMessageContext().isPresent()) {
+                        Optional<MessageContext> ctx = gameLeaveUserRequest.getMessageContext();
+                        sendToSpecificUser(ctx.get(), new GameLeftSuccessfulResponse(gameLeaveUserRequest.getName(), gameLeaveUserRequest.getUser()));
+                        gameManagement.dropGame(gameLeaveUserRequest.getName());
+                        lobby.ifPresent(value -> value.setGameStarted(false));
+                        sendToAll(new GameDroppedMessage(gameLeaveUserRequest.getName()));
                     }
-                    startTurnForAI((GameDTO) game);
+
+                } else {
+                    if (gameLeaveUserRequest.getMessageContext().isPresent()) {
+                        Optional<MessageContext> ctx = gameLeaveUserRequest.getMessageContext();
+                        sendToSpecificUser(ctx.get(), new GameLeftSuccessfulResponse(gameLeaveUserRequest.getName(), gameLeaveUserRequest.getUser()));
+                    }
+                    game.leaveUser(gameLeaveUserRequest.getUser());
+                    sendToAll(new GameSizeChangedMessage(gameLeaveUserRequest.getName()));
+                    ArrayList<UserDTO> usersInGame = new ArrayList<>();
+                    for (User user : game.getUsers()) usersInGame.add((UserDTO) user);
+                    sendToAllInGame(gameLeaveUserRequest.getName(), new UserLeftGameMessage(gameLeaveUserRequest.getName(), gameLeaveUserRequest.getUser(), usersInGame));
+                    // Check if the player leaving the game is the turnPlayer, so that the AI may replace him now
+                    if (gameLeaveUserRequest.getUser().equals(game.getUser(game.getTurn()))) {
+                        if (!game.rolledDiceThisTurn() && !game.isStartingTurns()) {
+                            RollDiceRequest rdr = new RollDiceRequest(game.getName(), game.getUser(game.getTurn()));
+                            onRollDiceRequest(rdr);
+                        }
+                        startTurnForAI((GameDTO) game);
+                    }
                 }
+            } else {
+                throw new GameManagementException("Game unknown!");
             }
-        } else {
-            throw new GameManagementException("Game unknown!");
         }
     }
 
