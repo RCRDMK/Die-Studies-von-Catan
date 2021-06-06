@@ -2501,24 +2501,24 @@ public class GamePresenter extends AbstractPresenter {
                 case "Longest Road":
                     if (entry.getValue() == 1 && hashMapEntriesList == publicInventory1) {
                         playerOneLongestRoadView.setVisible(true);
-                        playerTwoLongestRoadView.setVisible(false);
-                        playerThreeLongestRoadView.setVisible(false);
-                        playerFourLongestRoadView.setVisible(false);
                     } else if (entry.getValue() == 1 && hashMapEntriesList == publicInventory2) {
-                        playerOneLongestRoadView.setVisible(false);
                         playerTwoLongestRoadView.setVisible(true);
-                        playerThreeLongestRoadView.setVisible(false);
-                        playerFourLongestRoadView.setVisible(false);
                     } else if (entry.getValue() == 1 && hashMapEntriesList == publicInventory3) {
-                        playerOneLongestRoadView.setVisible(false);
-                        playerTwoLongestRoadView.setVisible(false);
                         playerThreeLongestRoadView.setVisible(true);
-                        playerFourLongestRoadView.setVisible(false);
                     } else if (entry.getValue() == 1 && hashMapEntriesList == publicInventory4) {
-                        playerOneLongestRoadView.setVisible(false);
-                        playerTwoLongestRoadView.setVisible(false);
-                        playerThreeLongestRoadView.setVisible(false);
                         playerFourLongestRoadView.setVisible(true);
+                    }
+                    if (entry.getValue() == 0 && hashMapEntriesList == publicInventory1) {
+                        playerOneLongestRoadView.setVisible(false);
+                    }
+                    if (entry.getValue() == 0 && hashMapEntriesList == publicInventory2) {
+                        playerTwoLongestRoadView.setVisible(false);
+                    }
+                    if (entry.getValue() == 0 && hashMapEntriesList == publicInventory3) {
+                        playerThreeLongestRoadView.setVisible(false);
+                    }
+                    if (entry.getValue() == 0 && hashMapEntriesList == publicInventory4) {
+                        playerFourLongestRoadView.setVisible(false);
                     }
                     break;
             }
@@ -2528,11 +2528,11 @@ public class GamePresenter extends AbstractPresenter {
 
     private void setUpLargestArmyAndLongestRoadPanes(ArrayList<User> list) {
         for (int i = 0; i < list.size(); i++) {
-            Image imageLargestArmy = new Image("textures/resized/ACHVMNT_GroessteRittermacht.png");
+            Image imageLargestArmy = new Image("textures/inventory/ACHVMNT_GroessteRittermacht.png");
             Rectangle rectangleLargestArmy = new Rectangle(60, 60);
             rectangleLargestArmy.setFill(new ImagePattern(imageLargestArmy));
             rectanglesLargestArmy.add(rectangleLargestArmy);
-            Image imageLongestRoad = new Image("textures/resized/ACHVMNT_LaengsteStrasse.png");
+            Image imageLongestRoad = new Image("textures/inventory/ACHVMNT_LaengsteStrasse.png");
             Rectangle rectangleLongestRoad = new Rectangle(60, 60);
             rectangleLongestRoad.setFill(new ImagePattern(imageLongestRoad));
             rectanglesLongestRoad.add(rectangleLongestRoad);
@@ -2543,12 +2543,34 @@ public class GamePresenter extends AbstractPresenter {
             Tooltip.install(rectangleLargestArmy, hoverLargestArmy);
             hoverLargestArmy.setShowDelay(Duration.millis(0));
 
+            rectangleLargestArmy.setOnMouseClicked(new EventHandler<MouseEvent>() {
+                final String title = hoverLargestArmy.getText();
+                final String description = "A card that you receive upon reaching largest army, longer than 2";
+                final Boolean isDevelopmentCard = false;
+
+                @Override
+                public void handle(MouseEvent mouseEvent) {
+                    onClickOnDevelopmentCard(title, description, imageLargestArmy, isDevelopmentCard);
+
+                }
+            });
+
             Tooltip hoverLongestRoad = new Tooltip("");
 
             hoverLongestRoad.setText("Longest Road");
             Tooltip.install(rectangleLongestRoad, hoverLongestRoad);
             hoverLongestRoad.setShowDelay(Duration.millis(0));
+            rectangleLongestRoad.setOnMouseClicked(new EventHandler<MouseEvent>() {
+                final String title = hoverLongestRoad.getText();
+                final String description = "A card that you receive upon having longest road, longer than 4";
+                final Boolean isDevelopmentCard = false;
 
+                @Override
+                public void handle(MouseEvent mouseEvent) {
+                    onClickOnDevelopmentCard(title, description, imageLongestRoad, isDevelopmentCard);
+
+                }
+            });
         }
         playerOneLargestArmyView.getChildren().add(rectanglesLargestArmy.get(0));
         playerOneLongestRoadView.getChildren().add(rectanglesLongestRoad.get(0));

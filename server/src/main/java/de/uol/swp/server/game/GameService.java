@@ -1269,14 +1269,20 @@ public class GameService extends AbstractService {
             game.getInventoryWithLongestRoad().setVictoryPoints(game.getInventoryWithLongestRoad().getVictoryPoints() + 2);
         } else if (game.getInventoryWithLongestRoad() != null) {
             for (User user : game.getUsersList()) {
-                if (game.getInventory(user).getContinuousRoad() > game.getInventoryWithLongestRoad().getContinuousRoad()) {
-                    if (!user.equals(game.getInventoryWithLongestRoad().getUser()))
-                        game.getInventoryWithLongestRoad().setLongestRoad(false);
+                if (game.getInventory(user).getContinuousRoad() > game.getInventoryWithLongestRoad().getContinuousRoad() && game.getInventory(game.getUser(game.getTurn())).getContinuousRoad() > 4) {
+                    game.getInventoryWithLongestRoad().setLongestRoad(false);
                     game.getInventoryWithLongestRoad().setVictoryPoints(game.getInventoryWithLongestRoad().getVictoryPoints() - 2);
                     game.setInventoryWithLongestRoad(game.getInventory(user));
                     game.getInventoryWithLongestRoad().setLongestRoad(true);
                     game.getInventoryWithLongestRoad().setVictoryPoints(game.getInventoryWithLongestRoad().getVictoryPoints() + 2);
                 }
+                if (game.getInventory(user).getContinuousRoad() < 5) {
+                    if (game.getInventory(user).isLongestRoad()) {
+                        game.getInventory(user).setVictoryPoints(game.getInventoryWithLongestRoad().getVictoryPoints() - 2);
+                    }
+                    game.getInventory(user).setLongestRoad(false);
+                }
+
             }
         }
     }
