@@ -671,6 +671,9 @@ public class GameService extends AbstractService {
                 sendToAllInLobby(startGameRequest.getName(), new StartGameMessage(startGameRequest.getName(), startGameRequest.getUser()));
                 Timer gameStartTimer = lobby.startTimerForGameStart();
                 int seconds = 60;
+                if (lobby.isUsedForTest()) {
+                    seconds = 1;
+                }
                 try {
                     class RemindTask extends TimerTask {
 
@@ -678,17 +681,9 @@ public class GameService extends AbstractService {
                             Set<User> users = new TreeSet<>(usersInLobby);
                             if (lobby.getPlayersReady().size() != 0) {
                                 users.removeAll(lobby.getPlayersReady());
-                            } else {
-                                users.clear();
                             }
                             if (lobby.getPlayersReady().size() > 0 && gameManagement.getGame(lobby.getName()).isEmpty()) {
-                                try {
-                                    startGame(lobby, lobby.getGameFieldVariant());
-                                    // TODO: sollte wahrscheinlich keine notenoughplayersmessage sein, sondern "You missed the game start"
-                                    sendToListOfUsers(users, new NotEnoughPlayersMessage(lobby.getName()));
-                                } catch (GameManagementException e) {
-                                    LOG.debug(e);
-                                }
+                                startGame(lobby, lobby.getGameFieldVariant());
                             } else if (lobby.getPlayersReady().size() < 1) {
                                 sendToListOfUsers(users, new NotEnoughPlayersMessage(lobby.getName()));
                             }
@@ -700,7 +695,7 @@ public class GameService extends AbstractService {
                     LOG.debug(e);
                 }
 
-            } else if (!startGameRequest.getUser().toString().equals(lobby.getOwner().toString())) {
+            } else if (!startGameRequest.getUser().equals(lobby.getOwner())) {
                 if (startGameRequest.getMessageContext().isPresent()) {
                     sendToSpecificUser(startGameRequest.getMessageContext().get(), new NotLobbyOwnerResponse(lobby.getName()));
                 }
@@ -708,8 +703,6 @@ public class GameService extends AbstractService {
                 if (startGameRequest.getMessageContext().isPresent()) {
                     sendToSpecificUser(startGameRequest.getMessageContext().get(), new GameAlreadyExistsResponse(lobby.getName()));
                 }
-            } else if (lobby.getUsers().size() < 2) {
-                sendToListOfUsers(lobby.getUsers(), new NotEnoughPlayersMessage(lobby.getName()));
             }
         }
     }
@@ -789,12 +782,7 @@ public class GameService extends AbstractService {
                 lobby.incrementRdyResponsesReceived();
             }
             if (lobby.getRdyResponsesReceived() == lobby.getUsers().size() && gameManagement.getGame(lobby.getName()).isEmpty()) {
-                try {
-                    startGame(lobby, lobby.getGameFieldVariant());
-                } catch (GameManagementException e) {
-                    LOG.debug(e);
-                    sendToListOfUsers(lobby.getPlayersReady(), new NotEnoughPlayersMessage(lobby.getName()));
-                }
+                startGame(lobby, lobby.getGameFieldVariant());
             }
         }
     }

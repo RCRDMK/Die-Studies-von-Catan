@@ -9,11 +9,14 @@ import de.uol.swp.common.game.inventory.Inventory;
 import de.uol.swp.common.game.message.*;
 import de.uol.swp.common.game.MapGraph;
 import de.uol.swp.common.game.request.*;
+import de.uol.swp.common.game.response.AllCreatedGamesResponse;
+import de.uol.swp.common.game.response.NotLobbyOwnerResponse;
 import de.uol.swp.common.game.response.PlayDevelopmentCardResponse;
 import de.uol.swp.common.game.response.ResolveDevelopmentCardNotSuccessfulResponse;
 import de.uol.swp.common.game.trade.Trade;
 import de.uol.swp.common.game.trade.TradeItem;
 import de.uol.swp.common.lobby.Lobby;
+import de.uol.swp.common.lobby.request.StartGameRequest;
 import de.uol.swp.common.message.MessageContext;
 import de.uol.swp.common.message.ResponseMessage;
 import de.uol.swp.common.message.ServerMessage;
@@ -32,16 +35,20 @@ import de.uol.swp.server.AI.AIToServerTranslator;
 import de.uol.swp.server.AI.TestAI;
 import de.uol.swp.server.lobby.LobbyManagement;
 import de.uol.swp.server.lobby.LobbyService;
+import de.uol.swp.server.message.ClientAuthorizedMessage;
 import de.uol.swp.server.usermanagement.AuthenticationService;
 import de.uol.swp.server.usermanagement.UserManagement;
 import de.uol.swp.server.usermanagement.UserService;
 import de.uol.swp.server.usermanagement.store.MainMemoryBasedUserStore;
+import org.checkerframework.checker.nullness.Opt;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.sql.SQLException;
 import java.util.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -868,6 +875,20 @@ public class GameServiceTest {
         rdcrbr = new ResolveDevelopmentCardRoadBuildingRequest("Road Building", (UserDTO) userThatPlaysTheCard, game.getName(), street1.getUuid(), street2.getUuid());
         gameService.onResolveDevelopmentCardRequest(rdcrbr);
         assertTrue(event instanceof ResolveDevelopmentCardNotSuccessfulResponse);
+
+
+        Inventory invT = game.getInventory(userThatPlaysTheCard);
+        invT.incCardStack("Ore", 3);
+        invT.incCardStack("Grain", 2);
+        int victoryPointsT = invT.getVictoryPoints();
+        for (MapGraph.BuildingNode bn : game.getMapGraph().getBuiltBuildings()) {
+            if (bn.getOccupiedByPlayer() == game.getTurn()) {
+                ConstructionRequest cr = new ConstructionRequest((UserDTO) userThatPlaysTheCard, game.getName(), bn.getUuid(), "BuildingNode");
+                gameService.onConstructionMessage(cr);
+                break;
+            }
+        }
+        assertEquals(invT.getVictoryPoints(), victoryPointsT + 1);
 
     }
 
@@ -1733,6 +1754,15 @@ public class GameServiceTest {
         assertTrue(game.getUsers().contains(userDTO2));
     }
 
+    /**
+     * Test used for testing the onDrawRandomResourceFromPlayerMessage() method in the gameService.
+     * <p>
+     * A player will try to take all 5 resources from the other player.
+     * If at the end the player was able to draw all 5 resources, the test was successful
+     *
+     * @author Marc Hermes
+     * @since 2021-06-06
+     */
     @Test
     void drawRandomResourceTest() {
         loginUsers();
@@ -1773,6 +1803,147 @@ public class GameServiceTest {
         assertEquals(inv0.getSpecificResourceAmount("Grain"), 1);
         assertEquals(inv0.getSpecificResourceAmount("Brick"), 1);
 
+    }
+
+    /**
+     * Test used to inspect the playerReadyRequest functionality of the gameService
+     * <p>
+     * Each player in the lobby sends a PlayerReadyRequest to the server.
+     * Because all four players sent a PlayerReadyRequest, the game will be created.
+     * Only those players that were ready (boolean value == true) will be in the game.
+     * Therefore player userDTO2 will not be in the game.
+     *
+     * @author Marc Hermes
+     * @since 2021-06-06
+     */
+    @Test
+    void playerReadyRequestTest() {
+        loginUsers();
+
+        lobbyManagement.createLobby("test", userDTO);
+        Optional<Lobby> optionalLobby = lobbyManagement.getLobby("test");
+        assertTrue(optionalLobby.isPresent());
+        Lobby lobby = optionalLobby.get();
+        lobby.joinUser(userDTO1);
+        lobby.joinUser(userDTO2);
+        lobby.joinUser(userDTO3);
+        lobby.setGameFieldVariant("Standard");
+
+        PlayerReadyRequest prr = new PlayerReadyRequest(lobby.getName(), userDTO, true);
+        gameService.onPlayerReadyRequest(prr);
+
+        prr = new PlayerReadyRequest(lobby.getName(), userDTO1, true);
+        gameService.onPlayerReadyRequest(prr);
+
+        prr = new PlayerReadyRequest(lobby.getName(), userDTO2, false);
+        gameService.onPlayerReadyRequest(prr);
+
+        prr = new PlayerReadyRequest(lobby.getName(), userDTO3, true);
+        gameService.onPlayerReadyRequest(prr);
+
+        RetrieveAllGamesRequest ragr = new RetrieveAllGamesRequest();
+        gameService.onRetrieveAllGamesRequest(ragr);
+        assertTrue(event instanceof AllCreatedGamesResponse);
+        assertEquals(((AllCreatedGamesResponse) event).getGameDTOs().get(0).getName(), "test");
+
+        Optional<Game> optionalGame = gameManagement.getGame("test");
+        assertTrue(optionalGame.isPresent());
+        Game game = optionalGame.get();
+
+        assertEquals(game.getUsers().size(), 3);
+        assertEquals(game.getUsersList().size(), 4);
+        assertFalse(game.getUsers().contains(userDTO2));
+
+    }
+
+    /**
+     * Test used for testing the timer when a startGameRequest is sent to the server
+     * <p>
+     * First a player that is not the lobby owner tries to starts the game.
+     * Then the lobby owner starts the game but only 1 person sends a PlayerReadyRequests with which he signalizes that he is not ready.
+     * Thus the game will not start.
+     * Afterwards the lobby owner tries to start the game again. Now 2 Players are ready and therefore the game will start for these 2.
+     *
+     * @throws InterruptedException if the waiter for the timer is interrupted
+     * @author Marc Hermes
+     * @since 2021-06-06
+     */
+    @Test
+    void startGameRequestTest() throws InterruptedException {
+        final CountDownLatch waiter = new CountDownLatch(1);
+        loginUsers();
+
+        lobbyManagement.createLobby("test", userDTO);
+        Optional<Lobby> optionalLobby = lobbyManagement.getLobby("test");
+        assertTrue(optionalLobby.isPresent());
+        Lobby lobby = optionalLobby.get();
+        lobby.joinUser(userDTO1);
+        lobby.joinUser(userDTO2);
+        lobby.joinUser(userDTO3);
+        lobby.setUsedForTest(true);
+        lobby.setGameFieldVariant("Standard");
+
+        StartGameRequest sgr = new StartGameRequest("test", userDTO1, lobby.getGameFieldVariant(), 2);
+        sgr.setMessageContext(new MessageContext() {
+            @Override
+            public void writeAndFlush(ResponseMessage message) {
+
+            }
+
+            @Override
+            public void writeAndFlush(ServerMessage message) {
+
+            }
+        });
+        gameService.onStartGameRequest(sgr);
+
+        assertTrue(event instanceof ClientAuthorizedMessage);
+
+        sgr = new StartGameRequest("test", userDTO, lobby.getGameFieldVariant(), 2);
+
+        gameService.onStartGameRequest(sgr);
+
+        PlayerReadyRequest prr = new PlayerReadyRequest(lobby.getName(), userDTO, false);
+        gameService.onPlayerReadyRequest(prr);
+
+        waiter.await(2, TimeUnit.SECONDS);
+
+        Optional<Game> optionalGame = gameManagement.getGame("test");
+        assertFalse(optionalGame.isPresent());
+
+        prr = new PlayerReadyRequest(lobby.getName(), userDTO, true);
+        gameService.onPlayerReadyRequest(prr);
+
+        prr = new PlayerReadyRequest(lobby.getName(), userDTO1, true);
+        gameService.onPlayerReadyRequest(prr);
+
+        prr = new PlayerReadyRequest(lobby.getName(), userDTO2, false);
+        gameService.onPlayerReadyRequest(prr);
+
+        waiter.await(2, TimeUnit.SECONDS);
+
+        optionalGame = gameManagement.getGame("test");
+        assertTrue(optionalGame.isPresent());
+        Game game = optionalGame.get();
+
+        assertTrue(game.getUsers().contains(userDTO));
+        assertTrue(game.getUsers().contains(userDTO1));
+        assertFalse(game.getUsers().contains(userDTO2));
+        assertFalse(game.getUsers().contains(userDTO3));
+
+        sgr = new StartGameRequest("test", userDTO, lobby.getGameFieldVariant(), 2);
+        sgr.setMessageContext(new MessageContext() {
+            @Override
+            public void writeAndFlush(ResponseMessage message) {
+
+            }
+
+            @Override
+            public void writeAndFlush(ServerMessage message) {
+
+            }
+        });
+        gameService.onStartGameRequest(sgr);
     }
 
 }
