@@ -1499,4 +1499,34 @@ public class GameServiceTest {
 
         assertTrue(game.getInventory(userDTO1).isLargestArmy());
     }
+
+    /**
+     * Method used for testing all functionality of the random AI
+     * <p>
+     * To do this, create a game with 4 players and forcefully remove the last human player from the game.
+     * Now the AI will continue to play for 200 turns. (Because currently the game doesn't really end yet)
+     *
+     */
+    @Test
+    void fourRandomAIsPlayGame() {
+        loginUsers();
+        lobbyManagement.createLobby("test", userDTO);
+        Optional<Lobby> optionalLobby = lobbyManagement.getLobby("test");
+        assertTrue(optionalLobby.isPresent());
+        Lobby lobby = optionalLobby.get();
+        lobby.setMinimumAmountOfPlayers(4);
+        lobby.joinPlayerReady(userDTO);
+        gameService.startGame(lobby, "Standard");
+        Optional<Game> optionalGame = gameManagement.getGame("test");
+        assertTrue(optionalGame.isPresent());
+        Game game = optionalGame.get();
+
+        game.removeUserForTest(userDTO);
+
+        buildStreetAndBuildingForOpeningTurn(game);
+
+        assertEquals(game.getOverallTurns(), 200);
+        assertTrue(event instanceof PublicInventoryChangeMessage);
+
+    }
 }

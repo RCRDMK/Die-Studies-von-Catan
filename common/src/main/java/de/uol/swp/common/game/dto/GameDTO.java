@@ -35,6 +35,7 @@ public class GameDTO implements Game {
     private final Set<User> usersInLobby;
     private boolean startingTurns = true;
     private int startingPhase = 1;
+    private boolean hasConcluded;
     private boolean countingUp = true;
     private boolean lastPlayerSecondTurn = false;
     private boolean playedCardThisTurn = false;
@@ -115,6 +116,11 @@ public class GameDTO implements Game {
     @Override
     public Set<User> getUsers() {
         return Collections.unmodifiableSet(users);
+    }
+
+    @Override
+    public void removeUserForTest(User user) {
+        this.users.remove(user);
     }
 
     /**
@@ -440,6 +446,16 @@ public class GameDTO implements Game {
     }
 
     @Override
+    public boolean hasConcluded() {
+        return this.hasConcluded;
+    }
+
+    @Override
+    public void setHasConcluded(boolean value) {
+        this.hasConcluded = value;
+    }
+
+    @Override
     public void setIsUsedForTest(boolean value) {
         this.isTest = value;
     }
@@ -532,6 +548,9 @@ public class GameDTO implements Game {
             Inventory inventoryDummy = getInventory(user);
             int cardsInInventory = inventoryDummy.getCardStack(card).getNumber();
             int boughtCards = getHowManyCardsOfTypeWereBoughtThisTurn(card);
+            if(card.equals("Year of Plenty") && bankInventory.sumResource() < 2) {
+                return false;
+            }
             return cardsInInventory - boughtCards > 0;
         } else return false;
     }

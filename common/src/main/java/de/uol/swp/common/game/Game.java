@@ -71,6 +71,17 @@ public interface Game extends Serializable {
     Set<User> getUsers();
 
     /**
+     * Method used for removing the last user in the game so that
+     * the AI can play by itself. This method should only be used for test
+     * purposes.
+     *
+     * @param user the last user to be removed from the game
+     * @author Marc Hermes
+     * @since 2021-06-06
+     */
+    void removeUserForTest(User user);
+
+    /**
      * Getter for the games users in a List.
      *
      * <p>Returns the users in the game as a list so we can look for users at certain indices.</p>
@@ -307,6 +318,24 @@ public interface Game extends Serializable {
      * @since 2021-05-12
      */
     boolean isUsedForTest();
+
+    /**
+     * Getter for the boolean value whether or not the game has finished
+     *
+     * @return true if the game has finished, false if not
+     * @author Marc Hermes
+     * @since 2021-06-06
+     */
+    boolean hasConcluded();
+
+    /**
+     * Setter for the boolean value whether or not the game has finished
+     *
+     * @param value the boolean value to set hasConcluded to
+     * @author Marc Hermes
+     * @since 2021-06-06
+     */
+    void setHasConcluded(boolean value);
 
     /**
      * Setter for the boolean value if this game is used for the JUNIT tests (and thus uses a different AI potentially)
