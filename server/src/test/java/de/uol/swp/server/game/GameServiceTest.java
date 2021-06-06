@@ -1538,7 +1538,7 @@ public class GameServiceTest {
      * To do this, create a game with 4 players and forcefully remove the last human player from the game.
      * Now the AI will continue to play for 200 turns. (Because currently the game doesn't really end yet)
      *
-     * @author March Hermes
+     * @author Marc Hermes
      * @since 2021-06-06
      */
     @Test
