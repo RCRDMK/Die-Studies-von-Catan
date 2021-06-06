@@ -38,6 +38,18 @@ class UserServiceTest {
     void registerUserTest() throws Exception {
         final RegisterUserRequest request = new RegisterUserRequest(userToRegister);
 
+        request.setMessageContext(new MessageContext() {
+            @Override
+            public void writeAndFlush(ResponseMessage message) {
+
+            }
+
+            @Override
+            public void writeAndFlush(ServerMessage message) {
+
+            }
+        });
+
         // The post will lead to a call of a UserService function
         bus.post(request);
 
@@ -82,7 +94,7 @@ class UserServiceTest {
      * @since 2020-12-15
      */
     @Test
-    void dropUserTest() throws InterruptedException, SQLException {
+    void dropUserTest() throws SQLException {
 
         final RegisterUserRequest registerRequest = new RegisterUserRequest(userToDrop);
         final DropUserRequest dropUserRequest = new DropUserRequest(userToDrop);
@@ -99,10 +111,13 @@ class UserServiceTest {
         });
 
         bus.post(registerRequest);
-        lock.await(1000, TimeUnit.MILLISECONDS);
         assertTrue(userManagement.retrieveAllUsers().contains(registerRequest.getUser()));
-        lock.await(1000, TimeUnit.MILLISECONDS);
         bus.post(dropUserRequest);
         assertFalse(userManagement.retrieveAllUsers().contains(dropUserRequest.getUser()));
+    }
+
+    @Test
+    void dropUnknownUserTest() throws Exception {
+
     }
 }
