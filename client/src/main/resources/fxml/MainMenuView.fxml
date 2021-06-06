@@ -23,9 +23,5 @@
             prefWidth="77.0" text="Send"/>
     <Button layoutX="478.0" layoutY="374.0" mnemonicParsing="false" onAction="#onUserSettingsButtonPressed"
             text="Settings"/>
-    <Button fx:id="muteMusicButton" layoutX="376.0" layoutY="374.0" mnemonicParsing="false"
-            onAction="#onMuteMusicButtonPressed" text="Turn music off"/>
-    <Button fx:id="unmuteMusicButton" layoutX="376.0" layoutY="374.0" mnemonicParsing="false"
-            onAction="#onUnmuteMusicButtonPressed" text="Turn music on" visible="false"/>
     <Button layoutX="290.0" layoutY="373.0" mnemonicParsing="false" onAction="#onGameRulesPressed" text="Game Rules"/>
 </AnchorPane>

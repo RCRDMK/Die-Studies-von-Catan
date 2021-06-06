@@ -13,6 +13,9 @@ import de.uol.swp.common.game.response.PlayDevelopmentCardResponse;
 import de.uol.swp.common.game.response.ResolveDevelopmentCardNotSuccessfulResponse;
 import de.uol.swp.common.game.trade.TradeItem;
 import de.uol.swp.common.lobby.Lobby;
+import de.uol.swp.common.message.MessageContext;
+import de.uol.swp.common.message.ResponseMessage;
+import de.uol.swp.common.message.ServerMessage;
 import de.uol.swp.common.user.Session;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
@@ -30,7 +33,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.sql.Array;
 import java.sql.SQLException;
 import java.util.*;
 
@@ -219,37 +221,67 @@ public class GameServiceTest {
 
     @Test
     void onRetrieveAllThisGameUsersRequestUserLeft() {
-        LobbyService lobbyService = new LobbyService(lobbyManagement, authenticationService, bus);
-        lobbyManagement.createLobby("testLobby", userDTO);
-        Optional<Lobby> lobby = lobbyManagement.getLobby("testLobby");
-        assertTrue(lobby.isPresent());
-        lobby.get().joinUser(userDTO1);
-        lobby.get().joinUser(userDTO2);
-        lobby.get().joinUser(userDTO3);
-        gameManagement.createGame(lobby.get().getName(), lobby.get().getOwner(), null, "Standard");
-        Optional<Game> game = gameManagement.getGame(lobby.get().getName());
-        assertTrue(game.isPresent());
-        RetrieveAllThisGameUsersRequest retrieveAllThisGameUsersRequest = new RetrieveAllThisGameUsersRequest(lobby.get().getName());
-        assertSame(gameManagement.getGame(lobby.get().getName()).get().getName(), retrieveAllThisGameUsersRequest.getName());
-        GameLeaveUserRequest gameLeaveUserRequest = new GameLeaveUserRequest(lobby.get().getName(), userDTO1);
+        loginUsers();
+        lobbyManagement.createLobby("test", userDTO);
+        Optional<Lobby> optionalLobby = lobbyManagement.getLobby("test");
+        assertTrue(optionalLobby.isPresent());
+        Lobby lobby = optionalLobby.get();
+        lobby.joinUser(userDTO1);
+        lobby.joinUser(userDTO2);
+        lobby.joinUser(userDTO3);
+        lobby.joinPlayerReady(userDTO);
+        lobby.joinPlayerReady(userDTO1);
+        lobby.joinPlayerReady(userDTO2);
+        lobby.joinPlayerReady(userDTO3);
+        gameService.startGame(lobby, "Standard");
+        Optional<Game> optionalGame = gameManagement.getGame("test");
+        assertTrue(optionalGame.isPresent());
+        Game game = optionalGame.get();
+
+        game.joinUser(userDTO1);
+        game.joinUser(userDTO2);
+        game.joinUser(userDTO3);
+
+        RetrieveAllThisGameUsersRequest retrieveAllThisGameUsersRequest = new RetrieveAllThisGameUsersRequest(lobby.getName());
+        assertSame(gameManagement.getGame(lobby.getName()).get().getName(), retrieveAllThisGameUsersRequest.getName());
+        GameLeaveUserRequest gameLeaveUserRequest = new GameLeaveUserRequest(lobby.getName(), userDTO1);
+        gameLeaveUserRequest.setMessageContext(new MessageContext() {
+            @Override
+            public void writeAndFlush(ResponseMessage message) {
+
+            }
+
+            @Override
+            public void writeAndFlush(ServerMessage message) {
+
+            }
+        });
         gameService.onGameLeaveUserRequest(gameLeaveUserRequest);
-        assertFalse(game.get().getUsers().contains(userDTO1));
-        List<Session> gameUsers = authenticationService.getSessions(game.get().getUsers());
-        for (Session session : gameUsers) {
-            assertTrue(userDTO == (session.getUser()) && userDTO1 != (session.getUser()) && userDTO2 == (session.getUser()) && userDTO3 == (session.getUser()));
-        }
-        GameLeaveUserRequest gameLeaveUserRequest2 = new GameLeaveUserRequest(lobby.get().getName(), userDTO2);
+        gameService.onRetrieveAllThisGameUsersRequest(retrieveAllThisGameUsersRequest);
+        assertFalse(game.getUsers().contains(userDTO1));
+
+        GameLeaveUserRequest gameLeaveUserRequest2 = new GameLeaveUserRequest(lobby.getName(), userDTO2);
         gameService.onGameLeaveUserRequest(gameLeaveUserRequest2);
-        assertFalse(game.get().getUsers().contains(userDTO1));
-        for (Session session : gameUsers) {
-            assertTrue(userDTO == (session.getUser()) && userDTO1 != (session.getUser()) && userDTO2 != (session.getUser()) && userDTO3 == (session.getUser()));
-        }
-        GameLeaveUserRequest gameLeaveUserRequest3 = new GameLeaveUserRequest(lobby.get().getName(), userDTO3);
+        assertFalse(game.getUsers().contains(userDTO1));
+
+        GameLeaveUserRequest gameLeaveUserRequest3 = new GameLeaveUserRequest(lobby.getName(), userDTO3);
         gameService.onGameLeaveUserRequest(gameLeaveUserRequest3);
-        assertFalse(game.get().getUsers().contains(userDTO3));
-        for (Session session : gameUsers) {
-            assertTrue(userDTO == (session.getUser()) && userDTO1 != (session.getUser()) && userDTO2 == (session.getUser()) && userDTO3 != (session.getUser()));
-        }
+        assertFalse(game.getUsers().contains(userDTO3));
+
+        GameLeaveUserRequest gameLeaveUserRequest4 = new GameLeaveUserRequest(lobby.getName(), userDTO);
+        gameLeaveUserRequest4.setMessageContext(new MessageContext() {
+            @Override
+            public void writeAndFlush(ResponseMessage message) {
+
+            }
+
+            @Override
+            public void writeAndFlush(ServerMessage message) {
+
+            }
+        });
+        gameService.onGameLeaveUserRequest(gameLeaveUserRequest4);
+        assertFalse(gameManagement.getGame(lobby.getName()).isPresent());
     }
 
     /**
@@ -1154,7 +1186,7 @@ public class GameServiceTest {
                 uuidForRobber = hx.getUuid();
             }
         }
-        RobbersNewFieldMessage mrm = new RobbersNewFieldMessage(game.getName(), userDTO1, uuidForRobber);
+        RobbersNewFieldRequest mrm = new RobbersNewFieldRequest(game.getName(), userDTO1, uuidForRobber);
         gameService.onRobbersNewFieldRequest(mrm);
 
         // Check if the AI discarded its resources and now has less than before and therefore discarded resources
@@ -1243,7 +1275,6 @@ public class GameServiceTest {
         gameService.onEndTurnRequest(etr);
         gameService.onEndTurnRequest(etr);
     }
-
 
     /**
      * This test checks if the giveResource and the takeResource method works as intended

@@ -84,40 +84,38 @@ public class GameService extends AbstractService {
         Optional<Lobby> lobby = lobbyService.getLobby(gameLeaveUserRequest.getName());
         if (optionalGame.isPresent()) {
             Game game = optionalGame.get();
-            if (game.getUsers().size() == 1) {
-                if (gameLeaveUserRequest.getMessageContext().isPresent()) {
-                    Optional<MessageContext> ctx = gameLeaveUserRequest.getMessageContext();
-                    sendToSpecificUser(ctx.get(), new GameLeftSuccessfulResponse(gameLeaveUserRequest.getName(), gameLeaveUserRequest.getUser()));
-                    gameManagement.dropGame(gameLeaveUserRequest.getName());
-                    lobby.ifPresent(value -> value.setGameStarted(false));
-                    sendToAll(new GameDroppedMessage(gameLeaveUserRequest.getName()));
-                }
-            } else if (game.getUsers() == null) {
-                gameManagement.dropGame(gameLeaveUserRequest.getName());
-                lobby.ifPresent(value -> value.setGameStarted(false));
-                sendToAll(new GameDroppedMessage(gameLeaveUserRequest.getName()));
-
-            } else {
-                if (gameLeaveUserRequest.getMessageContext().isPresent()) {
-                    Optional<MessageContext> ctx = gameLeaveUserRequest.getMessageContext();
-                    sendToSpecificUser(ctx.get(), new GameLeftSuccessfulResponse(gameLeaveUserRequest.getName(), gameLeaveUserRequest.getUser()));
-                }
-                game.leaveUser(gameLeaveUserRequest.getUser());
-                sendToAll(new GameSizeChangedMessage(gameLeaveUserRequest.getName()));
-                ArrayList<UserDTO> usersInGame = new ArrayList<>();
-                for (User user : game.getUsers()) usersInGame.add((UserDTO) user);
-                sendToAllInGame(gameLeaveUserRequest.getName(), new UserLeftGameMessage(gameLeaveUserRequest.getName(), gameLeaveUserRequest.getUser(), usersInGame));
-                // Check if the player leaving the game is the turnPlayer, so that the AI may replace him now
-                if (gameLeaveUserRequest.getUser().equals(game.getUser(game.getTurn()))) {
-                    if (!game.rolledDiceThisTurn() && !game.isStartingTurns()) {
-                        RollDiceRequest rdr = new RollDiceRequest(game.getName(), game.getUser(game.getTurn()));
-                        onRollDiceRequest(rdr);
+            if (game.getUsers().contains(gameLeaveUserRequest.getUser())) {
+                if (game.getUsers().size() == 1) {
+                    if (gameLeaveUserRequest.getMessageContext().isPresent()) {
+                        Optional<MessageContext> ctx = gameLeaveUserRequest.getMessageContext();
+                        sendToSpecificUser(ctx.get(), new GameLeftSuccessfulResponse(gameLeaveUserRequest.getName(), gameLeaveUserRequest.getUser()));
+                        gameManagement.dropGame(gameLeaveUserRequest.getName());
+                        lobby.ifPresent(value -> value.setGameStarted(false));
+                        sendToAll(new GameDroppedMessage(gameLeaveUserRequest.getName()));
                     }
-                    startTurnForAI((GameDTO) game);
+
+                } else {
+                    if (gameLeaveUserRequest.getMessageContext().isPresent()) {
+                        Optional<MessageContext> ctx = gameLeaveUserRequest.getMessageContext();
+                        sendToSpecificUser(ctx.get(), new GameLeftSuccessfulResponse(gameLeaveUserRequest.getName(), gameLeaveUserRequest.getUser()));
+                    }
+                    game.leaveUser(gameLeaveUserRequest.getUser());
+                    sendToAll(new GameSizeChangedMessage(gameLeaveUserRequest.getName()));
+                    ArrayList<UserDTO> usersInGame = new ArrayList<>();
+                    for (User user : game.getUsers()) usersInGame.add((UserDTO) user);
+                    sendToAllInGame(gameLeaveUserRequest.getName(), new UserLeftGameMessage(gameLeaveUserRequest.getName(), gameLeaveUserRequest.getUser(), usersInGame));
+                    // Check if the player leaving the game is the turnPlayer, so that the AI may replace him now
+                    if (gameLeaveUserRequest.getUser().equals(game.getUser(game.getTurn()))) {
+                        if (!game.rolledDiceThisTurn() && !game.isStartingTurns()) {
+                            RollDiceRequest rdr = new RollDiceRequest(game.getName(), game.getUser(game.getTurn()));
+                            onRollDiceRequest(rdr);
+                        }
+                        startTurnForAI((GameDTO) game);
+                    }
                 }
+            } else {
+                throw new GameManagementException("Game unknown!");
             }
-        } else {
-            throw new GameManagementException("Game unknown!");
         }
     }
 
@@ -382,7 +380,7 @@ public class GameService extends AbstractService {
                 }
                 int addedEyes = dice.getDiceEyes1() + dice.getDiceEyes2();
                 game.setLastRolledDiceValue(addedEyes);
-                if (addedEyes == 7) {
+                if (addedEyes == 7 && game.getUsers().contains(rollDiceRequest.getUser())) {
                     MoveRobberMessage moveRobberMessage = new MoveRobberMessage(rollDiceRequest.getName(), (UserDTO) rollDiceRequest.getUser());
                     sendToSpecificUserInGame(moveRobberMessage, rollDiceRequest.getUser());
                 } else {
@@ -602,13 +600,13 @@ public class GameService extends AbstractService {
      * <p>
      * enhanced by Marc Hermes 2021-05-25
      *
-     * @param robbersNewFieldMessage The message, that will be send, if a user rolled a 7.
+     * @param robbersNewFieldrequest The message, that will be send, if a user rolled a 7.
      * @author Marius Birk
      * @since 2021-04-25
      */
     @Subscribe
-    public void onRobbersNewFieldRequest(RobbersNewFieldMessage robbersNewFieldMessage) {
-        Optional<Game> optionalGame = gameManagement.getGame(robbersNewFieldMessage.getName());
+    public void onRobbersNewFieldRequest(RobbersNewFieldRequest robbersNewFieldrequest) {
+        Optional<Game> optionalGame = gameManagement.getGame(robbersNewFieldrequest.getName());
         if (optionalGame.isPresent()) {
             Game game = optionalGame.get();
             List<String> userList = new ArrayList<>();
@@ -617,26 +615,29 @@ public class GameService extends AbstractService {
                 if (hexagon.isOccupiedByRobber()) {
                     hexagon.setOccupiedByRobber(false);
                 }
-                if (hexagon.getUuid().equals(robbersNewFieldMessage.getNewField())) {
+                if (hexagon.getUuid().equals(robbersNewFieldrequest.getNewField())) {
                     //If the UUIDs match, the new field is set to occupied
                     hexagon.setOccupiedByRobber(true);
                     for (MapGraph.BuildingNode node : hexagon.getBuildingNodes()) {
                         if (node.getOccupiedByPlayer() != 666) {
-                            if (!userList.contains(game.getUser(node.getOccupiedByPlayer()).getUsername()) && !robbersNewFieldMessage.getUser().equals(game.getUser(node.getOccupiedByPlayer()))) {
-                                userList.add(game.getUser(node.getOccupiedByPlayer()).getUsername());
+                            if (!userList.contains(game.getUser(node.getOccupiedByPlayer()).getUsername()) && !robbersNewFieldrequest.getUser().equals(game.getUser(node.getOccupiedByPlayer()))) {
+                                if (game.getInventory(game.getUser(node.getOccupiedByPlayer())).sumResource() > 0) {
+                                    userList.add(game.getUser(node.getOccupiedByPlayer()).getUsername());
+                                }
                             }
                         }
                     }
-                    sendToAllInGame(robbersNewFieldMessage.getName(), new SuccessfullMovedRobberMessage(hexagon.getUuid()));
+                    sendToAllInGame(robbersNewFieldrequest.getName(), new SuccessfullMovedRobberMessage(hexagon.getUuid()));
                 }
             }
             // If the robber wasn't moved because of the Knight DevelopmentCard do this
             if (!game.getCurrentCard().equals("Knight")) {
                 tooMuchResources(game);
             }
-
-            ChoosePlayerMessage choosePlayerMessage = new ChoosePlayerMessage(game.getName(), robbersNewFieldMessage.getUser(), userList);
-            sendToSpecificUserInGame(choosePlayerMessage, robbersNewFieldMessage.getUser());
+            if (game.getUsers().contains(robbersNewFieldrequest.getUser())) {
+                ChoosePlayerMessage choosePlayerMessage = new ChoosePlayerMessage(game.getName(), robbersNewFieldrequest.getUser(), userList);
+                sendToSpecificUserInGame(choosePlayerMessage, robbersNewFieldrequest.getUser());
+            }
         }
     }
 
@@ -729,12 +730,15 @@ public class GameService extends AbstractService {
 
     public void startGame(Lobby lobby, String gameFieldVariant) {
         if (lobby.getPlayersReady().size() > 0) {
-            gameManagement.createGame(lobby.getName(), lobby.getOwner(), lobby.getUsers(), gameFieldVariant);
+            Set<User> newUserList = new TreeSet<>();
+            for (User user : lobby.getUsers()) {
+                newUserList.add(userService.retrieveUserInformation(user));
+            }
+            gameManagement.createGame(lobby.getName(), lobby.getOwner(), newUserList, gameFieldVariant);
             Optional<Game> optionalGame = gameManagement.getGame(lobby.getName());
             if (optionalGame.isPresent()) {
                 Game game = optionalGame.get();
                 for (User user : lobby.getPlayersReady()) {
-                    user = userService.retrieveUserInformation(user);
                     game.joinUser(user);
                 }
                 lobby.setPlayersReadyToNull();
@@ -1191,7 +1195,7 @@ public class GameService extends AbstractService {
                     case "Knight":
                         if (request instanceof ResolveDevelopmentCardKnightRequest) {
                             ResolveDevelopmentCardKnightRequest knightRequest = (ResolveDevelopmentCardKnightRequest) request;
-                            RobbersNewFieldMessage rnfm = new RobbersNewFieldMessage(gameName, (UserDTO) turnPlayer, knightRequest.getField());
+                            RobbersNewFieldRequest rnfm = new RobbersNewFieldRequest(gameName, (UserDTO) turnPlayer, knightRequest.getField());
                             onRobbersNewFieldRequest(rnfm);
                             game.setCurrentCard("");
                             sendToAllInGame(gameName, message);
