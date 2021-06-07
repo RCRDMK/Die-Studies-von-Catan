@@ -42,6 +42,28 @@ public class LobbyManagement {
     }
 
     /**
+     * Creates a new protected lobby and adds it to the list
+     * <p>
+     *
+     * @param name  the name of the lobby to create
+     * @param owner the user who wants to create a lobby
+     * @throws IllegalArgumentException name already taken
+     * @implNote the primary key of the lobbies is the name therefore the name has
+     * to be unique
+     * @author René Meyer
+     * @see de.uol.swp.common.user.User
+     * @since 2021-06-05
+     */
+    public void createProtectedLobby(String name, User owner, String password) {
+        if (lobbies.containsKey(name)) {
+            throw new IllegalArgumentException("Lobby name " + name + " already exists!");
+        }
+        var lobby = new LobbyDTO(name, owner);
+        lobby.setPassword(password);
+        lobbies.put(name, lobby);
+    }
+
+    /**
      * Deletes lobby with requested name
      * <p>
      *
