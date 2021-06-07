@@ -1204,17 +1204,37 @@ public class GamePresenter extends AbstractPresenter {
 
                 circle.setFill(determinePlayerColorByIndex(mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer()));
 
+                //0 = no harbor, 1 = 2:1 Sheep, 2 = 2:1 Clay, 3 = 2:1 Wood, 4 = 2:1 Grain, 5 = 2:1 Ore, 6 = 3:1 Any
                 if (buildingNode.getTypeOfHarbor() != 0) {
-                    //"textures/hafen.png"
-                    Rectangle harborSymbol = new Rectangle();
-                    Platform.runLater(() -> {
-                        //TODO: Symbole werden noch nicht angezeigt.
-                        gameAnchorPane.getChildren().add(harborSymbol);
-                        harborSymbol.setFill(new ImagePattern(new Image("textures/hafen.png")));
-                        harborSymbol.setLayoutX(mapGraphNodeContainer.getCircle().getLayoutX());
-                        harborSymbol.setLayoutY(mapGraphNodeContainer.getCircle().getLayoutY());
-                    });
+                    Text text = new Text();
+                    switch (buildingNode.getTypeOfHarbor()) {
+                        case 1:
+                            text.setText("Sheep");
+                        case 2:
+                            text.setText("Clay");
+                        case 3:
+                            text.setText("Wood");
+                        case 4:
+                            text.setText("Grain");
+                        case 5:
+                            text.setText("Ore");
+                        case 6:
+                            text.setText("Any");
+                    }
+                    text.setFill(Color.BLACK);
+                    text.setStroke(Color.WHITE);
 
+                    double harborSymbolSize = 25.0;
+                    ImagePattern harborTexture = new ImagePattern(new Image("textures/hafen.png"));
+                    Rectangle harborSymbol = new Rectangle(mapGraphNodeContainer.getCircle().getLayoutX() - harborSymbolSize / 2, mapGraphNodeContainer.getCircle().getLayoutY() - harborSymbolSize, harborSymbolSize, harborSymbolSize);
+                    text.setX(harborSymbol.getLayoutX() - harborSymbolSize / 2);
+                    text.setY(harborSymbol.getLayoutY() - harborSymbolSize);
+                    harborSymbol.setFill(harborTexture);
+
+                    gameAnchorPane.getChildren().add(harborSymbol);
+                    harborSymbol.toFront();
+                    gameAnchorPane.getChildren().add(text);
+                    text.toFront();
 
                 }
             } else {
