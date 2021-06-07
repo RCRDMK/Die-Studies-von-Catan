@@ -51,6 +51,7 @@ public class SQLBasedUserStore extends AbstractUserStore implements UserStore {
     public void closeConnection() throws SQLException {
         statement.close();
         connection.close();
+        LOG.debug("Connection to the database closed.");
     }
 
     @Override
