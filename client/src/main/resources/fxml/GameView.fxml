@@ -4,108 +4,138 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
-<AnchorPane fx:id="gameAnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="500.0" prefWidth="735.0" stylesheets="@../css/swp.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.uol.swp.client.game.GamePresenter">
+<AnchorPane fx:id="gameAnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="634.0" prefWidth="1280.0"
+            stylesheets="@../css/swp.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="de.uol.swp.client.game.GamePresenter">
 
     <children>
-        <TextArea fx:id="gameEventLogArea" editable="false" layoutX="370.0" layoutY="279.0" prefHeight="122.0"
-                  prefWidth="356.0" visible="false"/>
-        <TextArea fx:id="gameChatArea" editable="false" layoutX="370.0" layoutY="279.0" prefHeight="96.0" prefWidth="356.0" GridPane.rowIndex="2" />
-        <Label fx:id="BuildingNotSuccessfulLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="547.0" layoutY="115.0" prefHeight="16.0" prefWidth="182.0" text="You are not allowed to build here" textAlignment="CENTER" textFill="WHITE" visible="false">
-         <font>
-            <Font size="10.0" />
-         </font></Label>
-        <ListView fx:id="gameUsersView" layoutX="439.0" layoutY="30.0" prefHeight="69.0" prefWidth="109.0" />
-        <ListView layoutX="618.0" layoutY="30.0" prefHeight="69.0" prefWidth="109.0" />
-        <ListView layoutX="439.0" layoutY="153.0" prefHeight="69.0" prefWidth="109.0" />
-        <ListView layoutX="618.0" layoutY="153.0" prefHeight="69.0" prefWidth="109.0" />
-        <ToolBar layoutY="-5.0" prefHeight="35.0" prefWidth="735.0">
+        <TextArea fx:id="gameChatArea" editable="false" layoutX="1050.0" layoutY="30.0" prefHeight="330.0"
+                  prefWidth="210.0" GridPane.rowIndex="2"/>
+        <TextArea fx:id="gameEventLogArea" editable="false" layoutX="1050.0" layoutY="30.0" prefHeight="330.0"
+                  prefWidth="210.0" visible="false"/>
+        <Label fx:id="BuildingNotSuccessfulLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="1050.0"
+               layoutY="420.0" prefHeight="16.0" prefWidth="182.0" text="You are not allowed to build here"
+               textAlignment="CENTER" textFill="WHITE" visible="false">
+            <font>
+                <Font size="10.0"/>
+            </font>
+        </Label>
+        <Label fx:id="gameUserView1" contentDisplay="CENTER" layoutX="160.0" layoutY="25.0" prefHeight="25.0"
+               prefWidth="120.0" style="-fx-background-color: #8B0000"/>
+        <Label fx:id="gameUserView2" contentDisplay="CENTER" layoutX="905.0" layoutY="25.0" prefHeight="25.0"
+               prefWidth="120.0" style="-fx-background-color: #1E90FF"/>
+        <Label fx:id="gameUserView3" contentDisplay="CENTER" layoutX="160.0" layoutY="280.0" prefHeight="25.0"
+               prefWidth="120.0" style="-fx-background-color: #4B0082" visible="false"/>
+        <Label fx:id="gameUserView4" contentDisplay="CENTER" layoutX="905.0" layoutY="280.0" prefHeight="25.0"
+               prefWidth="120.0" style="-fx-background-color: #008000" visible="false"/>
+        <Pane fx:id="playerOneLargestArmyView" layoutX="70.0" layoutY="115.0" prefHeight="60.0" prefWidth="60.0"
+              visible="false"/>
+        <Pane fx:id="playerTwoLargestArmyView" layoutX="815.0" layoutY="115.0" prefHeight="60.0" prefWidth="60.0"
+              visible="false"/>
+        <Pane fx:id="playerThreeLargestArmyView" layoutX="70.0" layoutY="370.0" prefHeight="60.0" prefWidth="60.0"
+              visible="false"/>
+        <Pane fx:id="playerFourLargestArmyView" layoutX="815.0" layoutY="370.0" prefHeight="60.0" prefWidth="60.0"
+              visible="false"/>
+        <Pane fx:id="playerOneLongestRoadView" layoutX="70.0" layoutY="175.0" prefHeight="60.0" prefWidth="60.0"
+              visible="false"/>
+        <Pane fx:id="playerTwoLongestRoadView" layoutX="815.0" layoutY="175.0" prefHeight="60.0" prefWidth="60.0"
+              visible="false"/>
+        <Pane fx:id="playerThreeLongestRoadView" layoutX="70.0" layoutY="430.0" prefHeight="60.0" prefWidth="60.0"
+              visible="false"/>
+        <Pane fx:id="playerFourLongestRoadView" layoutX="815.0" layoutY="430.0" prefHeight="60.0" prefWidth="60.0"
+              visible="false"/>
+        <ListView fx:id="publicInventory1View" layoutX="160.0" layoutY="50.0" prefHeight="140.0" prefWidth="120.0"
+                  style="-fx-border-color: #8B0000"/>
+        <ListView fx:id="publicInventory2View" layoutX="905.0" layoutY="50.0" prefHeight="140.0" prefWidth="120.0"
+                  style="-fx-border-color: #1E90FF"/>
+        <ListView fx:id="publicInventory3View" layoutX="160.0" layoutY="305.0" prefHeight="140.0" prefWidth="120.0"
+                  style="-fx-border-color: #4B0082" visible="false"/>
+        <ListView fx:id="publicInventory4View" layoutX="905.0" layoutY="305.0" prefHeight="140.0" prefWidth="120.0"
+                  style="-fx-border-color: #008000" visible="false"/>
+        <Button fx:id="tradeButton" layoutX="1050.0" layoutY="492.0" mnemonicParsing="false" onAction="#onTrade"
+                text="Trade">
+        </Button>
+        <Button fx:id="buyDevCard" layoutX="1050.0" layoutY="447.0" mnemonicParsing="false"
+                onAction="#onBuyDevelopmentCard" text="Buy Card"/>
+        <MenuButton fx:id="buildMenu" layoutX="1126.0" layoutY="447.0" mnemonicParsing="false" text="Build">
             <items>
-                <Button fx:id="rollDiceButton" mnemonicParsing="false" onAction="#onRollDice" text="Roll Dice" />
-                <Separator orientation="VERTICAL" />
-                <Button fx:id="tradeButton" mnemonicParsing="false" onAction="#onTrade" text="Trade">
-                </Button>
-                <MenuButton fx:id="buildMenu" layoutX="103.0" layoutY="11.0" mnemonicParsing="false" text="Build">
-                    <items>
-                        <MenuItem mnemonicParsing="false" onAction="#onBuildStreet" text="Street"/>
-                        <MenuItem mnemonicParsing="false" onAction="#onBuildSettlement" text="Settlement"/>
-                        <MenuItem mnemonicParsing="false" onAction="#onBuildTown" text="Town"/>
-                    </items>
-                </MenuButton>
-                <Button fx:id="buyDevCard" layoutX="153.0" layoutY="11.0" mnemonicParsing="false"
-                        onAction="#onBuyDevelopmentCard" text="Buy DevelopmentCard"/>
-                <Button fx:id="endTurnButton" layoutX="10.0" layoutY="11.0" mnemonicParsing="false"
-                        onAction="#onEndTurn" text="End Turn"/>
-                <Region prefHeight="25.0" prefWidth="50.0"/>
-                <Button fx:id="chatButton" disable="true" mnemonicParsing="false" onAction="#onShowChat" text="Chat"/>
-                <Button fx:id="eventLogButton" mnemonicParsing="false" onAction="#onShowEventLog" text="Event Log"/>
-                <Region prefHeight="25.0" prefWidth="60.0"/>
-                <Button mnemonicParsing="false" onAction="#onLeaveGame" text="Leave Game"/>
+                <MenuItem mnemonicParsing="false" onAction="#onBuildRoad" text="Road"/>
+                <MenuItem mnemonicParsing="false" onAction="#onBuildSettlement" text="Settlement"/>
+                <MenuItem mnemonicParsing="false" onAction="#onBuildTown" text="Town"/>
             </items>
-        </ToolBar>
-        <Canvas id="canvas" fx:id="canvas" height="370.0" layoutX="0.0" layoutY="30.0" width="370" />
-        <Button fx:id="gameChatSendMessage" layoutX="662.0" layoutY="375.0" mnemonicParsing="false"
-                onAction="#onSendMessage" prefHeight="25.0" prefWidth="59.0" text="Send"/>
-        <TextField fx:id="gameChatInput" layoutX="370.0" layoutY="375.0" onAction="#onSendMessage" prefHeight="25.0" prefWidth="290.0" promptText="Send Message.." />
-        <Pane fx:id="picturePlayerView1" layoutX="370.0" layoutY="30.0" prefHeight="68.0" prefWidth="68.0" />
-        <Pane fx:id="picturePlayerView3" layoutX="370.0" layoutY="153.0" prefHeight="69.0" prefWidth="68.0" />
-        <Pane fx:id="picturePlayerView2" layoutX="550.0" layoutY="30.0" prefHeight="69.0" prefWidth="68.0" />
-        <Pane fx:id="picturePlayerView4" layoutX="550.0" layoutY="153.0" prefHeight="69.0" prefWidth="68.0" />
-        <GridPane fx:id="playerTwoDiceView" layoutX="550.0" layoutY="99.0" prefHeight="50.0" prefWidth="100.0">
+        </MenuButton>
+        <Button fx:id="rollDiceButton" layoutX="1199.0" layoutY="447.0" mnemonicParsing="false" onAction="#onRollDice"
+                text="Roll Dice"/>
+        <Button fx:id="endTurnButton" layoutX="1196.0" layoutY="557.0" mnemonicParsing="false" onAction="#onEndTurn"
+                text="End Turn"/>
+        <Canvas id="canvas" fx:id="canvas" height="475.0" layoutX="310.0" layoutY="25.0" width="475.0"/>
+        <Button layoutX="1200.0" layoutY="385.0" mnemonicParsing="false" onAction="#onSendMessage" prefHeight="25.0"
+                prefWidth="60.0" text="Send"/>
+        <Button fx:id="chatButton" disable="true" mnemonicParsing="false" onAction="#onShowChat" text="Chat"/>
+        <Button fx:id="eventLogButton" mnemonicParsing="false" onAction="#onShowEventLog" text="Event Log"/>
+        <TextField fx:id="gameChatInput" layoutX="1050.0" layoutY="360.0" onAction="#onSendMessage" prefHeight="25.0"
+                   prefWidth="210.0" promptText="Send Message.."/>
+        <Pane fx:id="picturePlayerView1" layoutX="70.0" layoutY="25.0" prefHeight="90.0" prefWidth="90.0"/>
+        <Pane fx:id="picturePlayerView3" layoutX="70.0" layoutY="280.0" prefHeight="90.0" prefWidth="90.0"/>
+        <Pane fx:id="picturePlayerView2" layoutX="815.0" layoutY="25.0" prefHeight="90.0" prefWidth="90.0"/>
+        <Pane fx:id="picturePlayerView4" layoutX="815.0" layoutY="280.0" prefHeight="90.0" prefWidth="90.0"/>
+        <GridPane fx:id="playerTwoDiceView" layoutX="905.0" layoutY="193.0" prefHeight="60.0" prefWidth="120.0">
             <columnConstraints>
-                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
             </columnConstraints>
             <rowConstraints>
-                <RowConstraints minHeight="10.0" prefHeight="100.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="100.0" vgrow="SOMETIMES"/>
             </rowConstraints>
         </GridPane>
-        <GridPane fx:id="playerOneDiceView" layoutX="370.0" layoutY="101.0" prefHeight="50.0" prefWidth="100.0">
+        <GridPane fx:id="playerOneDiceView" layoutX="160.0" layoutY="193.0" prefHeight="60.0" prefWidth="120.0">
             <columnConstraints>
-                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
             </columnConstraints>
             <rowConstraints>
-                <RowConstraints minHeight="10.0" prefHeight="100.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="100.0" vgrow="SOMETIMES"/>
             </rowConstraints>
         </GridPane>
-        <GridPane fx:id="playerFourDiceView" layoutX="550.0" layoutY="225.0" prefHeight="50.0" prefWidth="100.0">
+        <GridPane fx:id="playerFourDiceView" layoutX="905.0" layoutY="448.0" prefHeight="60.0" prefWidth="120.0">
             <columnConstraints>
-                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
             </columnConstraints>
             <rowConstraints>
-                <RowConstraints minHeight="10.0" prefHeight="100.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="100.0" vgrow="SOMETIMES"/>
             </rowConstraints>
         </GridPane>
-        <GridPane fx:id="playerThreeDiceView" layoutX="370.0" layoutY="225.0" prefHeight="50.0" prefWidth="100.0">
+        <GridPane fx:id="playerThreeDiceView" layoutX="160.0" layoutY="448.0" prefHeight="60.0" prefWidth="120.0">
             <columnConstraints>
-                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
             </columnConstraints>
             <rowConstraints>
-                <RowConstraints minHeight="10.0" prefHeight="100.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="100.0" vgrow="SOMETIMES"/>
             </rowConstraints>
         </GridPane>
-        <GridPane fx:id="privateInventoryView" layoutX="5.0" layoutY="400.0" prefHeight="96.0" prefWidth="710.0">
+        <GridPane fx:id="privateInventoryView" layoutX="184.0" layoutY="515.0" prefHeight="105.0" prefWidth="750.0">
             <columnConstraints>
-                <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+                <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+                <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+                <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+                <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+                <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+                <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+                <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+                <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+                <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+                <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+                <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+                <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
             </columnConstraints>
             <rowConstraints>
-                <RowConstraints maxHeight="76.0" minHeight="10.0" prefHeight="71.0" vgrow="SOMETIMES" />
-                <RowConstraints maxHeight="36.0" minHeight="10.0" prefHeight="25.0" vgrow="SOMETIMES" />
+                <RowConstraints maxHeight="76.0" minHeight="10.0" prefHeight="71.0" vgrow="SOMETIMES"/>
+                <RowConstraints maxHeight="36.0" minHeight="10.0" prefHeight="25.0" vgrow="SOMETIMES"/>
             </rowConstraints>
         </GridPane>
-
+        <Button layoutX="50.0" layoutY="570.0" mnemonicParsing="false" onAction="#onLeaveGame" text="Leave Game"/>
     </children>
 </AnchorPane>

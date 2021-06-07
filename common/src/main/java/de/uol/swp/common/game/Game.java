@@ -349,6 +349,20 @@ public interface Game extends Serializable {
      */
     void setInventoryWithLargestArmy(Inventory inventoryWithLargestArmy);
 
+    /**
+     * Getter for the longest Road reference
+     *
+     * @return refernced inventory with the longest road
+     */
+    Inventory getInventoryWithLongestRoad();
+
+    /**
+     * setter for the longest Road reference
+     *
+     * @param inventoryWithLongestRoad the inventory referencing the inventory with the longest road
+     */
+    void setInventoryWithLongestRoad(Inventory inventoryWithLongestRoad);
+
 
     /**
      * method used to remember the DevelopmentCards bought in a turn
@@ -362,6 +376,7 @@ public interface Game extends Serializable {
 
     /**
      * getter for the HasMap containing the development cards bought this turn
+     *
      * @return HashMap<String, Integer> boughtDevCardsThisTurn
      * @author Alexander Losse
      * @since 2021-05-30
@@ -369,7 +384,8 @@ public interface Game extends Serializable {
     HashMap<String, Integer> getBoughtDevCardsThisTurn();
 
     /**
-     *  getter for how many cards of a type were bought this turn
+     * getter for how many cards of a type were bought this turn
+     *
      * @param card String name of the card
      * @return itn amount of cards
      * @author Alexander Losse
@@ -379,6 +395,7 @@ public interface Game extends Serializable {
 
     /**
      * checks if user can play a development card
+     *
      * @param user User
      * @param card String name of the card
      * @return boolean
