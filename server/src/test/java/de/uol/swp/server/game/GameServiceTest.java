@@ -1511,7 +1511,7 @@ public class GameServiceTest {
 
         assertTrue(game.getInventory(userDTO).isLargestArmy());
 
-        assertEquals(2, game.getInventory(userDTO).getVictoryPoints());
+        assertEquals(4, game.getInventory(userDTO).getVictoryPoints());
 
         EndTurnRequest endTurnRequest = new EndTurnRequest(game.getName(), userDTO);
 
@@ -1568,11 +1568,11 @@ public class GameServiceTest {
 
         assertFalse(game.getInventory(userDTO).isLargestArmy());
 
-        assertEquals(0, game.getInventory(userDTO).getVictoryPoints());
+        assertEquals(2, game.getInventory(userDTO).getVictoryPoints());
 
         assertTrue(game.getInventory(userDTO1).isLargestArmy());
 
-        assertEquals(2, game.getInventory(userDTO1).getVictoryPoints());
+        assertEquals(4, game.getInventory(userDTO1).getVictoryPoints());
     }
 
     /**
