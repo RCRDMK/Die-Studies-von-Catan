@@ -1389,6 +1389,52 @@ public class GamePresenter extends AbstractPresenter {
                 circle.setVisible(false);
 
                 circle.setFill(Color.color(0.5, 0.5, 0.5));
+                if (buildingNode.getTypeOfHarbor() != 0) {
+                    //Creating Symbols and Tooltips for harbors.
+                    double harborSymbolSize = 25.0;
+                    ImagePattern harborTexture = new ImagePattern(new Image("textures/hafen.png"));
+                    Rectangle harborSymbol = new Rectangle(mapGraphNodeContainer.getCircle().getLayoutX() - harborSymbolSize / 2, mapGraphNodeContainer.getCircle().getLayoutY() - harborSymbolSize, harborSymbolSize, harborSymbolSize);
+                    harborSymbol.setFill(harborTexture);
+
+                    gameAnchorPane.getChildren().add(harborSymbol);
+                    harborSymbol.toFront();
+
+                    Tooltip tooltip = new Tooltip("");
+
+                    switch (buildingNode.getTypeOfHarbor()) {
+                        case 1:
+                            tooltip.setText("2:1\n Sheep");
+                            Tooltip.install(harborSymbol, tooltip);
+                            tooltip.setShowDelay(Duration.millis(100));
+                            break;
+                        case 2:
+                            tooltip.setText("2:1\n Clay");
+                            Tooltip.install(harborSymbol, tooltip);
+                            tooltip.setShowDelay(Duration.millis(100));
+                            break;
+                        case 3:
+                            tooltip.setText("2:1\n Wood");
+                            Tooltip.install(harborSymbol, tooltip);
+                            tooltip.setShowDelay(Duration.millis(100));
+                            break;
+                        case 4:
+                            tooltip.setText("2:1\n Grain");
+                            Tooltip.install(harborSymbol, tooltip);
+                            tooltip.setShowDelay(Duration.millis(100));
+                            break;
+                        case 5:
+                            tooltip.setText("2:1\n Ore");
+                            Tooltip.install(harborSymbol, tooltip);
+                            tooltip.setShowDelay(Duration.millis(100));
+                            break;
+                        case 6:
+                            tooltip.setText("3:1\n Any");
+                            Tooltip.install(harborSymbol, tooltip);
+                            tooltip.setShowDelay(Duration.millis(100));
+                            break;
+                    }
+
+                }
             } else {
                 double itemSize = cardSize() / 15;
                 MapGraph.StreetNode streetNode = (MapGraph.StreetNode) mapGraphNodeContainer.getMapGraphNode();
