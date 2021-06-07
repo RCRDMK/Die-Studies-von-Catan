@@ -196,6 +196,9 @@ public class Inventory implements Serializable {
 
         HashMap<String, Integer> publicInventory = new HashMap<>();
 
+        if (victoryPoints < cardVictoryPoint) publicInventory.put("Public Victory Points", 0);
+        else publicInventory.put("Public Victory Points", victoryPoints - cardVictoryPoint);
+
         publicInventory.put("Resource", sumResource());
         publicInventory.put("Development Cards", sumDevelopmentCards());
 
@@ -208,8 +211,7 @@ public class Inventory implements Serializable {
         if (longestRoad) publicInventory.put("Longest Road", 1);
         else publicInventory.put("Longest Road", 0);
 
-        if (victoryPoints < cardVictoryPoint) publicInventory.put("Public Victory Points", 0);
-        else publicInventory.put("Public Victory Points", victoryPoints - cardVictoryPoint);
+
 
         return publicInventory;
     }

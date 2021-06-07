@@ -214,4 +214,21 @@ public interface Lobby extends Serializable {
      */
     int getMinimumAmountOfPlayers();
 
+    /**
+     * Getter for the boolean value if the lobby will be used for test purposes
+     *
+     * @return true if used for test, false if not
+     * @author Marc Hermes
+     * @since 2021-06-06
+     */
+    boolean isUsedForTest();
+
+    /**
+     * Setter for the boolean value isUsedForTest
+     *
+     * @param value the value to set isUsedForTest to
+     * @author Marc Hermes
+     * @since 2021-06-06
+     */
+    void setUsedForTest(boolean value);
 }

@@ -5,6 +5,7 @@ import de.uol.swp.common.user.UserDTO;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Set;
 
 /**
  * Message send to all users, when an inventory is updated
@@ -31,13 +32,14 @@ public class PublicInventoryChangeMessage extends AbstractGameMessage {
     }
 
     /**
-     * Getter for the hashMap of publicInventories
+     * Getter for the arrayList of publicInventories
      *
-     * @return the HashMap representing the public View of the user
+     * @return the ArrayList representing the public View of the user
      * @author Iskander Yusupov
      * @since 2021-05-16
      */
     public ArrayList<HashMap<String, Integer>> getPublicInventories() {
         return publicInventories;
     }
+
 }
