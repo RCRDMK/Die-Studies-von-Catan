@@ -48,7 +48,24 @@ class LobbyDTOTest {
         assertEquals(lobby.getName(), "test");
         assertEquals(lobby.getUsers().size(), 1);
         assertEquals(lobby.getUsers().iterator().next(), defaultUser);
+    }
 
+    /**
+     * This test check whether a protected lobby is created correctly
+     * <p>
+     * If the variables are not set correctly the test fails
+     *
+     * @author René Meyer
+     * @since 2021-06-05
+     */
+    @Test
+    void createProtectedLobbyTest() {
+        Lobby lobby = new LobbyDTO("test", defaultUser);
+        lobby.setPassword("testPw");
+        assertEquals(lobby.getName(), "test");
+        assertEquals(lobby.getUsers().size(), 1);
+        assertEquals(lobby.getUsers().iterator().next(), defaultUser);
+        assertEquals(lobby.getPasswordHash(), "testPw".hashCode());
     }
 
     /**

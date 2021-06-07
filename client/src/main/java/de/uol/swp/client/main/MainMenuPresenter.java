@@ -28,15 +28,13 @@ import de.uol.swp.common.user.response.AllOnlineUsersResponse;
 import de.uol.swp.common.user.response.LoginSuccessfulResponse;
 import de.uol.swp.common.user.response.lobby.JoinDeletedLobbyResponse;
 import de.uol.swp.common.user.response.lobby.LobbyFullResponse;
+import de.uol.swp.common.user.response.lobby.WrongLobbyPasswordResponse;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -69,6 +67,11 @@ public class MainMenuPresenter extends AbstractPresenter {
     private User loggedInUser;
 
     @FXML
+    CheckBox passwordCheckBox;
+    @FXML
+    private PasswordField lobbyPasswordField;
+
+    @FXML
     private TextArea textArea;
 
     @FXML
@@ -97,7 +100,6 @@ public class MainMenuPresenter extends AbstractPresenter {
 
     @FXML
     private ListView<LobbyDTO> lobbiesView;
-
 
 
     /**
@@ -329,6 +331,33 @@ public class MainMenuPresenter extends AbstractPresenter {
     }
 
     /**
+     * Method called when a WrongLobbyPasswordResponse was detected on the eventBus.
+     * <p>
+     * If a WrongLobbyPasswordResponse was posted on the eventBus, this method will let the User know the lobby password is wrong
+     * showing a new popup with the error message. This action will also be logged.
+     *
+     * @param response the WrongLobbyPasswordResponse that was detected on the eventBus
+     * @author René Meyer
+     * @see de.uol.swp.common.user.response.lobby.WrongLobbyPasswordResponse
+     * @since 2020-06-05
+     */
+    @Subscribe
+    public void onWrongLobbyPasswordResponse(WrongLobbyPasswordResponse response) {
+        onWrongPasswordResponseLogic(response);
+    }
+
+    public void onWrongPasswordResponseLogic(WrongLobbyPasswordResponse lfr) {
+        LOG.debug("Can't join lobby " + lfr.getLobbyName() + " because the lobby password is wrong.");
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error Dialog");
+            alert.setHeaderText("Wrong password");
+            alert.setContentText("Please make sure to enter the correct password!");
+            alert.showAndWait();
+        });
+    }
+
+    /**
      * Method called when an AlreadyJoinedThisLobbyResponse was posted on the eventBus.
      * <p>
      * If an AlreadyJoinedThisLobbyResponse was posted on the eventBus, this method will remember the User , that
@@ -477,6 +506,7 @@ public class MainMenuPresenter extends AbstractPresenter {
      * these, the lobbyNameInvalid shows up and asks for a new name. It also works with vowel mutation.
      * <p>
      * Enhanced by Marius Birk and Carsten Dekker, 2020-02-12
+     * Enhanced by René Meyer for the support of password protected lobbies, 2021-06-05
      *
      * @param event The ActionEvent created by pressing the create lobby button
      * @author Marco Grawunder
@@ -490,11 +520,20 @@ public class MainMenuPresenter extends AbstractPresenter {
             lobbyNameInvalid.setVisible(true);
             lobbyAlreadyExistsLabel.setVisible(false);
         } else {
+            // If pw provided
             lobbyNameInvalid.setVisible(false);
             lobbyAlreadyExistsLabel.setVisible(false);
-            lobbyService.createNewLobby(lobbyNameTextField.getText(), (UserDTO) this.loggedInUser);
+            if (passwordCheckBox.isSelected() && !lobbyPasswordField.getText().isEmpty()) {
+                lobbyService.createNewProtectedLobby(lobbyNameTextField.getText(), (UserDTO) this.loggedInUser, lobbyPasswordField.getText());
+            } else {
+                // lobby without pw
+                lobbyService.createNewLobby(lobbyNameTextField.getText(), (UserDTO) this.loggedInUser);
+            }
         }
         lobbyNameTextField.clear();
+        lobbyPasswordField.clear();
+        passwordCheckBox.setSelected(false);
+        lobbyPasswordField.setVisible(false);
     }
 
     @FXML
@@ -603,4 +642,20 @@ public class MainMenuPresenter extends AbstractPresenter {
         lobbyService.retrieveAllLobbies();
     }
 
+    /**
+     * Action event for the passwordCheckBox
+     * <p>
+     * Triggers the lobbyPasswordField Visibility depending on the checkBox State.
+     *
+     * @param actionEvent
+     * @author René Meyer
+     * @since 2021-06-05
+     */
+    public void onLobbyPw(ActionEvent actionEvent) {
+        if (passwordCheckBox.isSelected()) {
+            this.lobbyPasswordField.setVisible(true);
+        } else {
+            this.lobbyPasswordField.setVisible(false);
+        }
+    }
 }

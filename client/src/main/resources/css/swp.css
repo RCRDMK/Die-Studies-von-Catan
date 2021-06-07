@@ -20,6 +20,10 @@
     -fx-text-fill: #ffffff;
 }
 
+.error-label {
+    -fx-text-fill: red !important;
+}
+
 .list-view{
     -fx-border-width: 6px;
 }
