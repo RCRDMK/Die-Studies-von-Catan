@@ -1384,9 +1384,8 @@ public class GamePresenter extends AbstractPresenter {
                 circle.setVisible(false);
 
                 circle.setFill(Color.color(0.5, 0.5, 0.5));
-                //0 = no harbor, 1 = 2:1 Sheep, 2 = 2:1 Clay, 3 = 2:1 Wood, 4 = 2:1 Grain, 5 = 2:1 Ore, 6 = 3:1 Any
                 if (buildingNode.getTypeOfHarbor() != 0) {
-
+                    //Creating Symbols and Tooltips for harbors.
                     double harborSymbolSize = 25.0;
                     ImagePattern harborTexture = new ImagePattern(new Image("textures/hafen.png"));
                     Rectangle harborSymbol = new Rectangle(mapGraphNodeContainer.getCircle().getLayoutX() - harborSymbolSize / 2, mapGraphNodeContainer.getCircle().getLayoutY() - harborSymbolSize, harborSymbolSize, harborSymbolSize);
