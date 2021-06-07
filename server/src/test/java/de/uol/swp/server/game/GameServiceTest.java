@@ -10,7 +10,6 @@ import de.uol.swp.common.game.message.*;
 import de.uol.swp.common.game.MapGraph;
 import de.uol.swp.common.game.request.*;
 import de.uol.swp.common.game.response.AllCreatedGamesResponse;
-import de.uol.swp.common.game.response.NotLobbyOwnerResponse;
 import de.uol.swp.common.game.response.PlayDevelopmentCardResponse;
 import de.uol.swp.common.game.response.ResolveDevelopmentCardNotSuccessfulResponse;
 import de.uol.swp.common.game.trade.Trade;
@@ -21,10 +20,6 @@ import de.uol.swp.common.message.MessageContext;
 import de.uol.swp.common.message.ResponseMessage;
 import de.uol.swp.common.message.ServerMessage;
 import de.uol.swp.common.lobby.request.JoinOnGoingGameRequest;
-import de.uol.swp.common.lobby.response.JoinOnGoingGameResponse;
-import de.uol.swp.common.message.MessageContext;
-import de.uol.swp.common.message.ResponseMessage;
-import de.uol.swp.common.message.ServerMessage;
 import de.uol.swp.common.user.Session;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
@@ -40,7 +35,6 @@ import de.uol.swp.server.usermanagement.AuthenticationService;
 import de.uol.swp.server.usermanagement.UserManagement;
 import de.uol.swp.server.usermanagement.UserService;
 import de.uol.swp.server.usermanagement.store.MainMemoryBasedUserStore;
-import org.checkerframework.checker.nullness.Opt;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -2046,4 +2040,36 @@ public class GameServiceTest {
         gameService.onStartGameRequest(sgr);
     }
 
+
+    /**
+     * Method used for testing all functionality of the random AI
+     * <p>
+     * To do this, create a game with 4 players and forcefully remove the last human player from the game.
+     * Now the AI will continue to play for 200 turns. (Because currently the game doesn't really end yet)
+     *
+     * @author Marc Hermes
+     * @since 2021-06-06
+     */
+    @Test
+    void fourRandomAIsPlayGame() {
+        loginUsers();
+        lobbyManagement.createLobby("test", userDTO);
+        Optional<Lobby> optionalLobby = lobbyManagement.getLobby("test");
+        assertTrue(optionalLobby.isPresent());
+        Lobby lobby = optionalLobby.get();
+        lobby.setMinimumAmountOfPlayers(4);
+        lobby.joinPlayerReady(userDTO);
+        gameService.startGame(lobby, "Standard");
+        Optional<Game> optionalGame = gameManagement.getGame("test");
+        assertTrue(optionalGame.isPresent());
+        Game game = optionalGame.get();
+
+        game.removeUserForTest(userDTO);
+
+        buildStreetAndBuildingForOpeningTurn(game);
+
+        assertEquals(game.getOverallTurns(), 200);
+        assertTrue(event instanceof PublicInventoryChangeMessage);
+
+    }
 }
