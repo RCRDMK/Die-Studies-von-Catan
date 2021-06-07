@@ -284,7 +284,7 @@ public class GameServiceTest {
         assertFalse(gameManagement.getGame(lobby.getName()).isPresent());
     }
 
-    /**
+    /* //TODO: This test needs to be reactivated after the dependencies to obsolete classes had been fixed
      * This test checks if the distributeResource method works as intended.
      * <p>
      * We create a new gameService and we create a new game. After that we assert that, the game is present and we join some user to the game.
@@ -293,11 +293,7 @@ public class GameServiceTest {
      *
      * @author Marius Birk, Carsten Dekker
      * @since 2021-04-06
-     */
-    /*
-    @Test
-
-    //TODO: This test needs to be reactivated after the dependencies to obsolete classes had been fixed
+     *
    @Test
     void onDistributeResourcesTest() {
         GameService gameService1 = new GameService(gameManagement, lobbyService, authenticationService, bus);
@@ -318,7 +314,7 @@ public class GameServiceTest {
 
         assertEquals(game.get().getInventory(userDTO).lumber.getNumber(), 1);
         assertEquals(game.get().getInventory(userDTO).grain.getNumber(), 1);
-    }*/
+    } */
 
     /**
      * This test checks if the trading mechanism works properly.
@@ -1296,11 +1292,9 @@ public class GameServiceTest {
         Lobby lobby = optionalLobby.get();
         lobby.joinUser(userDTO1);
         lobby.joinUser(userDTO2);
-        lobby.joinUser(userDTO3);
         lobby.joinPlayerReady(userDTO);
         lobby.joinPlayerReady(userDTO1);
         lobby.joinPlayerReady(userDTO2);
-        lobby.joinPlayerReady(userDTO3);
         gameService.startGame(lobby, "Standard");
         Optional<Game> optionalGame = gameManagement.getGame("test");
         assertTrue(optionalGame.isPresent());
@@ -1308,7 +1302,6 @@ public class GameServiceTest {
 
         game.joinUser(userDTO1);
         game.joinUser(userDTO2);
-        game.joinUser(userDTO3);
 
         Inventory bank = game.getBankInventory();
 
@@ -1489,6 +1482,8 @@ public class GameServiceTest {
 
         assertTrue(game.getInventory(userDTO).isLargestArmy());
 
+        assertEquals(2, game.getInventory(userDTO).getVictoryPoints());
+
         EndTurnRequest endTurnRequest = new EndTurnRequest(game.getName(), userDTO);
 
         gameService.onEndTurnRequest(endTurnRequest);
@@ -1529,7 +1524,107 @@ public class GameServiceTest {
 
         gameService.onResolveDevelopmentCardRequest(resolveDevelopmentCardKnightRequest2);
 
+        assertFalse(game.getInventory(userDTO).isLargestArmy());
+
+        assertEquals(0, game.getInventory(userDTO).getVictoryPoints());
+
         assertTrue(game.getInventory(userDTO1).isLargestArmy());
+
+        assertEquals(2, game.getInventory(userDTO1).getVictoryPoints());
+    }
+
+    /**
+     * This test checks if the onBankRequest and onBankBuyRequest method works as intended
+     * <p>
+     * First this method logs the owner in and creates a game.
+     * Than its set up the inventories for the test.
+     * Than its tests a successful Bank Request and checks the result
+     * Than its tests a successful Bank Buy Request and checks the result
+     * Than its tests a not successful Bank Request and checks the result
+     *
+     * @author Anton Nikiforov
+     * @since 2021-04-26
+     */
+    @Test
+    void onBankRequestAndBankBuyRequestTest() {
+        loginUsers();
+
+        lobbyManagement.createLobby("test", userDTO);
+        Optional<Lobby> optionalLobby = lobbyManagement.getLobby("test");
+        assertTrue(optionalLobby.isPresent());
+        Lobby lobby = optionalLobby.get();
+
+        lobby.joinPlayerReady(userDTO);
+
+        gameService.startGame(lobby, "Standard");
+        Optional<Game> optionalGame = gameManagement.getGame("test");
+        assertTrue(optionalGame.isPresent());
+        Game game = optionalGame.get();
+
+        game.getBankInventory().lumber.setNumber(1);
+        game.getBankInventory().brick.decNumber(4);
+        game.getInventory(userDTO).brick.incNumber(4);
+
+        // Bank Request successful
+        gameService.onBankRequest(new BankRequest("test", userDTO, "", "Lumber"));
+
+        assertTrue(event instanceof BankResponseMessage);
+        var bankOffer = ((BankResponseMessage) event).getBankOffer();
+
+        assertEquals(bankOffer.size(), 4);
+
+        assertFalse(bankOffer.get(0).get(0).isNotEnough());
+        assertEquals(bankOffer.get(0).get(0).getCount(), 0);
+        assertEquals(bankOffer.get(0).get(1).getCount(), 4);
+        assertEquals(bankOffer.get(0).get(2).getCount(), 0);
+        assertEquals(bankOffer.get(0).get(3).getCount(), 0);
+        assertEquals(bankOffer.get(0).get(4).getCount(), 0);
+
+        assertTrue(bankOffer.get(1).get(0).isNotEnough());
+        assertEquals(bankOffer.get(1).get(0).getCount(), 0);
+        assertEquals(bankOffer.get(1).get(1).getCount(), 0);
+        assertEquals(bankOffer.get(1).get(2).getCount(), 4);
+        assertEquals(bankOffer.get(1).get(3).getCount(), 0);
+        assertEquals(bankOffer.get(1).get(4).getCount(), 0);
+
+        assertTrue(bankOffer.get(2).get(0).isNotEnough());
+        assertEquals(bankOffer.get(2).get(0).getCount(), 0);
+        assertEquals(bankOffer.get(2).get(1).getCount(), 0);
+        assertEquals(bankOffer.get(2).get(2).getCount(), 0);
+        assertEquals(bankOffer.get(2).get(3).getCount(), 4);
+        assertEquals(bankOffer.get(2).get(4).getCount(), 0);
+
+        assertTrue(bankOffer.get(3).get(0).isNotEnough());
+        assertEquals(bankOffer.get(3).get(0).getCount(), 0);
+        assertEquals(bankOffer.get(3).get(1).getCount(), 0);
+        assertEquals(bankOffer.get(3).get(2).getCount(), 0);
+        assertEquals(bankOffer.get(3).get(3).getCount(), 0);
+        assertEquals(bankOffer.get(3).get(4).getCount(), 4);
+
+
+        // Bank Buy Request successful
+        assertEquals(game.getBankInventory().lumber.getNumber(), 1);
+        assertEquals(game.getBankInventory().brick.getNumber(), 15);
+        assertEquals(game.getInventory(userDTO).lumber.getNumber(), 0);
+        assertEquals(game.getInventory(userDTO).brick.getNumber(), 4);
+
+        gameService.onBankBuyRequest(new BankBuyRequest("test", userDTO, "", "Lumber", bankOffer.get(0)));
+
+        assertEquals(game.getBankInventory().lumber.getNumber(), 0);
+        assertEquals(game.getBankInventory().brick.getNumber(), 19);
+        assertEquals(game.getInventory(userDTO).lumber.getNumber(), 1);
+        assertEquals(game.getInventory(userDTO).brick.getNumber(), 0);
+
+
+        // Bank Request not successful
+        assertEquals(game.getBankInventory().lumber.getNumber(), 0);
+
+        gameService.onBankRequest(new BankRequest("test", userDTO, "", "Lumber"));
+
+        assertTrue(event instanceof BankResponseMessage);
+        bankOffer = ((BankResponseMessage) event).getBankOffer();
+
+        assertEquals(bankOffer.size(), 0);
     }
 
     /**
