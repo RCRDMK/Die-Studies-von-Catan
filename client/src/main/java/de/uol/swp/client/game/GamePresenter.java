@@ -1386,35 +1386,49 @@ public class GamePresenter extends AbstractPresenter {
                 circle.setFill(Color.color(0.5, 0.5, 0.5));
                 //0 = no harbor, 1 = 2:1 Sheep, 2 = 2:1 Clay, 3 = 2:1 Wood, 4 = 2:1 Grain, 5 = 2:1 Ore, 6 = 3:1 Any
                 if (buildingNode.getTypeOfHarbor() != 0) {
-                    Text text = new Text();
-                    switch (buildingNode.getTypeOfHarbor()) {
-                        case 1:
-                            text.setText("Sheep");
-                        case 2:
-                            text.setText("Clay");
-                        case 3:
-                            text.setText("Wood");
-                        case 4:
-                            text.setText("Grain");
-                        case 5:
-                            text.setText("Ore");
-                        case 6:
-                            text.setText("Any");
-                    }
-                    text.setFill(Color.BLACK);
-                    text.setStroke(Color.WHITE);
 
                     double harborSymbolSize = 25.0;
                     ImagePattern harborTexture = new ImagePattern(new Image("textures/hafen.png"));
                     Rectangle harborSymbol = new Rectangle(mapGraphNodeContainer.getCircle().getLayoutX() - harborSymbolSize / 2, mapGraphNodeContainer.getCircle().getLayoutY() - harborSymbolSize, harborSymbolSize, harborSymbolSize);
-                    text.setX(harborSymbol.getLayoutX() - harborSymbolSize / 2);
-                    text.setY(harborSymbol.getLayoutY() - harborSymbolSize);
                     harborSymbol.setFill(harborTexture);
 
                     gameAnchorPane.getChildren().add(harborSymbol);
                     harborSymbol.toFront();
-                    gameAnchorPane.getChildren().add(text);
-                    text.toFront();
+
+                    Tooltip tooltip = new Tooltip("");
+
+                    switch (buildingNode.getTypeOfHarbor()) {
+                        case 1:
+                            tooltip.setText("2:1\n Sheep");
+                            Tooltip.install(harborSymbol, tooltip);
+                            tooltip.setShowDelay(Duration.millis(100));
+                            break;
+                        case 2:
+                            tooltip.setText("2:1\n Clay");
+                            Tooltip.install(harborSymbol, tooltip);
+                            tooltip.setShowDelay(Duration.millis(100));
+                            break;
+                        case 3:
+                            tooltip.setText("2:1\n Wood");
+                            Tooltip.install(harborSymbol, tooltip);
+                            tooltip.setShowDelay(Duration.millis(100));
+                            break;
+                        case 4:
+                            tooltip.setText("2:1\n Grain");
+                            Tooltip.install(harborSymbol, tooltip);
+                            tooltip.setShowDelay(Duration.millis(100));
+                            break;
+                        case 5:
+                            tooltip.setText("2:1\n Ore");
+                            Tooltip.install(harborSymbol, tooltip);
+                            tooltip.setShowDelay(Duration.millis(100));
+                            break;
+                        case 6:
+                            tooltip.setText("3:1\n Any");
+                            Tooltip.install(harborSymbol, tooltip);
+                            tooltip.setShowDelay(Duration.millis(100));
+                            break;
+                    }
 
                 }
             } else {
