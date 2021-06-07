@@ -225,7 +225,6 @@ public class GameService extends AbstractService {
                                                 && game.getMapGraph().getNumOfRoads()[playerIndex] == game.getMapGraph().getNumOfBuildings()[playerIndex]) {
                                             endTurn(game, message.getUser());
                                         }
-
                                         inventory.road.decNumber();
                                         updateInventory(game);
                                         return true;
@@ -1218,7 +1217,8 @@ public class GameService extends AbstractService {
      * <p>
      * This method gets invoked by the onResolveDevelopmentCardRequest method and creates an ArrayList with all user
      * inventories from the right game. With the given inventories this method evaluates, who gets the largest army
-     * card.
+     * card. It also takes 2 victory points from the previous owner and adds 2 victory points to the new owner of
+     * the largest army card.
      *
      * @param game current game that is played
      * @author Carsten Dekker
@@ -1228,12 +1228,15 @@ public class GameService extends AbstractService {
         if (game.getInventoryWithLargestArmy() == null && game.getInventory(game.getUser(game.getTurn())).getPlayedKnights() > 2) {
             game.getInventory(game.getUser(game.getTurn())).setLargestArmy(true);
             game.setInventoryWithLargestArmy(game.getInventory(game.getUser(game.getTurn())));
+            game.getInventoryWithLargestArmy().setVictoryPoints(game.getInventoryWithLargestArmy().getVictoryPoints() + 2);
         } else if (game.getInventoryWithLargestArmy() != null) {
             if (game.getInventory(game.getUser(game.getTurn())).getPlayedKnights() > game.getInventoryWithLargestArmy().getPlayedKnights()) {
                 if (!game.getUser(game.getTurn()).equals(game.getInventoryWithLargestArmy().getUser()))
                     game.getInventoryWithLargestArmy().setLargestArmy(false);
+                game.getInventoryWithLargestArmy().setVictoryPoints(game.getInventoryWithLargestArmy().getVictoryPoints() - 2);
                 game.setInventoryWithLargestArmy(game.getInventory(game.getUser(game.getTurn())));
                 game.getInventoryWithLargestArmy().setLargestArmy(true);
+                game.getInventoryWithLargestArmy().setVictoryPoints(game.getInventoryWithLargestArmy().getVictoryPoints() + 2);
             }
         }
     }
