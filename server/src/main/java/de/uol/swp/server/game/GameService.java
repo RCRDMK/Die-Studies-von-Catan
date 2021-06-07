@@ -1229,7 +1229,8 @@ public class GameService extends AbstractService {
      * <p>
      * This method gets invoked by the onResolveDevelopmentCardRequest method and creates an ArrayList with all user
      * inventories from the right game. With the given inventories this method evaluates, who gets the largest army
-     * card.
+     * card. It also takes 2 victory points from the previous owner and adds 2 victory points to the new owner of
+     * the largest army card.
      *
      * @param game current game that is played
      * @author Carsten Dekker
@@ -1239,12 +1240,15 @@ public class GameService extends AbstractService {
         if (game.getInventoryWithLargestArmy() == null && game.getInventory(game.getUser(game.getTurn())).getPlayedKnights() > 2) {
             game.getInventory(game.getUser(game.getTurn())).setLargestArmy(true);
             game.setInventoryWithLargestArmy(game.getInventory(game.getUser(game.getTurn())));
+            game.getInventoryWithLargestArmy().setVictoryPoints(game.getInventoryWithLargestArmy().getVictoryPoints() + 2);
         } else if (game.getInventoryWithLargestArmy() != null) {
             if (game.getInventory(game.getUser(game.getTurn())).getPlayedKnights() > game.getInventoryWithLargestArmy().getPlayedKnights()) {
                 if (!game.getUser(game.getTurn()).equals(game.getInventoryWithLargestArmy().getUser()))
                     game.getInventoryWithLargestArmy().setLargestArmy(false);
+                game.getInventoryWithLargestArmy().setVictoryPoints(game.getInventoryWithLargestArmy().getVictoryPoints() - 2);
                 game.setInventoryWithLargestArmy(game.getInventory(game.getUser(game.getTurn())));
                 game.getInventoryWithLargestArmy().setLargestArmy(true);
+                game.getInventoryWithLargestArmy().setVictoryPoints(game.getInventoryWithLargestArmy().getVictoryPoints() + 2);
             }
         }
     }
@@ -1650,7 +1654,7 @@ public class GameService extends AbstractService {
     }
 
     /**
-     * Helper method to build one offer
+     * Helper method to build an offer
      * <p>
      * It takes the parameters and build with it an offer
      *
@@ -1675,13 +1679,12 @@ public class GameService extends AbstractService {
      * Handles BankBuyRequest found on the EventBus
      * <p>
      * handles the sale
-     * send a chad massage if success
-     * and ends the tab
+     * sends a chad massage if successful
+     * and closes the trade tab
      *
      * @param request BankBuyRequest
      * @author Anton Nikiforov
      * @see TradeItem
-     * @see BankResponseMessage
      * @since 2021-05-29
      */
     @Subscribe
