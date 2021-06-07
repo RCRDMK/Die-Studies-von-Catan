@@ -21,6 +21,12 @@ import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Test class for the UserService
+ *
+ * @author Carsten Dekker
+ * @since 2021-06-06
+ */
 @SuppressWarnings("UnstableApiUsage")
 class UserServiceTest {
 
