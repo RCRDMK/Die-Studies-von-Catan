@@ -2376,9 +2376,9 @@ public class GamePresenter extends AbstractPresenter {
     /**
      * Updates the publicInventoryViews according to the Arraylists given
      * <p>
-     * This method clears each publicInventory (ObservableList) and then adds the names of users and
-     * contents of public inventories in each publicInventory(1-4).
      * If there is no publicInventory (ObservableList), method creates one.
+     * Also creates PublicInventoryCells depending on current number of players in game.
+     * Manages visibility of public inventory ListViews in GameView.
      *
      * @implNote The code inside this Method has to run in the JavaFX-application thread. Therefore it is crucial not to
      * remove the {@code Platform.runLater()}
@@ -2407,25 +2407,38 @@ public class GamePresenter extends AbstractPresenter {
                 publicInventory4View.setItems(publicInventory4);
                 publicInventory4View.setVisible(true);
             }
-            initializePublicInventory(publicInventory1, publicInventoriesList.get(0));
+            fillInPublicInventory(publicInventory1, publicInventoriesList.get(0));
             publicInventory1View.setCellFactory(y -> new PublicInventoryCell(publicInventoriesList.get(0)));
-            initializePublicInventory(publicInventory2, publicInventoriesList.get(1));
+            fillInPublicInventory(publicInventory2, publicInventoriesList.get(1));
             publicInventory2View.setCellFactory(y -> new PublicInventoryCell(publicInventoriesList.get(1)));
             if (gameUsers.size() > 2) {
-                initializePublicInventory(publicInventory3, publicInventoriesList.get(2));
+                fillInPublicInventory(publicInventory3, publicInventoriesList.get(2));
                 publicInventory3View.setCellFactory(y -> new PublicInventoryCell(publicInventoriesList.get(2)));
                 publicInventory3View.setVisible(true);
             }
             if (gameUsers.size() > 3) {
-                initializePublicInventory(publicInventory4, publicInventoriesList.get(3));
+                fillInPublicInventory(publicInventory4, publicInventoriesList.get(3));
                 publicInventory4View.setCellFactory(y -> new PublicInventoryCell(publicInventoriesList.get(3)));
                 publicInventory4View.setVisible(true);
             }
         });
     }
 
+    /**
+     * This method clears hashMapEntriesList (public Inventory Observable List) and then adds the
+     * <p>
+     * contents of public inventory from hashmap in each publicInventory(1-4), using switch-case.
+     * <p>
+     * Manages visibility of longest road and largest army cards in the GameView.
+     *
+     * @param hashMapEntriesList
+     * @param hashMap
+     * @author Iskander Yusupov
+     * @see de.uol.swp.common.game.inventory.Inventory
+     * @since 2021-06-02
+     */
 
-    public void initializePublicInventory(ObservableList<HashMap.Entry<String, Integer>> hashMapEntriesList, HashMap<String, Integer> hashMap) {
+    public void fillInPublicInventory(ObservableList<HashMap.Entry<String, Integer>> hashMapEntriesList, HashMap<String, Integer> hashMap) {
         hashMapEntriesList.clear();
         hashMapEntriesList.add(null);
         hashMapEntriesList.add(null);
@@ -2505,7 +2518,23 @@ public class GamePresenter extends AbstractPresenter {
         }
     }
 
-
+    /**
+     * The method gets invoked when the Game Presenter is created.
+     * <p>
+     * This method creates two imagePatterns. Then it creates and fills rectangleLargestArmy and
+     * rectangleLongestRoad with corresponding ImagePattern.
+     * <p>
+     * Both rectangles are added to the corresponding Panes
+     * <p>
+     * After this, hover and exit methods are being executed. When the user is entering the rectangle
+     * of a card, a tooltip, with what the card under the mouse cursor represents, appear. If the user clicks
+     * on the card, the onClickOnDevelopmentCard method gets executed and the user can read and close window with card image.
+     * <p>
+     * Lastly it adds rectangles in the corresponding FXML Panes, depending on number of players in game
+     *
+     * @author Iskander Yusupov
+     * @since 2021-06-05
+     */
     private void setUpLargestArmyAndLongestRoadPanes(ArrayList<User> list) {
         for (int i = 0; i < list.size(); i++) {
             Image imageLargestArmy = new Image("textures/inventory/ACHVMNT_GroessteRittermacht.png");
@@ -2930,7 +2959,7 @@ public class GamePresenter extends AbstractPresenter {
 
                     r.setOnMouseClicked(new EventHandler<>() {
                         final String title = hover.getText();
-                        final String description = "The Year of Plenty development car. With this card played out, you can build wo roads this turn free of charge";
+                        final String description = "The Year of Plenty development car. With this card played out, you can build two roads this turn free of charge";
                         final Boolean isDevelopmentCard = true;
 
                         @Override
@@ -2957,9 +2986,9 @@ public class GamePresenter extends AbstractPresenter {
                     hover.setShowDelay(Duration.millis(0));
 
                     r.setOnMouseClicked(new EventHandler<MouseEvent>() {
-                       final String title = hover.getText();
-                       final String description = "You can build these to get resources from tiles";
-                       final Boolean isDevelopmentCard = false;
+                        final String title = hover.getText();
+                        final String description = "You can build these to get resources from tiles";
+                        final Boolean isDevelopmentCard = false;
 
                         @Override
                         public void handle(MouseEvent mouseEvent) {

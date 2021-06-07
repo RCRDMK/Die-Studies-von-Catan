@@ -8,6 +8,15 @@ import javafx.scene.layout.Priority;
 
 import java.util.HashMap;
 
+/**
+ * Creates PublicInventoryCells to populate the ListView fxml-element with information
+ * <p>
+ * about  content in the public inventories in game.
+ *
+ * @author Iskander Yusupov
+ * @see de.uol.swp.client.AbstractPresenter
+ * @since 2021-05-28
+ */
 
 public class PublicInventoryCell extends ListCell<HashMap.Entry<String, Integer>> {
     HBox hbox = new HBox();
@@ -15,12 +24,25 @@ public class PublicInventoryCell extends ListCell<HashMap.Entry<String, Integer>
     Pane pane1 = new Pane();
     HashMap<String, Integer> publicInventory;
 
+    /**
+     * Constructor for the Cells
+     * <p>
+     * If the Constructor is invoked, the Cell-Element is created.
+     * It shows amount of public victory points, resources, development cards,
+     * total amount of played knight during the game, and current longest continuos road.
+     *
+     * @param publicInventory
+     * @author Iskander Yusupov
+     * @see de.uol.swp.client.game.GamePresenter
+     * @since 2021-05-28
+     */
     public PublicInventoryCell(HashMap<String, Integer> publicInventory) {
         super();
         this.publicInventory = publicInventory;
         hbox.getChildren().addAll(inventoryEntry, pane1);
         HBox.setHgrow(pane1, Priority.ALWAYS);
     }
+
     @Override
     protected void updateItem(HashMap.Entry<String, Integer> item, boolean empty) {
         super.updateItem(item, empty);

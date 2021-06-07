@@ -146,6 +146,8 @@ public class GameService extends AbstractService {
 
     /**
      * Handles incoming build requests.
+     * Sets continuos road and checks for the longest road.
+     * enhanced by Iskander Yusupov, since 06-06-2021
      *
      * @param message Contains the data needed to change the mapGraph
      * @author Pieter Vogt
@@ -1258,7 +1260,7 @@ public class GameService extends AbstractService {
      * <p>
      * This method gets invoked by the onConstructionMessage method and creates an ArrayList with all user
      * inventories from the right game. With the given inventories this method evaluates, who gets the longest road
-     * card.
+     * card, or who looses the longest road card, if road is interrupted by other player.
      *
      * @param game current game that is played
      * @author Iskander Yusupov
