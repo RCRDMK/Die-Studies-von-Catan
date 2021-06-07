@@ -1031,7 +1031,7 @@ public class GamePresenter extends AbstractPresenter {
     @Subscribe
     public void nextPlayerTurn(NextTurnMessage response) {
         if (response.getGameName().equals(currentLobby)) {
-            String text = "is on";
+            String text = "is on turn";
             LOG.debug("Updated game Event Log area with new message");
             updateEventLogLogic(text, response.getPlayerWithCurrentTurn());
             rolledDice = false;
@@ -2073,9 +2073,9 @@ public class GamePresenter extends AbstractPresenter {
     @Subscribe
     public void onRollDiceResultMessage(RollDiceResultMessage message) {
         if (this.currentLobby != null) {
-            String text = "rolled a " + message.getDiceEyes1() + " and a " + message.getDiceEyes2();
+            String text = message.getDiceEyes1() + " and a " + message.getDiceEyes2() + " was rolled";
             LOG.debug("Updated game Event Log area with new message");
-            updateEventLogLogic(text, message.getUser().getUsername());
+            updateEventLogLogic(text, "A");
             if (message.getName().equals(currentLobby)) {
                 shuffleTheDice(message.getDiceEyes1(), message.getDiceEyes2());
             }
@@ -2143,16 +2143,16 @@ public class GamePresenter extends AbstractPresenter {
                 if (message.getTypeOfNode().equals("BuildingNode")) {
                     MapGraph.BuildingNode buildingNode = (MapGraph.BuildingNode) mapGraphNodeContainer.getMapGraphNode();
                     if (buildingNode.getSizeOfSettlement() == 1) {
-                                String text = "developed a Settlement";
-                                LOG.debug("Updated game Event Log area with new message");
-                                updateEventLogLogic(text, message.getUser().getUsername());
-                            } else {
-                                String text = "build a Settlement";
-                                LOG.debug("Updated game Event Log area with new message");
-                                updateEventLogLogic(text, message.getUser().getUsername());
-                            }
-                            buildingNode.setOccupiedByPlayer(message.getPlayerIndex());
-                            buildingNode.incSizeOfSettlement();
+                        String text = "developed a Settlement";
+                        LOG.debug("Updated game Event Log area with new message");
+                        updateEventLogLogic(text, message.getUser().getUsername());
+                    } else {
+                        String text = "build a Settlement";
+                        LOG.debug("Updated game Event Log area with new message");
+                        updateEventLogLogic(text, message.getUser().getUsername());
+                    }
+                    buildingNode.setOccupiedByPlayer(message.getPlayerIndex());
+                    buildingNode.incSizeOfSettlement();
                     for (MapGraph.StreetNode streetNode : ((MapGraph.BuildingNode) mapGraphNodeContainer.getMapGraphNode()).getConnectedStreetNodes()) {
                         for (MapGraph.BuildingNode buildingNode1 : streetNode.getConnectedBuildingNodes()) {
                             if (!buildingNode1.equals(buildingNode)) {
@@ -3262,8 +3262,6 @@ public class GamePresenter extends AbstractPresenter {
         eventLogButton.setDisable(false);
         gameEventLogArea.setVisible(false);
         gameChatArea.setVisible(true);
-        gameChatInput.setVisible(true);
-        gameChatSendMessage.setVisible(true);
     }
 
     /**
@@ -3282,8 +3280,6 @@ public class GamePresenter extends AbstractPresenter {
         eventLogButton.setDisable(true);
         gameEventLogArea.setVisible(true);
         gameChatArea.setVisible(false);
-        gameChatInput.setVisible(false);
-        gameChatSendMessage.setVisible(false);
     }
 
     /**
@@ -3302,7 +3298,7 @@ public class GamePresenter extends AbstractPresenter {
         var time = new SimpleDateFormat("HH:mm");
         Date resultdate = new Date((long) System.currentTimeMillis());
         var readableTime = time.format(resultdate);
-        gameEventLogArea.insertText(gameEventLogArea.getLength(), readableTime + " : Player " + player + " " + text + "\n");
+        gameEventLogArea.insertText(gameEventLogArea.getLength(), readableTime + " : " + player + " " + text + "\n");
         if (EventLogIsVisible) {
             gameChatInput.setVisible(false);
         }
