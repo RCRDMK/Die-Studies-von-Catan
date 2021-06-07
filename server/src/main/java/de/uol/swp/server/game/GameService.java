@@ -191,7 +191,7 @@ public class GameService extends AbstractService {
                                                     inventory.setVictoryPoints(inventory.getVictoryPoints() + 1);
                                                 } else {
                                                     if (game.getUsers().contains(message.getUser())) {
-                                                        sendToSpecificUserInGame(new NotEnoughRessourcesMessage(), message.getUser());
+                                                        sendToSpecificUserInGame(new NotEnoughRessourcesMessage(message.getName(), message.getUser()), message.getUser());
                                                     }
                                                 }
                                             }
@@ -204,7 +204,7 @@ public class GameService extends AbstractService {
                                                 inventory.setVictoryPoints(inventory.getVictoryPoints() + 1);
                                             } else {
                                                 if (game.getUsers().contains(message.getUser())) {
-                                                    sendToSpecificUserInGame(new NotEnoughRessourcesMessage(), message.getUser());
+                                                    sendToSpecificUserInGame(new NotEnoughRessourcesMessage(message.getName(), message.getUser()), message.getUser());
                                                 }
                                             }
                                         }
@@ -263,7 +263,7 @@ public class GameService extends AbstractService {
                                     }
                                 } else {
                                     if (game.getUsers().contains(message.getUser())) {
-                                        sendToSpecificUserInGame(new NotEnoughRessourcesMessage(), message.getUser());
+                                        sendToSpecificUserInGame(new NotEnoughRessourcesMessage(message.getName(), message.getUser()), message.getUser());
                                     }
                                 }
                             }
