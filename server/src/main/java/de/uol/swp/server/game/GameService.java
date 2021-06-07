@@ -215,12 +215,10 @@ public class GameService extends AbstractService {
                                     } //else sendToAllInGame(game.getName(), new NotSuccessfulConstructionMessage(playerIndex, message.getUuid(), "BuildingNode"));
                                 } else {
                                     if(buildingNode.getSizeOfSettlement() == 2) {
-                                        SettlementFullyDevelopedMessage sfdm = new SettlementFullyDevelopedMessage();
-                                        sfdm.setName(game.getName());
+                                        SettlementFullyDevelopedMessage sfdm = new SettlementFullyDevelopedMessage(game.getName(), message.getUser());
                                         sendToSpecificUserInGame(sfdm, message.getUser());
                                     } else {
-                                        NotEnoughResourcesMessage nerm = new NotEnoughResourcesMessage();
-                                        nerm.setName(game.getName());
+                                        NotEnoughResourcesMessage nerm = new NotEnoughResourcesMessage(game.getName(), message.getUser());
                                         sendToSpecificUserInGame(nerm, message.getUser());
                                     }
                                 }
@@ -250,8 +248,7 @@ public class GameService extends AbstractService {
                                         return true;
                                     } //else sendToAllInGame(game.getName(), new NotSuccessfulConstructionMessage(playerIndex, message.getUuid(), "StreetNode"));
                                 } else {
-                                    NotEnoughResourcesMessage nerm = new NotEnoughResourcesMessage();
-                                    nerm.setName(game.getName());
+                                    NotEnoughResourcesMessage nerm = new NotEnoughResourcesMessage(game.getName(), message.getUser());
                                     sendToSpecificUserInGame(nerm, message.getUser());
                                 }
                             }
@@ -981,8 +978,7 @@ public class GameService extends AbstractService {
                         LOG.debug("Posted ResponseChatMessage on eventBus");
                     }
                 } else {
-                    NotEnoughResourcesMessage nerm = new NotEnoughResourcesMessage();
-                    nerm.setName(game.getName());
+                    NotEnoughResourcesMessage nerm = new NotEnoughResourcesMessage(game.getName(), request.getUser());
                     sendToSpecificUserInGame(nerm, request.getUser());
                 }
             }
