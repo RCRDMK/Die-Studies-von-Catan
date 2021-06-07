@@ -3,14 +3,16 @@ package de.uol.swp.client.lobby;
 import de.uol.swp.common.lobby.dto.LobbyDTO;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
+import javafx.application.Platform;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 
-import javax.swing.*;
+import java.util.Optional;
 
 /**
  * Creates LobbyCells to populate the ListView fxml-element for the lobbyBrowser
@@ -93,8 +95,15 @@ public class LobbyCell extends ListCell<LobbyDTO> {
             if (item.getPasswordHash() != 0) {
                 lobbyProtected.setText("protected");
                 button.setOnAction(event -> {
-                    String pw = JOptionPane.showInputDialog("Enter the password");
-                    lobbyService.joinProtectedLobby(lobbyName.getText(), (UserDTO) user, pw);
+                    Platform.runLater(() -> {
+                        TextInputDialog dialog = new TextInputDialog("");
+                        dialog.setTitle("Enter Password");
+                        dialog.setHeaderText("Password Dialog");
+                        dialog.setContentText("Please enter the password:");
+                        Optional<String> result = dialog.showAndWait();
+                        //lambda expression
+                        result.ifPresent(pw -> lobbyService.joinProtectedLobby(lobbyName.getText(), (UserDTO) user, pw));
+                    });
                 });
             } else {
                 lobbyProtected.setText("not protected");

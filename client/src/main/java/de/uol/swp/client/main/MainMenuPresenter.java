@@ -38,7 +38,6 @@ import javafx.scene.control.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.swing.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -349,7 +348,13 @@ public class MainMenuPresenter extends AbstractPresenter {
 
     public void onWrongPasswordResponseLogic(WrongLobbyPasswordResponse lfr) {
         LOG.debug("Can't join lobby " + lfr.getLobbyName() + " because the lobby password is wrong.");
-        JOptionPane.showConfirmDialog(null, "Can't join lobby because the password ist wrong!", "Wrong lobby password", JOptionPane.DEFAULT_OPTION, JOptionPane.ERROR_MESSAGE);
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error Dialog");
+            alert.setHeaderText("Wrong password");
+            alert.setContentText("Please make sure to enter the correct password!");
+            alert.showAndWait();
+        });
     }
 
     /**
