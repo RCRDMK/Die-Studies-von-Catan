@@ -13,6 +13,9 @@ import de.uol.swp.common.game.response.PlayDevelopmentCardResponse;
 import de.uol.swp.common.game.response.ResolveDevelopmentCardNotSuccessfulResponse;
 import de.uol.swp.common.game.trade.TradeItem;
 import de.uol.swp.common.lobby.Lobby;
+import de.uol.swp.common.message.MessageContext;
+import de.uol.swp.common.message.ResponseMessage;
+import de.uol.swp.common.message.ServerMessage;
 import de.uol.swp.common.user.Session;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
@@ -218,40 +221,70 @@ public class GameServiceTest {
 
     @Test
     void onRetrieveAllThisGameUsersRequestUserLeft() {
-        LobbyService lobbyService = new LobbyService(lobbyManagement, authenticationService, bus);
-        lobbyManagement.createLobby("testLobby", userDTO);
-        Optional<Lobby> lobby = lobbyManagement.getLobby("testLobby");
-        assertTrue(lobby.isPresent());
-        lobby.get().joinUser(userDTO1);
-        lobby.get().joinUser(userDTO2);
-        lobby.get().joinUser(userDTO3);
-        gameManagement.createGame(lobby.get().getName(), lobby.get().getOwner(), null, "Standard");
-        Optional<Game> game = gameManagement.getGame(lobby.get().getName());
-        assertTrue(game.isPresent());
-        RetrieveAllThisGameUsersRequest retrieveAllThisGameUsersRequest = new RetrieveAllThisGameUsersRequest(lobby.get().getName());
-        assertSame(gameManagement.getGame(lobby.get().getName()).get().getName(), retrieveAllThisGameUsersRequest.getName());
-        GameLeaveUserRequest gameLeaveUserRequest = new GameLeaveUserRequest(lobby.get().getName(), userDTO1);
+        loginUsers();
+        lobbyManagement.createLobby("test", userDTO);
+        Optional<Lobby> optionalLobby = lobbyManagement.getLobby("test");
+        assertTrue(optionalLobby.isPresent());
+        Lobby lobby = optionalLobby.get();
+        lobby.joinUser(userDTO1);
+        lobby.joinUser(userDTO2);
+        lobby.joinUser(userDTO3);
+        lobby.joinPlayerReady(userDTO);
+        lobby.joinPlayerReady(userDTO1);
+        lobby.joinPlayerReady(userDTO2);
+        lobby.joinPlayerReady(userDTO3);
+        gameService.startGame(lobby, "Standard");
+        Optional<Game> optionalGame = gameManagement.getGame("test");
+        assertTrue(optionalGame.isPresent());
+        Game game = optionalGame.get();
+
+        game.joinUser(userDTO1);
+        game.joinUser(userDTO2);
+        game.joinUser(userDTO3);
+
+        RetrieveAllThisGameUsersRequest retrieveAllThisGameUsersRequest = new RetrieveAllThisGameUsersRequest(lobby.getName());
+        assertSame(gameManagement.getGame(lobby.getName()).get().getName(), retrieveAllThisGameUsersRequest.getName());
+        GameLeaveUserRequest gameLeaveUserRequest = new GameLeaveUserRequest(lobby.getName(), userDTO1);
+        gameLeaveUserRequest.setMessageContext(new MessageContext() {
+            @Override
+            public void writeAndFlush(ResponseMessage message) {
+
+            }
+
+            @Override
+            public void writeAndFlush(ServerMessage message) {
+
+            }
+        });
         gameService.onGameLeaveUserRequest(gameLeaveUserRequest);
-        assertFalse(game.get().getUsers().contains(userDTO1));
-        List<Session> gameUsers = authenticationService.getSessions(game.get().getUsers());
-        for (Session session : gameUsers) {
-            assertTrue(userDTO == (session.getUser()) && userDTO1 != (session.getUser()) && userDTO2 == (session.getUser()) && userDTO3 == (session.getUser()));
-        }
-        GameLeaveUserRequest gameLeaveUserRequest2 = new GameLeaveUserRequest(lobby.get().getName(), userDTO2);
+        gameService.onRetrieveAllThisGameUsersRequest(retrieveAllThisGameUsersRequest);
+        assertFalse(game.getUsers().contains(userDTO1));
+
+        GameLeaveUserRequest gameLeaveUserRequest2 = new GameLeaveUserRequest(lobby.getName(), userDTO2);
         gameService.onGameLeaveUserRequest(gameLeaveUserRequest2);
-        assertFalse(game.get().getUsers().contains(userDTO1));
-        for (Session session : gameUsers) {
-            assertTrue(userDTO == (session.getUser()) && userDTO1 != (session.getUser()) && userDTO2 != (session.getUser()) && userDTO3 == (session.getUser()));
-        }
-        GameLeaveUserRequest gameLeaveUserRequest3 = new GameLeaveUserRequest(lobby.get().getName(), userDTO3);
+        assertFalse(game.getUsers().contains(userDTO1));
+
+        GameLeaveUserRequest gameLeaveUserRequest3 = new GameLeaveUserRequest(lobby.getName(), userDTO3);
         gameService.onGameLeaveUserRequest(gameLeaveUserRequest3);
-        assertFalse(game.get().getUsers().contains(userDTO3));
-        for (Session session : gameUsers) {
-            assertTrue(userDTO == (session.getUser()) && userDTO1 != (session.getUser()) && userDTO2 == (session.getUser()) && userDTO3 != (session.getUser()));
-        }
+        assertFalse(game.getUsers().contains(userDTO3));
+
+        GameLeaveUserRequest gameLeaveUserRequest4 = new GameLeaveUserRequest(lobby.getName(), userDTO);
+        gameLeaveUserRequest4.setMessageContext(new MessageContext() {
+            @Override
+            public void writeAndFlush(ResponseMessage message) {
+
+            }
+
+            @Override
+            public void writeAndFlush(ServerMessage message) {
+
+            }
+        });
+        gameService.onGameLeaveUserRequest(gameLeaveUserRequest4);
+        assertFalse(gameManagement.getGame(lobby.getName()).isPresent());
     }
 
-    /**
+    /* //TODO: This test needs to be reactivated after the dependencies to obsolete classes had been fixed
      * This test checks if the distributeResource method works as intended.
      * <p>
      * We create a new gameService and we create a new game. After that we assert that, the game is present and we join some user to the game.
@@ -260,11 +293,7 @@ public class GameServiceTest {
      *
      * @author Marius Birk, Carsten Dekker
      * @since 2021-04-06
-     */
-    /*
-    @Test
-
-    //TODO: This test needs to be reactivated after the dependencies to obsolete classes had been fixed
+     *
    @Test
     void onDistributeResourcesTest() {
         GameService gameService1 = new GameService(gameManagement, lobbyService, authenticationService, bus);
@@ -285,7 +314,7 @@ public class GameServiceTest {
 
         assertEquals(game.get().getInventory(userDTO).lumber.getNumber(), 1);
         assertEquals(game.get().getInventory(userDTO).grain.getNumber(), 1);
-    }*/
+    } */
 
     /**
      * This test checks if the trading mechanism works properly.
@@ -1243,7 +1272,6 @@ public class GameServiceTest {
         gameService.onEndTurnRequest(etr);
     }
 
-
     /**
      * This test checks if the giveResource and the takeResource method works as intended
      * <p>
@@ -1264,11 +1292,9 @@ public class GameServiceTest {
         Lobby lobby = optionalLobby.get();
         lobby.joinUser(userDTO1);
         lobby.joinUser(userDTO2);
-        lobby.joinUser(userDTO3);
         lobby.joinPlayerReady(userDTO);
         lobby.joinPlayerReady(userDTO1);
         lobby.joinPlayerReady(userDTO2);
-        lobby.joinPlayerReady(userDTO3);
         gameService.startGame(lobby, "Standard");
         Optional<Game> optionalGame = gameManagement.getGame("test");
         assertTrue(optionalGame.isPresent());
@@ -1276,7 +1302,6 @@ public class GameServiceTest {
 
         game.joinUser(userDTO1);
         game.joinUser(userDTO2);
-        game.joinUser(userDTO3);
 
         Inventory bank = game.getBankInventory();
 
@@ -1457,6 +1482,8 @@ public class GameServiceTest {
 
         assertTrue(game.getInventory(userDTO).isLargestArmy());
 
+        assertEquals(2, game.getInventory(userDTO).getVictoryPoints());
+
         EndTurnRequest endTurnRequest = new EndTurnRequest(game.getName(), userDTO);
 
         gameService.onEndTurnRequest(endTurnRequest);
@@ -1497,6 +1524,106 @@ public class GameServiceTest {
 
         gameService.onResolveDevelopmentCardRequest(resolveDevelopmentCardKnightRequest2);
 
+        assertFalse(game.getInventory(userDTO).isLargestArmy());
+
+        assertEquals(0, game.getInventory(userDTO).getVictoryPoints());
+
         assertTrue(game.getInventory(userDTO1).isLargestArmy());
+
+        assertEquals(2, game.getInventory(userDTO1).getVictoryPoints());
+    }
+
+    /**
+     * This test checks if the onBankRequest and onBankBuyRequest method works as intended
+     * <p>
+     * First this method logs the owner in and creates a game.
+     * Than its set up the inventories for the test.
+     * Than its tests a successful Bank Request and checks the result
+     * Than its tests a successful Bank Buy Request and checks the result
+     * Than its tests a not successful Bank Request and checks the result
+     *
+     * @author Anton Nikiforov
+     * @since 2021-04-26
+     */
+    @Test
+    void onBankRequestAndBankBuyRequestTest() {
+        loginUsers();
+
+        lobbyManagement.createLobby("test", userDTO);
+        Optional<Lobby> optionalLobby = lobbyManagement.getLobby("test");
+        assertTrue(optionalLobby.isPresent());
+        Lobby lobby = optionalLobby.get();
+
+        lobby.joinPlayerReady(userDTO);
+
+        gameService.startGame(lobby, "Standard");
+        Optional<Game> optionalGame = gameManagement.getGame("test");
+        assertTrue(optionalGame.isPresent());
+        Game game = optionalGame.get();
+
+        game.getBankInventory().lumber.setNumber(1);
+        game.getBankInventory().brick.decNumber(4);
+        game.getInventory(userDTO).brick.incNumber(4);
+
+        // Bank Request successful
+        gameService.onBankRequest(new BankRequest("test", userDTO, "", "Lumber"));
+
+        assertTrue(event instanceof BankResponseMessage);
+        var bankOffer = ((BankResponseMessage) event).getBankOffer();
+
+        assertEquals(bankOffer.size(), 4);
+
+        assertFalse(bankOffer.get(0).get(0).isNotEnough());
+        assertEquals(bankOffer.get(0).get(0).getCount(), 0);
+        assertEquals(bankOffer.get(0).get(1).getCount(), 4);
+        assertEquals(bankOffer.get(0).get(2).getCount(), 0);
+        assertEquals(bankOffer.get(0).get(3).getCount(), 0);
+        assertEquals(bankOffer.get(0).get(4).getCount(), 0);
+
+        assertTrue(bankOffer.get(1).get(0).isNotEnough());
+        assertEquals(bankOffer.get(1).get(0).getCount(), 0);
+        assertEquals(bankOffer.get(1).get(1).getCount(), 0);
+        assertEquals(bankOffer.get(1).get(2).getCount(), 4);
+        assertEquals(bankOffer.get(1).get(3).getCount(), 0);
+        assertEquals(bankOffer.get(1).get(4).getCount(), 0);
+
+        assertTrue(bankOffer.get(2).get(0).isNotEnough());
+        assertEquals(bankOffer.get(2).get(0).getCount(), 0);
+        assertEquals(bankOffer.get(2).get(1).getCount(), 0);
+        assertEquals(bankOffer.get(2).get(2).getCount(), 0);
+        assertEquals(bankOffer.get(2).get(3).getCount(), 4);
+        assertEquals(bankOffer.get(2).get(4).getCount(), 0);
+
+        assertTrue(bankOffer.get(3).get(0).isNotEnough());
+        assertEquals(bankOffer.get(3).get(0).getCount(), 0);
+        assertEquals(bankOffer.get(3).get(1).getCount(), 0);
+        assertEquals(bankOffer.get(3).get(2).getCount(), 0);
+        assertEquals(bankOffer.get(3).get(3).getCount(), 0);
+        assertEquals(bankOffer.get(3).get(4).getCount(), 4);
+
+
+        // Bank Buy Request successful
+        assertEquals(game.getBankInventory().lumber.getNumber(), 1);
+        assertEquals(game.getBankInventory().brick.getNumber(), 15);
+        assertEquals(game.getInventory(userDTO).lumber.getNumber(), 0);
+        assertEquals(game.getInventory(userDTO).brick.getNumber(), 4);
+
+        gameService.onBankBuyRequest(new BankBuyRequest("test", userDTO, "", "Lumber", bankOffer.get(0)));
+
+        assertEquals(game.getBankInventory().lumber.getNumber(), 0);
+        assertEquals(game.getBankInventory().brick.getNumber(), 19);
+        assertEquals(game.getInventory(userDTO).lumber.getNumber(), 1);
+        assertEquals(game.getInventory(userDTO).brick.getNumber(), 0);
+
+
+        // Bank Request not successful
+        assertEquals(game.getBankInventory().lumber.getNumber(), 0);
+
+        gameService.onBankRequest(new BankRequest("test", userDTO, "", "Lumber"));
+
+        assertTrue(event instanceof BankResponseMessage);
+        bankOffer = ((BankResponseMessage) event).getBankOffer();
+
+        assertEquals(bankOffer.size(), 0);
     }
 }

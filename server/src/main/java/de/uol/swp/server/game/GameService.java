@@ -84,40 +84,38 @@ public class GameService extends AbstractService {
         Optional<Lobby> lobby = lobbyService.getLobby(gameLeaveUserRequest.getName());
         if (optionalGame.isPresent()) {
             Game game = optionalGame.get();
-            if (game.getUsers().size() == 1) {
-                if (gameLeaveUserRequest.getMessageContext().isPresent()) {
-                    Optional<MessageContext> ctx = gameLeaveUserRequest.getMessageContext();
-                    sendToSpecificUser(ctx.get(), new GameLeftSuccessfulResponse(gameLeaveUserRequest.getName(), gameLeaveUserRequest.getUser()));
-                    gameManagement.dropGame(gameLeaveUserRequest.getName());
-                    lobby.ifPresent(value -> value.setGameStarted(false));
-                    sendToAll(new GameDroppedMessage(gameLeaveUserRequest.getName()));
-                }
-            } else if (game.getUsers() == null) {
-                gameManagement.dropGame(gameLeaveUserRequest.getName());
-                lobby.ifPresent(value -> value.setGameStarted(false));
-                sendToAll(new GameDroppedMessage(gameLeaveUserRequest.getName()));
-
-            } else {
-                if (gameLeaveUserRequest.getMessageContext().isPresent()) {
-                    Optional<MessageContext> ctx = gameLeaveUserRequest.getMessageContext();
-                    sendToSpecificUser(ctx.get(), new GameLeftSuccessfulResponse(gameLeaveUserRequest.getName(), gameLeaveUserRequest.getUser()));
-                }
-                game.leaveUser(gameLeaveUserRequest.getUser());
-                sendToAll(new GameSizeChangedMessage(gameLeaveUserRequest.getName()));
-                ArrayList<UserDTO> usersInGame = new ArrayList<>();
-                for (User user : game.getUsers()) usersInGame.add((UserDTO) user);
-                sendToAllInGame(gameLeaveUserRequest.getName(), new UserLeftGameMessage(gameLeaveUserRequest.getName(), gameLeaveUserRequest.getUser(), usersInGame));
-                // Check if the player leaving the game is the turnPlayer, so that the AI may replace him now
-                if (gameLeaveUserRequest.getUser().equals(game.getUser(game.getTurn()))) {
-                    if (!game.rolledDiceThisTurn() && !game.isStartingTurns()) {
-                        RollDiceRequest rdr = new RollDiceRequest(game.getName(), game.getUser(game.getTurn()));
-                        onRollDiceRequest(rdr);
+            if (game.getUsers().contains(gameLeaveUserRequest.getUser())) {
+                if (game.getUsers().size() == 1) {
+                    if (gameLeaveUserRequest.getMessageContext().isPresent()) {
+                        Optional<MessageContext> ctx = gameLeaveUserRequest.getMessageContext();
+                        sendToSpecificUser(ctx.get(), new GameLeftSuccessfulResponse(gameLeaveUserRequest.getName(), gameLeaveUserRequest.getUser()));
+                        gameManagement.dropGame(gameLeaveUserRequest.getName());
+                        lobby.ifPresent(value -> value.setGameStarted(false));
+                        sendToAll(new GameDroppedMessage(gameLeaveUserRequest.getName()));
                     }
-                    startTurnForAI((GameDTO) game);
+
+                } else {
+                    if (gameLeaveUserRequest.getMessageContext().isPresent()) {
+                        Optional<MessageContext> ctx = gameLeaveUserRequest.getMessageContext();
+                        sendToSpecificUser(ctx.get(), new GameLeftSuccessfulResponse(gameLeaveUserRequest.getName(), gameLeaveUserRequest.getUser()));
+                    }
+                    game.leaveUser(gameLeaveUserRequest.getUser());
+                    sendToAll(new GameSizeChangedMessage(gameLeaveUserRequest.getName()));
+                    ArrayList<UserDTO> usersInGame = new ArrayList<>();
+                    for (User user : game.getUsers()) usersInGame.add((UserDTO) user);
+                    sendToAllInGame(gameLeaveUserRequest.getName(), new UserLeftGameMessage(gameLeaveUserRequest.getName(), gameLeaveUserRequest.getUser(), usersInGame));
+                    // Check if the player leaving the game is the turnPlayer, so that the AI may replace him now
+                    if (gameLeaveUserRequest.getUser().equals(game.getUser(game.getTurn()))) {
+                        if (!game.rolledDiceThisTurn() && !game.isStartingTurns()) {
+                            RollDiceRequest rdr = new RollDiceRequest(game.getName(), game.getUser(game.getTurn()));
+                            onRollDiceRequest(rdr);
+                        }
+                        startTurnForAI((GameDTO) game);
+                    }
                 }
+            } else {
+                throw new GameManagementException("Game unknown!");
             }
-        } else {
-            throw new GameManagementException("Game unknown!");
         }
     }
 
@@ -227,7 +225,6 @@ public class GameService extends AbstractService {
                                                 && game.getMapGraph().getNumOfRoads()[playerIndex] == game.getMapGraph().getNumOfBuildings()[playerIndex]) {
                                             endTurn(game, message.getUser());
                                         }
-
                                         inventory.road.decNumber();
                                         updateInventory(game);
                                         return true;
@@ -733,12 +730,15 @@ public class GameService extends AbstractService {
 
     public void startGame(Lobby lobby, String gameFieldVariant) {
         if (lobby.getPlayersReady().size() > 0) {
-            gameManagement.createGame(lobby.getName(), lobby.getOwner(), lobby.getUsers(), gameFieldVariant);
+            Set<User> newUserList = new TreeSet<>();
+            for (User user : lobby.getUsers()) {
+                newUserList.add(userService.retrieveUserInformation(user));
+            }
+            gameManagement.createGame(lobby.getName(), lobby.getOwner(), newUserList, gameFieldVariant);
             Optional<Game> optionalGame = gameManagement.getGame(lobby.getName());
             if (optionalGame.isPresent()) {
                 Game game = optionalGame.get();
                 for (User user : lobby.getPlayersReady()) {
-                    user = userService.retrieveUserInformation(user);
                     game.joinUser(user);
                 }
                 lobby.setPlayersReadyToNull();
@@ -1219,7 +1219,8 @@ public class GameService extends AbstractService {
      * <p>
      * This method gets invoked by the onResolveDevelopmentCardRequest method and creates an ArrayList with all user
      * inventories from the right game. With the given inventories this method evaluates, who gets the largest army
-     * card.
+     * card. It also takes 2 victory points from the previous owner and adds 2 victory points to the new owner of
+     * the largest army card.
      *
      * @param game current game that is played
      * @author Carsten Dekker
@@ -1229,12 +1230,15 @@ public class GameService extends AbstractService {
         if (game.getInventoryWithLargestArmy() == null && game.getInventory(game.getUser(game.getTurn())).getPlayedKnights() > 2) {
             game.getInventory(game.getUser(game.getTurn())).setLargestArmy(true);
             game.setInventoryWithLargestArmy(game.getInventory(game.getUser(game.getTurn())));
+            game.getInventoryWithLargestArmy().setVictoryPoints(game.getInventoryWithLargestArmy().getVictoryPoints() + 2);
         } else if (game.getInventoryWithLargestArmy() != null) {
             if (game.getInventory(game.getUser(game.getTurn())).getPlayedKnights() > game.getInventoryWithLargestArmy().getPlayedKnights()) {
                 if (!game.getUser(game.getTurn()).equals(game.getInventoryWithLargestArmy().getUser()))
                     game.getInventoryWithLargestArmy().setLargestArmy(false);
+                game.getInventoryWithLargestArmy().setVictoryPoints(game.getInventoryWithLargestArmy().getVictoryPoints() - 2);
                 game.setInventoryWithLargestArmy(game.getInventory(game.getUser(game.getTurn())));
                 game.getInventoryWithLargestArmy().setLargestArmy(true);
+                game.getInventoryWithLargestArmy().setVictoryPoints(game.getInventoryWithLargestArmy().getVictoryPoints() + 2);
             }
         }
     }
@@ -1604,7 +1608,7 @@ public class GameService extends AbstractService {
     }
 
     /**
-     * Helper method to build one offer
+     * Helper method to build an offer
      * <p>
      * It takes the parameters and build with it an offer
      *
@@ -1629,13 +1633,12 @@ public class GameService extends AbstractService {
      * Handles BankBuyRequest found on the EventBus
      * <p>
      * handles the sale
-     * send a chad massage if success
-     * and ends the tab
+     * sends a chad massage if successful
+     * and closes the trade tab
      *
      * @param request BankBuyRequest
      * @author Anton Nikiforov
      * @see TradeItem
-     * @see BankResponseMessage
      * @since 2021-05-29
      */
     @Subscribe

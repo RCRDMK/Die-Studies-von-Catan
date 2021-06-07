@@ -45,7 +45,7 @@ public class AuthenticationService extends AbstractService {
      */
     final private Map<Session, User> userSessions = new HashMap<>();
     private final UserManagement userManagement;
-    private Timer timer = new Timer();
+    private final Timer timer = new Timer();
     private final ActiveUserList activeUserList = new ActiveUserList();
 
     /**

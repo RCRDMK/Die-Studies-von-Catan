@@ -68,7 +68,7 @@ public class SQLBasedUserStore extends AbstractUserStore implements UserStore {
         if (resultSet.next()) {
             if (password.equals(resultSet.getString("password"))) {
                 User user = new UserDTO(username, password, resultSet.getString(3), resultSet.getInt(4));
-                return Optional.of(user);
+                return Optional.of(user.getWithoutPassword());
             } else {
                 return Optional.empty();
             }
