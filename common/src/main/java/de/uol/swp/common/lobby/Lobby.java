@@ -32,6 +32,22 @@ public interface Lobby extends Serializable {
     String getName();
 
     /**
+     * Getter for password hash
+     *
+     * @author René Meyer
+     * @since 2021-06-05
+     */
+    int getPasswordHash();
+
+    /**
+     * Setter for the lobby password
+     *
+     * @author René Meyer
+     * @since 2021-06-05
+     */
+    void setPassword(String password);
+
+    /**
      * Changes the owner of the lobby
      *
      * @param user The user who should be the new owner

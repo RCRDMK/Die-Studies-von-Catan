@@ -37,6 +37,25 @@ public class LobbyService {
     }
 
     /**
+     * Posts a request to create a password protected lobby on the EventBus.
+     * Returns a boolean. If the Request is posted on the eventbus it returns true.
+     * Is the String name blank or empty it returns false.
+     * If the name is null, the exception is caught and posted on the bus.
+     * Therefore we return also false, cause no lobby was created.
+     *
+     * @param name     Name chosen for the new lobby
+     * @param user     User who wants to create the new lobby
+     * @param password password for the lobby
+     * @author René Meyer
+     * @see de.uol.swp.common.lobby.request.CreateLobbyRequest
+     * @since 2021-06-05
+     */
+    public void createNewProtectedLobby(String name, UserDTO user, String password) {
+        CreateLobbyRequest createLobbyRequest = new CreateLobbyRequest(name, user, password);
+        eventBus.post(createLobbyRequest);
+    }
+
+    /**
      * Posts a request to create a lobby on the EventBus.
      * Returns a boolean. If the Request is posted on the eventbus it returns true.
      * Is the String name blank or empty it returns false.
@@ -65,6 +84,20 @@ public class LobbyService {
      */
     public void joinLobby(String name, UserDTO user) {
         LobbyJoinUserRequest joinUserRequest = new LobbyJoinUserRequest(name, user);
+        eventBus.post(joinUserRequest);
+    }
+
+    /**
+     * Posts a request to join a specified password protected lobby on the EventBus
+     *
+     * @param name Name of the protected lobby the user wants to join
+     * @param user User who wants to join the lobby
+     * @author René Meyer
+     * @see de.uol.swp.common.lobby.request.LobbyJoinUserRequest
+     * @since 2021-06-05
+     */
+    public void joinProtectedLobby(String name, UserDTO user, String password) {
+        LobbyJoinUserRequest joinUserRequest = new LobbyJoinUserRequest(name, user, password);
         eventBus.post(joinUserRequest);
     }
 
