@@ -218,10 +218,11 @@ public class GameService extends AbstractService {
                                         SettlementFullyDevelopedMessage sfdm = new SettlementFullyDevelopedMessage();
                                         sfdm.setName(game.getName());
                                         sendToSpecificUserInGame(sfdm, message.getUser());
+                                    } else {
+                                        NotEnoughResourcesMessage nerm = new NotEnoughResourcesMessage();
+                                        nerm.setName(game.getName());
+                                        sendToSpecificUserInGame(nerm, message.getUser());
                                     }
-                                    NotEnoughResourcesMessage nerm = new NotEnoughResourcesMessage();
-                                    nerm.setName(game.getName());
-                                    sendToSpecificUserInGame(nerm, message.getUser());
                                 }
                             }
                         }

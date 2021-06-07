@@ -1420,7 +1420,7 @@ public class GamePresenter extends AbstractPresenter {
         }
     }
 
-    //TODO: Kann ecentuell weg, falls am Ende nicht mehr benötigt
+    //TODO: Kann eventuell weg, falls am Ende nicht mehr benötigt
 
     /**
      * Determine the right color for a drawn, player-owned object.
@@ -1668,6 +1668,7 @@ public class GamePresenter extends AbstractPresenter {
      * @author Carsten Dekker
      * @since 2021-06-07
      */
+    @Subscribe
     public void onSettlementFullyDevelopedMessage(SettlementFullyDevelopedMessage sfdm) {
         if (this.currentLobby != null) {
             if (this.currentLobby.equals(sfdm.getName())) {
