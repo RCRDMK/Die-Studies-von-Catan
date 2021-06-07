@@ -31,6 +31,7 @@ public class LobbyDTO implements Lobby {
     private boolean gameStarted = false;
     private transient final Timer timerForGameStart = new Timer();
     private boolean timerStarted = false;
+    private boolean isUsedForTest = false;
     private int minimumAmountOfPlayers;
 
     /**
@@ -162,5 +163,15 @@ public class LobbyDTO implements Lobby {
     @Override
     public int getMinimumAmountOfPlayers() {
         return minimumAmountOfPlayers;
+    }
+
+    @Override
+    public boolean isUsedForTest() {
+        return this.isUsedForTest;
+    }
+
+    @Override
+    public void setUsedForTest(boolean value) {
+        this.isUsedForTest = value;
     }
 }
