@@ -695,6 +695,9 @@ public class GameService extends AbstractService {
                 sendToAllInLobby(startGameRequest.getName(), new StartGameMessage(startGameRequest.getName(), startGameRequest.getUser()));
                 Timer gameStartTimer = lobby.startTimerForGameStart();
                 int seconds = 60;
+                if (lobby.isUsedForTest()) {
+                    seconds = 1;
+                }
                 try {
                     class RemindTask extends TimerTask {
 
@@ -702,17 +705,9 @@ public class GameService extends AbstractService {
                             Set<User> users = new TreeSet<>(usersInLobby);
                             if (lobby.getPlayersReady().size() != 0) {
                                 users.removeAll(lobby.getPlayersReady());
-                            } else {
-                                users.clear();
                             }
                             if (lobby.getPlayersReady().size() > 0 && gameManagement.getGame(lobby.getName()).isEmpty()) {
-                                try {
-                                    startGame(lobby, lobby.getGameFieldVariant());
-                                    // TODO: sollte wahrscheinlich keine notenoughplayersmessage sein, sondern "You missed the game start"
-                                    sendToListOfUsers(users, new NotEnoughPlayersMessage(lobby.getName()));
-                                } catch (GameManagementException e) {
-                                    LOG.debug(e);
-                                }
+                                startGame(lobby, lobby.getGameFieldVariant());
                             } else if (lobby.getPlayersReady().size() < 1) {
                                 sendToListOfUsers(users, new NotEnoughPlayersMessage(lobby.getName()));
                             }
@@ -724,7 +719,7 @@ public class GameService extends AbstractService {
                     LOG.debug(e);
                 }
 
-            } else if (!startGameRequest.getUser().toString().equals(lobby.getOwner().toString())) {
+            } else if (!startGameRequest.getUser().equals(lobby.getOwner())) {
                 if (startGameRequest.getMessageContext().isPresent()) {
                     sendToSpecificUser(startGameRequest.getMessageContext().get(), new NotLobbyOwnerResponse(lobby.getName()));
                 }
@@ -732,8 +727,6 @@ public class GameService extends AbstractService {
                 if (startGameRequest.getMessageContext().isPresent()) {
                     sendToSpecificUser(startGameRequest.getMessageContext().get(), new GameAlreadyExistsResponse(lobby.getName()));
                 }
-            } else if (lobby.getUsers().size() < 2) {
-                sendToListOfUsers(lobby.getUsers(), new NotEnoughPlayersMessage(lobby.getName()));
             }
         }
     }
@@ -813,12 +806,7 @@ public class GameService extends AbstractService {
                 lobby.incrementRdyResponsesReceived();
             }
             if (lobby.getRdyResponsesReceived() == lobby.getUsers().size() && gameManagement.getGame(lobby.getName()).isEmpty()) {
-                try {
-                    startGame(lobby, lobby.getGameFieldVariant());
-                } catch (GameManagementException e) {
-                    LOG.debug(e);
-                    sendToListOfUsers(lobby.getPlayersReady(), new NotEnoughPlayersMessage(lobby.getName()));
-                }
+                startGame(lobby, lobby.getGameFieldVariant());
             }
         }
     }
@@ -1042,7 +1030,7 @@ public class GameService extends AbstractService {
                 inventory.cardKnight.incNumber();*/
 
                 //checks if user can play developmentCard
-                if (!game.canUserPlayDevCard(request.getUser(), devCard) && game.rolledDiceThisTurn()) {
+                if (!game.canUserPlayDevCard(request.getUser(), devCard) || !game.rolledDiceThisTurn()) {
                     devCard = "default";
                 }
                 switch (devCard) {
@@ -1750,22 +1738,24 @@ public class GameService extends AbstractService {
         if (optionalGame.isPresent()) {
             Game game = optionalGame.get();
             String resource = "";
-            // Check if the player who wants to draw a random resource is an AI player in which case he already drew a random resource by himself
-            if (!game.getUsers().contains(drawRandomResourceFromPlayerRequest.getUser())) {
-                resource = drawRandomResourceFromPlayerRequest.getResource();
-            }
+            if (drawRandomResourceFromPlayerRequest.getUser().equals(game.getUser(game.getTurn()))) {
+                // Check if the player who wants to draw a random resource is an AI player in which case he already drew a random resource by himself
+                if (!game.getUsers().contains(drawRandomResourceFromPlayerRequest.getUser())) {
+                    resource = drawRandomResourceFromPlayerRequest.getResource();
+                }
 
-            for (User user : game.getUsersList()) {
-                if (user.getUsername().equals(drawRandomResourceFromPlayerRequest.getChosenName())) {
-                    HashMap<String, Integer> inventory = game.getInventory(user).getPrivateView();
-                    if (resource.equals("")) {
-                        resource = randomResource(inventory);
+                for (User user : game.getUsersList()) {
+                    if (user.getUsername().equals(drawRandomResourceFromPlayerRequest.getChosenName())) {
+                        HashMap<String, Integer> inventory = game.getInventory(user).getPrivateView();
+                        if (resource.equals("")) {
+                            resource = randomResource(inventory);
+                        }
+                        game.getInventory(user).decCardStack(resource, 1);
+                        game.getInventory(drawRandomResourceFromPlayerRequest.getUser()).incCardStack(resource, 1);
+                        updateInventory(game);
+                        break;
+
                     }
-                    game.getInventory(user).decCardStack(resource, 1);
-                    game.getInventory(drawRandomResourceFromPlayerRequest.getUser()).incCardStack(resource, 1);
-                    updateInventory(game);
-                    break;
-
                 }
             }
         }
