@@ -9,16 +9,28 @@ import de.uol.swp.common.game.inventory.Inventory;
 import de.uol.swp.common.game.message.*;
 import de.uol.swp.common.game.MapGraph;
 import de.uol.swp.common.game.request.*;
+import de.uol.swp.common.game.response.AllCreatedGamesResponse;
+import de.uol.swp.common.game.response.PlayDevelopmentCardResponse;
+import de.uol.swp.common.game.response.ResolveDevelopmentCardNotSuccessfulResponse;
+import de.uol.swp.common.game.trade.Trade;
 import de.uol.swp.common.game.trade.TradeItem;
 import de.uol.swp.common.lobby.Lobby;
+import de.uol.swp.common.lobby.request.StartGameRequest;
+import de.uol.swp.common.message.MessageContext;
+import de.uol.swp.common.message.ResponseMessage;
+import de.uol.swp.common.message.ServerMessage;
+import de.uol.swp.common.lobby.request.JoinOnGoingGameRequest;
 import de.uol.swp.common.user.Session;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.user.request.LoginRequest;
+import de.uol.swp.common.user.request.LogoutRequest;
+import de.uol.swp.common.user.request.RegisterUserRequest;
 import de.uol.swp.server.AI.AIToServerTranslator;
 import de.uol.swp.server.AI.TestAI;
 import de.uol.swp.server.lobby.LobbyManagement;
 import de.uol.swp.server.lobby.LobbyService;
+import de.uol.swp.server.message.ClientAuthorizedMessage;
 import de.uol.swp.server.usermanagement.AuthenticationService;
 import de.uol.swp.server.usermanagement.UserManagement;
 import de.uol.swp.server.usermanagement.UserService;
@@ -27,9 +39,10 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.sql.Array;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -62,6 +75,10 @@ public class GameServiceTest {
     }
 
     void loginUsers() {
+        bus.post(new RegisterUserRequest(userDTO));
+        bus.post(new RegisterUserRequest(userDTO1));
+        bus.post(new RegisterUserRequest(userDTO2));
+        bus.post(new RegisterUserRequest(userDTO3));
         authenticationService.onLoginRequest(new LoginRequest(userDTO.getUsername(), userDTO.getPassword()));
         authenticationService.onLoginRequest(new LoginRequest(userDTO1.getUsername(), userDTO1.getPassword()));
         authenticationService.onLoginRequest(new LoginRequest(userDTO2.getUsername(), userDTO2.getPassword()));
@@ -101,7 +118,6 @@ public class GameServiceTest {
      * @author Iskander Yusupov
      * @since 2020-03-14
      */
-
     @Test
     void onRetrieveAllThisGameUsersRequest() {
         LobbyService lobbyService = new LobbyService(lobbyManagement, authenticationService, bus);
@@ -109,7 +125,7 @@ public class GameServiceTest {
         Optional<Lobby> lobby = lobbyManagement.getLobby("testLobby");
         assertTrue(lobby.isPresent());
         lobby.get().joinUser(userDTO1);
-        gameManagement.createGame(lobby.get().getName(), lobby.get().getOwner(), "Standard");
+        gameManagement.createGame(lobby.get().getName(), lobby.get().getOwner(), null, "Standard");
         Optional<Game> game = gameManagement.getGame(lobby.get().getName());
         RetrieveAllThisGameUsersRequest retrieveAllThisGameUsersRequest = new RetrieveAllThisGameUsersRequest(lobby.get().getName());
         assertSame(gameManagement.getGame(lobby.get().getName()).get().getName(), retrieveAllThisGameUsersRequest.getName());
@@ -134,7 +150,6 @@ public class GameServiceTest {
      * @author Iskander Yusupov
      * @since 2020-03-14
      */
-
     @Test
     void onRetrieveAllThisGameUsersRequest3() {
         LobbyService lobbyService = new LobbyService(lobbyManagement, authenticationService, bus);
@@ -143,7 +158,7 @@ public class GameServiceTest {
         assertTrue(lobby.isPresent());
         lobby.get().joinUser(userDTO1);
         lobby.get().joinUser(userDTO2);
-        gameManagement.createGame(lobby.get().getName(), lobby.get().getOwner(), "Standard");
+        gameManagement.createGame(lobby.get().getName(), lobby.get().getOwner(), null, "Standard");
         Optional<Game> game = gameManagement.getGame(lobby.get().getName());
         assertTrue(game.isPresent());
         RetrieveAllThisGameUsersRequest retrieveAllThisGameUsersRequest = new RetrieveAllThisGameUsersRequest(lobby.get().getName());
@@ -169,7 +184,6 @@ public class GameServiceTest {
      * @author Iskander Yusupov
      * @since 2020-03-14
      */
-
     @Test
     void onRetrieveAllThisGameUsersRequest4() {
         LobbyService lobbyService = new LobbyService(lobbyManagement, authenticationService, bus);
@@ -179,7 +193,7 @@ public class GameServiceTest {
         lobby.get().joinUser(userDTO1);
         lobby.get().joinUser(userDTO2);
         lobby.get().joinUser(userDTO3);
-        gameManagement.createGame(lobby.get().getName(), lobby.get().getOwner(), "Standard");
+        gameManagement.createGame(lobby.get().getName(), lobby.get().getOwner(), null, "Standard");
         Optional<Game> game = gameManagement.getGame(lobby.get().getName());
         assertTrue(game.isPresent());
         RetrieveAllThisGameUsersRequest retrieveAllThisGameUsersRequest = new RetrieveAllThisGameUsersRequest(lobby.get().getName());
@@ -215,74 +229,68 @@ public class GameServiceTest {
 
     @Test
     void onRetrieveAllThisGameUsersRequestUserLeft() {
-        LobbyService lobbyService = new LobbyService(lobbyManagement, authenticationService, bus);
-        lobbyManagement.createLobby("testLobby", userDTO);
-        Optional<Lobby> lobby = lobbyManagement.getLobby("testLobby");
-        assertTrue(lobby.isPresent());
-        lobby.get().joinUser(userDTO1);
-        lobby.get().joinUser(userDTO2);
-        lobby.get().joinUser(userDTO3);
-        gameManagement.createGame(lobby.get().getName(), lobby.get().getOwner(), "Standard");
-        Optional<Game> game = gameManagement.getGame(lobby.get().getName());
-        assertTrue(game.isPresent());
-        RetrieveAllThisGameUsersRequest retrieveAllThisGameUsersRequest = new RetrieveAllThisGameUsersRequest(lobby.get().getName());
-        assertSame(gameManagement.getGame(lobby.get().getName()).get().getName(), retrieveAllThisGameUsersRequest.getName());
-        GameLeaveUserRequest gameLeaveUserRequest = new GameLeaveUserRequest(lobby.get().getName(), userDTO1);
+        loginUsers();
+        lobbyManagement.createLobby("test", userDTO);
+        Optional<Lobby> optionalLobby = lobbyManagement.getLobby("test");
+        assertTrue(optionalLobby.isPresent());
+        Lobby lobby = optionalLobby.get();
+        lobby.joinUser(userDTO1);
+        lobby.joinUser(userDTO2);
+        lobby.joinUser(userDTO3);
+        lobby.joinPlayerReady(userDTO);
+        lobby.joinPlayerReady(userDTO1);
+        lobby.joinPlayerReady(userDTO2);
+        lobby.joinPlayerReady(userDTO3);
+        gameService.startGame(lobby, "Standard");
+        Optional<Game> optionalGame = gameManagement.getGame("test");
+        assertTrue(optionalGame.isPresent());
+        Game game = optionalGame.get();
+
+        game.joinUser(userDTO1);
+        game.joinUser(userDTO2);
+        game.joinUser(userDTO3);
+
+        RetrieveAllThisGameUsersRequest retrieveAllThisGameUsersRequest = new RetrieveAllThisGameUsersRequest(lobby.getName());
+        assertSame(gameManagement.getGame(lobby.getName()).get().getName(), retrieveAllThisGameUsersRequest.getName());
+        GameLeaveUserRequest gameLeaveUserRequest = new GameLeaveUserRequest(lobby.getName(), userDTO1);
+        gameLeaveUserRequest.setMessageContext(new MessageContext() {
+            @Override
+            public void writeAndFlush(ResponseMessage message) {
+
+            }
+
+            @Override
+            public void writeAndFlush(ServerMessage message) {
+
+            }
+        });
         gameService.onGameLeaveUserRequest(gameLeaveUserRequest);
-        assertFalse(game.get().getUsers().contains(userDTO1));
-        List<Session> gameUsers = authenticationService.getSessions(game.get().getUsers());
-        for (Session session : gameUsers) {
-            assertTrue(userDTO == (session.getUser()) && userDTO1 != (session.getUser()) && userDTO2 == (session.getUser()) && userDTO3 == (session.getUser()));
-        }
-        GameLeaveUserRequest gameLeaveUserRequest2 = new GameLeaveUserRequest(lobby.get().getName(), userDTO2);
+        gameService.onRetrieveAllThisGameUsersRequest(retrieveAllThisGameUsersRequest);
+        assertFalse(game.getUsers().contains(userDTO1));
+
+        GameLeaveUserRequest gameLeaveUserRequest2 = new GameLeaveUserRequest(lobby.getName(), userDTO2);
         gameService.onGameLeaveUserRequest(gameLeaveUserRequest2);
-        assertFalse(game.get().getUsers().contains(userDTO1));
-        for (Session session : gameUsers) {
-            assertTrue(userDTO == (session.getUser()) && userDTO1 != (session.getUser()) && userDTO2 != (session.getUser()) && userDTO3 == (session.getUser()));
-        }
-        GameLeaveUserRequest gameLeaveUserRequest3 = new GameLeaveUserRequest(lobby.get().getName(), userDTO3);
+        assertFalse(game.getUsers().contains(userDTO1));
+
+        GameLeaveUserRequest gameLeaveUserRequest3 = new GameLeaveUserRequest(lobby.getName(), userDTO3);
         gameService.onGameLeaveUserRequest(gameLeaveUserRequest3);
-        assertFalse(game.get().getUsers().contains(userDTO3));
-        for (Session session : gameUsers) {
-            assertTrue(userDTO == (session.getUser()) && userDTO1 != (session.getUser()) && userDTO2 == (session.getUser()) && userDTO3 != (session.getUser()));
-        }
+        assertFalse(game.getUsers().contains(userDTO3));
+
+        GameLeaveUserRequest gameLeaveUserRequest4 = new GameLeaveUserRequest(lobby.getName(), userDTO);
+        gameLeaveUserRequest4.setMessageContext(new MessageContext() {
+            @Override
+            public void writeAndFlush(ResponseMessage message) {
+
+            }
+
+            @Override
+            public void writeAndFlush(ServerMessage message) {
+
+            }
+        });
+        gameService.onGameLeaveUserRequest(gameLeaveUserRequest4);
+        assertFalse(gameManagement.getGame(lobby.getName()).isPresent());
     }
-
-    /**
-     * This test checks if the distributeResource method works as intended.
-     * <p>
-     * We create a new gameService and we create a new game. After that we assert that, the game is present and we join some user to the game.
-     * We setup the inventories and the UserArrayList. We assume that we rolled a 5 and give that to our method.
-     * To check if it works fine, we assert that it incremented with one.
-     *
-     * @author Marius Birk, Carsten Dekker
-     * @since 2021-04-06
-     */
-    /*
-    @Test
-
-    //TODO: This test needs to be reactivated after the dependencies to obsolete classes had been fixed
-   @Test
-    void onDistributeResourcesTest() {
-        GameService gameService1 = new GameService(gameManagement, lobbyService, authenticationService, bus);
-
-        gameManagement.createGame("test", userDTO, "Standard");
-        Optional<Game> game = gameManagement.getGame("test");
-        assertTrue(game.isPresent());
-
-        game.get().joinUser(userDTO1);
-        game.get().joinUser(userDTO2);
-        game.get().joinUser(userDTO3);
-
-        game.get().setUpUserArrayList();
-        game.get().setUpInventories();
-
-        int diceEyes = 5;
-        gameService1.distributeResources(diceEyes, "test");
-
-        assertEquals(game.get().getInventory(userDTO).lumber.getNumber(), 1);
-        assertEquals(game.get().getInventory(userDTO).grain.getNumber(), 1);
-    }*/
 
     /**
      * This test checks if the trading mechanism works properly.
@@ -324,33 +332,36 @@ public class GameServiceTest {
     public void TradeTest() {
         String tradeCode = "seller1acv";
         loginUsers();
-        GameService gameServiceTIRT = new GameService(gameManagement, lobbyService, authenticationService, bus, userService);
-
-        gameManagement.createGame("test", userDTO, "Standard");
-        Optional<Game> game = gameManagement.getGame("test");
-        assertTrue(game.isPresent());
-
-        game.get().joinUser(userDTO1);
-        game.get().joinUser(userDTO2);
-        game.get().joinUser(userDTO3);
-
-        game.get().setUpUserArrayList();
-        game.get().setUpInventories();
+        lobbyManagement.createLobby("test", userDTO);
+        Optional<Lobby> optionalLobby = lobbyManagement.getLobby("test");
+        assertTrue(optionalLobby.isPresent());
+        Lobby lobby = optionalLobby.get();
+        lobby.joinUser(userDTO1);
+        lobby.joinUser(userDTO2);
+        lobby.joinUser(userDTO3);
+        lobby.joinPlayerReady(userDTO);
+        lobby.joinPlayerReady(userDTO1);
+        lobby.joinPlayerReady(userDTO2);
+        lobby.joinPlayerReady(userDTO3);
+        gameService.startGame(lobby, "Standard");
+        Optional<Game> optionalGame = gameManagement.getGame("test");
+        assertTrue(optionalGame.isPresent());
+        Game game = optionalGame.get();
 
         //fill Inventory userDTO
-        game.get().getInventory(userDTO).lumber.setNumber(0);
-        game.get().getInventory(userDTO).incCardStack("Lumber", 10);
-        game.get().getInventory(userDTO).ore.setNumber(0);
-        game.get().getInventory(userDTO).incCardStack("Ore", 10);
+        game.getInventory(userDTO).lumber.setNumber(0);
+        game.getInventory(userDTO).incCardStack("Lumber", 10);
+        game.getInventory(userDTO).ore.setNumber(0);
+        game.getInventory(userDTO).incCardStack("Ore", 10);
         //fill Inventory userDTO1
-        game.get().getInventory(userDTO1).ore.setNumber(0);
-        game.get().getInventory(userDTO1).incCardStack("Ore", 10);
+        game.getInventory(userDTO1).ore.setNumber(0);
+        game.getInventory(userDTO1).incCardStack("Ore", 10);
         //fill Inventory userDTO2
-        game.get().getInventory(userDTO2).grain.setNumber(0);
-        game.get().getInventory(userDTO2).incCardStack("Grain", 10);
+        game.getInventory(userDTO2).grain.setNumber(0);
+        game.getInventory(userDTO2).incCardStack("Grain", 10);
         //fill Inventory userDTO3
-        game.get().getInventory(userDTO3).wool.setNumber(0);
-        game.get().getInventory(userDTO3).incCardStack("Wool", 10);
+        game.getInventory(userDTO3).wool.setNumber(0);
+        game.getInventory(userDTO3).incCardStack("Wool", 10);
 
         //tests the tradestart
         TradeItem sellerItemLumber = new TradeItem("Lumber", 5);
@@ -367,16 +378,15 @@ public class GameServiceTest {
         sellerItems.add(sellerItemGrain);
         sellerItems.add(sellerItemOre);
 
-        TradeItemRequest sellerItemRequest = new TradeItemRequest(userDTO, game.get().getName(), sellerItems, tradeCode, wishItems);
+        TradeItemRequest sellerItemRequest = new TradeItemRequest(userDTO, game.getName(), sellerItems, tradeCode, wishItems);
 
-        assertTrue(game.get().getTradeList().isEmpty());
-        gameServiceTIRT.onTradeItemRequest(sellerItemRequest);
-        //TODO Testfix needed
-        //assertTrue(event instanceof TradeOfferInformBiddersMessage);
-        assertTrue(game.get().getTradeList().containsKey(tradeCode));
-        assertTrue(game.get().getTradeList().size() == 1);
-        assertTrue(game.get().getTradeList().get(tradeCode).getSeller().getUsername().equals(sellerItemRequest.getUser().getUsername()));
-        assertTrue(game.get().getTradeList().get(tradeCode).getBidders().isEmpty());
+        assertTrue(game.getTradeList().isEmpty());
+        gameService.onTradeItemRequest(sellerItemRequest);
+        assertTrue(event instanceof TradeOfferInformBiddersMessage);
+        assertTrue(game.getTradeList().containsKey(tradeCode));
+        assertEquals(game.getTradeList().size(), 1);
+        assertEquals(sellerItemRequest.getUser().getUsername(), game.getTradeList().get(tradeCode).getSeller().getUsername());
+        assertTrue(game.getTradeList().get(tradeCode).getBidders().isEmpty());
 
         //test bidder1 with too much items offered
         TradeItem bidder1ItemLumber = new TradeItem("Lumber", 5);
@@ -393,14 +403,13 @@ public class GameServiceTest {
         bidder1ItemsWrong.add(bidder1ItemGrain);
         bidder1ItemsWrong.add(bidder1ItemOre);
 
-        TradeItemRequest bidder1ItemRequest = new TradeItemRequest(userDTO1, game.get().getName(), bidder1ItemsWrong, tradeCode, bidder1wishItems);
-        gameServiceTIRT.onTradeItemRequest(bidder1ItemRequest);
+        TradeItemRequest bidder1ItemRequest = new TradeItemRequest(userDTO1, game.getName(), bidder1ItemsWrong, tradeCode, bidder1wishItems);
+        gameService.onTradeItemRequest(bidder1ItemRequest);
 
-        //TODO: Testfix needed
-        //assertTrue(event instanceof TradeCardErrorMessage);
-        assertTrue(game.get().getTradeList().get(tradeCode).getBidders().isEmpty());
-        assertTrue(game.get().getTradeList().get(tradeCode).getBids().isEmpty());
-        assertTrue(game.get().getTradeList().size() == 1);
+        assertTrue(event instanceof TradeCardErrorMessage);
+        assertTrue(game.getTradeList().get(tradeCode).getBidders().isEmpty());
+        assertTrue(game.getTradeList().get(tradeCode).getBids().isEmpty());
+        assertEquals(game.getTradeList().size(), 1);
 
         //bidder1 with right amount
         bidder1ItemLumber = new TradeItem("Lumber", 0);
@@ -414,12 +423,12 @@ public class GameServiceTest {
         bidder1ItemsRight.add(bidder1ItemGrain);
         bidder1ItemsRight.add(bidder1ItemOre);
 
-        bidder1ItemRequest = new TradeItemRequest(userDTO1, game.get().getName(), bidder1ItemsRight, tradeCode, bidder1wishItems);
-        gameServiceTIRT.onTradeItemRequest(bidder1ItemRequest);
+        bidder1ItemRequest = new TradeItemRequest(userDTO1, game.getName(), bidder1ItemsRight, tradeCode, bidder1wishItems);
+        gameService.onTradeItemRequest(bidder1ItemRequest);
 
         assertFalse(event instanceof TradeInformSellerAboutBidsMessage);
-        assertTrue(game.get().getTradeList().get(tradeCode).getBidders().size() == 1);
-        assertTrue(game.get().getTradeList().size() == 1);
+        assertEquals(game.getTradeList().get(tradeCode).getBidders().size(), 1);
+        assertEquals(game.getTradeList().size(), 1);
 
         //test bidder2
         TradeItem bidder2ItemLumber = new TradeItem("Lumber", 0);
@@ -436,11 +445,11 @@ public class GameServiceTest {
         bidder2Items.add(bidder2ItemGrain);
         bidder2Items.add(bidder2ItemOre);
 
-        TradeItemRequest bidder2ItemRequest = new TradeItemRequest(userDTO2, game.get().getName(), bidder2Items, tradeCode, bidder2wishItems);
+        TradeItemRequest bidder2ItemRequest = new TradeItemRequest(userDTO2, game.getName(), bidder2Items, tradeCode, bidder2wishItems);
         gameService.onTradeItemRequest(bidder2ItemRequest);
 
         assertFalse(event instanceof TradeInformSellerAboutBidsMessage);
-        assertTrue(game.get().getTradeList().get(tradeCode).getBidders().size() == 2);
+        assertEquals(game.getTradeList().get(tradeCode).getBidders().size(), 2);
 
         //test bidder3
         TradeItem bidder3ItemLumber = new TradeItem("Lumber", 0);
@@ -457,50 +466,48 @@ public class GameServiceTest {
         bidder3Items.add(bidder3ItemGrain);
         bidder3Items.add(bidder3ItemOre);
 
-        TradeItemRequest bidder3ItemRequest = new TradeItemRequest(userDTO3, game.get().getName(), bidder3Items, tradeCode, bidder3wishItems);
-        gameServiceTIRT.onTradeItemRequest(bidder3ItemRequest);
+        TradeItemRequest bidder3ItemRequest = new TradeItemRequest(userDTO3, game.getName(), bidder3Items, tradeCode, bidder3wishItems);
+        gameService.onTradeItemRequest(bidder3ItemRequest);
 
-        //TODO: Testfix needed
-        //assertTrue(event instanceof TradeInformSellerAboutBidsMessage);
-        assertTrue(game.get().getTradeList().get(tradeCode).getBidders().size() == 3);
+        assertTrue(event instanceof TradeInformSellerAboutBidsMessage);
+        assertEquals(game.getTradeList().get(tradeCode).getBidders().size(), 3);
 
         //TradeChoice
-        TradeChoiceRequest tradeChoiceRight = new TradeChoiceRequest(userDTO1, true, game.get().getName(), tradeCode);
-        gameServiceTIRT.onTradeChoiceRequest(tradeChoiceRight);
+        TradeChoiceRequest tradeChoiceRight = new TradeChoiceRequest(userDTO1, true, game.getName(), tradeCode);
+        gameService.onTradeChoiceRequest(tradeChoiceRight);
 
-        assertTrue(game.get().getInventory(userDTO).ore.getNumber() == 4);
-        assertTrue(game.get().getInventory(userDTO).lumber.getNumber() == 5);
-        assertTrue(game.get().getInventory(userDTO).grain.getNumber() == 0);
-        assertTrue(game.get().getInventory(userDTO).brick.getNumber() == 0);
-        assertTrue(game.get().getInventory(userDTO).wool.getNumber() == 0);
+        assertEquals(game.getInventory(userDTO).ore.getNumber(), 4);
+        assertEquals(game.getInventory(userDTO).lumber.getNumber(), 5);
+        assertEquals(game.getInventory(userDTO).grain.getNumber(), 0);
+        assertEquals(game.getInventory(userDTO).brick.getNumber(), 0);
+        assertEquals(game.getInventory(userDTO).wool.getNumber(), 0);
 
-        assertTrue(game.get().getInventory(userDTO1).ore.getNumber() == 16);
-        assertTrue(game.get().getInventory(userDTO1).lumber.getNumber() == 5);
-        assertTrue(game.get().getInventory(userDTO1).grain.getNumber() == 0);
-        assertTrue(game.get().getInventory(userDTO1).brick.getNumber() == 0);
-        assertTrue(game.get().getInventory(userDTO1).wool.getNumber() == 0);
+        assertEquals(game.getInventory(userDTO1).ore.getNumber(), 16);
+        assertEquals(game.getInventory(userDTO1).lumber.getNumber(), 5);
+        assertEquals(game.getInventory(userDTO1).grain.getNumber(), 0);
+        assertEquals(game.getInventory(userDTO1).brick.getNumber(), 0);
+        assertEquals(game.getInventory(userDTO1).wool.getNumber(), 0);
 
-        assertTrue(game.get().getInventory(userDTO2).ore.getNumber() == 0);
-        assertTrue(game.get().getInventory(userDTO2).lumber.getNumber() == 0);
-        assertTrue(game.get().getInventory(userDTO2).grain.getNumber() == 10);
-        assertTrue(game.get().getInventory(userDTO2).brick.getNumber() == 0);
-        assertTrue(game.get().getInventory(userDTO2).wool.getNumber() == 0);
+        assertEquals(game.getInventory(userDTO2).ore.getNumber(), 0);
+        assertEquals(game.getInventory(userDTO2).lumber.getNumber(), 0);
+        assertEquals(game.getInventory(userDTO2).grain.getNumber(), 10);
+        assertEquals(game.getInventory(userDTO2).brick.getNumber(), 0);
+        assertEquals(game.getInventory(userDTO2).wool.getNumber(), 0);
 
-        assertTrue(game.get().getInventory(userDTO3).ore.getNumber() == 0);
-        assertTrue(game.get().getInventory(userDTO3).lumber.getNumber() == 0);
-        assertTrue(game.get().getInventory(userDTO3).grain.getNumber() == 0);
-        assertTrue(game.get().getInventory(userDTO3).brick.getNumber() == 0);
-        assertTrue(game.get().getInventory(userDTO3).wool.getNumber() == 10);
-        //TODO Testfix needed
-        //assertTrue(event instanceof TradeEndedMessage);
+        assertEquals(game.getInventory(userDTO3).ore.getNumber(), 0);
+        assertEquals(game.getInventory(userDTO3).lumber.getNumber(), 0);
+        assertEquals(game.getInventory(userDTO3).grain.getNumber(), 0);
+        assertEquals(game.getInventory(userDTO3).brick.getNumber(), 0);
+        assertEquals(game.getInventory(userDTO3).wool.getNumber(), 10);
+        assertTrue(event instanceof PublicInventoryChangeMessage);
     }
 
     /**
      * This test checks if the distributeResource method works as intended
      * <p>
-     * We create a new gameService and we create a new game. After that we assert that, the game is present and we
+     * We create a new game. After that we assert that, the game is present and we
      * join some user to the game. We setup the inventories and the UserArrayList. We built at every possible
-     * buildingspot. We assume that we rolled a 5 and give that to our method. To check if it works fine, we
+     * buildingSpot. We assume that we rolled a 5 and give that to our method. To check if it works fine, we
      * assert that it incremented with 6.
      *
      * @author Philip Nitsche
@@ -509,23 +516,28 @@ public class GameServiceTest {
     @Test
     void distributeResourcesTest() {
         loginUsers();
-        gameManagement.createGame("test", userDTO, "Standard");
-        Optional<Game> game = gameManagement.getGame("test");
-        assertTrue(game.isPresent());
+        lobbyManagement.createLobby("test", userDTO);
+        Optional<Lobby> optionalLobby = lobbyManagement.getLobby("test");
+        assertTrue(optionalLobby.isPresent());
+        Lobby lobby = optionalLobby.get();
+        lobby.joinUser(userDTO1);
+        lobby.joinUser(userDTO2);
+        lobby.joinUser(userDTO3);
+        lobby.joinPlayerReady(userDTO);
+        lobby.joinPlayerReady(userDTO1);
+        lobby.joinPlayerReady(userDTO2);
+        lobby.joinPlayerReady(userDTO3);
+        gameService.startGame(lobby, "Standard");
+        Optional<Game> optionalGame = gameManagement.getGame("test");
+        assertTrue(optionalGame.isPresent());
+        Game game = optionalGame.get();
 
-        game.get().joinUser(userDTO1);
-        game.get().joinUser(userDTO2);
-        game.get().joinUser(userDTO3);
-
-        game.get().setUpUserArrayList();
-        game.get().setUpInventories();
-
-        for (MapGraph.BuildingNode b : game.get().getMapGraph().getBuildingNodeHashSet()) {
+        for (MapGraph.BuildingNode b : game.getMapGraph().getBuildingNodeHashSet()) {
             b.buildOrDevelopSettlement(1);
         }
 
-        Map<String, Integer> inventoryEmpty = new HashMap<>();
-        inventoryEmpty = game.get().getInventory(game.get().getUser(1)).getPrivateView();
+        Map<String, Integer> inventoryEmpty;
+        inventoryEmpty = game.getInventory(game.getUser(1)).getPrivateView();
         assertEquals(inventoryEmpty.get("Lumber"), 0);
         assertEquals(inventoryEmpty.get("Brick"), 0);
         assertEquals(inventoryEmpty.get("Grain"), 0);
@@ -534,15 +546,27 @@ public class GameServiceTest {
 
         gameService.distributeResources(5, "test");
         Map<String, Integer> inventoryFull = new HashMap<>();
-        inventoryFull = game.get().getInventory(game.get().getUser(1)).getPrivateView();
+        inventoryFull = game.getInventory(game.getUser(1)).getPrivateView();
         assertEquals(inventoryFull.get("Lumber"), 6);
         assertEquals(inventoryFull.get("Brick"), 0);
         assertEquals(inventoryFull.get("Grain"), 6);
         assertEquals(inventoryFull.get("Wool"), 0);
         assertEquals(inventoryFull.get("Ore"), 0);
-        assertEquals(game.get().getInventory(game.get().getUser(1)).sumResource(), 12);
-        assertEquals(game.get().getInventory(game.get().getUser(0)).sumResource(), 0);
-        assertEquals(game.get().getInventory(game.get().getUser(2)).sumResource(), 0);
+        assertEquals(game.getInventory(game.getUser(1)).sumResource(), 12);
+        assertEquals(game.getInventory(game.getUser(0)).sumResource(), 0);
+        assertEquals(game.getInventory(game.getUser(2)).sumResource(), 0);
+
+        gameService.distributeResources(1, "test");
+        gameService.distributeResources(2, "test");
+        gameService.distributeResources(3, "test");
+        gameService.distributeResources(4, "test");
+        gameService.distributeResources(5, "test");
+        gameService.distributeResources(6, "test");
+        gameService.distributeResources(8, "test");
+        gameService.distributeResources(9, "test");
+        gameService.distributeResources(10, "test");
+        gameService.distributeResources(11, "test");
+        gameService.distributeResources(12, "test");
     }
 
     /**
@@ -561,22 +585,28 @@ public class GameServiceTest {
     @Test
     void playAndResolveDevelopmentCardRequestTest() {
         loginUsers();
-        gameManagement.createGame("test", userDTO, "Standard");
-        Optional<Game> game = gameManagement.getGame("test");
-        assertTrue(game.isPresent());
+        lobbyManagement.createLobby("test", userDTO);
+        Optional<Lobby> optionalLobby = lobbyManagement.getLobby("test");
+        assertTrue(optionalLobby.isPresent());
+        Lobby lobby = optionalLobby.get();
+        lobby.joinUser(userDTO1);
+        lobby.joinUser(userDTO2);
+        lobby.joinUser(userDTO3);
+        lobby.joinPlayerReady(userDTO);
+        lobby.joinPlayerReady(userDTO1);
+        lobby.joinPlayerReady(userDTO2);
+        lobby.joinPlayerReady(userDTO3);
+        gameService.startGame(lobby, "Standard");
+        Optional<Game> optionalGame = gameManagement.getGame("test");
+        assertTrue(optionalGame.isPresent());
+        Game game = optionalGame.get();
 
-        game.get().joinUser(userDTO1);
-        game.get().joinUser(userDTO2);
-        game.get().joinUser(userDTO3);
+        User userThatPlaysTheCard = game.getUser(0);
+        Inventory inv0 = game.getInventory(userThatPlaysTheCard);
+        Inventory inv1 = game.getInventory(game.getUser(1));
+        Inventory inv2 = game.getInventory(game.getUser(2));
+        Inventory inv3 = game.getInventory(game.getUser(3));
 
-        game.get().setUpUserArrayList();
-        game.get().setUpInventories();
-
-        User userThatPlaysTheCard = game.get().getUser(0);
-        Inventory inv0 = game.get().getInventory(userThatPlaysTheCard);
-        Inventory inv1 = game.get().getInventory(game.get().getUser(1));
-        Inventory inv2 = game.get().getInventory(game.get().getUser(2));
-        Inventory inv3 = game.get().getInventory(game.get().getUser(3));
 
         inv0.cardYearOfPlenty.incNumber();
         inv0.cardRoadBuilding.incNumber();
@@ -584,114 +614,311 @@ public class GameServiceTest {
         inv2.cardRoadBuilding.incNumber();
         inv2.brick.incNumber(2);
         inv3.lumber.incNumber(3);
+        inv3.cardKnight.incNumber();
 
-        // Check if player 1 is allowed to play his decCardStack
+        // do the opening turn so we may play developmentCards
+        buildStreetAndBuildingForOpeningTurn(game);
+        buildStreetAndBuildingForOpeningTurn(game);
+        buildStreetAndBuildingForOpeningTurn(game);
+        buildStreetAndBuildingForOpeningTurn(game);
+        buildStreetAndBuildingForOpeningTurn(game);
+        buildStreetAndBuildingForOpeningTurn(game);
+        buildStreetAndBuildingForOpeningTurn(game);
+        buildStreetAndBuildingForOpeningTurn(game);
+
         PlayDevelopmentCardRequest pdcr = new PlayDevelopmentCardRequest("Year of Plenty", "test", (UserDTO) userThatPlaysTheCard);
         gameService.onPlayDevelopmentCardRequest(pdcr);
+        assertTrue(event instanceof PlayDevelopmentCardResponse);
+        assertFalse(((PlayDevelopmentCardResponse) event).isCanPlayCard());
 
-        //TODO Testfix needed
-        //assertTrue(event instanceof PublicInventoryChangeMessage);
-        //assertTrue(((PlayDevelopmentCardResponse) event).isCanPlayCard());
+        RollDiceRequest rdr = new RollDiceRequest(game.getName(), userThatPlaysTheCard, 3);
+        gameService.onRollDiceRequest(rdr);
+
+        // Check if player 1 is allowed to play his decCardStack
+        pdcr = new PlayDevelopmentCardRequest("Year of Plenty", "test", (UserDTO) userThatPlaysTheCard);
+        gameService.onPlayDevelopmentCardRequest(pdcr);
+
+        assertTrue(event instanceof PublicInventoryChangeMessage);
 
         // Check if player 2 is not allowed to play his decCardStack because its not his turn
-        pdcr = new PlayDevelopmentCardRequest("Road Building", "test", (UserDTO) game.get().getUser(2));
+        pdcr = new PlayDevelopmentCardRequest("Road Building", "test", (UserDTO) game.getUser(2));
         gameService.onPlayDevelopmentCardRequest(pdcr);
-        //TODO Testfix needed
-        //assertTrue(event instanceof PlayDevelopmentCardResponse);
-        //TODO Testfix needed
-        //PlayDevelopmentCardResponse rsp = (PlayDevelopmentCardResponse) event;
-        //assertEquals(rsp.getUserName(), game.get().getUser(2).getUsername());
-        //assertFalse(rsp.isCanPlayCard());
+        assertTrue(event instanceof PlayDevelopmentCardResponse);
+        PlayDevelopmentCardResponse rsp = (PlayDevelopmentCardResponse) event;
+        assertEquals(rsp.getUserName(), game.getUser(2).getUsername());
+        assertFalse(rsp.isCanPlayCard());
 
         // Check if player 1 can try to resolve the wrong card
         int i = 0;
         MapGraph.StreetNode street1 = null;
         MapGraph.StreetNode street2 = null;
-        for (MapGraph.StreetNode street : game.get().getMapGraph().getStreetNodeHashSet()) {
-            if (i == 0) street1 = street;
-            if (i == 1) street2 = street;
-            else i++;
-            if (i == 2) break;
+        for (MapGraph.BuildingNode bn : game.getMapGraph().getBuildingNodeHashSet()) {
+            if (bn.getOccupiedByPlayer() == 0) {
+                for (MapGraph.StreetNode street : bn.getConnectedStreetNodes()) {
+                    if (i == 0 && street.tryBuildRoad(game.getTurn(), game.getStartingPhase())) {
+                        street1 = street;
+                        i++;
+                    } else if (i == 1 && street.tryBuildRoad(game.getTurn(), game.getStartingPhase())) {
+                        street2 = street;
+                        i++;
+                        break;
+                    }
+                }
+            }
         }
-        ResolveDevelopmentCardRoadBuildingRequest rdcrbr = new ResolveDevelopmentCardRoadBuildingRequest("Road Building", (UserDTO) userThatPlaysTheCard, game.get().getName(), street1.getUuid(), street2.getUuid());
+        assert street1 != null;
+        assert street2 != null;
+
+        ResolveDevelopmentCardRoadBuildingRequest rdcrbr = new ResolveDevelopmentCardRoadBuildingRequest("Road Building", (UserDTO) userThatPlaysTheCard, game.getName(), street1.getUuid(), street2.getUuid());
         gameService.onResolveDevelopmentCardRequest(rdcrbr);
         assertFalse(event instanceof ResolveDevelopmentCardMessage);
 
         // Check if player 1 is allowed to resolve his devCard and if it resolves successfully
-        ResolveDevelopmentCardYearOfPlentyRequest rdcyopr = new ResolveDevelopmentCardYearOfPlentyRequest("Year of Plenty", (UserDTO) userThatPlaysTheCard, game.get().getName(), "Lumber", "Ore");
+        int brick = inv0.brick.getNumber();
+        int ore = inv0.ore.getNumber();
+        int lumber = inv0.lumber.getNumber();
+        ResolveDevelopmentCardYearOfPlentyRequest rdcyopr = new ResolveDevelopmentCardYearOfPlentyRequest("Year of Plenty", (UserDTO) userThatPlaysTheCard, game.getName(), "Lumber", "Ore");
         gameService.onResolveDevelopmentCardRequest(rdcyopr);
         assertTrue(event instanceof PublicInventoryChangeMessage);
-        assertEquals(inv0.brick.getNumber(), 0);
-        assertEquals(inv0.ore.getNumber(), 1);
-        assertEquals(inv0.lumber.getNumber(), 1);
+        assertEquals(inv0.brick.getNumber(), brick);
+        assertEquals(inv0.ore.getNumber(), ore + 1);
+        assertEquals(inv0.lumber.getNumber(), lumber + 1);
 
         // End the turn and let player 2 try to play the Monopoly devCard
-        EndTurnRequest endTurnRequest = new EndTurnRequest(game.get().getName(), (UserDTO) userThatPlaysTheCard);
+        EndTurnRequest endTurnRequest = new EndTurnRequest(game.getName(), (UserDTO) userThatPlaysTheCard);
         gameService.onEndTurnRequest(endTurnRequest);
         assertTrue(event instanceof NextTurnMessage);
-        userThatPlaysTheCard = game.get().getUser(1);
-        pdcr = new PlayDevelopmentCardRequest("Monopoly", game.get().getName(), (UserDTO) userThatPlaysTheCard);
+        userThatPlaysTheCard = game.getUser(1);
+
+        rdr = new RollDiceRequest(game.getName(), userThatPlaysTheCard, 3);
+        gameService.onRollDiceRequest(rdr);
+
+        pdcr = new PlayDevelopmentCardRequest("Monopoly", game.getName(), (UserDTO) userThatPlaysTheCard);
         gameService.onPlayDevelopmentCardRequest(pdcr);
-        //TODO Testfix needed
-        //assertTrue(event instanceof PlayDevelopmentCardResponse);
-        ResolveDevelopmentCardMonopolyRequest rdcMr = new ResolveDevelopmentCardMonopolyRequest("Monopoly", (UserDTO) userThatPlaysTheCard, game.get().getName(), "Lumber");
+        assertTrue(event instanceof PublicInventoryChangeMessage);
+        int amountOfAllLumber = inv0.lumber.getNumber() + inv1.lumber.getNumber() + inv2.lumber.getNumber() + inv3.lumber.getNumber();
+        ResolveDevelopmentCardMonopolyRequest rdcMr = new ResolveDevelopmentCardMonopolyRequest("Monopoly", (UserDTO) userThatPlaysTheCard, game.getName(), "Lumber");
         gameService.onResolveDevelopmentCardRequest(rdcMr);
         assertTrue(event instanceof PublicInventoryChangeMessage);
         assertEquals(inv0.lumber.getNumber(), 0);
-        assertEquals(inv1.lumber.getNumber(), 4);
+        assertEquals(inv1.lumber.getNumber(), amountOfAllLumber);
         assertEquals(inv2.lumber.getNumber(), 0);
         assertEquals(inv3.lumber.getNumber(), 0);
 
+
         // End the turn and let player 3 try to play the Road Building card
-        endTurnRequest = new EndTurnRequest(game.get().getName(), (UserDTO) userThatPlaysTheCard);
+        endTurnRequest = new EndTurnRequest(game.getName(), (UserDTO) userThatPlaysTheCard);
         gameService.onEndTurnRequest(endTurnRequest);
-        userThatPlaysTheCard = game.get().getUser(2);
+        userThatPlaysTheCard = game.getUser(2);
 
-        pdcr = new PlayDevelopmentCardRequest("Road Building", game.get().getName(), (UserDTO) userThatPlaysTheCard);
+        rdr = new RollDiceRequest(game.getName(), userThatPlaysTheCard, 3);
+        gameService.onRollDiceRequest(rdr);
+
+        pdcr = new PlayDevelopmentCardRequest("Road Building", game.getName(), (UserDTO) userThatPlaysTheCard);
         gameService.onPlayDevelopmentCardRequest(pdcr);
-        //TODO Testfix needed
-        //assertTrue(event instanceof PlayDevelopmentCardResponse);
+        assertTrue(event instanceof PublicInventoryChangeMessage);
 
-        rdcrbr = new ResolveDevelopmentCardRoadBuildingRequest("Road Building", (UserDTO) userThatPlaysTheCard, game.get().getName(), street1.getUuid(), street2.getUuid());
+        i = 0;
+        for (MapGraph.BuildingNode bn : game.getMapGraph().getBuildingNodeHashSet()) {
+            if (bn.getOccupiedByPlayer() == game.getTurn()) {
+                for (MapGraph.StreetNode sn : bn.getConnectedStreetNodes()) {
+                    if (sn.getOccupiedByPlayer() == 666 && i == 0) {
+                        street1 = sn;
+                        i++;
+                    } else if (sn.getOccupiedByPlayer() == 666 && i == 1) {
+                        street2 = sn;
+                        i++;
+                        break;
+                    }
+                }
+                if (i == 2) {
+                    break;
+                }
+            }
+        }
+
+        rdcrbr = new ResolveDevelopmentCardRoadBuildingRequest("Road Building", (UserDTO) userThatPlaysTheCard, game.getName(), street1.getUuid(), street2.getUuid());
         gameService.onResolveDevelopmentCardRequest(rdcrbr);
-        //TODO Testfix needed
-        //assertTrue(event instanceof ResolveDevelopmentCardMessage);
+        assertTrue(event instanceof PublicInventoryChangeMessage);
 
         // check if player 3 (index 2) is the occupier of the streets that were built with the Road Building decCardStack
         assertEquals(street1.getOccupiedByPlayer(), 2);
         assertEquals(street2.getOccupiedByPlayer(), 2);
+
+        // End the turn and let player 4 try to play a card illegally and then play the knight card
+        endTurnRequest = new EndTurnRequest(game.getName(), (UserDTO) userThatPlaysTheCard);
+        gameService.onEndTurnRequest(endTurnRequest);
+        userThatPlaysTheCard = game.getUser(3);
+
+        rdr = new RollDiceRequest(game.getName(), userThatPlaysTheCard);
+        gameService.onRollDiceRequest(rdr);
+
+        pdcr = new PlayDevelopmentCardRequest("illegalCard", game.getName(), (UserDTO) userThatPlaysTheCard);
+        gameService.onPlayDevelopmentCardRequest(pdcr);
+
+        pdcr = new PlayDevelopmentCardRequest("Knight", game.getName(), (UserDTO) userThatPlaysTheCard);
+        gameService.onPlayDevelopmentCardRequest(pdcr);
+        assertTrue(event instanceof PublicInventoryChangeMessage);
+
+        UUID hexagon = null;
+        for (MapGraph.Hexagon hx : game.getMapGraph().getHexagonHashSet()) {
+            if (!hx.isOccupiedByRobber()) {
+                hexagon = hx.getUuid();
+                break;
+            }
+        }
+        ResolveDevelopmentCardKnightRequest rdckr;
+        rdckr = new ResolveDevelopmentCardKnightRequest("IllegalName", (UserDTO) userThatPlaysTheCard, game.getName(), hexagon);
+        gameService.onResolveDevelopmentCardRequest(rdckr);
+        assertTrue(event instanceof PublicInventoryChangeMessage);
+
+        rdckr = new ResolveDevelopmentCardKnightRequest("Knight", (UserDTO) userThatPlaysTheCard, game.getName(), hexagon);
+        gameService.onResolveDevelopmentCardRequest(rdckr);
+        assertTrue(event instanceof PublicInventoryChangeMessage);
+
+
+        // From here on ignore rules and test for coverage
+        game.setIsUsedForTest(true);
+        inv3.cardMonopoly.incNumber(10);
+        inv3.cardYearOfPlenty.incNumber(10);
+        inv3.cardKnight.incNumber(10);
+        inv3.cardRoadBuilding.incNumber(10);
+
+        // year of plenty
+        pdcr = new PlayDevelopmentCardRequest("Year of Plenty", "test", (UserDTO) userThatPlaysTheCard);
+        gameService.onPlayDevelopmentCardRequest(pdcr);
+        assertTrue(event instanceof PublicInventoryChangeMessage);
+
+        rdckr = new ResolveDevelopmentCardKnightRequest("Year of Plenty", (UserDTO) userThatPlaysTheCard, game.getName(), hexagon);
+        gameService.onResolveDevelopmentCardRequest(rdckr);
+        assertTrue(event instanceof ResolveDevelopmentCardNotSuccessfulResponse);
+
+        game.getBankInventory().lumber.setNumber(0);
+        rdcyopr = new ResolveDevelopmentCardYearOfPlentyRequest("Year of Plenty", (UserDTO) userThatPlaysTheCard, game.getName(), "Lumber", "Ore");
+        gameService.onResolveDevelopmentCardRequest(rdcyopr);
+        assertTrue(event instanceof ResolveDevelopmentCardNotSuccessfulResponse);
+        game.getBankInventory().lumber.setNumber(19);
+        gameService.onResolveDevelopmentCardRequest(rdcyopr);
+        assertTrue(event instanceof PublicInventoryChangeMessage);
+
+        // knight
+        pdcr = new PlayDevelopmentCardRequest("Knight", game.getName(), (UserDTO) userThatPlaysTheCard);
+        gameService.onPlayDevelopmentCardRequest(pdcr);
+        assertTrue(event instanceof PublicInventoryChangeMessage);
+
+        for (MapGraph.Hexagon hx : game.getMapGraph().getHexagonHashSet()) {
+            if (!hx.isOccupiedByRobber()) {
+                hexagon = hx.getUuid();
+                break;
+            }
+        }
+        rdcyopr = new ResolveDevelopmentCardYearOfPlentyRequest("Knight", (UserDTO) userThatPlaysTheCard, game.getName(), "Lumber", "Ore");
+        gameService.onResolveDevelopmentCardRequest(rdcyopr);
+        assertTrue(event instanceof ResolveDevelopmentCardNotSuccessfulResponse);
+
+        rdckr = new ResolveDevelopmentCardKnightRequest("Knight", (UserDTO) userThatPlaysTheCard, game.getName(), hexagon);
+        gameService.onResolveDevelopmentCardRequest(rdckr);
+        assertTrue(event instanceof PublicInventoryChangeMessage);
+
+        // monopoly
+        pdcr = new PlayDevelopmentCardRequest("Monopoly", game.getName(), (UserDTO) userThatPlaysTheCard);
+        gameService.onPlayDevelopmentCardRequest(pdcr);
+        assertTrue(event instanceof PublicInventoryChangeMessage);
+
+        rdcyopr = new ResolveDevelopmentCardYearOfPlentyRequest("Monopoly", (UserDTO) userThatPlaysTheCard, game.getName(), "Lumber", "Ore");
+        gameService.onResolveDevelopmentCardRequest(rdcyopr);
+        assertTrue(event instanceof ResolveDevelopmentCardNotSuccessfulResponse);
+
+        rdcMr = new ResolveDevelopmentCardMonopolyRequest("Monopoly", (UserDTO) userThatPlaysTheCard, game.getName(), "Grain");
+        gameService.onResolveDevelopmentCardRequest(rdcMr);
+        assertTrue(event instanceof PublicInventoryChangeMessage);
+
+        pdcr = new PlayDevelopmentCardRequest("Monopoly", game.getName(), (UserDTO) userThatPlaysTheCard);
+        gameService.onPlayDevelopmentCardRequest(pdcr);
+        assertTrue(event instanceof PublicInventoryChangeMessage);
+        rdcMr = new ResolveDevelopmentCardMonopolyRequest("Monopoly", (UserDTO) userThatPlaysTheCard, game.getName(), "Wool");
+        gameService.onResolveDevelopmentCardRequest(rdcMr);
+        assertTrue(event instanceof PublicInventoryChangeMessage);
+
+        pdcr = new PlayDevelopmentCardRequest("Monopoly", game.getName(), (UserDTO) userThatPlaysTheCard);
+        gameService.onPlayDevelopmentCardRequest(pdcr);
+        assertTrue(event instanceof PublicInventoryChangeMessage);
+        rdcMr = new ResolveDevelopmentCardMonopolyRequest("Monopoly", (UserDTO) userThatPlaysTheCard, game.getName(), "Ore");
+        gameService.onResolveDevelopmentCardRequest(rdcMr);
+        assertTrue(event instanceof PublicInventoryChangeMessage);
+
+        pdcr = new PlayDevelopmentCardRequest("Monopoly", game.getName(), (UserDTO) userThatPlaysTheCard);
+        gameService.onPlayDevelopmentCardRequest(pdcr);
+        assertTrue(event instanceof PublicInventoryChangeMessage);
+        rdcMr = new ResolveDevelopmentCardMonopolyRequest("Monopoly", (UserDTO) userThatPlaysTheCard, game.getName(), "illegalResource");
+        gameService.onResolveDevelopmentCardRequest(rdcMr);
+        assertTrue(event instanceof ResolveDevelopmentCardNotSuccessfulResponse);
+        rdcMr = new ResolveDevelopmentCardMonopolyRequest("Monopoly", (UserDTO) userThatPlaysTheCard, game.getName(), "Brick");
+        gameService.onResolveDevelopmentCardRequest(rdcMr);
+        assertTrue(event instanceof PublicInventoryChangeMessage);
+
+        // road building
+        pdcr = new PlayDevelopmentCardRequest("Road Building", game.getName(), (UserDTO) userThatPlaysTheCard);
+        gameService.onPlayDevelopmentCardRequest(pdcr);
+        assertTrue(event instanceof PublicInventoryChangeMessage);
+
+        rdckr = new ResolveDevelopmentCardKnightRequest("Road Building", (UserDTO) userThatPlaysTheCard, game.getName(), hexagon);
+        gameService.onResolveDevelopmentCardRequest(rdckr);
+        assertTrue(event instanceof ResolveDevelopmentCardNotSuccessfulResponse);
+
+        rdcrbr = new ResolveDevelopmentCardRoadBuildingRequest("Road Building", (UserDTO) userThatPlaysTheCard, game.getName(), street1.getUuid(), street2.getUuid());
+        gameService.onResolveDevelopmentCardRequest(rdcrbr);
+        assertTrue(event instanceof ResolveDevelopmentCardNotSuccessfulResponse);
+
+
+        Inventory invT = game.getInventory(userThatPlaysTheCard);
+        invT.incCardStack("Ore", 3);
+        invT.incCardStack("Grain", 2);
+        int victoryPointsT = invT.getVictoryPoints();
+        for (MapGraph.BuildingNode bn : game.getMapGraph().getBuiltBuildings()) {
+            if (bn.getOccupiedByPlayer() == game.getTurn()) {
+                ConstructionRequest cr = new ConstructionRequest((UserDTO) userThatPlaysTheCard, game.getName(), bn.getUuid(), "BuildingNode");
+                gameService.onConstructionMessage(cr);
+                break;
+            }
+        }
+        assertEquals(invT.getVictoryPoints(), victoryPointsT + 1);
+
     }
 
     @Test
     public void ResourcesToDiscardTest() {
-        GameService gameService2 = new GameService(gameManagement, lobbyService, authenticationService, bus, userService);
-        gameManagement.createGame("test", userDTO, "Standard");
-        Optional<Game> game = gameManagement.getGame("test");
-        assertTrue(game.isPresent());
-
         loginUsers();
+        lobbyManagement.createLobby("test", userDTO);
+        Optional<Lobby> optionalLobby = lobbyManagement.getLobby("test");
+        assertTrue(optionalLobby.isPresent());
+        Lobby lobby = optionalLobby.get();
+        lobby.joinUser(userDTO1);
+        lobby.joinUser(userDTO2);
+        lobby.joinUser(userDTO3);
+        lobby.joinPlayerReady(userDTO);
+        lobby.joinPlayerReady(userDTO1);
+        lobby.joinPlayerReady(userDTO2);
+        lobby.joinPlayerReady(userDTO3);
+        gameService.startGame(lobby, "Standard");
+        Optional<Game> optionalGame = gameManagement.getGame("test");
+        assertTrue(optionalGame.isPresent());
+        Game game = optionalGame.get();
 
-        game.get().joinUser(userDTO1);
-        game.get().joinUser(userDTO2);
-        game.get().joinUser(userDTO3);
-
-        game.get().setUpUserArrayList();
-        game.get().setUpInventories();
-
-        for (MapGraph.BuildingNode b : game.get().getMapGraph().getBuildingNodeHashSet()) {
+        for (MapGraph.BuildingNode b : game.getMapGraph().getBuildingNodeHashSet()) {
             b.buildOrDevelopSettlement(1);
         }
 
         Map<String, Integer> inventoryEmpty = new HashMap<>();
-        inventoryEmpty = game.get().getInventory(game.get().getUser(1)).getPrivateView();
+        inventoryEmpty = game.getInventory(game.getUser(1)).getPrivateView();
         assertEquals(inventoryEmpty.get("Lumber"), 0);
         assertEquals(inventoryEmpty.get("Brick"), 0);
         assertEquals(inventoryEmpty.get("Grain"), 0);
         assertEquals(inventoryEmpty.get("Wool"), 0);
         assertEquals(inventoryEmpty.get("Ore"), 0);
 
-        game.get().getInventory(userDTO1).lumber.setNumber(6);
-        game.get().getInventory(userDTO1).grain.setNumber(5);
+        game.getInventory(userDTO1).lumber.setNumber(6);
+        game.getInventory(userDTO1).grain.setNumber(5);
 
         HashMap<String, Integer> inventoryChosen = new HashMap<>();
         inventoryChosen.put("Lumber", 3);
@@ -701,10 +928,51 @@ public class GameServiceTest {
         inventoryChosen.put("Grain", 4);
 
         ResourcesToDiscardRequest resources = new ResourcesToDiscardRequest("test", userDTO1, inventoryChosen);
-        gameService2.onResourcesToDiscard(resources);
+        gameService.onResourcesToDiscard(resources);
 
-        assertEquals(game.get().getInventory(userDTO1).lumber.getNumber(), 3);
-        assertEquals(game.get().getInventory(userDTO1).grain.getNumber(), 4);
+        assertEquals(game.getInventory(userDTO1).lumber.getNumber(), 3);
+        assertEquals(game.getInventory(userDTO1).grain.getNumber(), 4);
+    }
+
+    /**
+     * This test checks if the MapGraph can be generated randomly with regards to the actual placement of the fields
+     *
+     * @author Marc Hermes
+     * @since 2021-05-14
+     */
+    @Test
+    void veryRandomGameFieldGenerateTest() {
+
+        loginUsers();
+        lobbyManagement.createLobby("test", userDTO);
+        Optional<Lobby> optionalLobby = lobbyManagement.getLobby("test");
+        assertTrue(optionalLobby.isPresent());
+        Lobby lobby = optionalLobby.get();
+        lobby.joinUser(userDTO1);
+        lobby.joinUser(userDTO2);
+        lobby.joinUser(userDTO3);
+        lobby.joinPlayerReady(userDTO);
+        lobby.joinPlayerReady(userDTO1);
+        lobby.joinPlayerReady(userDTO2);
+        lobby.joinPlayerReady(userDTO3);
+        gameService.startGame(lobby, "VeryRandom");
+        Optional<Game> optionalGame = gameManagement.getGame("test");
+        assertTrue(optionalGame.isPresent());
+        Game game = optionalGame.get();
+
+        // Check if the amount of building nodes, street nodes and hexagons is correct.
+        // because of the randomness of the generation an exact value for the street and buildings nodes as well as harbors cannot be checked.
+        int harborCounter = 0;
+        for (MapGraph.BuildingNode bn : game.getMapGraph().getBuildingNodeHashSet()) {
+            if (bn.getTypeOfHarbor() != 0) {
+                harborCounter++;
+            }
+        }
+
+        assertTrue(harborCounter <= 18);
+        assertEquals(game.getMapGraph().getHexagonHashSet().size(), 19);
+        assertTrue(game.getMapGraph().getBuildingNodeHashSet().size() >= 54);
+        assertTrue(game.getMapGraph().getStreetNodeHashSet().size() >= 72);
     }
 
     /**
@@ -717,30 +985,35 @@ public class GameServiceTest {
     void randomGameFieldGenerateTest() {
 
         loginUsers();
-        gameManagement.createGame("test", userDTO, "VeryRandom");
-        Optional<Game> game = gameManagement.getGame("test");
-        assertTrue(game.isPresent());
-
-        game.get().joinUser(userDTO1);
-        game.get().joinUser(userDTO2);
-        game.get().joinUser(userDTO3);
-
-        game.get().setUpUserArrayList();
-        game.get().setUpInventories();
+        lobbyManagement.createLobby("test", userDTO);
+        Optional<Lobby> optionalLobby = lobbyManagement.getLobby("test");
+        assertTrue(optionalLobby.isPresent());
+        Lobby lobby = optionalLobby.get();
+        lobby.joinUser(userDTO1);
+        lobby.joinUser(userDTO2);
+        lobby.joinUser(userDTO3);
+        lobby.joinPlayerReady(userDTO);
+        lobby.joinPlayerReady(userDTO1);
+        lobby.joinPlayerReady(userDTO2);
+        lobby.joinPlayerReady(userDTO3);
+        gameService.startGame(lobby, "Random");
+        Optional<Game> optionalGame = gameManagement.getGame("test");
+        assertTrue(optionalGame.isPresent());
+        Game game = optionalGame.get();
 
         // Check if the amount of building nodes, street nodes and hexagons is correct.
         // because of the randomness of the generation an exact value for the street and buildings nodes as well as harbors cannot be checked.
         int harborCounter = 0;
-        for (MapGraph.BuildingNode bn : game.get().getMapGraph().getBuildingNodeHashSet()) {
+        for (MapGraph.BuildingNode bn : game.getMapGraph().getBuildingNodeHashSet()) {
             if (bn.getTypeOfHarbor() != 0) {
                 harborCounter++;
             }
         }
 
-        assertTrue(harborCounter <= 18);
-        assertEquals(game.get().getMapGraph().getHexagonHashSet().size(), 19);
-        assertTrue(game.get().getMapGraph().getBuildingNodeHashSet().size() >= 54);
-        assertTrue(game.get().getMapGraph().getStreetNodeHashSet().size() >= 72);
+        assertEquals(harborCounter, 18);
+        assertEquals(game.getMapGraph().getHexagonHashSet().size(), 19);
+        assertEquals(game.getMapGraph().getBuildingNodeHashSet().size(), 54);
+        assertEquals(game.getMapGraph().getStreetNodeHashSet().size(), 72);
     }
 
     /**
@@ -755,38 +1028,43 @@ public class GameServiceTest {
     @Test
     void missingPlayerAITest() {
         loginUsers();
-        gameManagement.createGame("test", userDTO, "Standard");
-        Optional<Game> game = gameManagement.getGame("test");
-        assertTrue(game.isPresent());
-
-        game.get().joinUser(userDTO1);
-        game.get().joinUser(userDTO2);
-        game.get().joinUser(userDTO3);
-
-        game.get().setUpUserArrayList();
-        game.get().setUpInventories();
+        lobbyManagement.createLobby("test", userDTO);
+        Optional<Lobby> optionalLobby = lobbyManagement.getLobby("test");
+        assertTrue(optionalLobby.isPresent());
+        Lobby lobby = optionalLobby.get();
+        lobby.joinUser(userDTO1);
+        lobby.joinUser(userDTO2);
+        lobby.joinUser(userDTO3);
+        lobby.joinPlayerReady(userDTO);
+        lobby.joinPlayerReady(userDTO1);
+        lobby.joinPlayerReady(userDTO2);
+        lobby.joinPlayerReady(userDTO3);
+        gameService.startGame(lobby, "Standard");
+        Optional<Game> optionalGame = gameManagement.getGame("test");
+        assertTrue(optionalGame.isPresent());
+        Game game = optionalGame.get();
 
         // the TestAI class will now be used
-        game.get().setIsUsedForTest(true);
+        game.setIsUsedForTest(true);
 
         // Player 1 leaves the game
-        GameLeaveUserRequest glur = new GameLeaveUserRequest(game.get().getName(), userDTO1);
+        GameLeaveUserRequest glur = new GameLeaveUserRequest(game.getName(), userDTO1);
         gameService.onGameLeaveUserRequest(glur);
 
         // Player 0 ends his turn
-        EndTurnRequest etr = new EndTurnRequest(game.get().getName(), userDTO);
+        EndTurnRequest etr = new EndTurnRequest(game.getName(), userDTO);
         gameService.onEndTurnRequest(etr);
 
         int buildingCounter = 0;
         int streetCounter = 0;
 
-        for (MapGraph.BuildingNode bn : game.get().getMapGraph().getBuildingNodeHashSet()) {
+        for (MapGraph.BuildingNode bn : game.getMapGraph().getBuildingNodeHashSet()) {
             if (bn.getOccupiedByPlayer() == 1) {
                 buildingCounter++;
             }
         }
 
-        for (MapGraph.StreetNode sn : game.get().getMapGraph().getStreetNodeHashSet()) {
+        for (MapGraph.StreetNode sn : game.getMapGraph().getStreetNodeHashSet()) {
             if (sn.getOccupiedByPlayer() == 1) {
                 streetCounter++;
 
@@ -798,8 +1076,8 @@ public class GameServiceTest {
         assertEquals(streetCounter, 1);
 
         // Check if the turn started for the correct player (and thus the AI ended the turn)
-        assertTrue(event instanceof NextTurnMessage);
-        assertEquals(userDTO2.getUsername(), ((NextTurnMessage) event).getPlayerWithCurrentTurn());
+        assertTrue(event instanceof PublicInventoryChangeMessage);
+        assertEquals(userDTO2, game.getUser(game.getTurn()));
     }
 
     /**
@@ -808,7 +1086,7 @@ public class GameServiceTest {
      * <p>
      * The AI will first play the opening turn and then continue to do another turn where it
      * plays all developmentCards and trades
-     *
+     * <p>
      * enhanced by Marc Hermes 2021-05-26
      *
      * @author Marc Hermes
@@ -817,17 +1095,21 @@ public class GameServiceTest {
     @Test
     void replacePlayerDuringOwnTurnAITest() {
         loginUsers();
-        gameManagement.createGame("test", userDTO, "Standard");
+        lobbyManagement.createLobby("test", userDTO);
+        Optional<Lobby> optionalLobby = lobbyManagement.getLobby("test");
+        assertTrue(optionalLobby.isPresent());
+        Lobby lobby = optionalLobby.get();
+        lobby.joinUser(userDTO1);
+        lobby.joinUser(userDTO2);
+        lobby.joinUser(userDTO3);
+        lobby.joinPlayerReady(userDTO);
+        lobby.joinPlayerReady(userDTO1);
+        lobby.joinPlayerReady(userDTO2);
+        lobby.joinPlayerReady(userDTO3);
+        gameService.startGame(lobby, "Standard");
         Optional<Game> optionalGame = gameManagement.getGame("test");
         assertTrue(optionalGame.isPresent());
         Game game = optionalGame.get();
-
-        game.joinUser(userDTO1);
-        game.joinUser(userDTO2);
-        game.joinUser(userDTO3);
-
-        game.setUpUserArrayList();
-        game.setUpInventories();
 
         // the TestAI class will now be used
         game.setIsUsedForTest(true);
@@ -841,38 +1123,38 @@ public class GameServiceTest {
         // play the opening turn for the AI
 
         // Check if the turn started for the correct player (and thus the AI ended the turn)
-        assertTrue(event instanceof NextTurnMessage);
-        assertEquals(userDTO1.getUsername(), ((NextTurnMessage) event).getPlayerWithCurrentTurn());
+        assertTrue(event instanceof PublicInventoryChangeMessage);
+        assertEquals(userDTO1, game.getUser(game.getTurn()));
 
         // player 1 opening turn 1
         buildStreetAndBuildingForOpeningTurn(game);
 
-        assertTrue(event instanceof NextTurnMessage);
-        assertEquals(userDTO2.getUsername(), ((NextTurnMessage) event).getPlayerWithCurrentTurn());
+        assertTrue(event instanceof PublicInventoryChangeMessage);
+        assertEquals(userDTO2, game.getUser(game.getTurn()));
 
         // player 2 opening turn 1
         buildStreetAndBuildingForOpeningTurn(game);
 
-        assertTrue(event instanceof NextTurnMessage);
-        assertEquals(userDTO3.getUsername(), ((NextTurnMessage) event).getPlayerWithCurrentTurn());
+        assertTrue(event instanceof PublicInventoryChangeMessage);
+        assertEquals(userDTO3, game.getUser(game.getTurn()));
 
         // player 3 opening turn 1
         buildStreetAndBuildingForOpeningTurn(game);
 
-        assertTrue(event instanceof NextTurnMessage);
-        assertEquals(userDTO3.getUsername(), ((NextTurnMessage) event).getPlayerWithCurrentTurn());
+        assertTrue(event instanceof PublicInventoryChangeMessage);
+        assertEquals(userDTO3, game.getUser(game.getTurn()));
 
         // player 3 opening turn 2
         buildStreetAndBuildingForOpeningTurn(game);
 
-        assertTrue(event instanceof NextTurnMessage);
-        assertEquals(userDTO2.getUsername(), ((NextTurnMessage) event).getPlayerWithCurrentTurn());
+        assertTrue(event instanceof PublicInventoryChangeMessage);
+        assertEquals(userDTO2, game.getUser(game.getTurn()));
 
         // player 2 opening turn 2
         buildStreetAndBuildingForOpeningTurn(game);
 
-        assertTrue(event instanceof NextTurnMessage);
-        assertEquals(userDTO1.getUsername(), ((NextTurnMessage) event).getPlayerWithCurrentTurn());
+        assertTrue(event instanceof PublicInventoryChangeMessage);
+        assertEquals(userDTO1, game.getUser(game.getTurn()));
 
 
         //give the AI the developmentCards to play
@@ -894,15 +1176,13 @@ public class GameServiceTest {
 
         // Opening turn is done, so now resources were distributed
 
-        assertTrue(event instanceof PublicInventoryChangeMessage);
-
 
         ArrayList<UserDTO> bidders = new ArrayList<>();
         ArrayList<TradeItem> wishList = new ArrayList<>();
         HashMap<UserDTO, ArrayList<TradeItem>> bids = new HashMap<>();
         // the AI will now try to trade, thus we send him an empty list of trades to accept
-        for(String tc : game.getTradeList().keySet()) {
-            if(tc != null) {
+        for (String tc : game.getTradeList().keySet()) {
+            if (tc != null) {
 
                 var tisabm = new TradeInformSellerAboutBidsMessage(userDTO, game.getName(), tc, bidders, bids);
                 AIToServerTranslator.translate(new TestAI((GameDTO) game).continueTurnOrder(tisabm, wishList), gameService);
@@ -913,7 +1193,7 @@ public class GameServiceTest {
         // Check if the turn started for the correct player (and thus the AI ended the turn)
         // the opening phase is now over and the AI finished it's first actual turn
         assertTrue(event instanceof NextTurnMessage);
-        assertEquals(userDTO1.getUsername(), ((NextTurnMessage) event).getPlayerWithCurrentTurn());
+        assertEquals(userDTO1, game.getUser(game.getTurn()));
 
         int resourceAmountBefore = aiInventory.sumResource();
 
@@ -922,43 +1202,41 @@ public class GameServiceTest {
 
         // Choose any hexagon to move the robber to
         UUID uuidForRobber = null;
-        for(MapGraph.Hexagon hx : game.getMapGraph().getHexagonHashSet()) {
-            if(!hx.isOccupiedByRobber()) {
+        for (MapGraph.Hexagon hx : game.getMapGraph().getHexagonHashSet()) {
+            if (!hx.isOccupiedByRobber()) {
                 uuidForRobber = hx.getUuid();
             }
         }
-        RobbersNewFieldMessage mrm = new RobbersNewFieldMessage(game.getName(),userDTO1, uuidForRobber);
+        RobbersNewFieldRequest mrm = new RobbersNewFieldRequest(game.getName(), userDTO1, uuidForRobber);
         gameService.onRobbersNewFieldRequest(mrm);
 
         // Check if the AI discarded its resources and now has less than before and therefore discarded resources
         assertTrue(resourceAmountBefore > aiInventory.sumResource());
         String tradeCode = UUID.randomUUID().toString().trim().substring(0, 7);
-        TradeItemRequest tri = new TradeItemRequest(userDTO1, game.getName(), wishList,tradeCode, wishList);
+        TradeItemRequest tri = new TradeItemRequest(userDTO1, game.getName(), wishList, tradeCode, wishList);
         gameService.onTradeItemRequest(tri);
 
     }
 
     public void buildStreetAndBuildingForOpeningTurn(Game game) {
-        boolean doneBuilding = false;
         for (MapGraph.BuildingNode bn : game.getMapGraph().getBuildingNodeHashSet()) {
-            if (doneBuilding) {
-                break;
-            }
-            if (bn.getOccupiedByPlayer() == 666 && bn.getParent().getHexagons().size() == 6) {
+
+            if (bn.tryBuildOrDevelopSettlement(game.getTurn(), game.getStartingPhase())) {
+                game.getMapGraph().getNumOfBuildings()[game.getTurn()] = game.getMapGraph().getNumOfBuildings()[game.getTurn()] - 1;
+                ConstructionRequest cr1 = new ConstructionRequest((UserDTO) game.getUser(game.getTurn()), game.getName(), bn.getUuid(), "BuildingNode");
+                gameService.onConstructionMessage(cr1);
+
                 for (MapGraph.StreetNode sn : bn.getConnectedStreetNodes()) {
-                    if (sn.getOccupiedByPlayer() == 666) {
-                        ConstructionRequest cr1 = new ConstructionRequest((UserDTO) game.getUser(game.getTurn()), game.getName(), bn.getUuid(), "BuildingNode");
-                        ConstructionRequest cr2 = new ConstructionRequest((UserDTO) game.getUser(game.getTurn()), game.getName(), bn.getUuid(), "StreetNode");
-                        gameService.onConstructionMessage(cr1);
+                    if (sn.tryBuildRoad(game.getTurn(), game.getStartingPhase())) {
+                        game.getMapGraph().getNumOfRoads()[game.getTurn()] = game.getMapGraph().getNumOfRoads()[game.getTurn()] - 1;
+                        ConstructionRequest cr2 = new ConstructionRequest((UserDTO) game.getUser(game.getTurn()), game.getName(), sn.getUuid(), "StreetNode");
                         gameService.onConstructionMessage(cr2);
-                        doneBuilding = true;
                         break;
                     }
                 }
+                break;
             }
         }
-        EndTurnRequest etr = new EndTurnRequest(game.getName(), (UserDTO) game.getUser(game.getTurn()));
-        gameService.onEndTurnRequest(etr);
     }
 
     /**
@@ -973,15 +1251,23 @@ public class GameServiceTest {
     void randomAITest() {
 
         loginUsers();
-        gameManagement.createGame("test", userDTO, "Standard");
-        Optional<Game> game = gameManagement.getGame("test");
-        assertTrue(game.isPresent());
-        Game g = game.get();
-        g.joinUser(userDTO1);
+        lobbyManagement.createLobby("test", userDTO);
+        Optional<Lobby> optionalLobby = lobbyManagement.getLobby("test");
+        assertTrue(optionalLobby.isPresent());
+        Lobby lobby = optionalLobby.get();
+        lobby.joinUser(userDTO1);
+        lobby.joinUser(userDTO2);
+        lobby.joinUser(userDTO3);
+        lobby.joinPlayerReady(userDTO);
+        lobby.joinPlayerReady(userDTO1);
+        lobby.joinPlayerReady(userDTO2);
+        lobby.joinPlayerReady(userDTO3);
+        gameService.startGame(lobby, "Standard");
+        Optional<Game> optionalGame = gameManagement.getGame("test");
+        assertTrue(optionalGame.isPresent());
+        Game game = optionalGame.get();
 
-        g.setUpUserArrayList();
-        g.setUpInventories();
-        Inventory aiInventory = g.getInventory(userDTO);
+        Inventory aiInventory = game.getInventory(userDTO);
         aiInventory.incCardStack("Brick", 10);
         aiInventory.incCardStack("Ore", 10);
         aiInventory.incCardStack("Wool", 10);
@@ -993,19 +1279,18 @@ public class GameServiceTest {
         aiInventory.cardYearOfPlenty.incNumber();
 
         // Player 0 (the turn player) leaves the game
-        GameLeaveUserRequest glur = new GameLeaveUserRequest(g.getName(), userDTO);
+        GameLeaveUserRequest glur = new GameLeaveUserRequest(game.getName(), userDTO);
         gameService.onGameLeaveUserRequest(glur);
 
         // Check if the turn started for the correct player (and thus the AI ended the turn)
-        assertTrue(event instanceof NextTurnMessage);
-        assertEquals(userDTO1.getUsername(), ((NextTurnMessage) event).getPlayerWithCurrentTurn());
+        assertTrue(event instanceof PublicInventoryChangeMessage);
+        assertEquals(userDTO1, game.getUser(game.getTurn()));
 
         // End the turn twice for player 1, because its the opening phase
-        EndTurnRequest etr = new EndTurnRequest(g.getName(), userDTO1);
+        EndTurnRequest etr = new EndTurnRequest(game.getName(), userDTO1);
         gameService.onEndTurnRequest(etr);
         gameService.onEndTurnRequest(etr);
     }
-
 
     /**
      * This test checks if the giveResource and the takeResource method works as intended
@@ -1020,18 +1305,20 @@ public class GameServiceTest {
      */
     @Test
     void onGiveAndTakeResourceTest() {
-        GameService gameService3 = new GameService(gameManagement, lobbyService, authenticationService, bus, userService);
-
-        gameManagement.createGame("test", userDTO, "Standard");
+        loginUsers();
+        lobbyManagement.createLobby("test", userDTO);
+        Optional<Lobby> optionalLobby = lobbyManagement.getLobby("test");
+        assertTrue(optionalLobby.isPresent());
+        Lobby lobby = optionalLobby.get();
+        lobby.joinUser(userDTO1);
+        lobby.joinUser(userDTO2);
+        lobby.joinPlayerReady(userDTO);
+        lobby.joinPlayerReady(userDTO1);
+        lobby.joinPlayerReady(userDTO2);
+        gameService.startGame(lobby, "Standard");
         Optional<Game> optionalGame = gameManagement.getGame("test");
         assertTrue(optionalGame.isPresent());
         Game game = optionalGame.get();
-
-        game.joinUser(userDTO1);
-        game.joinUser(userDTO2);
-
-        game.setUpUserArrayList();
-        game.setUpInventories();
 
         Inventory bank = game.getBankInventory();
 
@@ -1058,11 +1345,11 @@ public class GameServiceTest {
         assertEquals(inventory2.getSpecificResourceAmount("Ore"), 0);
 
         // giveResourceTest
-        gameService3.giveResource(game, userDTO1, "Lumber", 15);
-        gameService3.giveResource(game, userDTO1, "Brick", 15);
-        gameService3.giveResource(game, userDTO1, "Grain", 15);
-        gameService3.giveResource(game, userDTO1, "Wool", 15);
-        gameService3.giveResource(game, userDTO1, "Ore", 15);
+        gameService.giveResource(game, userDTO1, "Lumber", 15);
+        gameService.giveResource(game, userDTO1, "Brick", 15);
+        gameService.giveResource(game, userDTO1, "Grain", 15);
+        gameService.giveResource(game, userDTO1, "Wool", 15);
+        gameService.giveResource(game, userDTO1, "Ore", 15);
 
         assertEquals(bank.getSpecificResourceAmount("Lumber"), 4);
         assertEquals(bank.getSpecificResourceAmount("Brick"), 4);
@@ -1083,11 +1370,11 @@ public class GameServiceTest {
         assertEquals(inventory2.getSpecificResourceAmount("Ore"), 0);
 
 
-        gameService3.giveResource(game, userDTO2, "Lumber", 10);
-        gameService3.giveResource(game, userDTO2, "Brick", 10);
-        gameService3.giveResource(game, userDTO2, "Grain", 10);
-        gameService3.giveResource(game, userDTO2, "Wool", 10);
-        gameService3.giveResource(game, userDTO2, "Ore", 10);
+        gameService.giveResource(game, userDTO2, "Lumber", 10);
+        gameService.giveResource(game, userDTO2, "Brick", 10);
+        gameService.giveResource(game, userDTO2, "Grain", 10);
+        gameService.giveResource(game, userDTO2, "Wool", 10);
+        gameService.giveResource(game, userDTO2, "Ore", 10);
 
         assertEquals(bank.getSpecificResourceAmount("Lumber"), 0);
         assertEquals(bank.getSpecificResourceAmount("Brick"), 0);
@@ -1109,11 +1396,11 @@ public class GameServiceTest {
 
 
         // takeResourceTest
-        gameService3.takeResource(game, userDTO1, "Lumber", 15);
-        gameService3.takeResource(game, userDTO1, "Brick", 15);
-        gameService3.takeResource(game, userDTO1, "Grain", 15);
-        gameService3.takeResource(game, userDTO1, "Wool", 15);
-        gameService3.takeResource(game, userDTO1, "Ore", 15);
+        gameService.takeResource(game, userDTO1, "Lumber", 15);
+        gameService.takeResource(game, userDTO1, "Brick", 15);
+        gameService.takeResource(game, userDTO1, "Grain", 15);
+        gameService.takeResource(game, userDTO1, "Wool", 15);
+        gameService.takeResource(game, userDTO1, "Ore", 15);
 
         assertEquals(bank.getSpecificResourceAmount("Lumber"), 15);
         assertEquals(bank.getSpecificResourceAmount("Brick"), 15);
@@ -1134,11 +1421,11 @@ public class GameServiceTest {
         assertEquals(inventory2.getSpecificResourceAmount("Ore"), 4);
 
 
-        gameService3.takeResource(game, userDTO2, "Lumber", 10);
-        gameService3.takeResource(game, userDTO2, "Brick", 10);
-        gameService3.takeResource(game, userDTO2, "Grain", 10);
-        gameService3.takeResource(game, userDTO2, "Wool", 10);
-        gameService3.takeResource(game, userDTO2, "Ore", 10);
+        gameService.takeResource(game, userDTO2, "Lumber", 10);
+        gameService.takeResource(game, userDTO2, "Brick", 10);
+        gameService.takeResource(game, userDTO2, "Grain", 10);
+        gameService.takeResource(game, userDTO2, "Wool", 10);
+        gameService.takeResource(game, userDTO2, "Ore", 10);
 
         assertEquals(bank.getSpecificResourceAmount("Lumber"), 19);
         assertEquals(bank.getSpecificResourceAmount("Brick"), 19);
@@ -1172,19 +1459,18 @@ public class GameServiceTest {
     @Test
     void checkForLargestArmy() {
         loginUsers();
-
-        GameService gameService = new GameService(gameManagement, lobbyService, authenticationService, bus, userService);
-
-        gameManagement.createGame("test", userDTO, "Standard");
+        lobbyManagement.createLobby("test", userDTO);
+        Optional<Lobby> optionalLobby = lobbyManagement.getLobby("test");
+        assertTrue(optionalLobby.isPresent());
+        Lobby lobby = optionalLobby.get();
+        lobby.joinUser(userDTO1);
+        lobby.setMinimumAmountOfPlayers(2);
+        lobby.joinPlayerReady(userDTO);
+        lobby.joinPlayerReady(userDTO1);
+        gameService.startGame(lobby, "Standard");
         Optional<Game> optionalGame = gameManagement.getGame("test");
         assertTrue(optionalGame.isPresent());
-
         Game game = optionalGame.get();
-
-        game.joinUser(userDTO1);
-
-        game.setUpUserArrayList();
-        game.setUpInventories();
 
         game.getInventory(userDTO).setPlayedKnights(2);
 
@@ -1194,13 +1480,21 @@ public class GameServiceTest {
 
         game.getInventory(userDTO1).incCardStack("Knight", 10);
 
+        buildStreetAndBuildingForOpeningTurn(game);
+        buildStreetAndBuildingForOpeningTurn(game);
+        buildStreetAndBuildingForOpeningTurn(game);
+        buildStreetAndBuildingForOpeningTurn(game);
+
+        RollDiceRequest rdr = new RollDiceRequest(game.getName(), userDTO, 3);
+        gameService.onRollDiceRequest(rdr);
+
         PlayDevelopmentCardRequest playDevelopmentCardRequest = new PlayDevelopmentCardRequest("Knight", game.getName(), userDTO);
 
         gameService.onPlayDevelopmentCardRequest(playDevelopmentCardRequest);
 
         ResolveDevelopmentCardKnightRequest resolveDevelopmentCardKnightRequest = new ResolveDevelopmentCardKnightRequest();
 
-        for(MapGraph.Hexagon hexagon : game.getMapGraph().getHexagonHashSet()) {
+        for (MapGraph.Hexagon hexagon : game.getMapGraph().getHexagonHashSet()) {
             if (!hexagon.isOccupiedByRobber()) {
                 resolveDevelopmentCardKnightRequest = new ResolveDevelopmentCardKnightRequest("Knight", userDTO, game.getName(), hexagon.getUuid());
                 break;
@@ -1211,9 +1505,14 @@ public class GameServiceTest {
 
         assertTrue(game.getInventory(userDTO).isLargestArmy());
 
+        assertEquals(4, game.getInventory(userDTO).getVictoryPoints());
+
         EndTurnRequest endTurnRequest = new EndTurnRequest(game.getName(), userDTO);
 
         gameService.onEndTurnRequest(endTurnRequest);
+
+        rdr = new RollDiceRequest(game.getName(), userDTO1, 3);
+        gameService.onRollDiceRequest(rdr);
 
         PlayDevelopmentCardRequest playDevelopmentCardRequest1 = new PlayDevelopmentCardRequest("Knight", game.getName(), userDTO1);
 
@@ -1221,7 +1520,7 @@ public class GameServiceTest {
 
         ResolveDevelopmentCardKnightRequest resolveDevelopmentCardKnightRequest1 = new ResolveDevelopmentCardKnightRequest();
 
-        for(MapGraph.Hexagon hexagon : game.getMapGraph().getHexagonHashSet()) {
+        for (MapGraph.Hexagon hexagon : game.getMapGraph().getHexagonHashSet()) {
             if (!hexagon.isOccupiedByRobber()) {
                 resolveDevelopmentCardKnightRequest1 = new ResolveDevelopmentCardKnightRequest("Knight", userDTO1, game.getName(), hexagon.getUuid());
                 break;
@@ -1236,13 +1535,23 @@ public class GameServiceTest {
 
         gameService.onEndTurnRequest(endTurnRequest1);
 
+        rdr = new RollDiceRequest(game.getName(), userDTO, 3);
+        gameService.onRollDiceRequest(rdr);
+
+        endTurnRequest1 = new EndTurnRequest(game.getName(), userDTO);
+
+        gameService.onEndTurnRequest(endTurnRequest1);
+
+        rdr = new RollDiceRequest(game.getName(), userDTO1, 3);
+        gameService.onRollDiceRequest(rdr);
+
         PlayDevelopmentCardRequest playDevelopmentCardRequest2 = new PlayDevelopmentCardRequest("Knight", game.getName(), userDTO1);
 
         gameService.onPlayDevelopmentCardRequest(playDevelopmentCardRequest2);
 
         ResolveDevelopmentCardKnightRequest resolveDevelopmentCardKnightRequest2 = new ResolveDevelopmentCardKnightRequest();
 
-        for(MapGraph.Hexagon hexagon : game.getMapGraph().getHexagonHashSet()) {
+        for (MapGraph.Hexagon hexagon : game.getMapGraph().getHexagonHashSet()) {
             if (!hexagon.isOccupiedByRobber()) {
                 resolveDevelopmentCardKnightRequest2 = new ResolveDevelopmentCardKnightRequest("Knight", userDTO1, game.getName(), hexagon.getUuid());
                 break;
@@ -1251,6 +1560,516 @@ public class GameServiceTest {
 
         gameService.onResolveDevelopmentCardRequest(resolveDevelopmentCardKnightRequest2);
 
+        assertFalse(game.getInventory(userDTO).isLargestArmy());
+
+        assertEquals(2, game.getInventory(userDTO).getVictoryPoints());
+
         assertTrue(game.getInventory(userDTO1).isLargestArmy());
+
+        assertEquals(4, game.getInventory(userDTO1).getVictoryPoints());
+    }
+
+    /**
+     * This test checks if the onBankRequest and onBankBuyRequest method works as intended
+     * <p>
+     * First this method logs the owner in and creates a game.
+     * Than its set up the inventories for the test.
+     * Than its tests a successful Bank Request and checks the result
+     * Than its tests a successful Bank Buy Request and checks the result
+     * Than its tests a not successful Bank Request and checks the result
+     *
+     * @author Anton Nikiforov
+     * @since 2021-04-26
+     */
+    @Test
+    void onBankRequestAndBankBuyRequestTest() {
+        loginUsers();
+
+        lobbyManagement.createLobby("test", userDTO);
+        Optional<Lobby> optionalLobby = lobbyManagement.getLobby("test");
+        assertTrue(optionalLobby.isPresent());
+        Lobby lobby = optionalLobby.get();
+
+        lobby.joinPlayerReady(userDTO);
+
+        gameService.startGame(lobby, "Standard");
+        Optional<Game> optionalGame = gameManagement.getGame("test");
+        assertTrue(optionalGame.isPresent());
+        Game game = optionalGame.get();
+
+        game.getBankInventory().lumber.setNumber(1);
+        game.getBankInventory().brick.decNumber(4);
+        game.getInventory(userDTO).brick.incNumber(4);
+
+        // Bank Request successful
+        gameService.onBankRequest(new BankRequest("test", userDTO, "", "Lumber"));
+
+        assertTrue(event instanceof BankResponseMessage);
+        var bankOffer = ((BankResponseMessage) event).getBankOffer();
+
+        assertEquals(bankOffer.size(), 4);
+
+        assertFalse(bankOffer.get(0).get(0).isNotEnough());
+        assertEquals(bankOffer.get(0).get(0).getCount(), 0);
+        assertEquals(bankOffer.get(0).get(1).getCount(), 4);
+        assertEquals(bankOffer.get(0).get(2).getCount(), 0);
+        assertEquals(bankOffer.get(0).get(3).getCount(), 0);
+        assertEquals(bankOffer.get(0).get(4).getCount(), 0);
+
+        assertTrue(bankOffer.get(1).get(0).isNotEnough());
+        assertEquals(bankOffer.get(1).get(0).getCount(), 0);
+        assertEquals(bankOffer.get(1).get(1).getCount(), 0);
+        assertEquals(bankOffer.get(1).get(2).getCount(), 4);
+        assertEquals(bankOffer.get(1).get(3).getCount(), 0);
+        assertEquals(bankOffer.get(1).get(4).getCount(), 0);
+
+        assertTrue(bankOffer.get(2).get(0).isNotEnough());
+        assertEquals(bankOffer.get(2).get(0).getCount(), 0);
+        assertEquals(bankOffer.get(2).get(1).getCount(), 0);
+        assertEquals(bankOffer.get(2).get(2).getCount(), 0);
+        assertEquals(bankOffer.get(2).get(3).getCount(), 4);
+        assertEquals(bankOffer.get(2).get(4).getCount(), 0);
+
+        assertTrue(bankOffer.get(3).get(0).isNotEnough());
+        assertEquals(bankOffer.get(3).get(0).getCount(), 0);
+        assertEquals(bankOffer.get(3).get(1).getCount(), 0);
+        assertEquals(bankOffer.get(3).get(2).getCount(), 0);
+        assertEquals(bankOffer.get(3).get(3).getCount(), 0);
+        assertEquals(bankOffer.get(3).get(4).getCount(), 4);
+
+
+        // Bank Buy Request successful
+        assertEquals(game.getBankInventory().lumber.getNumber(), 1);
+        assertEquals(game.getBankInventory().brick.getNumber(), 15);
+        assertEquals(game.getInventory(userDTO).lumber.getNumber(), 0);
+        assertEquals(game.getInventory(userDTO).brick.getNumber(), 4);
+
+        gameService.onBankBuyRequest(new BankBuyRequest("test", userDTO, "", "Lumber", bankOffer.get(0)));
+
+        assertEquals(game.getBankInventory().lumber.getNumber(), 0);
+        assertEquals(game.getBankInventory().brick.getNumber(), 19);
+        assertEquals(game.getInventory(userDTO).lumber.getNumber(), 1);
+        assertEquals(game.getInventory(userDTO).brick.getNumber(), 0);
+
+
+        // Bank Request not successful
+        assertEquals(game.getBankInventory().lumber.getNumber(), 0);
+
+        gameService.onBankRequest(new BankRequest("test", userDTO, "", "Lumber"));
+
+        assertTrue(event instanceof BankResponseMessage);
+        bankOffer = ((BankResponseMessage) event).getBankOffer();
+
+        assertEquals(bankOffer.size(), 0);
+    }
+
+    /**
+     * Test used for the onBuyDevelopmentCard() method in the gameService
+     * <p>
+     * First, try to buy a devCard without enough resources.
+     * Then, successfully buy a decCard after incrementing the grain, wool and ore resources.
+     * After that empty the developmentCard deck of the game and try to buy one again.
+     *
+     * @author Marc Hermes
+     * @since 2021-06-04
+     */
+    @Test
+    void buyDevelopmentCardTest() {
+        loginUsers();
+        lobbyManagement.createLobby("test", userDTO);
+        Optional<Lobby> optionalLobby = lobbyManagement.getLobby("test");
+        assertTrue(optionalLobby.isPresent());
+        Lobby lobby = optionalLobby.get();
+        lobby.joinUser(userDTO1);
+        lobby.setMinimumAmountOfPlayers(2);
+        lobby.joinPlayerReady(userDTO);
+        lobby.joinPlayerReady(userDTO1);
+
+        gameService.startGame(lobby, "Standard");
+        Optional<Game> optionalGame = gameManagement.getGame("test");
+        assertTrue(optionalGame.isPresent());
+        Game game = optionalGame.get();
+
+
+        Inventory inv0 = game.getInventory(userDTO);
+
+        buildStreetAndBuildingForOpeningTurn(game);
+        buildStreetAndBuildingForOpeningTurn(game);
+        buildStreetAndBuildingForOpeningTurn(game);
+        buildStreetAndBuildingForOpeningTurn(game);
+
+        RollDiceRequest rdr = new RollDiceRequest(game.getName(), userDTO, 3);
+        gameService.onRollDiceRequest(rdr);
+
+        inv0.decCardStack("Ore", inv0.getSpecificResourceAmount("Ore"));
+        inv0.decCardStack("Grain", inv0.getSpecificResourceAmount("Grain"));
+        inv0.decCardStack("Wool", inv0.getSpecificResourceAmount("Wool"));
+
+        int resourcesBeforeBuyRequest = inv0.sumResource();
+        BuyDevelopmentCardRequest bdcr = new BuyDevelopmentCardRequest(userDTO, game.getName());
+        gameService.onBuyDevelopmentCardRequest(bdcr);
+        assertEquals(resourcesBeforeBuyRequest, inv0.sumResource());
+
+        inv0.incCardStack("Ore", 1);
+        inv0.incCardStack("Grain", 1);
+        inv0.incCardStack("Wool", 1);
+
+        bdcr = new BuyDevelopmentCardRequest(userDTO, game.getName());
+        gameService.onBuyDevelopmentCardRequest(bdcr);
+
+        while (game.getDevelopmentCardDeck().drawnCard() != null) {
+
+        }
+
+        inv0.incCardStack("Ore", 1);
+        inv0.incCardStack("Grain", 1);
+        inv0.incCardStack("Wool", 1);
+
+        bdcr = new BuyDevelopmentCardRequest(userDTO, game.getName());
+        gameService.onBuyDevelopmentCardRequest(bdcr);
+
+    }
+
+    /**
+     * Test used for handling logOuts from users.
+     * <p>
+     * Let the User join a game and let him logout afterwards
+     * After that the user should have been removed from the game and because he
+     * was the only one left, the game shouldn't be present anymore
+     *
+     * @author Marc Hermse
+     * @since 2021-06-04
+     */
+    @Test
+    void logOutRequestTest() {
+        loginUsers();
+
+        lobbyManagement.createLobby("test", userDTO);
+        Optional<Lobby> optionalLobby = lobbyManagement.getLobby("test");
+        assertTrue(optionalLobby.isPresent());
+        Lobby lobby = optionalLobby.get();
+        lobby.joinUser(userDTO1);
+        lobby.setMinimumAmountOfPlayers(2);
+        lobby.joinPlayerReady(userDTO);
+        lobby.joinPlayerReady(userDTO1);
+
+        gameService.startGame(lobby, "Standard");
+        Optional<Game> optionalGame = gameManagement.getGame("test");
+        assertTrue(optionalGame.isPresent());
+
+        Optional<Session> session = authenticationService.getSession(userDTO);
+        assertTrue(session.isPresent());
+        LogoutRequest lr = new LogoutRequest();
+        lr.setSession(session.get());
+        lr.setMessageContext(new MessageContext() {
+            @Override
+            public void writeAndFlush(ResponseMessage message) {
+
+            }
+
+            @Override
+            public void writeAndFlush(ServerMessage message) {
+
+            }
+        });
+        bus.post(lr);
+
+        assertFalse(gameManagement.getGame("test").isEmpty());
+
+        session = authenticationService.getSession(userDTO1);
+        assertTrue(session.isPresent());
+        lr.setSession(session.get());
+        bus.post(lr);
+
+        assertTrue(gameManagement.getGame("test").isEmpty());
+
+    }
+
+    /**
+     * Test used for (re)-joining a game
+     * <p>
+     * First try to join a game that doesn't exist yet.
+     * Then try to join a game while a trade is ongoing.
+     * At the end join a game after the trade no longer exists.
+     *
+     * @author Marc Hermes
+     * @since 2021-06-04
+     */
+    @Test
+    void joinOnGoingGameTest() {
+        loginUsers();
+
+        lobbyManagement.createLobby("test", userDTO);
+        Optional<Lobby> optionalLobby = lobbyManagement.getLobby("test");
+        assertTrue(optionalLobby.isPresent());
+        Lobby lobby = optionalLobby.get();
+        lobby.joinUser(userDTO1);
+        lobby.joinUser(userDTO2);
+        lobby.setMinimumAmountOfPlayers(4);
+        lobby.joinPlayerReady(userDTO);
+        lobby.joinPlayerReady(userDTO1);
+
+        JoinOnGoingGameRequest joggr = new JoinOnGoingGameRequest(lobby.getName(), userDTO2);
+        Optional<Session> session = authenticationService.getSession(userDTO2);
+        assertTrue(session.isPresent());
+
+        joggr.setSession(session.get());
+        joggr.setMessageContext(new MessageContext() {
+            @Override
+            public void writeAndFlush(ResponseMessage message) {
+
+            }
+
+            @Override
+            public void writeAndFlush(ServerMessage message) {
+
+            }
+        });
+
+        gameService.onJoinOnGoingGameRequest(joggr);
+
+        gameService.startGame(lobby, "Standard");
+        Optional<Game> optionalGame = gameManagement.getGame("test");
+        assertTrue(optionalGame.isPresent());
+        Game game = optionalGame.get();
+
+        assertFalse(game.getUsers().contains(userDTO2));
+
+        game.getTradeList().put("onlyForTest", new Trade(null, null, null));
+
+        gameService.onJoinOnGoingGameRequest(joggr);
+
+        assertFalse(game.getUsers().contains(userDTO2));
+
+        game.getTradeList().remove("onlyForTest");
+
+        gameService.onJoinOnGoingGameRequest(joggr);
+
+        assertTrue(game.getUsers().contains(userDTO2));
+    }
+
+    /**
+     * Test used for testing the onDrawRandomResourceFromPlayerMessage() method in the gameService.
+     * <p>
+     * A player will try to take all 5 resources from the other player.
+     * If at the end the player was able to draw all 5 resources, the test was successful
+     *
+     * @author Marc Hermes
+     * @since 2021-06-06
+     */
+    @Test
+    void drawRandomResourceTest() {
+        loginUsers();
+
+        lobbyManagement.createLobby("test", userDTO);
+        Optional<Lobby> optionalLobby = lobbyManagement.getLobby("test");
+        assertTrue(optionalLobby.isPresent());
+        Lobby lobby = optionalLobby.get();
+        lobby.joinUser(userDTO1);
+        lobby.setMinimumAmountOfPlayers(2);
+        lobby.joinPlayerReady(userDTO);
+        lobby.joinPlayerReady(userDTO1);
+
+        gameService.startGame(lobby, "Standard");
+        Optional<Game> optionalGame = gameManagement.getGame("test");
+        assertTrue(optionalGame.isPresent());
+        Game game = optionalGame.get();
+
+        Inventory inv0 = game.getInventory(userDTO);
+        Inventory inv1 = game.getInventory(userDTO1);
+
+        inv1.incCardStack("Ore", 1);
+        inv1.incCardStack("Lumber", 1);
+        inv1.incCardStack("Wool", 1);
+        inv1.incCardStack("Grain", 1);
+        inv1.incCardStack("Brick", 1);
+
+        DrawRandomResourceFromPlayerRequest drrfpr = new DrawRandomResourceFromPlayerRequest(game.getName(), userDTO, userDTO1.getUsername());
+        gameService.onDrawRandomResourceFromPlayerMessage(drrfpr);
+        gameService.onDrawRandomResourceFromPlayerMessage(drrfpr);
+        gameService.onDrawRandomResourceFromPlayerMessage(drrfpr);
+        gameService.onDrawRandomResourceFromPlayerMessage(drrfpr);
+        gameService.onDrawRandomResourceFromPlayerMessage(drrfpr);
+
+        assertEquals(inv0.getSpecificResourceAmount("Ore"), 1);
+        assertEquals(inv0.getSpecificResourceAmount("Lumber"), 1);
+        assertEquals(inv0.getSpecificResourceAmount("Wool"), 1);
+        assertEquals(inv0.getSpecificResourceAmount("Grain"), 1);
+        assertEquals(inv0.getSpecificResourceAmount("Brick"), 1);
+
+    }
+
+    /**
+     * Test used to inspect the playerReadyRequest functionality of the gameService
+     * <p>
+     * Each player in the lobby sends a PlayerReadyRequest to the server.
+     * Because all four players sent a PlayerReadyRequest, the game will be created.
+     * Only those players that were ready (boolean value == true) will be in the game.
+     * Therefore player userDTO2 will not be in the game.
+     *
+     * @author Marc Hermes
+     * @since 2021-06-06
+     */
+    @Test
+    void playerReadyRequestTest() {
+        loginUsers();
+
+        lobbyManagement.createLobby("test", userDTO);
+        Optional<Lobby> optionalLobby = lobbyManagement.getLobby("test");
+        assertTrue(optionalLobby.isPresent());
+        Lobby lobby = optionalLobby.get();
+        lobby.joinUser(userDTO1);
+        lobby.joinUser(userDTO2);
+        lobby.joinUser(userDTO3);
+        lobby.setGameFieldVariant("Standard");
+
+        PlayerReadyRequest prr = new PlayerReadyRequest(lobby.getName(), userDTO, true);
+        gameService.onPlayerReadyRequest(prr);
+
+        prr = new PlayerReadyRequest(lobby.getName(), userDTO1, true);
+        gameService.onPlayerReadyRequest(prr);
+
+        prr = new PlayerReadyRequest(lobby.getName(), userDTO2, false);
+        gameService.onPlayerReadyRequest(prr);
+
+        prr = new PlayerReadyRequest(lobby.getName(), userDTO3, true);
+        gameService.onPlayerReadyRequest(prr);
+
+        RetrieveAllGamesRequest ragr = new RetrieveAllGamesRequest();
+        gameService.onRetrieveAllGamesRequest(ragr);
+        assertTrue(event instanceof AllCreatedGamesResponse);
+        assertEquals(((AllCreatedGamesResponse) event).getGameDTOs().get(0).getName(), "test");
+
+        Optional<Game> optionalGame = gameManagement.getGame("test");
+        assertTrue(optionalGame.isPresent());
+        Game game = optionalGame.get();
+
+        assertEquals(game.getUsers().size(), 3);
+        assertEquals(game.getUsersList().size(), 4);
+        assertFalse(game.getUsers().contains(userDTO2));
+
+    }
+
+    /**
+     * Test used for testing the timer when a startGameRequest is sent to the server
+     * <p>
+     * First a player that is not the lobby owner tries to starts the game.
+     * Then the lobby owner starts the game but only 1 person sends a PlayerReadyRequests with which he signalizes that he is not ready.
+     * Thus the game will not start.
+     * Afterwards the lobby owner tries to start the game again. Now 2 Players are ready and therefore the game will start for these 2.
+     *
+     * @throws InterruptedException if the waiter for the timer is interrupted
+     * @author Marc Hermes
+     * @since 2021-06-06
+     */
+    @Test
+    void startGameRequestTest() throws InterruptedException {
+        final CountDownLatch waiter = new CountDownLatch(1);
+        loginUsers();
+
+        lobbyManagement.createLobby("test", userDTO);
+        Optional<Lobby> optionalLobby = lobbyManagement.getLobby("test");
+        assertTrue(optionalLobby.isPresent());
+        Lobby lobby = optionalLobby.get();
+        lobby.joinUser(userDTO1);
+        lobby.joinUser(userDTO2);
+        lobby.joinUser(userDTO3);
+        lobby.setUsedForTest(true);
+        lobby.setGameFieldVariant("Standard");
+
+        StartGameRequest sgr = new StartGameRequest("test", userDTO1, lobby.getGameFieldVariant(), 2);
+        sgr.setMessageContext(new MessageContext() {
+            @Override
+            public void writeAndFlush(ResponseMessage message) {
+
+            }
+
+            @Override
+            public void writeAndFlush(ServerMessage message) {
+
+            }
+        });
+        gameService.onStartGameRequest(sgr);
+
+        assertTrue(event instanceof ClientAuthorizedMessage);
+
+        sgr = new StartGameRequest("test", userDTO, lobby.getGameFieldVariant(), 2);
+
+        gameService.onStartGameRequest(sgr);
+
+        PlayerReadyRequest prr = new PlayerReadyRequest(lobby.getName(), userDTO, false);
+        gameService.onPlayerReadyRequest(prr);
+
+        waiter.await(2, TimeUnit.SECONDS);
+
+        Optional<Game> optionalGame = gameManagement.getGame("test");
+        assertFalse(optionalGame.isPresent());
+
+        prr = new PlayerReadyRequest(lobby.getName(), userDTO, true);
+        gameService.onPlayerReadyRequest(prr);
+
+        prr = new PlayerReadyRequest(lobby.getName(), userDTO1, true);
+        gameService.onPlayerReadyRequest(prr);
+
+        prr = new PlayerReadyRequest(lobby.getName(), userDTO2, false);
+        gameService.onPlayerReadyRequest(prr);
+
+        waiter.await(2, TimeUnit.SECONDS);
+
+        optionalGame = gameManagement.getGame("test");
+        assertTrue(optionalGame.isPresent());
+        Game game = optionalGame.get();
+
+        assertTrue(game.getUsers().contains(userDTO));
+        assertTrue(game.getUsers().contains(userDTO1));
+        assertFalse(game.getUsers().contains(userDTO2));
+        assertFalse(game.getUsers().contains(userDTO3));
+
+        sgr = new StartGameRequest("test", userDTO, lobby.getGameFieldVariant(), 2);
+        sgr.setMessageContext(new MessageContext() {
+            @Override
+            public void writeAndFlush(ResponseMessage message) {
+
+            }
+
+            @Override
+            public void writeAndFlush(ServerMessage message) {
+
+            }
+        });
+        gameService.onStartGameRequest(sgr);
+    }
+
+
+    /**
+     * Method used for testing all functionality of the random AI
+     * <p>
+     * To do this, create a game with 4 players and forcefully remove the last human player from the game.
+     * Now the AI will continue to play for 200 turns. (Because currently the game doesn't really end yet)
+     *
+     * @author Marc Hermes
+     * @since 2021-06-06
+     */
+    @Test
+    void fourRandomAIsPlayGame() {
+        loginUsers();
+        lobbyManagement.createLobby("test", userDTO);
+        Optional<Lobby> optionalLobby = lobbyManagement.getLobby("test");
+        assertTrue(optionalLobby.isPresent());
+        Lobby lobby = optionalLobby.get();
+        lobby.setMinimumAmountOfPlayers(4);
+        lobby.joinPlayerReady(userDTO);
+        gameService.startGame(lobby, "Standard");
+        Optional<Game> optionalGame = gameManagement.getGame("test");
+        assertTrue(optionalGame.isPresent());
+        Game game = optionalGame.get();
+
+        game.removeUserForTest(userDTO);
+
+        buildStreetAndBuildingForOpeningTurn(game);
+
+        assertEquals(game.getOverallTurns(), 200);
+        assertTrue(event instanceof PublicInventoryChangeMessage);
+
     }
 }

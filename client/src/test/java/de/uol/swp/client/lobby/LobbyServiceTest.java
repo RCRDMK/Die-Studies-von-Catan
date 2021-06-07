@@ -345,7 +345,7 @@ class LobbyServiceTest {
 
     @Test
     public void startGameTest() {
-        lobbyService.startGame("Test", (UserDTO) defaultUser, "Standart");
+        lobbyService.startGame("Test", (UserDTO) defaultUser, "Standart", 2);
 
         assertTrue(event instanceof StartGameRequest);
         assertEquals("Test", ((StartGameRequest) event).getName());

@@ -5,7 +5,6 @@ import de.uol.swp.common.SerializationTestHelper;
 import de.uol.swp.common.game.message.*;
 import de.uol.swp.common.game.request.*;
 import de.uol.swp.common.game.response.*;
-import de.uol.swp.common.game.trade.TradeItem;
 import de.uol.swp.common.user.UserDTO;
 import org.junit.jupiter.api.Test;
 
@@ -27,7 +26,7 @@ public class GameSerializableTest {
                 AbstractGameMessage.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new BuyDevelopmentCardMessage(),
                 BuyDevelopmentCardMessage.class));
-        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new GameCreatedMessage("test", defaultUser, new MapGraph(""), new ArrayList<>(), ""),
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new GameCreatedMessage(),
                 GameCreatedMessage.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new GameDroppedMessage("test"),
                 GameDroppedMessage.class));
@@ -49,8 +48,6 @@ public class GameSerializableTest {
                 ChoosePlayerMessage.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new MoveRobberMessage("test", defaultUser),
                 MoveRobberMessage.class));
-        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new RobbersNewFieldMessage("test", defaultUser, defaultUuid),
-                RobbersNewFieldMessage.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new SuccessfullMovedRobberMessage(defaultUuid),
                 SuccessfullMovedRobberMessage.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new TooMuchResourceCardsMessage(),
@@ -115,6 +112,8 @@ public class GameSerializableTest {
                 BankRequest.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new BankBuyRequest(),
                 BankBuyRequest.class));
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new RobbersNewFieldRequest("test", defaultUser, defaultUuid),
+                RobbersNewFieldRequest.class));
     }
 
     @Test

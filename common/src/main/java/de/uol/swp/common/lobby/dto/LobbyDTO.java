@@ -16,6 +16,7 @@ import java.util.TreeSet;
  * who owns the lobby and who joined the lobby.
  * <p>
  * enhanced by Marc Hermes 2021-03-25
+ * enhanved by René Meyer 2021-06-05 for protected lobby support
  *
  * @author Marco Grawunder
  * @since 2019-10-08
@@ -23,6 +24,7 @@ import java.util.TreeSet;
 public class LobbyDTO implements Lobby {
 
     private final String name;
+    private int passwordHash = 0;
     private User owner;
     private final Set<User> users = new TreeSet<>();
     private final Set<User> playersReady = new TreeSet<>();
@@ -31,6 +33,8 @@ public class LobbyDTO implements Lobby {
     private boolean gameStarted = false;
     private transient final Timer timerForGameStart = new Timer();
     private boolean timerStarted = false;
+    private boolean isUsedForTest = false;
+    private int minimumAmountOfPlayers;
 
     /**
      * Constructor
@@ -51,6 +55,41 @@ public class LobbyDTO implements Lobby {
     @Override
     public String getName() {
         return name;
+    }
+
+    /**
+     * Getter for passwordHash
+     * <p>
+     *
+     * @return passwordHash integer
+     * @author René Meyer
+     * @since 2021-06-05
+     */
+    @Override
+    public int getPasswordHash() {
+        return this.passwordHash;
+    }
+
+    /**
+     * Setter for password
+     * <p>
+     *
+     * @author René Meyer
+     * @see String
+     * @since 2021-06-05
+     */
+    @Override
+    public void setPassword(String password) {
+        this.passwordHash = password.hashCode();
+    }
+
+    /**
+     * Setter for passwordHash. Needed for tempLobby reload in AllCreatedLobbiesResponse.java
+     *
+     * @param passwordHash
+     */
+    public void setPasswordHash(int passwordHash) {
+        this.passwordHash = passwordHash;
     }
 
     @Override
@@ -153,4 +192,23 @@ public class LobbyDTO implements Lobby {
         timerStarted = false;
     }
 
+    @Override
+    public void setMinimumAmountOfPlayers(int minimumAmountOfPlayers) {
+        this.minimumAmountOfPlayers = minimumAmountOfPlayers;
+    }
+
+    @Override
+    public int getMinimumAmountOfPlayers() {
+        return minimumAmountOfPlayers;
+    }
+
+    @Override
+    public boolean isUsedForTest() {
+        return this.isUsedForTest;
+    }
+
+    @Override
+    public void setUsedForTest(boolean value) {
+        this.isUsedForTest = value;
+    }
 }

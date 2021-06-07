@@ -71,6 +71,17 @@ public interface Game extends Serializable {
     Set<User> getUsers();
 
     /**
+     * Method used for removing the last user in the game so that
+     * the AI can play by itself. This method should only be used for test
+     * purposes.
+     *
+     * @param user the last user to be removed from the game
+     * @author Marc Hermes
+     * @since 2021-06-06
+     */
+    void removeUserForTest(User user);
+
+    /**
      * Getter for the games users in a List.
      *
      * <p>Returns the users in the game as a list so we can look for users at certain indices.</p>
@@ -172,7 +183,7 @@ public interface Game extends Serializable {
     /**
      * Getter for the Inventory from user
      *
-     * @param user
+     * @param user the User whose inventory to get
      * @return The Inventory from user
      * @author Anton Nikiforov
      * @see de.uol.swp.common.game.inventory.Inventory
@@ -199,13 +210,12 @@ public interface Game extends Serializable {
      * @author Philip Nitsche
      * @since 2021-04-26
      */
-
     boolean isStartingTurns();
 
     /**
      * Puts the parsed MapGraph into the DTO.
      *
-     * @param mapGraph
+     * @param mapGraph the mapGraph to set as the mapGraph of this gameDTO
      * @author Pieter Vogt
      * @see MapGraph
      * @since 2021-04-11
@@ -267,7 +277,7 @@ public interface Game extends Serializable {
      * getter for the boolean value whether or not a card was already played this turn.
      * useful, as only 1 card may be played each turn
      *
-     * @return
+     * @return true, if already played one card, false if not
      * @author Marc Hermes
      * @since 2021-05-03
      */
@@ -310,6 +320,24 @@ public interface Game extends Serializable {
     boolean isUsedForTest();
 
     /**
+     * Getter for the boolean value whether or not the game has finished
+     *
+     * @return true if the game has finished, false if not
+     * @author Marc Hermes
+     * @since 2021-06-06
+     */
+    boolean hasConcluded();
+
+    /**
+     * Setter for the boolean value whether or not the game has finished
+     *
+     * @param value the boolean value to set hasConcluded to
+     * @author Marc Hermes
+     * @since 2021-06-06
+     */
+    void setHasConcluded(boolean value);
+
+    /**
      * Setter for the boolean value if this game is used for the JUNIT tests (and thus uses a different AI potentially)
      *
      * @param value the boolean value
@@ -328,6 +356,15 @@ public interface Game extends Serializable {
     boolean rolledDiceThisTurn();
 
     /**
+     * Setter for the minimum amount of players the owner wants to play with in the game
+     *
+     * @param amount the minimum amount of players
+     * @author Marc Hermes
+     * @since 2021-05-27
+     */
+    void setAmountOfPlayers(int amount);
+
+    /**
      * Getter for the largest Army reference
      *
      * @return refernced inventory with the largest army
@@ -340,6 +377,20 @@ public interface Game extends Serializable {
      * @param inventoryWithLargestArmy the inventory referencing the inventory with the largest army
      */
     void setInventoryWithLargestArmy(Inventory inventoryWithLargestArmy);
+
+    /**
+     * Getter for the longest Road reference
+     *
+     * @return refernced inventory with the longest road
+     */
+    Inventory getInventoryWithLongestRoad();
+
+    /**
+     * setter for the longest Road reference
+     *
+     * @param inventoryWithLongestRoad the inventory referencing the inventory with the longest road
+     */
+    void setInventoryWithLongestRoad(Inventory inventoryWithLongestRoad);
 
 
     /**
@@ -354,6 +405,7 @@ public interface Game extends Serializable {
 
     /**
      * getter for the HasMap containing the development cards bought this turn
+     *
      * @return HashMap<String, Integer> boughtDevCardsThisTurn
      * @author Alexander Losse
      * @since 2021-05-30
@@ -361,7 +413,8 @@ public interface Game extends Serializable {
     HashMap<String, Integer> getBoughtDevCardsThisTurn();
 
     /**
-     *  getter for how many cards of a type were bought this turn
+     * getter for how many cards of a type were bought this turn
+     *
      * @param card String name of the card
      * @return itn amount of cards
      * @author Alexander Losse
@@ -371,6 +424,7 @@ public interface Game extends Serializable {
 
     /**
      * checks if user can play a development card
+     *
      * @param user User
      * @param card String name of the card
      * @return boolean

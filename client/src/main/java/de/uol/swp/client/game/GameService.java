@@ -5,7 +5,7 @@ import com.google.common.eventbus.EventBus;
 import com.google.inject.Inject;
 import de.uol.swp.client.game.event.SummaryConfirmedEvent;
 import de.uol.swp.common.game.dto.StatsDTO;
-import de.uol.swp.common.game.message.RobbersNewFieldMessage;
+import de.uol.swp.common.game.request.RobbersNewFieldRequest;
 import de.uol.swp.common.game.message.TradeEndedMessage;
 import de.uol.swp.common.game.request.*;
 import de.uol.swp.common.game.trade.TradeItem;
@@ -230,7 +230,7 @@ public class GameService {
      * @since 2021-04-24
      */
     public void movedRobber(String game, User user, UUID uuid) {
-        eventBus.post(new RobbersNewFieldMessage(game, (UserDTO) user, uuid));
+        eventBus.post(new RobbersNewFieldRequest(game, (UserDTO) user, uuid));
     }
 
     /**

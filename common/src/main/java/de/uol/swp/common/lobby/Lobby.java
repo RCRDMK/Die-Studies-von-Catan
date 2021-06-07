@@ -32,6 +32,22 @@ public interface Lobby extends Serializable {
     String getName();
 
     /**
+     * Getter for password hash
+     *
+     * @author René Meyer
+     * @since 2021-06-05
+     */
+    int getPasswordHash();
+
+    /**
+     * Setter for the lobby password
+     *
+     * @author René Meyer
+     * @since 2021-06-05
+     */
+    void setPassword(String password);
+
+    /**
      * Changes the owner of the lobby
      *
      * @param user The user who should be the new owner
@@ -180,4 +196,39 @@ public interface Lobby extends Serializable {
      */
     void stopTimerForGameStart();
 
+    /**
+     * Setter for the minimum amount of players for the game corresponding to this lobby
+     *
+     * @param amount the minimum amount of users to play in the game
+     * @author Marc Hermes
+     * @since 2021-05-27
+     */
+    void setMinimumAmountOfPlayers(int amount);
+
+    /**
+     * Getter for the minimum amount of players for the game corresponding to this lobby
+     *
+     * @return the minimum amount of users to play in the game
+     * @author Marc Hermes
+     * @since 2021-05-27
+     */
+    int getMinimumAmountOfPlayers();
+
+    /**
+     * Getter for the boolean value if the lobby will be used for test purposes
+     *
+     * @return true if used for test, false if not
+     * @author Marc Hermes
+     * @since 2021-06-06
+     */
+    boolean isUsedForTest();
+
+    /**
+     * Setter for the boolean value isUsedForTest
+     *
+     * @param value the value to set isUsedForTest to
+     * @author Marc Hermes
+     * @since 2021-06-06
+     */
+    void setUsedForTest(boolean value);
 }

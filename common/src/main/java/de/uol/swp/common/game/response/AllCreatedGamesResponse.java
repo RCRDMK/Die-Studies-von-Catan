@@ -22,8 +22,6 @@ import java.util.List;
  * @see de.uol.swp.common.game.Game
  * @since 2021-01-15
  */
-
-
 public class AllCreatedGamesResponse extends AbstractResponseMessage {
 
 
@@ -51,7 +49,7 @@ public class AllCreatedGamesResponse extends AbstractResponseMessage {
      */
     public AllCreatedGamesResponse(Collection<Game> gameCollection) {
         for (Game game : gameCollection) {
-            this.games.add(new GameDTO(game.getName(), game.getOwner(), ""));
+            this.games.add(new GameDTO(game.getName(), game.getOwner(), "", null));
         }
     }
 

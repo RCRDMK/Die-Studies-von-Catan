@@ -6,9 +6,7 @@ import de.uol.swp.common.game.MapGraph;
 import de.uol.swp.common.game.dto.GameDTO;
 import de.uol.swp.common.user.User;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Manages starting, deletion and storing of games
@@ -28,29 +26,32 @@ public class GameManagement extends AbstractGameManagement {
      * <p>
      * A new GameField is created and stored in the GameDTO object. Also, the round gets set to 0, so the first player
      * can make his first turn.
-     * <p>
+     *
      * enhanced by Pieter Vogt, Marc Hermes - 2021-03-13 enhanced by Pieter Vogt, 2021-03-26
      *
-     * @param name  the name of the game to create
-     * @param owner the user who wants to create a game
+     * @param name             the name of the game to create
+     * @param owner            the user who wants to create a game
+     * @param lobbyUsers       the users in the lobby
+     * @param gameFieldVariant the variant of the gameField
      * @author Iskander Yusupov
      * @see de.uol.swp.common.user.User
-     * @see de.uol.swp.common.game.GameField
      * @since 2021-01-15
      */
     @Override
-    public void createGame(String name, User owner, String gameFieldVariant) {
-        GameDTO game = new GameDTO(name, owner, gameFieldVariant);
-        games.put(name, game);
+    public void createGame(String name, User owner, Set<User> lobbyUsers, String gameFieldVariant) {
+        if (games.containsKey(name)) {
+            throw new GameManagementException("The Game " + name + "already exists!");
+        } else {
+            GameDTO game = new GameDTO(name, owner, gameFieldVariant, lobbyUsers);
+            games.put(name, game);
+        }
     }
 
     /**
      * Deletes game with requested name
-     * <p>
      *
      * @param name String containing the name of the game to delete
-     * @throws IllegalArgumentException there exists no game with the  requested
-     *                                  name
+     * @throws IllegalArgumentException there exists no game with the  requested name
      * @author Iskander Yusupov
      * @since 2021-01-15
      */
@@ -64,7 +65,6 @@ public class GameManagement extends AbstractGameManagement {
 
     /**
      * Searches for the game with the requested name
-     * <p>
      *
      * @param name String containing the name of the game to search for
      * @return either empty Optional or Optional containing the game

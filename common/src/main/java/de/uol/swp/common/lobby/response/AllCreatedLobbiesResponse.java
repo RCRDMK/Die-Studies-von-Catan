@@ -6,11 +6,9 @@ import de.uol.swp.common.message.AbstractResponseMessage;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Response message for the RetrieveAllLobbiesRequest
@@ -54,12 +52,14 @@ public class AllCreatedLobbiesResponse extends AbstractResponseMessage {
      * @since 2020-04-12
      *
      * Enhanced by Carsten Dekker and Marc Hermes
+     * Enhanced by René Meyer for pw protected lobbies
      * @since 2021-04-08
      */
     public AllCreatedLobbiesResponse(Collection<Lobby> lobbyCollection) {
         for (Lobby lobby : lobbyCollection) {
             LobbyDTO tempLobby = new LobbyDTO(lobby.getName(), lobby.getOwner());
             tempLobby.setGameStarted(lobby.getGameStarted());
+            tempLobby.setPasswordHash(lobby.getPasswordHash());
             for (User user : lobby.getUsers()) {
                 tempLobby.joinUser(new UserDTO(user.getUsername(), "", ""));
 
