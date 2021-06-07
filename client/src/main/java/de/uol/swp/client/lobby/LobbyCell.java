@@ -4,10 +4,8 @@ import de.uol.swp.common.lobby.dto.LobbyDTO;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import javafx.application.Platform;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.TextInputDialog;
+import javafx.geometry.Insets;
+import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
@@ -96,12 +94,30 @@ public class LobbyCell extends ListCell<LobbyDTO> {
                 lobbyProtected.setText("protected");
                 button.setOnAction(event -> {
                     Platform.runLater(() -> {
-                        TextInputDialog dialog = new TextInputDialog("");
-                        dialog.setTitle("Enter Password");
-                        dialog.setHeaderText("Password Dialog");
-                        dialog.setContentText("Please enter the password:");
+                        Dialog<String> dialog = new Dialog<String>();
+                        dialog.setTitle("Password");
+                        dialog.setHeaderText("Please enter your password.");
+                        ButtonType passwordButtonType = new ButtonType("Join", ButtonBar.ButtonData.OK_DONE);
+                        dialog.getDialogPane().getButtonTypes().addAll(passwordButtonType, ButtonType.CANCEL);
+
+                        var passwordField = new PasswordField();
+                        passwordField.setPromptText("Password");
+
+                        HBox hBox = new HBox();
+                        hBox.getChildren().add(passwordField);
+                        hBox.setPadding(new Insets(20));
+
+                        HBox.setHgrow(passwordField, Priority.ALWAYS);
+
+                        dialog.getDialogPane().setContent(hBox);
+                        Platform.runLater(passwordField::requestFocus);
+                        dialog.setResultConverter(dialogButton -> {
+                            if (dialogButton == passwordButtonType) {
+                                return passwordField.getText();
+                            }
+                            return null;
+                        });
                         Optional<String> result = dialog.showAndWait();
-                        //lambda expression
                         result.ifPresent(pw -> lobbyService.joinProtectedLobby(lobbyName.getText(), (UserDTO) user, pw));
                     });
                 });
