@@ -1606,7 +1606,7 @@ public class GameService extends AbstractService {
     }
 
     /**
-     * Helper method to build one offer
+     * Helper method to build an offer
      * <p>
      * It takes the parameters and build with it an offer
      *
@@ -1631,13 +1631,12 @@ public class GameService extends AbstractService {
      * Handles BankBuyRequest found on the EventBus
      * <p>
      * handles the sale
-     * send a chad massage if success
-     * and ends the tab
+     * sends a chad massage if successful
+     * and closes the trade tab
      *
      * @param request BankBuyRequest
      * @author Anton Nikiforov
      * @see TradeItem
-     * @see BankResponseMessage
      * @since 2021-05-29
      */
     @Subscribe
