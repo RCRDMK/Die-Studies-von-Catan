@@ -34,10 +34,10 @@ public class RandomAI extends AbstractAISystem {
     }
 
     /**
-     * Returns a random (uniform distribution) int value between (including) two values
+     * Returns a random (uniform distribution) int value between two values
      *
-     * @param min the min value for the random number
-     * @param max the max value for the random number
+     * @param min the min value for the random number (inclusive)
+     * @param max the max value for the random number (exclusive)
      * @return the random number
      * @author Marc Hermes
      * @since 2021-05-19
@@ -176,21 +176,7 @@ public class RandomAI extends AbstractAISystem {
             }
         }
         if (usersNearTheRobber.size() > 0) {
-            Inventory randomInventory = game.getInventory(usersNearTheRobber.get(randomInt(0, usersNearTheRobber.size() - 1)));
-            HashMap<String, Integer> privateView = randomInventory.getPrivateView();
-            ArrayList<String> resources = new ArrayList<>();
-            if (privateView.get("Lumber") > 0) resources.add("Lumber");
-            if (privateView.get("Brick") > 0) resources.add("Brick");
-            if (privateView.get("Grain") > 0) resources.add("Grain");
-            if (privateView.get("Wool") > 0) resources.add("Wool");
-            if (privateView.get("Ore") > 0) resources.add("Ore");
-            if (resources.size() > 0) {
-                String randomResource = resources.get(randomInt(0, resources.size() - 1));
-                inventory.incCardStack(randomResource, 1);
-                drawRandomResourceFromPlayer(randomInventory.getUser().getUsername(), randomResource);
-            } else {
-                drawRandomResourceFromPlayer(randomInventory.getUser().getUsername(), "");
-            }
+            drawRandomResourceFromPlayer(usersNearTheRobber.get(randomInt(0, usersNearTheRobber.size())).getUsername(), "");
         }
     }
 
@@ -230,7 +216,7 @@ public class RandomAI extends AbstractAISystem {
     private void playDevelopmentCardLogic() {
         ArrayList<String> cards = canPlayDevelopmentCard();
         if (cards.size() > 0) {
-            String cardToPlay = cards.get(randomInt(0, cards.size() - 1));
+            String cardToPlay = cards.get(randomInt(0, cards.size()));
             switch (cardToPlay) {
                 case "Year of Plenty":
                     playDevelopmentCardYearOfPlenty(returnRandomResource(), returnRandomResource());
@@ -259,7 +245,7 @@ public class RandomAI extends AbstractAISystem {
                                 if (street1 == null) {
                                     street1 = sn.getUuid();
                                     streets = streets + 1;
-                                } else if (streets == 1) {
+                                } else if (streets == 1 && sn.getUuid() != street1) {
                                     street2 = sn.getUuid();
                                     break;
                                 }
@@ -284,31 +270,37 @@ public class RandomAI extends AbstractAISystem {
      * @since 2021-05-19
      */
     private void makeRandomActionsLogic() {
-        int amountOfActions = randomInt(0, 3);
+        int amountOfActions = randomInt(0, 20);
+        Integer[] actions = {0, 1, 1, 1, 2, 2, 2, 2, 3, 3};
+        List<Integer> actionsList = new ArrayList<>(Arrays.asList(actions));
         for (int i = 0; i <= amountOfActions; i++) {
-            int actionType = randomInt(0, 3);
+            int actionType = actionsList.get(randomInt(0, actionsList.size()));
             switch (actionType) {
                 case 0:
                     if (canBuildStreet()) {
                         Optional<MapGraph.StreetNode> street = returnPossibleStreet();
                         street.ifPresent(this::buildStreet);
+                        actionsList.remove((Integer) 0);
                         break;
                     }
                 case 1:
                     if (canBuildTown()) {
                         Optional<MapGraph.BuildingNode> town = returnPossibleTown();
                         town.ifPresent(this::buildTown);
+                        actionsList.remove((Integer) 1);
                         break;
                     }
                 case 2:
                     if (canBuildCity()) {
                         Optional<MapGraph.BuildingNode> city = returnPossibleCity();
                         city.ifPresent(this::buildCity);
+                        actionsList.remove((Integer) 2);
                         break;
                     }
                 case 3:
                     if (canBuyDevelopmentCard()) {
                         buyDevelopmentCard();
+                        actionsList.remove((Integer) 3);
                         break;
                     }
             }
@@ -328,7 +320,7 @@ public class RandomAI extends AbstractAISystem {
      * @since 2021-05-22
      */
     private boolean makeRandomTradeLogic() {
-        boolean startATradeTest = randomInt(0, 9) >= 5;
+        boolean startATradeTest = randomInt(0, 10) >= 5;
         if (startATradeTest) {
             ArrayList<ArrayList<TradeItem>> wishAndOfferList = createWishAndOfferList();
             ArrayList<TradeItem> wishList = wishAndOfferList.get(0);
@@ -337,7 +329,11 @@ public class RandomAI extends AbstractAISystem {
             for (TradeItem ti : wishList) {
                 amountOfWishes += ti.getCount();
             }
-            if (amountOfWishes > 0) {
+            int amountOfOffers = 0;
+            for (TradeItem ti : offerList) {
+                amountOfOffers += ti.getCount();
+            }
+            if (amountOfWishes > 0 && amountOfOffers > 0) {
                 tradeStart(wishList, offerList);
             } else return false;
         }
@@ -422,7 +418,7 @@ public class RandomAI extends AbstractAISystem {
                         break;
                 }
             }
-            if (goodTradeItemAmount >= 4) {
+            if (goodTradeItemAmount >= 4 && amountOfItems > 0) {
                 usersWithAcceptableOffer.put(user, amountOfItems);
             }
         }
@@ -433,7 +429,7 @@ public class RandomAI extends AbstractAISystem {
             if (usersWithAcceptableOffer.get(user) > mostItems) {
                 mostItems = usersWithAcceptableOffer.get(user);
                 userWithMostItems = user;
-            } else if (usersWithAcceptableOffer.get(user) == mostItems && randomInt(0, 1) > 0) {
+            } else if (usersWithAcceptableOffer.get(user) == mostItems && randomInt(0, 2) > 0) {
                 mostItems = usersWithAcceptableOffer.get(user);
                 userWithMostItems = user;
             }
@@ -479,9 +475,9 @@ public class RandomAI extends AbstractAISystem {
                 }
             }
         }
-        if (notAcceptableTradeItems > 1 + randomInt(0, 1)) {
+        if (notAcceptableTradeItems > 1 + randomInt(0, 2)) {
             offerListAI.clear();
-        } else if (notAcceptableTradeItems <= 1 + randomInt(0, 1)) {
+        } else if (notAcceptableTradeItems <= 1 + randomInt(0, 2)) {
             int tries = 0;
             while (notAcceptableTradeItems > 0 && tries < 50) {
                 tries++;
@@ -572,7 +568,7 @@ public class RandomAI extends AbstractAISystem {
                     String value1 = it1.next();
                     if (value1.equals(randomResource) && inventory.getSpecificResourceAmount(value1) > 0) {
                         inventory.decCardStack(value1, 1);
-                        amountOfResourcesToBeDiscarded = amountOfResourcesToBeDiscarded - 1;
+                        amountOfResourcesToBeDiscarded--;
                         resourcesToDiscard.put(value1, resourcesToDiscard.getOrDefault(value1, 0) + 1);
                         discardedSomething = true;
                     } else if (value1.equals(randomResource) && inventory.getSpecificResourceAmount(value1) == 0) {
@@ -596,6 +592,7 @@ public class RandomAI extends AbstractAISystem {
                 }
             }
         }
+
         discardResources(resourcesToDiscard);
     }
 
@@ -608,7 +605,7 @@ public class RandomAI extends AbstractAISystem {
      */
     private String returnRandomResource() {
         String resource;
-        int rand = randomInt(0, 4);
+        int rand = randomInt(0, 5);
         switch (rand) {
             case 0:
                 resource = "Ore";
@@ -682,7 +679,7 @@ public class RandomAI extends AbstractAISystem {
             cantDo.add("DevCard");
         }
         if (cantDo.size() > 0)
-            switch (cantDo.get(randomInt(0, cantDo.size() - 1))) {
+            switch (cantDo.get(randomInt(0, cantDo.size()))) {
                 case "Street":
                     wishList.add(new TradeItem(lumberString, Math.max(1 - lumber, 0)));
                     lumberAllowedToBeTraded = Math.max(lumber - 1, 0);
@@ -718,7 +715,7 @@ public class RandomAI extends AbstractAISystem {
         for (TradeItem ti : wishList) {
             amountOfWishes += ti.getCount();
         }
-        int amountOfOffers = amountOfWishes + randomInt(0, 3) - 2;
+        int amountOfOffers = amountOfWishes + randomInt(0, 4) - 2;
 
         if (canBuildStreet()) {
             lumberAllowedToBeTraded = lumber - 1;
@@ -748,7 +745,7 @@ public class RandomAI extends AbstractAISystem {
         int offerGrain = 0;
         int offerWool = 0;
         while (amountOfOffers > 0 && tries < 30) {
-            switch (randomInt(0, 4)) {
+            switch (randomInt(0, 5)) {
                 case 0:
                     if (oreAllowedToBeTraded > 0) {
                         offerOre += 1;

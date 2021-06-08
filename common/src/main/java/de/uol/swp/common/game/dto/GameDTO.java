@@ -35,6 +35,7 @@ public class GameDTO implements Game {
     private final Set<User> usersInLobby;
     private boolean startingTurns = true;
     private int startingPhase = 1;
+    private boolean hasConcluded;
     private boolean countingUp = true;
     private boolean lastPlayerSecondTurn = false;
     private boolean playedCardThisTurn = false;
@@ -43,6 +44,8 @@ public class GameDTO implements Game {
     private final ArrayList<MapGraph.BuildingNode> lastBuildingOfOpeningTurn = new ArrayList<>();
 
     private Inventory inventoryWithLargestArmy = null;
+
+    private Inventory inventoryWithLongestRoad = null;
 
     private Inventory inventory1;
     private Inventory inventory2;
@@ -117,6 +120,11 @@ public class GameDTO implements Game {
         return Collections.unmodifiableSet(users);
     }
 
+    @Override
+    public void removeUserForTest(User user) {
+        this.users.remove(user);
+    }
+
     /**
      * Converts the Set of Users into an Arraylist
      *
@@ -155,7 +163,7 @@ public class GameDTO implements Game {
         int players = userArrayList.size();
         int i = 0;
         while (amountOfPlayers > players) {
-            UserDTO aiUser = new UserDTO("KI" + i, "", "", 65+i);
+            UserDTO aiUser = new UserDTO("KI" + i, "", "", 65 + i);
             aiUsers.add(aiUser);
             userArrayList.add(aiUser);
             players++;
@@ -440,6 +448,16 @@ public class GameDTO implements Game {
     }
 
     @Override
+    public boolean hasConcluded() {
+        return this.hasConcluded;
+    }
+
+    @Override
+    public void setHasConcluded(boolean value) {
+        this.hasConcluded = value;
+    }
+
+    @Override
     public void setIsUsedForTest(boolean value) {
         this.isTest = value;
     }
@@ -463,6 +481,17 @@ public class GameDTO implements Game {
     public void setInventoryWithLargestArmy(Inventory inventoryWithLargestArmy) {
         this.inventoryWithLargestArmy = inventoryWithLargestArmy;
     }
+
+    @Override
+    public Inventory getInventoryWithLongestRoad() {
+        return inventoryWithLongestRoad;
+    }
+
+    @Override
+    public void setInventoryWithLongestRoad(Inventory inventoryWithLongestRoad) {
+        this.inventoryWithLongestRoad = inventoryWithLongestRoad;
+    }
+
     /**
      * method used to remember the DevelopmentCards bought in a turn
      * <p>
@@ -532,6 +561,9 @@ public class GameDTO implements Game {
             Inventory inventoryDummy = getInventory(user);
             int cardsInInventory = inventoryDummy.getCardStack(card).getNumber();
             int boughtCards = getHowManyCardsOfTypeWereBoughtThisTurn(card);
+            if(card.equals("Year of Plenty") && bankInventory.sumResource() < 2) {
+                return false;
+            }
             return cardsInInventory - boughtCards > 0;
         } else return false;
     }

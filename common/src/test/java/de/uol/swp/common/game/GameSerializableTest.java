@@ -40,8 +40,8 @@ public class GameSerializableTest {
                 ResolveDevelopmentCardMessage.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new UserLeftGameMessage(),
                 UserLeftGameMessage.class));
-        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new NotEnoughRessourcesMessage(),
-                NotEnoughRessourcesMessage.class));
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new NotEnoughResourcesMessage(),
+                NotEnoughResourcesMessage.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new RollDiceResultMessage(),
                 RollDiceResultMessage.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new ChoosePlayerMessage("test", defaultUser, defaultUserList),
@@ -68,6 +68,8 @@ public class GameSerializableTest {
                 TradeCardErrorMessage.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new BankResponseMessage(),
                 BankResponseMessage.class));
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new SettlementFullyDevelopedMessage(),
+                SettlementFullyDevelopedMessage.class));
     }
 
     @Test

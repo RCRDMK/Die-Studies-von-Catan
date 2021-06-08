@@ -134,14 +134,14 @@ public class SummaryPresenter extends AbstractPresenter {
                 this.winnerImage.toBack();
                 this.profileImage.setImage(new Image(profilePictureString));
                 this.profileImage.toFront();
-                winnerLabel.setText("Congratulations, you won game " + gameName + "!");
+                winnerLabel.setText("Congratulations, you won the game " + gameName + "!");
                 winnerLabel.setTextFill(Color.LIGHTGREEN);
             } else {
                 this.winnerImage.setImage(new Image("/textures/summaryscreen/badge_loseScreenBg.png"));
                 this.winnerImage.toBack();
                 this.profileImage.setImage(new Image(profilePictureString));
                 this.profileImage.toFront();
-                winnerLabel.setText("Sorry, you lost game " + gameName + " - User " + statsDTO.getWinner() + " won!");
+                winnerLabel.setText("Sorry, you lost the game " + gameName + " to the user " + statsDTO.getWinner());
                 winnerLabel.setTextFill(Color.ORANGERED);
             }
             if (generalTableStats.getItems().stream().count() == 0) {

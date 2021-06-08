@@ -146,6 +146,8 @@ public class GameService extends AbstractService {
 
     /**
      * Handles incoming build requests.
+     * Sets continuos road and checks for the longest road.
+     * enhanced by Iskander Yusupov, since 06-06-2021
      *
      * @param message Contains the data needed to change the mapGraph
      * @author Pieter Vogt
@@ -194,18 +196,31 @@ public class GameService extends AbstractService {
                                             inventory.city.decNumber();
                                             inventory.setVictoryPoints(inventory.getVictoryPoints() + 1);
                                         }
+                                        if (!game.isStartingTurns()) {
+                                            for (int i = 0; i < game.getUsersList().size(); i++) {
+                                                if (i != game.getTurn()) {
+                                                    int continuosRoad = game.getMapGraph().getLongestStreetPathCalculator().getLongestPath(i);
+                                                    game.getInventory(game.getUsersList().get(i)).setContinuousRoad(continuosRoad == 0 ? 1 : continuosRoad);
+                                                }
+                                            }
+                                        }
+
                                         if (game.isStartingTurns() && game.getMapGraph().getNumOfRoads()[playerIndex] == game.getStartingPhase()
                                                 && game.getMapGraph().getNumOfRoads()[playerIndex] == game.getMapGraph().getNumOfBuildings()[playerIndex]) {
                                             endTurn(game, message.getUser());
                                         }
-
+                                        checkForLongestRoad(game);
                                         updateInventory(game);
                                         return true;
                                     } //else sendToAllInGame(game.getName(), new NotSuccessfulConstructionMessage(playerIndex, message.getUuid(), "BuildingNode"));
                                 } else {
-                                    NotEnoughRessourcesMessage nerm = new NotEnoughRessourcesMessage();
-                                    nerm.setName(game.getName());
-                                    sendToSpecificUserInGame(nerm, message.getUser());
+                                    if(buildingNode.getSizeOfSettlement() == 2) {
+                                        SettlementFullyDevelopedMessage sfdm = new SettlementFullyDevelopedMessage(game.getName(), message.getUser());
+                                        sendToSpecificUserInGame(sfdm, message.getUser());
+                                    } else {
+                                        NotEnoughResourcesMessage nerm = new NotEnoughResourcesMessage(game.getName(), message.getUser());
+                                        sendToSpecificUserInGame(nerm, message.getUser());
+                                    }
                                 }
                             }
                         }
@@ -221,18 +236,19 @@ public class GameService extends AbstractService {
                                         }
                                         sendToAllInGame(game.getName(), new SuccessfulConstructionMessage(game.getName(), message.getUser().getWithoutPassword(), playerIndex,
                                                 message.getUuid(), "StreetNode"));
+                                        int continuosRoad = game.getMapGraph().getLongestStreetPathCalculator().getLongestPath(game.getTurn());
+                                        inventory.setContinuousRoad(continuosRoad == 0 ? 1 : continuosRoad);
                                         if (game.isStartingTurns() && game.getMapGraph().getNumOfRoads()[playerIndex] == game.getStartingPhase()
                                                 && game.getMapGraph().getNumOfRoads()[playerIndex] == game.getMapGraph().getNumOfBuildings()[playerIndex]) {
                                             endTurn(game, message.getUser());
                                         }
-
                                         inventory.road.decNumber();
+                                        checkForLongestRoad(game);
                                         updateInventory(game);
                                         return true;
                                     } //else sendToAllInGame(game.getName(), new NotSuccessfulConstructionMessage(playerIndex, message.getUuid(), "StreetNode"));
                                 } else {
-                                    NotEnoughRessourcesMessage nerm = new NotEnoughRessourcesMessage();
-                                    nerm.setName(game.getName());
+                                    NotEnoughResourcesMessage nerm = new NotEnoughResourcesMessage(game.getName(), message.getUser());
                                     sendToSpecificUserInGame(nerm, message.getUser());
                                 }
                             }
@@ -325,11 +341,22 @@ public class GameService extends AbstractService {
         Optional<Game> optionalGame = gameManagement.getGame(resourcesToDiscardRequest.getName());
         if (optionalGame.isPresent()) {
             Game game = optionalGame.get();
-            takeResource(game, resourcesToDiscardRequest.getUser(), "Lumber", game.getInventory(resourcesToDiscardRequest.getUser()).getSpecificResourceAmount("Lumber") - resourcesToDiscardRequest.getInventory().get("Lumber"));
-            takeResource(game, resourcesToDiscardRequest.getUser(), "Brick", game.getInventory(resourcesToDiscardRequest.getUser()).getSpecificResourceAmount("Brick") - resourcesToDiscardRequest.getInventory().get("Brick"));
-            takeResource(game, resourcesToDiscardRequest.getUser(), "Grain", game.getInventory(resourcesToDiscardRequest.getUser()).getSpecificResourceAmount("Grain") - resourcesToDiscardRequest.getInventory().get("Grain"));
-            takeResource(game, resourcesToDiscardRequest.getUser(), "Wool", game.getInventory(resourcesToDiscardRequest.getUser()).getSpecificResourceAmount("Wool") - resourcesToDiscardRequest.getInventory().get("Wool"));
-            takeResource(game, resourcesToDiscardRequest.getUser(), "Ore", game.getInventory(resourcesToDiscardRequest.getUser()).getSpecificResourceAmount("Ore") - resourcesToDiscardRequest.getInventory().get("Ore"));
+            //Standard interpretation of resources to discard
+            if(game.getUsers().contains(game.getUser(game.getTurn()))) {
+                takeResource(game, resourcesToDiscardRequest.getUser(), "Lumber", game.getInventory(resourcesToDiscardRequest.getUser()).getSpecificResourceAmount("Lumber") - resourcesToDiscardRequest.getInventory().get("Lumber"));
+                takeResource(game, resourcesToDiscardRequest.getUser(), "Brick", game.getInventory(resourcesToDiscardRequest.getUser()).getSpecificResourceAmount("Brick") - resourcesToDiscardRequest.getInventory().get("Brick"));
+                takeResource(game, resourcesToDiscardRequest.getUser(), "Grain", game.getInventory(resourcesToDiscardRequest.getUser()).getSpecificResourceAmount("Grain") - resourcesToDiscardRequest.getInventory().get("Grain"));
+                takeResource(game, resourcesToDiscardRequest.getUser(), "Wool", game.getInventory(resourcesToDiscardRequest.getUser()).getSpecificResourceAmount("Wool") - resourcesToDiscardRequest.getInventory().get("Wool"));
+                takeResource(game, resourcesToDiscardRequest.getUser(), "Ore", game.getInventory(resourcesToDiscardRequest.getUser()).getSpecificResourceAmount("Ore") - resourcesToDiscardRequest.getInventory().get("Ore"));
+            }
+            // Interpretation for AI
+            else {
+                takeResource(game, resourcesToDiscardRequest.getUser(), "Lumber", resourcesToDiscardRequest.getInventory().get("Lumber"));
+                takeResource(game, resourcesToDiscardRequest.getUser(), "Brick", resourcesToDiscardRequest.getInventory().get("Brick"));
+                takeResource(game, resourcesToDiscardRequest.getUser(), "Grain", resourcesToDiscardRequest.getInventory().get("Grain"));
+                takeResource(game, resourcesToDiscardRequest.getUser(), "Wool", resourcesToDiscardRequest.getInventory().get("Wool"));
+                takeResource(game, resourcesToDiscardRequest.getUser(), "Ore", resourcesToDiscardRequest.getInventory().get("Ore"));
+            }
             updateInventory(game);
         }
     }
@@ -671,6 +698,9 @@ public class GameService extends AbstractService {
                 sendToAllInLobby(startGameRequest.getName(), new StartGameMessage(startGameRequest.getName(), startGameRequest.getUser()));
                 Timer gameStartTimer = lobby.startTimerForGameStart();
                 int seconds = 60;
+                if (lobby.isUsedForTest()) {
+                    seconds = 1;
+                }
                 try {
                     class RemindTask extends TimerTask {
 
@@ -678,17 +708,9 @@ public class GameService extends AbstractService {
                             Set<User> users = new TreeSet<>(usersInLobby);
                             if (lobby.getPlayersReady().size() != 0) {
                                 users.removeAll(lobby.getPlayersReady());
-                            } else {
-                                users.clear();
                             }
                             if (lobby.getPlayersReady().size() > 0 && gameManagement.getGame(lobby.getName()).isEmpty()) {
-                                try {
-                                    startGame(lobby, lobby.getGameFieldVariant());
-                                    // TODO: sollte wahrscheinlich keine notenoughplayersmessage sein, sondern "You missed the game start"
-                                    sendToListOfUsers(users, new NotEnoughPlayersMessage(lobby.getName()));
-                                } catch (GameManagementException e) {
-                                    LOG.debug(e);
-                                }
+                                startGame(lobby, lobby.getGameFieldVariant());
                             } else if (lobby.getPlayersReady().size() < 1) {
                                 sendToListOfUsers(users, new NotEnoughPlayersMessage(lobby.getName()));
                             }
@@ -700,7 +722,7 @@ public class GameService extends AbstractService {
                     LOG.debug(e);
                 }
 
-            } else if (!startGameRequest.getUser().toString().equals(lobby.getOwner().toString())) {
+            } else if (!startGameRequest.getUser().equals(lobby.getOwner())) {
                 if (startGameRequest.getMessageContext().isPresent()) {
                     sendToSpecificUser(startGameRequest.getMessageContext().get(), new NotLobbyOwnerResponse(lobby.getName()));
                 }
@@ -708,8 +730,6 @@ public class GameService extends AbstractService {
                 if (startGameRequest.getMessageContext().isPresent()) {
                     sendToSpecificUser(startGameRequest.getMessageContext().get(), new GameAlreadyExistsResponse(lobby.getName()));
                 }
-            } else if (lobby.getUsers().size() < 2) {
-                sendToListOfUsers(lobby.getUsers(), new NotEnoughPlayersMessage(lobby.getName()));
             }
         }
     }
@@ -789,12 +809,7 @@ public class GameService extends AbstractService {
                 lobby.incrementRdyResponsesReceived();
             }
             if (lobby.getRdyResponsesReceived() == lobby.getUsers().size() && gameManagement.getGame(lobby.getName()).isEmpty()) {
-                try {
-                    startGame(lobby, lobby.getGameFieldVariant());
-                } catch (GameManagementException e) {
-                    LOG.debug(e);
-                    sendToListOfUsers(lobby.getPlayersReady(), new NotEnoughPlayersMessage(lobby.getName()));
-                }
+                startGame(lobby, lobby.getGameFieldVariant());
             }
         }
     }
@@ -882,7 +897,7 @@ public class GameService extends AbstractService {
     }
 
     public void endTurn(Game game, UserDTO user) {
-        if (user.equals(game.getUser(game.getTurn())) && game.getCurrentCard().equals("") && (game.rolledDiceThisTurn() || game.isStartingTurns())) {
+        if (user.equals(game.getUser(game.getTurn())) && game.getCurrentCard().equals("")  && game.getTradeList().isEmpty() && (game.rolledDiceThisTurn() || game.isStartingTurns())) {
             try {
                 boolean priorGamePhase = game.isStartingTurns();
                 game.nextRound();
@@ -892,7 +907,7 @@ public class GameService extends AbstractService {
                 sendToAllInGame(game.getName(), new NextTurnMessage(game.getName(),
                         game.getUser(game.getTurn()).getUsername(), game.getTurn(), game.isStartingTurns()));
                 // Check if the turnPlayer is an actual user in the game, if not, start the AI
-                if (!game.getUsers().contains(game.getUser(game.getTurn()))) {
+                if (!game.getUsers().contains(game.getUser(game.getTurn())) && game.getOverallTurns() < 200 && !game.hasConcluded()) {
                     if (!game.isStartingTurns()) {
                         RollDiceRequest rdr = new RollDiceRequest(game.getName(), game.getUser(game.getTurn()));
                         onRollDiceRequest(rdr);
@@ -974,8 +989,7 @@ public class GameService extends AbstractService {
                         LOG.debug("Posted ResponseChatMessage on eventBus");
                     }
                 } else {
-                    NotEnoughRessourcesMessage nerm = new NotEnoughRessourcesMessage();
-                    nerm.setName(game.getName());
+                    NotEnoughResourcesMessage nerm = new NotEnoughResourcesMessage(game.getName(), request.getUser());
                     sendToSpecificUserInGame(nerm, request.getUser());
                 }
             }
@@ -1001,6 +1015,9 @@ public class GameService extends AbstractService {
     public void onPlayDevelopmentCardRequest(PlayDevelopmentCardRequest request) {
         Optional<Game> optionalGame = gameManagement.getGame(request.getName());
         if (optionalGame.isPresent()) {
+
+            LOG.debug("PlayDevelopmentCard request " + request.getDevCard() + " from player " + request.getUser().getUsername());
+
             Game game = optionalGame.get();
             User turnPlayer = game.getUser(game.getTurn());
             if (request.getUser().equals(turnPlayer)) {
@@ -1015,7 +1032,7 @@ public class GameService extends AbstractService {
                 inventory.cardKnight.incNumber();*/
 
                 //checks if user can play developmentCard
-                if (!game.canUserPlayDevCard(request.getUser(), devCard) && game.rolledDiceThisTurn()) {
+                if (!game.canUserPlayDevCard(request.getUser(), devCard) || !game.rolledDiceThisTurn()) {
                     devCard = "default";
                 }
                 switch (devCard) {
@@ -1108,6 +1125,9 @@ public class GameService extends AbstractService {
     public void onResolveDevelopmentCardRequest(ResolveDevelopmentCardRequest request) {
         Optional<Game> optionalGame = gameManagement.getGame(request.getName());
         if (optionalGame.isPresent()) {
+
+            LOG.debug("ResolveDevelopmentCard request " + request.getDevCard() + " from player " + request.getUser().getUsername());
+
             Game game = optionalGame.get();
             User turnPlayer = game.getUser(game.getTurn());
             String gameName = game.getName();
@@ -1162,6 +1182,7 @@ public class GameService extends AbstractService {
                             } else {
                                 sendToAllInGame(gameName, message);
                                 game.setCurrentCard("");
+                                turnPlayerInventory.setContinuousRoad(game.getMapGraph().getLongestStreetPathCalculator().getLongestPath(game.getTurn()));
                                 updateInventory(game);
                             }
                         } else {
@@ -1199,7 +1220,6 @@ public class GameService extends AbstractService {
                             onRobbersNewFieldRequest(rnfm);
                             game.setCurrentCard("");
                             sendToAllInGame(gameName, message);
-                            turnPlayerInventory.setPlayedKnights(turnPlayerInventory.getPlayedKnights() + 1);
                             checkForLargestArmy(game);
                             updateInventory(game);
                         } else {
@@ -1218,7 +1238,8 @@ public class GameService extends AbstractService {
      * <p>
      * This method gets invoked by the onResolveDevelopmentCardRequest method and creates an ArrayList with all user
      * inventories from the right game. With the given inventories this method evaluates, who gets the largest army
-     * card.
+     * card. It also takes 2 victory points from the previous owner and adds 2 victory points to the new owner of
+     * the largest army card.
      *
      * @param game current game that is played
      * @author Carsten Dekker
@@ -1228,12 +1249,51 @@ public class GameService extends AbstractService {
         if (game.getInventoryWithLargestArmy() == null && game.getInventory(game.getUser(game.getTurn())).getPlayedKnights() > 2) {
             game.getInventory(game.getUser(game.getTurn())).setLargestArmy(true);
             game.setInventoryWithLargestArmy(game.getInventory(game.getUser(game.getTurn())));
+            game.getInventoryWithLargestArmy().setVictoryPoints(game.getInventoryWithLargestArmy().getVictoryPoints() + 2);
         } else if (game.getInventoryWithLargestArmy() != null) {
             if (game.getInventory(game.getUser(game.getTurn())).getPlayedKnights() > game.getInventoryWithLargestArmy().getPlayedKnights()) {
                 if (!game.getUser(game.getTurn()).equals(game.getInventoryWithLargestArmy().getUser()))
                     game.getInventoryWithLargestArmy().setLargestArmy(false);
+                game.getInventoryWithLargestArmy().setVictoryPoints(game.getInventoryWithLargestArmy().getVictoryPoints() - 2);
                 game.setInventoryWithLargestArmy(game.getInventory(game.getUser(game.getTurn())));
                 game.getInventoryWithLargestArmy().setLargestArmy(true);
+                game.getInventoryWithLargestArmy().setVictoryPoints(game.getInventoryWithLargestArmy().getVictoryPoints() + 2);
+            }
+        }
+    }
+
+    /**
+     * This method evaluates if a user gets the longest road card
+     * <p>
+     * This method gets invoked by the onConstructionMessage method and creates an ArrayList with all user
+     * inventories from the right game. With the given inventories this method evaluates, who gets the longest road
+     * card, or who looses the longest road card, if road is interrupted by other player.
+     *
+     * @param game current game that is played
+     * @author Iskander Yusupov
+     * @since 2021-06-06
+     */
+    public void checkForLongestRoad(Game game) {
+        if (game.getInventoryWithLongestRoad() == null && game.getInventory(game.getUser(game.getTurn())).getContinuousRoad() > 4) {
+            game.getInventory(game.getUser(game.getTurn())).setLongestRoad(true);
+            game.setInventoryWithLongestRoad(game.getInventory(game.getUser(game.getTurn())));
+            game.getInventoryWithLongestRoad().setVictoryPoints(game.getInventoryWithLongestRoad().getVictoryPoints() + 2);
+        } else if (game.getInventoryWithLongestRoad() != null) {
+            for (User user : game.getUsersList()) {
+                if (game.getInventory(user).getContinuousRoad() > game.getInventoryWithLongestRoad().getContinuousRoad() && game.getInventory(game.getUser(game.getTurn())).getContinuousRoad() > 4) {
+                    game.getInventoryWithLongestRoad().setLongestRoad(false);
+                    game.getInventoryWithLongestRoad().setVictoryPoints(game.getInventoryWithLongestRoad().getVictoryPoints() - 2);
+                    game.setInventoryWithLongestRoad(game.getInventory(user));
+                    game.getInventoryWithLongestRoad().setLongestRoad(true);
+                    game.getInventoryWithLongestRoad().setVictoryPoints(game.getInventoryWithLongestRoad().getVictoryPoints() + 2);
+                }
+                if (game.getInventory(user).getContinuousRoad() < 5) {
+                    if (game.getInventory(user).isLongestRoad()) {
+                        game.getInventory(user).setVictoryPoints(game.getInventoryWithLongestRoad().getVictoryPoints() - 2);
+                    }
+                    game.getInventory(user).setLongestRoad(false);
+                }
+
             }
         }
     }
@@ -1269,6 +1329,7 @@ public class GameService extends AbstractService {
                 var inventories = game.getInventoriesArrayList();
                 //Create statsDTO object
                 var statsDTO = new StatsDTO(game.getName(), user.getUsername(), game.getTradeList().size(), game.getOverallTurns(), inventories);
+                game.setHasConcluded(true);
                 //Send GameFinishedMessage to all users in game
                 sendToAllInGame(game.getName(), new GameFinishedMessage(statsDTO));
                 LOG.debug("User " + user.getUsername() + " has atleast 10 victory points and won.");
@@ -1376,7 +1437,7 @@ public class GameService extends AbstractService {
             boolean numberOfCardsCorrect = true;
 
             for (TradeItem tradeItem : request.getTradeItems()) {
-                boolean notEnoughInInventoryCheck = tradeItem.getCount() > game.getInventory(request.getUser()).getPrivateView().get(tradeItem.getName());
+                boolean notEnoughInInventoryCheck = tradeItem.getCount() > game.getInventory(request.getUser()).getSpecificResourceAmount(tradeItem.getName());
                 if (tradeItem.getCount() < 0 || notEnoughInInventoryCheck) {
                     numberOfCardsCorrect = false;
                     break;
@@ -1411,6 +1472,7 @@ public class GameService extends AbstractService {
                     if (trade.getBids().size() == game.getUsersList().size() - 1) {
                         LOG.debug("bids full");
                         TradeInformSellerAboutBidsMessage tisabm = new TradeInformSellerAboutBidsMessage(trade.getSeller(), request.getName(), tradeCode, trade.getBidders(), trade.getBids());
+                        LOG.debug("Send TradeInformSellerAboutBidsMessage to " + trade.getSeller().getUsername());
                         if (!game.getUsers().contains(game.getUser(game.getTurn()))) {
                             if (!game.isUsedForTest()) {
                                 AIToServerTranslator.translate(new RandomAI((GameDTO) game).continueTurnOrder(tisabm, trade.getWishList()), this);
@@ -1419,7 +1481,6 @@ public class GameService extends AbstractService {
                         } else {
                             sendToSpecificUserInGame(tisabm, trade.getSeller());
                         }
-                        LOG.debug("Send TradeInformSellerAboutBidsMessage to " + trade.getSeller().getUsername());
                     }
                 }
             } else {
@@ -1603,7 +1664,7 @@ public class GameService extends AbstractService {
     }
 
     /**
-     * Helper method to build one offer
+     * Helper method to build an offer
      * <p>
      * It takes the parameters and build with it an offer
      *
@@ -1628,13 +1689,12 @@ public class GameService extends AbstractService {
      * Handles BankBuyRequest found on the EventBus
      * <p>
      * handles the sale
-     * send a chad massage if success
-     * and ends the tab
+     * sends a chad massage if successful
+     * and closes the trade tab
      *
      * @param request BankBuyRequest
      * @author Anton Nikiforov
      * @see TradeItem
-     * @see BankResponseMessage
      * @since 2021-05-29
      */
     @Subscribe
@@ -1680,22 +1740,24 @@ public class GameService extends AbstractService {
         if (optionalGame.isPresent()) {
             Game game = optionalGame.get();
             String resource = "";
-            // Check if the player who wants to draw a random resource is an AI player in which case he already drew a random resource by himself
-            if (!game.getUsers().contains(drawRandomResourceFromPlayerRequest.getUser())) {
-                resource = drawRandomResourceFromPlayerRequest.getResource();
-            }
+            if (drawRandomResourceFromPlayerRequest.getUser().equals(game.getUser(game.getTurn()))) {
+                // Check if the player who wants to draw a random resource is an AI player in which case he already drew a random resource by himself
+                if (!game.getUsers().contains(drawRandomResourceFromPlayerRequest.getUser())) {
+                    resource = drawRandomResourceFromPlayerRequest.getResource();
+                }
 
-            for (User user : game.getUsersList()) {
-                if (user.getUsername().equals(drawRandomResourceFromPlayerRequest.getChosenName())) {
-                    HashMap<String, Integer> inventory = game.getInventory(user).getPrivateView();
-                    if (resource.equals("")) {
-                        resource = randomResource(inventory);
+                for (User user : game.getUsersList()) {
+                    if (user.getUsername().equals(drawRandomResourceFromPlayerRequest.getChosenName())) {
+                        HashMap<String, Integer> inventory = game.getInventory(user).getPrivateView();
+                        if (resource.equals("")) {
+                            resource = randomResource(inventory);
+                        }
+                        game.getInventory(user).decCardStack(resource, 1);
+                        game.getInventory(drawRandomResourceFromPlayerRequest.getUser()).incCardStack(resource, 1);
+                        updateInventory(game);
+                        break;
+
                     }
-                    game.getInventory(user).decCardStack(resource, 1);
-                    game.getInventory(drawRandomResourceFromPlayerRequest.getUser()).incCardStack(resource, 1);
-                    updateInventory(game);
-                    break;
-
                 }
             }
         }
@@ -1758,6 +1820,7 @@ public class GameService extends AbstractService {
         if (inventory.get("Grain") > 0) resources.add("Grain");
         if (inventory.get("Wool") > 0) resources.add("Wool");
         if (inventory.get("Ore") > 0) resources.add("Ore");
-        return resources.get((int) (Math.random() * resources.size()));
+        if(resources.size() > 0) return resources.get((int) (Math.random() * resources.size()));
+        else return "";
     }
 }

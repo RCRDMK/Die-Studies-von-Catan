@@ -27,7 +27,7 @@ public class TradeBidAction extends AIAction {
      * @since 2021-05-08
      */
     public TradeBidAction(User user, String gameName, ArrayList<TradeItem> bidList, String tradeCode) {
-        super("TradeStart", user, gameName);
+        super("TradeBid", user, gameName);
         this.bidList = bidList;
         this.tradeCode = tradeCode;
     }
