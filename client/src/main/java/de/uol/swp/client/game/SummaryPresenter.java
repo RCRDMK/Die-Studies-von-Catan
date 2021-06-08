@@ -141,7 +141,7 @@ public class SummaryPresenter extends AbstractPresenter {
                 this.winnerImage.toBack();
                 this.profileImage.setImage(new Image(profilePictureString));
                 this.profileImage.toFront();
-                winnerLabel.setText("Sorry, you lost the game " + gameName + ". The user " + statsDTO.getWinner() + " won!");
+                winnerLabel.setText("Sorry, you lost the game " + gameName + " to the user " + statsDTO.getWinner());
                 winnerLabel.setTextFill(Color.ORANGERED);
             }
             if (generalTableStats.getItems().stream().count() == 0) {
