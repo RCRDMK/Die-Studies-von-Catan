@@ -212,6 +212,9 @@ public class GamePresenter extends AbstractPresenter {
     @FXML
     private Pane playerFourLongestRoadView;
 
+    @FXML
+    private Pane buildingCostsView;
+
 
     @FXML
     private ListView<HashMap.Entry<String, Integer>> publicInventory1View;
@@ -614,6 +617,7 @@ public class GamePresenter extends AbstractPresenter {
                 setUpPrivateInventoryView();
                 setupResolveDevelopmentCardAlert();
                 setupChoosePlayerAlert();
+                setUpBuildingCosts();
                 setUpLargestArmyAndLongestRoadPanes(gcm.getUsers());
             });
             evaluateMyPlayerNumber(gcm.getUsers());
@@ -671,6 +675,7 @@ public class GamePresenter extends AbstractPresenter {
                 setupDicesAtGameStart();
                 setUpPrivateInventoryView();
                 setupResolveDevelopmentCardAlert();
+                setUpBuildingCosts();
                 setUpLargestArmyAndLongestRoadPanes(joggr.getUsers());
                 updateGameField();
             });
@@ -2605,7 +2610,7 @@ public class GamePresenter extends AbstractPresenter {
      * This method creates two imagePatterns. Then it creates and fills rectangleLargestArmy and
      * rectangleLongestRoad with corresponding ImagePattern.
      * <p>
-     * Both rectangles are added to the corresponding Panes
+     * Rectangles of each player are added to the ArrayList rectangles.
      * <p>
      * After this, hover and exit methods are being executed. When the user is entering the rectangle
      * of a card, a tooltip, with what the card under the mouse cursor represents, appear. If the user clicks
@@ -2674,6 +2679,46 @@ public class GamePresenter extends AbstractPresenter {
             playerFourLargestArmyView.getChildren().add(rectanglesLargestArmy.get(3));
             playerFourLongestRoadView.getChildren().add(rectanglesLongestRoad.get(3));
         }
+    }
+
+    /**
+     * The method gets invoked when the Game Presenter is created.
+     * <p>
+     * This method creates image and imagePattern. Then it creates and fills rectangleBuildingCosts  with
+     * <p>
+     * ImagePattern. Rectangle is added to the FXML Pane.
+     * <p>
+     * After this, hover and exit methods are being executed. When the user is entering the rectangle
+     * of a card, a tooltip, with what the card under the mouse cursor represents, appear. If the user clicks
+     * on the card, the onClickOnDevelopmentCard method gets executed and the user can read and close window with card image.
+     * <p>
+     *
+     * @author Iskander Yusupov
+     * @since 2021-06-08
+     */
+    private void setUpBuildingCosts() {
+        Image imageBuildingCosts = new Image("textures/resized/BaukostenKlein.png");
+        Rectangle rectangleBuildingCosts = new Rectangle(75, 75);
+        rectangleBuildingCosts.setFill(new ImagePattern(imageBuildingCosts));
+
+        Tooltip hoverBuildingCosts = new Tooltip("");
+
+        hoverBuildingCosts.setText("Building Costs");
+        Tooltip.install(rectangleBuildingCosts, hoverBuildingCosts);
+        hoverBuildingCosts.setShowDelay(Duration.millis(0));
+
+        rectangleBuildingCosts.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            final String title = hoverBuildingCosts.getText();
+            final String description = "Resource requirements for building and upgrading.";
+            final Boolean isDevelopmentCard = false;
+
+            @Override
+            public void handle(MouseEvent mouseEvent) {
+                onClickOnDevelopmentCard(title, description, imageBuildingCosts, isDevelopmentCard);
+
+            }
+        });
+        buildingCostsView.getChildren().add(rectangleBuildingCosts);
     }
 
 
