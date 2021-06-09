@@ -71,6 +71,17 @@ public interface Game extends Serializable {
     Set<User> getUsers();
 
     /**
+     * Method used for removing the last user in the game so that
+     * the AI can play by itself. This method should only be used for test
+     * purposes.
+     *
+     * @param user the last user to be removed from the game
+     * @author Marc Hermes
+     * @since 2021-06-06
+     */
+    void removeUserForTest(User user);
+
+    /**
      * Getter for the games users in a List.
      *
      * <p>Returns the users in the game as a list so we can look for users at certain indices.</p>
@@ -309,6 +320,24 @@ public interface Game extends Serializable {
     boolean isUsedForTest();
 
     /**
+     * Getter for the boolean value whether or not the game has finished
+     *
+     * @return true if the game has finished, false if not
+     * @author Marc Hermes
+     * @since 2021-06-06
+     */
+    boolean hasConcluded();
+
+    /**
+     * Setter for the boolean value whether or not the game has finished
+     *
+     * @param value the boolean value to set hasConcluded to
+     * @author Marc Hermes
+     * @since 2021-06-06
+     */
+    void setHasConcluded(boolean value);
+
+    /**
      * Setter for the boolean value if this game is used for the JUNIT tests (and thus uses a different AI potentially)
      *
      * @param value the boolean value
@@ -349,6 +378,20 @@ public interface Game extends Serializable {
      */
     void setInventoryWithLargestArmy(Inventory inventoryWithLargestArmy);
 
+    /**
+     * Getter for the longest Road reference
+     *
+     * @return refernced inventory with the longest road
+     */
+    Inventory getInventoryWithLongestRoad();
+
+    /**
+     * setter for the longest Road reference
+     *
+     * @param inventoryWithLongestRoad the inventory referencing the inventory with the longest road
+     */
+    void setInventoryWithLongestRoad(Inventory inventoryWithLongestRoad);
+
 
     /**
      * method used to remember the DevelopmentCards bought in a turn
@@ -362,6 +405,7 @@ public interface Game extends Serializable {
 
     /**
      * getter for the HasMap containing the development cards bought this turn
+     *
      * @return HashMap<String, Integer> boughtDevCardsThisTurn
      * @author Alexander Losse
      * @since 2021-05-30
@@ -369,7 +413,8 @@ public interface Game extends Serializable {
     HashMap<String, Integer> getBoughtDevCardsThisTurn();
 
     /**
-     *  getter for how many cards of a type were bought this turn
+     * getter for how many cards of a type were bought this turn
+     *
      * @param card String name of the card
      * @return itn amount of cards
      * @author Alexander Losse
@@ -379,6 +424,7 @@ public interface Game extends Serializable {
 
     /**
      * checks if user can play a development card
+     *
      * @param user User
      * @param card String name of the card
      * @return boolean

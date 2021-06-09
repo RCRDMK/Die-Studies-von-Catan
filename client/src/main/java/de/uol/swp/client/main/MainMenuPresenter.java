@@ -8,8 +8,6 @@ import de.uol.swp.client.account.event.ShowUserSettingsViewEvent;
 import de.uol.swp.client.chat.ChatService;
 import de.uol.swp.client.lobby.LobbyCell;
 import de.uol.swp.client.lobby.LobbyService;
-import de.uol.swp.client.main.event.MuteMusicEvent;
-import de.uol.swp.client.main.event.UnmuteMusicEvent;
 import de.uol.swp.client.register.event.ShowGameRulesEvent;
 import de.uol.swp.common.chat.RequestChatMessage;
 import de.uol.swp.common.chat.ResponseChatMessage;
@@ -30,6 +28,7 @@ import de.uol.swp.common.user.response.AllOnlineUsersResponse;
 import de.uol.swp.common.user.response.LoginSuccessfulResponse;
 import de.uol.swp.common.user.response.lobby.JoinDeletedLobbyResponse;
 import de.uol.swp.common.user.response.lobby.LobbyFullResponse;
+import de.uol.swp.common.user.response.lobby.WrongLobbyPasswordResponse;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -68,6 +67,11 @@ public class MainMenuPresenter extends AbstractPresenter {
     private User loggedInUser;
 
     @FXML
+    CheckBox passwordCheckBox;
+    @FXML
+    private PasswordField lobbyPasswordField;
+
+    @FXML
     private TextArea textArea;
 
     @FXML
@@ -96,12 +100,6 @@ public class MainMenuPresenter extends AbstractPresenter {
 
     @FXML
     private ListView<LobbyDTO> lobbiesView;
-
-    @FXML
-    private Button muteMusicButton;
-
-    @FXML
-    private Button unmuteMusicButton;
 
 
     /**
@@ -333,6 +331,33 @@ public class MainMenuPresenter extends AbstractPresenter {
     }
 
     /**
+     * Method called when a WrongLobbyPasswordResponse was detected on the eventBus.
+     * <p>
+     * If a WrongLobbyPasswordResponse was posted on the eventBus, this method will let the User know the lobby password is wrong
+     * showing a new popup with the error message. This action will also be logged.
+     *
+     * @param response the WrongLobbyPasswordResponse that was detected on the eventBus
+     * @author René Meyer
+     * @see de.uol.swp.common.user.response.lobby.WrongLobbyPasswordResponse
+     * @since 2020-06-05
+     */
+    @Subscribe
+    public void onWrongLobbyPasswordResponse(WrongLobbyPasswordResponse response) {
+        onWrongPasswordResponseLogic(response);
+    }
+
+    public void onWrongPasswordResponseLogic(WrongLobbyPasswordResponse lfr) {
+        LOG.debug("Can't join lobby " + lfr.getLobbyName() + " because the lobby password is wrong.");
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error Dialog");
+            alert.setHeaderText("Wrong password");
+            alert.setContentText("Please make sure to enter the correct password!");
+            alert.showAndWait();
+        });
+    }
+
+    /**
      * Method called when an AlreadyJoinedThisLobbyResponse was posted on the eventBus.
      * <p>
      * If an AlreadyJoinedThisLobbyResponse was posted on the eventBus, this method will remember the User , that
@@ -481,6 +506,7 @@ public class MainMenuPresenter extends AbstractPresenter {
      * these, the lobbyNameInvalid shows up and asks for a new name. It also works with vowel mutation.
      * <p>
      * Enhanced by Marius Birk and Carsten Dekker, 2020-02-12
+     * Enhanced by René Meyer for the support of password protected lobbies, 2021-06-05
      *
      * @param event The ActionEvent created by pressing the create lobby button
      * @author Marco Grawunder
@@ -494,11 +520,20 @@ public class MainMenuPresenter extends AbstractPresenter {
             lobbyNameInvalid.setVisible(true);
             lobbyAlreadyExistsLabel.setVisible(false);
         } else {
+            // If pw provided
             lobbyNameInvalid.setVisible(false);
             lobbyAlreadyExistsLabel.setVisible(false);
-            lobbyService.createNewLobby(lobbyNameTextField.getText(), (UserDTO) this.loggedInUser);
+            if (passwordCheckBox.isSelected() && !lobbyPasswordField.getText().isEmpty()) {
+                lobbyService.createNewProtectedLobby(lobbyNameTextField.getText(), (UserDTO) this.loggedInUser, lobbyPasswordField.getText());
+            } else {
+                // lobby without pw
+                lobbyService.createNewLobby(lobbyNameTextField.getText(), (UserDTO) this.loggedInUser);
+            }
         }
         lobbyNameTextField.clear();
+        lobbyPasswordField.clear();
+        passwordCheckBox.setSelected(false);
+        lobbyPasswordField.setVisible(false);
     }
 
     @FXML
@@ -606,39 +641,21 @@ public class MainMenuPresenter extends AbstractPresenter {
         LOG.debug("Received GameStartedMessage from game: " + message.getLobbyName());
         lobbyService.retrieveAllLobbies();
     }
-/**
- * Method called when the user has clicked on the MuteMusicButton.
- * <p>
- * When this method gets called a MuteMusicMessage gets send to the SceneManager to pause the background music.
- * Futhermore will the MuteMusicButton become invisible and in its place a UnmuteMusicButton will appear.
- *
- * @param actionEvent the click on the MuteMusicButton
- * @author Ricardo Mook
- * @since 2021-05-08
- */
-    @FXML
-    public void onMuteMusicButtonPressed(ActionEvent actionEvent) {
-        LOG.debug("User muted the game music.");
-        eventBus.post(new MuteMusicEvent());
-        muteMusicButton.setVisible(false);
-        unmuteMusicButton.setVisible(true);
-    }
 
     /**
-     * Method called when the user has clicked on the UnmuteMusicButton.
+     * Action event for the passwordCheckBox
      * <p>
-     * When this method gets called a UnmuuteMusicMessage gets send to the SceneManager to continue the background music.
-     * Futhermore will the UnmuteMusicButton become invisible and in its place a MuteMusicButton will appear.
+     * Triggers the lobbyPasswordField Visibility depending on the checkBox State.
      *
-     * @param actionEvent the click on the UnmuteMusicButton
-     * @author Ricardo Mook
-     * @since 2021-05-08
+     * @param actionEvent
+     * @author René Meyer
+     * @since 2021-06-05
      */
-    @FXML
-    public void onUnmuteMusicButtonPressed(ActionEvent actionEvent) {
-        LOG.debug("User unmuted the game music.");
-        eventBus.post(new UnmuteMusicEvent());
-        muteMusicButton.setVisible(true);
-        unmuteMusicButton.setVisible(false);
+    public void onLobbyPw(ActionEvent actionEvent) {
+        if (passwordCheckBox.isSelected()) {
+            this.lobbyPasswordField.setVisible(true);
+        } else {
+            this.lobbyPasswordField.setVisible(false);
+        }
     }
 }

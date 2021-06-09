@@ -39,6 +39,20 @@ public class CreateLobbyRequest extends AbstractLobbyRequest {
     }
 
     /**
+     * Constructor
+     * <p>
+     *
+     * @param name     name of the lobby
+     * @param owner    User trying to create the lobby
+     * @param password password for the lobby
+     * @author René Meyer
+     * @since 2021-06-05
+     */
+    public CreateLobbyRequest(String name, UserDTO owner, String password) {
+        super(name, owner, password);
+    }
+
+    /**
      * Setter for the user variable
      * <p>
      *

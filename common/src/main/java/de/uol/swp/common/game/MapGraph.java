@@ -205,7 +205,7 @@ public class MapGraph implements Serializable {
         ArrayList<Hexagon> placedHexagons = new ArrayList<>();
         placedHexagons.add(middle);
         while (hexagonHashSet.size() < 19) {
-            expandRandomly(placedHexagons, randomInt(0, placedHexagons.size() - 1), randomInt(0, 5));
+            expandRandomly(placedHexagons, randomInt(0, placedHexagons.size()), randomInt(0, 6));
             hexagonHashSet.forEach(Hexagon::updateHexagonList);
             hexagonHashSet.forEach(Hexagon::interconnectNeighbourHexagons);
 
@@ -348,8 +348,8 @@ public class MapGraph implements Serializable {
 
         middle.configureTerrainTypeAndDiceToken(6, 0);
         for (int i = 0; i < 18; i++) {
-            int rand1 = randomInt(0, 17 - i);
-            int rand2 = randomInt(0, 17 - i);
+            int rand1 = randomInt(0, 18 - i);
+            int rand2 = randomInt(0, 18 - i);
             hexagons.get(i).configureTerrainTypeAndDiceToken(terrainType.get(rand1), diceTokenList.get(rand2));
 
             terrainType.remove(rand1);
@@ -381,7 +381,7 @@ public class MapGraph implements Serializable {
 
         for (Hexagon hexagonToInspect : hexagonHashSet) {
             if (!hexagonToInspect.equals(middle)) {
-                int rand3 = randomInt(0, harborList.size() - 1);
+                int rand3 = randomInt(0, harborList.size());
 
                 // Check if the hexagon already has harbors. because then no harbor will be placed
 
@@ -510,7 +510,7 @@ public class MapGraph implements Serializable {
      * Returns a random integer in a given range with standard distribution
      *
      * @param min the (inclusive) lower bound for the random number
-     * @param max the (inclusive) upper bound for the random number
+     * @param max the (exclusive) upper bound for the random number
      * @return the random number generated
      * @author Marc Hermes
      * @since 2021-05-14

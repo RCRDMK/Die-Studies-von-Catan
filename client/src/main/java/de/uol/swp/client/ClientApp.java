@@ -52,7 +52,7 @@ public class ClientApp extends Application implements ConnectionListener {
     private EventBus eventBus;
     private SceneManager sceneManager;
     private long lastPingResponse;
-    private final static Timer timer = new Timer();
+    private Timer timer;
 
     // -----------------------------------------------------
     // Java FX Methods
@@ -64,7 +64,8 @@ public class ClientApp extends Application implements ConnectionListener {
         List<String> args = p.getRaw();
 
         if (args.size() != 2) {
-            host = "duemmer.informatik.uni-oldenburg.de";
+            host="77.22.0.142";
+            //host = "duemmer.informatik.uni-oldenburg.de";
             port = 50100;
             System.err.println("Usage: " + ClientConnection.class.getSimpleName() + " host port");
             System.err.println("Using default port " + port + " on " + host);
@@ -77,7 +78,6 @@ public class ClientApp extends Application implements ConnectionListener {
         // if connection is established in this stage, no GUI is shown and
         // exceptions are only visible in console!
     }
-
 
     @Override
     public void start(Stage primaryStage) {
@@ -534,14 +534,15 @@ public class ClientApp extends Application implements ConnectionListener {
      * @since 2021-01-22
      */
     private void checkForTimeout() {
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                if ((System.currentTimeMillis() - lastPingResponse) >= 120000) {
-                    checkoutTimeout();
+        timer = new Timer();
+            timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    if ((System.currentTimeMillis() - lastPingResponse) >= 120000) {
+                        checkoutTimeout();
+                    }
                 }
-            }
-        }, 60000, 60000);
+            }, 60000, 60000);
     }
 
     /**
@@ -593,6 +594,4 @@ public class ClientApp extends Application implements ConnectionListener {
         sceneManager.removeSummaryTab(gameName);
         sceneManager.showMainTab(user);
     }
-
-
 }
