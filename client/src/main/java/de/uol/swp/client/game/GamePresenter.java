@@ -440,6 +440,8 @@ public class GamePresenter extends AbstractPresenter {
             for (MapGraphNodeContainer container : mapGraphNodeContainers) {
                 if (container.getMapGraphNode().getOccupiedByPlayer() == 666 && container.getMapGraphNode() instanceof MapGraph.BuildingNode) {
                     container.getCircle().setVisible(false);
+                } else if (container.getMapGraphNode().getOccupiedByPlayer() == myPlayerNumber && container.getMapGraphNode() instanceof MapGraph.BuildingNode) {
+                    container.getCircle().setDisable(true);
                 }
                 if (container.getMapGraphNode().getOccupiedByPlayer() == myPlayerNumber && container.getMapGraphNode() instanceof MapGraph.BuildingNode) {
                     for (MapGraph.StreetNode streetNode : ((MapGraph.BuildingNode) container.getMapGraphNode()).getConnectedStreetNodes()) {
@@ -472,6 +474,8 @@ public class GamePresenter extends AbstractPresenter {
                             container.getCircle().setVisible(true);
                         }
                     }
+                } else if (container.getMapGraphNode().getOccupiedByPlayer() == myPlayerNumber && container.getMapGraphNode() instanceof MapGraph.BuildingNode) {
+                    container.getCircle().setDisable(false);
                 }
             }
         }
@@ -504,7 +508,8 @@ public class GamePresenter extends AbstractPresenter {
         for (MapGraphNodeContainer container : mapGraphNodeContainers) {
             if (container.getMapGraphNode().getOccupiedByPlayer() == myPlayerNumber && container.getMapGraphNode() instanceof MapGraph.BuildingNode) {
                 container.getCircle().setVisible(true);
-            } else if (container.getMapGraphNode().getOccupiedByPlayer() == 666) {
+                container.getCircle().setDisable(false);
+            } else if (container.getMapGraphNode().getOccupiedByPlayer() == 666 || container.getMapGraphNode().getOccupiedByPlayer() == 420) {
                 container.getCircle().setVisible(false);
             }
         }
@@ -1384,6 +1389,52 @@ public class GamePresenter extends AbstractPresenter {
                 circle.setVisible(false);
 
                 circle.setFill(Color.color(0.5, 0.5, 0.5));
+                if (buildingNode.getTypeOfHarbor() != 0) {
+                    //Creating Symbols and Tooltips for harbors.
+                    double harborSymbolSize = 25.0;
+                    ImagePattern harborTexture = new ImagePattern(new Image("textures/hafen.png"));
+                    Rectangle harborSymbol = new Rectangle(mapGraphNodeContainer.getCircle().getLayoutX() - harborSymbolSize / 2, mapGraphNodeContainer.getCircle().getLayoutY() - harborSymbolSize, harborSymbolSize, harborSymbolSize);
+                    harborSymbol.setFill(harborTexture);
+
+                    gameAnchorPane.getChildren().add(harborSymbol);
+                    harborSymbol.toFront();
+
+                    Tooltip tooltip = new Tooltip("");
+
+                    switch (buildingNode.getTypeOfHarbor()) {
+                        case 1:
+                            tooltip.setText("2:1\n Sheep");
+                            Tooltip.install(harborSymbol, tooltip);
+                            tooltip.setShowDelay(Duration.millis(100));
+                            break;
+                        case 2:
+                            tooltip.setText("2:1\n Clay");
+                            Tooltip.install(harborSymbol, tooltip);
+                            tooltip.setShowDelay(Duration.millis(100));
+                            break;
+                        case 3:
+                            tooltip.setText("2:1\n Wood");
+                            Tooltip.install(harborSymbol, tooltip);
+                            tooltip.setShowDelay(Duration.millis(100));
+                            break;
+                        case 4:
+                            tooltip.setText("2:1\n Grain");
+                            Tooltip.install(harborSymbol, tooltip);
+                            tooltip.setShowDelay(Duration.millis(100));
+                            break;
+                        case 5:
+                            tooltip.setText("2:1\n Ore");
+                            Tooltip.install(harborSymbol, tooltip);
+                            tooltip.setShowDelay(Duration.millis(100));
+                            break;
+                        case 6:
+                            tooltip.setText("3:1\n Any");
+                            Tooltip.install(harborSymbol, tooltip);
+                            tooltip.setShowDelay(Duration.millis(100));
+                            break;
+                    }
+
+                }
             } else {
                 double itemSize = cardSize() / 15;
                 MapGraph.StreetNode streetNode = (MapGraph.StreetNode) mapGraphNodeContainer.getMapGraphNode();
@@ -1415,7 +1466,7 @@ public class GamePresenter extends AbstractPresenter {
         }
     }
 
-    //TODO: Kann ecentuell weg, falls am Ende nicht mehr benötigt
+    //TODO: Kann eventuell weg, falls am Ende nicht mehr benötigt
 
     /**
      * Determine the right color for a drawn, player-owned object.
@@ -1628,8 +1679,8 @@ public class GamePresenter extends AbstractPresenter {
     }
 
     @Subscribe
-    public void onNotEnoughResourcesMessages(NotEnoughRessourcesMessage notEnoughRessourcesMessage) {
-        notEnoughResourcesMessageLogic(notEnoughRessourcesMessage);
+    public void onNotEnoughResourcesMessages(NotEnoughResourcesMessage notEnoughResourcesMessage) {
+        notEnoughResourcesMessageLogic(notEnoughResourcesMessage);
     }
 
     /**
@@ -1637,19 +1688,39 @@ public class GamePresenter extends AbstractPresenter {
      * <p>
      * This method reacts to the NotEnoughRessourcesMessage and shows the corresponding alert window.
      *
-     * @param notEnoughRessourcesMessage //TODO: fehlt
+     * @param notEnoughResourcesMessage //TODO: fehlt
      * @implNote The code inside this Method has to run in the JavaFX-application thread. Therefore it is crucial not to
      * remove the {@code Platform.runLater()}
      * @author Marius Birk
-     * @see de.uol.swp.common.game.message.NotEnoughRessourcesMessage
+     * @see NotEnoughResourcesMessage
      * @since 2021-04-03
      */
-    public void notEnoughResourcesMessageLogic(NotEnoughRessourcesMessage notEnoughRessourcesMessage) {
+    public void notEnoughResourcesMessageLogic(NotEnoughResourcesMessage notEnoughResourcesMessage) {
         if (this.currentLobby != null) {
-            if (this.currentLobby.equals(notEnoughRessourcesMessage.getName())) {
+            if (this.currentLobby.equals(notEnoughResourcesMessage.getName())) {
                 Platform.runLater(() -> {
-                    this.alert.setTitle(notEnoughRessourcesMessage.getName());
-                    this.alert.setHeaderText("You have not enough Ressources!");
+                    this.alert.setTitle(notEnoughResourcesMessage.getName());
+                    this.alert.setHeaderText("You have not enough Resources!");
+                    this.alert.show();
+                });
+            }
+        }
+    }
+
+    /**
+     * This method reacts to the onSettlementFullyDevelopedMessage and shows the alert window.
+     *
+     * @param sfdm the SettlementFullyDevelopedMessage found on the bus
+     * @author Carsten Dekker
+     * @since 2021-06-07
+     */
+    @Subscribe
+    public void onSettlementFullyDevelopedMessage(SettlementFullyDevelopedMessage sfdm) {
+        if (this.currentLobby != null) {
+            if (this.currentLobby.equals(sfdm.getName())) {
+                Platform.runLater(() -> {
+                    this.alert.setTitle(sfdm.getName());
+                    this.alert.setHeaderText("This settlement is fully developed!");
                     this.alert.show();
                 });
             }
@@ -2140,11 +2211,21 @@ public class GamePresenter extends AbstractPresenter {
                             mapGraphNodeContainer.getCircle().setRadius(cardSize() / 3.5);
                             mapGraphNodeContainer.getCircle().setFill(determineBuildingPicture(mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer(), 1));
                             mapGraphNodeContainer.getCircle().setVisible(true);
+                            for (MapGraphNodeContainer mapGraphNodeContainer1 : mapGraphNodeContainers) {
+                                if (mapGraphNodeContainer1.getMapGraphNode().getOccupiedByPlayer() != 666 && mapGraphNodeContainer1.getMapGraphNode().getOccupiedByPlayer() != 420 && mapGraphNodeContainer1.getMapGraphNode() instanceof MapGraph.BuildingNode) {
+                                    mapGraphNodeContainer1.getCircle().toFront();
+                                }
+                            }
                         });
                     } else {
                         Platform.runLater(() -> {
                             mapGraphNodeContainer.getCircle().setRadius(cardSize() / 3.5);
                             mapGraphNodeContainer.getCircle().setFill(determineBuildingPicture(mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer(), 2));
+                            for (MapGraphNodeContainer mapGraphNodeContainer1 : mapGraphNodeContainers) {
+                                if (mapGraphNodeContainer1.getMapGraphNode().getOccupiedByPlayer() != 666 && mapGraphNodeContainer1.getMapGraphNode().getOccupiedByPlayer() != 420 && mapGraphNodeContainer1.getMapGraphNode() instanceof MapGraph.BuildingNode) {
+                                    mapGraphNodeContainer1.getCircle().toFront();
+                                }
+                            }
                         });
                     }
                 } else {
@@ -2780,7 +2861,7 @@ public class GamePresenter extends AbstractPresenter {
 
                     r.setOnMouseClicked(new EventHandler<>() {
                         final String title = hover.getText();
-                        final String description = "This ressource can be found on hill fields";
+                        final String description = "This resource can be found on hill fields";
                         final Boolean isDevelopmentCard = false;
 
                         @Override
@@ -2799,7 +2880,7 @@ public class GamePresenter extends AbstractPresenter {
 
                     r.setOnMouseClicked(new EventHandler<>() {
                         final String title = hover.getText();
-                        final String description = "This ressource can be harvested on grain fields";
+                        final String description = "This resource can be harvested on grain fields";
                         final Boolean isDevelopmentCard = false;
 
                         @Override
@@ -2818,7 +2899,7 @@ public class GamePresenter extends AbstractPresenter {
 
                     r.setOnMouseClicked(new EventHandler<>() {
                         final String title = hover.getText();
-                        final String description = "This ressource is getting produced on pasture fields";
+                        final String description = "This resource is getting produced on pasture fields";
                         final Boolean isDevelopmentCard = false;
 
                         @Override
@@ -2837,7 +2918,7 @@ public class GamePresenter extends AbstractPresenter {
 
                     r.setOnMouseClicked(new EventHandler<>() {
                         final String title = hover.getText();
-                        final String description = "This ressource can be won from mountain fields";
+                        final String description = "This resource can be won from mountain fields";
                         final Boolean isDevelopmentCard = false;
 
                         @Override
