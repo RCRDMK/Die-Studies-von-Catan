@@ -169,6 +169,14 @@ public class GamePresenter extends AbstractPresenter {
     @FXML
     public Label BuildingNotSuccessfulLabel;
 
+    @FXML
+    private Button kickPlayer1Button;
+    @FXML
+    private Button kickPlayer2Button;
+    @FXML
+    private Button kickPlayer3Button;
+    @FXML
+    private Button kickPlayer4Button;
 
     @FXML
     private Pane picturePlayerView1;

@@ -56,6 +56,14 @@
         </Button>
         <Button fx:id="buyDevCard" layoutX="1050.0" layoutY="447.0" mnemonicParsing="false"
                 onAction="#onBuyDevelopmentCard" text="Buy Card"/>
+        <Button fx:id="kickPlayer1Button" layoutX="70.0" layoutY="235.0" mnemonicParsing="false"
+                 text="Kick"/>
+        <Button fx:id="kickPlayer2Button" layoutX="815.0" layoutY="235.0" mnemonicParsing="false"
+                text="Kick"/>
+        <Button fx:id="kickPlayer3Button" layoutX="70.0" layoutY="490.0" mnemonicParsing="false"
+                text="Kick"/>
+        <Button fx:id="kickPlayer4Button" layoutX="815.0" layoutY="490.0" mnemonicParsing="false"
+                text="Kick"/>
         <MenuButton fx:id="buildMenu" layoutX="1126.0" layoutY="447.0" mnemonicParsing="false" text="Build">
             <items>
                 <MenuItem mnemonicParsing="false" onAction="#onBuildRoad" text="Road"/>
