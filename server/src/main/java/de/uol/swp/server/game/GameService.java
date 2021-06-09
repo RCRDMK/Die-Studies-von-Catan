@@ -1101,12 +1101,14 @@ public class GameService extends AbstractService {
                             game.setCurrentCard("Knight");
                             game.setPlayedCardThisTurn(true);
                             PlayDevelopmentCardResponse response = new PlayDevelopmentCardResponse(devCard, true, turnPlayer.getUsername(), game.getName());
-                            MoveRobberMessage moveRobberMessage = new MoveRobberMessage(request.getName(), request.getUser());
                             response.initWithMessage(request);
                             post(response);
                             inventory.setPlayedKnights(inventory.getPlayedKnights() + 1);
                             inventory.cardKnight.decNumber();
-                            sendToSpecificUserInGame(moveRobberMessage, request.getUser());
+                            if (game.getUsers().contains(request.getUser())) {
+                                MoveRobberMessage moveRobberMessage = new MoveRobberMessage(request.getName(), request.getUser());
+                                sendToSpecificUserInGame(moveRobberMessage, request.getUser());
+                            }
                             updateInventory(game);
                             break;
                         }
