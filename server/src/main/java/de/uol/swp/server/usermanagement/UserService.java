@@ -165,8 +165,8 @@ public class UserService extends AbstractService {
     public User retrieveUserInformation(User user) {
         try {
             return userManagement.retrieveUserInformation(user);
-        } catch (Exception throwables) {
-            throwables.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return user;
     }
