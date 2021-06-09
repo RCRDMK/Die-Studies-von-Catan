@@ -550,7 +550,6 @@ public class GamePresenter extends AbstractPresenter {
     @FXML
     public void onEndTurn() {
         eventBus.post(new EndTurnRequest(this.currentLobby, (UserDTO) this.joinedLobbyUser));
-        //TODO: folgender Code lässt die Circles unsichtbar werden
         for (MapGraphNodeContainer mapGraphNode : mapGraphNodeContainers) {
             if (mapGraphNode.getMapGraphNode().getOccupiedByPlayer() == 666) {
                 mapGraphNode.getCircle().setVisible(false);
@@ -893,11 +892,14 @@ public class GamePresenter extends AbstractPresenter {
                     inventory.put("Wool", Integer.parseInt(woolLabelRobberMenu.getText()));
                     inventory.put("Ore", Integer.parseInt(oreLabelRobberMenu.getText()));
 
-                    if (itsMyTurn) {
+                    if (itsMyTurn && rolledDice) {
                         tradeButton.setDisable(false);
                         buildMenu.setDisable(false);
                         buyDevCard.setDisable(false);
                         endTurnButton.setDisable(false);
+                    }
+                    if (itsMyTurn && !rolledDice) {
+                        rollDiceButton.setDisable(false);
                     }
 
                     // TODO: sollte im gameservice passieren
@@ -1862,14 +1864,20 @@ public class GamePresenter extends AbstractPresenter {
      * @since 2021-06-02
      */
     public void showChoosePlayerAlert(ChoosePlayerMessage choosePlayerMessage) {
-        chooseAlert.setTitle(choosePlayerMessage.getName());
+        if(choosePlayerMessage.getName()!=null){
+            chooseAlert.setTitle(choosePlayerMessage.getName());
+        }else{
+            chooseAlert.setTitle("Choose a Player");
+        }
         chooseAlert.getButtonTypes().setAll();
         for (int i = 0; i < choosePlayerMessage.getUserList().size(); i++) {
             if (!choosePlayerMessage.getUserList().get(i).equals(choosePlayerMessage.getUser().getUsername())) {
                 chooseAlert.getButtonTypes().add(new ButtonType(choosePlayerMessage.getUserList().get(i)));
             }
         }
-        chooseAlert.showAndWait();
+        if (!chooseAlert.isShowing()) {
+            chooseAlert.showAndWait();
+        }
         gameService.drawRandomCardFromPlayer(choosePlayerMessage.getName(), choosePlayerMessage.getUser(), chooseAlert.getResult().getText());
         chooseAlert.close();
     }

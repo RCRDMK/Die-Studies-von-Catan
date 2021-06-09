@@ -4,6 +4,8 @@ import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -28,10 +30,11 @@ public class SQLBasedUserStore extends AbstractUserStore implements UserStore {
      */
     public void buildConnection() throws SQLException {
         DriverManager.registerDriver(new com.mysql.cj.jdbc.Driver());
-        String CONNECTION = "jdbc:mysql://178.238.232.242:3306";
+        String CONNECTION = "jdbc:mysql://178.238.232.242:3306?autoReconnect=true";
         connection = DriverManager.getConnection(CONNECTION, "swpJ", "Uz3FLt2cgMmFCALY");
         statement = connection.createStatement();
         statement.execute("use swpJ;");
+        LOG.debug("Building connection to database.");
     }
 
     /**
@@ -44,9 +47,11 @@ public class SQLBasedUserStore extends AbstractUserStore implements UserStore {
      * @author Marius Birk
      * @since 2021-01-15
      */
+
     public void closeConnection() throws SQLException {
         statement.close();
         connection.close();
+        LOG.debug("Connection to the database closed.");
     }
 
     @Override
@@ -107,6 +112,9 @@ public class SQLBasedUserStore extends AbstractUserStore implements UserStore {
 
     @Override
     public User createUser(String username, String password, String eMail) throws Exception {
+        if(connection.isClosed()){
+            buildConnection();
+        }
         PreparedStatement userName = connection.prepareStatement("insert into userData(name, password, mail) values (?,?,?);");
         try {
             userName.setString(1, username);
