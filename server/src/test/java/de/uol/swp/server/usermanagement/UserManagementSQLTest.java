@@ -19,9 +19,20 @@ public class UserManagementSQLTest {
     public UserManagementSQLTest() throws SQLException {
     }
 
+    /**
+     * This test closes the connection to the user database.
+     * <p>
+     * The test closes the connection to the database and reconnects automaticly.
+     * Because of the parameter in the JDBC string, the re-establishment of the connection
+     * is only made possible.
+     *
+     * @author Marius Birk
+     * @since 2021-06-06
+     * @throws Exception
+     */
     @Test
     public void closeConnectionTest() throws Exception {
         userManagement.closeConnection();
-        assertThrows(SQLNonTransientConnectionException.class, () -> userStore.createUser(defaultUser.getUsername(), defaultUser.getPassword(), defaultUser.getEMail()));
+        assertThrows(NullPointerException.class, ()-> userStore.findUser(defaultUser.getUsername()));
     }
 }
