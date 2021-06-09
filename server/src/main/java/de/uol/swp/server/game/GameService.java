@@ -794,6 +794,13 @@ public class GameService extends AbstractService {
                 }
                 updateInventory(game);
                 sendToAllInGame(game.getName(), new NextTurnMessage(game.getName(), game.getUser(game.getTurn()).getUsername(), game.getTurn(), game.isStartingTurns()));
+                if (!game.getUsers().contains(game.getUser(game.getTurn()))) {
+                    if (!game.isStartingTurns()) {
+                        RollDiceRequest rdr = new RollDiceRequest(game.getName(), game.getUser(game.getTurn()));
+                        onRollDiceRequest(rdr);
+                    }
+                    startTurnForAI((GameDTO) game);
+                }
             }
         } else {
             lobby.setPlayersReadyToNull();
@@ -1342,6 +1349,10 @@ public class GameService extends AbstractService {
             HashMap<String, Integer> privateInventory = game.getInventory(user).getPrivateView();
             PrivateInventoryChangeMessage privateInventoryChangeMessage = new PrivateInventoryChangeMessage(game.getName(), user, privateInventory);
             sendToSpecificUserInGame(privateInventoryChangeMessage, user);
+        }
+        ArrayList<HashMap<String, Integer>> publicInventories = new ArrayList<>();
+        for (User user : game.getUsersList()) {
+            publicInventories.add(game.getInventory(user).getPublicView());
             var inventory = game.getInventory(user);
             // If user has 10 victory points, he wins and the Summary Screen gets shown for every user in the game.
             if (inventory.getVictoryPoints() >= 10) {
@@ -1355,10 +1366,6 @@ public class GameService extends AbstractService {
                 sendToAllInGame(game.getName(), new GameFinishedMessage(statsDTO));
                 LOG.debug("User " + user.getUsername() + " has atleast 10 victory points and won.");
             }
-        }
-        ArrayList<HashMap<String, Integer>> publicInventories = new ArrayList<>();
-        for (User user : game.getUsersList()) {
-            publicInventories.add(game.getInventory(user).getPublicView());
         }
         PublicInventoryChangeMessage publicInventoryChangeMessage = new PublicInventoryChangeMessage(game.getName(), publicInventories);
         sendToAllInGame(game.getName(), publicInventoryChangeMessage);
