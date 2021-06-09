@@ -2534,7 +2534,7 @@ public class GamePresenter extends AbstractPresenter {
 
                     r.setOnMouseClicked(new EventHandler<MouseEvent>() {
                         String title = hover.getText();
-                        String description = "The Road Building development card. When this card is played out, you immediately get two ressource cards of your choice from the bank";
+                        String description = "The Road Building development card. With this card played out, you can build wo roads this turn free of charge";
                         Boolean isDevelopmentCard = true;
 
                         @Override
@@ -2562,7 +2562,7 @@ public class GamePresenter extends AbstractPresenter {
 
                     r.setOnMouseClicked(new EventHandler<MouseEvent>() {
                         String title = hover.getText();
-                        String description = "The Year of Plenty development car. With this card played out, you can build wo roads this turn free of charge";
+                        String description = "The Year of Plenty development car. When this card is played out, you immediately get two ressource cards of your choice from the bank";
                         Boolean isDevelopmentCard = true;
 
                         @Override
@@ -2590,7 +2590,7 @@ public class GamePresenter extends AbstractPresenter {
 
                     r.setOnMouseClicked(new EventHandler<MouseEvent>() {
                         String title = hover.getText();
-                        String description = "your victory points for the game you earned until now";
+                        String description = "Cards which aren't playable but increase your victory points at the end of game";
                         Boolean isDevelopmentCard = false;
 
                         @Override
