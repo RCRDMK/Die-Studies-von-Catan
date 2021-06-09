@@ -4,59 +4,45 @@
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 
+<AnchorPane id="summary" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="634.0" prefWidth="1280.0" style="-fx-background-image: url('textures/images/EndScreenStatsBg.png'); -fx-background-size: cover; -fx-background-repeat: no-repeat;" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.uol.swp.client.game.SummaryPresenter">
+    <children>
+        <Button layoutX="305.0" layoutY="400.0" onAction="#onBackToMainMenu" text="Back to Main Menu" />
+        <Label fx:id="winnerLabel" alignment="CENTER" layoutX="168.0" layoutY="137.0" prefHeight="18.0" prefWidth="400.0" style="-fx-font-weight: BOLD" textAlignment="CENTER" />
+        <ImageView fx:id="winnerImage" fitHeight="110.0" fitWidth="100.0" layoutX="255.0" layoutY="15.0" pickOnBounds="true" preserveRatio="true">
+        </ImageView>
+        <ImageView fx:id="profileImage" fitHeight="100.0" fitWidth="100.0" layoutX="389.0" layoutY="20.0" pickOnBounds="true" preserveRatio="true" AnchorPane.leftAnchor="389.0">
+        </ImageView>
+        <TabPane layoutX="167.5" layoutY="175.0" prefHeight="200.0" prefWidth="400.0" tabClosingPolicy="UNAVAILABLE">
+            <tabs>
+                <Tab closable="false" text="General Stats">
+                    <content>
+                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+                        <TableView fx:id="generalTableStats" layoutX="100" layoutY="150.0" prefHeight="200.0" prefWidth="400">
+                            <columns>
+                            </columns>
+                        </TableView>
+                    </content>
 
-<GridPane xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.uol.swp.client.game.SummaryPresenter">
-   <columnConstraints>
-      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
-   </columnConstraints>
-   <rowConstraints>
-      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-      <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
-      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-   </rowConstraints>
-   <children>
-      <AnchorPane id="summary" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="500" prefWidth="735.0" style="-fx-background-image: url('textures/images/EndScreenStatsBg.png'); -fx-background-size: cover; -fx-background-repeat: no-repeat;" GridPane.columnIndex="1" GridPane.rowIndex="1">
-          <children>
-              <Button layoutX="305.0" layoutY="400.0" onAction="#onBackToMainMenu" text="Back to Main Menu" />
-              <Label fx:id="winnerLabel" alignment="CENTER" layoutX="240.0" layoutY="133.0" prefHeight="17.0" prefWidth="250.0" style="-fx-font-weight: BOLD" textAlignment="CENTER" />
-              <ImageView fx:id="winnerImage" fitHeight="110.0" fitWidth="100.0" layoutX="255.0" layoutY="15.0" pickOnBounds="true" preserveRatio="true">
-        </ImageView>
-              <ImageView fx:id="profileImage" fitHeight="100.0" fitWidth="100.0" layoutX="389.0" layoutY="20.0" pickOnBounds="true" preserveRatio="true" AnchorPane.leftAnchor="389.0">
-        </ImageView>
-              <TabPane layoutX="167.5" layoutY="175.0" prefHeight="200.0" prefWidth="400.0" tabClosingPolicy="UNAVAILABLE">
-                  <tabs>
-                      <Tab closable="false" text="General Stats">
-                          <content>
-                              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
-                              <TableView fx:id="generalTableStats" layoutX="100" layoutY="150.0" prefHeight="200.0" prefWidth="400">
-                                  <columns>
+                </Tab>
+                <Tab closable="false" text="Detailed Stats">
+                    <content>
+                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+                        <TableView fx:id="detailedTableStats" layoutX="100" layoutY="150.0" prefHeight="200.0" prefWidth="400">
+                            <columns>
                             </columns>
-                              </TableView>
-                          </content>
-      
-                      </Tab>
-                      <Tab closable="false" text="Detailed Stats">
-                          <content>
-                              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
-                              <TableView fx:id="detailedTableStats" layoutX="100" layoutY="150.0" prefHeight="200.0" prefWidth="400">
-                                  <columns>
+                        </TableView>
+                    </content>
+                </Tab>
+                <Tab closable="false" text="Ressource Stats">
+                    <content>
+                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+                        <TableView fx:id="resourceTableStats" layoutX="100" layoutY="150.0" prefHeight="200.0" prefWidth="400">
+                            <columns>
                             </columns>
-                              </TableView>
-                          </content>
-                      </Tab>
-                      <Tab closable="false" text="Ressource Stats">
-                          <content>
-                              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
-                              <TableView fx:id="resourceTableStats" layoutX="100" layoutY="150.0" prefHeight="200.0" prefWidth="400">
-                                  <columns>
-                            </columns>
-                              </TableView>
-                          </content>
-                      </Tab>
-                  </tabs>
-              </TabPane>
-          </children>
-      </AnchorPane>
-   </children>
-</GridPane>
+                        </TableView>
+                    </content>
+                </Tab>
+            </tabs>
+        </TabPane>
+    </children>
+</AnchorPane>
