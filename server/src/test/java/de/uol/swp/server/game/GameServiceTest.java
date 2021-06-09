@@ -878,7 +878,7 @@ public class GameServiceTest {
         for (MapGraph.BuildingNode bn : game.getMapGraph().getBuiltBuildings()) {
             if (bn.getOccupiedByPlayer() == game.getTurn()) {
                 ConstructionRequest cr = new ConstructionRequest((UserDTO) userThatPlaysTheCard, game.getName(), bn.getUuid(), "BuildingNode");
-                gameService.onConstructionMessage(cr);
+                gameService.onConstructionRequest(cr);
                 break;
             }
         }
@@ -1224,13 +1224,13 @@ public class GameServiceTest {
             if (bn.tryBuildOrDevelopSettlement(game.getTurn(), game.getStartingPhase())) {
                 game.getMapGraph().getNumOfBuildings()[game.getTurn()] = game.getMapGraph().getNumOfBuildings()[game.getTurn()] - 1;
                 ConstructionRequest cr1 = new ConstructionRequest((UserDTO) game.getUser(game.getTurn()), game.getName(), bn.getUuid(), "BuildingNode");
-                gameService.onConstructionMessage(cr1);
+                gameService.onConstructionRequest(cr1);
 
                 for (MapGraph.StreetNode sn : bn.getConnectedStreetNodes()) {
                     if (sn.tryBuildRoad(game.getTurn(), game.getStartingPhase())) {
                         game.getMapGraph().getNumOfRoads()[game.getTurn()] = game.getMapGraph().getNumOfRoads()[game.getTurn()] - 1;
                         ConstructionRequest cr2 = new ConstructionRequest((UserDTO) game.getUser(game.getTurn()), game.getName(), sn.getUuid(), "StreetNode");
-                        gameService.onConstructionMessage(cr2);
+                        gameService.onConstructionRequest(cr2);
                         break;
                     }
                 }

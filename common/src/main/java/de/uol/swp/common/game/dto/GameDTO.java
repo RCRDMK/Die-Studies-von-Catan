@@ -162,6 +162,7 @@ public class GameDTO implements Game {
         userArrayList.addAll(usersInLobby);
         int players = userArrayList.size();
         int i = 0;
+        Collections.shuffle(this.userArrayList);
         while (amountOfPlayers > players) {
             UserDTO aiUser = new UserDTO("KI" + i, "", "", 65 + i);
             aiUsers.add(aiUser);
@@ -169,6 +170,7 @@ public class GameDTO implements Game {
             players++;
             i++;
         }
+
     }
 
     /**
