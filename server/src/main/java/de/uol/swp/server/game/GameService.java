@@ -190,7 +190,7 @@ public class GameService extends AbstractService {
                                                     inventory.settlement.decNumber();
                                                     inventory.setVictoryPoints(inventory.getVictoryPoints() + 1);
                                                 } else {
-                                                    if (game.getUsers().contains(message.getUser())) {
+                                                    if (game.getUsersList().contains(message.getUser())) {
                                                         sendToSpecificUserInGame(new NotEnoughRessourcesMessage(message.getName(), message.getUser()), message.getUser());
                                                     }
                                                 }
@@ -202,6 +202,7 @@ public class GameService extends AbstractService {
                                                 inventory.settlement.incNumber();
                                                 inventory.city.decNumber();
                                                 inventory.setVictoryPoints(inventory.getVictoryPoints() + 1);
+                                                updateInventory(game);
                                             } else {
                                                 if (game.getUsers().contains(message.getUser())) {
                                                     sendToSpecificUserInGame(new NotEnoughRessourcesMessage(message.getName(), message.getUser()), message.getUser());
