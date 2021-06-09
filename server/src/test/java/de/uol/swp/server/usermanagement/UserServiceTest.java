@@ -46,6 +46,10 @@ class UserServiceTest {
     UserServiceTest() throws SQLException {
     }
 
+    /**
+     * This test tries to register a new user in the UserStore.
+     *
+     */
     @Test
     void registerUserTest() throws Exception {
         final RegisterUserRequest request = new RegisterUserRequest(userToRegister);
@@ -73,6 +77,10 @@ class UserServiceTest {
         userManagement.dropUser(userToRegister);
     }
 
+    /**
+     * This test tries to register a second user with the same username.
+     *
+     */
     @Test
     void registerSecondUserWithSameName() throws Exception {
         final RegisterUserRequest request = new RegisterUserRequest(userToRegister);
@@ -128,6 +136,12 @@ class UserServiceTest {
         assertFalse(userManagement.retrieveAllUsers().contains(dropUserRequest.getUser()));
     }
 
+    /**
+     * This test tries to drop a unknown user.
+     *
+     * @author Carsten Dekker
+     * @since 2021-06-06
+     */
     @Test
     void dropUnknownUserTest() throws Exception {
 
@@ -140,6 +154,12 @@ class UserServiceTest {
         userManagement.dropUser(userToDrop);
     }
 
+    /**
+     * This test creates a new user and tries to update the users password.
+     *
+     * @author Carsten Dekker
+     * @since 2021-06-06
+     */
     @Test
     void UpdateUserPasswordTest() throws Exception {
 
@@ -178,6 +198,12 @@ class UserServiceTest {
         userManagement.dropUser(userToRegister);
     }
 
+    /**
+     * This test creates a new user and tries to update the password from an unknown user.
+     *
+     * @author Carsten Dekker
+     * @since 2021-06-06
+     */
     @Test
     void updateUnknownUserPasswordTest() throws Exception {
 
@@ -190,6 +216,12 @@ class UserServiceTest {
         userManagement.dropUser(userToRegister);
     }
 
+    /**
+     * This test creates a new user and tries to update the users profilePicture.
+     *
+     * @author Carsten Dekker
+     * @since 2021-06-06
+     */
     @Test
     void UpdateUserPictureTest() throws Exception {
 
@@ -220,6 +252,12 @@ class UserServiceTest {
         userManagement.dropUser(userToRegister);
     }
 
+    /**
+     * This test creates a new user and tries to update an unknown users profilePicture.
+     *
+     * @author Carsten Dekker
+     * @since 2021-06-06
+     */
     @Test
     void UpdateUnknownUserPictureTest() throws Exception {
 
@@ -232,6 +270,12 @@ class UserServiceTest {
         userManagement.dropUser(userToRegister);
     }
 
+    /**
+     * This test creates a new user and tries to update the users eMail address.
+     *
+     * @author Carsten Dekker
+     * @since 2021-06-06
+     */
     @Test
     void UpdateUserMailTest() throws Exception {
 
@@ -262,6 +306,12 @@ class UserServiceTest {
         userManagement.dropUser(userToRegister);
     }
 
+    /**
+     * This test creates a new user and tries to update an unknown users eMail address.
+     *
+     * @author Carsten Dekker
+     * @since 2021-06-06
+     */
     @Test
     void UpdateUnknownUserMailTest() throws Exception {
 
@@ -274,6 +324,12 @@ class UserServiceTest {
         userManagement.dropUser(userToRegister);
     }
 
+    /**
+     * This test creates a new user and tries receive the users profile information.
+     *
+     * @author Carsten Dekker
+     * @since 2021-06-06
+     */
     @Test
     void retrieveUserInformationTest() throws Exception {
 
@@ -286,6 +342,13 @@ class UserServiceTest {
         userManagement.dropUser(userToRegister);
     }
 
+
+    /**
+     * This test creates a new user and tries receive an unknown users profile information.
+     *
+     * @author Carsten Dekker
+     * @since 2021-06-06
+     */
     @Test
     void retrieveUnknownUserInformationTest() throws Exception {
 
@@ -296,6 +359,13 @@ class UserServiceTest {
         userManagement.dropUser(userToRegister);
     }
 
+
+    /**
+     * This test creates a new user and tries receive the users profile information.
+     *
+     * @author Carsten Dekker
+     * @since 2021-06-06
+     */
     @Test
     void onRetrieveUserInformationTest() throws Exception {
 
@@ -320,6 +390,12 @@ class UserServiceTest {
         userManagement.dropUser(userToRegister);
     }
 
+    /**
+     * This test creates a new user and tries receive an unknown users profile information.
+     *
+     * @author Carsten Dekker
+     * @since 2021-06-06
+     */
     @Test
     void onRetrieveUnknownUserInformationTest() throws Exception {
 
