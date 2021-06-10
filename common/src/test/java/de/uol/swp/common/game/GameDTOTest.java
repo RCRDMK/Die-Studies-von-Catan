@@ -162,10 +162,9 @@ public class GameDTOTest {
 
         assertEquals(4, inventories.size());
 
-        assertEquals(userDTO.getUsername(), inventories.get(0).getUser().getUsername());
-        assertEquals(userDTO1.getUsername(), inventories.get(1).getUser().getUsername());
-        assertEquals(userDTO2.getUsername(), inventories.get(2).getUser().getUsername());
-        assertEquals(userDTO3.getUsername(), inventories.get(3).getUser().getUsername());
-
+        assertTrue(inventories.contains(defaultGame.getInventory(userDTO)));
+        assertTrue(inventories.contains(defaultGame.getInventory(userDTO1)));
+        assertTrue(inventories.contains(defaultGame.getInventory(userDTO2)));
+        assertTrue(inventories.contains(defaultGame.getInventory(userDTO3)));
     }
 }

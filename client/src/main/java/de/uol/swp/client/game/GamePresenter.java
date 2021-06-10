@@ -1682,22 +1682,6 @@ public class GamePresenter extends AbstractPresenter {
 
     @Subscribe
     public void onNotEnoughResourcesMessages(NotEnoughResourcesMessage notEnoughResourcesMessage) {
-        notEnoughResourcesMessageLogic(notEnoughResourcesMessage);
-    }
-
-    /**
-     * The method invoked by NotEnoughRessourceMessage
-     * <p>
-     * This method reacts to the NotEnoughRessourcesMessage and shows the corresponding alert window.
-     *
-     * @param notEnoughResourcesMessage //TODO: fehlt
-     * @implNote The code inside this Method has to run in the JavaFX-application thread. Therefore it is crucial not to
-     * remove the {@code Platform.runLater()}
-     * @author Marius Birk
-     * @see NotEnoughResourcesMessage
-     * @since 2021-04-03
-     */
-    public void notEnoughResourcesMessageLogic(NotEnoughResourcesMessage notEnoughResourcesMessage) {
         if (this.currentLobby != null) {
             if (this.currentLobby.equals(notEnoughResourcesMessage.getName())) {
                 Platform.runLater(() -> {
@@ -1995,6 +1979,9 @@ public class GamePresenter extends AbstractPresenter {
         selectedResource2.setFill(Color.RED);
         selectedResource1.setRadius(5);
         selectedResource2.setRadius(5);
+        Rectangle2D center = Screen.getPrimary().getVisualBounds();
+        this.resolveDevelopmentCardAlert.setX(center.getWidth() / 4);
+        this.resolveDevelopmentCardAlert.setY(center.getHeight() / 3);
         double rectHeight = 100.0;
         double rectWidth = 50.0;
         Rectangle lumberRectangle = new Rectangle(rectWidth, rectHeight);
