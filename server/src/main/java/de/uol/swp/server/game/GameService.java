@@ -1051,11 +1051,6 @@ public class GameService extends AbstractService {
                 String devCard = request.getDevCard();
                 String currentCardOfGame = game.getCurrentCard();
                 boolean alreadyPlayedCard = game.playedCardThisTurn();
-                //TODO: delete these 4, only used for testing
-                /*inventory.cardMonopoly.incNumber();
-                inventory.cardRoadBuilding.incNumber();
-                inventory.cardYearOfPlenty.incNumber();
-                inventory.cardKnight.incNumber();*/
 
                 //checks if user can play developmentCard
                 if (!game.canUserPlayDevCard(request.getUser(), devCard) || !game.rolledDiceThisTurn()) {
@@ -1072,8 +1067,8 @@ public class GameService extends AbstractService {
                             post(response);
                             inventory.cardMonopoly.decNumber();
                             updateInventory(game);
-                            break;
                         }
+                        break;
 
                     case "Road Building":
                         if (inventory.cardRoadBuilding.getNumber() > 0 && currentCardOfGame.equals("") && (!alreadyPlayedCard || game.isUsedForTest()) && inventory.road.getNumber() > 1) {
@@ -1086,12 +1081,11 @@ public class GameService extends AbstractService {
                             post(response);
                             inventory.cardRoadBuilding.decNumber();
                             updateInventory(game);
-                            break;
                         }
+                        break;
 
                     case "Year of Plenty":
-                        if (inventory.cardYearOfPlenty.getNumber() > 0 && currentCardOfGame.equals("") && (!alreadyPlayedCard || game.isUsedForTest())) {
-                            // TODO: Check if there theoretically are resources left in the bank that could be obtained for the player
+                        if (inventory.cardYearOfPlenty.getNumber() > 0 && currentCardOfGame.equals("") && (!alreadyPlayedCard || game.isUsedForTest()) && game.getBankInventory().sumResource() > 1) {
                             game.setCurrentCard("Year of Plenty");
                             game.setPlayedCardThisTurn(true);
                             PlayDevelopmentCardResponse response = new PlayDevelopmentCardResponse(devCard, true, turnPlayer.getUsername(), game.getName());
@@ -1099,8 +1093,8 @@ public class GameService extends AbstractService {
                             post(response);
                             inventory.cardYearOfPlenty.decNumber();
                             updateInventory(game);
-                            break;
                         }
+                        break;
 
                     case "Knight":
                         if (inventory.cardKnight.getNumber() > 0 && currentCardOfGame.equals("") && (!alreadyPlayedCard || game.isUsedForTest())) {
@@ -1116,8 +1110,8 @@ public class GameService extends AbstractService {
                                 sendToSpecificUserInGame(moveRobberMessage, request.getUser());
                             }
                             updateInventory(game);
-                            break;
                         }
+                        break;
 
                     default:
                         PlayDevelopmentCardResponse response = new PlayDevelopmentCardResponse(devCard, false, turnPlayer.getUsername(), game.getName());
@@ -1197,8 +1191,6 @@ public class GameService extends AbstractService {
                     case "Road Building":
                         if (request instanceof ResolveDevelopmentCardRoadBuildingRequest) {
                             ResolveDevelopmentCardRoadBuildingRequest roadBuildingRequest = (ResolveDevelopmentCardRoadBuildingRequest) request;
-                            // TODO: currently known bug, if only 1 of the streets can be built, the server will still build the street and make the user try again to build 2 streets
-                            // TODO: thus we need to check before actually building the streets if BOTH streets can be built
                             ConstructionRequest constructionRequest1 = new ConstructionRequest((UserDTO) turnPlayer, gameName, roadBuildingRequest.getStreet1(), "StreetNode");
                             ConstructionRequest constructionRequest2 = new ConstructionRequest((UserDTO) turnPlayer, gameName, roadBuildingRequest.getStreet2(), "StreetNode");
                             boolean successful1 = onConstructionRequest(constructionRequest1);
@@ -1254,6 +1246,9 @@ public class GameService extends AbstractService {
                             notSuccessfulResponse.initWithMessage(request);
                             post(notSuccessfulResponse);
                         }
+                        break;
+
+                    default:
                         break;
                 }
             }

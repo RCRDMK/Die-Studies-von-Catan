@@ -2070,7 +2070,7 @@ public class GameServiceTest {
 
         buildStreetAndBuildingForOpeningTurn(game);
 
-        assertTrue(game.hasConcluded() || game.getOverallTurns()==200);
+        assertTrue(game.hasConcluded() || game.getOverallTurns() ==200);
         assertTrue(event instanceof PublicInventoryChangeMessage);
     }
 }
