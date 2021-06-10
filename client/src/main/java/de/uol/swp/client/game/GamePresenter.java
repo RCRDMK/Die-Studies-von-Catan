@@ -85,7 +85,7 @@ public class GamePresenter extends AbstractPresenter {
     @FXML
     public TextArea gameChatArea;
 
-    public Dialog tooMuchAlert;
+    public Dialog<Object> tooMuchAlert;
 
     public Alert chooseAlert;
 
@@ -167,7 +167,7 @@ public class GamePresenter extends AbstractPresenter {
     private Button tradeButton;
 
     @FXML
-    public Label BuildingNotSuccessfulLabel;
+    public Label buildingNotSuccessfulLabel;
 
 
     @FXML
@@ -746,11 +746,6 @@ public class GamePresenter extends AbstractPresenter {
         chooseResource.setHgap(30);
 
         initializedResourceButtons();
-
-        //Initializing robber on the canvas
-        robber.setLayoutX((canvas.getWidth() / 2 + canvas.getLayoutX() - robber.getWidth() / 2));
-        robber.setLayoutY((canvas.getHeight() / 2 + canvas.getLayoutY() - robber.getHeight() / 2));
-        gameAnchorPane.getChildren().add(robber);
 
     }
 
@@ -1369,6 +1364,16 @@ public class GamePresenter extends AbstractPresenter {
                 Text text = new Text(placementVector.getX(), placementVector.getY(), Integer.toString(hexagonContainer.getHexagon().getDiceToken()));
                 text.setFill(Color.BLACK);
                 gameAnchorPane.getChildren().add(text);
+            } else {
+                //Draw robber
+                //Initialize the robber graphics
+                robber = new Rectangle(25, 25);
+                robber.setFill(new ImagePattern(new Image("textures/originals/robbers.png")));
+                robber.setVisible(true);
+                robber.setLayoutX(placementVector.getX() - robber.getWidth() / 2);
+                robber.setLayoutY(placementVector.getY() - robber.getHeight() / 2);
+                gameAnchorPane.getChildren().add(robber);
+
             }
         }
 
@@ -1539,11 +1544,6 @@ public class GamePresenter extends AbstractPresenter {
             nodeContainerHashMap.put(streetNode.getUuid(), mapGraphNodeContainer);
         }
         initializeNodeSpots();
-        //Draw robber
-        //Initialize the robber graphics
-        robber = new Rectangle(25, 25);
-        robber.setFill(new ImagePattern(new Image("textures/originals/robbers.png")));
-        robber.setVisible(true);
 
         draw();
     }
@@ -1864,9 +1864,9 @@ public class GamePresenter extends AbstractPresenter {
      * @since 2021-06-02
      */
     public void showChoosePlayerAlert(ChoosePlayerMessage choosePlayerMessage) {
-        if(choosePlayerMessage.getName()!=null){
+        if (choosePlayerMessage.getName() != null) {
             chooseAlert.setTitle(choosePlayerMessage.getName());
-        }else{
+        } else {
             chooseAlert.setTitle("Choose a Player");
         }
         chooseAlert.getButtonTypes().setAll();

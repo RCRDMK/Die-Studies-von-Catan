@@ -342,7 +342,7 @@ public class GameService extends AbstractService {
         if (optionalGame.isPresent()) {
             Game game = optionalGame.get();
             //Standard interpretation of resources to discard
-            if(game.getUsers().contains(game.getUser(game.getTurn()))) {
+            if (game.getUsers().contains(game.getUser(game.getTurn()))) {
                 takeResource(game, resourcesToDiscardRequest.getUser(), "Lumber", game.getInventory(resourcesToDiscardRequest.getUser()).getSpecificResourceAmount("Lumber") - resourcesToDiscardRequest.getInventory().get("Lumber"));
                 takeResource(game, resourcesToDiscardRequest.getUser(), "Brick", game.getInventory(resourcesToDiscardRequest.getUser()).getSpecificResourceAmount("Brick") - resourcesToDiscardRequest.getInventory().get("Brick"));
                 takeResource(game, resourcesToDiscardRequest.getUser(), "Grain", game.getInventory(resourcesToDiscardRequest.getUser()).getSpecificResourceAmount("Grain") - resourcesToDiscardRequest.getInventory().get("Grain"));
@@ -897,7 +897,7 @@ public class GameService extends AbstractService {
     }
 
     public void endTurn(Game game, UserDTO user) {
-        if (user.equals(game.getUser(game.getTurn())) && game.getCurrentCard().equals("")  && game.getTradeList().isEmpty() && (game.rolledDiceThisTurn() || game.isStartingTurns())) {
+        if (user.equals(game.getUser(game.getTurn())) && game.getCurrentCard().equals("") && game.getTradeList().isEmpty() && (game.rolledDiceThisTurn() || game.isStartingTurns())) {
             try {
                 boolean priorGamePhase = game.isStartingTurns();
                 game.nextRound();
@@ -1025,11 +1025,6 @@ public class GameService extends AbstractService {
                 String devCard = request.getDevCard();
                 String currentCardOfGame = game.getCurrentCard();
                 boolean alreadyPlayedCard = game.playedCardThisTurn();
-                //TODO: delete these 4, only used for testing
-                /*inventory.cardMonopoly.incNumber();
-                inventory.cardRoadBuilding.incNumber();
-                inventory.cardYearOfPlenty.incNumber();
-                inventory.cardKnight.incNumber();*/
 
                 //checks if user can play developmentCard
                 if (!game.canUserPlayDevCard(request.getUser(), devCard) || !game.rolledDiceThisTurn()) {
@@ -1046,8 +1041,8 @@ public class GameService extends AbstractService {
                             post(response);
                             inventory.cardMonopoly.decNumber();
                             updateInventory(game);
-                            break;
                         }
+                        break;
 
                     case "Road Building":
                         if (inventory.cardRoadBuilding.getNumber() > 0 && currentCardOfGame.equals("") && (!alreadyPlayedCard || game.isUsedForTest()) && inventory.road.getNumber() > 1) {
@@ -1060,12 +1055,11 @@ public class GameService extends AbstractService {
                             post(response);
                             inventory.cardRoadBuilding.decNumber();
                             updateInventory(game);
-                            break;
                         }
+                        break;
 
                     case "Year of Plenty":
-                        if (inventory.cardYearOfPlenty.getNumber() > 0 && currentCardOfGame.equals("") && (!alreadyPlayedCard || game.isUsedForTest())) {
-                            // TODO: Check if there theoretically are resources left in the bank that could be obtained for the player
+                        if (inventory.cardYearOfPlenty.getNumber() > 0 && currentCardOfGame.equals("") && (!alreadyPlayedCard || game.isUsedForTest()) && game.getBankInventory().sumResource() > 1) {
                             game.setCurrentCard("Year of Plenty");
                             game.setPlayedCardThisTurn(true);
                             PlayDevelopmentCardResponse response = new PlayDevelopmentCardResponse(devCard, true, turnPlayer.getUsername(), game.getName());
@@ -1073,8 +1067,8 @@ public class GameService extends AbstractService {
                             post(response);
                             inventory.cardYearOfPlenty.decNumber();
                             updateInventory(game);
-                            break;
                         }
+                        break;
 
                     case "Knight":
                         if (inventory.cardKnight.getNumber() > 0 && currentCardOfGame.equals("") && (!alreadyPlayedCard || game.isUsedForTest())) {
@@ -1090,8 +1084,8 @@ public class GameService extends AbstractService {
                                 sendToSpecificUserInGame(moveRobberMessage, request.getUser());
                             }
                             updateInventory(game);
-                            break;
                         }
+                        break;
 
                     default:
                         PlayDevelopmentCardResponse response = new PlayDevelopmentCardResponse(devCard, false, turnPlayer.getUsername(), game.getName());
@@ -1171,8 +1165,6 @@ public class GameService extends AbstractService {
                     case "Road Building":
                         if (request instanceof ResolveDevelopmentCardRoadBuildingRequest) {
                             ResolveDevelopmentCardRoadBuildingRequest roadBuildingRequest = (ResolveDevelopmentCardRoadBuildingRequest) request;
-                            // TODO: currently known bug, if only 1 of the streets can be built, the server will still build the street and make the user try again to build 2 streets
-                            // TODO: thus we need to check before actually building the streets if BOTH streets can be built
                             ConstructionRequest constructionRequest1 = new ConstructionRequest((UserDTO) turnPlayer, gameName, roadBuildingRequest.getStreet1(), "StreetNode");
                             ConstructionRequest constructionRequest2 = new ConstructionRequest((UserDTO) turnPlayer, gameName, roadBuildingRequest.getStreet2(), "StreetNode");
                             boolean successful1 = onConstructionMessage(constructionRequest1);
@@ -1228,6 +1220,9 @@ public class GameService extends AbstractService {
                             notSuccessfulResponse.initWithMessage(request);
                             post(notSuccessfulResponse);
                         }
+                        break;
+
+                    default:
                         break;
                 }
             }
@@ -1323,6 +1318,11 @@ public class GameService extends AbstractService {
             HashMap<String, Integer> privateInventory = game.getInventory(user).getPrivateView();
             PrivateInventoryChangeMessage privateInventoryChangeMessage = new PrivateInventoryChangeMessage(game.getName(), user, privateInventory);
             sendToSpecificUserInGame(privateInventoryChangeMessage, user);
+
+        }
+        ArrayList<HashMap<String, Integer>> publicInventories = new ArrayList<>();
+        for (User user : game.getUsersList()) {
+            publicInventories.add(game.getInventory(user).getPublicView());
             var inventory = game.getInventory(user);
             // If user has 10 victory points, he wins and the Summary Screen gets shown for every user in the game.
             if (inventory.getVictoryPoints() >= 10) {
@@ -1336,10 +1336,6 @@ public class GameService extends AbstractService {
                 sendToAllInGame(game.getName(), new GameFinishedMessage(statsDTO));
                 LOG.debug("User " + user.getUsername() + " has atleast 10 victory points and won.");
             }
-        }
-        ArrayList<HashMap<String, Integer>> publicInventories = new ArrayList<>();
-        for (User user : game.getUsersList()) {
-            publicInventories.add(game.getInventory(user).getPublicView());
         }
         PublicInventoryChangeMessage publicInventoryChangeMessage = new PublicInventoryChangeMessage(game.getName(), publicInventories);
         sendToAllInGame(game.getName(), publicInventoryChangeMessage);
@@ -1822,7 +1818,7 @@ public class GameService extends AbstractService {
         if (inventory.get("Grain") > 0) resources.add("Grain");
         if (inventory.get("Wool") > 0) resources.add("Wool");
         if (inventory.get("Ore") > 0) resources.add("Ore");
-        if(resources.size() > 0) return resources.get((int) (Math.random() * resources.size()));
+        if (resources.size() > 0) return resources.get((int) (Math.random() * resources.size()));
         else return "";
     }
 }
