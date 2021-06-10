@@ -58,7 +58,6 @@ public class RandomAI extends AbstractAISystem {
      * @since 2021-05-19
      */
     public ArrayList<AIAction> startTurnOrder() {
-
         if (game.isStartingTurns()) {
             startingTurnLogic();
         } else {
