@@ -22,8 +22,6 @@ import java.util.List;
  * @see de.uol.swp.common.game.Game
  * @since 2021-01-15
  */
-
-
 public class AllCreatedGamesResponse extends AbstractResponseMessage {
 
 
