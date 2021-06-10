@@ -188,9 +188,8 @@ public class GameService extends AbstractService {
                                                     takeResource(game, message.getUser(), "Wool", 1);
                                                     takeResource(game, message.getUser(), "Grain", 1);
                                                 } else {
-                                                    if (game.getUsers().contains(message.getUser())) {
-                                                        sendToSpecificUserInGame(new NotEnoughResourcesMessage(message.getName(), message.getUser()), message.getUser());
-                                                    }
+                                                    sendToSpecificUserInGame(game, new NotEnoughResourcesMessage(message.getName(), message.getUser()), message.getUser());
+
                                                 }
                                             }
                                             inventory.settlement.decNumber();
@@ -202,9 +201,8 @@ public class GameService extends AbstractService {
                                                 inventory.settlement.incNumber();
                                                 inventory.city.decNumber();
                                             } else {
-                                                if (game.getUsers().contains(message.getUser())) {
-                                                    sendToSpecificUserInGame(new NotEnoughResourcesMessage(message.getName(), message.getUser()), message.getUser());
-                                                }
+                                                sendToSpecificUserInGame(game, new NotEnoughResourcesMessage(message.getName(), message.getUser()), message.getUser());
+
                                             }
                                             inventory.setVictoryPoints(inventory.getVictoryPoints() + 1);
                                             updateInventory(game);
@@ -229,10 +227,10 @@ public class GameService extends AbstractService {
                                 } else {
                                     if (buildingNode.getSizeOfSettlement() == 2) {
                                         SettlementFullyDevelopedMessage sfdm = new SettlementFullyDevelopedMessage(game.getName(), message.getUser());
-                                        sendToSpecificUserInGame(sfdm, message.getUser());
+                                        sendToSpecificUserInGame(game, sfdm, message.getUser());
                                     } else {
                                         NotEnoughResourcesMessage nerm = new NotEnoughResourcesMessage(game.getName(), message.getUser());
-                                        sendToSpecificUserInGame(nerm, message.getUser());
+                                        sendToSpecificUserInGame(game, nerm, message.getUser());
                                     }
                                 }
                             }
@@ -264,11 +262,11 @@ public class GameService extends AbstractService {
                                     } else {
                                         NotEnoughResourcesMessage nerm = new NotEnoughResourcesMessage();
                                         nerm.setName(game.getName());
-                                        sendToSpecificUserInGame(nerm, message.getUser());
+                                        sendToSpecificUserInGame(game, nerm, message.getUser());
                                     }
                                 } else {
                                     if (game.getUsers().contains(message.getUser())) {
-                                        sendToSpecificUserInGame(new NotEnoughResourcesMessage(message.getName(), message.getUser()), message.getUser());
+                                        sendToSpecificUserInGame(game, new NotEnoughResourcesMessage(message.getName(), message.getUser()), message.getUser());
                                     }
                                 }
                             }
@@ -335,11 +333,13 @@ public class GameService extends AbstractService {
      * @author Alexander Losse, Ricardo Mook
      * @since 2021-03-11
      */
-    public void sendToSpecificUserInGame(ServerMessage message, User user) {
-        List<Session> theList = new ArrayList<>();
-        authenticationService.getSession(user).ifPresent(theList::add);
-        message.setReceiver(theList);
-        post(message);
+    public void sendToSpecificUserInGame(Game game, ServerMessage message, User user) {
+        if (game.getUsers().contains(user)) {
+            List<Session> theList = new ArrayList<>();
+            authenticationService.getSession(user).ifPresent(theList::add);
+            message.setReceiver(theList);
+            post(message);
+        }
     }
 
     /**
@@ -429,7 +429,7 @@ public class GameService extends AbstractService {
                 game.setLastRolledDiceValue(addedEyes);
                 if (addedEyes == 7 && game.getUsers().contains(rollDiceRequest.getUser())) {
                     MoveRobberMessage moveRobberMessage = new MoveRobberMessage(rollDiceRequest.getName(), (UserDTO) rollDiceRequest.getUser());
-                    sendToSpecificUserInGame(moveRobberMessage, rollDiceRequest.getUser());
+                    sendToSpecificUserInGame(game, moveRobberMessage, rollDiceRequest.getUser());
                 } else {
                     distributeResources(addedEyes, rollDiceRequest.getName());
                 }
@@ -681,10 +681,9 @@ public class GameService extends AbstractService {
             if (!game.getCurrentCard().equals("Knight")) {
                 tooMuchResources(game);
             }
-            if (game.getUsers().contains(robbersNewFieldrequest.getUser())) {
-                ChoosePlayerMessage choosePlayerMessage = new ChoosePlayerMessage(game.getName(), robbersNewFieldrequest.getUser(), userList);
-                sendToSpecificUserInGame(choosePlayerMessage, robbersNewFieldrequest.getUser());
-            }
+            ChoosePlayerMessage choosePlayerMessage = new ChoosePlayerMessage(game.getName(), robbersNewFieldrequest.getUser(), userList);
+            sendToSpecificUserInGame(game, choosePlayerMessage, robbersNewFieldrequest.getUser());
+
         }
     }
 
@@ -790,7 +789,7 @@ public class GameService extends AbstractService {
                 game.setUpInventories();
                 post(new GameStartedMessage(lobby.getName()));
                 for (User user : game.getUsers()) {
-                    sendToSpecificUserInGame(new GameCreatedMessage(game.getName(), (UserDTO) user, game.getMapGraph(), game.getUsersList(), game.getUsers(), gameFieldVariant), user);
+                    sendToSpecificUserInGame(game, new GameCreatedMessage(game.getName(), (UserDTO) user, game.getMapGraph(), game.getUsersList(), game.getUsers(), gameFieldVariant), user);
                 }
                 updateInventory(game);
                 sendToAllInGame(game.getName(), new NextTurnMessage(game.getName(), game.getUser(game.getTurn()).getUsername(), game.getTurn(), game.isStartingTurns()));
@@ -1007,7 +1006,7 @@ public class GameService extends AbstractService {
                         inventory.incCardStack(devCard, 1);
                         game.rememberDevCardBoughtThisTurn(devCard, 1);
                         BuyDevelopmentCardMessage response = new BuyDevelopmentCardMessage(request.getName(), request.getUser(), devCard);
-                        sendToSpecificUserInGame(response, request.getUser());
+                        sendToSpecificUserInGame(game, response, request.getUser());
                     } else {
                         var chatId = "game_" + game.getName();
                         ResponseChatMessage msg = new ResponseChatMessage("No development cards are available.", chatId, "Bank", System.currentTimeMillis());
@@ -1016,7 +1015,7 @@ public class GameService extends AbstractService {
                     }
                 } else {
                     NotEnoughResourcesMessage nerm = new NotEnoughResourcesMessage(game.getName(), request.getUser());
-                    sendToSpecificUserInGame(nerm, request.getUser());
+                    sendToSpecificUserInGame(game, nerm, request.getUser());
                 }
             }
             updateInventory(game);
@@ -1105,10 +1104,9 @@ public class GameService extends AbstractService {
                             post(response);
                             inventory.setPlayedKnights(inventory.getPlayedKnights() + 1);
                             inventory.cardKnight.decNumber();
-                            if (game.getUsers().contains(request.getUser())) {
-                                MoveRobberMessage moveRobberMessage = new MoveRobberMessage(request.getName(), request.getUser());
-                                sendToSpecificUserInGame(moveRobberMessage, request.getUser());
-                            }
+                            MoveRobberMessage moveRobberMessage = new MoveRobberMessage(request.getName(), request.getUser());
+                            sendToSpecificUserInGame(game, moveRobberMessage, request.getUser());
+
                             updateInventory(game);
                         }
                         break;
@@ -1343,7 +1341,7 @@ public class GameService extends AbstractService {
         for (User user : game.getUsers()) {
             HashMap<String, Integer> privateInventory = game.getInventory(user).getPrivateView();
             PrivateInventoryChangeMessage privateInventoryChangeMessage = new PrivateInventoryChangeMessage(game.getName(), user, privateInventory);
-            sendToSpecificUserInGame(privateInventoryChangeMessage, user);
+            sendToSpecificUserInGame(game, privateInventoryChangeMessage, user);
         }
         ArrayList<HashMap<String, Integer>> publicInventories = new ArrayList<>();
         for (User user : game.getUsersList()) {
@@ -1483,7 +1481,7 @@ public class GameService extends AbstractService {
                                 } else
                                     AIToServerTranslator.translate(new TestAI((GameDTO) game).tradeBidOrder(tradeOfferInformBiddersMessage), this);
                             } else {
-                                sendToSpecificUserInGame(tradeOfferInformBiddersMessage, user);
+                                sendToSpecificUserInGame(game, tradeOfferInformBiddersMessage, user);
                                 LOG.debug("Send TradeOfferInformBiddersMessage to " + user.getUsername());
                             }
                         }
@@ -1502,14 +1500,14 @@ public class GameService extends AbstractService {
                             } else
                                 AIToServerTranslator.translate(new TestAI((GameDTO) game).continueTurnOrder(tisabm, trade.getWishList()), this);
                         } else {
-                            sendToSpecificUserInGame(tisabm, trade.getSeller());
+                            sendToSpecificUserInGame(game, tisabm, trade.getSeller());
                         }
                     }
                 }
             } else {
                 LOG.debug("Nicht genug im Inventar");
                 TradeCardErrorMessage tcem = new TradeCardErrorMessage(request.getUser(), request.getName(), request.getTradeCode());
-                sendToSpecificUserInGame(tcem, request.getUser());
+                sendToSpecificUserInGame(game, tcem, request.getUser());
             }
         }
     }
@@ -1593,10 +1591,13 @@ public class GameService extends AbstractService {
     @Subscribe
     public void onTradeStartedRequest(TradeStartRequest request) {
         Optional<Game> optionalGame = gameManagement.getGame(request.getName());
-        if (optionalGame.get().rolledDiceThisTurn()) {
-            UserDTO user = request.getUser();
-            TradeStartedMessage tsm = new TradeStartedMessage(user, request.getName(), request.getTradeCode());
-            sendToSpecificUserInGame(tsm, user);
+        if (optionalGame.isPresent()) {
+            Game game = optionalGame.get();
+            if (game.rolledDiceThisTurn()) {
+                UserDTO user = request.getUser();
+                TradeStartedMessage tsm = new TradeStartedMessage(user, request.getName(), request.getTradeCode());
+                sendToSpecificUserInGame(game, tsm, user);
+            }
         }
     }
 
@@ -1682,7 +1683,7 @@ public class GameService extends AbstractService {
             }
 
             BankResponseMessage bankResponseMessage = new BankResponseMessage(request.getUser(), request.getTradeCode(), request.getCardName(), bankOffer);
-            sendToSpecificUserInGame(bankResponseMessage, request.getUser());
+            sendToSpecificUserInGame(game, bankResponseMessage, request.getUser());
         }
     }
 
@@ -1815,7 +1816,7 @@ public class GameService extends AbstractService {
                     } else
                         AIToServerTranslator.translate(new TestAI((GameDTO) game).discardResourcesOrder(tooMuchResourceCardsMessage), this);
                 } else {
-                    sendToSpecificUserInGame(tooMuchResourceCardsMessage, user);
+                    sendToSpecificUserInGame(game, tooMuchResourceCardsMessage, user);
                 }
             }
         }

@@ -489,7 +489,7 @@ public class RandomAI extends AbstractAISystem {
                 for (TradeItem tradeItemOffer : offerListAI) {
                     if (tradeItemOffer.getCount() > 0 && randomResource.equals(tradeItemOffer.getName())) {
                         notAcceptableTradeItems--;
-                        tradeItemOffer.decCount(1);
+                        tradeItemOffer.decCount(tradeItemOffer.getCount());
                         if (notAcceptableTradeItems == 0) {
                             break;
                         }
