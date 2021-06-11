@@ -85,7 +85,7 @@ public class GamePresenter extends AbstractPresenter {
     @FXML
     public TextArea gameChatArea;
 
-    public Dialog tooMuchAlert;
+    public Dialog<Object> tooMuchAlert;
 
     public Alert chooseAlert;
 
@@ -167,7 +167,7 @@ public class GamePresenter extends AbstractPresenter {
     private Button tradeButton;
 
     @FXML
-    public Label BuildingNotSuccessfulLabel;
+    public Label buildingNotSuccessfulLabel;
 
 
     @FXML
@@ -746,11 +746,6 @@ public class GamePresenter extends AbstractPresenter {
         chooseResource.setHgap(30);
 
         initializedResourceButtons();
-
-        //Initializing robber on the canvas
-        robber.setLayoutX((canvas.getWidth() / 2 + canvas.getLayoutX() - robber.getWidth() / 2));
-        robber.setLayoutY((canvas.getHeight() / 2 + canvas.getLayoutY() - robber.getHeight() / 2));
-        gameAnchorPane.getChildren().add(robber);
 
     }
 
@@ -1369,6 +1364,16 @@ public class GamePresenter extends AbstractPresenter {
                 Text text = new Text(placementVector.getX(), placementVector.getY(), Integer.toString(hexagonContainer.getHexagon().getDiceToken()));
                 text.setFill(Color.BLACK);
                 gameAnchorPane.getChildren().add(text);
+            } else {
+                //Draw robber
+                //Initialize the robber graphics
+                robber = new Rectangle(25, 25);
+                robber.setFill(new ImagePattern(new Image("textures/originals/robbers.png")));
+                robber.setVisible(true);
+                robber.setLayoutX(placementVector.getX() - robber.getWidth() / 2);
+                robber.setLayoutY(placementVector.getY() - robber.getHeight() / 2);
+                gameAnchorPane.getChildren().add(robber);
+
             }
         }
 
@@ -1539,11 +1544,6 @@ public class GamePresenter extends AbstractPresenter {
             nodeContainerHashMap.put(streetNode.getUuid(), mapGraphNodeContainer);
         }
         initializeNodeSpots();
-        //Draw robber
-        //Initialize the robber graphics
-        robber = new Rectangle(25, 25);
-        robber.setFill(new ImagePattern(new Image("textures/originals/robbers.png")));
-        robber.setVisible(true);
 
         draw();
     }
@@ -1682,22 +1682,6 @@ public class GamePresenter extends AbstractPresenter {
 
     @Subscribe
     public void onNotEnoughResourcesMessages(NotEnoughResourcesMessage notEnoughResourcesMessage) {
-        notEnoughResourcesMessageLogic(notEnoughResourcesMessage);
-    }
-
-    /**
-     * The method invoked by NotEnoughRessourceMessage
-     * <p>
-     * This method reacts to the NotEnoughRessourcesMessage and shows the corresponding alert window.
-     *
-     * @param notEnoughResourcesMessage //TODO: fehlt
-     * @implNote The code inside this Method has to run in the JavaFX-application thread. Therefore it is crucial not to
-     * remove the {@code Platform.runLater()}
-     * @author Marius Birk
-     * @see NotEnoughResourcesMessage
-     * @since 2021-04-03
-     */
-    public void notEnoughResourcesMessageLogic(NotEnoughResourcesMessage notEnoughResourcesMessage) {
         if (this.currentLobby != null) {
             if (this.currentLobby.equals(notEnoughResourcesMessage.getName())) {
                 Platform.runLater(() -> {
@@ -1864,9 +1848,9 @@ public class GamePresenter extends AbstractPresenter {
      * @since 2021-06-02
      */
     public void showChoosePlayerAlert(ChoosePlayerMessage choosePlayerMessage) {
-        if(choosePlayerMessage.getName()!=null){
+        if (choosePlayerMessage.getName() != null) {
             chooseAlert.setTitle(choosePlayerMessage.getName());
-        }else{
+        } else {
             chooseAlert.setTitle("Choose a Player");
         }
         chooseAlert.getButtonTypes().setAll();
@@ -1995,6 +1979,9 @@ public class GamePresenter extends AbstractPresenter {
         selectedResource2.setFill(Color.RED);
         selectedResource1.setRadius(5);
         selectedResource2.setRadius(5);
+        Rectangle2D center = Screen.getPrimary().getVisualBounds();
+        this.resolveDevelopmentCardAlert.setX(center.getWidth() / 4);
+        this.resolveDevelopmentCardAlert.setY(center.getHeight() / 3);
         double rectHeight = 100.0;
         double rectWidth = 50.0;
         Rectangle lumberRectangle = new Rectangle(rectWidth, rectHeight);
@@ -2850,7 +2837,7 @@ public class GamePresenter extends AbstractPresenter {
 
                     r.setOnMouseClicked(new EventHandler<>() {
                         final String title = hover.getText();
-                        final String description = "A resource you can get from forest fields";
+                        final String description = "A ressource you can get from forest fields";
                         final Boolean isDevelopmentCard = false;
 
                         @Override
@@ -2869,7 +2856,7 @@ public class GamePresenter extends AbstractPresenter {
 
                     r.setOnMouseClicked(new EventHandler<>() {
                         final String title = hover.getText();
-                        final String description = "This resource can be found on hill fields";
+                        final String description = "This ressource can be found on hill fields";
                         final Boolean isDevelopmentCard = false;
 
                         @Override
@@ -2888,7 +2875,7 @@ public class GamePresenter extends AbstractPresenter {
 
                     r.setOnMouseClicked(new EventHandler<>() {
                         final String title = hover.getText();
-                        final String description = "This resource can be harvested on grain fields";
+                        final String description = "This ressource can be harvested on grain fields";
                         final Boolean isDevelopmentCard = false;
 
                         @Override
@@ -2907,7 +2894,7 @@ public class GamePresenter extends AbstractPresenter {
 
                     r.setOnMouseClicked(new EventHandler<>() {
                         final String title = hover.getText();
-                        final String description = "This resource is getting produced on pasture fields";
+                        final String description = "This ressource is getting produced on pasture fields";
                         final Boolean isDevelopmentCard = false;
 
                         @Override
@@ -2926,7 +2913,7 @@ public class GamePresenter extends AbstractPresenter {
 
                     r.setOnMouseClicked(new EventHandler<>() {
                         final String title = hover.getText();
-                        final String description = "This resource can be won from mountain fields";
+                        final String description = "This ressource can be won from mountain fields";
                         final Boolean isDevelopmentCard = false;
 
                         @Override
@@ -2944,7 +2931,7 @@ public class GamePresenter extends AbstractPresenter {
 
                     r.setOnMouseClicked(new EventHandler<MouseEvent>() {
                         final String title = hover.getText();
-                        final String description = "your victory points for the game you earned until now";
+                        final String description = "Cards which aren't playable but increase your victory points at the end of game";
                         final Boolean isDevelopmentCard = false;
 
                         @Override
@@ -2990,10 +2977,10 @@ public class GamePresenter extends AbstractPresenter {
                     Tooltip.install(r, hover);
                     hover.setShowDelay(Duration.millis(0));
 
-                    r.setOnMouseClicked(new EventHandler<>() {
-                        final String title = hover.getText();
-                        final String description = "With this card played out, you can choose a resource. All players, who are currently having the chosen resource on their hand, must give you all of them";
-                        final Boolean isDevelopmentCard = true;
+                    r.setOnMouseClicked(new EventHandler<MouseEvent>() {
+                      final String title = hover.getText();
+                       final String description = "When you play out this card, you can choose a ressource. Every player who currently has the chosen ressource on their hand must give you all of them.";
+                       final Boolean isDevelopmentCard = true;
 
                         @Override
                         public void handle(MouseEvent mouseEvent) {
@@ -3018,10 +3005,10 @@ public class GamePresenter extends AbstractPresenter {
                     Tooltip.install(r, hover);
                     hover.setShowDelay(Duration.millis(0));
 
-                    r.setOnMouseClicked(new EventHandler<>() {
-                        final String title = hover.getText();
-                        final String description = "The Road Building development card. When this card is played out, you immediately get two ressource cards of your choice from the bank";
-                        final Boolean isDevelopmentCard = true;
+                    r.setOnMouseClicked(new EventHandler<MouseEvent>() {
+                       final String title = hover.getText();
+                       final String description = "The Road Building development card. With this card played out, you can build two roads this turn free of charge";
+                       final Boolean isDevelopmentCard = true;
 
                         @Override
                         public void handle(MouseEvent mouseEvent) {
@@ -3046,10 +3033,10 @@ public class GamePresenter extends AbstractPresenter {
                     Tooltip.install(r, hover);
                     hover.setShowDelay(Duration.millis(0));
 
-                    r.setOnMouseClicked(new EventHandler<>() {
-                        final String title = hover.getText();
-                        final String description = "The Year of Plenty development car. With this card played out, you can build two roads this turn free of charge";
-                        final Boolean isDevelopmentCard = true;
+                    r.setOnMouseClicked(new EventHandler<MouseEvent>() {
+                      final String title = hover.getText();
+                       final String description = "The Year of Plenty development card. When this card is played out, you immediately get two ressource cards of your choice from the bank";
+                       final Boolean isDevelopmentCard = false;
 
                         @Override
                         public void handle(MouseEvent mouseEvent) {

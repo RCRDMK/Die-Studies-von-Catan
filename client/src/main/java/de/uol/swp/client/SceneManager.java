@@ -117,6 +117,7 @@ public class SceneManager {
         nextGameScene = initGameView();
         nextTradeScene = initTradeView();
         nextUserGameRulesScene = initGameRulesView();
+        primaryStage.setResizable(false);
 
         //Royalty free music from Pixabay was used. For more information see https://pixabay.com/service/license/.
         String musicFile = "client/src/main/resources/backgroundMusic/the-last-october-day-3915.mp3";
@@ -356,17 +357,10 @@ public class SceneManager {
         Parent rootPane = initPresenter(GameRulesPresenter.fxml);
         userGameRulesScene = new Scene(rootPane, 800, 500);
         userGameRulesScene.getStylesheets().add(styleSheet);
-        rootPane.getStyleClass().add("Game Rules");
+        rootPane.getStyleClass().add("rules");
+
         return lobbyScene;
     }
-
-    /*
-    @Subscribe
-    public void onChangeToCertainSizeEvent(ChangeToCertainSizeEvent event) {
-       primaryStage.setWidth(event.getWidth());
-       primaryStage.setHeight(event.getHeight());
-    }
-     */
 
 
     /**
