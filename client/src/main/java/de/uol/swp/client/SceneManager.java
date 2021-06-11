@@ -76,7 +76,6 @@ public class SceneManager {
     private TabHelper tabHelper;
     private Scene userSettingsScene;
     private Scene userGameRulesScene;
-    private Scene nextUserGameRulesScene;
     private MediaPlayer player;
     private Scene summaryScene;
     private Scene nextSummaryScene;
@@ -116,7 +115,6 @@ public class SceneManager {
         nextLobbyScene = initLobbyView();
         nextGameScene = initGameView();
         nextTradeScene = initTradeView();
-        nextUserGameRulesScene = initGameRulesView();
         primaryStage.setResizable(false);
 
         //Royalty free music from Pixabay was used. For more information see https://pixabay.com/service/license/.
@@ -353,15 +351,12 @@ public class SceneManager {
      * @see GameRulesPresenter
      * @since 2021-05-18
      */
-    private Scene initGameRulesView() {
+    private void initGameRulesView() {
         Parent rootPane = initPresenter(GameRulesPresenter.fxml);
         userGameRulesScene = new Scene(rootPane, 800, 500);
         userGameRulesScene.getStylesheets().add(styleSheet);
         rootPane.getStyleClass().add("rules");
-
-        return lobbyScene;
     }
-
 
     /**
      * Handles ShowRegistrationViewEvent detected on the EventBus
@@ -797,7 +792,6 @@ public class SceneManager {
             tabHelper.addTab(gameRulesTab);
             tabHelper.getTabPane().getSelectionModel().select(gameRulesTab);
         });
-        nextUserGameRulesScene = initGameRulesView();
     }
 
     /**
