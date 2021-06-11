@@ -25,7 +25,7 @@ public class GameRulesPresenter extends AbstractPresenter {
     ImageView rightPageImage;
 
 
-    int imagecounter = 1;
+    private int imagecounter = 1;
 
     /**
      * Handles the Actionevent when the prev button is clicked
