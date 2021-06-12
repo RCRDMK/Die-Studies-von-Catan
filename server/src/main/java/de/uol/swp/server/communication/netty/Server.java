@@ -82,7 +82,6 @@ public class Server {
             // Just wait for server shutdown
             ChannelFuture f = b.bind().sync();
             f.channel().closeFuture().sync();
-            this.userManagement.closeConnection();
         } finally {
             bossGroup.shutdownGracefully().sync();
             workerGroup.shutdownGracefully().sync();
