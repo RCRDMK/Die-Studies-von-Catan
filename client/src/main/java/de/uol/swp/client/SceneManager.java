@@ -40,7 +40,6 @@ import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.File;
 import java.net.URL;
 
 /**
@@ -120,8 +119,7 @@ public class SceneManager {
         primaryStage.setResizable(false);
 
         //Royalty free music from Pixabay was used. For more information see https://pixabay.com/service/license/.
-        String musicFile = "client/src/main/resources/backgroundMusic/the-last-october-day-3915.mp3";
-        Media backgroundMusic = new Media(new File(musicFile).toURI().toString());
+        Media backgroundMusic = new Media(SceneManager.class.getResource("/backgroundMusic/the-last-october-day-3915.mp3").toString());
         player = new MediaPlayer(backgroundMusic);
         player.setCycleCount(MediaPlayer.INDEFINITE);//loops the musicFile indefinitely
         player.setVolume(0.4);
