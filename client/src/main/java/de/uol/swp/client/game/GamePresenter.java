@@ -616,6 +616,7 @@ public class GamePresenter extends AbstractPresenter {
                 setUpLargestArmyAndLongestRoadPanes(gcm.getUsers());
             });
             evaluateMyPlayerNumber(gcm.getUsers());
+            buyDevelopmentCardLogic(25);
         }
     }
 
@@ -1673,11 +1674,14 @@ public class GamePresenter extends AbstractPresenter {
 
     @Subscribe
     public void onBuyDevelopmentCardMessage(BuyDevelopmentCardMessage buyDevelopmentCardMessage) {
-        buyDevelopmentCardLogic(buyDevelopmentCardMessage.getDevCard());
+        buyDevelopmentCardLogic(buyDevelopmentCardMessage.getDevCardsNumber());
     }
 
-    public void buyDevelopmentCardLogic(String card) {
-        //
+    public void buyDevelopmentCardLogic(int devCardsNumber) {
+        Tooltip hover = new Tooltip(devCardsNumber + " Cards left");
+        if (devCardsNumber == 1) hover.setText("1 Card left");
+        hover.setShowDelay(Duration.millis(50));
+        buyDevCard.setTooltip(hover);
     }
 
     @Subscribe

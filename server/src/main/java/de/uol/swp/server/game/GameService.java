@@ -1005,8 +1005,8 @@ public class GameService extends AbstractService {
                         takeResource(game, request.getUser(), "Grain", 1);
                         inventory.incCardStack(devCard, 1);
                         game.rememberDevCardBoughtThisTurn(devCard, 1);
-                        BuyDevelopmentCardMessage response = new BuyDevelopmentCardMessage(request.getName(), request.getUser(), devCard);
-                        sendToSpecificUserInGame(game, response, request.getUser());
+                        BuyDevelopmentCardMessage response = new BuyDevelopmentCardMessage(game.getDevelopmentCardDeck().getNumberOfDevCards());
+                        sendToAllInGame(game.getName(), response);
                     } else {
                         var chatId = "game_" + game.getName();
                         ResponseChatMessage msg = new ResponseChatMessage("No development cards are available.", chatId, "Bank", System.currentTimeMillis());
