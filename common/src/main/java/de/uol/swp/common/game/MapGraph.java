@@ -20,8 +20,8 @@ public class MapGraph implements Serializable {
     private final HashSet<StreetNode> streetNodeHashSet = new HashSet<>();
     private final HashSet<BuildingNode> buildingNodeHashSet = new HashSet<>();
     private final HashSet<Hexagon> hexagonHashSet = new HashSet<>();
-    private final int[] numOfRoads = new int[]{0,0,0,0};
-    private int[] numOfBuildings = new int[]{0,0,0,0};
+    private final int[] numOfRoads = new int[]{0, 0, 0, 0};
+    private int[] numOfBuildings = new int[]{0, 0, 0, 0};
     private final ArrayList<BuildingNode> builtBuildings = new ArrayList<>();
     // middle hexagon for reference
     private final Hexagon middle = new Hexagon("middle");
@@ -54,8 +54,13 @@ public class MapGraph implements Serializable {
         return longestStreetPathCalculator;
     }
 
-    public int[] getNumOfRoads() {return numOfRoads; }
-    public int[] getNumOfBuildings() {return numOfBuildings; }
+    public int[] getNumOfRoads() {
+        return numOfRoads;
+    }
+
+    public int[] getNumOfBuildings() {
+        return numOfBuildings;
+    }
 
     public void setNumOfBuildings(int[] numOfBuildings) {
         this.numOfBuildings = numOfBuildings;
@@ -299,13 +304,10 @@ public class MapGraph implements Serializable {
      * @since 2021-05-14
      */
     public void configureTerrainTypeAndDiceTokensForAllHexagonsRandomly() {
-        ArrayList<Hexagon> hexagons = new ArrayList<>();
-        for (Hexagon hexagon : hexagonHashSet) {
-            if (!hexagon.equals(middle)) {
-                hexagons.add(hexagon);
-            }
-        }
+        ArrayList<Hexagon> hexagons = new ArrayList<>(hexagonHashSet);
+
         ArrayList<Integer> diceTokenList = new ArrayList<>();
+        //diceTokenList.add(0);
         diceTokenList.add(5);
         diceTokenList.add(2);
         diceTokenList.add(6);
@@ -327,6 +329,7 @@ public class MapGraph implements Serializable {
 
 
         ArrayList<Integer> terrainType = new ArrayList<>();
+        terrainType.add(6);
         terrainType.add(1);
         terrainType.add(2);
         terrainType.add(1);
@@ -346,14 +349,18 @@ public class MapGraph implements Serializable {
         terrainType.add(1);
         terrainType.add(5);
 
-        middle.configureTerrainTypeAndDiceToken(6, 0);
-        for (int i = 0; i < 18; i++) {
-            int rand1 = randomInt(0, 18 - i);
+        for (int i = 0; i < 19; i++) {
+            int rand1 = randomInt(0, 19 - i);
             int rand2 = randomInt(0, 18 - i);
-            hexagons.get(i).configureTerrainTypeAndDiceToken(terrainType.get(rand1), diceTokenList.get(rand2));
+            if(terrainType.get(rand1) !=6) {
+                hexagons.get(i).configureTerrainTypeAndDiceToken(terrainType.get(rand1), diceTokenList.get(rand2));
 
-            terrainType.remove(rand1);
-            diceTokenList.remove(rand2);
+                terrainType.remove(rand1);
+                diceTokenList.remove(rand2);
+            } else {
+                hexagons.get(i).configureTerrainTypeAndDiceToken(terrainType.get(rand1), 0);
+                terrainType.remove(rand1);
+            }
         }
 
     }
@@ -524,7 +531,7 @@ public class MapGraph implements Serializable {
      * <p>The first player, that has a Route of at least 5 StreetNode-objects, gets awarded the "Longest
      * Traderoute"-Flag.
      * </p>
-     *
+     * <p>
      * enhanced by Marc Hermes 2021-05-19
      *
      * @return The int array representing the index of the player with the longest road, as well as the length of the longest road. [0] -> the PlayerIndex, [1] -> the length
@@ -661,14 +668,14 @@ public class MapGraph implements Serializable {
             boolean existingConnection = false;
             boolean buildingAllowed = false;
             boolean correctBuildingPhaseTwo = false;
-            if (startingPhase > 0){
+            if (startingPhase > 0) {
                 buildingAllowed = true;
             }
 
             for (MapGraph.BuildingNode connectedBuildingNode : this.getConnectedBuildingNodes()) {
                 if (connectedBuildingNode.getOccupiedByPlayer() == playerIndex) {
                     existingConnection = true;
-                    correctBuildingPhaseTwo = builtBuildings.get(builtBuildings.size()-1).getUuid().equals(connectedBuildingNode.getUuid());
+                    correctBuildingPhaseTwo = builtBuildings.get(builtBuildings.size() - 1).getUuid().equals(connectedBuildingNode.getUuid());
                 }
                 for (MapGraph.StreetNode connectedStreetNode : connectedBuildingNode.getConnectedStreetNodes()) {
                     if (connectedStreetNode.getOccupiedByPlayer() == playerIndex) {
@@ -683,7 +690,7 @@ public class MapGraph implements Serializable {
 
             if (this.occupiedByPlayer == 666 && existingConnection && buildingAllowed && (startingPhase == 0 ||
                     ((startingPhase == 1 || (startingPhase == 2 && correctBuildingPhaseTwo)) &&
-                    numOfRoads[playerIndex] == startingPhase-1 && numOfRoads[playerIndex] < numOfBuildings[playerIndex]))) {
+                            numOfRoads[playerIndex] == startingPhase - 1 && numOfRoads[playerIndex] < numOfBuildings[playerIndex]))) {
                 numOfRoads[playerIndex]++;
                 return true;
             } else return false;
@@ -788,7 +795,7 @@ public class MapGraph implements Serializable {
 
             if (occupiedByPlayer == 666 || occupiedByPlayer == playerIndex) {
                 if ((sizeOfSettlement < 1 && existingStreet && buildingAllowed &&
-                        (startingPhase == 0 || numOfBuildings[playerIndex] == startingPhase-1)) ||
+                        (startingPhase == 0 || numOfBuildings[playerIndex] == startingPhase - 1)) ||
                         (startingPhase == 0 && sizeOfSettlement == 1 && occupiedByPlayer == playerIndex)) {
                     numOfBuildings[playerIndex]++;
                     return true;
@@ -905,96 +912,48 @@ public class MapGraph implements Serializable {
             return streetLeft;
         }
 
-        public void setStreetLeft(StreetNode streetLeft) {
-            this.streetLeft = streetLeft;
-        }
-
         public StreetNode getStreetBottomLeft() {
             return streetBottomLeft;
-        }
-
-        public void setStreetBottomLeft(StreetNode streetBottomLeft) {
-            this.streetBottomLeft = streetBottomLeft;
         }
 
         public StreetNode getStreetBottomRight() {
             return streetBottomRight;
         }
 
-        public void setStreetBottomRight(StreetNode streetBottomRight) {
-            this.streetBottomRight = streetBottomRight;
-        }
-
         public StreetNode getStreetRight() {
             return streetRight;
-        }
-
-        public void setStreetRight(StreetNode streetRight) {
-            this.streetRight = streetRight;
         }
 
         public StreetNode getStreetTopRight() {
             return streetTopRight;
         }
 
-        public void setStreetTopRight(StreetNode streetTopRight) {
-            this.streetTopRight = streetTopRight;
-        }
-
         public StreetNode getStreetTopLeft() {
             return streetTopLeft;
-        }
-
-        public void setStreetTopLeft(StreetNode streetTopLeft) {
-            this.streetTopLeft = streetTopLeft;
         }
 
         public BuildingNode getBuildingTopLeft() {
             return buildingTopLeft;
         }
 
-        public void setBuildingTopLeft(BuildingNode buildingTopLeft) {
-            this.buildingTopLeft = buildingTopLeft;
-        }
-
         public BuildingNode getBuildingBottomLeft() {
             return buildingBottomLeft;
-        }
-
-        public void setBuildingBottomLeft(BuildingNode buildingBottomLeft) {
-            this.buildingBottomLeft = buildingBottomLeft;
         }
 
         public BuildingNode getBuildingBottom() {
             return buildingBottom;
         }
 
-        public void setBuildingBottom(BuildingNode buildingBottom) {
-            this.buildingBottom = buildingBottom;
-        }
-
         public BuildingNode getBuildingBottomRight() {
             return buildingBottomRight;
-        }
-
-        public void setBuildingBottomRight(BuildingNode buildingBottomRight) {
-            this.buildingBottomRight = buildingBottomRight;
         }
 
         public BuildingNode getBuildingTopRight() {
             return buildingTopRight;
         }
 
-        public void setBuildingTopRight(BuildingNode buildingTopRight) {
-            this.buildingTopRight = buildingTopRight;
-        }
-
         public BuildingNode getBuildingTop() {
             return buildingTop;
-        }
-
-        public void setBuildingTop(BuildingNode buildingTop) {
-            this.buildingTop = buildingTop;
         }
 
         public Hexagon getHexTopLeft() {
@@ -1047,26 +1006,6 @@ public class MapGraph implements Serializable {
 
         public Set<BuildingNode> getBuildingNodes() {
             return buildingNodes;
-        }
-
-        public void setBuildingNodes(Set<BuildingNode> buildingNodes) {
-            this.buildingNodes = buildingNodes;
-        }
-
-        public Set<StreetNode> getStreetNodes() {
-            return streetNodes;
-        }
-
-        public void setStreetNodes(Set<StreetNode> streetNodes) {
-            this.streetNodes = streetNodes;
-        }
-
-        public Set<Hexagon> getHexagons() {
-            return hexagons;
-        }
-
-        public void setHexagons(Set<Hexagon> hexagons) {
-            this.hexagons = hexagons;
         }
 
         public List<String> getSelfPosition() {

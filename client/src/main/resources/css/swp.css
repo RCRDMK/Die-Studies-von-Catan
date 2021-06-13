@@ -68,6 +68,12 @@ For more information see https://www.pexels.com/license/ and https://unsplash.co
     -fx-background-repeat: no-repeat;
 }
 
+.rules {
+    -fx-background-image: url("../textures/images/RulesBackground.jpg");
+    -fx-background-size: cover;
+    -fx-background-repeat: no-repeat;
+}
+
 #summary {
     -fx-background-image: url("../textures/images/EndScreenStatsBg.png");
     -fx-background-size: cover;

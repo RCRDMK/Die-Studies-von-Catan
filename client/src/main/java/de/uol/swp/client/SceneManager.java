@@ -41,6 +41,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
+import java.net.URISyntaxException;
 import java.net.URL;
 
 /**
@@ -117,11 +118,15 @@ public class SceneManager {
         nextGameScene = initGameView();
         nextTradeScene = initTradeView();
         nextUserGameRulesScene = initGameRulesView();
+        primaryStage.setResizable(false);
 
         //Royalty free music from Pixabay was used. For more information see https://pixabay.com/service/license/.
-        String musicFile = "client/src/main/resources/backgroundMusic/the-last-october-day-3915.mp3";
-        Media backgroundMusic = new Media(new File(musicFile).toURI().toString());
-        player = new MediaPlayer(backgroundMusic);
+        try {
+            Media backgroundMusic = new Media(getClass().getResource("/backgroundMusic/the-last-october-day-3915.mp3").toURI().toString());
+            player = new MediaPlayer(backgroundMusic);
+        } catch (URISyntaxException e){
+            e.printStackTrace();
+        }
         player.setCycleCount(MediaPlayer.INDEFINITE);//loops the musicFile indefinitely
         player.setVolume(0.4);
         player.play();
@@ -356,17 +361,10 @@ public class SceneManager {
         Parent rootPane = initPresenter(GameRulesPresenter.fxml);
         userGameRulesScene = new Scene(rootPane, 800, 500);
         userGameRulesScene.getStylesheets().add(styleSheet);
-        rootPane.getStyleClass().add("Game Rules");
+        rootPane.getStyleClass().add("rules");
+
         return lobbyScene;
     }
-
-    /*
-    @Subscribe
-    public void onChangeToCertainSizeEvent(ChangeToCertainSizeEvent event) {
-       primaryStage.setWidth(event.getWidth());
-       primaryStage.setHeight(event.getHeight());
-    }
-     */
 
 
     /**

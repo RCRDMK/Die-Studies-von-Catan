@@ -4,53 +4,48 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<AnchorPane prefHeight="500.0" prefWidth="735.0" stylesheets="@../css/swp.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.uol.swp.client.lobby.LobbyPresenter">
-    <TextArea fx:id="lobbyChatArea" editable="false" layoutX="437.0" layoutY="14.0" prefHeight="200" prefWidth="284.0" GridPane.rowIndex="2" />
-    <TextField fx:id="lobbyChatInput" layoutX="444.0" layoutY="229.0" onAction="#onSendMessage" prefHeight="25.0" prefWidth="196.0" promptText="Send your Message!" GridPane.rowIndex="3" />
-    <Button layoutX="644.0" layoutY="229.0" mnemonicParsing="false" onAction="#onSendMessage" prefHeight="25.0" prefWidth="77.0" text="Send" />
+<AnchorPane prefHeight="634.0" prefWidth="1280.0" stylesheets="@../css/swp.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.uol.swp.client.lobby.LobbyPresenter">
+    <TextArea fx:id="lobbyChatArea" editable="false" layoutX="437.0" layoutY="14.0" prefHeight="354.0" prefWidth="574.0" GridPane.rowIndex="2" />
+    <TextField fx:id="lobbyChatInput" layoutX="444.0" layoutY="399.0" onAction="#onSendMessage" prefHeight="26.0" prefWidth="478.0" promptText="Send your Message!" GridPane.rowIndex="3" />
+    <Button layoutX="946.0" layoutY="399.0" mnemonicParsing="false" onAction="#onSendMessage" prefHeight="25.0" prefWidth="77.0" text="Send" />
     <Label fx:id="notEnoughPlayersLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="349.0" layoutY="321.0" prefHeight="17.0" prefWidth="189.0" text="Not enough players to start game" textAlignment="CENTER" visible="false" />
     <Label fx:id="notLobbyOwnerLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="349.0" layoutY="321.0" prefHeight="17.0" prefWidth="189.0" text="You are not the lobby owner" textAlignment="CENTER" visible="false" />
     <Label fx:id="gameAlreadyExistsLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="349.0" layoutY="321.0" prefHeight="17.0" prefWidth="189.0" text="Game already exists" textAlignment="CENTER" visible="false" />
     <Label fx:id="reasonWhyNotAbleToJoinGame" alignment="CENTER" contentDisplay="CENTER" layoutX="349.0" layoutY="321.0" prefHeight="17.0" prefWidth="189.0" textAlignment="CENTER" visible="false" />
-    <Text fill="white" layoutX="14.0" layoutY="404.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Gamefieldtype" />
-    <Text fill="white" layoutX="120.0" layoutY="404.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Minimum number of players" />
-    <RadioButton fx:id="standardGameField" layoutX="14.0" layoutY="412.0" mnemonicParsing="false" onAction="#onStandardGameField" text="Standard">
+    <Text fill="white" layoutX="8.0" layoutY="533.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Gamefieldtype" />
+    <Text fill="white" layoutX="118.0" layoutY="533.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Minimum number of players" />
+    <RadioButton fx:id="standardGameField" layoutX="12.0" layoutY="538.0" mnemonicParsing="false" onAction="#onStandardGameField" text="Standard">
         <toggleGroup>
             <ToggleGroup fx:id="gameFieldToggleButtons" />
         </toggleGroup>
     </RadioButton>
-    <RadioButton fx:id="randomGameField" layoutX="14.0" layoutY="437.0" mnemonicParsing="false" onAction="#onRandomGameField" text="Random">
+    <RadioButton fx:id="randomGameField" layoutX="14.0" layoutY="560.0" mnemonicParsing="false" onAction="#onRandomGameField" text="Random">
         <toggleGroup>
             <fx:reference source="gameFieldToggleButtons" />
         </toggleGroup>
     </RadioButton>
-    <RadioButton fx:id="veryRandomGameField" layoutX="14.0" layoutY="462.0" mnemonicParsing="false" onAction="#onVeryRandomGameField" text="VeryRandom">
+    <RadioButton fx:id="veryRandomGameField" layoutX="14.0" layoutY="582.0" mnemonicParsing="false" onAction="#onVeryRandomGameField" text="VeryRandom">
         <toggleGroup>
             <fx:reference source="gameFieldToggleButtons" />
         </toggleGroup>
     </RadioButton>
-    <RadioButton fx:id="minimum2Players" layoutX="120.0" layoutY="412.0" mnemonicParsing="false"
-                 onAction="#on2Players" text="2 Players">
+    <RadioButton fx:id="minimum2Players" layoutX="125.0" layoutY="538.0" mnemonicParsing="false" onAction="#on2Players" text="2 Players">
         <toggleGroup>
-            <ToggleGroup fx:id="minimumAmountOfPlayersToggleButtons"/>
+            <ToggleGroup fx:id="minimumAmountOfPlayersToggleButtons" />
         </toggleGroup>
     </RadioButton>
-    <RadioButton fx:id="minimum3Players" layoutX="120.0" layoutY="437.0" mnemonicParsing="false"
-                 onAction="#on3Players" text="3 Players">
+    <RadioButton fx:id="minimum3Players" layoutX="125.0" layoutY="560.0" mnemonicParsing="false" onAction="#on3Players" text="3 Players">
         <toggleGroup>
-            <fx:reference source="minimumAmountOfPlayersToggleButtons"/>
+            <fx:reference source="minimumAmountOfPlayersToggleButtons" />
         </toggleGroup>
     </RadioButton>
-    <RadioButton fx:id="minimum4Players" layoutX="120.0" layoutY="462.0" mnemonicParsing="false"
-                 onAction="#on4Players" text="4 Players">
+    <RadioButton fx:id="minimum4Players" layoutX="125.0" layoutY="582.0" mnemonicParsing="false" onAction="#on4Players" text="4 Players">
         <toggleGroup>
-            <fx:reference source="minimumAmountOfPlayersToggleButtons"/>
+            <fx:reference source="minimumAmountOfPlayersToggleButtons" />
         </toggleGroup>
     </RadioButton>
-    <ListView fx:id="lobbyUsersView" prefHeight="200.0" prefWidth="200.0"/>
-    <Button fx:id="startGameButton" layoutX="659.0" layoutY="467.0" mnemonicParsing="false" onAction="#onStartGame"
-            text="Start Game"/>
-    <Button layoutX="237.0" layoutY="467.0" mnemonicParsing="false" onAction="#onLeaveLobby" text="Leave Lobby"/>
-    <Button fx:id="joinGameButton" layoutX="659.0" layoutY="467.0" mnemonicParsing="false" onAction="#onJoinGame"
-            text="Join Game"/>
+    <ListView fx:id="lobbyUsersView" prefHeight="305.0" prefWidth="249.0" />
+    <Button fx:id="startGameButton" layoutX="686.0" layoutY="547.0" mnemonicParsing="false" onAction="#onStartGame" text="Start Game" />
+    <Button layoutX="268.0" layoutY="547.0" mnemonicParsing="false" onAction="#onLeaveLobby" text="Leave Lobby" />
+    <Button fx:id="joinGameButton" layoutX="688.0" layoutY="547.0" mnemonicParsing="false" onAction="#onJoinGame" text="Join Game" />
 </AnchorPane>

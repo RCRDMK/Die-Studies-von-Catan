@@ -52,7 +52,7 @@ public class AIToServerTranslator {
 
                 }
                 ConstructionRequest cr = new ConstructionRequest(user, gameName, ba.getField(), typeOfNode);
-                gameService.onConstructionMessage(cr);
+                gameService.onConstructionRequest(cr);
 
             } else if (aiAction instanceof BuyDevelopmentCardAction) {
                 BuyDevelopmentCardRequest bdcr = new BuyDevelopmentCardRequest(user, gameName);
@@ -115,8 +115,6 @@ public class AIToServerTranslator {
                 TradeChoiceRequest tcr = new TradeChoiceRequest((UserDTO) toaa.getAcceptedBidder(), toaa.getTradeAccepted(), gameName, toaa.getTradeCode());
                 gameService.onTradeChoiceRequest(tcr);
             }
-
         }
     }
-
 }
