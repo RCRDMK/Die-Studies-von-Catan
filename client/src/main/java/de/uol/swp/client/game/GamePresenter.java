@@ -78,6 +78,9 @@ public class GamePresenter extends AbstractPresenter {
     private static final Logger LOG = LogManager.getLogger(GamePresenter.class);
 
     @FXML
+    private TabPane tabPane = new TabPane();
+
+    @FXML
     public TextField gameChatInput;
 
     @FXML
@@ -213,7 +216,7 @@ public class GamePresenter extends AbstractPresenter {
     private Pane playerFourLongestRoadView;
 
     @FXML
-    private Pane buildingCostsView;
+    private Pane pricesView;
 
 
     @FXML
@@ -616,7 +619,8 @@ public class GamePresenter extends AbstractPresenter {
                 setUpPrivateInventoryView();
                 setupResolveDevelopmentCardAlert();
                 setupChoosePlayerAlert();
-                setUpBuildingCosts();
+                setUpTabs();
+                setUpPrices();
                 setUpLargestArmyAndLongestRoadPanes(gcm.getUsers());
             });
             evaluateMyPlayerNumber(gcm.getUsers());
@@ -674,7 +678,8 @@ public class GamePresenter extends AbstractPresenter {
                 setupDicesAtGameStart();
                 setUpPrivateInventoryView();
                 setupResolveDevelopmentCardAlert();
-                setUpBuildingCosts();
+                setUpTabs();
+                setUpPrices();
                 setUpLargestArmyAndLongestRoadPanes(joggr.getUsers());
                 updateGameField();
             });
@@ -2679,41 +2684,39 @@ public class GamePresenter extends AbstractPresenter {
     /**
      * The method gets invoked when the Game Presenter is created.
      * <p>
-     * This method creates image and imagePattern. Then it creates and fills rectangleBuildingCosts  with
+     * This method creates Tabs with game chat, game event log and pricesView. Then it fills TabPane with tabs.
+     *
+     * @author Iskander Yusupov
+     * @since 2021-06-14
+     */
+    private void setUpTabs() {
+        Tab tabChat = new Tab();
+        tabChat.setText("Chat");
+        tabChat.setContent(gameChatArea);
+        Tab tabGameLog = new Tab();
+        tabGameLog.setText("Log");
+        Tab tabPrices = new Tab();
+        tabPrices.setText("Prices");
+        tabPrices.setContent(pricesView);
+        tabPane.getTabs().addAll(tabChat, tabGameLog, tabPrices);
+    }
+
+    /**
+     * The method gets invoked when the Game Presenter is created.
+     * <p>
+     * This method creates image and imagePattern. Then it creates and fills rectanglePrices  with
      * <p>
      * ImagePattern. Rectangle is added to the FXML Pane.
-     * <p>
-     * After this, hover and exit methods are being executed. When the user is entering the rectangle
-     * of a card, a tooltip, with what the card under the mouse cursor represents, appear. If the user clicks
-     * on the card, the onClickOnDevelopmentCard method gets executed and the user can read and close window with card image.
      * <p>
      *
      * @author Iskander Yusupov
      * @since 2021-06-08
      */
-    private void setUpBuildingCosts() {
-        Image imageBuildingCosts = new Image("textures/resized/BaukostenKlein.png");
-        Rectangle rectangleBuildingCosts = new Rectangle(75, 75);
-        rectangleBuildingCosts.setFill(new ImagePattern(imageBuildingCosts));
-
-        Tooltip hoverBuildingCosts = new Tooltip("");
-
-        hoverBuildingCosts.setText("Building Costs");
-        Tooltip.install(rectangleBuildingCosts, hoverBuildingCosts);
-        hoverBuildingCosts.setShowDelay(Duration.millis(0));
-
-        rectangleBuildingCosts.setOnMouseClicked(new EventHandler<MouseEvent>() {
-            final String title = hoverBuildingCosts.getText();
-            final String description = "Resource requirements for building and upgrading.";
-            final Boolean isDevelopmentCard = false;
-
-            @Override
-            public void handle(MouseEvent mouseEvent) {
-                onClickOnDevelopmentCard(title, description, imageBuildingCosts, isDevelopmentCard);
-
-            }
-        });
-        buildingCostsView.getChildren().add(rectangleBuildingCosts);
+    private void setUpPrices() {
+        Image imagePrices = new Image("textures/resized/Baukosten.png");
+        Rectangle rectanglePrices = new Rectangle(225, 225);
+        rectanglePrices.setFill(new ImagePattern(imagePrices));
+        pricesView.getChildren().add(rectanglePrices);
     }
 
 
@@ -3023,9 +3026,9 @@ public class GamePresenter extends AbstractPresenter {
                     hover.setShowDelay(Duration.millis(0));
 
                     r.setOnMouseClicked(new EventHandler<MouseEvent>() {
-                      final String title = hover.getText();
-                       final String description = "When you play out this card, you can choose a ressource. Every player who currently has the chosen ressource on their hand must give you all of them.";
-                       final Boolean isDevelopmentCard = true;
+                        final String title = hover.getText();
+                        final String description = "When you play out this card, you can choose a ressource. Every player who currently has the chosen ressource on their hand must give you all of them.";
+                        final Boolean isDevelopmentCard = true;
 
                         @Override
                         public void handle(MouseEvent mouseEvent) {
@@ -3051,9 +3054,9 @@ public class GamePresenter extends AbstractPresenter {
                     hover.setShowDelay(Duration.millis(0));
 
                     r.setOnMouseClicked(new EventHandler<MouseEvent>() {
-                       final String title = hover.getText();
-                       final String description = "The Road Building development card. With this card played out, you can build two roads this turn free of charge";
-                       final Boolean isDevelopmentCard = true;
+                        final String title = hover.getText();
+                        final String description = "The Road Building development card. With this card played out, you can build two roads this turn free of charge";
+                        final Boolean isDevelopmentCard = true;
 
                         @Override
                         public void handle(MouseEvent mouseEvent) {
@@ -3079,9 +3082,9 @@ public class GamePresenter extends AbstractPresenter {
                     hover.setShowDelay(Duration.millis(0));
 
                     r.setOnMouseClicked(new EventHandler<MouseEvent>() {
-                      final String title = hover.getText();
-                       final String description = "The Year of Plenty development card. When this card is played out, you immediately get two ressource cards of your choice from the bank";
-                       final Boolean isDevelopmentCard = false;
+                        final String title = hover.getText();
+                        final String description = "The Year of Plenty development card. When this card is played out, you immediately get two ressource cards of your choice from the bank";
+                        final Boolean isDevelopmentCard = false;
 
                         @Override
                         public void handle(MouseEvent mouseEvent) {
