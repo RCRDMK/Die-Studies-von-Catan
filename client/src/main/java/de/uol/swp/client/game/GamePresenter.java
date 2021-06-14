@@ -1679,6 +1679,16 @@ public class GamePresenter extends AbstractPresenter {
         }
     }
 
+    /**
+     * Handles the BuyDevelopmentCardMessage
+     * <p>
+     * If a BuyDevelopmentCardMessage is detected on the EventBus the method invokes the buyDevelopmentCardMessageLogic
+     *
+     * @param buyDevelopmentCardMessage GameMessage
+     * @author Marius Birk
+     * @see BuyDevelopmentCardMessage
+     * @since 2021-05-27
+     */
     @Subscribe
     public void onBuyDevelopmentCardMessage(BuyDevelopmentCardMessage buyDevelopmentCardMessage) {
         buyDevelopmentCardMessageLogic(buyDevelopmentCardMessage.getDevCardsNumber());

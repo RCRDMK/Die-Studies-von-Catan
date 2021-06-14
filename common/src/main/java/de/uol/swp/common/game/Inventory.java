@@ -350,7 +350,7 @@ public class Inventory implements Serializable {
      * @author Anton Nikiforov
      * @since 2020-03-04
      */
-    public static class CardStack {
+    public class CardStack implements Serializable{
 
         private int number = 0;
 
@@ -391,7 +391,7 @@ public class Inventory implements Serializable {
      * @author Anton Nikiforov
      * @since 2020-03-04
      */
-    public static class UnitStack extends CardStack{
+    public class UnitStack extends CardStack{
 
         public UnitStack(int number) {
             super.number = number;
