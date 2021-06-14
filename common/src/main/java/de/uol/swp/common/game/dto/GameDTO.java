@@ -2,8 +2,8 @@ package de.uol.swp.common.game.dto;
 
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.MapGraph;
-import de.uol.swp.common.game.inventory.DevelopmentCardDeck;
-import de.uol.swp.common.game.inventory.Inventory;
+import de.uol.swp.common.game.DevelopmentCardDeck;
+import de.uol.swp.common.game.Inventory;
 import de.uol.swp.common.game.trade.Trade;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
@@ -313,7 +313,7 @@ public class GameDTO implements Game {
      * @param user form the inventory you want
      * @return The Inventory from user
      * @author Anton Nikiforov
-     * @see de.uol.swp.common.game.inventory.Inventory
+     * @see Inventory
      * @since 2021-04-01
      */
     @Override

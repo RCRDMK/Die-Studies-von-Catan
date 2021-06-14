@@ -5,7 +5,7 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.dto.GameDTO;
-import de.uol.swp.common.game.inventory.Inventory;
+import de.uol.swp.common.game.Inventory;
 import de.uol.swp.common.game.message.*;
 import de.uol.swp.common.game.MapGraph;
 import de.uol.swp.common.game.request.*;

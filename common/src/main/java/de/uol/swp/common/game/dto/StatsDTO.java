@@ -1,6 +1,6 @@
 package de.uol.swp.common.game.dto;
 
-import de.uol.swp.common.game.inventory.Inventory;
+import de.uol.swp.common.game.Inventory;
 
 import java.io.Serializable;
 import java.util.ArrayList;

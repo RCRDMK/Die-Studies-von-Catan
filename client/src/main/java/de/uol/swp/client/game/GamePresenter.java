@@ -9,6 +9,7 @@ import de.uol.swp.client.game.HelperObjects.MapGraphNodeContainer;
 import de.uol.swp.client.game.HelperObjects.Vector;
 import de.uol.swp.common.chat.RequestChatMessage;
 import de.uol.swp.common.chat.ResponseChatMessage;
+import de.uol.swp.common.game.Inventory;
 import de.uol.swp.common.game.MapGraph;
 import de.uol.swp.common.game.message.*;
 import de.uol.swp.common.game.request.EndTurnRequest;
@@ -1411,17 +1412,17 @@ public class GamePresenter extends AbstractPresenter {
 
                     switch (buildingNode.getTypeOfHarbor()) {
                         case 1:
-                            tooltip.setText("2:1\n Sheep");
+                            tooltip.setText("2:1\n Wool");
                             Tooltip.install(harborSymbol, tooltip);
                             tooltip.setShowDelay(Duration.millis(100));
                             break;
                         case 2:
-                            tooltip.setText("2:1\n Clay");
+                            tooltip.setText("2:1\n Brick");
                             Tooltip.install(harborSymbol, tooltip);
                             tooltip.setShowDelay(Duration.millis(100));
                             break;
                         case 3:
-                            tooltip.setText("2:1\n Wood");
+                            tooltip.setText("2:1\n Lumber");
                             Tooltip.install(harborSymbol, tooltip);
                             tooltip.setShowDelay(Duration.millis(100));
                             break;
@@ -1441,7 +1442,6 @@ public class GamePresenter extends AbstractPresenter {
                             tooltip.setShowDelay(Duration.millis(100));
                             break;
                     }
-
                 }
             } else {
                 double itemSize = cardSize() / 15;
@@ -1677,6 +1677,15 @@ public class GamePresenter extends AbstractPresenter {
         buyDevelopmentCardLogic(buyDevelopmentCardMessage.getDevCardsNumber());
     }
 
+    /**
+     * The Method invoked by onBuyDevelopmentCardMessage()
+     * <p>
+     * Set the hover text from buyDevCard button with the parameter
+     *
+     * @param devCardsNumber the AllThisLobbyUsersResponse given by the original subscriber method.
+     * @author Anton Nikiforov
+     * @since 2021-06-14
+     */
     public void buyDevelopmentCardLogic(int devCardsNumber) {
         Tooltip hover = new Tooltip(devCardsNumber + " Cards left");
         if (devCardsNumber == 1) hover.setText("1 Card left");
@@ -2463,7 +2472,7 @@ public class GamePresenter extends AbstractPresenter {
      * @implNote The code inside this Method has to run in the JavaFX-application thread. Therefore it is crucial not to
      * remove the {@code Platform.runLater()}
      * @author Iskander Yusupov
-     * @see de.uol.swp.common.game.inventory.Inventory
+     * @see Inventory
      * @since 2021-05-28
      */
     public void updatePublicInventory(ArrayList<HashMap<String, Integer>> publicInventoriesList) {
@@ -2514,7 +2523,7 @@ public class GamePresenter extends AbstractPresenter {
      * @param hashMapEntriesList
      * @param hashMap
      * @author Iskander Yusupov
-     * @see de.uol.swp.common.game.inventory.Inventory
+     * @see Inventory
      * @since 2021-06-02
      */
 

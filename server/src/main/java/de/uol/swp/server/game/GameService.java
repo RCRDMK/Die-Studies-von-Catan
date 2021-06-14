@@ -9,7 +9,7 @@ import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.MapGraph;
 import de.uol.swp.common.game.dto.GameDTO;
 import de.uol.swp.common.game.dto.StatsDTO;
-import de.uol.swp.common.game.inventory.Inventory;
+import de.uol.swp.common.game.Inventory;
 import de.uol.swp.common.game.message.*;
 import de.uol.swp.common.game.request.*;
 import de.uol.swp.common.game.response.*;

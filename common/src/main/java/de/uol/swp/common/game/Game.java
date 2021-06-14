@@ -1,7 +1,5 @@
 package de.uol.swp.common.game;
 
-import de.uol.swp.common.game.inventory.DevelopmentCardDeck;
-import de.uol.swp.common.game.inventory.Inventory;
 import de.uol.swp.common.game.trade.Trade;
 import de.uol.swp.common.user.User;
 
@@ -186,7 +184,7 @@ public interface Game extends Serializable {
      * @param user the User whose inventory to get
      * @return The Inventory from user
      * @author Anton Nikiforov
-     * @see de.uol.swp.common.game.inventory.Inventory
+     * @see Inventory
      * @since 2021-04-01
      */
     Inventory getInventory(User user);

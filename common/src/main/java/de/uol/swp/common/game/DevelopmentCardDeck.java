@@ -1,4 +1,4 @@
-package de.uol.swp.common.game.inventory;
+package de.uol.swp.common.game;
 
 import java.io.Serializable;
 import java.util.Collections;
