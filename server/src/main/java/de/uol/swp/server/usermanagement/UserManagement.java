@@ -40,35 +40,13 @@ public class UserManagement extends AbstractUserManagement {
      * @see de.uol.swp.server.usermanagement.store.UserStore
      * @since 2019-08-05
      * <p>
-     * The constructor changed to an empty constructor. The usual store is not longer needed.
+     * The constructor changed to an empty constructor.
      * @since 2021-01-19
      */
 
     @Inject
     public UserManagement(UserStore storeInUse) throws SQLException {
         this.storeInUse = storeInUse;
-        if(storeInUse instanceof SQLBasedUserStore) {
-            SQLBasedUserStore sqlBasedUserStore = (SQLBasedUserStore) storeInUse;
-            sqlBasedUserStore.buildConnection();
-        }
-    }
-
-    /**
-     * Closes Connection
-     * <p>
-     * This method will be closing the connection between database and server application.
-     * If the server is going to be shut down,
-     * it will close the connection to the database.
-     *
-     * @author Marius Birk
-     * @since 2021-01-15
-     * @return
-     */
-    public void closeConnection() throws SQLException {
-        if (storeInUse instanceof SQLBasedUserStore) {
-            SQLBasedUserStore sqlBasedUserStore = (SQLBasedUserStore) storeInUse;
-            sqlBasedUserStore.closeConnection();
-        }
     }
 
     @Override

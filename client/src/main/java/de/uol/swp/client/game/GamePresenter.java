@@ -1775,12 +1775,11 @@ public class GamePresenter extends AbstractPresenter {
                                         container1.getHexagonShape().removeEventHandler(MouseEvent.MOUSE_PRESSED, this);
                                         switchTurnPhaseButtons();
                                     }
-
-                                    gameService.movedRobber(moveRobberMessage.getName(), moveRobberMessage.getUser(), container.getHexagon().getUuid());
-
                                     if (currentDevelopmentCard.equals("Knight")) {
                                         gameService.resolveDevelopmentCardKnight((UserDTO) moveRobberMessage.getUser(), moveRobberMessage.getName(), currentDevelopmentCard, container.getHexagon().getUuid());
                                         currentDevelopmentCard = "";
+                                    }else{
+                                        gameService.movedRobber(moveRobberMessage.getName(), moveRobberMessage.getUser(), container.getHexagon().getUuid());
                                     }
                                 }
                             }
@@ -2214,6 +2213,12 @@ public class GamePresenter extends AbstractPresenter {
                             }
                         });
                     } else {
+                        for (MapGraphNodeContainer mapGraphNodeContainer1 : mapGraphNodeContainers) {
+                            if ((mapGraphNodeContainer1.getMapGraphNode().getOccupiedByPlayer() == 420 || mapGraphNodeContainer1.getMapGraphNode().getOccupiedByPlayer() == 666) && mapGraphNodeContainer1.getMapGraphNode() instanceof MapGraph.BuildingNode) {
+                                mapGraphNodeContainer1.getCircle().setVisible(false);
+                            }
+                        }
+
                         Platform.runLater(() -> {
                             mapGraphNodeContainer.getCircle().setRadius(cardSize() / 3.5);
                             mapGraphNodeContainer.getCircle().setFill(determineBuildingPicture(mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer(), 2));
