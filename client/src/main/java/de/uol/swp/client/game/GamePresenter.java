@@ -1363,6 +1363,7 @@ public class GamePresenter extends AbstractPresenter {
             if (hexagonContainer.getHexagon().getDiceToken() != 0) {
                 Text text = new Text(placementVector.getX(), placementVector.getY(), Integer.toString(hexagonContainer.getHexagon().getDiceToken()));
                 text.setFill(Color.BLACK);
+                text.setMouseTransparent(true);
                 gameAnchorPane.getChildren().add(text);
             } else {
                 //Draw robber
