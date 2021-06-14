@@ -211,46 +211,7 @@ public class Inventory implements Serializable {
         if (longestRoad) publicInventory.put("Longest Road", 1);
         else publicInventory.put("Longest Road", 0);
 
-
-
         return publicInventory;
-    }
-
-    /**
-     * Getter for Cards
-     * <p>
-     * It gets the right card for the entered name.
-     *
-     * @param cardName to get the CardStack from
-     *
-     * @return Card with entered cardName
-     * @author Anton Nikiforov
-     * @see CardStack
-     * @since 2021-04-06
-     */
-    public CardStack getCardStack(String cardName) {
-        switch (cardName) {
-            case "Lumber":
-                return lumber;
-            case "Brick":
-                return brick;
-            case "Grain":
-                return grain;
-            case "Wool":
-                return wool;
-            case "Ore":
-                return ore;
-            case "Knight":
-                return cardKnight;
-            case "Monopoly":
-                return cardMonopoly;
-            case "Road Building":
-                return cardRoadBuilding;
-            case "Year of Plenty":
-                return cardYearOfPlenty;
-            default:
-                return null;
-        }
     }
 
     /**
@@ -389,7 +350,7 @@ public class Inventory implements Serializable {
      * @author Anton Nikiforov
      * @since 2020-03-04
      */
-    public class CardStack {
+    public static class CardStack {
 
         private int number = 0;
 
@@ -430,12 +391,10 @@ public class Inventory implements Serializable {
      * @author Anton Nikiforov
      * @since 2020-03-04
      */
-    public class UnitStack extends CardStack{
-
-        private int number;
+    public static class UnitStack extends CardStack{
 
         public UnitStack(int number) {
-            this.number = number;
+            super.number = number;
         }
     }
 }

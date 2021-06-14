@@ -15,6 +15,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.UUID;
 
 /**
@@ -191,14 +192,12 @@ public class GameService {
      * @param user      the user who wanna buy
      * @param tradeCode the tradeCode
      * @param cardName  the name form the card he wanna buy
-     *
      * @author Anton Nikiforov
-     * @see de.uol.swp.common.game.request.BankRequest
+     * @see BankRequest
      * @since 2021-05-29
      */
     public void createBankRequest(String gameName, UserDTO user, String tradeCode, String cardName) {
-        BankRequest br = new BankRequest(gameName, user, tradeCode, cardName);
-        eventBus.post(br);
+        eventBus.post(new BankRequest(gameName, user, tradeCode, cardName));
     }
 
     /**
@@ -245,6 +244,19 @@ public class GameService {
     public void drawRandomCardFromPlayer(String gameName, User user, String result) {
         DrawRandomResourceFromPlayerRequest drawRandomResourceFromPlayerRequest = new DrawRandomResourceFromPlayerRequest(gameName, (UserDTO) user, result);
         eventBus.post(drawRandomResourceFromPlayerRequest);
+    }
+
+    /**
+     * Sends a request to resolve the Knight DevelopmentCard to the server
+     *
+     * @param name from game
+     * @param user who sands the request
+     * @param inventory that the user should have
+     * @author Anton Nikiforov
+     * @since 2021-06-14
+     */
+    public void discardResources(String name, UserDTO user, HashMap<String, Integer> inventory) {
+        eventBus.post(new ResourcesToDiscardRequest(name, user, inventory));
     }
 
     /**

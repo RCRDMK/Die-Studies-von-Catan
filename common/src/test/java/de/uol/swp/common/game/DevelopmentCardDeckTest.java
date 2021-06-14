@@ -1,6 +1,5 @@
-package de.uol.swp.common.game.inventory;
+package de.uol.swp.common.game;
 
-import de.uol.swp.common.game.DevelopmentCardDeck;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;

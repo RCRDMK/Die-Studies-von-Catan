@@ -560,7 +560,7 @@ public class GameDTO implements Game {
     public boolean canUserPlayDevCard(User user, String card) {
         if (card.equals("Monopoly") || card.equals("Road Building") || card.equals("Year of Plenty") || card.equals("Knight")) {
             Inventory inventoryDummy = getInventory(user);
-            int cardsInInventory = inventoryDummy.getCardStack(card).getNumber();
+            int cardsInInventory = inventoryDummy.getSpecificResourceAmount(card);
             int boughtCards = getHowManyCardsOfTypeWereBoughtThisTurn(card);
             if(card.equals("Year of Plenty") && bankInventory.sumResource() < 2) {
                 return false;

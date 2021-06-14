@@ -1,6 +1,5 @@
-package de.uol.swp.common.game.inventory;
+package de.uol.swp.common.game;
 
-import de.uol.swp.common.game.Inventory;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import org.junit.jupiter.api.Test;

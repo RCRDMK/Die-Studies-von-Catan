@@ -898,10 +898,7 @@ public class GamePresenter extends AbstractPresenter {
                     if (itsMyTurn && !rolledDice) {
                         rollDiceButton.setDisable(false);
                     }
-
-                    // TODO: sollte im gameservice passieren
-                    ResourcesToDiscardRequest resourcesToDiscard = new ResourcesToDiscardRequest(tooMuchResourceCardsMessage.getName(), (UserDTO) tooMuchResourceCardsMessage.getUser(), inventory);
-                    eventBus.post(resourcesToDiscard);
+                    gameService.discardResources(tooMuchResourceCardsMessage.getName(), (UserDTO) tooMuchResourceCardsMessage.getUser(), inventory);
                 } else {
                     windowEvent.consume();
                 }
@@ -1746,6 +1743,16 @@ public class GamePresenter extends AbstractPresenter {
         });
     }
 
+    /**
+     * Handles the MoveRobberMessage
+     * <p>
+     * If a MoveRobberMessage is detected on the EventBus the method moveRobberMessageLogic is invoked.
+     *
+     * @param moveRobberMessage GameMessage
+     * @author Marius Birk
+     * @see MoveRobberMessage
+     * @since 2021-04-20
+     */
     @Subscribe
     public void onMoveRobberMessage(MoveRobberMessage moveRobberMessage) {
         moveRobberMessageLogic(moveRobberMessage);
@@ -1760,7 +1767,7 @@ public class GamePresenter extends AbstractPresenter {
      * method we iterate over every hexagon and check if the mouse was pressed on it. Now it can call the movedRobber method
      * in the gameService and it can remove the eventhandler from the hexagons.
      *
-     * @param moveRobberMessage TODO: fehlt
+     * @param moveRobberMessage GameMessage
      * @author Marius Birk
      * @since 2021-04-20
      */
@@ -1804,6 +1811,7 @@ public class GamePresenter extends AbstractPresenter {
                     container.getHexagonShape().addEventHandler(MouseEvent.MOUSE_PRESSED, clickOnHexagonHandler);
                     rollDiceButton.setDisable(true);
                     buildMenu.setDisable(true);
+                    tradeButton.setDisable(true);
                     endTurnButton.setDisable(true);
                     buyDevCard.setDisable(true);
                 }
