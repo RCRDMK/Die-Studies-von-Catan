@@ -13,7 +13,6 @@ import de.uol.swp.common.game.Inventory;
 import de.uol.swp.common.game.MapGraph;
 import de.uol.swp.common.game.message.*;
 import de.uol.swp.common.game.request.EndTurnRequest;
-import de.uol.swp.common.game.request.ResourcesToDiscardRequest;
 import de.uol.swp.common.game.response.AllThisGameUsersResponse;
 import de.uol.swp.common.game.response.GameLeftSuccessfulResponse;
 import de.uol.swp.common.game.response.PlayDevelopmentCardResponse;
@@ -625,7 +624,7 @@ public class GamePresenter extends AbstractPresenter {
                 setUpLargestArmyAndLongestRoadPanes(gcm.getUsers());
             });
             evaluateMyPlayerNumber(gcm.getUsers());
-            buyDevelopmentCardLogic(25);
+            buyDevelopmentCardMessageLogic(25);
         }
     }
 
@@ -1682,7 +1681,7 @@ public class GamePresenter extends AbstractPresenter {
 
     @Subscribe
     public void onBuyDevelopmentCardMessage(BuyDevelopmentCardMessage buyDevelopmentCardMessage) {
-        buyDevelopmentCardLogic(buyDevelopmentCardMessage.getDevCardsNumber());
+        buyDevelopmentCardMessageLogic(buyDevelopmentCardMessage.getDevCardsNumber());
     }
 
     /**
@@ -1694,7 +1693,7 @@ public class GamePresenter extends AbstractPresenter {
      * @author Anton Nikiforov
      * @since 2021-06-14
      */
-    public void buyDevelopmentCardLogic(int devCardsNumber) {
+    public void buyDevelopmentCardMessageLogic(int devCardsNumber) {
         Tooltip hover = new Tooltip(devCardsNumber + " Cards left");
         if (devCardsNumber == 1) hover.setText("1 Card left");
         hover.setShowDelay(Duration.millis(50));
