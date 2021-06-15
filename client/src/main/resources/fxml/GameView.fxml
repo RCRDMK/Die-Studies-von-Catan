@@ -9,8 +9,10 @@
             fx:controller="de.uol.swp.client.game.GamePresenter">
 
     <children>
+        <TabPane fx:id="tabPane" layoutX="1050.0" layoutY="25.0"/>
+        <Pane fx:id="pricesView" layoutX="1050.0" layoutY="60.0" prefHeight="225.0" prefWidth="225.0"/>
         <TextArea fx:id="gameChatArea" editable="false" layoutX="1050.0" layoutY="30.0" prefHeight="330.0"
-                  prefWidth="210.0" GridPane.rowIndex="2"/>
+                  prefWidth="225.0" GridPane.rowIndex="2"/>
         <TextArea fx:id="gameEventLogArea" editable="false" layoutX="1050.0" layoutY="30.0" prefHeight="330.0"
                   prefWidth="210.0" visible="false"/>
         <Label fx:id="buildingNotSuccessfulLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="1050.0"
@@ -52,31 +54,31 @@
                   style="-fx-border-color: #4B0082" visible="false"/>
         <ListView fx:id="publicInventory4View" layoutX="905.0" layoutY="305.0" prefHeight="140.0" prefWidth="120.0"
                   style="-fx-border-color: #008000" visible="false"/>
-        <Button fx:id="tradeButton" layoutX="1050.0" layoutY="492.0" mnemonicParsing="false" onAction="#onTrade"
+        <Button fx:id="tradeButton" layoutX="1050.0" layoutY="500.0" mnemonicParsing="false" onAction="#onTrade"
                 text="Trade">
         </Button>
-        <Button fx:id="buyDevCard" layoutX="1050.0" layoutY="447.0" mnemonicParsing="false"
+        <Button fx:id="buyDevCard" layoutX="1050.0" layoutY="460.0" mnemonicParsing="false"
                 onAction="#onBuyDevelopmentCard" text="Buy Card"/>
-        <MenuButton fx:id="buildMenu" layoutX="1126.0" layoutY="447.0" mnemonicParsing="false" text="Build">
+        <MenuButton fx:id="buildMenu" layoutX="1130.0" layoutY="460.0" mnemonicParsing="false" text="Build">
             <items>
                 <MenuItem mnemonicParsing="false" onAction="#onBuildRoad" text="Road"/>
                 <MenuItem mnemonicParsing="false" onAction="#onBuildSettlement" text="Settlement"/>
                 <MenuItem mnemonicParsing="false" onAction="#onBuildTown" text="Town"/>
             </items>
         </MenuButton>
-        <Button fx:id="rollDiceButton" layoutX="1199.0" layoutY="447.0" mnemonicParsing="false" onAction="#onRollDice"
+        <Button fx:id="rollDiceButton" layoutX="1200.0" layoutY="460.0" mnemonicParsing="false" onAction="#onRollDice"
                 text="Roll Dice"/>
-        <Button fx:id="endTurnButton" layoutX="1196.0" layoutY="557.0" mnemonicParsing="false" onAction="#onEndTurn"
+        <Button fx:id="endTurnButton" layoutX="1200.0" layoutY="560.0" mnemonicParsing="false" onAction="#onEndTurn"
                 text="End Turn"/>
         <Canvas id="canvas" fx:id="canvas" height="475.0" layoutX="310.0" layoutY="25.0" width="475.0"/>
-        <Button layoutX="1190.0" layoutY="385.0" mnemonicParsing="false" onAction="#onSendMessage" prefHeight="25.0"
-                prefWidth="70.0" text="Send"/>
+        <Button layoutX="1215.0" layoutY="410.0" mnemonicParsing="false" onAction="#onSendMessage" prefHeight="25.0"
+                prefWidth="60.0" text="Send"/>
         <Button fx:id="chatButton" disable="true" layoutX="1120.0" layoutY="385.0" mnemonicParsing="false"
                 onAction="#onShowChat" prefHeight="25.0" prefWidth="68.0" text="Chat"/>
         <Button fx:id="eventLogButton" layoutX="1050.0" layoutY="385.0" mnemonicParsing="false"
                 onAction="#onShowEventLog" prefHeight="25.0" prefWidth="68.0" text="Event Log"/>
-        <TextField fx:id="gameChatInput" layoutX="1050.0" layoutY="360.0" onAction="#onSendMessage" prefHeight="25.0"
-                   prefWidth="210.0" promptText="Send Message.."/>
+        <TextField fx:id="gameChatInput" layoutX="1050.0" layoutY="385.0" onAction="#onSendMessage" prefHeight="25.0"
+                   prefWidth="225.0" promptText="Send Message.."/>
         <Pane fx:id="picturePlayerView1" layoutX="70.0" layoutY="25.0" prefHeight="90.0" prefWidth="90.0"/>
         <Pane fx:id="picturePlayerView3" layoutX="70.0" layoutY="280.0" prefHeight="90.0" prefWidth="90.0"/>
         <Pane fx:id="picturePlayerView2" layoutX="815.0" layoutY="25.0" prefHeight="90.0" prefWidth="90.0"/>
