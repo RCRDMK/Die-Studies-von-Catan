@@ -1815,7 +1815,7 @@ public class GamePresenter extends AbstractPresenter {
                                     if (currentDevelopmentCard.equals("Knight")) {
                                         gameService.resolveDevelopmentCardKnight((UserDTO) moveRobberMessage.getUser(), moveRobberMessage.getName(), currentDevelopmentCard, container.getHexagon().getUuid());
                                         currentDevelopmentCard = "";
-                                    }else{
+                                    } else {
                                         gameService.movedRobber(moveRobberMessage.getName(), moveRobberMessage.getUser(), container.getHexagon().getUuid());
                                     }
                                 }
