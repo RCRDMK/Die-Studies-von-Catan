@@ -1460,7 +1460,6 @@ public class GamePresenter extends AbstractPresenter {
      * @param mapGraph the MapGraph created by the Server
      * @author Marius Birk
      * @author Marc Hermes
-     * @see de.uol.swp.common.game.TerrainFieldContainer
      * @since 2021-04-20
      */
     public void initializeMatch(MapGraph mapGraph) {
@@ -2268,7 +2267,7 @@ public class GamePresenter extends AbstractPresenter {
      * @since 2021-04-22
      */
     @Subscribe
-    public void onSuccessfulMovedRobberMessage(SuccessfullMovedRobberMessage successfulMovedRobberMessage) {
+    public void onSuccessfulMovedRobberMessage(SuccessfulMovedRobberMessage successfulMovedRobberMessage) {
         for (HexagonContainer hexagonContainer : hexagonContainers) {
             if (hexagonContainer.getHexagon().getUuid().equals(successfulMovedRobberMessage.getNewField())) {
                 robber.setLayoutX(hexagonContainer.getHexagonShape().getLayoutX() - robber.getWidth() / 2);
