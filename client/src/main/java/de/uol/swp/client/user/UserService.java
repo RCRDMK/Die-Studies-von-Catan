@@ -2,6 +2,7 @@ package de.uol.swp.client.user;
 
 import com.google.common.eventbus.EventBus;
 import com.google.inject.Inject;
+import de.uol.swp.client.auth.events.ShowLoginViewEvent;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.user.request.*;
@@ -106,6 +107,7 @@ public class UserService implements ClientUserService {
         LogoutRequest logoutRequest = new LogoutRequest();
         bus.post(logoutRequest);
         bus.post(dropUserRequest);
+        bus.post(new ShowLoginViewEvent());
     }
 
     /**

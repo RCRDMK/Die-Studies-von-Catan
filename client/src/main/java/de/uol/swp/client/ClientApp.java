@@ -153,7 +153,7 @@ public class ClientApp extends Application implements ConnectionListener {
     public void userLoggedIn(LoginSuccessfulResponse message) {
         LOG.debug("user logged in successfully " + message.getUser().getUsername());
         this.user = message.getUser();
-        sceneManager.showMainScreen(user);
+        sceneManager.showMainScreen();
         userService.startTimerForPing(message.getUser());
         lastPingResponse = System.currentTimeMillis();
         checkForTimeout();
@@ -214,9 +214,9 @@ public class ClientApp extends Application implements ConnectionListener {
         LOG.debug("user created lobby " + message.getUser());
         this.user = message.getUser();
         if (message.getName() == null) {
-            sceneManager.showLobbyScreen(user, " ohne Name");
+            sceneManager.showLobbyScreen(" ohne Name");
         } else {
-            sceneManager.showLobbyScreen(user, message.getName());
+            sceneManager.showLobbyScreen(message.getName());
         }
     }
 
@@ -236,7 +236,7 @@ public class ClientApp extends Application implements ConnectionListener {
     public void userJoinedLobby(LobbyJoinedSuccessfulResponse message) {
         LOG.debug("user joined lobby ");
         this.user = message.getUser();
-        sceneManager.showLobbyScreen(user, message.getName());
+        sceneManager.showLobbyScreen(message.getName());
 
     }
 
@@ -323,7 +323,7 @@ public class ClientApp extends Application implements ConnectionListener {
     public void userLeftLobby(LobbyLeftSuccessfulResponse message) {
         LOG.debug("User " + message.getUser().getUsername() + " left lobby ");
         this.user = message.getUser();
-        sceneManager.removeLobbyTab(message.getUser(), message.getName());
+        sceneManager.removeLobbyTab(message.getName());
     }
 
     /**
@@ -547,7 +547,7 @@ public class ClientApp extends Application implements ConnectionListener {
     /**
      * Removes the trade tab, when the trade ended
      *
-     * @param message
+     * @param message the TradeEndedMessage detected on the EventBus
      * @author Alexander Lossa, Ricardo Mook
      * @since 2021-04-21
      */
@@ -591,6 +591,6 @@ public class ClientApp extends Application implements ConnectionListener {
         var gameName = event.getGameName();
         var user = event.getUser();
         sceneManager.removeSummaryTab(gameName);
-        sceneManager.showMainTab(user);
+        sceneManager.showMainTab();
     }
 }
