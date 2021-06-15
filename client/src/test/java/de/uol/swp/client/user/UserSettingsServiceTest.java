@@ -11,15 +11,10 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * This is a testclass about the UserSettingsService
+ * This is a test class about the UserSettingsService
  */
 @SuppressWarnings("UnstableApiUsage")
 public class UserSettingsServiceTest {
@@ -27,14 +22,12 @@ public class UserSettingsServiceTest {
     final User defaultUser = new UserDTO("Marco", "test", "marco@test.de");
 
     final EventBus bus = new EventBus();
-    final CountDownLatch lock = new CountDownLatch(1);
     Object event;
 
     @Subscribe
     void handle(DeadEvent e) {
         this.event = e.getEvent();
         System.out.print(e.getEvent());
-        lock.countDown();
     }
 
     @BeforeEach
@@ -48,24 +41,16 @@ public class UserSettingsServiceTest {
         bus.unregister(this);
     }
 
-    private void loginUser() throws InterruptedException, InvalidKeySpecException, NoSuchAlgorithmException {
-        UserService userService = new UserService(bus);
-        userService.login(defaultUser.getUsername(), defaultUser.getPassword());
-        lock.await(1000, TimeUnit.MILLISECONDS);
-    }
-
     @Test
-    public void onRetrieveUserMailTest() throws InterruptedException {
+    public void onRetrieveUserMailTest() {
         UserSettingsService userSettingsService = new UserSettingsService(bus);
         userSettingsService.retrieveUserMail(defaultUser);
-
-        lock.await(1000, TimeUnit.MILLISECONDS);
 
         assertTrue(event instanceof RetrieveUserInformationRequest);
     }
 
     @Test
-    public void isValidEmailAdressTestSuccess() {
+    public void isValidEmailAddressTestSuccess() {
         String mail = "carsten.stahl@gmx.de";
         UserSettingsService userSettingsService = new UserSettingsService(bus);
 
@@ -73,7 +58,7 @@ public class UserSettingsServiceTest {
     }
 
     @Test
-    public void isValidEmailAdressTestFailed() {
+    public void isValidEmailAddressTestFailed() {
         String mail = "carsten.stahl!gmx.de";
         UserSettingsService userSettingsService = new UserSettingsService(bus);
 
@@ -81,10 +66,9 @@ public class UserSettingsServiceTest {
     }
 
     @Test
-    public void isValidEmailAdressTestNull() {
-        String mail = null;
+    public void isValidEmailAddressTestNull() {
         UserSettingsService userSettingsService = new UserSettingsService(bus);
 
-        assertFalse(userSettingsService.isValidEmailAddress(mail));
+        assertFalse(userSettingsService.isValidEmailAddress(null));
     }
 }

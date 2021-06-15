@@ -35,6 +35,7 @@ import java.util.Arrays;
  * @see de.uol.swp.client.AbstractPresenter
  * @since 2021-03-04
  */
+@SuppressWarnings("UnstableApiUsage")
 public class UserSettingsPresenter extends AbstractPresenter {
 
     public static final String fxml = "/fxml/UserSettingsView.fxml";

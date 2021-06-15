@@ -1,7 +1,6 @@
 package de.uol.swp.client.events;
 
 import de.uol.swp.client.account.event.ChangeToCertainSizeEvent;
-import de.uol.swp.client.account.event.LeaveUserSettingsEvent;
 import de.uol.swp.client.account.event.UserSettingsErrorEvent;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;

@@ -165,8 +165,8 @@ public class LobbyService {
      * @see de.uol.swp.common.lobby.request.StartGameRequest
      * @since 2021-01-24
      */
-    public void startGame(String name, UserDTO user, String gameFieldVariant, int minmumAmountOfPlayers) {
-        StartGameRequest startGameRequest = new StartGameRequest(name, user, gameFieldVariant, minmumAmountOfPlayers);
+    public void startGame(String name, UserDTO user, String gameFieldVariant, int minimumAmountOfPlayers) {
+        StartGameRequest startGameRequest = new StartGameRequest(name, user, gameFieldVariant, minimumAmountOfPlayers);
         eventBus.post(startGameRequest);
         LOG.debug("StartGameRequest posted on Eventbus");
     }

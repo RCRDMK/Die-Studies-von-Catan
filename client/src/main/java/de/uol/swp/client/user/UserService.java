@@ -7,8 +7,6 @@ import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.user.request.*;
 import org.apache.commons.codec.binary.Hex;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
@@ -29,7 +27,6 @@ import java.util.TimerTask;
 @SuppressWarnings("UnstableApiUsage")
 public class UserService implements ClientUserService {
 
-    private static final Logger LOG = LogManager.getLogger(UserService.class);
     private final EventBus bus;
     private Timer timer;
 
@@ -45,8 +42,6 @@ public class UserService implements ClientUserService {
     @Inject
     public UserService(EventBus bus) {
         this.bus = bus;
-        // Currently not need, will only post on bus
-        //bus.register(this);
     }
 
     /**
@@ -106,8 +101,8 @@ public class UserService implements ClientUserService {
         DropUserRequest dropUserRequest = new DropUserRequest(user);
         LogoutRequest logoutRequest = new LogoutRequest();
         bus.post(logoutRequest);
-        bus.post(dropUserRequest);
         bus.post(new ShowLoginViewEvent());
+        bus.post(dropUserRequest);
     }
 
     /**
@@ -171,15 +166,16 @@ public class UserService implements ClientUserService {
         bus.post(cmd);
     }
 
-    // TODO JavaDoc unvollständig
     /**
-     * Method to return a hashed password. It creates a char array out of the original password and hands this over to the
+     * Method to return a hashed password.
+     * <p>
+     * It creates a char array out of the original password and hands this over to the
      * hashPassword method.
      *
-     * @param password
-     * @return
-     * @throws InvalidKeySpecException
-     * @throws NoSuchAlgorithmException
+     * @param password the password to encode
+     * @return the encoded String
+     * @throws InvalidKeySpecException exception
+     * @throws NoSuchAlgorithmException exception
      * @author Marius Birk
      * @since 2021-03-04
      */
@@ -187,15 +183,14 @@ public class UserService implements ClientUserService {
         return Hex.encodeHexString(hashPassword(password.toCharArray()));
     }
 
-    // TODO JavaDoc unvollständig
     /**
-     * This method creates an byte array of the given Password. With help of the salt key and the keyfactory,
-     * it creates a hashed password in form of a secretkey.
+     * This method creates an byte array of the given Password. With help of the salt key and the keyFactory,
+     * it creates a hashed password in form of a secretKey.
      *
-     * @param password
+     * @param password the password to hash
      * @return encoded Password
-     * @throws InvalidKeySpecException
-     * @throws NoSuchAlgorithmException
+     * @throws InvalidKeySpecException exception
+     * @throws NoSuchAlgorithmException exception
      * @author Marius Birk
      * @since 2021-03-04
      */
@@ -217,7 +212,6 @@ public class UserService implements ClientUserService {
      * @author Philip Nitsche
      * @since 2021-01-22
      */
-
     public void sendPing(User user) {
         PingRequest pr = new PingRequest(user, System.currentTimeMillis());
         bus.post(pr);
@@ -243,13 +237,11 @@ public class UserService implements ClientUserService {
             }, 30000, 30000);
     }
 
-    // TODO JavaDoc unvollständig
     /**
      * Method to send a Ping
      * <p>
      * This method stops the Timer for a Ping Message.
      *
-     * @param
      * @author Philip Nitsche
      * @since 2021-01-22
      */

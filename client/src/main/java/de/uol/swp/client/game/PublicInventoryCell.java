@@ -29,9 +29,9 @@ public class PublicInventoryCell extends ListCell<HashMap.Entry<String, Integer>
      * <p>
      * If the Constructor is invoked, the Cell-Element is created.
      * It shows amount of public victory points, resources, development cards,
-     * total amount of played knight during the game, and current longest continuos road.
+     * total amount of played knight during the game, and current longest continuous road.
      *
-     * @param publicInventory
+     * @param publicInventory the public inventory for this inventoryCell
      * @author Iskander Yusupov
      * @see de.uol.swp.client.game.GamePresenter
      * @since 2021-05-28
@@ -64,6 +64,8 @@ public class PublicInventoryCell extends ListCell<HashMap.Entry<String, Integer>
                     break;
                 case "Continuous Road":
                     inventoryEntry.setText("Con.Road: " + item.getValue().toString());
+                    break;
+                default:
                     break;
             }
         }
