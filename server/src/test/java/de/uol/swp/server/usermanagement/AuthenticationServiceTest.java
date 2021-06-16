@@ -23,11 +23,8 @@ import de.uol.swp.server.message.ClientAuthorizedMessage;
 import de.uol.swp.server.message.ServerExceptionMessage;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import de.uol.swp.server.usermanagement.store.MainMemoryBasedUserStore;
-import de.uol.swp.server.usermanagement.store.UserStore;
-import org.junit.jupiter.api.*;
 
 import javax.security.auth.login.LoginException;
 import java.sql.SQLException;
@@ -39,8 +36,6 @@ import static org.junit.jupiter.api.Assertions.*;
 @SuppressWarnings("UnstableApiUsage")
 class AuthenticationServiceTest {
 
-    private final CountDownLatch lock = new CountDownLatch(1);
-
     final User user = new UserDTO("name", "7a63639a836e576ee85336536040ce3b351fa0af1315f7c97e2956a298c72aced9acaae7be8fc36ba66bd20cd459a7321785c5a4af35ce6a620549f8f9d6c7dc", "email@test.de");
     final User user2 = new UserDTO("name2", "bb886534800b205dd707d7e116e32eaa0563c7dfac8fdcf70e7cd83cc9d155c114c5c278e1a66bb6a37dd79badcb0a4d3acf3224508d82188a9ac2e0bf42ee7c", "email@test.de2");
     final User user3 = new UserDTO("name3", "3a97ca2b95d063f0aa32e29d1ec9ac47733d10aa9c540df04dd01b90b346ccaa0af47f4ab28d01077c82efa808c464908a5f0962f94ebb92d3ec9b473ed3a2be", "email@test.de3");
@@ -49,9 +44,12 @@ class AuthenticationServiceTest {
     final EventBus bus = new EventBus();
     final MainMemoryBasedUserStore mainMemoryBasedUserStore = new MainMemoryBasedUserStore();
     final UserManagement userManagement = new UserManagement(mainMemoryBasedUserStore);
-    final AuthenticationService authService = new AuthenticationService(bus, userManagement);
-    final LobbyManagement lobbyManagement = new LobbyManagement();
     final GameManagement gameManagement = new GameManagement();
+    final LobbyManagement lobbyManagement = new LobbyManagement();
+    final AuthenticationService authService = new AuthenticationService(bus, userManagement);
+    final LobbyService lobbyService = new LobbyService(lobbyManagement, authService, bus);
+    final UserService userService = new UserService(bus, userManagement);
+    final GameService gameService = new GameService(gameManagement, lobbyService, authService, bus, userService);
     private Object event;
 
     AuthenticationServiceTest() throws SQLException {
@@ -61,11 +59,10 @@ class AuthenticationServiceTest {
     void handle(DeadEvent e) {
         this.event = e.getEvent();
         System.out.print(e.getEvent());
-        lock.countDown();
     }
 
     @BeforeEach
-    void registerBus() throws SQLException {
+    void registerBus() {
         event = null;
         bus.register(this);
     }
@@ -147,7 +144,7 @@ class AuthenticationServiceTest {
      * @author Sergej, René
      * @see javax.security.auth.login.LoginException
      * @since 2021-01-03
-    */
+     */
     @Test
     void loginLoggedInUser() throws Exception {
         loginUser(user);
@@ -255,8 +252,8 @@ class AuthenticationServiceTest {
      * This Test is for the X-Button Exit.
      * <p>
      * First we login the user and retrieve the session.
-     * Now we create a testlobby. We check if the lobbies size is 1.
-     * After that we prepare the logoutrequest and call the onLogoutRequest method.
+     * Now we create a test lobby. We check if the lobbies size is 1.
+     * After that we prepare the logoutRequest and call the onLogoutRequest method.
      * The user should be logged out and the lobby dropped, because he was the only one in the lobby.
      * If the lobbies count is 0 now, the test passed successfully
      *
@@ -266,9 +263,7 @@ class AuthenticationServiceTest {
      * @author René Meyer, Sergej Tulnev
      * @since 2021-01-17
      */
-    /*
     @Test
-    @DisplayName("X Button exit")
     void exitViaXButtonTest() throws Exception {
         // Login User and check session
         loginUser(user);
@@ -293,15 +288,16 @@ class AuthenticationServiceTest {
 
         // User2 joins lobby and check if lobby size now = 2
         lobby.get().joinUser(user3);
-        lobby = lobbyManagement.getLobby("testLobby");
         assertEquals(lobby.get().getUsers().size(), 2);
 
+        lobby.get().joinPlayerReady(user);
+        lobby.get().joinPlayerReady(user3);
+        gameService.startGame(lobby.get(), "");
+
         // Create game and let user and user2 join and check if game size = 2
-        gameManagement.createGame("testGame", user, null, "random");
-        var game = gameManagement.getGame("testGame");
+        var game = gameManagement.getGame("testLobby");
         assertTrue(game.isPresent());
         game.get().joinUser(user3);
-        game = gameManagement.getGame("testGame");
         assertEquals(game.get().getUsers().size(), 2);
 
         // Post LogoutRequest for user on eventBus
@@ -318,13 +314,14 @@ class AuthenticationServiceTest {
                 bus.post(message);
             }
         };
-        logoutRequest.setSession(sessionUser.get());
         logoutRequest.setMessageContext(ctx);
-        bus.post(logoutRequest);
+        authService.onLogoutRequest(logoutRequest);
+        gameService.onLogoutRequest(logoutRequest);
+        lobbyService.onLogoutRequest(logoutRequest);
 
         // Post LogoutRequest for user2 on eventBus
         final LogoutRequest logoutRequest2 = new LogoutRequest();
-        logoutRequest.setSession(sessionUser2.get());
+        logoutRequest2.setSession(sessionUser2.get());
         MessageContext ctx2 = new MessageContext() {
             @Override
             public void writeAndFlush(ResponseMessage message) {
@@ -336,17 +333,18 @@ class AuthenticationServiceTest {
                 bus.post(message);
             }
         };
-        logoutRequest2.setSession(sessionUser2.get());
         logoutRequest2.setMessageContext(ctx2);
-        bus.post(logoutRequest2);
+        authService.onLogoutRequest(logoutRequest2);
+        gameService.onLogoutRequest(logoutRequest2);
+        lobbyService.onLogoutRequest(logoutRequest2);
 
         // After logging out (simulating x button) both users, there has to be 0 lobbies and 0 games.
-        var games = gameManagement.getAllGames();
+        var games = gameService.getGameManagement().getAllGames();
         assertEquals(games.size(), 0);
         lobbies = lobbyManagement.getAllLobbies();
         assertEquals(lobbies.size(), 0);
         userManagement.dropUser(user);
         userManagement.dropUser(user3);
     }
-    */
+
 }

@@ -21,7 +21,7 @@ class UserManagementTest {
 
     /**
      *
-     * @throws Exception
+     * @throws Exception exception
      */
     @Test
     void loginUser() throws Exception {
@@ -102,7 +102,7 @@ class UserManagementTest {
 
         management.logout(userToCreate);
 
-        //After every testrun the user needs to be deleted
+        //After every test run the user needs to be deleted
         management.dropUser(userToCreate);
     }
 

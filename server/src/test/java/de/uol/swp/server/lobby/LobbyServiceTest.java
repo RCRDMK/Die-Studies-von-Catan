@@ -38,8 +38,6 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -47,7 +45,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Marius Birk, Carsten Dekker, Pieter Vogt, Kirstin Beyer, René Meyer
  * @since 2020-12-02
  */
-
+@SuppressWarnings("UnstableApiUsage")
 public class LobbyServiceTest {
     final EventBus bus = new EventBus();
     MainMemoryBasedUserStore mainMemoryBasedUserStore = new MainMemoryBasedUserStore();
@@ -55,7 +53,6 @@ public class LobbyServiceTest {
     LobbyManagement lobbyManagement = new LobbyManagement();
     final AuthenticationService authenticationService = new AuthenticationService(bus, userManagement);
     LobbyService lobbyService = new LobbyService(lobbyManagement, new AuthenticationService(bus, userManagement), bus);
-    final CountDownLatch lock = new CountDownLatch(1);
 
     // Setup UserDTOs
     UserDTO userDTO = new UserDTO("test1", "47b7d407c2e2f3aff0e21aa16802006ba1793fd47b2d3cacee7cf7360e751bff7b7d0c7946b42b97a5306c6708ab006d0d81ef41a0c9f94537a2846327c51236", "peter.lustig@uol.de");
@@ -199,7 +196,7 @@ public class LobbyServiceTest {
         loginUser();
         CreateLobbyRequest request1 = new CreateLobbyRequest("Test", userDTO);
         lobbyService.onCreateLobbyRequest(request1);
-        assertNotNull(lobbyManagement.getLobby("Test").get());
+        assertTrue(lobbyManagement.getLobby("Test").isPresent());
 
         LobbyLeaveUserRequest request = new LobbyLeaveUserRequest("Test", userDTO);
         request.setMessageContext(new MessageContext() {
@@ -221,10 +218,9 @@ public class LobbyServiceTest {
     @Test
     public void leaveLobbyUnknownLobbyTest() {
         lobbyManagement.createLobby("Test", userDTO);
-        assertNotNull(lobbyManagement.getLobby("Test").get());
+        assertTrue(lobbyManagement.getLobby("Test").isPresent());
 
-
-        LobbyLeaveUserRequest request = new LobbyLeaveUserRequest("test", (UserDTO) userDTO);
+        LobbyLeaveUserRequest request = new LobbyLeaveUserRequest("test", userDTO);
         request.setMessageContext(new MessageContext() {
             @Override
             public void writeAndFlush(ResponseMessage message) {
@@ -364,7 +360,7 @@ public class LobbyServiceTest {
 
         lobbyService.onCreateLobbyRequest(clr);
 
-        assertNotNull(lobbyManagement.getLobby(lobbyName).get());
+        assertTrue(lobbyManagement.getLobby(lobbyName).isPresent());
 
         MessageContext ctx = new MessageContext() {
             @Override
@@ -418,7 +414,7 @@ public class LobbyServiceTest {
 
         lobbyService.onCreateLobbyRequest(clr);
 
-        assertNotNull(lobbyManagement.getLobby(lobbyName).get());
+        assertTrue(lobbyManagement.getLobby(lobbyName).isPresent());
 
         MessageContext ctx = new MessageContext() {
             @Override
@@ -443,7 +439,7 @@ public class LobbyServiceTest {
 
 
     /**
-     * This test checks if a User want´s join a deleted lobby.
+     * This test checks if a User wants to join a deleted lobby.
      *
      * @author Sergej
      */
@@ -465,9 +461,9 @@ public class LobbyServiceTest {
             }
         };
 
-        LobbyJoinUserRequest ljur1 = new LobbyJoinUserRequest("testLobby", (UserDTO) userDTO);
+        LobbyJoinUserRequest ljur1 = new LobbyJoinUserRequest("testLobby", userDTO);
         ljur1.setMessageContext(ctx);
-        assertThrows(NoSuchElementException.class, () -> lobbyService.onLobbyJoinUserRequest(ljur1));
+        lobbyService.onLobbyJoinUserRequest(ljur1);
         assertTrue(event instanceof JoinDeletedLobbyResponse);
     }
 
@@ -492,9 +488,9 @@ public class LobbyServiceTest {
         RetrieveAllThisLobbyUsersRequest retrieveAllThisLobbyUsersRequest = new RetrieveAllThisLobbyUsersRequest(
                 "testLobby");
         Optional<Lobby> lobby = lobbyManagement.getLobby("testLobby");
-        assertSame(lobbyManagement.getLobby("testLobby").get().getName(),
-                retrieveAllThisLobbyUsersRequest.getName());
         assertTrue(lobby.isPresent());
+        assertSame(lobby.get().getName(),
+                retrieveAllThisLobbyUsersRequest.getName());
         lobby.get().joinUser(userDTO);
         List<Session> lobbyUsers = authenticationService.getSessions(lobby.get().getUsers());
         for (Session session : lobbyUsers) {
@@ -514,10 +510,11 @@ public class LobbyServiceTest {
     void leaveLobbyTest() {
         lobbyManagement.createLobby("testLobby", userDTO);
         Optional<Lobby> lobby = lobbyManagement.getLobby("testLobby");
+        assertTrue(lobby.isPresent());
         lobby.get().joinUser(userDTO);
 
         lobby.get().joinUser(new UserDTO("default", "", ""));
-        LobbyLeaveUserRequest lobbyLeaveUserRequest = new LobbyLeaveUserRequest("testLobby", (UserDTO) userDTO);
+        LobbyLeaveUserRequest lobbyLeaveUserRequest = new LobbyLeaveUserRequest("testLobby", userDTO);
         MessageContext ctx = new MessageContext() {
             @Override
             public void writeAndFlush(ResponseMessage message) {
@@ -549,12 +546,13 @@ public class LobbyServiceTest {
     void leaveLobbyOwnerTest() {
         lobbyManagement.createLobby("testLobby", userDTO);
         Optional<Lobby> lobby = lobbyManagement.getLobby("testLobby");
+        assertTrue(lobby.isPresent());
         lobby.get().joinUser(userDTO);
 
         User user = new UserDTO("test", "", "");
         lobby.get().joinUser(user);
 
-        LobbyLeaveUserRequest lobbyLeaveUserRequest = new LobbyLeaveUserRequest("testLobby", (UserDTO) userDTO);
+        LobbyLeaveUserRequest lobbyLeaveUserRequest = new LobbyLeaveUserRequest("testLobby", userDTO);
         lobbyService.onLobbyLeaveUserRequest(lobbyLeaveUserRequest);
 
         assertTrue(event instanceof UserLeftLobbyMessage);
@@ -578,7 +576,8 @@ public class LobbyServiceTest {
         };
         LogoutRequest request = new LogoutRequest();
         assertTrue(event instanceof ClientAuthorizedMessage);
-        request.setSession(((ClientAuthorizedMessage) event).getSession().get());
+        if(((ClientAuthorizedMessage) event).getSession().isPresent())
+        ((ClientAuthorizedMessage) event).getSession().ifPresent(request::setSession);
         request.setMessageContext(msg);
 
         lobbyService.onCreateLobbyRequest(new CreateLobbyRequest("Test", userDTO));
@@ -592,7 +591,7 @@ public class LobbyServiceTest {
     /**
      * Create password protected Lobby Test
      * <p>
-     * Login users and create a protectedLobby in the lobbymanagement <p>
+     * Login users and create a protectedLobby in the lobbyManagement <p>
      * Check if the lobby PasswordHash is unequal 0 and equals "testPw".hashCode() <p>
      * Check if the amount of joined users is 1. <p>
      *
@@ -604,18 +603,19 @@ public class LobbyServiceTest {
         loginUsers();
         lobbyManagement.createProtectedLobby("testLobby", userDTO, "testPw");
         var lobby = lobbyService.getLobby("testLobby");
+        assertTrue(lobby.isPresent());
         // Check if lobby protected / PasswordHash not equals 0
         assertTrue(lobby.get().getPasswordHash() != 0);
-        // Check if lobbyPasswordHash equals "testpw".hashCode()
-        assertTrue(lobby.get().getPasswordHash() == "testPw".hashCode());
+        // Check if lobbyPasswordHash equals "testPw".hashCode()
+        assertEquals("testPw".hashCode(), lobby.get().getPasswordHash());
         // Check if one user in lobby means lobby successfully created
-        assertTrue(lobby.get().getUsers().size() == 1);
+        assertEquals(lobby.get().getUsers().size(), 1);
     }
 
     /**
      * Try to join a lobby with wrong password Test
      * <p>
-     * Login users and create a protectedLobby in the lobbymanagement <p>
+     * Login users and create a protectedLobby in the lobbyManagement <p>
      * Check if the lobby is Present <p>
      * Join userDTO2 to lobby with a wrong provided password in the LobbyJoinUserRequest <p>
      * Check if the amount of joined users is still 1 because the 2nd lobby join should fail <p>
@@ -644,15 +644,14 @@ public class LobbyServiceTest {
             }
         });
         lobbyService.onLobbyJoinUserRequest(request);
-        assertTrue(lobby.get().getUsers().size() == 1);
-        lock.await(100, TimeUnit.MILLISECONDS);
+        assertEquals(lobby.get().getUsers().size(), 1);
         assertTrue(event instanceof WrongLobbyPasswordResponse);
     }
 
     /**
      * Try to join a lobby with correct password Test
      * <p>
-     * Login users and create a protectedLobby in the lobbymanagement <p>
+     * Login users and create a protectedLobby in the lobbyManagement <p>
      * Check if the lobby is Present <p>
      * Join userDTO2 to lobby with the correct provided password in the LobbyJoinUserRequest <p>
      * Check if the amount of joined users is 2 because the 2nd lobby join should succeed <p>
@@ -681,8 +680,7 @@ public class LobbyServiceTest {
             }
         });
         lobbyService.onLobbyJoinUserRequest(request);
-        assertTrue(lobby.get().getUsers().size() == 2);
-        lock.await(100, TimeUnit.MILLISECONDS);
+        assertEquals(lobby.get().getUsers().size(), 2);
         assertTrue(event instanceof LobbySizeChangedMessage);
     }
 }
