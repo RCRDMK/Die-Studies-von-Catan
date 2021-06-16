@@ -16,6 +16,7 @@ public class SQLBasedUserStore extends AbstractUserStore implements UserStore {
 
     private Connection connection;
     private Statement statement;
+    private final String CONNECTION = "jdbc:mysql://178.238.232.242:3306?autoReconnect=true";
     private static final Logger LOG = LogManager.getLogger(SQLBasedUserStore.class);
 
 
@@ -31,7 +32,6 @@ public class SQLBasedUserStore extends AbstractUserStore implements UserStore {
      */
     public void buildConnection() throws SQLException {
         DriverManager.registerDriver(new com.mysql.cj.jdbc.Driver());
-        String CONNECTION = "jdbc:mysql://178.238.232.242:3306?autoReconnect=true";
         connection = DriverManager.getConnection(CONNECTION, "swpJ", "Uz3FLt2cgMmFCALY");
         statement = connection.createStatement();
         statement.execute("use swpJ;");
