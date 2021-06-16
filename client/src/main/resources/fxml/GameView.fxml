@@ -15,7 +15,7 @@
         <TextArea fx:id="gameChatArea" editable="false" layoutX="1050.0" layoutY="30.0" prefHeight="330.0"
                   prefWidth="225.0" GridPane.rowIndex="2"/>
         <TextArea fx:id="gameEventLogArea" editable="false" layoutX="1050.0" layoutY="30.0" prefHeight="330.0"
-                  prefWidth="225.0" visible="false"/>
+                  prefWidth="225.0" GridPane.rowIndex="2"/>
         <Label fx:id="buildingNotSuccessfulLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="1050.0"
                layoutY="420.0" prefHeight="16.0" prefWidth="182.0" text="You are not allowed to build here"
                textAlignment="CENTER" textFill="WHITE" visible="false">
@@ -74,10 +74,6 @@
         <Canvas id="canvas" fx:id="canvas" height="475.0" layoutX="310.0" layoutY="25.0" width="475.0"/>
         <Button layoutX="1200.0" layoutY="410.0" mnemonicParsing="false" onAction="#onSendMessage" prefHeight="25.0"
                 prefWidth="75.0" text="Send"/>
-        <Button fx:id="chatButton" disable="true" layoutX="1125.0" layoutY="410.0" mnemonicParsing="false"
-                onAction="#onShowChat" prefHeight="25.0" prefWidth="75.0" text="Chat"/>
-        <Button fx:id="eventLogButton" layoutX="1050.0" layoutY="410.0" mnemonicParsing="false"
-                onAction="#onShowEventLog" prefHeight="25.0" prefWidth="75.0" text="Event Log"/>
         <TextField fx:id="gameChatInput" layoutX="1050.0" layoutY="385.0" onAction="#onSendMessage" prefHeight="25.0"
                    prefWidth="225.0" promptText="Send Message.."/>
         <Pane fx:id="picturePlayerView1" layoutX="70.0" layoutY="25.0" prefHeight="90.0" prefWidth="90.0"/>

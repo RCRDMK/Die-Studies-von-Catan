@@ -175,11 +175,6 @@ public class GamePresenter extends AbstractPresenter {
 
     @FXML
     private Button tradeButton;
-    private boolean EventLogIsVisible = false;
-    @FXML
-    private Button chatButton;
-    @FXML
-    private Button eventLogButton;
 
     @FXML
     public Label buildingNotSuccessfulLabel;
@@ -2758,6 +2753,7 @@ public class GamePresenter extends AbstractPresenter {
         tabChat.setContent(gameChatArea);
         Tab tabGameLog = new Tab();
         tabGameLog.setText("Log");
+        tabGameLog.setContent(gameEventLogArea);
         Tab tabPrices = new Tab();
         tabPrices.setText("Prices");
         tabPrices.setContent(pricesView);
@@ -3377,42 +3373,6 @@ public class GamePresenter extends AbstractPresenter {
     }
 
     /**
-     * Method called when the Chat button is pressed
-     * <p>
-     * This method hides the event log and shows the chat with input field and send button.
-     * Additionally it disables the button (show Chat) and enables the show EventLog button.
-     *
-     * @author Philip
-     * @since 2021-05-31
-     */
-    @FXML
-    void onShowChat() {
-        EventLogIsVisible = false;
-        chatButton.setDisable(true);
-        eventLogButton.setDisable(false);
-        gameEventLogArea.setVisible(false);
-        gameChatArea.setVisible(true);
-    }
-
-    /**
-     * Method called when the Event Log button is pressed
-     * <p>
-     * This method shows the event log and hides the chat with input field and send button.
-     * Additionally it enables the button (show Chat) and disables the show EventLog button.
-     *
-     * @author Philip
-     * @since 2021-05-31
-     */
-    @FXML
-    void onShowEventLog() {
-        EventLogIsVisible = true;
-        chatButton.setDisable(false);
-        eventLogButton.setDisable(true);
-        gameEventLogArea.setVisible(true);
-        gameChatArea.setVisible(false);
-    }
-
-    /**
      * Adds the Message to the eventLogTextArea
      * <p>
      * First the message gets formatted with the readableTime.
@@ -3429,8 +3389,5 @@ public class GamePresenter extends AbstractPresenter {
         Date resultdate = new Date((long) System.currentTimeMillis());
         var readableTime = time.format(resultdate);
         gameEventLogArea.insertText(gameEventLogArea.getLength(), readableTime + " : " + player + " " + text + "\n");
-        if (EventLogIsVisible) {
-            gameChatInput.setVisible(false);
-        }
     }
 }
