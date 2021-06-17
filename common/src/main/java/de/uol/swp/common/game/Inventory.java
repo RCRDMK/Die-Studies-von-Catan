@@ -97,7 +97,7 @@ public class Inventory implements Serializable {
     }
 
     //Increment the Victory Point Card and increase the victoryPoints by one
-    public void incCardStackVictoryPoint() {
+    public void incCardVictoryPoint() {
         this.cardVictoryPoint++;
         this.victoryPoints++;
     }
@@ -256,7 +256,7 @@ public class Inventory implements Serializable {
                 cardYearOfPlenty.incNumber(amount);
                 break;
             case "Victory Point Card":
-                incCardStackVictoryPoint();
+                incCardVictoryPoint();
                 break;
             default:
                 break;

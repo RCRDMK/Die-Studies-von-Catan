@@ -102,7 +102,7 @@ public class InventoryTest {
         inventory.cardMonopoly.incNumber();
         inventory.cardRoadBuilding.incNumber();
         inventory.cardYearOfPlenty.incNumber();
-        inventory.incCardStackVictoryPoint();
+        inventory.incCardVictoryPoint();
 
         // Inventory analysis
         privateInventory = inventory.getPrivateView();
