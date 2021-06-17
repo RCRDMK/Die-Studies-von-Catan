@@ -1,10 +1,7 @@
 package de.uol.swp.server.usermanagement;
 
 import de.uol.swp.common.user.User;
-import de.uol.swp.server.usermanagement.store.SQLBasedUserStore;
 import de.uol.swp.server.usermanagement.store.UserStore;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import javax.inject.Inject;
 import java.sql.*;
@@ -29,7 +26,6 @@ import java.util.*;
  */
 public class UserManagement extends AbstractUserManagement {
 
-    private static final Logger LOG = LogManager.getLogger(UserManagement.class);
     private static final SortedMap<String, User> loggedInUsers = new TreeMap<>();
     private final UserStore storeInUse;
 

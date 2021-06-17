@@ -14,9 +14,9 @@ import org.apache.logging.log4j.Logger;
 /**
  * Service that handles all cheats.
  * <p>
- * <h1>Cheatcodes with Examples:</h1>
+ * <h1>Cheat codes with Examples:</h1>
  *
- * <h2><u>Cheatcode "givemecard"</u> </h2>
+ * <h2><u>Cheat code "givemecard"</u> </h2>
  * <b>Usage:</b> givemecard [string] [int]<p>
  * <b> e.g. givemecard knight 1</b><p>
  * <b>possible strings:</b>
@@ -33,18 +33,18 @@ import org.apache.logging.log4j.Logger;
  * <p><b>Gives the user [int] amount of the provided cards.</b></p>
  *
  *
- * <p><h2><u>Cheatcode "givemeall"</u> </h2>
+ * <p><h2><u>Cheat code "givemeall"</u> </h2>
  * <b>Usage:</b> givemeall [int]<p>
  * <b>e.g. givemeall 15</b>
- * <p><b>Gives user [int] ressources of each card and 1 of each development cards</b></p>
+ * <p><b>Gives user [int] resources of each card and 1 of each development cards</b></p>
  *
  *
- * <p><h2><u>Cheatcode "endgame 1"</u> </h2>
+ * <p><h2><u>Cheat code "endgame 1"</u> </h2>
  * <b>Usage:</b> endgame 1
  * <p><b>Gives user 10 victory points and ends the game</b></p>
  *
  *
- * <p><h2><u>Cheatcode "roll"</u> </h2>
+ * <p><h2><u>Cheat code "roll"</u> </h2>
  * <b>Usage:</b> roll [int]<p>
  * <b>e.g. roll 2</b>
  * <p><b>Rolls the dice with the provided [int]</b></p>
@@ -64,7 +64,7 @@ public class CheatService extends AbstractService {
      * Constructor for CheatService
      * <p>
      *
-     * @param gameService
+     * @param gameService the gameService of the server
      * @param bus         eventbus
      * @author René Meyer, Sergej Tulnev
      * @since 2021-04-17
@@ -87,7 +87,7 @@ public class CheatService extends AbstractService {
      * For the endgame Cheat we give the user who sent the cheat 10 victory points to trigger a win <p>
      * For the givemeall and givemecard Cheat we manipulate the private Inventory and update the Inventories in the gameService
      *
-     * @param cheatMessage
+     * @param cheatMessage the message that was identified as a cheat
      * @author René Meyer, Sergej Tulnev
      * @since 2021-04-17
      */
@@ -139,7 +139,7 @@ public class CheatService extends AbstractService {
                     var game = gameService.getGameManagement().getGame(gameName);
                     if (game.isPresent()) {
                         var inventory = game.get().getInventory(user);
-                        // Increase ressources by resourceAmount
+                        // Increase resources by resourceAmount
                         inventory.incCardStack("Lumber", resourceAmount);
                         inventory.incCardStack("Brick", resourceAmount);
                         inventory.incCardStack("Wool", resourceAmount);
@@ -214,12 +214,12 @@ public class CheatService extends AbstractService {
     }
 
     /**
-     * Checks if the chatmessage is a cheat.
+     * Checks if the chatMessage is a cheat.
      * <p>
-     * Parses the chatmessage and checks the prefix before the space.
-     * If the prefix is equal to an existing cheatcommand in the Cheat Enum return true
+     * Parses the chatMessage and checks the prefix before the space.
+     * If the prefix is equal to an existing cheat command in the Cheat Enum return true
      * else false.
-     * If the cheatcommand is without argument return false
+     * If the cheat command is without argument return false
      *
      * @author René Meyer, Sergej Tulnev
      * @since 2021-04-17
@@ -231,13 +231,12 @@ public class CheatService extends AbstractService {
             try {
                 var cheatPrefix = cheatMessage.getMessage().split("\\s")[0];
                 var gameNameArray = cheatMessage.getChat().split("_");
-                // Just accept cheatcodes entered in game
+                // Just accept cheat codes entered in game
                 if (cheatPrefix.equals(cheatCode.name()) && gameNameArray.length > 1) {
-                    var cheatArgument = cheatMessage.getMessage().split("\\s")[1];
                     return true;
                 }
             } catch (ArrayIndexOutOfBoundsException e) {
-                LOG.debug("Cheatcode invalid, argument missing");
+                LOG.debug("Cheat code invalid, argument missing");
                 return false;
             }
         }

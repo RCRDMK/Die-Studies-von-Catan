@@ -1,8 +1,6 @@
 package de.uol.swp.common.game;
 
 
-import org.checkerframework.checker.units.qual.A;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -72,7 +70,7 @@ public class LongestStreetPathCalculator implements Serializable {
         for (int i = 0; i < playerMatrix.size() - 1; i++) {
             // get the COLUMN ID -> UUID of the STREET of this COLUMN
             UUID uuidColumn = playerMatrix.get(i).get(0).getUuidForRow();
-            // add new ROW to this COLUMN, the connection class indicates the coordinates of the connection. STREETUUID -> current COLUMN, UUIDCOLUMN -> current ROW
+            // add new ROW to this COLUMN, the connection class indicates the coordinates of the connection. STREET UUID -> current COLUMN, UUID COLUMN -> current ROW
             playerMatrix.get(playerMatrix.size() - 1).add(new ConnectionClassIntegerWithUUID(streetUUID, uuidColumn, 0));
             // do the same as above BUT MIRRORED (possible because of symmetry of the matrix)
             playerMatrix.get(i).add(new ConnectionClassIntegerWithUUID(uuidColumn, streetUUID, 0));

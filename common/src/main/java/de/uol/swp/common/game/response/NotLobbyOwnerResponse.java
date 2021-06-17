@@ -14,7 +14,7 @@ import java.util.Objects;
  */
 public class NotLobbyOwnerResponse extends AbstractResponseMessage {
 
-    private String lobbyName;
+    private final String lobbyName;
 
     /**
      * Constructor

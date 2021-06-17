@@ -11,8 +11,6 @@ import de.uol.swp.common.game.request.*;
 import de.uol.swp.common.game.trade.TradeItem;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,8 +26,6 @@ import java.util.UUID;
 
 @SuppressWarnings("UnstableApiUsage")
 public class GameService {
-
-    private static final Logger LOG = LogManager.getLogger(GameService.class);
 
     private final EventBus eventBus;
 
@@ -103,8 +99,8 @@ public class GameService {
      * <p>
      * Leaves the current game and posts a new SummaryConfirmedMessage on the eventbus
      *
-     * @param statsDTO    needed for the gamename
-     * @param currentUser needed for the userobject
+     * @param statsDTO    needed for the gameName
+     * @param currentUser needed for the user object
      * @author René Meyer
      * @since 2021-05-08
      */
@@ -127,7 +123,7 @@ public class GameService {
 
     /**
      * Sends the request to build a building.
-     * <p>Because there is always just one option of what one can build on any kind of Node, we dont need to include
+     * <p>Because there is always just one option of what one can build on any kind of Node, we don't need to include
      * the type of building that is desired.</p>
      *
      * @author Pieter Vogt
@@ -145,7 +141,7 @@ public class GameService {
      * @param bidder    the bidder
      * @param gameName  the game name
      * @param bidItems  the bid items
-     * @param tradeCode the tradecode
+     * @param tradeCode the tradeCode
      * @author Alexander Losse, Ricardo Mook
      * @see de.uol.swp.common.game.request.TradeItemRequest
      * @since 2021-04-21
@@ -174,13 +170,13 @@ public class GameService {
     /**
      * Sends the choice of the buyer to the server
      *
-     * @param gameName      game name
-     * @param tradeCode     the specific trade code
+     * @param gameName  game name
+     * @param tradeCode the specific trade code
      * @author Alexander Losse, Ricardo Mook
      * @see de.uol.swp.common.game.request.TradeItemRequest
      * @since 2021-04-21
      */
-    public void sendBuyChoice(String gameName, UserDTO user,String tradeCode, String cardName, ArrayList<TradeItem> offer) {
+    public void sendBuyChoice(String gameName, UserDTO user, String tradeCode, String cardName, ArrayList<TradeItem> offer) {
         BankBuyRequest bbr = new BankBuyRequest(gameName, user, tradeCode, cardName, offer);
         eventBus.post(bbr);
     }
@@ -203,9 +199,9 @@ public class GameService {
     /**
      * Sends a TradeEndedMessage
      * <p>
-     * used to close the TradeTab if no Trade is saved at the server, e.g. the seller hit the TradeButton by accident and doesnt want to Trade( didnt send a TradeItemRequest)
+     * used to close the TradeTab if no Trade is saved at the server, e.g. the seller hit the TradeButton by accident and doesn't want to Trade (didn't send a TradeItemRequest)
      *
-     * @param gameName String
+     * @param gameName  String
      * @param tradeCode String
      * @author Alexander Losse, Ricardo Mook
      * @since 2021-04-21
@@ -215,6 +211,15 @@ public class GameService {
         eventBus.post(tem);
     }
 
+    /**
+     * Sends a request to start a trade
+     *
+     * @param joinedLobbyUser the user who wants to trade
+     * @param currentLobby    the game in which the user wants to trade
+     * @param tradeCode       the code of the trade
+     * @author Alexander Losse, Ricardo Mook
+     * @since 2021-06-15
+     */
     public void sendTradeStartedRequest(UserDTO joinedLobbyUser, String currentLobby, String tradeCode) {
         eventBus.post(new TradeStartRequest(joinedLobbyUser, currentLobby, tradeCode));
     }
@@ -247,16 +252,16 @@ public class GameService {
     }
 
     /**
-     * Sends a request to resolve the Knight DevelopmentCard to the server
+     * Sends a request to discard resources to the server
      *
-     * @param name from game
-     * @param user who sands the request
-     * @param inventory that the user should have
-     * @author Anton Nikiforov
-     * @since 2021-06-14
+     * @param gameName  the name in which the user will discard resources
+     * @param user      the name of the user who will discard resources
+     * @param inventory the rest-inventory not to be left over
+     * @author Marc Hermes
+     * @since 2021-06-15
      */
-    public void discardResources(String name, UserDTO user, HashMap<String, Integer> inventory) {
-        eventBus.post(new ResourcesToDiscardRequest(name, user, inventory));
+    public void discardResources(String gameName, User user, HashMap<String, Integer> inventory) {
+        eventBus.post(new ResourcesToDiscardRequest(gameName, (UserDTO) user, inventory));
     }
 
     /**
@@ -328,5 +333,17 @@ public class GameService {
      */
     public void resolveDevelopmentCardKnight(UserDTO joinedLobbyUser, String currentLobby, String devCard, UUID field) {
         eventBus.post(new ResolveDevelopmentCardKnightRequest(devCard, joinedLobbyUser, currentLobby, field));
+    }
+
+    /**
+     * sends a request to end the turn to the server
+     *
+     * @param joinedLobbyUser the user who wants to end his turn
+     * @param currentLobby    the name of the game in which the user wants to end the turn
+     * @author Marc Hermes
+     * @since 2021-06-15
+     */
+    public void endTurn(UserDTO joinedLobbyUser, String currentLobby) {
+        eventBus.post(new EndTurnRequest(currentLobby, joinedLobbyUser));
     }
 }

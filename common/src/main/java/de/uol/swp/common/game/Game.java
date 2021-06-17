@@ -115,7 +115,7 @@ public interface Game extends Serializable {
     /**
      * Sets up the Arraylist containing the users.
      *
-     * <p>This is used to enable the server to adress users with indices. This was not possible with the Set-structure
+     * <p>This is used to enable the server to address users with indices. This was not possible with the Set-structure
      * of the Users.</p>
      */
     void setUpUserArrayList();
@@ -129,7 +129,7 @@ public interface Game extends Serializable {
     int getStartingPhase();
 
     /**
-     * Returns a number, indicating whos turn it is.
+     * Returns a number, indicating whose turn it is.
      *
      * <p>The number represents the index inside the playersList, pointing to a certain Player.</p>
      *
@@ -140,8 +140,9 @@ public interface Game extends Serializable {
 
     /**
      * Returns the number of total turns played so far.
-     *
-     * <p>This can be used for the summaryscreen at the end of a game.</p>
+     * <p>
+     * This can be used for the summary screen at the end of a game.
+     * </p>
      *
      * @return Number of overall turns played so far
      * @author Pieter Vogt
@@ -365,7 +366,7 @@ public interface Game extends Serializable {
     /**
      * Getter for the largest Army reference
      *
-     * @return refernced inventory with the largest army
+     * @return referenced inventory with the largest army
      */
     Inventory getInventoryWithLargestArmy();
 
@@ -379,7 +380,7 @@ public interface Game extends Serializable {
     /**
      * Getter for the longest Road reference
      *
-     * @return refernced inventory with the longest road
+     * @return referenced inventory with the longest road
      */
     Inventory getInventoryWithLongestRoad();
 
@@ -400,15 +401,6 @@ public interface Game extends Serializable {
      * @since 2021-05-30
      */
     void rememberDevCardBoughtThisTurn(String card, int amount);
-
-    /**
-     * getter for the HasMap containing the development cards bought this turn
-     *
-     * @return HashMap<String, Integer> boughtDevCardsThisTurn
-     * @author Alexander Losse
-     * @since 2021-05-30
-     */
-    HashMap<String, Integer> getBoughtDevCardsThisTurn();
 
     /**
      * getter for how many cards of a type were bought this turn

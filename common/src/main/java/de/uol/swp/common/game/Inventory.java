@@ -13,7 +13,7 @@ import java.util.HashMap;
  */
 public class Inventory implements Serializable {
 
-    private User user;
+    private final User user;
 
     public Inventory(User user) {
         this.user = user;
@@ -21,10 +21,6 @@ public class Inventory implements Serializable {
 
     public User getUser() {
         return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
     }
 
     // Resource Cards
@@ -215,16 +211,16 @@ public class Inventory implements Serializable {
     }
 
     /**
-     * Increases a specific Ressource Card by a specific amount
+     * Increases a specific Resource Card by a specific amount
      * <p>
      * this method calls the Method incNumber(int) of the class Card
-     * String Card specifies the Ressource Card and Development Cards
+     * String Card specifies the Resource Card and Development Cards
      * valid Strings: Lumber, Brick, Grain, Wool, Ore, Knight, Monopoly, Road Building,
      * Year of Plenty, Victory Point Card.
      * <p>
      * enhanced by Anton Nikiforov, Alexander Losse, Iskander Yusupov
      *
-     * @param cardName   the name of the Ressource Card
+     * @param cardName   the name of the Resource Card
      * @param amount how much of the Card should be increased
      * @author Alexander Losse, Ricardo Mook
      * @since 2021-05-16
@@ -262,17 +258,19 @@ public class Inventory implements Serializable {
             case "Victory Point Card":
                 incCardStackVictoryPoint();
                 break;
+            default:
+                break;
         }
     }
 
     /**
-     * Decreases a specific ressource card by a specific amount
+     * Decreases a specific resource card by a specific amount
      * <p>
      * This method calls the method decNumber(int) of the class Card
-     * String Card specifies the ressource card
+     * String Card specifies the resource card
      * valid Strings: Lumber, Brick, Grain, Wool, Ore
      *
-     * @param cardName the name of the Ressource Card
+     * @param cardName the name of the Resource Card
      * @param amount   how much of the Card should be decreased
      * @author Alexander Losse, Ricardo Mook
      * @since 2021-04-08
@@ -305,6 +303,8 @@ public class Inventory implements Serializable {
                 break;
             case "Year of Plenty":
                 cardYearOfPlenty.decNumber(amount);
+                break;
+            default:
                 break;
         }
     }
@@ -398,4 +398,3 @@ public class Inventory implements Serializable {
         }
     }
 }
-

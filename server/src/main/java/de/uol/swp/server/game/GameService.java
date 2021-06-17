@@ -146,7 +146,9 @@ public class GameService extends AbstractService {
 
     /**
      * Handles incoming build requests.
-     * Sets continuos road and checks for the longest road.
+     * <p>
+     * Sets continuous road and checks for the longest road.
+     *
      * enhanced by Iskander Yusupov, since 06-06-2021
      *
      * @param message Contains the data needed to change the mapGraph
@@ -210,8 +212,8 @@ public class GameService extends AbstractService {
                                         if (!game.isStartingTurns()) {
                                             for (int i = 0; i < game.getUsersList().size(); i++) {
                                                 if (i != game.getTurn()) {
-                                                    int continuosRoad = game.getMapGraph().getLongestStreetPathCalculator().getLongestPath(i);
-                                                    game.getInventory(game.getUsersList().get(i)).setContinuousRoad(continuosRoad == 0 ? 1 : continuosRoad);
+                                                    int continuousRoad = game.getMapGraph().getLongestStreetPathCalculator().getLongestPath(i);
+                                                    game.getInventory(game.getUsersList().get(i)).setContinuousRoad(continuousRoad == 0 ? 1 : continuousRoad);
                                                 }
                                             }
                                         }
@@ -223,7 +225,7 @@ public class GameService extends AbstractService {
                                         checkForLongestRoad(game);
                                         updateInventory(game);
                                         return true;
-                                    } //else sendToAllInGame(game.getName(), new NotSuccessfulConstructionMessage(playerIndex, message.getUuid(), "BuildingNode"));
+                                    }
                                 } else {
                                     if (buildingNode.getSizeOfSettlement() == 2) {
                                         SettlementFullyDevelopedMessage sfdm = new SettlementFullyDevelopedMessage(game.getName(), message.getUser());
@@ -248,8 +250,8 @@ public class GameService extends AbstractService {
                                             }
                                             sendToAllInGame(game.getName(), new SuccessfulConstructionMessage(game.getName(), message.getUser().getWithoutPassword(), playerIndex,
                                                     message.getUuid(), "StreetNode"));
-                                            int continuosRoad = game.getMapGraph().getLongestStreetPathCalculator().getLongestPath(game.getTurn());
-                                            inventory.setContinuousRoad(continuosRoad == 0 ? 1 : continuosRoad);
+                                            int continuousRoad = game.getMapGraph().getLongestStreetPathCalculator().getLongestPath(game.getTurn());
+                                            inventory.setContinuousRoad(continuousRoad == 0 ? 1 : continuousRoad);
                                             if (game.isStartingTurns() && game.getMapGraph().getNumOfRoads()[playerIndex] == game.getStartingPhase()
                                                     && game.getMapGraph().getNumOfRoads()[playerIndex] == game.getMapGraph().getNumOfBuildings()[playerIndex]) {
                                                 endTurn(game, message.getUser());
@@ -433,22 +435,6 @@ public class GameService extends AbstractService {
                 } else {
                     distributeResources(addedEyes, rollDiceRequest.getName());
                 }
-                //Auskommentierter Bereich sinnvoll für einen Interaktionslog
-                /*try {
-                    String chatMessage;
-                    var chatId = "game_" + rollDiceRequest.getName();
-                    if (addedEyes == 8 || addedEyes == 11) {
-                        chatMessage = "Player " + rollDiceRequest.getUser().getUsername() + " rolled an " + addedEyes;
-                    } else {
-                        chatMessage = "Player " + rollDiceRequest.getUser().getUsername() + " rolled a " + addedEyes;
-                    }
-                    ResponseChatMessage msg = new ResponseChatMessage(chatMessage, chatId,
-                            rollDiceRequest.getUser().getUsername(), System.currentTimeMillis());
-                    post(msg);
-                    LOG.debug("Posted ResponseChatMessage on eventBus");
-                } catch (Exception e) {
-                    LOG.debug(e);
-                }*/
                 try {
                     RollDiceResultMessage result = new RollDiceResultMessage(dice.getDiceEyes1(), dice.getDiceEyes2(), game.getTurn(), game.getName());
                     sendToAllInGame(game.getName(), result);
@@ -467,8 +453,7 @@ public class GameService extends AbstractService {
      * <p>
      * This method handles the distribution of the resources to the users. First the method gets the game and gets the
      * corresponding hexagons. After that the method gives the second built buildings in the opening turn the resource.
-     * coressponding hexagons. After that the method gives the second built buildings in the opening turn the resource.
-     * <p>
+     *
      * enhanced by Anton Nikiforov
      *
      * @param gameName Name of the Game
@@ -647,13 +632,13 @@ public class GameService extends AbstractService {
      * <p>
      * enhanced by Marc Hermes 2021-05-25
      *
-     * @param robbersNewFieldrequest The message, that will be send, if a user rolled a 7.
+     * @param robbersNewFieldRequest The message, that will be send, if a user rolled a 7.
      * @author Marius Birk
      * @since 2021-04-25
      */
     @Subscribe
-    public void onRobbersNewFieldRequest(RobbersNewFieldRequest robbersNewFieldrequest) {
-        Optional<Game> optionalGame = gameManagement.getGame(robbersNewFieldrequest.getName());
+    public void onRobbersNewFieldRequest(RobbersNewFieldRequest robbersNewFieldRequest) {
+        Optional<Game> optionalGame = gameManagement.getGame(robbersNewFieldRequest.getName());
         if (optionalGame.isPresent()) {
             Game game = optionalGame.get();
             List<String> userList = new ArrayList<>();
@@ -662,27 +647,27 @@ public class GameService extends AbstractService {
                 if (hexagon.isOccupiedByRobber()) {
                     hexagon.setOccupiedByRobber(false);
                 }
-                if (hexagon.getUuid().equals(robbersNewFieldrequest.getNewField())) {
+                if (hexagon.getUuid().equals(robbersNewFieldRequest.getNewField())) {
                     //If the UUIDs match, the new field is set to occupied
                     hexagon.setOccupiedByRobber(true);
                     for (MapGraph.BuildingNode node : hexagon.getBuildingNodes()) {
                         if (node.getOccupiedByPlayer() != 666) {
-                            if (!userList.contains(game.getUser(node.getOccupiedByPlayer()).getUsername()) && !robbersNewFieldrequest.getUser().equals(game.getUser(node.getOccupiedByPlayer()))) {
+                            if (!userList.contains(game.getUser(node.getOccupiedByPlayer()).getUsername()) && !robbersNewFieldRequest.getUser().equals(game.getUser(node.getOccupiedByPlayer()))) {
                                 if (game.getInventory(game.getUser(node.getOccupiedByPlayer())).sumResource() > 0) {
                                     userList.add(game.getUser(node.getOccupiedByPlayer()).getUsername());
                                 }
                             }
                         }
                     }
-                    sendToAllInGame(robbersNewFieldrequest.getName(), new SuccessfullMovedRobberMessage(hexagon.getUuid()));
+                    sendToAllInGame(robbersNewFieldRequest.getName(), new SuccessfulMovedRobberMessage(hexagon.getUuid()));
                 }
             }
             // If the robber wasn't moved because of the Knight DevelopmentCard do this
             if (!game.getCurrentCard().equals("Knight")) {
                 tooMuchResources(game);
             }
-            ChoosePlayerMessage choosePlayerMessage = new ChoosePlayerMessage(game.getName(), robbersNewFieldrequest.getUser(), userList);
-            sendToSpecificUserInGame(game, choosePlayerMessage, robbersNewFieldrequest.getUser());
+            ChoosePlayerMessage choosePlayerMessage = new ChoosePlayerMessage(game.getName(), robbersNewFieldRequest.getUser(), userList);
+            sendToSpecificUserInGame(game, choosePlayerMessage, robbersNewFieldRequest.getUser());
 
         }
     }
@@ -1357,7 +1342,7 @@ public class GameService extends AbstractService {
                 game.setHasConcluded(true);
                 //Send GameFinishedMessage to all users in game
                 sendToAllInGame(game.getName(), new GameFinishedMessage(statsDTO));
-                LOG.debug("User " + user.getUsername() + " has atleast 10 victory points and won.");
+                LOG.debug("User " + user.getUsername() + " has at least 10 victory points and won.");
             }
         }
         PublicInventoryChangeMessage publicInventoryChangeMessage = new PublicInventoryChangeMessage(game.getName(), publicInventories);
@@ -1447,13 +1432,6 @@ public class GameService extends AbstractService {
 
         if (optionalGame.isPresent()) {
             Game game = optionalGame.get();
-
-            /*// TODO: Wird nur zum testen verwendet
-            game.getInventory(request.getUser()).incCardStack("Lumber", 5);
-            game.getInventory(request.getUser()).incCardStack("Brick", 5);
-            game.getInventory(request.getUser()).incCardStack("Grain", 5);
-            game.getInventory(request.getUser()).incCardStack("Wool", 5);
-            game.getInventory(request.getUser()).incCardStack("Ore", 5);*/
 
             boolean numberOfCardsCorrect = true;
 
@@ -1792,7 +1770,7 @@ public class GameService extends AbstractService {
      * <p>
      * This method checks if the users have more than 7 resources and sends the user a tooMuchResourceCardMessage.
      * For every user in the game, the method checks if the user has more than 7 resource cards. If this is true,
-     * it checks if the number of resources is even or uneven and sends a TooMuchResourceCardsMessage to every specfic user.
+     * it checks if the number of resources is even or uneven and sends a TooMuchResourceCardsMessage to every specific user.
      * <p>
      * enhanced by Marc Hermes, Alexander Losse on 2021-05-22
      *

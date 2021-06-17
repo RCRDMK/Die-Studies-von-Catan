@@ -6,7 +6,7 @@ import de.uol.swp.common.user.UserDTO;
 import java.util.UUID;
 
 /**
- * Delivers the information of a successful construction, where it happened and by wich player it was conducted.
+ * Delivers the information of a successful construction, where it happened and by which player it was conducted.
  *
  * @author Pieter Vogt
  * @since 2021-04-15

@@ -32,7 +32,6 @@ public class GameServiceTest {
 
     final EventBus bus = new EventBus();
     UserDTO userDTO = new UserDTO("Peter", "lustig", "peter.lustig@uol.de");
-    UserDTO userDTO1 = new UserDTO("Carsten", "stahl", "carsten.stahl@uol.de");
     Object event;
     GameService gameService = new GameService(bus);
 
@@ -81,7 +80,7 @@ public class GameServiceTest {
 
     @Test
     public void returnFromSummaryScreenTest() {
-        gameService.returnFromSummaryScreen(new StatsDTO("Test", userDTO.getUsername(), 0, 0, new ArrayList<Inventory>()), userDTO);
+        gameService.returnFromSummaryScreen(new StatsDTO("Test", userDTO.getUsername(), 0, 0, new ArrayList<>()), userDTO);
 
         assertTrue(event instanceof SummaryConfirmedEvent);
         assertEquals("Test", ((SummaryConfirmedEvent) event).getGameName());
