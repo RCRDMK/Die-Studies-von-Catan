@@ -25,7 +25,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.security.auth.login.LoginException;
-import java.sql.SQLException;
 import java.util.*;
 
 /**
@@ -209,21 +208,22 @@ public class AuthenticationService extends AbstractService {
      * <p>
      * If a PingRequest is detected on the EventBus, this method is called.
      * It sends a PingResponse back to the User.
-     * It tells the ActivUserList the last send Ping time from this User.
+     * It tells the ActiveUserList the last send Ping time from this User.
      *
      * @param pingRequest The PingRequest found on the EventBus
      * @author Philip Nitsche
      * @see de.uol.swp.common.user.request.PingRequest
      * @since 2021-01-22
      */
-
     @Subscribe
     private void onPingRequest(PingRequest pingRequest) {
         activeUserList.updateActiveUser(pingRequest.getUser(), pingRequest.getTime());
         ResponseMessage returnMessage;
         returnMessage = new PingResponse(pingRequest.getUser().getUsername(), pingRequest.getTime());
-        returnMessage.setMessageContext(pingRequest.getMessageContext().get());
-        post(returnMessage);
+        if(pingRequest.getMessageContext().isPresent()) {
+            returnMessage.setMessageContext(pingRequest.getMessageContext().get());
+            post(returnMessage);
+        }
     }
 
     /**
@@ -235,7 +235,6 @@ public class AuthenticationService extends AbstractService {
      * @author Philip, Marc
      * @since 2021-01-22
      */
-
     public void startTimerForActiveUserList() {
         timer.schedule(new TimerTask() {
             @Override
@@ -253,20 +252,6 @@ public class AuthenticationService extends AbstractService {
                 }
             }
         }, 30000, 60000);
-    }
-
-
-    /**
-     * Stops the Ping Timer
-     * <p>
-     * Stops the Ping Timer which checks every 30 seconds if the Users are still Online.
-     *
-     * @author Philip
-     * @since 2021-01-22
-     */
-
-    public void endTimerForPing() {
-        timer.cancel();
     }
 
 }

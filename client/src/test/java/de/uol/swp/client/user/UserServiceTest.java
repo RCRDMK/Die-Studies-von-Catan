@@ -13,7 +13,6 @@ import org.junit.jupiter.api.Test;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -84,14 +83,12 @@ class UserServiceTest {
      * This subroutine creates a new UserService object registered to the EventBus
      * of this test class and class the objects login method for the default user.
      *
-     * @throws InterruptedException thrown by lock.await()
      * @author Marco Grawunder
      * @since 2019-10-10
      */
-    private void loginUser() throws InterruptedException, InvalidKeySpecException, NoSuchAlgorithmException {
+    private void loginUser() throws InvalidKeySpecException, NoSuchAlgorithmException {
         UserService userService = new UserService(bus);
         userService.login(defaultUser.getUsername(), defaultUser.getPassword());
-        lock.await(1000, TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -102,12 +99,11 @@ class UserServiceTest {
      * default users information.
      * The test fails if any of the checks fail.
      *
-     * @throws InterruptedException thrown by loginUser()
      * @author Marco Grawunder
      * @since 2019-10-10
      */
     @Test
-    void loginTest() throws InterruptedException, InvalidKeySpecException, NoSuchAlgorithmException {
+    void loginTest() throws InvalidKeySpecException, NoSuchAlgorithmException {
         UserService userService = new UserService(bus);
         loginUser();
 
@@ -129,19 +125,16 @@ class UserServiceTest {
      * The test fails if no LogoutRequest is posted within one second or the request
      * says that no authorization is needed
      *
-     * @throws InterruptedException thrown by loginUser() and lock.await()
      * @author Marco Grawunder
      * @since 2019-10-10
      */
     @Test
-    void logoutTest() throws InterruptedException, InvalidKeySpecException, NoSuchAlgorithmException {
+    void logoutTest() throws InvalidKeySpecException, NoSuchAlgorithmException {
         loginUser();
         event = null;
 
         UserService userService = new UserService(bus);
         userService.logout(defaultUser);
-
-        lock.await(1000, TimeUnit.MILLISECONDS);
 
         assertTrue(event instanceof LogoutRequest);
 
@@ -162,16 +155,13 @@ class UserServiceTest {
      * Authorization should not be needed.
      * If any of these checks fail or the method takes to long, this test is unsuccessful.
      *
-     * @throws InterruptedException thrown by lock.await()
      * @author Marco Grawunder
      * @since 2019-10-10
      */
     @Test
-    void createUserTest() throws InterruptedException, InvalidKeySpecException, NoSuchAlgorithmException {
+    void createUserTest() throws InvalidKeySpecException, NoSuchAlgorithmException {
         UserService userService = new UserService(bus);
         userService.createUser(defaultUser);
-
-        lock.await(1000, TimeUnit.MILLISECONDS);
 
         assertTrue(event instanceof RegisterUserRequest);
 
@@ -185,45 +175,13 @@ class UserServiceTest {
     }
 
     /**
-     * Test for the updateUser routine
-     * <p>
-     * This Test creates a new UserService object registered to the EventBus of
-     * this test class. It then calls the updateUser function of the object using
-     * the defaultUser as parameter and waits for it to post an updateUserRequest
-     * object on the EventBus.
-     * If this happens within one second, it checks if the user in the request object
-     * is the same as the default user and if authorization is needed.
-     * Authorization should be needed.
-     * If any of these checks fail or the method takes to long, this test is unsuccessful.
-     *
-     * @throws InterruptedException thrown by lock.await()
-     * @author Marco Grawunder
-     * @since 2019-10-10
-     */
-    /*@Test
-    void updateUserTest() throws InterruptedException, InvalidKeySpecException, NoSuchAlgorithmException {
-        UserService userService = new UserService(bus);
-        userService.updateUser(defaultUser);
-
-        lock.await(1000, TimeUnit.MILLISECONDS);
-
-        assertTrue(event instanceof UpdateUserRequest);
-
-        UpdateUserRequest request = (UpdateUserRequest) event;
-
-        assertEquals(request.getUser().getUsername(), defaultUser.getUsername());
-        assertEquals(request.getUser().getPassword(), userService.convertStringToHash(defaultUser.getPassword()));
-        assertEquals(request.getUser().getEMail(), defaultUser.getEMail());
-        assertTrue(request.authorizationNeeded());
-    }
-    */
-    /**
      * Test for the dropUser routine
      * <p>
      * This test case has to be implemented after the respective dropUser method
      * has been implemented
      *
      * @author Marco Grawunder
+     * @author Marius Birk und Carsten Dekker
      * @since 2019-10-10
      * <p>
      * Enhanced the test method
@@ -231,17 +189,14 @@ class UserServiceTest {
      * This test method creates an instance of userService and uses the dropUser method.
      * We expect an event instanceof DropUserRequest. There is also an event instanceof
      * LogoutRequest.
-     * @author Marius Birk und Carsten Dekker
      * @since 2020-12-15
      */
     @Test
-    void dropUserTest() throws InterruptedException, InvalidKeySpecException, NoSuchAlgorithmException {
+    void dropUserTest() throws InvalidKeySpecException, NoSuchAlgorithmException {
         loginUser();
-        event = null;
 
         UserService userService = new UserService(bus);
         userService.dropUser(defaultUser);
-        lock.await(1000, TimeUnit.MILLISECONDS);
 
         assertTrue(event instanceof DropUserRequest);
     }
@@ -254,16 +209,13 @@ class UserServiceTest {
      * and waits for it to post a retrieveAllUsersRequest object on the EventBus.
      * If this happens within one second, the test is successful.
      *
-     * @throws InterruptedException thrown by lock.await()
      * @author Marco Grawunder
      * @since 2019-10-10
      */
     @Test
-    void retrieveAllUsersTest() throws InterruptedException {
+    void retrieveAllUsersTest() {
         UserService userService = new UserService(bus);
         userService.retrieveAllUsers();
-
-        lock.await(1000, TimeUnit.MILLISECONDS);
 
         assertTrue(event instanceof RetrieveAllOnlineUsersRequest);
     }

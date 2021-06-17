@@ -15,8 +15,6 @@ import java.util.List;
 
 public class LobbyCreatedMessage extends AbstractLobbyMessage {
 
-    private String username;
-
     final private ArrayList<UserDTO> users = new ArrayList<>();
 
     /**
@@ -32,16 +30,8 @@ public class LobbyCreatedMessage extends AbstractLobbyMessage {
         super(name, user);
     }
 
-    public LobbyCreatedMessage(String username) {
-        this.username = username;
-    }
-
     public List<UserDTO> getUsers() {
         return users;
-    }
-
-    public String getUsername() {
-        return username;
     }
 
 }

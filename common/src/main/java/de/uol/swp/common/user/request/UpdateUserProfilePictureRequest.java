@@ -14,7 +14,7 @@ import java.util.Objects;
  */
 public class UpdateUserProfilePictureRequest extends AbstractRequestMessage {
 
-    final private User toUpdatePicture;
+    private final User toUpdatePicture;
 
     /**
      * Constructor

@@ -14,8 +14,8 @@ import java.util.Objects;
  */
 public class UpdateUserPasswordRequest extends AbstractRequestMessage {
 
-    final private User toUpdatePassword;
-    final private String currentPassword;
+    private final User toUpdatePassword;
+    private final String currentPassword;
 
     /**
      * Constructor

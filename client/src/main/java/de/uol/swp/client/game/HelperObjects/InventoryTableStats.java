@@ -8,12 +8,12 @@ package de.uol.swp.client.game.HelperObjects;
  * @since 2021-05-08
  */
 public class InventoryTableStats {
-    private String user;
-    private int lumber;
-    private int brick;
-    private int grain;
-    private int wool;
-    private int ore;
+    private final String user;
+    private final int lumber;
+    private final int brick;
+    private final int grain;
+    private final int wool;
+    private final int ore;
 
     /**
      * Instantiates a new Inventory table stats.
@@ -38,6 +38,8 @@ public class InventoryTableStats {
 
     /**
      * Gets user.
+     * <p>
+     * Used for the PropertyValueFactory!
      *
      * @return the user
      * @author René Meyer, Sergej Tulnev
@@ -48,18 +50,9 @@ public class InventoryTableStats {
     }
 
     /**
-     * Sets user.
-     *
-     * @param user the user
-     * @author René Meyer, Sergej Tulnev
-     * @since 2021-05-08
-     */
-    public void setUser(String user) {
-        this.user = user;
-    }
-
-    /**
      * Gets lumber.
+     * <p>
+     * Used for the PropertyValueFactory!
      *
      * @return the lumber
      * @author René Meyer, Sergej Tulnev
@@ -70,18 +63,9 @@ public class InventoryTableStats {
     }
 
     /**
-     * Sets lumber.
-     *
-     * @param lumber the lumber
-     * @author René Meyer, Sergej Tulnev
-     * @since 2021-05-08
-     */
-    public void setLumber(int lumber) {
-        this.lumber = lumber;
-    }
-
-    /**
      * Gets brick.
+     * <p>
+     * Used for the PropertyValueFactory!
      *
      * @return the brick
      * @author René Meyer, Sergej Tulnev
@@ -92,18 +76,9 @@ public class InventoryTableStats {
     }
 
     /**
-     * Sets brick.
-     *
-     * @param brick the brick
-     * @author René Meyer, Sergej Tulnev
-     * @since 2021-05-08
-     */
-    public void setBrick(int brick) {
-        this.brick = brick;
-    }
-
-    /**
      * Gets grain.
+     * <p>
+     * Used for the PropertyValueFactory!
      *
      * @return the grain
      * @author René Meyer, Sergej Tulnev
@@ -114,18 +89,9 @@ public class InventoryTableStats {
     }
 
     /**
-     * Sets grain.
-     *
-     * @param grain the grain
-     * @author René Meyer, Sergej Tulnev
-     * @since 2021-05-08
-     */
-    public void setGrain(int grain) {
-        this.grain = grain;
-    }
-
-    /**
      * Gets wool.
+     * <p>
+     * Used for the PropertyValueFactory!
      *
      * @return the wool
      * @author René Meyer, Sergej Tulnev
@@ -136,18 +102,9 @@ public class InventoryTableStats {
     }
 
     /**
-     * Sets wool.
-     *
-     * @param wool the wool
-     * @author René Meyer, Sergej Tulnev
-     * @since 2021-05-08
-     */
-    public void setWool(int wool) {
-        this.wool = wool;
-    }
-
-    /**
      * Gets ore.
+     * <p>
+     * Used for the PropertyValueFactory!
      *
      * @return the ore
      * @author René Meyer, Sergej Tulnev
@@ -155,16 +112,5 @@ public class InventoryTableStats {
      */
     public int getOre() {
         return ore;
-    }
-
-    /**
-     * Sets ore.
-     *
-     * @param ore the ore
-     * @author René Meyer, Sergej Tulnev
-     * @since 2021-05-08
-     */
-    public void setOre(int ore) {
-        this.ore = ore;
     }
 }

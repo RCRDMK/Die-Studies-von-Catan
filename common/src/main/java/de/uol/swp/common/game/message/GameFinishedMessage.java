@@ -11,7 +11,7 @@ import de.uol.swp.common.game.dto.StatsDTO;
  * @since 2021-04-18
  */
 public class GameFinishedMessage extends AbstractGameMessage {
-    private StatsDTO statsDTO;
+    private final StatsDTO statsDTO;
 
     /**
      * Constructor
@@ -37,15 +37,4 @@ public class GameFinishedMessage extends AbstractGameMessage {
         return this.statsDTO;
     }
 
-    /**
-     * Setter for StatsDTO
-     * <p>
-     *
-     * @param statsDTO statsDTO to show stats in summaryScreen
-     * @author René Meyer, Sergej Tulnev
-     * @since 2021-04-18
-     */
-    public void setStatsDTO(StatsDTO statsDTO) {
-        this.statsDTO = statsDTO;
-    }
 }

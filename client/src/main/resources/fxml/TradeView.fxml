@@ -16,7 +16,7 @@
          <VBox.margin>
             <Insets top="2.0" />
          </VBox.margin>
-         <Label fx:id="tradeLable1" style="-fx-background-color: rgba(0,0,0,0.70)" text="Trade with players">
+         <Label fx:id="tradeLabel1" style="-fx-background-color: rgba(0,0,0,0.70)" text="Trade with players">
            <font>
               <Font name="Castellar" size="23.0" />
            </font>
@@ -31,7 +31,7 @@
                <Insets top="4.0" />
             </HBox.margin>
             <HBox>
-               <ChoiceBox fx:id="ressourceChoice" value="What do you want to trade?">
+               <ChoiceBox fx:id="resourceChoice" value="What do you want to trade?">
                   <items>
                      <FXCollections fx:factory="observableArrayList">
                         <String fx:value="What do you want to trade?" />
@@ -46,7 +46,7 @@
                      <Insets left="5.0" />
                   </HBox.margin>
                </ChoiceBox>
-               <TextField fx:id="ressourceInputValue" prefHeight="25.0" prefWidth="127.0" text="1">
+               <TextField fx:id="resourceInputValue" prefHeight="25.0" prefWidth="127.0" text="1">
                   <HBox.margin>
                      <Insets left="10.0" />
                   </HBox.margin>
@@ -459,14 +459,14 @@
             <VBox.margin>
                <Insets top="45.0" />
             </VBox.margin>
-            <Label fx:id="tradeLable2" style="-fx-background-color: rgba(0,0,0,0.70)" text="Trade with the bank and harbors">
+            <Label fx:id="tradeLabel2" style="-fx-background-color: rgba(0,0,0,0.70)" text="Trade with the bank and harbors">
                <font>
                   <Font name="Castellar" size="23.0" />
                </font>
             </Label>
          </HBox>
          <HBox>
-            <ChoiceBox fx:id="ressourceChoiceBank" value="What do you want to buy?">
+            <ChoiceBox fx:id="resourceChoiceBank" value="What do you want to buy?">
                <items>
                   <FXCollections fx:factory="observableArrayList">
                      <String fx:value="What do you want to buy?" />

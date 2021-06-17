@@ -5,7 +5,7 @@ import de.uol.swp.common.user.UserDTO;
 import java.util.List;
 
 public class ChoosePlayerMessage extends AbstractGameMessage {
-    private List<String> userList;
+    private final List<String> userList;
 
     public ChoosePlayerMessage(String name, UserDTO user, List<String> userList) {
         super(name, user);
