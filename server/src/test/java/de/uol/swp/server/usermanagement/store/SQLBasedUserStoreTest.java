@@ -24,6 +24,14 @@ public class SQLBasedUserStoreTest {
         userStore.buildConnection();
     }
 
+    @BeforeEach
+    public void deleteDefaultUser() throws Exception {
+        Optional<User> user = userStore.findUser(defaultUser.getUsername(), defaultUser.getPassword());
+        if(user.isPresent()){
+            userStore.removeUser(defaultUser.getUsername());
+        }
+    }
+
     @AfterEach
     public void closeConnection() throws Exception {
         userStore.closeConnection();
