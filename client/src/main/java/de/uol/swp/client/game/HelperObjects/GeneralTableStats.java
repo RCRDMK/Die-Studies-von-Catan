@@ -8,8 +8,8 @@ package de.uol.swp.client.game.HelperObjects;
  * @since 2021-05-08
  */
 public class GeneralTableStats {
-    private String user;
-    private String achievement;
+    private final String user;
+    private final String achievement;
 
 
     /**
@@ -27,6 +27,8 @@ public class GeneralTableStats {
 
     /**
      * Gets user.
+     * <p>
+     * Used for the PropertyValueFactory!
      *
      * @return the user
      * @author René Meyer, Sergej Tulnev
@@ -37,18 +39,9 @@ public class GeneralTableStats {
     }
 
     /**
-     * Sets user.
-     *
-     * @param user the user
-     * @author René Meyer, Sergej Tulnev
-     * @since 2021-05-08
-     */
-    public void setUser(String user) {
-        this.user = user;
-    }
-
-    /**
      * Gets achievement.
+     * <p>
+     * Used for the PropertyValueFactory!
      *
      * @return the achievement
      * @author René Meyer, Sergej Tulnev
@@ -58,14 +51,4 @@ public class GeneralTableStats {
         return achievement;
     }
 
-    /**
-     * Sets achievement.
-     *
-     * @param achievement the achievement
-     * @author René Meyer, Sergej Tulnev
-     * @since 2021-05-08
-     */
-    public void setAchievement(String achievement) {
-        this.achievement = achievement;
-    }
 }

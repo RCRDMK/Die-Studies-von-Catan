@@ -4,8 +4,8 @@ package de.uol.swp.client.game.event;
 import de.uol.swp.common.user.User;
 
 public class SummaryConfirmedEvent {
-    private String gameName;
-    private User user;
+    private final String gameName;
+    private final User user;
 
     /**
      * Constructor

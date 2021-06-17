@@ -117,7 +117,6 @@ class LobbyPresenterTest {
     @Test
     void joinedSuccessful() {
         LobbyService lobbyService = new LobbyService(bus);
-        CreateLobbyRequest message = new CreateLobbyRequest("testLobby", userDTO);
         lobbyService.createNewLobby("testLobby", userDTO);
         LobbyCreatedSuccessfulResponse message2 = new LobbyCreatedSuccessfulResponse(userDTO);
         lobbyService.joinLobby("testLobby", userDTO1);

@@ -14,13 +14,13 @@ import java.util.Objects;
  */
 public class WrongLobbyPasswordResponse extends AbstractResponseMessage {
 
-    private String lobbyName;
+    private final String lobbyName;
 
     /**
      * Constructor
      * <p>
      *
-     * @param lobbyName
+     * @param lobbyName the name of the lobby whose password was wrong
      * @author René Meyer
      * @since 2021-06-05
      */
@@ -29,9 +29,9 @@ public class WrongLobbyPasswordResponse extends AbstractResponseMessage {
     }
 
     /**
-     * Getter for the lobbyname
+     * Getter for the lobbyName
      *
-     * @return
+     * @return the name of the lobby
      * @author René Meyer
      * @since 2021-06-05
      */

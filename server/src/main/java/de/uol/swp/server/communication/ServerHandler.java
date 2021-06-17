@@ -60,12 +60,14 @@ public class ServerHandler implements ServerHandlerDelegate {
     @Override
     public void process(RequestMessage msg) {
         LOG.debug("Received new message from client " + msg);
-        try {
-            checkIfMessageNeedsAuthorization(msg.getMessageContext().get(), msg);
-            eventBus.post(msg);
-        } catch (Exception e) {
-            LOG.error("ServerException " + e.getClass().getName() + " " + e.getMessage());
-            sendToClient(msg.getMessageContext().get(), new ExceptionMessage(e.getMessage()));
+        if(msg.getMessageContext().isPresent()) {
+            try {
+                checkIfMessageNeedsAuthorization(msg.getMessageContext().get(), msg);
+                eventBus.post(msg);
+            } catch (Exception e) {
+                LOG.error("ServerException " + e.getClass().getName() + " " + e.getMessage());
+                sendToClient(msg.getMessageContext().get(), new ExceptionMessage(e.getMessage()));
+            }
         }
     }
 
@@ -80,7 +82,7 @@ public class ServerHandler implements ServerHandlerDelegate {
      */
     private void checkIfMessageNeedsAuthorization(MessageContext ctx, RequestMessage msg) {
         if (msg.authorizationNeeded()) {
-            if (!getSession(ctx).isPresent()) {
+            if (getSession(ctx).isEmpty()) {
                 throw new SecurityException("Authorization required. Client not logged in!");
             }
             msg.setSession(getSession(ctx).get());
@@ -110,7 +112,7 @@ public class ServerHandler implements ServerHandlerDelegate {
      * <p>
      * If an DeadEvent object is detected on the EventBus, this method is called.
      * It writes "DeadEvent detected " and the error message of the detected DeadEvent
-     * object to the log, if the loglevel is set to WARN or higher.
+     * object to the log, if the logLevel is set to WARN or higher.
      *
      * @param deadEvent The DeadEvent object found on the EventBus
      * @author Marco Grawunder
@@ -279,7 +281,7 @@ public class ServerHandler implements ServerHandlerDelegate {
     /**
      * Gets the Session for a given MessageContext
      *
-     * @param ctx The MeesageContext
+     * @param ctx The MessageContext
      * @return Optional containing the Session if found
      * @author Marco Grawunder
      * @see de.uol.swp.common.user.Session

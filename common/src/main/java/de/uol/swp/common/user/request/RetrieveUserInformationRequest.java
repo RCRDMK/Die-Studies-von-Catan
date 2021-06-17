@@ -12,7 +12,7 @@ import java.util.Objects;
  * @since 2021-03-12
  */
 public class RetrieveUserInformationRequest extends AbstractRequestMessage {
-    final private User toGetInformation;
+    private final User toGetInformation;
 
     /**
      * Constructor

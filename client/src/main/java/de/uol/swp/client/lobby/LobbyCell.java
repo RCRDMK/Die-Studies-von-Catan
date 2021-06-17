@@ -92,35 +92,33 @@ public class LobbyCell extends ListCell<LobbyDTO> {
             }
             if (item.getPasswordHash() != 0) {
                 lobbyProtected.setText("protected");
-                button.setOnAction(event -> {
-                    Platform.runLater(() -> {
-                        Dialog<String> dialog = new Dialog<String>();
-                        dialog.setTitle("Password");
-                        dialog.setHeaderText("Please enter your password.");
-                        ButtonType passwordButtonType = new ButtonType("Join", ButtonBar.ButtonData.OK_DONE);
-                        dialog.getDialogPane().getButtonTypes().addAll(passwordButtonType, ButtonType.CANCEL);
+                button.setOnAction(event -> Platform.runLater(() -> {
+                    Dialog<String> dialog = new Dialog<>();
+                    dialog.setTitle("Password");
+                    dialog.setHeaderText("Please enter your password.");
+                    ButtonType passwordButtonType = new ButtonType("Join", ButtonBar.ButtonData.OK_DONE);
+                    dialog.getDialogPane().getButtonTypes().addAll(passwordButtonType, ButtonType.CANCEL);
 
-                        var passwordField = new PasswordField();
-                        passwordField.setPromptText("Password");
+                    var passwordField = new PasswordField();
+                    passwordField.setPromptText("Password");
 
-                        HBox hBox = new HBox();
-                        hBox.getChildren().add(passwordField);
-                        hBox.setPadding(new Insets(20));
+                    HBox hBox = new HBox();
+                    hBox.getChildren().add(passwordField);
+                    hBox.setPadding(new Insets(20));
 
-                        HBox.setHgrow(passwordField, Priority.ALWAYS);
+                    HBox.setHgrow(passwordField, Priority.ALWAYS);
 
-                        dialog.getDialogPane().setContent(hBox);
-                        Platform.runLater(passwordField::requestFocus);
-                        dialog.setResultConverter(dialogButton -> {
-                            if (dialogButton == passwordButtonType) {
-                                return passwordField.getText();
-                            }
-                            return null;
-                        });
-                        Optional<String> result = dialog.showAndWait();
-                        result.ifPresent(pw -> lobbyService.joinProtectedLobby(lobbyName.getText(), (UserDTO) user, pw));
+                    dialog.getDialogPane().setContent(hBox);
+                    Platform.runLater(passwordField::requestFocus);
+                    dialog.setResultConverter(dialogButton -> {
+                        if (dialogButton == passwordButtonType) {
+                            return passwordField.getText();
+                        }
+                        return null;
                     });
-                });
+                    Optional<String> result = dialog.showAndWait();
+                    result.ifPresent(pw -> lobbyService.joinProtectedLobby(lobbyName.getText(), (UserDTO) user, pw));
+                }));
             } else {
                 lobbyProtected.setText("not protected");
                 button.setOnAction(event -> lobbyService.joinLobby(lobbyName.getText(), (UserDTO) user));

@@ -1,11 +1,9 @@
 package de.uol.swp.common.game.message;
 
-import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Set;
 
 /**
  * Message send to all users, when an inventory is updated
