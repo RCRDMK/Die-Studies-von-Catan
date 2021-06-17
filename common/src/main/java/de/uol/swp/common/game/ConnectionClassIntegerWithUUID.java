@@ -11,13 +11,12 @@ import java.util.UUID;
  *
  * @author Marc, Kirstin
  * @since 2021-04-23
- *
  */
 
 public class ConnectionClassIntegerWithUUID implements Serializable {
     private Integer integer;
-    private UUID uuidForRow;
-    private UUID uuidForColumn;
+    private final UUID uuidForRow;
+    private final UUID uuidForColumn;
 
     /**
      * Constructor
@@ -46,15 +45,8 @@ public class ConnectionClassIntegerWithUUID implements Serializable {
         return uuidForRow;
     }
 
-    public void setUuidForRow(UUID uuidForRow) {
-        this.uuidForRow = uuidForRow;
-    }
-
     public UUID getUuidForColumn() {
         return uuidForColumn;
     }
 
-    public void setUuidForColumn(UUID uuidForColumn) {
-        this.uuidForColumn = uuidForColumn;
-    }
 }

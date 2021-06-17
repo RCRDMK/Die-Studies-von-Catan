@@ -66,7 +66,7 @@ public class GameDTOTest {
     }
 
     /**
-     * This test trys to remove the defaultUser from the defaultGame, which ends up in an IllegalArgumentException.
+     * This test tries to remove the defaultUser from the defaultGame, which ends up in an IllegalArgumentException.
      *
      * @author Marius Birk
      * @since 2021-05-25

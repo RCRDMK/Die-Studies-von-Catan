@@ -48,16 +48,12 @@ public class GameSerializableTest {
                 ChoosePlayerMessage.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new MoveRobberMessage("test", defaultUser),
                 MoveRobberMessage.class));
-        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new SuccessfullMovedRobberMessage(defaultUuid),
-                SuccessfullMovedRobberMessage.class));
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new SuccessfulMovedRobberMessage(defaultUuid),
+                SuccessfulMovedRobberMessage.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new TooMuchResourceCardsMessage(),
                 TooMuchResourceCardsMessage.class));
-        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new TradeSuccessfulMessage(),
-                TradeSuccessfulMessage.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new TradeStartedMessage(),
                 TradeStartedMessage.class));
-        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new TradeSuccessfulMessage(),
-                TradeSuccessfulMessage.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new TradeOfferInformBiddersMessage(),
                 TradeOfferInformBiddersMessage.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new TradeInformSellerAboutBidsMessage(),
@@ -132,8 +128,6 @@ public class GameSerializableTest {
                 ResolveDevelopmentCardNotSuccessfulResponse.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new GameLeftSuccessfulResponse(defaultUser),
                 GameLeftSuccessfulResponse.class));
-        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new GameCreatedSuccessfulResponse(defaultUser),
-                GameCreatedSuccessfulResponse.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new AllThisGameUsersResponse(),
                 AllThisGameUsersResponse.class));
 

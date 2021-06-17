@@ -9,15 +9,12 @@ import org.junit.jupiter.api.Test;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class SQLBasedUserStoreTest {
     private final UserDTO defaultUser = new UserDTO("Marco", "test", "marco@test.de", 1);
     SQLBasedUserStore userStore = new SQLBasedUserStore();
-    final CountDownLatch lock = new CountDownLatch(1);
 
     @BeforeEach
     public void buildConnection() throws SQLException {
@@ -32,7 +29,7 @@ public class SQLBasedUserStoreTest {
     @Test
     public void findUserWithUserNameTestSuccess() throws Exception {
         userStore.createUser(defaultUser.getUsername(), defaultUser.getPassword(), defaultUser.getEMail());
-        lock.await(1000, TimeUnit.MILLISECONDS);
+        //lock.await(1000, TimeUnit.MILLISECONDS);
         Optional<User> foundUser = userStore.findUser(defaultUser.getUsername());
 
         assertTrue(foundUser.isPresent());
@@ -52,7 +49,7 @@ public class SQLBasedUserStoreTest {
     @Test
     public void findUserWithUserNamePasswordTestSuccess() throws Exception {
         userStore.createUser(defaultUser.getUsername(), defaultUser.getPassword(), defaultUser.getEMail());
-        lock.await(1000, TimeUnit.MILLISECONDS);
+        //lock.await(1000, TimeUnit.MILLISECONDS);
         Optional<User> foundUser = userStore.findUser(defaultUser.getUsername(), defaultUser.getPassword());
 
         assertTrue(foundUser.isPresent());
@@ -74,6 +71,7 @@ public class SQLBasedUserStoreTest {
         Optional<User> user = userStore.findUser(defaultUser.getUsername(), "Test");
 
         assertTrue(user.isEmpty());
+        userStore.removeUser(defaultUser.getUsername());
     }
 
     @Test
@@ -84,6 +82,7 @@ public class SQLBasedUserStoreTest {
 
         Optional<User> updatedUser = userStore.findUser(defaultUser.getUsername());
 
+        assertTrue(updatedUser.isPresent());
         assertNotEquals(defaultUser.getEMail(), updatedUser.get().getEMail());
         assertEquals("test@test.de", updatedUser.get().getEMail());
 
@@ -94,13 +93,13 @@ public class SQLBasedUserStoreTest {
     @Test
     public void updateUserPasswordTestSuccess() throws Exception {
         userStore.createUser(defaultUser.getUsername(), defaultUser.getPassword(), defaultUser.getEMail());
-        lock.await(1000, TimeUnit.MILLISECONDS);
+        //lock.await(1000, TimeUnit.MILLISECONDS);
         userStore.updateUserPassword(defaultUser.getUsername(), "123456789");
 
         Optional<User> updatedUser = userStore.findUser(defaultUser.getUsername());
 
+        assertTrue(updatedUser.isPresent());
         assertNotEquals(defaultUser.getPassword(), updatedUser.get().getPassword());
-        //TODO Carsten gefragt, wie der Umgang mit Passwörtern seit Umstellung ist.
         assertNotEquals("123456789", updatedUser.get().getPassword());
 
         userStore.removeUser(defaultUser.getUsername());
@@ -115,6 +114,7 @@ public class SQLBasedUserStoreTest {
 
         Optional<User> updatedUser = userStore.findUser(defaultUser.getUsername());
 
+        assertTrue(updatedUser.isPresent());
         assertNotEquals(defaultUser.getProfilePictureID(), updatedUser.get().getProfilePictureID());
         assertEquals(3, updatedUser.get().getProfilePictureID());
 
@@ -135,7 +135,7 @@ public class SQLBasedUserStoreTest {
         }
 
         assertNotNull(wantedToFind);
-        assertTrue(wantedToFind.equals(defaultUser.getUsername()));
+        assertEquals(defaultUser.getUsername(), wantedToFind);
 
         userStore.removeUser(defaultUser.getUsername());
     }

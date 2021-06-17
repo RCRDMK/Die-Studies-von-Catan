@@ -15,7 +15,7 @@ import java.util.Objects;
 public class GameAlreadyExistsResponse extends AbstractResponseMessage {
 
 
-    private String lobbyName;
+    private final String lobbyName;
 
     /**
      * Constructor
