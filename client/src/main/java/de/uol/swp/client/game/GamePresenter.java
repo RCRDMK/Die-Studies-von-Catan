@@ -301,6 +301,12 @@ public class GamePresenter extends AbstractPresenter {
 
     private int myPlayerNumber;
 
+    private int pILumber = 0;
+    private int pIGrain = 0;
+    private int pIWool = 0;
+    private int pIOre = 0;
+    private int pIBrick = 0;
+
     private final HashMap<UUID, MapGraphNodeContainer> nodeContainerHashMap = new HashMap<>();
 
     /**
@@ -1044,7 +1050,7 @@ public class GamePresenter extends AbstractPresenter {
         if (message.getGameName().equals(currentLobby)) {
             String text = "is on turn";
             LOG.debug("Updated game Event Log area with new message");
-            updateEventLogLogic(text, response.getPlayerWithCurrentTurn());
+            updateEventLogLogic(text, message.getPlayerWithCurrentTurn());
             rolledDice = false;
             if (message.getPlayerWithCurrentTurn().equals(joinedLobbyUser.getUsername())) {
                 startingTurn = message.isInStartingTurn();
@@ -1705,9 +1711,6 @@ public class GamePresenter extends AbstractPresenter {
 
     @Subscribe
     public void onMoveRobberMessage(MoveRobberMessage moveRobberMessage) {
-        String text = "have to move the robber";
-        LOG.debug("Updated game Event Log area with new message");
-        updateEventLogLogic(text, "You");
         moveRobberMessageLogic(moveRobberMessage);
     }
 
@@ -1748,6 +1751,9 @@ public class GamePresenter extends AbstractPresenter {
                                         switchTurnPhaseButtons();
                                     }
                                     if (currentDevelopmentCard.equals("Knight")) {
+                                        String text = "used a Knight";
+                                        LOG.debug("Updated game Event Log area with new message");
+                                        updateEventLogLogic(text, moveRobberMessage.getUser().getUsername());
                                         gameService.resolveDevelopmentCardKnight((UserDTO) moveRobberMessage.getUser(), moveRobberMessage.getName(), currentDevelopmentCard, container.getHexagon().getUuid());
                                         currentDevelopmentCard = "";
                                     } else {
@@ -2305,9 +2311,6 @@ public class GamePresenter extends AbstractPresenter {
      */
     @Subscribe
     public void onSuccessfulMovedRobberMessage(SuccessfulMovedRobberMessage successfulMovedRobberMessage) {
-        String text = "moved the robber";
-        LOG.debug("Updated game Event Log area with new message");
-        updateEventLogLogic(text, successfullMovedRobberMessage.getUser().getUsername());
         for (HexagonContainer hexagonContainer : hexagonContainers) {
             if (hexagonContainer.getHexagon().getUuid().equals(successfulMovedRobberMessage.getNewField())) {
                 robber.setLayoutX(hexagonContainer.getHexagonShape().getLayoutX() - robber.getWidth() / 2);
@@ -2330,22 +2333,32 @@ public class GamePresenter extends AbstractPresenter {
     @Subscribe
     public void onPrivateInventoryChangeMessage(PrivateInventoryChangeMessage privateInventoryChangeMessage) {
         if (this.currentLobby != null) {
-            String text = "ressources are now Lumber: " +
-                    privateInventoryChangeMessage.getPrivateInventory().get("Lumber") + " Grain: " +
-                    privateInventoryChangeMessage.getPrivateInventory().get("Grain") + " Wool: " +
-                    privateInventoryChangeMessage.getPrivateInventory().get("Wool") + " Brick: " +
-                    privateInventoryChangeMessage.getPrivateInventory().get("Grain") + " Ore: " +
-                    privateInventoryChangeMessage.getPrivateInventory().get("Ore");
-            LOG.debug("Updated game Event Log area with new message");
-            updateEventLogLogic(text, "Your");
+            int tempLumber = privateInventoryChangeMessage.getPrivateInventory().get("Lumber");
+            int tempGrain = privateInventoryChangeMessage.getPrivateInventory().get("Grain");
+            int tempWool = privateInventoryChangeMessage.getPrivateInventory().get("Wool");
+            int tempBrick = privateInventoryChangeMessage.getPrivateInventory().get("Brick");
+            int tempOre = privateInventoryChangeMessage.getPrivateInventory().get("Ore");
+
+            if (tempLumber != pILumber || tempGrain != pIGrain || tempBrick != pIBrick || tempWool != pIWool
+                    || tempOre != pIOre) {
+                String text = "ressources are now Lumber: " + tempLumber + " Grain: " + tempGrain + " Wool: " +
+                        tempWool + " Brick: " + tempBrick + " Ore: " + tempOre;
+                LOG.debug("Updated game Event Log area with new message");
+                updateEventLogLogic(text, "Your");
+                pILumber = tempLumber;
+                pIGrain = tempGrain;
+                pIBrick = tempBrick;
+                pIWool = tempWool;
+                pIOre = tempOre;
+            }
             if (this.currentLobby.equals(privateInventoryChangeMessage.getName())) {
                 if (tooMuchAlert != null) {
                     Platform.runLater(() -> {
-                        lumberLabelRobberMenu.setText(String.valueOf(privateInventoryChangeMessage.getPrivateInventory().get("Lumber")));
-                        brickLabelRobberMenu.setText(String.valueOf(privateInventoryChangeMessage.getPrivateInventory().get("Brick")));
-                        grainLabelRobberMenu.setText(String.valueOf(privateInventoryChangeMessage.getPrivateInventory().get("Grain")));
-                        woolLabelRobberMenu.setText(String.valueOf(privateInventoryChangeMessage.getPrivateInventory().get("Wool")));
-                        oreLabelRobberMenu.setText(String.valueOf(privateInventoryChangeMessage.getPrivateInventory().get("Ore")));
+                        lumberLabelRobberMenu.setText(String.valueOf(tempLumber));
+                        brickLabelRobberMenu.setText(String.valueOf(tempBrick));
+                        grainLabelRobberMenu.setText(String.valueOf(tempGrain));
+                        woolLabelRobberMenu.setText(String.valueOf(tempWool));
+                        oreLabelRobberMenu.setText(String.valueOf(tempOre));
                         int toDiscard = Integer.parseInt(lumberLabelRobberMenu.getText()) +
                                 Integer.parseInt(grainLabelRobberMenu.getText()) +
                                 Integer.parseInt(woolLabelRobberMenu.getText()) +
@@ -3248,11 +3261,11 @@ public class GamePresenter extends AbstractPresenter {
     @Subscribe
     public void onChoosePlayerMessage(ChoosePlayerMessage choosePlayerMessage) {
         if (this.currentLobby != null) {
-            String text = "have to choose a player";
-            LOG.debug("Updated game Event Log area with new message");
-            updateEventLogLogic(text, "You");
             if (this.currentLobby.equals(choosePlayerMessage.getName())) {
                 if (!choosePlayerMessage.getUserList().isEmpty()) {
+                    String text = "have to choose a player";
+                    LOG.debug("Updated game Event Log area with new message");
+                    updateEventLogLogic(text, "You");
                     Platform.runLater(() -> showChoosePlayerAlert(choosePlayerMessage));
 
                 }
@@ -3324,7 +3337,7 @@ public class GamePresenter extends AbstractPresenter {
      */
     private void updateEventLogLogic(String text, String player) {
         var time = new SimpleDateFormat("HH:mm");
-        Date resultdate = new Date((long) System.currentTimeMillis());
+        var resultdate = new Date(System.currentTimeMillis());
         var readableTime = time.format(resultdate);
         gameEventLogArea.insertText(gameEventLogArea.getLength(), readableTime + " : " + player + " " + text + "\n");
     }
