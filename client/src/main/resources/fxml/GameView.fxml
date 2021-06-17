@@ -72,8 +72,8 @@
         <Button fx:id="endTurnButton" layoutX="1200.0" layoutY="560.0" mnemonicParsing="false" onAction="#onEndTurn"
                 text="End Turn"/>
         <Canvas id="canvas" fx:id="canvas" height="475.0" layoutX="310.0" layoutY="25.0" width="475.0"/>
-        <Button layoutX="1200.0" layoutY="410.0" mnemonicParsing="false" onAction="#onSendMessage" prefHeight="25.0"
-                prefWidth="75.0" text="Send"/>
+        <Button layoutX="1215.0" layoutY="410.0" mnemonicParsing="false" onAction="#onSendMessage" prefHeight="25.0"
+                prefWidth="60.0" text="Send"/>
         <TextField fx:id="gameChatInput" layoutX="1050.0" layoutY="385.0" onAction="#onSendMessage" prefHeight="25.0"
                    prefWidth="225.0" promptText="Send Message.."/>
         <Pane fx:id="picturePlayerView1" layoutX="70.0" layoutY="25.0" prefHeight="90.0" prefWidth="90.0"/>
