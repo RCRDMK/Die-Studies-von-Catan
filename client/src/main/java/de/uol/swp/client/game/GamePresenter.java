@@ -76,7 +76,7 @@ public class GamePresenter extends AbstractPresenter {
     private static final Logger LOG = LogManager.getLogger(GamePresenter.class);
 
     @FXML
-    private final TabPane tabPane = new TabPane();
+    private TabPane tabPane = new TabPane();
 
     @FXML
     public TextField gameChatInput;
