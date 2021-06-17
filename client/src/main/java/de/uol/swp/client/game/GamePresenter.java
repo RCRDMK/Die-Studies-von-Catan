@@ -1048,7 +1048,7 @@ public class GamePresenter extends AbstractPresenter {
     @Subscribe
     public void nextPlayerTurn(NextTurnMessage message) {
         if (message.getGameName().equals(currentLobby)) {
-            String text = "is on turn";
+            String text = "is making his turn";
             LOG.debug("Updated game Event Log area with new message");
             updateEventLogLogic(text, message.getPlayerWithCurrentTurn());
             rolledDice = false;
