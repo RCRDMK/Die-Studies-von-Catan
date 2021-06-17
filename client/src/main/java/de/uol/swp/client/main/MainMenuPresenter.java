@@ -464,7 +464,7 @@ public class MainMenuPresenter extends AbstractPresenter {
      *Enhanced by Sergej Tulnev
      *@since 2021-06-17
      *<p>
-     *When the user have a long textmessage, the message have a line break
+     *If the user has a long message, it will have a line break
      */
     private void updateChat(ResponseChatMessage msg) {
         var time = new SimpleDateFormat("HH:mm");
