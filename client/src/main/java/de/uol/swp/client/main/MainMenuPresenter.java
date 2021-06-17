@@ -460,11 +460,17 @@ public class MainMenuPresenter extends AbstractPresenter {
      * @see SimpleDateFormat
      * @see ResponseChatMessage
      * @since 2020-11-30
+     *<p>
+     *Enhanced by Sergej Tulnev
+     *@since 2021-06-17
+     *<p>
+     *When the user have a long textmessage, the message have a line break
      */
     private void updateChat(ResponseChatMessage msg) {
         var time = new SimpleDateFormat("HH:mm");
         Date resultdate = new Date((long) msg.getTime().doubleValue());
         var readableTime = time.format(resultdate);
+        textArea.setWrapText(true);
         textArea.insertText(textArea.getLength(), readableTime + " " + msg.getUsername() + ": " + msg.getMessage() + "\n");
     }
 

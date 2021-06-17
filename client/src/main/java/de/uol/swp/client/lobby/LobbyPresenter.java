@@ -666,7 +666,11 @@ public class LobbyPresenter extends AbstractPresenter {
     /**
      * Adds the ResponseChatMessage to the textArea
      *
-     * @param message
+     * @param message <p>
+     *                Enhanced by Sergej Tulnev
+     * @since 2021-06-17
+     * <p>
+     * When the user have a long textmessage, the message have a line break
      */
     private void updateChat(ResponseChatMessage message) {
         updateChatLogic(message);
@@ -677,6 +681,7 @@ public class LobbyPresenter extends AbstractPresenter {
         Date resultdate = new Date((long) rcm.getTime().doubleValue());
         var readableTime = time.format(resultdate);
         lobbyChatArea.insertText(lobbyChatArea.getLength(), readableTime + " " + rcm.getUsername() + ": " + rcm.getMessage() + "\n");
+        lobbyChatArea.setWrapText(true);
     }
 
 
