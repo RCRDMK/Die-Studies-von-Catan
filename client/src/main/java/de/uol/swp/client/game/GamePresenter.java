@@ -1520,8 +1520,6 @@ public class GamePresenter extends AbstractPresenter {
      * @param mapGraph the MapGraph created by the Server
      * @author Marius Birk
      * @author Marc Hermes
-     * @see de.uol.swp.client.game.GameObjects.TerrainField
-     * @see de.uol.swp.common.game.TerrainFieldContainer
      * @since 2021-04-20
      */
     public void initializeMatch(MapGraph mapGraph) {

@@ -19,7 +19,6 @@ public class SQLBasedUserStore extends AbstractUserStore implements UserStore {
     private final String CONNECTION = "jdbc:mysql://178.238.232.242:3306?autoReconnect=true";
     private static final Logger LOG = LogManager.getLogger(SQLBasedUserStore.class);
 
-
     /**
      * Build Connection
      * <p>
@@ -124,6 +123,7 @@ public class SQLBasedUserStore extends AbstractUserStore implements UserStore {
             userName.setString(3, eMail);
             userName.executeUpdate();
         } catch (Exception e) {
+            e.printStackTrace();
             throw new SQLException("User could not be created.");
         } finally {
             closeConnection();
