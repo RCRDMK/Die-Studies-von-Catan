@@ -16,9 +16,9 @@ import java.util.List;
  * @since 2021-01-20
  */
 public class TabHelper {
-    private TabPane tabPane;
-    private HashMap<String, Tab> tabsMap;
-    private HashMap<String, Tab> suspendedTabs;
+    private final TabPane tabPane;
+    private final HashMap<String, Tab> tabsMap;
+    private final HashMap<String, Tab> suspendedTabs;
 
     /**
      * Getter for the tabPane
@@ -30,18 +30,6 @@ public class TabHelper {
      */
     public TabPane getTabPane() {
         return tabPane;
-    }
-
-    /**
-     * Setter for the tabPane
-     * <p>
-     *
-     * @param tabPane the tabPane to be set to this tabHelper
-     * @author Alexander Losse, Marc Hermes
-     * @since 2021-01-20
-     */
-    public void setTabPane(TabPane tabPane) {
-        this.tabPane = tabPane;
     }
 
     /**
@@ -97,12 +85,11 @@ public class TabHelper {
      * <p>
      *
      * @param tab the Tab to be added to the inherent tabPane
-     * @return true when successfully added, false when not
      * @author Alexander Losse, Marc Hermes
      * @since 2021-01-20
      */
-    public boolean addTab(Tab tab) {
-        return this.tabPane.getTabs().add(tab);
+    public void addTab(Tab tab) {
+        this.tabPane.getTabs().add(tab);
     }
 
     /**
@@ -123,12 +110,11 @@ public class TabHelper {
      * <p>
      *
      * @param text the text of the Tab to be removed from the inherent tabPane
-     * @return true when successfully removed, false when not
      * @author Alexander Losse, Marc Hermes
      * @since 2021-01-20
      */
-    public boolean removeTab(String text) {
-        return this.tabPane.getTabs().remove(getTabByText(text));
+    public void removeTab(String text) {
+        this.tabPane.getTabs().remove(getTabByText(text));
     }
 
     /**
@@ -138,16 +124,13 @@ public class TabHelper {
      * tabsMap.
      *
      * @param text The name of the Tab to suspend
-     * @return True when successfully suspended, false when not
      * @author Marc Hermes
      * @since 2021-03-16
      */
-    public boolean suspendTab(String text) {
+    public void suspendTab(String text) {
         if (tabsMap.containsKey(text)) {
             suspendedTabs.put(text, getTabByText(text));
-            return removeTab(text);
-        } else {
-            return false;
+            removeTab(text);
         }
     }
 
@@ -158,16 +141,13 @@ public class TabHelper {
      * tabsMap.
      *
      * @param text The name of the Tab to unsuspend
-     * @return True when successfully unsuspended, false when not
      * @author Marc Hermes
      * @since 2021-03-16
      */
-    public boolean unsuspendTab(String text) {
+    public void unsuspendTab(String text) {
         if (suspendedTabs.containsKey(text)) {
             Tab tabToUnsuspend = suspendedTabs.remove(text);
-            return addTab(tabToUnsuspend);
-        } else {
-            return false;
+            addTab(tabToUnsuspend);
         }
     }
 }

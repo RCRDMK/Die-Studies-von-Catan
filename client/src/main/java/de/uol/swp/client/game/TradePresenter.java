@@ -22,7 +22,7 @@ import java.util.HashMap;
  * @see de.uol.swp.client.AbstractPresenter
  * @since 2021-04-21
  */
-
+@SuppressWarnings("UnstableApiUsage")
 public class TradePresenter extends AbstractPresenter {
 
     public static final String fxml = "/fxml/TradeView.fxml";
@@ -100,7 +100,7 @@ public class TradePresenter extends AbstractPresenter {
     /**
      * Initializes the values when a new tradeStartedMessage comes in for the bidder
      *
-     * @param tradeOfferInformBiddersMessage
+     * @param tradeOfferInformBiddersMessage the tradeOfferInformBiddersMessage detected on the EventBus
      * @author Alexander Losse, Ricardo Mook
      * @see TradeOfferInformBiddersMessage
      * @since 2021-04-21
@@ -112,9 +112,9 @@ public class TradePresenter extends AbstractPresenter {
             this.gameName = tradeOfferInformBiddersMessage.getName();
             this.user = tradeOfferInformBiddersMessage.getBidder();
             setOffer(tradeOfferInformBiddersMessage.getSellingItems(), tradeOfferInformBiddersMessage.getWantedItems());
-            ressourceChoiceBank.setVisible(false);
+            resourceChoiceBank.setVisible(false);
             createRequestButton.setVisible(false);
-            tradeLable2.setVisible(false);
+            tradeLabel2.setVisible(false);
             textRowW.setVisible(false);
             lumberW.setVisible(false);
             brickW.setVisible(false);
@@ -129,7 +129,7 @@ public class TradePresenter extends AbstractPresenter {
      * reacts to the TradeCardErrorMessage
      * <p>
      * checks if the TradeCardErrorMessage is for the user
-     * reenables addItemOfferButton, sendItemsSuggestButton, ressourceInputValue, ressourceChoice, endTradeButton
+     * re-enables addItemOfferButton, sendItemsSuggestButton, resourceInputValue, resourceChoice, endTradeButton
      * they are disabled íf the sendItemsSuggestButton is pressed
      * the message is received if the user has not enough items in the inventory
      *
@@ -145,8 +145,8 @@ public class TradePresenter extends AbstractPresenter {
                 addItemOfferButton.setDisable(false);
                 addItemWishButton.setDisable(false);
                 sendItemsSuggestButton.setDisable(false);
-                ressourceInputValue.setDisable(false);
-                ressourceChoice.setDisable(false);
+                resourceInputValue.setDisable(false);
+                resourceChoice.setDisable(false);
                 if (!isBidder) {
                     endTradeButton.setVisible(true);
                 } else {
@@ -231,6 +231,8 @@ public class TradePresenter extends AbstractPresenter {
                 case oreString:
                     ore1.setText(valueOfCount);
                     break;
+                default:
+                    break;
             }
         }
         textRow1.setText("Seller offers:");
@@ -252,6 +254,8 @@ public class TradePresenter extends AbstractPresenter {
                     break;
                 case oreString:
                     ore2.setText(valueOfCount);
+                    break;
+                default:
                     break;
             }
         }
@@ -319,7 +323,7 @@ public class TradePresenter extends AbstractPresenter {
             }
         } else if (buyerGotBankOffer) {
             RadioButton selectedRadioButton = (RadioButton) choiceTrade.getSelectedToggle();
-            String chosenCard = ressourceChoiceBank.getValue().toString();
+            String chosenCard = resourceChoiceBank.getValue().toString();
 
             if (selectedRadioButton == offerNoneRadioButton) {
                 gameService.sendBuyChoice(gameName, user, tradeCode, chosenCard, null);
@@ -346,7 +350,7 @@ public class TradePresenter extends AbstractPresenter {
      */
     @FXML
     public void onAddItemOfferButtonPressed() {
-        saveRessourceOfferInputValue();
+        saveResourceOfferInputValue();
     }
 
     /**
@@ -357,7 +361,7 @@ public class TradePresenter extends AbstractPresenter {
      */
     @FXML
     public void onAddItemWishButtonPressed() {
-        saveRessourceWishInputValue();
+        saveResourceWishInputValue();
     }
 
     /**
@@ -366,7 +370,7 @@ public class TradePresenter extends AbstractPresenter {
      * ArrayList<TradeItem> sendTradeItemArrayList is created with createTradeItemList()
      * boolean minimalItems tracks if at least one item ha a count of > 0
      * if minimalItems == true a TradeItemRequest is send via the GameService
-     * disables addItemOfferButton, sendItemsSuggestButton, ressourceInputValue, ressourceChoice, endTradeButton
+     * disables addItemOfferButton, sendItemsSuggestButton, resourceInputValue, resourceChoice, endTradeButton
      * else nothing happens
      *
      * @author Alexander Losse, Ricardo Mook
@@ -405,7 +409,7 @@ public class TradePresenter extends AbstractPresenter {
     /**
      * Method gets called when on the create Request button was pressed
      * <p>
-     * Send gameName, user, tradeCode, ressourceChoiceBank to the GameService for the BankRequest
+     * Send gameName, user, tradeCode, resourceChoiceBank to the GameService for the BankRequest
      *
      * @author Anton Nikiforov
      * @see GameService
@@ -413,18 +417,18 @@ public class TradePresenter extends AbstractPresenter {
      */
     @FXML
     public void onCreateRequestButton() {
-        String card = ressourceChoiceBank.getValue().toString();
+        String card = resourceChoiceBank.getValue().toString();
         if (!card.equals("What do you want to buy?")) {
             gameService.createBankRequest(gameName, user, tradeCode, card);
         }
     }
 
     /**
-     * reads the input value from ressourceInputValue and saves the value
+     * reads the input value from resourceInputValue and saves the value
      * <p>
-     * reads the input value from ressourceInputValue
+     * reads the input value from resourceInputValue
      * if the value is a viable int
-     * the method checks which ressource is to be added
+     * the method checks which resource is to be added
      * sets the corresponding text in row 0
      * else nothing happens
      *
@@ -432,25 +436,27 @@ public class TradePresenter extends AbstractPresenter {
      * @see TradeItem
      * @since 2021-04-21
      */
-    public void saveRessourceOfferInputValue() {
-        String ressourceOfferInputValueText = ressourceInputValue.getText();
-        if (isStringNumber(ressourceOfferInputValueText)) {
-            String ressourceChoiceString = ressourceChoice.getValue().toString();
-            switch (ressourceChoiceString) {
+    public void saveResourceOfferInputValue() {
+        String resourceOfferInputValueText = resourceInputValue.getText();
+        if (isStringNumber(resourceOfferInputValueText)) {
+            String resourceChoiceString = resourceChoice.getValue().toString();
+            switch (resourceChoiceString) {
                 case lumberString:
-                    lumber0.setText(ressourceOfferInputValueText);
+                    lumber0.setText(resourceOfferInputValueText);
                     break;
                 case brickString:
-                    brick0.setText(ressourceOfferInputValueText);
+                    brick0.setText(resourceOfferInputValueText);
                     break;
                 case grainString:
-                    grain0.setText(ressourceOfferInputValueText);
+                    grain0.setText(resourceOfferInputValueText);
                     break;
                 case woolString:
-                    wool0.setText(ressourceOfferInputValueText);
+                    wool0.setText(resourceOfferInputValueText);
                     break;
                 case oreString:
-                    ore0.setText(ressourceOfferInputValueText);
+                    ore0.setText(resourceOfferInputValueText);
+                    break;
+                default:
                     break;
             }
         }
@@ -462,25 +468,27 @@ public class TradePresenter extends AbstractPresenter {
      * @author Alexander Losse, Ricardo Moo
      * @since 2021-04-21
      */
-    public void saveRessourceWishInputValue() {
-        String ressourceWishInputValueText = ressourceInputValue.getText();
-        if (isStringNumber(ressourceWishInputValueText)) {
-            String ressourceChoiceString = ressourceChoice.getValue().toString();
-            switch (ressourceChoiceString) {
+    public void saveResourceWishInputValue() {
+        String resourceWishInputValueText = resourceInputValue.getText();
+        if (isStringNumber(resourceWishInputValueText)) {
+            String resourceChoiceString = resourceChoice.getValue().toString();
+            switch (resourceChoiceString) {
                 case lumberString:
-                    lumberW.setText(ressourceWishInputValueText);
+                    lumberW.setText(resourceWishInputValueText);
                     break;
                 case brickString:
-                    brickW.setText(ressourceWishInputValueText);
+                    brickW.setText(resourceWishInputValueText);
                     break;
                 case grainString:
-                    grainW.setText(ressourceWishInputValueText);
+                    grainW.setText(resourceWishInputValueText);
                     break;
                 case woolString:
-                    woolW.setText(ressourceWishInputValueText);
+                    woolW.setText(resourceWishInputValueText);
                     break;
                 case oreString:
-                    oreW.setText(ressourceWishInputValueText);
+                    oreW.setText(resourceWishInputValueText);
+                    break;
+                default:
                     break;
             }
         }
@@ -490,7 +498,7 @@ public class TradePresenter extends AbstractPresenter {
      * creates a trade item list - help method -
      * <p>
      * creates ArrayList<TradeItems> tradeItems
-     * creates TradeItems with the values from row 0 and the corresponding ressource name
+     * creates TradeItems with the values from row 0 and the corresponding resource name
      * tradeItems are added to tradeItems
      * tradeItems is returned
      *
@@ -564,6 +572,8 @@ public class TradePresenter extends AbstractPresenter {
                     case oreString:
                         ore1.setText(valueOfCount);
                         break;
+                    default:
+                        break;
                 }
             }
             if (bids.size() > 1) {
@@ -586,6 +596,8 @@ public class TradePresenter extends AbstractPresenter {
                             break;
                         case oreString:
                             ore2.setText(valueOfCount);
+                            break;
+                        default:
                             break;
                     }
                 }
@@ -610,6 +622,8 @@ public class TradePresenter extends AbstractPresenter {
                             case oreString:
                                 ore3.setText(valueOfCount);
                                 break;
+                            default:
+                                break;
                         }
                     }
                 }
@@ -630,7 +644,7 @@ public class TradePresenter extends AbstractPresenter {
      */
     public void setUPBankOfferView(String card, ArrayList<ArrayList<TradeItem>> bankOffer) {
         textCol.setVisible(true);
-        tradeLable1.setVisible(false);
+        tradeLabel1.setVisible(false);
         textRow0.setText("You want:");
         offerNoneRadioButton.setVisible(true);
         lumber0.setText(card.equals(lumberString) ? "1" : "0");
@@ -672,6 +686,8 @@ public class TradePresenter extends AbstractPresenter {
                     case oreString:
                         ore1.setText(valueOfCount);
                         break;
+                    default:
+                        break;
                 }
         }
 
@@ -693,6 +709,8 @@ public class TradePresenter extends AbstractPresenter {
                     break;
                 case oreString:
                     ore2.setText(valueOfCount);
+                    break;
+                default:
                     break;
             }
         }
@@ -716,6 +734,8 @@ public class TradePresenter extends AbstractPresenter {
                 case oreString:
                     ore3.setText(valueOfCount);
                     break;
+                default:
+                    break;
             }
         }
 
@@ -737,6 +757,8 @@ public class TradePresenter extends AbstractPresenter {
                     break;
                 case oreString:
                     ore4.setText(valueOfCount);
+                    break;
+                default:
                     break;
             }
         }
@@ -795,12 +817,12 @@ public class TradePresenter extends AbstractPresenter {
         addItemOfferButton.setDisable(true);
         addItemWishButton.setDisable(true);
         sendItemsSuggestButton.setDisable(true);
-        ressourceInputValue.setDisable(true);
-        ressourceChoice.setDisable(true);
-        ressourceChoiceBank.setVisible(false);
+        resourceInputValue.setDisable(true);
+        resourceChoice.setDisable(true);
+        resourceChoiceBank.setVisible(false);
         createRequestButton.setVisible(false);
         alert.setVisible(false);
-        tradeLable2.setVisible(false);
+        tradeLabel2.setVisible(false);
         endTradeButton.setVisible(false);
         if (isBidder) {
             rejectOfferButton.setDisable(true);
@@ -837,13 +859,13 @@ public class TradePresenter extends AbstractPresenter {
     Button createRequestButton;
 
     @FXML
-    ChoiceBox ressourceChoice;
+    ChoiceBox<Object> resourceChoice;
 
     @FXML
-    ChoiceBox ressourceChoiceBank;
+    ChoiceBox<Object> resourceChoiceBank;
 
     @FXML
-    TextField ressourceInputValue;
+    TextField resourceInputValue;
 
     @FXML
     RadioButton offerNoneRadioButton;
@@ -999,10 +1021,10 @@ public class TradePresenter extends AbstractPresenter {
     HBox row4HBox;
 
     @FXML
-    Label tradeLable1;
+    Label tradeLabel1;
 
     @FXML
-    Label tradeLable2;
+    Label tradeLabel2;
 
     @FXML
     ToggleGroup choiceTrade;

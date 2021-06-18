@@ -17,7 +17,6 @@ import java.util.regex.Pattern;
 public class UserSettingsService {
 
     private final EventBus eventBus;
-    //private static final Logger LOG = LogManager.getLogger(UserSettingsPresenter.class);
 
     /**
      * Constructor

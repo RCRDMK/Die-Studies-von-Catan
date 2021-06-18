@@ -2,9 +2,6 @@ package de.uol.swp.server.usermanagement;
 
 import de.uol.swp.common.user.User;
 
-import java.sql.SQLException;
-import java.util.List;
-
 /**
  * An interface for all methods of the server user service
  *

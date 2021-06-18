@@ -42,6 +42,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * @see CheatService
  * @since 2021-06-01
  */
+@SuppressWarnings("UnstableApiUsage")
 public class CheatServiceTest {
     boolean gameFinished = false;
     final EventBus bus = new EventBus();
@@ -63,7 +64,7 @@ public class CheatServiceTest {
     UserDTO userDTO2 = new UserDTO("test3", "b74a37371ca548bfd937410737b27f383e03021766e90f1180169691b8b15fc50aef49932c7413c0450823777ba46a34fd649b4da20b2e701c394c582ff6df55", "peterlustig@uol.de");
     UserDTO userDTO3 = new UserDTO("test4", "65dfe56dd0e9117907b11e440d99a667527ddb13244aa38f79d3ae61ee0b2ab4047c1218c4fb05d84f88b914826c45de3ab27a611ea910a4b14733ab1e32b125", "test.lustig@uol.de");
 
-    Optional<Game> game;
+    Game game;
 
     Object event;
 
@@ -154,13 +155,13 @@ public class CheatServiceTest {
         lobby.get().joinUser(userDTO2);
         lobby.get().joinUser(userDTO3);
         gameManagement.createGame(lobby.get().getName(), lobby.get().getOwner(), lobby.get().getUsers(), "Standard");
-        game = gameManagement.getGame(lobby.get().getName());
-        game.get().joinUser(userDTO1);
-        game.get().joinUser(userDTO2);
-        game.get().joinUser(userDTO3);
-        game.get().setUpUserArrayList();
-        game.get().setUpInventories();
-        assertTrue(game.isPresent());
+        Optional <Game> optionalGame = gameManagement.getGame(lobby.get().getName());
+        optionalGame.ifPresent(value -> game = value);
+        game.joinUser(userDTO1);
+        game.joinUser(userDTO2);
+        game.joinUser(userDTO3);
+        game.setUpUserArrayList();
+        game.setUpInventories();
     }
 
     /**
@@ -195,10 +196,10 @@ public class CheatServiceTest {
         assertTrue(cheatService.isCheat(chatMessage));
         chatService.onRequestChatMessage(chatMessage);
 
-        var cheatInventory = game.get().getInventory(userDTO2);
-        var normalInventory1 = game.get().getInventory(userDTO1);
-        var normalInventory2 = game.get().getInventory(userDTO3);
-        var normalInventory3 = game.get().getInventory(userDTO);
+        var cheatInventory = game.getInventory(userDTO2);
+        var normalInventory1 = game.getInventory(userDTO1);
+        var normalInventory2 = game.getInventory(userDTO3);
+        var normalInventory3 = game.getInventory(userDTO);
 
         assertEquals(cheatInventory.lumber.getNumber(), 0);
         assertEquals(cheatInventory.grain.getNumber(), 0);
@@ -279,10 +280,10 @@ public class CheatServiceTest {
         assertTrue(cheatService.isCheat(chatMessage));
         chatService.onRequestChatMessage(chatMessage);
 
-        var cheatInventory = game.get().getInventory(userDTO2);
-        var normalInventory1 = game.get().getInventory(userDTO1);
-        var normalInventory2 = game.get().getInventory(userDTO3);
-        var normalInventory3 = game.get().getInventory(userDTO);
+        var cheatInventory = game.getInventory(userDTO2);
+        var normalInventory1 = game.getInventory(userDTO1);
+        var normalInventory2 = game.getInventory(userDTO3);
+        var normalInventory3 = game.getInventory(userDTO);
 
         assertEquals(cheatInventory.lumber.getNumber(), 0);
         assertEquals(cheatInventory.grain.getNumber(), 0);
@@ -330,7 +331,7 @@ public class CheatServiceTest {
     }
 
     /**
-     * Test for the givemecard Cheat - Testing the Ressource Card
+     * Test for the givemecard Cheat - Testing the Resource Card
      * <p>
      * This test creates a new RequestChatMessage to emulate a sent ChatMessage from a client <br>
      * Then it sets the session of the RequestChatMessage <br>
@@ -343,8 +344,8 @@ public class CheatServiceTest {
      * @since 2021-06-01
      */
     @Test
-    @DisplayName("givemecard x Ressource Cheat Test")
-    void giveMeCardXRessourceCheat() {
+    @DisplayName("givemecard x Resource Cheat Test")
+    void giveMeCardXResourceCheat() {
         RequestChatMessage chatMessage = new RequestChatMessage("givemecard ore 15", "game_testLobby", userDTO2.getUsername(), 0);
         chatMessage.setSession(new Session() {
             @Override
@@ -360,10 +361,10 @@ public class CheatServiceTest {
         assertTrue(cheatService.isCheat(chatMessage));
         chatService.onRequestChatMessage(chatMessage);
 
-        var cheatInventory = game.get().getInventory(userDTO2);
-        var normalInventory1 = game.get().getInventory(userDTO1);
-        var normalInventory2 = game.get().getInventory(userDTO3);
-        var normalInventory3 = game.get().getInventory(userDTO);
+        var cheatInventory = game.getInventory(userDTO2);
+        var normalInventory1 = game.getInventory(userDTO1);
+        var normalInventory2 = game.getInventory(userDTO3);
+        var normalInventory3 = game.getInventory(userDTO);
 
         assertEquals(cheatInventory.lumber.getNumber(), 0);
         assertEquals(cheatInventory.grain.getNumber(), 0);
@@ -427,7 +428,7 @@ public class CheatServiceTest {
     @DisplayName("roll Cheat Test")
     void rollCheat() {
         // Get user that currently is onTurn
-        var userTurn = game.get().getUser(game.get().getTurn());
+        var userTurn = game.getUser(game.getTurn());
         RequestChatMessage chatMessage = new RequestChatMessage("roll 5", "game_testLobby", userTurn.getUsername(), 0);
         chatMessage.setSession(new Session() {
             @Override
@@ -494,10 +495,10 @@ public class CheatServiceTest {
         chatService.onRequestChatMessage(chatMessage);
         assertTrue(event instanceof PublicInventoryChangeMessage);
 
-        var cheatInventory = game.get().getInventory(userDTO2);
-        var normalInventory1 = game.get().getInventory(userDTO1);
-        var normalInventory2 = game.get().getInventory(userDTO3);
-        var normalInventory3 = game.get().getInventory(userDTO);
+        var cheatInventory = game.getInventory(userDTO2);
+        var normalInventory1 = game.getInventory(userDTO1);
+        var normalInventory2 = game.getInventory(userDTO3);
+        var normalInventory3 = game.getInventory(userDTO);
 
         assertEquals(cheatInventory.getVictoryPoints(), 10);
         assertEquals(normalInventory1.getVictoryPoints(), 0);
@@ -515,7 +516,7 @@ public class CheatServiceTest {
      * Then it checks if the sent Message "givemeall 15" is recognized as a cheat. <br>
      * Then it calls the onRequestChatMessage function from the chatService <br>
      * Then it gets all inventories of the users  <br>
-     * Then it checks all inventories if only the cheatUser has 15 of all ressource cards and 1 of every development card in the inventory <br>
+     * Then it checks all inventories if only the cheatUser has 15 of all resource cards and 1 of every development card in the inventory <br>
      *
      * @author René Meyer
      * @since 2021-06-01
@@ -537,10 +538,10 @@ public class CheatServiceTest {
         });
         assertTrue(cheatService.isCheat(chatMessage));
         chatService.onRequestChatMessage(chatMessage);
-        var cheatInventory = game.get().getInventory(userDTO2);
-        var normalInventory1 = game.get().getInventory(userDTO1);
-        var normalInventory2 = game.get().getInventory(userDTO3);
-        var normalInventory3 = game.get().getInventory(userDTO);
+        var cheatInventory = game.getInventory(userDTO2);
+        var normalInventory1 = game.getInventory(userDTO1);
+        var normalInventory2 = game.getInventory(userDTO3);
+        var normalInventory3 = game.getInventory(userDTO);
 
 
         assertEquals(cheatInventory.lumber.getNumber(), 15);

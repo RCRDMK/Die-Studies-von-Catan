@@ -2,7 +2,6 @@ package de.uol.swp.server.game;
 
 
 import de.uol.swp.common.game.Game;
-import de.uol.swp.common.game.MapGraph;
 import de.uol.swp.common.game.dto.GameDTO;
 import de.uol.swp.common.user.User;
 

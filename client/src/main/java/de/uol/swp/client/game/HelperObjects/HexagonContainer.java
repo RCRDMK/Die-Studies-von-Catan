@@ -10,7 +10,7 @@ import javafx.scene.shape.Polygon;
  * Hexagon-object it is representing and the other way around. By using this class, we can change a certain
  * Hexagon-object by clicking on the corresponding drawn Polygon-objects in the canvas, or we can change the
  * Polygon-object by accessing it via the Hexagon-object.</p>
- *
+ * <p>
  * enhanced by Marc Hermes - 2021-04-28
  *
  * @author Pieter Vogt
@@ -55,7 +55,7 @@ public class HexagonContainer {
      * @since 2021-04-28
      */
     private Polygon calculateHexagon(double cardSize) {
-        double resizingFactor = cardSize/Math.sqrt(3);
+        double resizingFactor = cardSize / Math.sqrt(3);
         Polygon hexagonShape = new Polygon();
 
         Vector direction = Vector.right(resizingFactor);

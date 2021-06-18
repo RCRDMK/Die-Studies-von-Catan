@@ -35,7 +35,7 @@ public abstract class AbstractAISystem implements AISystem {
 
     User user;
 
-    String playedCardThisTurn = "";
+    String playedCardThisTurn;
 
     boolean startedTrade = false;
 

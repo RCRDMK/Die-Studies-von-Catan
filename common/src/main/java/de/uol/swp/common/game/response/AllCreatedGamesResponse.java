@@ -25,7 +25,7 @@ import java.util.List;
 public class AllCreatedGamesResponse extends AbstractResponseMessage {
 
 
-    final private ArrayList<GameDTO> games = new ArrayList<>();
+    private final ArrayList<GameDTO> games = new ArrayList<>();
 
     /**
      * Default Constructor

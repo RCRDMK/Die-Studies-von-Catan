@@ -75,7 +75,7 @@ public class UserService extends AbstractService {
         }
         ResponseMessage returnMessage;
         try {
-            User newUser = userManagement.createUser(msg.getUser());
+            userManagement.createUser(msg.getUser());
             returnMessage = new RegistrationSuccessfulResponse();
         } catch (Exception e) {
             LOG.error(e);
@@ -115,8 +115,10 @@ public class UserService extends AbstractService {
             returnMessage = new DropUserExceptionMessage("Cannot drop user " + dropUserRequest.getUser() + " " +
                     e.getMessage());
         }
-        returnMessage.setMessageContext(dropUserRequest.getMessageContext().get());
-        post(returnMessage);
+        if(dropUserRequest.getMessageContext().isPresent()) {
+            returnMessage.setMessageContext(dropUserRequest.getMessageContext().get());
+            post(returnMessage);
+        }
     }
 
     /**
@@ -213,7 +215,6 @@ public class UserService extends AbstractService {
      * UpdateUserSuccessfulResponse is posted on the EventBus otherwise a UpdateUserExceptionMessage
      * gets posted there.
      *
-     * @param updateUserMailRequest The UpdateUserRequest found on the EventBus
      * @param updateUserMailRequest The UpdateUserRequest found on the EventBus
      * @author Carsten Dekker
      * @see de.uol.swp.common.user.request.UpdateUserMailRequest

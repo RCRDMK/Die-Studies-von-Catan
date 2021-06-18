@@ -11,10 +11,10 @@ package de.uol.swp.client.game.HelperObjects;
  * @since 2021-05-01
  */
 public class DetailedTableStats {
-    private String user;
-    private int roadAmount;
-    private int knightAmount;
-    private int victoryPoints;
+    private final String user;
+    private final int roadAmount;
+    private final int knightAmount;
+    private final int victoryPoints;
 
     /**
      * Constructor for StatsDTO
@@ -38,6 +38,7 @@ public class DetailedTableStats {
     /**
      * Getter for the Victory Points
      * <p>
+     * Used for the PropertyValueFactory!
      *
      * @return victoryPoints
      * @author René Meyer, Sergej Tulnev
@@ -48,19 +49,9 @@ public class DetailedTableStats {
     }
 
     /**
-     * Setter for the Victory Points
-     * <p>
-     *
-     * @author René Meyer, Sergej Tulnev
-     * @since 2021-05-01
-     */
-    public void setVictoryPoints(int victoryPoints) {
-        this.victoryPoints = victoryPoints;
-    }
-
-    /**
      * Getter for the Knights
      * <p>
+     * Used for the PropertyValueFactory!
      *
      * @return knightAmount
      * @author René Meyer, Sergej Tulnev
@@ -71,19 +62,9 @@ public class DetailedTableStats {
     }
 
     /**
-     * Setter for the Knights
-     * <p>
-     *
-     * @author René Meyer, Sergej Tulnev
-     * @since 2021-05-01
-     */
-    public void setKnights(int knightAmount) {
-        this.knightAmount = knightAmount;
-    }
-
-    /**
      * Getter for the Roads
      * <p>
+     * Used for the PropertyValueFactory!
      *
      * @return roadAmount
      * @author René Meyer, Sergej Tulnev
@@ -94,19 +75,9 @@ public class DetailedTableStats {
     }
 
     /**
-     * Setter for the Roads
-     * <p>
-     *
-     * @author René Meyer, Sergej Tulnev
-     * @since 2021-05-01
-     */
-    public void setRoads(int roadAmount) {
-        this.roadAmount = roadAmount;
-    }
-
-    /**
      * Getter for the username as String
      * <p>
+     * Used for the PropertyValueFactory!
      *
      * @return user
      * @author René Meyer, Sergej Tulnev
@@ -116,14 +87,4 @@ public class DetailedTableStats {
         return user;
     }
 
-    /**
-     * Setter for the username
-     * <p>
-     *
-     * @author René Meyer, Sergej Tulnev
-     * @since 2021-05-01
-     */
-    public void setUser(String user) {
-        this.user = user;
-    }
 }

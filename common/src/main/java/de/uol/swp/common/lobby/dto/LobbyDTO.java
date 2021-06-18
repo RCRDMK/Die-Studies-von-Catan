@@ -16,7 +16,7 @@ import java.util.TreeSet;
  * who owns the lobby and who joined the lobby.
  * <p>
  * enhanced by Marc Hermes 2021-03-25
- * enhanved by René Meyer 2021-06-05 for protected lobby support
+ * enhanced by René Meyer 2021-06-05 for protected lobby support
  *
  * @author Marco Grawunder
  * @since 2019-10-08
@@ -86,7 +86,7 @@ public class LobbyDTO implements Lobby {
     /**
      * Setter for passwordHash. Needed for tempLobby reload in AllCreatedLobbiesResponse.java
      *
-     * @param passwordHash
+     * @param passwordHash the password to set this lobby's password to
      */
     public void setPasswordHash(int passwordHash) {
         this.passwordHash = passwordHash;

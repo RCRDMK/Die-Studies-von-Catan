@@ -5,12 +5,10 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import de.uol.swp.client.user.UserService;
 import de.uol.swp.common.game.request.PlayerReadyRequest;
-import de.uol.swp.common.lobby.message.UserJoinedLobbyMessage;
 import de.uol.swp.common.lobby.request.*;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.user.request.LoginRequest;
-import de.uol.swp.common.user.response.lobby.LobbyCreatedSuccessfulResponse;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -18,9 +16,6 @@ import org.junit.jupiter.api.Test;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
-import java.util.ArrayList;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -38,9 +33,8 @@ class LobbyServiceTest {
     final User defaultUser = new UserDTO("Peter", "lustig", "peter.lustig@uol.de");
     final User defaultUser2 = new UserDTO("Carsten", "stahl", "carsten.stahl@uol.de");
     final EventBus bus = new EventBus();
-    final CountDownLatch lock = new CountDownLatch(1);
     Object event;
-    String lobbyname;
+    String lobbyName;
     LobbyService lobbyService = new LobbyService(bus);
 
 
@@ -58,7 +52,6 @@ class LobbyServiceTest {
     void handle(DeadEvent e) {
         this.event = e.getEvent();
         System.out.print(e.getEvent());
-        lock.countDown();
     }
 
     /**
@@ -93,25 +86,21 @@ class LobbyServiceTest {
      * This subroutine creates a new UserService object registered to the EventBus
      * of this test class and class the objects login method for the default user.
      *
-     * @throws InterruptedException thrown by lock.await()
      * @since 2020-12-02
      */
-    private void loginUser() throws InterruptedException, InvalidKeySpecException, NoSuchAlgorithmException {
+    private void loginUser() throws InvalidKeySpecException, NoSuchAlgorithmException {
         UserService userService = new UserService(bus);
         userService.login(defaultUser.getUsername(), defaultUser.getPassword());
-        lock.await(1000, TimeUnit.MILLISECONDS);
     }
 
     /**
      * Subroutine, used for tests, that need textfields and strings.
      *
-     * @throws InterruptedException thrown by lock.await()
      * @since 2020-12-02
      */
-    private void initializeTextFields() throws InterruptedException {
-        lobbyname = "Testlobby";
+    private void initializeTextFields() {
+        lobbyName = "Testlobby";
 
-        lock.await(1000, TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -126,21 +115,18 @@ class LobbyServiceTest {
      * After that, we check if a CreateLobbyRequest object got posted to the EventBus.
      * The test fails if any of the checks fail.
      *
-     * @throws InterruptedException thrown by loginUser() and initializeTextFields()
      * @since 2020-12-02
      */
     @Test
     @DisplayName("Erstelle Lobby")
-    void createLobbyTest() throws InterruptedException, InvalidKeySpecException, NoSuchAlgorithmException {
+    void createLobbyTest() throws InvalidKeySpecException, NoSuchAlgorithmException {
         loginUser();
         initializeTextFields();
 
         assertTrue(event instanceof LoginRequest);
         UserDTO userDTO = new UserDTO(defaultUser.getUsername(), defaultUser.getPassword(), defaultUser.getEMail());
 
-        lobbyService.createNewLobby(lobbyname, userDTO);
-
-        lock.await(1000, TimeUnit.MILLISECONDS);
+        lobbyService.createNewLobby(lobbyName, userDTO);
 
         assertTrue(event instanceof CreateLobbyRequest);
     }
@@ -160,27 +146,22 @@ class LobbyServiceTest {
      * After that, we check if LobbyLeaveUserRequest object got posted to the EventBus.
      * The test fails if any of the checks fail.
      *
-     * @throws InterruptedException thrown by loginUser() and initializeTextFields()
      * @since 2020-12-02
      */
     @Test
     @DisplayName("Verlasse Lobby")
-    void leaveLobbyTest() throws InterruptedException, InvalidKeySpecException, NoSuchAlgorithmException {
+    void leaveLobbyTest() throws InvalidKeySpecException, NoSuchAlgorithmException {
         loginUser();
         initializeTextFields();
 
         assertTrue(event instanceof LoginRequest);
         UserDTO userDTO = new UserDTO(defaultUser.getUsername(), defaultUser.getPassword(), defaultUser.getEMail());
 
-        lobbyService.createNewLobby(lobbyname, userDTO);
-
-        lock.await(1000, TimeUnit.MILLISECONDS);
+        lobbyService.createNewLobby(lobbyName, userDTO);
 
         assertTrue(event instanceof CreateLobbyRequest);
 
-        lobbyService.leaveLobby(lobbyname, userDTO);
-
-        lock.await(1000, TimeUnit.MILLISECONDS);
+        lobbyService.leaveLobby(lobbyName, userDTO);
 
         assertTrue(event instanceof LobbyLeaveUserRequest);
     }
@@ -197,22 +178,18 @@ class LobbyServiceTest {
      * After that, we check if a CreateLobbyRequest object got posted to the EventBus.
      * The test fails if any of the checks fail.
      *
-     * @throws InterruptedException thrown by loginUser() and initializeTextFields()
      * @since 2020-12-02
      */
     @Test
     @DisplayName("Erstelle Lobby Umlaute")
-    void createLobbyWithVowelMutationTest() throws InterruptedException, InvalidKeySpecException,
-            NoSuchAlgorithmException {
+    void createLobbyWithVowelMutationTest() throws InvalidKeySpecException, NoSuchAlgorithmException {
         loginUser();
-        lobbyname = "äüÖÄöÜ";
+        lobbyName = "äüÖÄöÜ";
 
         assertTrue(event instanceof LoginRequest);
         UserDTO userDTO = new UserDTO(defaultUser.getUsername(), defaultUser.getPassword(), defaultUser.getEMail());
 
-        lobbyService.createNewLobby(lobbyname, userDTO);
-
-        lock.await(1000, TimeUnit.MILLISECONDS);
+        lobbyService.createNewLobby(lobbyName, userDTO);
 
         assertTrue(event instanceof CreateLobbyRequest);
     }
@@ -225,18 +202,13 @@ class LobbyServiceTest {
      * and waits for it to post a retrieveAllLobbiesRequest object on the EventBus.
      * If this happens within one second, the test is successful.
      *
-     * @throws InterruptedException thrown by lock.await()
      * @author Carsten Dekker
      * @since 2020-07-12
      */
-
     @Test
-    void retrieveAllLobbiesTest() throws InterruptedException {
-
+    void retrieveAllLobbiesTest() {
 
         lobbyService.retrieveAllLobbies();
-
-        lock.await(1000, TimeUnit.MILLISECONDS);
 
         assertTrue(event instanceof RetrieveAllLobbiesRequest);
     }
@@ -246,17 +218,13 @@ class LobbyServiceTest {
      * <p>
      * This test checks if a user who created a lobby, can leave it
      *
-     * @throws InterruptedException
      * @since 2020-12-10
      */
     @Test
     @DisplayName("Creator can leave")
-    void lobbyCreatorCanLeaveTest() throws InterruptedException {
-        CreateLobbyRequest message = new CreateLobbyRequest("test", (UserDTO) defaultUser);
+    void lobbyCreatorCanLeaveTest() {
         lobbyService.createNewLobby("test", (UserDTO) defaultUser);
-        LobbyCreatedSuccessfulResponse message2 = new LobbyCreatedSuccessfulResponse(defaultUser);
         lobbyService.leaveLobby("test", (UserDTO) defaultUser);
-        lock.await(1000, TimeUnit.MILLISECONDS);
         assertTrue(event instanceof LobbyLeaveUserRequest);
 
     }
@@ -266,21 +234,14 @@ class LobbyServiceTest {
      * <p>
      * This test checks if a user who joined a lobby, can leave it
      *
-     * @throws InterruptedException
      * @since 2020-12-10
      */
     @Test
     @DisplayName("joined User can leave")
-    void lobbyJoinedUserCanLeaveTest() throws InterruptedException {
-        CreateLobbyRequest message = new CreateLobbyRequest("test", (UserDTO) defaultUser);
+    void lobbyJoinedUserCanLeaveTest() {
         lobbyService.createNewLobby("test", (UserDTO) defaultUser);
-        LobbyCreatedSuccessfulResponse message2 = new LobbyCreatedSuccessfulResponse(defaultUser);
         lobbyService.joinLobby("test", (UserDTO) defaultUser2);
-        ArrayList<UserDTO> users = new ArrayList<>();
-        users.add((UserDTO) defaultUser);
-        UserJoinedLobbyMessage message3 = new UserJoinedLobbyMessage("test", (UserDTO) defaultUser2, users);
         lobbyService.leaveLobby("test", (UserDTO) defaultUser2);
-        lock.await(1000, TimeUnit.MILLISECONDS);
         assertTrue(event instanceof LobbyLeaveUserRequest);
     }
 
@@ -289,21 +250,14 @@ class LobbyServiceTest {
      * <p>
      * This test checks if a owner of a lobby can leave it, if another user is in it
      *
-     * @throws InterruptedException
      * @since 2020-12-10
      */
     @Test
     @DisplayName("Owner leaves, joined User stays in the lobby")
-    void lobbyOwnerLeavesJoinedUserStaysTest() throws InterruptedException {
-        CreateLobbyRequest message = new CreateLobbyRequest("test", (UserDTO) defaultUser);
+    void lobbyOwnerLeavesJoinedUserStaysTest() {
         lobbyService.createNewLobby("test", (UserDTO) defaultUser);
-        LobbyCreatedSuccessfulResponse message2 = new LobbyCreatedSuccessfulResponse(defaultUser);
         lobbyService.joinLobby("test", (UserDTO) defaultUser2);
-        ArrayList<UserDTO> users = new ArrayList<>();
-        users.add((UserDTO) defaultUser);
-        UserJoinedLobbyMessage message3 = new UserJoinedLobbyMessage("test", (UserDTO) defaultUser2, users);
         lobbyService.leaveLobby("test", (UserDTO) defaultUser);
-        lock.await(1000, TimeUnit.MILLISECONDS);
         assertTrue(event instanceof LobbyLeaveUserRequest);
     }
 
@@ -312,25 +266,16 @@ class LobbyServiceTest {
      * Test for joinLobby()
      * <p>
      * This test checks if a User can join Lobby
-     *
-     * @throws InterruptedException
      */
-
     @Test
     @DisplayName("Beitrete Lobby")
-    void joinLobbyTest() throws InterruptedException, InvalidKeySpecException, NoSuchAlgorithmException {
-        loginUser();
-        initializeTextFields();
+    void joinLobbyTest() throws InvalidKeySpecException, NoSuchAlgorithmException {
         loginUser();
         initializeTextFields();
         assertTrue(event instanceof LoginRequest);
-        UserDTO userDTO = new UserDTO(defaultUser.getUsername(), defaultUser.getPassword(), defaultUser.getEMail());
-        UserDTO userDTO2 = new UserDTO(defaultUser2.getUsername(), defaultUser2.getPassword(), defaultUser2.getEMail());
-        lobbyService.createNewLobby(lobbyname, userDTO);
-        lock.await(1000, TimeUnit.MILLISECONDS);
+        lobbyService.createNewLobby(lobbyName, (UserDTO) defaultUser);
         assertTrue(event instanceof CreateLobbyRequest);
-        lobbyService.joinLobby(lobbyname, userDTO2);
-        lock.await(1000, TimeUnit.MILLISECONDS);
+        lobbyService.joinLobby(lobbyName, (UserDTO) defaultUser2);
         assertTrue(event instanceof LobbyJoinUserRequest);
     }
 
@@ -345,11 +290,11 @@ class LobbyServiceTest {
 
     @Test
     public void startGameTest() {
-        lobbyService.startGame("Test", (UserDTO) defaultUser, "Standart", 2);
+        lobbyService.startGame("Test", (UserDTO) defaultUser, "Standard", 2);
 
         assertTrue(event instanceof StartGameRequest);
         assertEquals("Test", ((StartGameRequest) event).getName());
-        assertEquals("Standart", ((StartGameRequest) event).getGameFieldVariant());
+        assertEquals("Standard", ((StartGameRequest) event).getGameFieldVariant());
         assertEquals(defaultUser.getUsername(), ((StartGameRequest) event).getUser().getUsername());
     }
 }

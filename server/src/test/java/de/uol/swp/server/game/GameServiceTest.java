@@ -46,7 +46,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-
+@SuppressWarnings("UnstableApiUsage")
 public class GameServiceTest {
 
     final EventBus bus = new EventBus();
@@ -120,15 +120,17 @@ public class GameServiceTest {
      */
     @Test
     void onRetrieveAllThisGameUsersRequest() {
-        LobbyService lobbyService = new LobbyService(lobbyManagement, authenticationService, bus);
         lobbyManagement.createLobby("testLobby", userDTO);
         Optional<Lobby> lobby = lobbyManagement.getLobby("testLobby");
         assertTrue(lobby.isPresent());
         lobby.get().joinUser(userDTO1);
         gameManagement.createGame(lobby.get().getName(), lobby.get().getOwner(), null, "Standard");
         Optional<Game> game = gameManagement.getGame(lobby.get().getName());
+        assertTrue(game.isPresent());
         RetrieveAllThisGameUsersRequest retrieveAllThisGameUsersRequest = new RetrieveAllThisGameUsersRequest(lobby.get().getName());
-        assertSame(gameManagement.getGame(lobby.get().getName()).get().getName(), retrieveAllThisGameUsersRequest.getName());
+        Optional<Game> sameGame = gameManagement.getGame(lobby.get().getName());
+        assertTrue(sameGame.isPresent());
+        assertSame(sameGame.get().getName(), retrieveAllThisGameUsersRequest.getName());
         List<Session> gameUsers = authenticationService.getSessions(game.get().getUsers());
         for (Session session : gameUsers) {
             assertTrue(userDTO == (session.getUser()) && userDTO1 == (session.getUser()));
@@ -152,7 +154,6 @@ public class GameServiceTest {
      */
     @Test
     void onRetrieveAllThisGameUsersRequest3() {
-        LobbyService lobbyService = new LobbyService(lobbyManagement, authenticationService, bus);
         lobbyManagement.createLobby("testLobby", userDTO);
         Optional<Lobby> lobby = lobbyManagement.getLobby("testLobby");
         assertTrue(lobby.isPresent());
@@ -162,7 +163,9 @@ public class GameServiceTest {
         Optional<Game> game = gameManagement.getGame(lobby.get().getName());
         assertTrue(game.isPresent());
         RetrieveAllThisGameUsersRequest retrieveAllThisGameUsersRequest = new RetrieveAllThisGameUsersRequest(lobby.get().getName());
-        assertSame(gameManagement.getGame(lobby.get().getName()).get().getName(), retrieveAllThisGameUsersRequest.getName());
+        Optional<Game> sameGame = gameManagement.getGame(lobby.get().getName());
+        assertTrue(sameGame.isPresent());
+        assertSame(sameGame.get().getName(), retrieveAllThisGameUsersRequest.getName());
         List<Session> gameUsers = authenticationService.getSessions(game.get().getUsers());
         for (Session session : gameUsers) {
             assertTrue(userDTO == (session.getUser()) || userDTO1 == (session.getUser()) && userDTO2 == (session.getUser()));
@@ -186,7 +189,6 @@ public class GameServiceTest {
      */
     @Test
     void onRetrieveAllThisGameUsersRequest4() {
-        LobbyService lobbyService = new LobbyService(lobbyManagement, authenticationService, bus);
         lobbyManagement.createLobby("testLobby", userDTO);
         Optional<Lobby> lobby = lobbyManagement.getLobby("testLobby");
         assertTrue(lobby.isPresent());
@@ -197,7 +199,9 @@ public class GameServiceTest {
         Optional<Game> game = gameManagement.getGame(lobby.get().getName());
         assertTrue(game.isPresent());
         RetrieveAllThisGameUsersRequest retrieveAllThisGameUsersRequest = new RetrieveAllThisGameUsersRequest(lobby.get().getName());
-        assertSame(gameManagement.getGame(lobby.get().getName()).get().getName(), retrieveAllThisGameUsersRequest.getName());
+        Optional<Game> sameGame = gameManagement.getGame(lobby.get().getName());
+        assertTrue(sameGame.isPresent());
+        assertSame(sameGame.get().getName(), retrieveAllThisGameUsersRequest.getName());
         List<Session> gameUsers = authenticationService.getSessions(game.get().getUsers());
         for (Session session : gameUsers) {
             assertTrue(userDTO == (session.getUser()) && userDTO1 == (session.getUser()) && userDTO2 == (session.getUser()) && userDTO3 == (session.getUser()));
@@ -348,6 +352,11 @@ public class GameServiceTest {
         assertTrue(optionalGame.isPresent());
         Game game = optionalGame.get();
 
+        TradeStartRequest tsr = new TradeStartRequest(userDTO, game.getName(), tradeCode);
+        game.setLastRolledDiceValue(3);
+        gameService.onTradeStartedRequest(tsr);
+        assertTrue(event instanceof TradeStartedMessage);
+
         //fill Inventory userDTO
         game.getInventory(userDTO).lumber.setNumber(0);
         game.getInventory(userDTO).incCardStack("Lumber", 10);
@@ -363,15 +372,15 @@ public class GameServiceTest {
         game.getInventory(userDTO3).wool.setNumber(0);
         game.getInventory(userDTO3).incCardStack("Wool", 10);
 
-        //tests the tradestart
+        //tests the trade start
         TradeItem sellerItemLumber = new TradeItem("Lumber", 5);
         TradeItem sellerItemOre = new TradeItem("Ore", 10);
         TradeItem sellerItemBrick = new TradeItem("Brick", 0);
         TradeItem sellerItemWool = new TradeItem("Wool", 0);
         TradeItem sellerItemGrain = new TradeItem("Grain", 0);
 
-        ArrayList<TradeItem> sellerItems = new ArrayList<TradeItem>();
-        ArrayList<TradeItem> wishItems = new ArrayList<TradeItem>();
+        ArrayList<TradeItem> sellerItems = new ArrayList<>();
+        ArrayList<TradeItem> wishItems = new ArrayList<>();
         sellerItems.add(sellerItemLumber);
         sellerItems.add(sellerItemBrick);
         sellerItems.add(sellerItemWool);
@@ -395,8 +404,8 @@ public class GameServiceTest {
         TradeItem bidder1ItemWool = new TradeItem("Wool", 15);
         TradeItem bidder1ItemGrain = new TradeItem("Grain", 20);
 
-        ArrayList<TradeItem> bidder1ItemsWrong = new ArrayList<TradeItem>();
-        ArrayList<TradeItem> bidder1wishItems = new ArrayList<TradeItem>();
+        ArrayList<TradeItem> bidder1ItemsWrong = new ArrayList<>();
+        ArrayList<TradeItem> bidder1wishItems = new ArrayList<>();
         bidder1ItemsWrong.add(bidder1ItemLumber);
         bidder1ItemsWrong.add(bidder1ItemBrick);
         bidder1ItemsWrong.add(bidder1ItemWool);
@@ -416,7 +425,7 @@ public class GameServiceTest {
         bidder1ItemWool = new TradeItem("Wool", 0);
         bidder1ItemGrain = new TradeItem("Grain", 0);
 
-        ArrayList<TradeItem> bidder1ItemsRight = new ArrayList<TradeItem>();
+        ArrayList<TradeItem> bidder1ItemsRight = new ArrayList<>();
         bidder1ItemsRight.add(bidder1ItemLumber);
         bidder1ItemsRight.add(bidder1ItemBrick);
         bidder1ItemsRight.add(bidder1ItemWool);
@@ -437,8 +446,8 @@ public class GameServiceTest {
         TradeItem bidder2ItemWool = new TradeItem("Wool", 0);
         TradeItem bidder2ItemGrain = new TradeItem("Grain", 10);
 
-        ArrayList<TradeItem> bidder2Items = new ArrayList<TradeItem>();
-        ArrayList<TradeItem> bidder2wishItems = new ArrayList<TradeItem>();
+        ArrayList<TradeItem> bidder2Items = new ArrayList<>();
+        ArrayList<TradeItem> bidder2wishItems = new ArrayList<>();
         bidder2Items.add(bidder2ItemLumber);
         bidder2Items.add(bidder2ItemBrick);
         bidder2Items.add(bidder2ItemWool);
@@ -458,8 +467,8 @@ public class GameServiceTest {
         TradeItem bidder3ItemWool = new TradeItem("Wool", 10);
         TradeItem bidder3ItemGrain = new TradeItem("Grain", 0);
 
-        ArrayList<TradeItem> bidder3Items = new ArrayList<TradeItem>();
-        ArrayList<TradeItem> bidder3wishItems = new ArrayList<TradeItem>();
+        ArrayList<TradeItem> bidder3Items = new ArrayList<>();
+        ArrayList<TradeItem> bidder3wishItems = new ArrayList<>();
         bidder3Items.add(bidder3ItemLumber);
         bidder3Items.add(bidder3ItemBrick);
         bidder3Items.add(bidder3ItemWool);
@@ -545,7 +554,7 @@ public class GameServiceTest {
         assertEquals(inventoryEmpty.get("Ore"), 0);
 
         gameService.distributeResources(5, "test");
-        Map<String, Integer> inventoryFull = new HashMap<>();
+        Map<String, Integer> inventoryFull;
         inventoryFull = game.getInventory(game.getUser(1)).getPrivateView();
         assertEquals(inventoryFull.get("Lumber"), 6);
         assertEquals(inventoryFull.get("Brick"), 0);
@@ -909,7 +918,7 @@ public class GameServiceTest {
             b.buildOrDevelopSettlement(1);
         }
 
-        Map<String, Integer> inventoryEmpty = new HashMap<>();
+        Map<String, Integer> inventoryEmpty;
         inventoryEmpty = game.getInventory(game.getUser(1)).getPrivateView();
         assertEquals(inventoryEmpty.get("Lumber"), 0);
         assertEquals(inventoryEmpty.get("Brick"), 0);
@@ -1719,7 +1728,7 @@ public class GameServiceTest {
         gameService.onBuyDevelopmentCardRequest(bdcr);
 
         while (game.getDevelopmentCardDeck().drawnCard() != null) {
-
+            //action is already done in the condition of the while loop
         }
 
         inv0.incCardStack("Ore", 1);
@@ -2002,7 +2011,8 @@ public class GameServiceTest {
         PlayerReadyRequest prr = new PlayerReadyRequest(lobby.getName(), userDTO, false);
         gameService.onPlayerReadyRequest(prr);
 
-        waiter.await(2, TimeUnit.SECONDS);
+        boolean done = waiter.await(2, TimeUnit.SECONDS);
+        assertFalse(done);
 
         Optional<Game> optionalGame = gameManagement.getGame("test");
         assertFalse(optionalGame.isPresent());
@@ -2016,7 +2026,8 @@ public class GameServiceTest {
         prr = new PlayerReadyRequest(lobby.getName(), userDTO2, false);
         gameService.onPlayerReadyRequest(prr);
 
-        waiter.await(2, TimeUnit.SECONDS);
+        done = waiter.await(2, TimeUnit.SECONDS);
+        assertFalse(done);
 
         optionalGame = gameManagement.getGame("test");
         assertTrue(optionalGame.isPresent());

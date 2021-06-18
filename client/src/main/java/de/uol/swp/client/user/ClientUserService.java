@@ -4,7 +4,6 @@ import de.uol.swp.common.user.User;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
-import java.util.List;
 
 /**
  * An interface for all methods of the client user service
@@ -67,12 +66,12 @@ public interface ClientUserService {
      * <p>
      * Updates the User specified by the User object.
      *
-     * @author Carsten Dekker
-     * @implNote the User Object has to contain a unique identifier in order to
-     * 			 update the correct user
      * @param user the user object containing all infos to
      *             update, if some values are not set, (e.g. password is "")
      *             these fields are not updated
+     * @author Carsten Dekker
+     * @implNote the User Object has to contain a unique identifier in order to
+     * update the correct user
      * @since 2021-03-14
      */
     void updateUserPassword(User user, String currentPassword) throws InvalidKeySpecException, NoSuchAlgorithmException;
@@ -82,27 +81,27 @@ public interface ClientUserService {
      * <p>
      * Updates the User specified by the User object.
      *
-     * @author Carsten Dekker
-     * @implNote the User Object has to contain a unique identifier in order to
-     * 			 update the correct user
      * @param user the user object containing all infos to
      *             update, if some values are not set, (e.g. password is "")
      *             these fields are not updated
+     * @author Carsten Dekker
+     * @implNote the User Object has to contain a unique identifier in order to
+     * update the correct user
      * @since 2021-03-14
      */
     void updateUserMail(User user);
 
     /**
      * Update the profilePicture from a user
-     *
+     * <p>
      * Updates the user specified by the User object
      *
+     * @param user the user object containing all info to
+     *             update, if some values are not set, (e.g. password is "")
+     *             these fields are not updated
      * @author Carsten Dekker
      * @implNote the User Object has to contain a unique identifier in order to
      * update the correct user
-     * @param user the user object containing all infos to
-     * update, if some values are not set, (e.g. password is "")
-     * these fields are not updated
      * @since 2021-04-15
      */
     void updateUserProfilePicture(User user);
@@ -115,9 +114,20 @@ public interface ClientUserService {
      */
     void retrieveAllUsers();
 
-    //TODO es fehlt JavaDoc
+    /**
+     * Method used to start the timer for sending pings
+     *
+     * @param user the user of this client who is currently logged in
+     * @author Philip Nitsche
+     * @since 2021-01-21
+     */
     void startTimerForPing(User user);
 
-    //TODO es fehlt JavaDoc
+    /**
+     * Method used to end the timer for sending pings
+     *
+     * @author Philip Nitsche
+     * @since 2021-01-21
+     */
     void endTimerForPing();
 }

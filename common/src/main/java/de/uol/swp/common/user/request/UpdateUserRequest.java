@@ -15,7 +15,7 @@ import java.util.Objects;
  */
 public class UpdateUserRequest extends AbstractRequestMessage {
 
-    final private User toUpdate;
+    private final User toUpdate;
 
     /**
      * Constructor
