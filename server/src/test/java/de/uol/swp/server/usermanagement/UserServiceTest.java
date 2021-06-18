@@ -1,23 +1,16 @@
 package de.uol.swp.server.usermanagement;
 
 import com.google.common.eventbus.EventBus;
-import com.google.inject.internal.cglib.core.$MethodWrapper;
 import de.uol.swp.common.message.MessageContext;
 import de.uol.swp.common.message.ResponseMessage;
 import de.uol.swp.common.message.ServerMessage;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
-import de.uol.swp.common.user.exception.RetrieveUserInformationExceptionMessage;
 import de.uol.swp.common.user.request.*;
 import de.uol.swp.server.usermanagement.store.MainMemoryBasedUserStore;
 import org.junit.jupiter.api.Test;
-import org.w3c.dom.events.Event;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -33,10 +26,6 @@ class UserServiceTest {
     static final User userToRegister = new UserDTO("Marco", "Marco", "Marco@Grawunder.com");
     static final User userWithSameName = new UserDTO("Marco", "Marco2", "Marco2@Grawunder.com");
     static final User userToDrop = new UserDTO("Carsten", "Stahl", "Carsten@Stahl.com");
-
-    Event event;
-
-    final CountDownLatch lock = new CountDownLatch(1);
 
     final EventBus bus = new EventBus();
     MainMemoryBasedUserStore mainMemoryBasedUserStore = new MainMemoryBasedUserStore();

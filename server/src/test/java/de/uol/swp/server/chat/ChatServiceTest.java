@@ -26,6 +26,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+// TODO: überarbeiten, test deckt nichts ab und die service variablen werde nicht genutzt
 /**
  * Class for the ChatService Test
  * <p>
@@ -35,7 +36,6 @@ import static org.junit.jupiter.api.Assertions.*;
  * @see ChatService
  * @since 2020-11-22
  */
-
 public class ChatServiceTest {
     final EventBus bus = new EventBus();
     MainMemoryBasedUserStore mainMemoryBasedUserStore = new MainMemoryBasedUserStore();

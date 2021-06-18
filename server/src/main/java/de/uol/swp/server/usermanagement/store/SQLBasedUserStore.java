@@ -4,8 +4,6 @@ import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -23,7 +21,7 @@ public class SQLBasedUserStore extends AbstractUserStore implements UserStore {
      * Build Connection
      * <p>
      * This method will build up a connection to our database at the University Servers.
-     * It can be used everywhere, where the usermanagement is used and needed. But most times
+     * It can be used everywhere, where the userManagement is used and needed. But most times
      * the connection is already opened and would only close if the server is going to shut down.
      *
      * @author Marius Birk
@@ -56,7 +54,7 @@ public class SQLBasedUserStore extends AbstractUserStore implements UserStore {
 
     @Override
     public Optional<User> findUser(String username, String password) throws Exception {
-        ResultSet resultSet = null;
+        ResultSet resultSet;
         try {
             buildConnection();
             PreparedStatement preparedStatement = connection.prepareStatement("select name, password, mail, pictureID from userData where name=? and password=?;");
@@ -82,7 +80,7 @@ public class SQLBasedUserStore extends AbstractUserStore implements UserStore {
 
     @Override
     public Optional<User> findUser(String username) throws Exception {
-        ResultSet resultSet = null;
+        ResultSet resultSet;
         try {
             buildConnection();
             PreparedStatement preparedStatement = connection.prepareStatement("select name, mail, pictureID from userData where name=?;");
@@ -224,7 +222,7 @@ public class SQLBasedUserStore extends AbstractUserStore implements UserStore {
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             LOG.debug(e);
-            throw new SQLException("Profilepicture could not be updated.");
+            throw new SQLException("Profile picture could not be updated.");
         } finally {
             closeConnection();
         }

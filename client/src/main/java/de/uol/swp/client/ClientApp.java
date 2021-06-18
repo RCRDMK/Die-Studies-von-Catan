@@ -153,7 +153,7 @@ public class ClientApp extends Application implements ConnectionListener {
     public void userLoggedIn(LoginSuccessfulResponse message) {
         LOG.debug("user logged in successfully " + message.getUser().getUsername());
         this.user = message.getUser();
-        sceneManager.showMainScreen(user);
+        sceneManager.showMainScreen();
         userService.startTimerForPing(message.getUser());
         lastPingResponse = System.currentTimeMillis();
         checkForTimeout();
@@ -163,7 +163,7 @@ public class ClientApp extends Application implements ConnectionListener {
      * Handles successful Mail information response
      * <p>
      * If an RetrieveUserMailResponse object is detected on the EventBus this
-     * method is called. If the loglevel is set to INFO or higher "Got the response with the Mail from User "
+     * method is called. If the logLevel is set to INFO or higher "Got the response with the Mail from User "
      * is written to the log.
      *
      * @param response The RetrieveUserMailResponse object detected on the EventBus
@@ -181,7 +181,7 @@ public class ClientApp extends Application implements ConnectionListener {
      * <p>
      * If an LogoutSuccessfulResponse object is detected on the EventBus this
      * method is called. It tells the SceneManager to show the LoginScree.
-     * It also ends the timer for the ping message and the sperate timer for the client to check if he has a timeout.
+     * It also ends the timer for the ping message and the separate timer for the client to check if he has a timeout.
      *
      * @param message The LogoutSuccessfulResponse object detected on the EventBus
      * @author Philip
@@ -201,7 +201,7 @@ public class ClientApp extends Application implements ConnectionListener {
      * <p>
      * If an LobbyCreatedSuccessful object is detected on the EventBus this
      * method is called. It tells the SceneManager to show the lobby menu and sets
-     * this clients user to the user found in the object. If the loglevel is set
+     * this clients user to the user found in the object. If the logLevel is set
      * to DEBUG or higher "user created lobby" and the username of the
      * logged in user are written to the log.
      *
@@ -214,9 +214,9 @@ public class ClientApp extends Application implements ConnectionListener {
         LOG.debug("user created lobby " + message.getUser());
         this.user = message.getUser();
         if (message.getName() == null) {
-            sceneManager.showLobbyScreen(user, " ohne Name");
+            sceneManager.showLobbyScreen(" ohne Name");
         } else {
-            sceneManager.showLobbyScreen(user, message.getName());
+            sceneManager.showLobbyScreen(message.getName());
         }
     }
 
@@ -225,7 +225,7 @@ public class ClientApp extends Application implements ConnectionListener {
      * <p>
      * If a UserJoinedLobbyMessage object is detected on the EventBus this
      * method is called. It tells the SceneManager to show the lobby menu and sets
-     * this clients user to the user found in the object. If the loglevel is set
+     * this clients user to the user found in the object. If the logLevel is set
      * to DEBUG or higher "user joined lobby " is written to the log.
      *
      * @param message The UserJoinedLobbyMessage object detected on the EventBus
@@ -236,7 +236,7 @@ public class ClientApp extends Application implements ConnectionListener {
     public void userJoinedLobby(LobbyJoinedSuccessfulResponse message) {
         LOG.debug("user joined lobby ");
         this.user = message.getUser();
-        sceneManager.showLobbyScreen(user, message.getName());
+        sceneManager.showLobbyScreen(message.getName());
 
     }
 
@@ -245,7 +245,7 @@ public class ClientApp extends Application implements ConnectionListener {
      * <p>
      * If a GameCreatedMessage object is detected on the EventBus this
      * method is called. It tells the SceneManager to show the game menu and suspend
-     * the corresponding LobbyTab. Also a new summaryTab is created. If the loglevel is set
+     * the corresponding LobbyTab. Also a new summaryTab is created. If the logLevel is set
      * to DEBUG or higher "user joined lobby " is written to the log.
      * <p>
      * enhanced by Marc Hermes - 2021-03-15
@@ -323,7 +323,7 @@ public class ClientApp extends Application implements ConnectionListener {
     public void userLeftLobby(LobbyLeftSuccessfulResponse message) {
         LOG.debug("User " + message.getUser().getUsername() + " left lobby ");
         this.user = message.getUser();
-        sceneManager.removeLobbyTab(message.getUser(), message.getName());
+        sceneManager.removeLobbyTab(message.getName());
     }
 
     /**
@@ -374,7 +374,7 @@ public class ClientApp extends Application implements ConnectionListener {
      * <p>
      * If a RegistrationExceptionMessage object is detected on the EventBus this
      * method is called. It tells the SceneManager to show the sever error alert.
-     * If the loglevel is set to DEBUG or higher "Registration error " and the
+     * If the logLevel is set to DEBUG or higher "Registration error " and the
      * error message are written to the log.
      *
      * @param message The RegistrationExceptionMessage object detected on the EventBus
@@ -393,7 +393,7 @@ public class ClientApp extends Application implements ConnectionListener {
      * <p>
      * If an UpdateUserExceptionMessage object is detected on the EventBus this
      * method is called. It tells the SceneManager to show the sever error alert.
-     * If the loglevel is set to DEBUG or higher "UpdateUser error " and the
+     * If the logLevel is set to DEBUG or higher "UpdateUser error " and the
      * error message are written to the log.
      *
      * @param message The UpdateUserExceptionMessage object detected on the EventBus
@@ -412,7 +412,7 @@ public class ClientApp extends Application implements ConnectionListener {
      * <p>
      * If an RegistrationSuccessfulResponse object is detected on the EventBus this
      * method is called. It tells the SceneManager to show the login window. If
-     * the loglevel is set to INFO or higher "Registration Successful." is written
+     * the logLevel is set to INFO or higher "Registration Successful." is written
      * to the log.
      *
      * @param message The RegistrationSuccessfulResponse object detected on the EventBus
@@ -430,7 +430,7 @@ public class ClientApp extends Application implements ConnectionListener {
      * Handles successful user updates
      * <p>
      * If an UpdateUserSuccessfulResponse object is detected on the EventBus this
-     * method is called. If the loglevel is set to INFO or higher "Update user Successful."
+     * method is called. If the logLevel is set to INFO or higher "Update user Successful."
      * is written to the log.
      *
      * @param response The UpdateUserSuccessfulResponse object detected on the EventBus
@@ -446,7 +446,7 @@ public class ClientApp extends Application implements ConnectionListener {
      * Handles the successful drop of a user
      * <p>
      * If an DropUserSuccessfulResponse object is detected on the EventBus this
-     * method is called. If the loglevel is set to INFO or higher "Drop user was successful."
+     * method is called. If the logLevel is set to INFO or higher "Drop user was successful."
      * is written to the log.
      *
      * @param response The DropUserSuccessfulResponse object detected on the EventBus
@@ -463,7 +463,7 @@ public class ClientApp extends Application implements ConnectionListener {
      * <p>
      * If an DeadEvent object is detected on the EventBus, this method is called.
      * It writes "DeadEvent detected " and the error message of the detected DeadEvent
-     * object to the log, if the loglevel is set to ERROR or higher.
+     * object to the log, if the logLevel is set to ERROR or higher.
      *
      * @param deadEvent The DeadEvent object found on the EventBus
      * @author Marco Grawunder
@@ -547,7 +547,7 @@ public class ClientApp extends Application implements ConnectionListener {
     /**
      * Removes the trade tab, when the trade ended
      *
-     * @param message
+     * @param message the TradeEndedMessage detected on the EventBus
      * @author Alexander Lossa, Ricardo Mook
      * @since 2021-04-21
      */
@@ -589,8 +589,7 @@ public class ClientApp extends Application implements ConnectionListener {
     @Subscribe
     public void onConfirmedSummaryMessage(SummaryConfirmedEvent event) {
         var gameName = event.getGameName();
-        var user = event.getUser();
         sceneManager.removeSummaryTab(gameName);
-        sceneManager.showMainTab(user);
+        sceneManager.showMainTab();
     }
 }

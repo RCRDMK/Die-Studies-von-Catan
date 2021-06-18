@@ -8,7 +8,6 @@ import java.util.Random;
  * @author Kirstin
  * @since 2020-12-29
  */
-
 public class Dice {
 
     private int diceEyes1 = 0;
@@ -23,11 +22,6 @@ public class Dice {
 
         diceEyes1 = dice1;
         diceEyes2 = dice2;
-    }
-
-    //für den cheat eventuell relevant
-    public int getEyes() {
-        return diceEyes1 + diceEyes2;
     }
 
     public int getDiceEyes1() {
@@ -48,10 +42,9 @@ public class Dice {
     public void setEyes(int eyes) {
         if (eyes > 6) {
             diceEyes1 = 6;
-            diceEyes2 = eyes - diceEyes1;
         } else {
             diceEyes1 = 1;
-            diceEyes2 = eyes - diceEyes1;
         }
+        diceEyes2 = eyes - diceEyes1;
     }
 }

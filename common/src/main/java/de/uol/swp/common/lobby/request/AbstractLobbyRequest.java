@@ -60,7 +60,7 @@ public class AbstractLobbyRequest extends AbstractRequestMessage {
     /**
      * Getter for Password
      *
-     * @return
+     * @return the password for this lobby
      * @author René Meyer
      * @since 2021-06-05
      */
@@ -71,7 +71,7 @@ public class AbstractLobbyRequest extends AbstractRequestMessage {
     /**
      * Setter for Password
      *
-     * @param password
+     * @param password the password to set this lobby's password to
      * @author René Meyer
      * @since 2021-06-05
      */

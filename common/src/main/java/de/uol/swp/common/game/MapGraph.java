@@ -6,10 +6,10 @@ import java.io.Serializable;
 import java.util.*;
 
 /**
- * Manages the logic behind the playfield.
- * <p>This Class holds and processes the data about the playfield. It can return the longest road, and
+ * Manages the logic behind the play field.
+ * <p>This Class holds and processes the data about the play field. It can return the longest road, and
  * potentially the most settlements, the player with the most cities, overall number of buildings built, length of
- * combined roads and so on (especially interesting for endscreen, maybe?).
+ * combined roads and so on (especially interesting for end screen, maybe?).
  * </p>
  *
  * @author Pieter Vogt
@@ -21,7 +21,7 @@ public class MapGraph implements Serializable {
     private final HashSet<BuildingNode> buildingNodeHashSet = new HashSet<>();
     private final HashSet<Hexagon> hexagonHashSet = new HashSet<>();
     private final int[] numOfRoads = new int[]{0, 0, 0, 0};
-    private int[] numOfBuildings = new int[]{0, 0, 0, 0};
+    private final int[] numOfBuildings = new int[]{0, 0, 0, 0};
     private final ArrayList<BuildingNode> builtBuildings = new ArrayList<>();
     // middle hexagon for reference
     private final Hexagon middle = new Hexagon("middle");
@@ -62,16 +62,12 @@ public class MapGraph implements Serializable {
         return numOfBuildings;
     }
 
-    public void setNumOfBuildings(int[] numOfBuildings) {
-        this.numOfBuildings = numOfBuildings;
-    }
-
     /**
      * Initializes MapGraph
      * <p>Creates the Hexagons, BuildingNodes and StreetNodes, interconnects them and updates the Lists to store
      * them.</p>
      *
-     * @param mapTypeToGenerate The standard-case is to generate a MapGraph for a standard-playfield. So if you wish to
+     * @param mapTypeToGenerate The standard-case is to generate a MapGraph for a standard-play field. So if you wish to
      *                          generate one, just parse "".
      * @author Pieter Vogt
      * @since 2021-04-10
@@ -99,7 +95,7 @@ public class MapGraph implements Serializable {
 
             default: {
                 generateStandardField();
-                //einfügen der dicetoken und terraintypes und harbors
+                //einfügen der dice token und terrain types und harbors
                 configureTerrainTypeAndDiceTokensForAllHexagonsStandard();
                 configureHarborsStandard();
             }
@@ -526,31 +522,6 @@ public class MapGraph implements Serializable {
         return (int) (Math.random() * (max - min)) + min;
     }
 
-    /**
-     * Returns the index of the player with the longest road.
-     * <p>The first player, that has a Route of at least 5 StreetNode-objects, gets awarded the "Longest
-     * Traderoute"-Flag.
-     * </p>
-     * <p>
-     * enhanced by Marc Hermes 2021-05-19
-     *
-     * @return The int array representing the index of the player with the longest road, as well as the length of the longest road. [0] -> the PlayerIndex, [1] -> the length
-     * @author Pieter Vogt
-     * @see de.uol.swp.common.game.dto.GameDTO
-     * @since 2021-04-02
-     */
-    public int[] returnPlayerWithLongestRoad() {
-        int[] returnValue = new int[2];
-        for (int i = 0; i < 4; i++) {
-            int length = longestStreetPathCalculator.getLongestPath(i);
-            if (length > returnValue[1]) {
-                returnValue[1] = length;
-                returnValue[0] = i;
-            }
-        }
-        return returnValue;
-    }
-
     public ArrayList<BuildingNode> getBuiltBuildings() {
         return builtBuildings;
     }
@@ -789,6 +760,7 @@ public class MapGraph implements Serializable {
                 for (MapGraph.BuildingNode connectedBuildingNode : connectedStreetNode.getConnectedBuildingNodes()) {
                     if (connectedBuildingNode.getOccupiedByPlayer() != 666) {
                         buildingAllowed = false;
+                        break;
                     }
                 }
             }
@@ -803,21 +775,20 @@ public class MapGraph implements Serializable {
             } else return false;
         }
 
-        public boolean buildOrDevelopSettlement(int playerIndex) {
+        public void buildOrDevelopSettlement(int playerIndex) {
             this.occupiedByPlayer = playerIndex;
             if (sizeOfSettlement == 0) {
                 longestStreetPathCalculator.updateMatrixWithNewBuilding(this, playerIndex);
             }
             sizeOfSettlement++;
-            return true;
         }
     }
 
     /**
-     * Represents the logical structure of one hexagonal cardboard-piece to build the Playfield of.
+     * Represents the logical structure of one hexagonal cardboard-piece to build the play field of.
      * <p>This class represents the logic of the pathfinding- and the building-system. It houses the pointers to the
-     * building-spots and is aware of its neighbour-hexagonals. With this, we are able to send specific commands to
-     * specific places of the playfield. Furthermore this has superseded the GameField-class and now also represents the
+     * building-spots and is aware of its neighbour-hexagons. With this, we are able to send specific commands to
+     * specific places of the play field. Furthermore this has superseded the GameField-class and now also represents the
      * type of Terrain and the diceToken.</p>
      *
      * @author Pieter Vogt
@@ -854,9 +825,9 @@ public class MapGraph implements Serializable {
         private BuildingNode buildingTopRight;
         private BuildingNode buildingTop;
 
-        private Set<BuildingNode> buildingNodes = new HashSet<>();
-        private Set<StreetNode> streetNodes = new HashSet<>();
-        private Set<Hexagon> hexagons = new HashSet<>();
+        private final Set<BuildingNode> buildingNodes = new HashSet<>();
+        private final Set<StreetNode> streetNodes = new HashSet<>();
+        private final Set<Hexagon> hexagons = new HashSet<>();
 
         private boolean occupiedByRobber;
 
@@ -1082,13 +1053,13 @@ public class MapGraph implements Serializable {
          * NodeSpot is empty. If so, it fills it with a new one. Because of that, we can call this function with already
          * partially occupied Hexagons without overwriting Nodes that might already been shared between multiple
          * Hexagons. This is especially important when expanding the inner ring of Hexagons a second time to get the
-         * full Standard-Playfield.</p>
+         * full Standard-play field.</p>
          *
          * @author Pieter Vogt
          * @since 2021-04-08
          */
         public void generateNodes() {
-            //First checking streetnodes...
+            //First checking streetNodes...
             if (this.streetTopLeft == null && hexTopLeft != null) {
                 if (hexTopLeft.getStreetBottomRight() == null) {
                     this.streetTopLeft = new StreetNode("topLeft", this, UUID.randomUUID());
@@ -1466,7 +1437,7 @@ public class MapGraph implements Serializable {
                 streetBottomRight.addBuildingNode(buildingBottom);
                 streetBottomRight.addBuildingNode(buildingBottomRight);
 
-            } catch (ListFullException e) {
+            } catch (ListFullException ignored) {
             }
             //... then we try to introduce the StreetNodes to the BuildingNodes.
             try {
@@ -1487,7 +1458,7 @@ public class MapGraph implements Serializable {
 
                 buildingBottom.addStreetNode(streetBottomLeft);
                 buildingBottom.addStreetNode(streetBottomRight);
-            } catch (ListFullException e) {
+            } catch (ListFullException ignored) {
             }
         }
 
