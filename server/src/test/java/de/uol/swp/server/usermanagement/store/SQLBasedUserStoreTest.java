@@ -29,7 +29,6 @@ public class SQLBasedUserStoreTest {
     @Test
     public void findUserWithUserNameTestSuccess() throws Exception {
         userStore.createUser(defaultUser.getUsername(), defaultUser.getPassword(), defaultUser.getEMail());
-        lock.await(1000, TimeUnit.MILLISECONDS);
         Optional<User> foundUser = userStore.findUser(defaultUser.getUsername());
 
         assertTrue(foundUser.isPresent());
