@@ -74,7 +74,6 @@ public class SceneManager {
     private final Injector injector;
     private final TabPane tabPane = new TabPane();
     private TabHelper tabHelper;
-    private MediaPlayer player;
 
 
     @Inject
