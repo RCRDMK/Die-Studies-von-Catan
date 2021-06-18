@@ -1,4 +1,4 @@
-package de.uol.swp.common.game.inventory;
+package de.uol.swp.common.game;
 
 import java.io.Serializable;
 import java.util.Collections;
@@ -33,7 +33,7 @@ public class DevelopmentCardDeck implements Serializable {
     /**
      * Draw the development card from the deck
      *
-     * @return a drawn the card if there is one left, otherwise null
+     * @return
      */
     public String drawnCard() {
         if (deck.size() > 0) return deck.pop();

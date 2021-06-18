@@ -9,6 +9,7 @@ import de.uol.swp.client.game.HelperObjects.MapGraphNodeContainer;
 import de.uol.swp.client.game.HelperObjects.Vector;
 import de.uol.swp.common.chat.RequestChatMessage;
 import de.uol.swp.common.chat.ResponseChatMessage;
+import de.uol.swp.common.game.Inventory;
 import de.uol.swp.common.game.MapGraph;
 import de.uol.swp.common.game.message.*;
 import de.uol.swp.common.game.response.AllThisGameUsersResponse;
@@ -630,6 +631,7 @@ public class GamePresenter extends AbstractPresenter {
                 setUpLargestArmyAndLongestRoadPanes(gcm.getUsers());
             });
             evaluateMyPlayerNumber(gcm.getUsers());
+            buyDevelopmentCardMessageLogic(25);
         }
     }
 
@@ -912,7 +914,6 @@ public class GamePresenter extends AbstractPresenter {
                     if (itsMyTurn && !rolledDice) {
                         rollDiceButton.setDisable(false);
                     }
-
                     gameService.discardResources(this.currentLobby, this.joinedLobbyUser, inventory);
                 } else {
                     windowEvent.consume();
@@ -1385,17 +1386,17 @@ public class GamePresenter extends AbstractPresenter {
 
                     switch (buildingNode.getTypeOfHarbor()) {
                         case 1:
-                            tooltip.setText("2:1\n Sheep");
+                            tooltip.setText("2:1\n Wool");
                             Tooltip.install(harborSymbol, tooltip);
                             tooltip.setShowDelay(Duration.millis(100));
                             break;
                         case 2:
-                            tooltip.setText("2:1\n Clay");
+                            tooltip.setText("2:1\n Brick");
                             Tooltip.install(harborSymbol, tooltip);
                             tooltip.setShowDelay(Duration.millis(100));
                             break;
                         case 3:
-                            tooltip.setText("2:1\n Wood");
+                            tooltip.setText("2:1\n Lumber");
                             Tooltip.install(harborSymbol, tooltip);
                             tooltip.setShowDelay(Duration.millis(100));
                             break;
@@ -1415,7 +1416,6 @@ public class GamePresenter extends AbstractPresenter {
                             tooltip.setShowDelay(Duration.millis(100));
                             break;
                     }
-
                 }
             } else {
                 double itemSize = cardSize() / 15;
@@ -1621,14 +1621,35 @@ public class GamePresenter extends AbstractPresenter {
         }
     }
 
+    /**
+     * Handles the BuyDevelopmentCardMessage
+     * <p>
+     * If a BuyDevelopmentCardMessage is detected on the EventBus the method invokes the buyDevelopmentCardMessageLogic
+     *
+     * @param buyDevelopmentCardMessage GameMessage
+     * @author Marius Birk
+     * @see BuyDevelopmentCardMessage
+     * @since 2021-05-27
+     */
     @Subscribe
     public void onBuyDevelopmentCardMessage(BuyDevelopmentCardMessage buyDevelopmentCardMessage) {
-        buyDevelopmentCardLogic(buyDevelopmentCardMessage.getDevCard());
+        buyDevelopmentCardMessageLogic(buyDevelopmentCardMessage.getDevCardsNumber());
     }
 
-    //TODO:
-    public void buyDevelopmentCardLogic(String card) {
-        //
+    /**
+     * The Method invoked by onBuyDevelopmentCardMessage()
+     * <p>
+     * Set the hover text from buyDevCard button with the parameter
+     *
+     * @param devCardsNumber the AllThisLobbyUsersResponse given by the original subscriber method.
+     * @author Anton Nikiforov
+     * @since 2021-06-14
+     */
+    public void buyDevelopmentCardMessageLogic(int devCardsNumber) {
+        Tooltip hover = new Tooltip(devCardsNumber + " Cards left");
+        if (devCardsNumber == 1) hover.setText("1 Card left");
+        hover.setShowDelay(Duration.millis(50));
+        buyDevCard.setTooltip(hover);
     }
 
     @Subscribe
@@ -1684,6 +1705,16 @@ public class GamePresenter extends AbstractPresenter {
         });
     }
 
+    /**
+     * Handles the MoveRobberMessage
+     * <p>
+     * If a MoveRobberMessage is detected on the EventBus the method moveRobberMessageLogic is invoked.
+     *
+     * @param moveRobberMessage GameMessage
+     * @author Marius Birk
+     * @see MoveRobberMessage
+     * @since 2021-04-20
+     */
     @Subscribe
     public void onMoveRobberMessage(MoveRobberMessage moveRobberMessage) {
         moveRobberMessageLogic(moveRobberMessage);
@@ -1741,6 +1772,7 @@ public class GamePresenter extends AbstractPresenter {
                     container.getHexagonShape().addEventHandler(MouseEvent.MOUSE_PRESSED, clickOnHexagonHandler);
                     rollDiceButton.setDisable(true);
                     buildMenu.setDisable(true);
+                    tradeButton.setDisable(true);
                     endTurnButton.setDisable(true);
                     buyDevCard.setDisable(true);
                 }
@@ -2412,7 +2444,7 @@ public class GamePresenter extends AbstractPresenter {
      * @implNote The code inside this Method has to run in the JavaFX-application thread. Therefore it is crucial not to
      * remove the {@code Platform.runLater()}
      * @author Iskander Yusupov
-     * @see de.uol.swp.common.game.inventory.Inventory
+     * @see Inventory
      * @since 2021-05-28
      */
     public void updatePublicInventory(ArrayList<HashMap<String, Integer>> publicInventoriesList) {
@@ -2462,7 +2494,7 @@ public class GamePresenter extends AbstractPresenter {
      * @param hashMapEntriesList the observableList for the items of the inventory
      * @param hashMap            the hashMap containing the public inventory
      * @author Iskander Yusupov
-     * @see de.uol.swp.common.game.inventory.Inventory
+     * @see Inventory
      * @since 2021-06-02
      */
     public void fillInPublicInventory(ObservableList<HashMap.Entry<String, Integer>> hashMapEntriesList, HashMap<String, Integer> hashMap) {

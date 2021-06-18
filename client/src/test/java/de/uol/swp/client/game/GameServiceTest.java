@@ -5,6 +5,7 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import de.uol.swp.client.game.event.SummaryConfirmedEvent;
 import de.uol.swp.common.game.dto.StatsDTO;
+import de.uol.swp.common.game.Inventory;
 import de.uol.swp.common.game.request.DrawRandomResourceFromPlayerRequest;
 import de.uol.swp.common.game.request.RobbersNewFieldRequest;
 import de.uol.swp.common.game.message.TradeEndedMessage;

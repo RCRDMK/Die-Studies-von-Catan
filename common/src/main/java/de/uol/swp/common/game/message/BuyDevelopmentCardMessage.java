@@ -1,19 +1,20 @@
 package de.uol.swp.common.game.message;
 
-import de.uol.swp.common.user.UserDTO;
-
 /**
  * Message for the BuyDevelopmentCardMessage
  * <p>
  * This message gets sent to the client that sent an BuyDevelopmentCardRequest.
- * It contains a development card and the user, which send the request.
+ * It contains the number of the development cards that was left in the deck.
+ * <p>
+ * enhanced by Anton Nikiforov
  *
  * @author Marius Birk
  * @see de.uol.swp.common.game.request.BuyDevelopmentCardRequest
  * @since 2021-03-31
+ * @since 2021-06-13
  */
 public class BuyDevelopmentCardMessage extends AbstractGameMessage {
-    private String devCard = null;
+    private int devCardsNumber;
 
     /**
      * Default Constructor
@@ -24,12 +25,11 @@ public class BuyDevelopmentCardMessage extends AbstractGameMessage {
     public BuyDevelopmentCardMessage() {
     }
 
-    public BuyDevelopmentCardMessage(String name, UserDTO user, String devCard) {
-        super(name, user);
-        this.devCard = devCard;
+    public BuyDevelopmentCardMessage(int devCardsNumber) {
+        this.devCardsNumber = devCardsNumber;
     }
 
-    public String getDevCard() {
-        return devCard;
+    public int getDevCardsNumber() {
+        return devCardsNumber;
     }
 }
