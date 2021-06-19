@@ -439,7 +439,7 @@ public class MapGraph implements Serializable {
      * @since 2021-05-14
      */
     public void configureHarborsStandard() {
-        // 0 = no harbor, 1 = 2:1 Sheep, 2 = 2:1 Clay, 3 = 2:1 Wood, 4 = 2:1 Grain, 5 = 2:1 Ore, 6 = 3:1 Any*/
+        // 0 = no harbor, 1 = 2:1 Wool, 2 = 2:1 Brick, 3 = 2:1 Lumber, 4 = 2:1 Grain, 5 = 2:1 Ore, 6 = 3:1 Any
 
         middle.getHexLeft().getHexTopLeft().getBuildingTopLeft().setTypeOfHarbor(5);
         middle.getHexLeft().getHexTopLeft().getBuildingBottomLeft().setTypeOfHarbor(5);

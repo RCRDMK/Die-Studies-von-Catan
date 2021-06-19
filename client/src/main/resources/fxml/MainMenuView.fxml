@@ -23,7 +23,7 @@
         <TextField fx:id="inputField" layoutY="563.0" onAction="#onSendMessage" prefHeight="25.0" prefWidth="207.0" promptText="Send your Message!" GridPane.rowIndex="3" />
         <Button layoutX="207.0" layoutY="563.0" mnemonicParsing="false" onAction="#onSendMessage" prefHeight="25.0" prefWidth="77.0" text="Send" />
         <Button layoutX="680.0" layoutY="586.0" mnemonicParsing="false" onAction="#onUserSettingsButtonPressed" prefHeight="34.0" prefWidth="79.0" text="Settings" />
-            <Button layoutX="429.0" layoutY="586.0" mnemonicParsing="false" onAction="#onGameRulesPressed" prefHeight="34.0" prefWidth="79.0" text="Game Rules" />
+            <Button layoutX="429.0" layoutY="586.0" mnemonicParsing="false" onAction="#onGameRulesPressed" prefHeight="34.0" prefWidth="98.0" text="Game Rules" />
         <PasswordField fx:id="lobbyPasswordField" layoutX="284.0" layoutY="191.0" prefHeight="25.0" prefWidth="98.0" promptText="Enter password" visible="false" />
         <CheckBox fx:id="passwordCheckBox" layoutX="952.0" layoutY="403.0" mnemonicParsing="false" onAction="#onLobbyPw" prefHeight="17.0" prefWidth="108.0" text="Add password" />
     </children>

@@ -1,4 +1,4 @@
-package de.uol.swp.common.game.inventory;
+package de.uol.swp.common.game;
 
 import de.uol.swp.common.user.User;
 
@@ -97,7 +97,7 @@ public class Inventory implements Serializable {
     }
 
     //Increment the Victory Point Card and increase the victoryPoints by one
-    public void incCardStackVictoryPoint() {
+    public void incCardVictoryPoint() {
         this.cardVictoryPoint++;
         this.victoryPoints++;
     }
@@ -207,46 +207,7 @@ public class Inventory implements Serializable {
         if (longestRoad) publicInventory.put("Longest Road", 1);
         else publicInventory.put("Longest Road", 0);
 
-
-
         return publicInventory;
-    }
-
-    /**
-     * Getter for Cards
-     * <p>
-     * It gets the right card for the entered name.
-     *
-     * @param cardName to get the CardStack from
-     *
-     * @return Card with entered cardName
-     * @author Anton Nikiforov
-     * @see CardStack
-     * @since 2021-04-06
-     */
-    public CardStack getCardStack(String cardName) {
-        switch (cardName) {
-            case "Lumber":
-                return lumber;
-            case "Brick":
-                return brick;
-            case "Grain":
-                return grain;
-            case "Wool":
-                return wool;
-            case "Ore":
-                return ore;
-            case "Knight":
-                return cardKnight;
-            case "Monopoly":
-                return cardMonopoly;
-            case "Road Building":
-                return cardRoadBuilding;
-            case "Year of Plenty":
-                return cardYearOfPlenty;
-            default:
-                return null;
-        }
     }
 
     /**
@@ -295,7 +256,7 @@ public class Inventory implements Serializable {
                 cardYearOfPlenty.incNumber(amount);
                 break;
             case "Victory Point Card":
-                incCardStackVictoryPoint();
+                incCardVictoryPoint();
                 break;
             default:
                 break;
@@ -383,4 +344,57 @@ public class Inventory implements Serializable {
         }
     }
 
+    /**
+     * Class for the cards in the game
+     *
+     * @author Anton Nikiforov
+     * @since 2020-03-04
+     */
+    public class CardStack implements Serializable{
+
+        private int number = 0;
+
+        //Getter
+        public int getNumber() {
+            return number;
+        }
+
+        //Setter
+        public void setNumber(int number) {
+            this.number = number;
+        }
+
+        //Incrementer
+        public void incNumber() {
+            this.number++;
+        }
+
+        //Incrementer with number
+        public void incNumber(int number) {
+            this.number += number;
+        }
+
+        //Decrementer
+        public void decNumber() {
+            this.number--;
+        }
+
+        //Decrementer with number
+        public void decNumber(int number) {
+            this.number -= number;
+        }
+    }
+
+    /**
+     * Class for the units in the game
+     *
+     * @author Anton Nikiforov
+     * @since 2020-03-04
+     */
+    public class UnitStack extends CardStack{
+
+        public UnitStack(int number) {
+            super.number = number;
+        }
+    }
 }
