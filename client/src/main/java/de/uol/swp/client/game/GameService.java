@@ -189,12 +189,11 @@ public class GameService {
      * @param tradeCode the tradeCode
      * @param cardName  the name form the card he wanna buy
      * @author Anton Nikiforov
-     * @see de.uol.swp.common.game.request.BankRequest
+     * @see BankRequest
      * @since 2021-05-29
      */
     public void createBankRequest(String gameName, UserDTO user, String tradeCode, String cardName) {
-        BankRequest br = new BankRequest(gameName, user, tradeCode, cardName);
-        eventBus.post(br);
+        eventBus.post(new BankRequest(gameName, user, tradeCode, cardName));
     }
 
     /**
