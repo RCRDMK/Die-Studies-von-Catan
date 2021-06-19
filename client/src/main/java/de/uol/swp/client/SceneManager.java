@@ -650,6 +650,7 @@ public class SceneManager {
      */
     public void createSummaryTab(String gameName) {
         newSummaryTab(gameName);
+        hideSummaryTab(gameName);
     }
 
     /**
@@ -831,7 +832,6 @@ public class SceneManager {
         summaryTab.setContent(nextSummaryScene.getRoot());
         summaryTab.setClosable(false);
         Platform.runLater(() -> tabHelper.addTab(summaryTab));
-        hideSummaryTab(gameName);
         nextSummaryScene = initSummaryView();
     }
 
