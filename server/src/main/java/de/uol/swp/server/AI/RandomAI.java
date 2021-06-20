@@ -192,7 +192,7 @@ public class RandomAI extends AbstractAISystem {
             if (doneBuilding) {
                 break;
             }
-            if (bn.tryBuildOrDevelopSettlement(game.getTurn(), game.getStartingPhase())) {
+            if (bn.getParent().getSelfPosition().size() < 3 && bn.tryBuildOrDevelopSettlement(game.getTurn(), game.getStartingPhase())) {
                 buildTown(bn);
                 for (MapGraph.StreetNode sn : bn.getConnectedStreetNodes()) {
                     if (sn.tryBuildRoad(game.getTurn(), game.getStartingPhase())) {
@@ -421,7 +421,7 @@ public class RandomAI extends AbstractAISystem {
                         break;
                 }
             }
-            if (goodTradeItemAmount >= 4 && amountOfItems > 0) {
+            if (goodTradeItemAmount == 5 && amountOfItems > 0) {
                 usersWithAcceptableOffer.put(user, amountOfItems);
             }
         }
@@ -457,6 +457,8 @@ public class RandomAI extends AbstractAISystem {
      * Thus if the offer by the other player doesn't fulfill enough of the wishes of the AI the AI will not even try
      * to create a bid and engage in the trade.
      *
+     * enhanced by Marc Hermes - 2021-06-20
+     *
      * @param toibm the TradeInformBiddersMessage sent that would be sent to a client
      * @author Alexander Losse, Marc Hermes
      * @since 2021-05-25
@@ -468,28 +470,30 @@ public class RandomAI extends AbstractAISystem {
         ArrayList<TradeItem> offerListSeller = toibm.getSellingItems();
 
         int notAcceptableTradeItems = 0;
+        int notAcceptableTradeItemsDifference = 0;
         for (TradeItem tradeItemSeller : offerListSeller) {
             for (TradeItem tradeItemAI : wishListAI) {
                 if (tradeItemAI.getName().equals(tradeItemSeller.getName())) {
                     if (tradeItemAI.getCount() > tradeItemSeller.getCount()) {
                         notAcceptableTradeItems++;
+                        notAcceptableTradeItemsDifference += tradeItemAI.getCount() - tradeItemSeller.getCount();
                     }
                     break;
                 }
             }
         }
-        if (notAcceptableTradeItems > 1 + randomInt(0, 2)) {
+        if (notAcceptableTradeItems > 1 + randomInt(0, 2) || notAcceptableTradeItemsDifference > 5) {
             offerListAI.clear();
         } else {
             int tries = 0;
-            while (notAcceptableTradeItems > 0 && tries < 50) {
+            while (notAcceptableTradeItemsDifference > 0 && tries < 100) {
                 tries++;
                 String randomResource = returnRandomResource();
                 for (TradeItem tradeItemOffer : offerListAI) {
                     if (tradeItemOffer.getCount() > 0 && randomResource.equals(tradeItemOffer.getName())) {
-                        notAcceptableTradeItems--;
-                        tradeItemOffer.decCount(tradeItemOffer.getCount());
-                        if (notAcceptableTradeItems == 0) {
+                        notAcceptableTradeItemsDifference--;
+                        tradeItemOffer.decCount(1);
+                        if (notAcceptableTradeItemsDifference == 0) {
                             break;
                         }
                     }
@@ -641,6 +645,8 @@ public class RandomAI extends AbstractAISystem {
      * Resources that are in the wishList cannot be in the offerList.
      * Furthermore the amount of resources on the offerList will not exceed the amount of resources on the wishList by a lot.
      *
+     * enhanced by Marc Hermes - 2021-06-20
+     *
      * @return An arrayList holding 2 arrayLists of TradeItems, the first arrayList is used as the wishList, the second as the offerList
      * @author Alexander Losse, Marc Hermes
      * @since 2021-05-25
@@ -718,7 +724,7 @@ public class RandomAI extends AbstractAISystem {
         for (TradeItem ti : wishList) {
             amountOfWishes += ti.getCount();
         }
-        int amountOfOffers = amountOfWishes + randomInt(0, 4) - 2;
+        int amountOfOffers = amountOfWishes - randomInt(0, 2);
 
         if (canBuildStreet()) {
             lumberAllowedToBeTraded = lumber - 1;
@@ -753,41 +759,48 @@ public class RandomAI extends AbstractAISystem {
                     if (oreAllowedToBeTraded > 0) {
                         offerOre += 1;
                         oreAllowedToBeTraded -= 1;
+                        amountOfOffers--;
                     }
                     break;
                 case 1:
                     if (brickAllowedToBeTraded > 0) {
                         offerBrick += 1;
                         brickAllowedToBeTraded -= 1;
+                        amountOfOffers--;
                     }
                     break;
                 case 2:
                     if (lumberAllowedToBeTraded > 0) {
                         offerLumber += 1;
                         lumberAllowedToBeTraded -= 1;
+                        amountOfOffers--;
                     }
                     break;
                 case 3:
                     if (grainAllowedToBeTraded > 0) {
                         offerGrain += 1;
                         grainAllowedToBeTraded -= 1;
+                        amountOfOffers--;
                     }
                     break;
                 case 4:
                     if (woolAllowedToBeTraded > 0) {
                         offerWool += 1;
                         woolAllowedToBeTraded -= 1;
+                        amountOfOffers--;
                     }
                     break;
             }
             tries++;
         }
-        offerList.add(new TradeItem(brickString, offerBrick));
-        offerList.add(new TradeItem(lumberString, offerLumber));
-        offerList.add(new TradeItem(oreString, offerOre));
-        offerList.add(new TradeItem(woolString, offerWool));
-        offerList.add(new TradeItem(grainString, offerGrain));
+        if(amountOfOffers <= amountOfWishes + randomInt(0,2)) {
+            offerList.add(new TradeItem(brickString, offerBrick));
+            offerList.add(new TradeItem(lumberString, offerLumber));
+            offerList.add(new TradeItem(oreString, offerOre));
+            offerList.add(new TradeItem(woolString, offerWool));
+            offerList.add(new TradeItem(grainString, offerGrain));
 
+        }
         return wishAndOfferList;
     }
 
