@@ -1,4 +1,4 @@
-package de.uol.swp.common.game.inventory;
+package de.uol.swp.common.game;
 
 import de.uol.swp.common.user.User;
 
@@ -13,7 +13,7 @@ import java.util.HashMap;
  */
 public class Inventory implements Serializable {
 
-    private User user;
+    private final User user;
 
     public Inventory(User user) {
         this.user = user;
@@ -21,10 +21,6 @@ public class Inventory implements Serializable {
 
     public User getUser() {
         return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
     }
 
     // Resource Cards
@@ -101,7 +97,7 @@ public class Inventory implements Serializable {
     }
 
     //Increment the Victory Point Card and increase the victoryPoints by one
-    public void incCardStackVictoryPoint() {
+    public void incCardVictoryPoint() {
         this.cardVictoryPoint++;
         this.victoryPoints++;
     }
@@ -211,59 +207,20 @@ public class Inventory implements Serializable {
         if (longestRoad) publicInventory.put("Longest Road", 1);
         else publicInventory.put("Longest Road", 0);
 
-
-
         return publicInventory;
     }
 
     /**
-     * Getter for Cards
-     * <p>
-     * It gets the right card for the entered name.
-     *
-     * @param cardName to get the CardStack from
-     *
-     * @return Card with entered cardName
-     * @author Anton Nikiforov
-     * @see CardStack
-     * @since 2021-04-06
-     */
-    public CardStack getCardStack(String cardName) {
-        switch (cardName) {
-            case "Lumber":
-                return lumber;
-            case "Brick":
-                return brick;
-            case "Grain":
-                return grain;
-            case "Wool":
-                return wool;
-            case "Ore":
-                return ore;
-            case "Knight":
-                return cardKnight;
-            case "Monopoly":
-                return cardMonopoly;
-            case "Road Building":
-                return cardRoadBuilding;
-            case "Year of Plenty":
-                return cardYearOfPlenty;
-            default:
-                return null;
-        }
-    }
-
-    /**
-     * Increases a specific Ressource Card by a specific amount
+     * Increases a specific Resource Card by a specific amount
      * <p>
      * this method calls the Method incNumber(int) of the class Card
-     * String Card specifies the Ressource Card and Development Cards
+     * String Card specifies the Resource Card and Development Cards
      * valid Strings: Lumber, Brick, Grain, Wool, Ore, Knight, Monopoly, Road Building,
      * Year of Plenty, Victory Point Card.
      * <p>
      * enhanced by Anton Nikiforov, Alexander Losse, Iskander Yusupov
      *
-     * @param cardName   the name of the Ressource Card
+     * @param cardName   the name of the Resource Card
      * @param amount how much of the Card should be increased
      * @author Alexander Losse, Ricardo Mook
      * @since 2021-05-16
@@ -299,19 +256,21 @@ public class Inventory implements Serializable {
                 cardYearOfPlenty.incNumber(amount);
                 break;
             case "Victory Point Card":
-                incCardStackVictoryPoint();
+                incCardVictoryPoint();
+                break;
+            default:
                 break;
         }
     }
 
     /**
-     * Decreases a specific ressource card by a specific amount
+     * Decreases a specific resource card by a specific amount
      * <p>
      * This method calls the method decNumber(int) of the class Card
-     * String Card specifies the ressource card
+     * String Card specifies the resource card
      * valid Strings: Lumber, Brick, Grain, Wool, Ore
      *
-     * @param cardName the name of the Ressource Card
+     * @param cardName the name of the Resource Card
      * @param amount   how much of the Card should be decreased
      * @author Alexander Losse, Ricardo Mook
      * @since 2021-04-08
@@ -344,6 +303,8 @@ public class Inventory implements Serializable {
                 break;
             case "Year of Plenty":
                 cardYearOfPlenty.decNumber(amount);
+                break;
+            default:
                 break;
         }
     }
@@ -383,4 +344,57 @@ public class Inventory implements Serializable {
         }
     }
 
+    /**
+     * Class for the cards in the game
+     *
+     * @author Anton Nikiforov
+     * @since 2020-03-04
+     */
+    public class CardStack implements Serializable{
+
+        private int number = 0;
+
+        //Getter
+        public int getNumber() {
+            return number;
+        }
+
+        //Setter
+        public void setNumber(int number) {
+            this.number = number;
+        }
+
+        //Incrementer
+        public void incNumber() {
+            this.number++;
+        }
+
+        //Incrementer with number
+        public void incNumber(int number) {
+            this.number += number;
+        }
+
+        //Decrementer
+        public void decNumber() {
+            this.number--;
+        }
+
+        //Decrementer with number
+        public void decNumber(int number) {
+            this.number -= number;
+        }
+    }
+
+    /**
+     * Class for the units in the game
+     *
+     * @author Anton Nikiforov
+     * @since 2020-03-04
+     */
+    public class UnitStack extends CardStack{
+
+        public UnitStack(int number) {
+            super.number = number;
+        }
+    }
 }

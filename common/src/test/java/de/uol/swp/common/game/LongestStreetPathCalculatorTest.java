@@ -15,8 +15,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class LongestStreetPathCalculatorTest {
     private final MapGraph mapGraph = new MapGraph("");
-    private final HashSet<MapGraph.StreetNode> streetNodes = mapGraph.getStreetNodeHashSet();
-    private final HashSet<MapGraph.BuildingNode> buildingNodes = mapGraph.getBuildingNodeHashSet();
     private final HashSet<MapGraph.Hexagon> hexagons =  mapGraph.getHexagonHashSet();
 
 
@@ -118,9 +116,9 @@ public class LongestStreetPathCalculatorTest {
     }
 
     /**
-     * This test checks if the longest street path is calculated correctly if a junction appears in the mapgraph.
+     * This test checks if the longest street path is calculated correctly if a junction appears in the mapGraph.
      * <p>
-     * We build 7 streets for player 1 and 6 of them at the left hexagon and one at the left side of the topleft hexagon.
+     * We build 7 streets for player 1 and 6 of them at the left hexagon and one at the left side of the top left hexagon.
      *
      * @author Marc, Marius
      * @since 2021-05-25

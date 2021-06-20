@@ -4,8 +4,6 @@ import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -18,11 +16,12 @@ public class SQLBasedUserStore extends AbstractUserStore implements UserStore {
     private Statement statement;
     private static final Logger LOG = LogManager.getLogger(SQLBasedUserStore.class);
 
+
     /**
      * Build Connection
      * <p>
      * This method will build up a connection to our database at the University Servers.
-     * It can be used everywhere, where the usermanagement is used and needed. But most times
+     * It can be used everywhere, where the userManagement is used and needed. But most times
      * the connection is already opened and would only close if the server is going to shut down.
      *
      * @author Marius Birk
@@ -56,46 +55,49 @@ public class SQLBasedUserStore extends AbstractUserStore implements UserStore {
 
     @Override
     public Optional<User> findUser(String username, String password) throws Exception {
-        ResultSet resultSet = null;
+        ResultSet resultSet;
         try {
+            buildConnection();
             PreparedStatement preparedStatement = connection.prepareStatement("select name, password, mail, pictureID from userData where name=? and password=?;");
             preparedStatement.setString(1, username);
             preparedStatement.setString(2, password);
             resultSet = preparedStatement.executeQuery();
-        } catch (SQLException e) {
-            LOG.debug("Fehler bei der Datenbankabfrage!");
-            e.printStackTrace();
-        }
-        if (resultSet.next()) {
-            if (password.equals(resultSet.getString("password"))) {
-                User user = new UserDTO(username, password, resultSet.getString(3), resultSet.getInt(4));
-                return Optional.of(user.getWithoutPassword());
+            if (resultSet.next()) {
+                if (password.equals(resultSet.getString("password"))) {
+                    User user = new UserDTO(username, password, resultSet.getString(3), resultSet.getInt(4));
+                    return Optional.of(user.getWithoutPassword());
+                }
             } else {
                 return Optional.empty();
             }
-        } else {
-            return Optional.empty();
+        } catch (SQLException e) {
+            LOG.debug("Fehler bei der Datenbankabfrage!");
+            e.printStackTrace();
+        } finally {
+            closeConnection();
         }
+        return Optional.empty();
     }
 
     @Override
     public Optional<User> findUser(String username) throws Exception {
-        String findUser = "select name, mail, pictureID from userData where name=?;";
-        ResultSet resultSet = null;
+        ResultSet resultSet;
         try {
-            PreparedStatement preparedStatement = connection.prepareStatement(findUser);
+            buildConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement("select name, mail, pictureID from userData where name=?;");
             preparedStatement.setString(1, username);
             resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                User user = new UserDTO(username, "", resultSet.getString(2), resultSet.getInt(3));
+                return Optional.of(user);
+            }
         } catch (SQLException e) {
             LOG.debug("Fehler bei der Datenbankabfrage!");
             e.printStackTrace();
+        } finally {
+            closeConnection();
         }
-        if (resultSet.next()) {
-            User user = new UserDTO(username, "", resultSet.getString(2), resultSet.getInt(3));
-            return Optional.of(user);
-        } else {
-            return Optional.empty();
-        }
+        return Optional.empty();
     }
 
     /**
@@ -112,17 +114,17 @@ public class SQLBasedUserStore extends AbstractUserStore implements UserStore {
 
     @Override
     public User createUser(String username, String password, String eMail) throws Exception {
-        if(connection.isClosed()){
-            buildConnection();
-        }
-        PreparedStatement userName = connection.prepareStatement("insert into userData(name, password, mail) values (?,?,?);");
         try {
+            buildConnection();
+            PreparedStatement userName = connection.prepareStatement("insert into userData(name, password, mail) values (?,?,?);");
             userName.setString(1, username);
             userName.setString(2, password);
             userName.setString(3, eMail);
             userName.executeUpdate();
         } catch (Exception e) {
             throw new SQLException("User could not be created.");
+        } finally {
+            closeConnection();
         }
         return new UserDTO(username, "", eMail);
     }
@@ -130,13 +132,15 @@ public class SQLBasedUserStore extends AbstractUserStore implements UserStore {
     @Override
     public void removeUser(String username) throws Exception {
         try {
-
+            buildConnection();
             PreparedStatement preparedStatement = connection.prepareStatement("delete from userData where name=?;");
             preparedStatement.setString(1, username);
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             LOG.debug(e);
             throw new Exception("User could not be dropped!");
+        } finally {
+            closeConnection();
         }
     }
 
@@ -153,13 +157,16 @@ public class SQLBasedUserStore extends AbstractUserStore implements UserStore {
      */
     @Override
     public User updateUserMail(String username, String eMail) throws Exception {
-        PreparedStatement preparedStatement = connection.prepareStatement("update userData set mail=? where name=?;");
         try {
+            buildConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement("update userData set mail=? where name=?;");
             preparedStatement.setString(1, eMail);
             preparedStatement.setString(2, username);
             preparedStatement.executeUpdate();
         } catch (Exception e) {
             throw new SQLException("EMail could not be updated.");
+        } finally {
+            closeConnection();
         }
         return new UserDTO(username, "", eMail);
     }
@@ -178,13 +185,16 @@ public class SQLBasedUserStore extends AbstractUserStore implements UserStore {
      */
     @Override
     public User updateUserPassword(String username, String password) throws Exception {
-        PreparedStatement preparedStatement = connection.prepareStatement("update userData set password=? where name=?;");
         try {
+            buildConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement("update userData set password=? where name=?;");
             preparedStatement.setString(1, password);
             preparedStatement.setString(2, username);
             preparedStatement.executeUpdate();
         } catch (Exception e) {
             throw new SQLException("Password could not be updated.");
+        } finally {
+            closeConnection();
         }
         return new UserDTO(username, "", "");
     }
@@ -204,26 +214,37 @@ public class SQLBasedUserStore extends AbstractUserStore implements UserStore {
      */
     @Override
     public User updateUserPicture(String username, int profilePictureID) throws Exception {
-        PreparedStatement preparedStatement = connection.prepareStatement("update userData set pictureID=? where name=?;");
         try {
+            buildConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement("update userData set pictureID=? where name=?;");
             preparedStatement.setInt(1, profilePictureID);
             preparedStatement.setString(2, username);
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             LOG.debug(e);
-            throw new SQLException("Profilepicture could not be updated.");
+            throw new SQLException("Profile picture could not be updated.");
+        } finally {
+            closeConnection();
         }
         return new UserDTO(username, "", "", profilePictureID);
     }
 
     @Override
     public List<User> getAllUsers() throws SQLException {
-        PreparedStatement preparedStatement = connection.prepareStatement("select * from userData;");
-        ResultSet resultSet = preparedStatement.executeQuery();
         List<User> userList = new ArrayList<>();
-        while (resultSet.next()) {
-            userList.add(new UserDTO(resultSet.getString(1), resultSet.getString(2), resultSet.getString(3), resultSet.getInt(4)));
+        try {
+            buildConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement("select * from userData;");
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                userList.add(new UserDTO(resultSet.getString(1), resultSet.getString(2), resultSet.getString(3), resultSet.getInt(4)));
+            }
+            return userList;
+        } catch (SQLException e) {
+            LOG.debug("");
+            throw new SQLException();
+        } finally {
+            closeConnection();
         }
-        return userList;
     }
 }

@@ -2,8 +2,8 @@ package de.uol.swp.common.game.dto;
 
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.MapGraph;
-import de.uol.swp.common.game.inventory.DevelopmentCardDeck;
-import de.uol.swp.common.game.inventory.Inventory;
+import de.uol.swp.common.game.DevelopmentCardDeck;
+import de.uol.swp.common.game.Inventory;
 import de.uol.swp.common.game.trade.Trade;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
@@ -25,9 +25,8 @@ public class GameDTO implements Game {
 
     private final String name;
     private final Set<User> users = new TreeSet<>();
-    private final int turn = 0; //this points to the index of the user who now makes his turn.
     private MapGraph mapGraph;
-    private int overallTurns = 0; //This just counts +1 every time a player ends his turn. (good for Summaryscreen for example)
+    private int overallTurns = 0; //This just counts +1 every time a player ends his turn. (good for Summary screen for example)
     private final ArrayList<User> userArrayList = new ArrayList<>();
     private final ArrayList<User> aiUsers = new ArrayList<>();
     private User owner;
@@ -58,7 +57,7 @@ public class GameDTO implements Game {
     private boolean isTest;
     private boolean rolledDiceThisTurn = false;
 
-    private HashMap<String, Integer> boughtDevCardsThisTurn = new HashMap<>();
+    private final HashMap<String, Integer> boughtDevCardsThisTurn = new HashMap<>();
 
 
     /**
@@ -128,8 +127,8 @@ public class GameDTO implements Game {
     /**
      * Converts the Set of Users into an Arraylist
      *
-     * <p>Without conversion of user-set into user-Arraylist, we have no tool to adress a specific user with
-     * gamelogic.</p>
+     * <p>Without conversion of user-set into user-Arraylist, we have no tool to address a specific user with
+     * game logic.</p>
      *
      * @return Arraylist of users
      * @author Pieter Vogt
@@ -162,6 +161,7 @@ public class GameDTO implements Game {
         userArrayList.addAll(usersInLobby);
         int players = userArrayList.size();
         int i = 0;
+        Collections.shuffle(this.userArrayList);
         while (amountOfPlayers > players) {
             UserDTO aiUser = new UserDTO("KI" + i, "", "", 65 + i);
             aiUsers.add(aiUser);
@@ -186,12 +186,12 @@ public class GameDTO implements Game {
     }
 
     /**
-     * Returns the number of turnes played in the current game as a whole.
+     * Returns the number of turns played in the current game as a whole.
      *
      * <p>Returns the overall turns played. It is primarily used to determine the current active player. This can e.g.
-     * also be useful for the summaryscreen after a game in an informative manner.</p>
+     * also be useful for the summary screen after a game in an informative manner.</p>
      *
-     * @return Overall number of turnes played in the current game.
+     * @return Overall number of turns played in the current game.
      * @author Pieter Vogt
      * @since 2021-03-26
      */
@@ -249,26 +249,23 @@ public class GameDTO implements Game {
      */
     @Override
     public void openingPhase() {
-        //If the players are in openingphase...
+        //If the players are in opening phase...
 
         if (overallTurns == userArrayList.size() - 1 && !lastPlayerSecondTurn) { // 1)... and if the last player did his first turn but he did not use his second turn:
             lastPlayerSecondTurn = true; // now he did.
             countingUp = false; // we count backwards from now on.
             startingPhase = 2;
-            return;
         } else if (overallTurns <= userArrayList.size()) { // 2)... and if we are not at the last player ...
             if (countingUp) { // 2a)... and if we still count up:
                 overallTurns++; //count one up.
                 startingPhase = 1;
-                return;
-            } else { // 2b)... and if we dont count up anymore ...
+            } else { // 2b)... and if we don't count up anymore ...
                 if (overallTurns > 0) {  // 2b1) ... and if we did not arrive back at player 1:
                     overallTurns--; // count one down.
-                    countingUp = false; // dont count up anymore.
+                    countingUp = false; // don't count up anymore.
                     startingPhase = 2;
-                    return;
                 } else {
-                    startingTurns = false; // 2b2) if we are at player 1 and were already counting backwards, end the openingphase.
+                    startingTurns = false; // 2b2) if we are at player 1 and were already counting backwards, end the opening phase.
                     startingPhase = 0;
                     for (int i = 0; i < userArrayList.size(); i++) {
                         lastBuildingOfOpeningTurn.add(mapGraph.getBuiltBuildings().get(mapGraph.getBuiltBuildings().size() - 1 - i));
@@ -291,7 +288,7 @@ public class GameDTO implements Game {
     @Override
     public void setUpInventories() {
         if (!(userArrayList.isEmpty())) {
-            if (userArrayList.size() > 0) inventory1 = new Inventory(userArrayList.get(0));
+            inventory1 = new Inventory(userArrayList.get(0));
             if (userArrayList.size() > 1) inventory2 = new Inventory(userArrayList.get(1));
             if (userArrayList.size() > 2) inventory3 = new Inventory(userArrayList.get(2));
             if (userArrayList.size() > 3) inventory4 = new Inventory(userArrayList.get(3));
@@ -312,7 +309,7 @@ public class GameDTO implements Game {
      * @param user form the inventory you want
      * @return The Inventory from user
      * @author Anton Nikiforov
-     * @see de.uol.swp.common.game.inventory.Inventory
+     * @see Inventory
      * @since 2021-04-01
      */
     @Override
@@ -337,7 +334,7 @@ public class GameDTO implements Game {
      * @since 2021-05-08
      */
     public ArrayList<Inventory> getInventoriesArrayList() {
-        ArrayList<Inventory> inventories = new ArrayList<Inventory>();
+        ArrayList<Inventory> inventories = new ArrayList<>();
         var users = this.getUsersList();
         users.forEach((user) -> inventories.add(getInventory(user)));
         return inventories;
@@ -395,7 +392,7 @@ public class GameDTO implements Game {
      * @since 2021-04-13
      */
     @Override
-    public HashMap getTradeList() {
+    public HashMap<String, Trade> getTradeList() {
         return tradeList;
     }
 
@@ -510,18 +507,6 @@ public class GameDTO implements Game {
     }
 
     /**
-     * returns HashMap<String, Integer> boughtDevCardsThisTurn
-     *
-     * @return HashMap<String, Integer> boughtDevCardsThisTurn
-     * @author Alexander Losse
-     * @since 2021-05-30
-     */
-    @Override
-    public HashMap<String, Integer> getBoughtDevCardsThisTurn() {
-        return boughtDevCardsThisTurn;
-    }
-
-    /**
      * returns how many Cards of type were bought this turn.
      * <p>
      * returns 0 if Card not in HashMap
@@ -559,7 +544,7 @@ public class GameDTO implements Game {
     public boolean canUserPlayDevCard(User user, String card) {
         if (card.equals("Monopoly") || card.equals("Road Building") || card.equals("Year of Plenty") || card.equals("Knight")) {
             Inventory inventoryDummy = getInventory(user);
-            int cardsInInventory = inventoryDummy.getCardStack(card).getNumber();
+            int cardsInInventory = inventoryDummy.getSpecificResourceAmount(card);
             int boughtCards = getHowManyCardsOfTypeWereBoughtThisTurn(card);
             if(card.equals("Year of Plenty") && bankInventory.sumResource() < 2) {
                 return false;

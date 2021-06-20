@@ -1,6 +1,6 @@
 package de.uol.swp.common.game.dto;
 
-import de.uol.swp.common.game.inventory.Inventory;
+import de.uol.swp.common.game.Inventory;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -10,11 +10,11 @@ import java.util.ArrayList;
  */
 public class StatsDTO implements Serializable {
 
-    private String winner;
-    private String gameName;
-    private int overallTurns;
-    private int overallTrades;
-    private ArrayList<Inventory> inventoryArrayList;
+    private final String winner;
+    private final String gameName;
+    private final int overallTurns;
+    private final int overallTrades;
+    private final ArrayList<Inventory> inventoryArrayList;
 
     /**
      * Constructor StatsDTO
@@ -49,17 +49,6 @@ public class StatsDTO implements Serializable {
     }
 
     /**
-     * Sets winner.
-     *
-     * @param winner the winner
-     * @author René Meyer
-     * @since 2021 -05-08
-     */
-    public void setWinner(String winner) {
-        this.winner = winner;
-    }
-
-    /**
      * Gets game name.
      *
      * @return the game name
@@ -68,17 +57,6 @@ public class StatsDTO implements Serializable {
      */
     public String getGameName() {
         return gameName;
-    }
-
-    /**
-     * Sets game name.
-     *
-     * @param gameName the game name
-     * @author René Meyer
-     * @since 2021 -05-08
-     */
-    public void setGameName(String gameName) {
-        this.gameName = gameName;
     }
 
     /**
@@ -93,17 +71,6 @@ public class StatsDTO implements Serializable {
     }
 
     /**
-     * Sets overall turns.
-     *
-     * @param overallTurns the overall turns
-     * @author René Meyer
-     * @since 2021 -05-08
-     */
-    public void setOverallTurns(int overallTurns) {
-        this.overallTurns = overallTurns;
-    }
-
-    /**
      * Gets overall trades.
      *
      * @return the overall trades
@@ -115,17 +82,6 @@ public class StatsDTO implements Serializable {
     }
 
     /**
-     * Sets overall trades.
-     *
-     * @param overallTrades the overall trades
-     * @author René Meyer
-     * @since 2021 -05-08
-     */
-    public void setOverallTrades(int overallTrades) {
-        this.overallTrades = overallTrades;
-    }
-
-    /**
      * Gets inventory array list.
      *
      * @return the inventory array list
@@ -134,17 +90,6 @@ public class StatsDTO implements Serializable {
      */
     public ArrayList<Inventory> getInventoryArrayList() {
         return inventoryArrayList;
-    }
-
-    /**
-     * Sets inventory array list.
-     *
-     * @param inventoryArrayList the inventory array list
-     * @author René Meyer
-     * @since 2021 -05-08
-     */
-    public void setInventoryArrayList(ArrayList<Inventory> inventoryArrayList) {
-        this.inventoryArrayList = inventoryArrayList;
     }
 
 }

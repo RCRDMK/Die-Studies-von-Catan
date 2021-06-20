@@ -16,12 +16,12 @@ import java.util.Objects;
 
 public class LobbyFullResponse extends AbstractResponseMessage {
 
-    private String lobbyName;
+    private final String lobbyName;
 
     /**
      * Constructor
      *
-     * @param lobbyName
+     * @param lobbyName the name of the lobby that is already full
      * @author René Meyer
      * @since 2020-12-17
      */

@@ -9,10 +9,9 @@ import de.uol.swp.client.game.HelperObjects.MapGraphNodeContainer;
 import de.uol.swp.client.game.HelperObjects.Vector;
 import de.uol.swp.common.chat.RequestChatMessage;
 import de.uol.swp.common.chat.ResponseChatMessage;
+import de.uol.swp.common.game.Inventory;
 import de.uol.swp.common.game.MapGraph;
 import de.uol.swp.common.game.message.*;
-import de.uol.swp.common.game.request.EndTurnRequest;
-import de.uol.swp.common.game.request.ResourcesToDiscardRequest;
 import de.uol.swp.common.game.response.AllThisGameUsersResponse;
 import de.uol.swp.common.game.response.GameLeftSuccessfulResponse;
 import de.uol.swp.common.game.response.PlayDevelopmentCardResponse;
@@ -24,7 +23,6 @@ import de.uol.swp.common.user.UserDTO;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -71,11 +69,15 @@ import java.util.concurrent.TimeUnit;
  * @since 2021-01-13
  */
 
+@SuppressWarnings("UnstableApiUsage")
 public class GamePresenter extends AbstractPresenter {
 
     public static final String fxml = "/fxml/GameView.fxml";
 
     private static final Logger LOG = LogManager.getLogger(GamePresenter.class);
+
+    @FXML
+    private final TabPane tabPane = new TabPane();
 
     @FXML
     public TextField gameChatInput;
@@ -85,7 +87,7 @@ public class GamePresenter extends AbstractPresenter {
     @FXML
     public TextArea gameChatArea;
 
-    public Dialog tooMuchAlert;
+    public Dialog<Object> tooMuchAlert;
 
     public Alert chooseAlert;
 
@@ -167,7 +169,7 @@ public class GamePresenter extends AbstractPresenter {
     private Button tradeButton;
 
     @FXML
-    public Label BuildingNotSuccessfulLabel;
+    public Label buildingNotSuccessfulLabel;
 
     @FXML
     private Button kickPlayer1Button;
@@ -219,6 +221,9 @@ public class GamePresenter extends AbstractPresenter {
     private Pane playerThreeLongestRoadView;
     @FXML
     private Pane playerFourLongestRoadView;
+
+    @FXML
+    private Pane pricesView;
 
 
     @FXML
@@ -314,7 +319,7 @@ public class GamePresenter extends AbstractPresenter {
     void onSendMessage() {
         try {
             var chatMessage = gameChatInput.getCharacters().toString();
-            // ChatID = game_lobbyname so we have seperate lobby and game chat separated by id
+            // ChatID = game_lobbyName so we have separate lobby and game chat separated by id
             var chatId = "game_" + currentLobby;
             if (!chatMessage.isEmpty()) {
                 RequestChatMessage message = new RequestChatMessage(chatMessage, chatId, joinedLobbyUser.getUsername(),
@@ -375,20 +380,26 @@ public class GamePresenter extends AbstractPresenter {
      * @author René Meyer
      * @see de.uol.swp.common.chat.ResponseChatMessage
      * @since 2021-03-13
+     * <p>
+     * Enhanced by Sergej Tulnev
+     * @since 2021-06-17
+     * <p>
+     *  If the user has a long message, it will have a line break
      */
     private void updateChat(ResponseChatMessage rcm) {
         var time = new SimpleDateFormat("HH:mm");
-        Date resultdate = new Date((long) rcm.getTime().doubleValue());
-        var readableTime = time.format(resultdate);
+        Date resultDate = new Date((long) rcm.getTime().doubleValue());
+        var readableTime = time.format(resultDate);
         gameChatArea.insertText(gameChatArea.getLength(), readableTime + " " + rcm.getUsername() + ": " + rcm.getMessage() + "\n");
+        gameChatArea.setWrapText(true);
     }
 
     /**
      * This method is called when the Trade button is pressed
      * <p>
-     * When the user presses the trade button a teb appears. Within it the user can select which ressources
+     * When the user presses the trade button a teb appears. Within it the user can select which resources
      * he wants to trade and which amount of it. With a click on the Start a Trade button the startTrade method from the
-     * Gameservice on the client side gets called.
+     * GameService on the client side gets called.
      *
      * @author Alexander Losse, Ricardo Mook
      * @since 2021-04-07
@@ -554,10 +565,18 @@ public class GamePresenter extends AbstractPresenter {
         }
     }
 
-    //TODO JavaDoc fehlt, außerdem darf der Presenter nicht dazu genutzt werden nachrichten zu posten, das macht der gameService
+    /**
+     * Method called when the endTurn button is pressed
+     * <p>
+     * Calls the gameService to send an EndTurnRequest to the server and
+     * disables the visibility of the remaining possible building spots
+     *
+     * @author Marc Hermes
+     * @since 2021-06-15
+     */
     @FXML
     public void onEndTurn() {
-        eventBus.post(new EndTurnRequest(this.currentLobby, (UserDTO) this.joinedLobbyUser));
+        gameService.endTurn((UserDTO) this.joinedLobbyUser, this.currentLobby);
         for (MapGraphNodeContainer mapGraphNode : mapGraphNodeContainers) {
             if (mapGraphNode.getMapGraphNode().getOccupiedByPlayer() == 666) {
                 mapGraphNode.getCircle().setVisible(false);
@@ -621,9 +640,12 @@ public class GamePresenter extends AbstractPresenter {
                 setUpPrivateInventoryView();
                 setupResolveDevelopmentCardAlert();
                 setupChoosePlayerAlert();
+                setUpTabs();
+                setUpPrices();
                 setUpLargestArmyAndLongestRoadPanes(gcm.getUsers());
             });
             evaluateMyPlayerNumber(gcm.getUsers());
+            buyDevelopmentCardMessageLogic(25);
         }
     }
 
@@ -645,7 +667,7 @@ public class GamePresenter extends AbstractPresenter {
     }
 
     /**
-     * When a JoinOnGoinGameResponse is detected on the EventBus this method is invoked
+     * When a JoinOnGoingGameResponse is detected on the EventBus this method is invoked
      * <p>
      * First the usual actions when joining a game are done to initialize the visuals of the presenter.
      * Then the method updateGameField() is called to update the mapGraphNodes that are already built by players.
@@ -678,6 +700,8 @@ public class GamePresenter extends AbstractPresenter {
                 setupDicesAtGameStart();
                 setUpPrivateInventoryView();
                 setupResolveDevelopmentCardAlert();
+                setUpTabs();
+                setUpPrices();
                 setUpLargestArmyAndLongestRoadPanes(joggr.getUsers());
                 updateGameField();
             });
@@ -691,7 +715,7 @@ public class GamePresenter extends AbstractPresenter {
      * <p>
      * The method initializes an array of 5 rectangles and fills it with the pictures of the resources. After that,
      * it creates 10 buttons and sets some icons, to indicate the buttons.
-     * If this is complete, the method puts the buttons and rectangles into a gridpane that is shown besides the chat.
+     * If this is complete, the method puts the buttons and rectangles into a gridPane that is shown besides the chat.
      * After this initialization the pane gets invisible and will only be shown by the TooMuchResourceCarsMessage.
      *
      * @author Marius Birk
@@ -754,11 +778,6 @@ public class GamePresenter extends AbstractPresenter {
         chooseResource.setHgap(30);
 
         initializedResourceButtons();
-
-        //Initializing robber on the canvas
-        robber.setLayoutX((canvas.getWidth() / 2 + canvas.getLayoutX() - robber.getWidth() / 2));
-        robber.setLayoutY((canvas.getHeight() / 2 + canvas.getLayoutY() - robber.getHeight() / 2));
-        gameAnchorPane.getChildren().add(robber);
 
     }
 
@@ -872,7 +891,7 @@ public class GamePresenter extends AbstractPresenter {
     /**
      * This method is invoked if a TooMuchResourcesMessage is send to the client.
      * <p>
-     * First a alert is instanciated and the content text and the title are set.
+     * First a alert is instantiated and the content text and the title are set.
      * Now the amount of cards, that need to be discarded are set and the labels of the resources are set.
      * After that the method checks if the buttons, which are needed to select, which resource the player wants to discard, are disabled
      * or not.
@@ -883,7 +902,7 @@ public class GamePresenter extends AbstractPresenter {
      */
     public void showRobberResourceMenu(TooMuchResourceCardsMessage tooMuchResourceCardsMessage) {
         if (tooMuchAlert == null || !tooMuchAlert.isShowing()) {
-            tooMuchAlert = new Dialog();
+            tooMuchAlert = new Dialog<>();
             tooMuchAlert.initStyle(StageStyle.UNDECORATED);
 
             Rectangle2D center = Screen.getPrimary().getVisualBounds();
@@ -909,10 +928,7 @@ public class GamePresenter extends AbstractPresenter {
                     if (itsMyTurn && !rolledDice) {
                         rollDiceButton.setDisable(false);
                     }
-
-                    // TODO: sollte im gameservice passieren
-                    ResourcesToDiscardRequest resourcesToDiscard = new ResourcesToDiscardRequest(tooMuchResourceCardsMessage.getName(), (UserDTO) tooMuchResourceCardsMessage.getUser(), inventory);
-                    eventBus.post(resourcesToDiscard);
+                    gameService.discardResources(this.currentLobby, this.joinedLobbyUser, inventory);
                 } else {
                     windowEvent.consume();
                 }
@@ -1017,13 +1033,13 @@ public class GamePresenter extends AbstractPresenter {
     }
 
     /**
-     * Changes the clickability of the button for ending your turn.
+     * Changes the click-ability of the button for ending your turn.
      *
      * <p>This method checks, if the the games name equals the name of the game in the message. If so, and if you are
      * the player with the current turn (transported in message), your button for ending your turn gets clickable. If
-     * not, it becomes unclickable. It also invokes the passTheDice method and manages the visibility of the diceViews.</p>
+     * not, it becomes un-clickable. It also invokes the passTheDice method and manages the visibility of the diceViews.</p>
      *
-     * @param response //TODO JavaDoc
+     * @param message the NextTurnMessage detected on the EventBus
      * @author Pieter Vogt
      * <p>
      * Enhanced by Carsten Dekker
@@ -1032,33 +1048,31 @@ public class GamePresenter extends AbstractPresenter {
      * Enhanced by Alexander Losse on 2021-05-30
      */
     @Subscribe
-    public void nextPlayerTurn(NextTurnMessage response) {
-        if (response.getGameName().equals(currentLobby)) {
+    public void nextPlayerTurn(NextTurnMessage message) {
+        if (message.getGameName().equals(currentLobby)) {
             rolledDice = false;
-            if (response.getPlayerWithCurrentTurn().equals(joinedLobbyUser.getUsername())) {
-                startingTurn = response.isInStartingTurn();
+            if (message.getPlayerWithCurrentTurn().equals(joinedLobbyUser.getUsername())) {
+                startingTurn = message.isInStartingTurn();
                 itsMyTurn = true;
-
-                switchTurnPhaseButtons();
 
             } else {
                 itsMyTurn = false;
-                switchTurnPhaseButtons();
             }
-            if (!response.isInStartingTurn()) {
-                if (response.getTurn() == 0) {
+            switchTurnPhaseButtons();
+            if (!message.isInStartingTurn()) {
+                if (message.getTurn() == 0) {
                     passTheDice(playerFourDiceView, playerOneDiceView);
                     playerOneDiceView.setVisible(true);
                     playerFourDiceView.setVisible(false);
-                } else if (response.getTurn() == 1) {
+                } else if (message.getTurn() == 1) {
                     passTheDice(playerOneDiceView, playerTwoDiceView);
                     playerOneDiceView.setVisible(false);
                     playerTwoDiceView.setVisible(true);
-                } else if (response.getTurn() == 2) {
+                } else if (message.getTurn() == 2) {
                     passTheDice(playerTwoDiceView, playerThreeDiceView);
                     playerTwoDiceView.setVisible(false);
                     playerThreeDiceView.setVisible(true);
-                } else if (response.getTurn() == 3) {
+                } else if (message.getTurn() == 3) {
                     passTheDice(playerThreeDiceView, playerFourDiceView);
                     playerThreeDiceView.setVisible(false);
                     playerFourDiceView.setVisible(true);
@@ -1096,14 +1110,13 @@ public class GamePresenter extends AbstractPresenter {
      * If the leaveGameButton is pressed, the method tries to call the GameService method leaveGame It throws a
      * GamePresenterException if joinedLobbyUser and currentLobby are not initialised
      *
-     * @param event \\TODO JavaDoc fehlt hier
      * @author Ricardo Mook, Alexander Losse
      * @see de.uol.swp.client.game.GameService
      * @see de.uol.swp.client.game.GamePresenterException
      * @since 2021-03-04
      */
     @FXML
-    public void onLeaveGame(ActionEvent event) {
+    public void onLeaveGame() {
 
         if (this.currentLobby != null && this.joinedLobbyUser != null) {
             gameService.leaveGame(this.currentLobby, this.joinedLobbyUser);
@@ -1257,46 +1270,10 @@ public class GamePresenter extends AbstractPresenter {
      * @since 2021-01-24
      */
     public double cardSize() {
-        double d = Math.min(canvas.getHeight(), canvas.getWidth()); //Determine minimum pixels in height and length of the canvas (we dont want the playfield to scale out of canvas, so we orient at the smaller axis)
+        double d = Math.min(canvas.getHeight(), canvas.getWidth()); //Determine minimum pixels in height and length of the canvas (we don't want the game field to scale out of canvas, so we orient at the smaller axis)
         if (!gameFieldVariant.equals("VeryRandom")) {
-            return d / 5.5; // Divide by 8 because the playfield is 7 cards wide and add 1/2 card each side for margin so the cards dont touch the boundaries of the canvas.
+            return d / 5.5; // Divide by 8 because the game field is 7 cards wide and add 1/2 card each side for margin so the cards don't touch the boundaries of the canvas.
         } else return d / 7;
-    }
-
-    /**
-     * Determines the color to draw its host-object.
-     *
-     * @return the color for the host-object
-     * @author Pieter Vogt
-     * @since 2021-01-04
-     */
-    public Color determineColorOfTerrain(MapGraph.Hexagon h) {
-        Color c;
-        //"Ocean" = 0; "Forest" = 1; "Farmland" = 2; "Grassland" = 3; "Hillside" = 4; "Mountain" = 5; "Desert" = 6;
-        switch (h.getTerrainType()) {
-            case 1:
-                c = Color.OLIVEDRAB;
-                break;
-            case 2:
-                c = Color.GOLDENROD;
-                break;
-            case 3:
-                c = Color.LAWNGREEN;
-                break;
-            case 4:
-                c = Color.LIGHTCORAL;
-                break;
-            case 5:
-                c = Color.GREY;
-                break;
-            case 0:
-                c = Color.DODGERBLUE;
-                break;
-            default:
-                c = Color.BLANCHEDALMOND;
-                break;
-        }
-        return c;
     }
 
     /**
@@ -1345,10 +1322,9 @@ public class GamePresenter extends AbstractPresenter {
     /**
      * The method that actually draws graphical objects to the screen.
      * <p>
-     * This method draws its items from back to front, meaning backmost items need to be drawn first and so on. This is
+     * This method draws its items from back to front, meaning back most items need to be drawn first and so on. This is
      * why the background is drawn first, etc.
      * </p>
-     * <p>
      * enhanced by Marc Hermes 2021-03-31 enhanced by Pieter Vogt 2021-04-07
      *
      * @author Pieter Vogt
@@ -1376,7 +1352,18 @@ public class GamePresenter extends AbstractPresenter {
             if (hexagonContainer.getHexagon().getDiceToken() != 0) {
                 Text text = new Text(placementVector.getX(), placementVector.getY(), Integer.toString(hexagonContainer.getHexagon().getDiceToken()));
                 text.setFill(Color.BLACK);
+                text.setMouseTransparent(true);
                 gameAnchorPane.getChildren().add(text);
+            } else {
+                //Draw robber
+                //Initialize the robber graphics
+                robber = new Rectangle(25, 25);
+                robber.setFill(new ImagePattern(new Image("textures/originals/robbers.png")));
+                robber.setVisible(true);
+                robber.setLayoutX(placementVector.getX() - robber.getWidth() / 2);
+                robber.setLayoutY(placementVector.getY() - robber.getHeight() / 2);
+                gameAnchorPane.getChildren().add(robber);
+
             }
         }
 
@@ -1413,17 +1400,17 @@ public class GamePresenter extends AbstractPresenter {
 
                     switch (buildingNode.getTypeOfHarbor()) {
                         case 1:
-                            tooltip.setText("2:1\n Sheep");
+                            tooltip.setText("2:1\n Wool");
                             Tooltip.install(harborSymbol, tooltip);
                             tooltip.setShowDelay(Duration.millis(100));
                             break;
                         case 2:
-                            tooltip.setText("2:1\n Clay");
+                            tooltip.setText("2:1\n Brick");
                             Tooltip.install(harborSymbol, tooltip);
                             tooltip.setShowDelay(Duration.millis(100));
                             break;
                         case 3:
-                            tooltip.setText("2:1\n Wood");
+                            tooltip.setText("2:1\n Lumber");
                             Tooltip.install(harborSymbol, tooltip);
                             tooltip.setShowDelay(Duration.millis(100));
                             break;
@@ -1443,7 +1430,6 @@ public class GamePresenter extends AbstractPresenter {
                             tooltip.setShowDelay(Duration.millis(100));
                             break;
                     }
-
                 }
             } else {
                 double itemSize = cardSize() / 15;
@@ -1476,29 +1462,6 @@ public class GamePresenter extends AbstractPresenter {
         }
     }
 
-    //TODO: Kann eventuell weg, falls am Ende nicht mehr benötigt
-
-    /**
-     * Determine the right color for a drawn, player-owned object.
-     *
-     * @return Correct Color for a player-owned Object.
-     * @author Pieter Vogt
-     * @since 2021-04-15
-     */
-    public Color determinePlayerColorByIndex(int playerIndex) {
-        switch (playerIndex) {
-            case 0:
-                return Color.color(1.0, 0.4, 0.4);
-            case 1:
-                return Color.color(0.4, 0.5, 1.0);
-            case 2:
-                return Color.color(1.0, 1.0, 0.4);
-            case 3:
-                return Color.color(0.5, 1.0, 0.4);
-        }
-        return Color.color(0.5, 0.5, 0.5);
-    }
-
     /**
      * Method to initialize the GameField of this GamePresenter of this client
      * <p>
@@ -1511,8 +1474,6 @@ public class GamePresenter extends AbstractPresenter {
      * @param mapGraph the MapGraph created by the Server
      * @author Marius Birk
      * @author Marc Hermes
-     * @see de.uol.swp.client.game.GameObjects.TerrainField
-     * @see de.uol.swp.common.game.TerrainFieldContainer
      * @since 2021-04-20
      */
     public void initializeMatch(MapGraph mapGraph) {
@@ -1547,11 +1508,6 @@ public class GamePresenter extends AbstractPresenter {
             nodeContainerHashMap.put(streetNode.getUuid(), mapGraphNodeContainer);
         }
         initializeNodeSpots();
-        //Draw robber
-        //Initialize the robber graphics
-        robber = new Rectangle(25, 25);
-        robber.setFill(new ImagePattern(new Image("textures/originals/robbers.png")));
-        robber.setVisible(true);
 
         draw();
     }
@@ -1679,33 +1635,39 @@ public class GamePresenter extends AbstractPresenter {
         }
     }
 
+    /**
+     * Handles the BuyDevelopmentCardMessage
+     * <p>
+     * If a BuyDevelopmentCardMessage is detected on the EventBus the method invokes the buyDevelopmentCardMessageLogic
+     *
+     * @param buyDevelopmentCardMessage GameMessage
+     * @author Marius Birk
+     * @see BuyDevelopmentCardMessage
+     * @since 2021-05-27
+     */
     @Subscribe
     public void onBuyDevelopmentCardMessage(BuyDevelopmentCardMessage buyDevelopmentCardMessage) {
-        buyDevelopmentCardLogic(buyDevelopmentCardMessage.getDevCard());
+        buyDevelopmentCardMessageLogic(buyDevelopmentCardMessage.getDevCardsNumber());
     }
 
-    public void buyDevelopmentCardLogic(String card) {
-        //
+    /**
+     * The Method invoked by onBuyDevelopmentCardMessage()
+     * <p>
+     * Set the hover text from buyDevCard button with the parameter
+     *
+     * @param devCardsNumber the AllThisLobbyUsersResponse given by the original subscriber method.
+     * @author Anton Nikiforov
+     * @since 2021-06-14
+     */
+    public void buyDevelopmentCardMessageLogic(int devCardsNumber) {
+        Tooltip hover = new Tooltip(devCardsNumber + " Cards left");
+        if (devCardsNumber == 1) hover.setText("1 Card left");
+        hover.setShowDelay(Duration.millis(50));
+        buyDevCard.setTooltip(hover);
     }
 
     @Subscribe
     public void onNotEnoughResourcesMessages(NotEnoughResourcesMessage notEnoughResourcesMessage) {
-        notEnoughResourcesMessageLogic(notEnoughResourcesMessage);
-    }
-
-    /**
-     * The method invoked by NotEnoughRessourceMessage
-     * <p>
-     * This method reacts to the NotEnoughRessourcesMessage and shows the corresponding alert window.
-     *
-     * @param notEnoughResourcesMessage //TODO: fehlt
-     * @implNote The code inside this Method has to run in the JavaFX-application thread. Therefore it is crucial not to
-     * remove the {@code Platform.runLater()}
-     * @author Marius Birk
-     * @see NotEnoughResourcesMessage
-     * @since 2021-04-03
-     */
-    public void notEnoughResourcesMessageLogic(NotEnoughResourcesMessage notEnoughResourcesMessage) {
         if (this.currentLobby != null) {
             if (this.currentLobby.equals(notEnoughResourcesMessage.getName())) {
                 Platform.runLater(() -> {
@@ -1740,7 +1702,7 @@ public class GamePresenter extends AbstractPresenter {
     /**
      * The method invoked when the Game Presenter is first used.
      * <p>
-     * The Alert tells the user, that he doesn't have enough ressources to buy a development card. The user can only
+     * The Alert tells the user, that he doesn't have enough resources to buy a development card. The user can only
      * click the showed button to close the dialog.
      *
      * @author Marius Birk
@@ -1757,6 +1719,16 @@ public class GamePresenter extends AbstractPresenter {
         });
     }
 
+    /**
+     * Handles the MoveRobberMessage
+     * <p>
+     * If a MoveRobberMessage is detected on the EventBus the method moveRobberMessageLogic is invoked.
+     *
+     * @param moveRobberMessage GameMessage
+     * @author Marius Birk
+     * @see MoveRobberMessage
+     * @since 2021-04-20
+     */
     @Subscribe
     public void onMoveRobberMessage(MoveRobberMessage moveRobberMessage) {
         moveRobberMessageLogic(moveRobberMessage);
@@ -1766,12 +1738,12 @@ public class GamePresenter extends AbstractPresenter {
      * This method will be invoked if a MoveRobberMessage is detected on the eventBus.
      * <p>
      * At first it checks if the current lobby is null and if that, it checks if the current lobby is the lobby we want to work in.
-     * After a successfull check the method calls an alert on another thread to inform the user, that he can move the robber.
-     * To know, where the user has clicked, we need to create an evenhandler and override the handle method. in the handle
+     * After a successful check the method calls an alert on another thread to inform the user, that he can move the robber.
+     * To know, where the user has clicked, we need to create an eventHandler and override the handle method. in the handle
      * method we iterate over every hexagon and check if the mouse was pressed on it. Now it can call the movedRobber method
-     * in the gameService and it can remove the eventhandler from the hexagons.
+     * in the gameService and it can remove the eventHandler from the hexagons.
      *
-     * @param moveRobberMessage TODO: fehlt
+     * @param moveRobberMessage the MoveRobberMessage that was detected on the EventBus
      * @author Marius Birk
      * @since 2021-04-20
      */
@@ -1787,7 +1759,7 @@ public class GamePresenter extends AbstractPresenter {
                     this.alert.show();
                 });
 
-                //adding a eventhandler to know where the user wants to set the robber
+                //adding a eventHandler to know where the user wants to set the robber
                 EventHandler<MouseEvent> clickOnHexagonHandler = new EventHandler<>() {
                     @Override
                     public void handle(MouseEvent mouseEvent) {
@@ -1798,12 +1770,11 @@ public class GamePresenter extends AbstractPresenter {
                                         container1.getHexagonShape().removeEventHandler(MouseEvent.MOUSE_PRESSED, this);
                                         switchTurnPhaseButtons();
                                     }
-
-                                    gameService.movedRobber(moveRobberMessage.getName(), moveRobberMessage.getUser(), container.getHexagon().getUuid());
-
                                     if (currentDevelopmentCard.equals("Knight")) {
                                         gameService.resolveDevelopmentCardKnight((UserDTO) moveRobberMessage.getUser(), moveRobberMessage.getName(), currentDevelopmentCard, container.getHexagon().getUuid());
                                         currentDevelopmentCard = "";
+                                    } else {
+                                        gameService.movedRobber(moveRobberMessage.getName(), moveRobberMessage.getUser(), container.getHexagon().getUuid());
                                     }
                                 }
                             }
@@ -1815,6 +1786,7 @@ public class GamePresenter extends AbstractPresenter {
                     container.getHexagonShape().addEventHandler(MouseEvent.MOUSE_PRESSED, clickOnHexagonHandler);
                     rollDiceButton.setDisable(true);
                     buildMenu.setDisable(true);
+                    tradeButton.setDisable(true);
                     endTurnButton.setDisable(true);
                     buyDevCard.setDisable(true);
                 }
@@ -1862,19 +1834,19 @@ public class GamePresenter extends AbstractPresenter {
     /**
      * This method shows the choosePlayerAlert.
      * <p>
-     * The method sets the title of the alert to the gamename and then configures the buttons in it. The buttons
+     * The method sets the title of the alert to the gameName and then configures the buttons in it. The buttons
      * are getting named after the names of the user in the choosePlayerMessage.
      * Then the alert will be shown and the user can choose a player, so the method can call the drawRandomResource Method
-     * in the gameservice.
+     * in the gameService.
      *
-     * @param choosePlayerMessage
+     * @param choosePlayerMessage the choosePlayerMessage that was detected on the EventBus
      * @author Marius Birk
      * @since 2021-06-02
      */
     public void showChoosePlayerAlert(ChoosePlayerMessage choosePlayerMessage) {
-        if(choosePlayerMessage.getName()!=null){
+        if (choosePlayerMessage.getName() != null) {
             chooseAlert.setTitle(choosePlayerMessage.getName());
-        }else{
+        } else {
             chooseAlert.setTitle("Choose a Player");
         }
         chooseAlert.getButtonTypes().setAll();
@@ -2003,6 +1975,9 @@ public class GamePresenter extends AbstractPresenter {
         selectedResource2.setFill(Color.RED);
         selectedResource1.setRadius(5);
         selectedResource2.setRadius(5);
+        Rectangle2D center = Screen.getPrimary().getVisualBounds();
+        this.resolveDevelopmentCardAlert.setX(center.getWidth() / 4);
+        this.resolveDevelopmentCardAlert.setY(center.getHeight() / 3);
         double rectHeight = 100.0;
         double rectWidth = 50.0;
         Rectangle lumberRectangle = new Rectangle(rectWidth, rectHeight);
@@ -2156,19 +2131,16 @@ public class GamePresenter extends AbstractPresenter {
     public void shuffleTheDice(int diceEyes1, int diceEyes2) {
         final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
         final int[] i = {0};
-        executorService.scheduleAtFixedRate(new Runnable() {
-            @Override
-            public void run() {
-                i[0]++;
-                int randomNumber = randomInt(0, 5);
-                rectangleDie1.setFill(diceImages.get(randomNumber));
-                randomNumber = randomInt(0, 5);
-                rectangleDie2.setFill(diceImages.get(randomNumber));
-                if (i[0] == 12) {
-                    executorService.shutdown();
-                    rectangleDie1.setFill(diceImages.get(diceEyes1 - 1));
-                    rectangleDie2.setFill(diceImages.get(diceEyes2 - 1));
-                }
+        executorService.scheduleAtFixedRate(() -> {
+            i[0]++;
+            int randomNumber = randomInt(0, 5);
+            rectangleDie1.setFill(diceImages.get(randomNumber));
+            randomNumber = randomInt(0, 5);
+            rectangleDie2.setFill(diceImages.get(randomNumber));
+            if (i[0] == 12) {
+                executorService.shutdown();
+                rectangleDie1.setFill(diceImages.get(diceEyes1 - 1));
+                rectangleDie2.setFill(diceImages.get(diceEyes2 - 1));
             }
         }, 0, 125, TimeUnit.MILLISECONDS);
     }
@@ -2234,6 +2206,12 @@ public class GamePresenter extends AbstractPresenter {
                             }
                         });
                     } else {
+                        for (MapGraphNodeContainer mapGraphNodeContainer1 : mapGraphNodeContainers) {
+                            if ((mapGraphNodeContainer1.getMapGraphNode().getOccupiedByPlayer() == 420 || mapGraphNodeContainer1.getMapGraphNode().getOccupiedByPlayer() == 666) && mapGraphNodeContainer1.getMapGraphNode() instanceof MapGraph.BuildingNode) {
+                                mapGraphNodeContainer1.getCircle().setVisible(false);
+                            }
+                        }
+
                         Platform.runLater(() -> {
                             mapGraphNodeContainer.getCircle().setRadius(cardSize() / 3.5);
                             mapGraphNodeContainer.getCircle().setFill(determineBuildingPicture(mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer(), 2));
@@ -2322,22 +2300,22 @@ public class GamePresenter extends AbstractPresenter {
 
 
     /**
-     * This method will be invoked if the robber is successfully moved on the gamefield.
+     * This method will be invoked if the robber is successfully moved on the game field.
      * <p>
-     * If the robber is successfully moved on the gamefield and needs to be moved.
-     * The method iterates over every hexagon on the gamefield and checks if the uuid of the hexagon is the same
-     * as the uuid in the SuccessfullMovedRobberMessage. If this is true, the robbers layout will be set to the
-     * hexagons layout. From that layout we substract the half of the height/width of the robber, because the layout
+     * If the robber is successfully moved on the game field and needs to be moved.
+     * The method iterates over every hexagon on the game field and checks if the uuid of the hexagon is the same
+     * as the uuid in the SuccessfulMovedRobberMessage. If this is true, the robbers layout will be set to the
+     * hexagons layout. From that layout we subtract the half of the height/width of the robber, because the layout
      * is determined as the upper left edge of the robber.
      *
-     * @param successfullMovedRobberMessage //TODO: Beschreibung fehlt
+     * @param successfulMovedRobberMessage the successfulMovedRobberMessage detected on the EventBus
      * @author Marius Birk
      * @since 2021-04-22
      */
     @Subscribe
-    public void onSuccessfullMovedRobberMessage(SuccessfullMovedRobberMessage successfullMovedRobberMessage) {
+    public void onSuccessfulMovedRobberMessage(SuccessfulMovedRobberMessage successfulMovedRobberMessage) {
         for (HexagonContainer hexagonContainer : hexagonContainers) {
-            if (hexagonContainer.getHexagon().getUuid().equals(successfullMovedRobberMessage.getNewField())) {
+            if (hexagonContainer.getHexagon().getUuid().equals(successfulMovedRobberMessage.getNewField())) {
                 robber.setLayoutX(hexagonContainer.getHexagonShape().getLayoutX() - robber.getWidth() / 2);
                 robber.setLayoutY(hexagonContainer.getHexagonShape().getLayoutY() - robber.getHeight() / 2);
             }
@@ -2480,7 +2458,7 @@ public class GamePresenter extends AbstractPresenter {
      * @implNote The code inside this Method has to run in the JavaFX-application thread. Therefore it is crucial not to
      * remove the {@code Platform.runLater()}
      * @author Iskander Yusupov
-     * @see de.uol.swp.common.game.inventory.Inventory
+     * @see Inventory
      * @since 2021-05-28
      */
     public void updatePublicInventory(ArrayList<HashMap<String, Integer>> publicInventoriesList) {
@@ -2522,19 +2500,17 @@ public class GamePresenter extends AbstractPresenter {
     }
 
     /**
+     * Manages visibility of longest road and largest army cards as well as the other inventory items in the GameView.
+     * <p>
      * This method clears hashMapEntriesList (public Inventory Observable List) and then adds the
-     * <p>
      * contents of public inventory from hashmap in each publicInventory(1-4), using switch-case.
-     * <p>
-     * Manages visibility of longest road and largest army cards in the GameView.
      *
-     * @param hashMapEntriesList
-     * @param hashMap
+     * @param hashMapEntriesList the observableList for the items of the inventory
+     * @param hashMap            the hashMap containing the public inventory
      * @author Iskander Yusupov
-     * @see de.uol.swp.common.game.inventory.Inventory
+     * @see Inventory
      * @since 2021-06-02
      */
-
     public void fillInPublicInventory(ObservableList<HashMap.Entry<String, Integer>> hashMapEntriesList, HashMap<String, Integer> hashMap) {
         hashMapEntriesList.clear();
         hashMapEntriesList.add(null);
@@ -2611,6 +2587,9 @@ public class GamePresenter extends AbstractPresenter {
                         playerFourLongestRoadView.setVisible(false);
                     }
                     break;
+
+                default:
+                    break;
             }
         }
     }
@@ -2621,7 +2600,7 @@ public class GamePresenter extends AbstractPresenter {
      * This method creates two imagePatterns. Then it creates and fills rectangleLargestArmy and
      * rectangleLongestRoad with corresponding ImagePattern.
      * <p>
-     * Both rectangles are added to the corresponding Panes
+     * Rectangles of each player are added to the ArrayList rectangles.
      * <p>
      * After this, hover and exit methods are being executed. When the user is entering the rectangle
      * of a card, a tooltip, with what the card under the mouse cursor represents, appear. If the user clicks
@@ -2649,7 +2628,7 @@ public class GamePresenter extends AbstractPresenter {
             Tooltip.install(rectangleLargestArmy, hoverLargestArmy);
             hoverLargestArmy.setShowDelay(Duration.millis(0));
 
-            rectangleLargestArmy.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            rectangleLargestArmy.setOnMouseClicked(new EventHandler<>() {
                 final String title = hoverLargestArmy.getText();
                 final String description = "A card that you receive upon reaching largest army, longer than 2";
                 final Boolean isDevelopmentCard = false;
@@ -2666,7 +2645,7 @@ public class GamePresenter extends AbstractPresenter {
             hoverLongestRoad.setText("Longest Road");
             Tooltip.install(rectangleLongestRoad, hoverLongestRoad);
             hoverLongestRoad.setShowDelay(Duration.millis(0));
-            rectangleLongestRoad.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            rectangleLongestRoad.setOnMouseClicked(new EventHandler<>() {
                 final String title = hoverLongestRoad.getText();
                 final String description = "A card that you receive upon having longest road, longer than 4";
                 final Boolean isDevelopmentCard = false;
@@ -2690,6 +2669,44 @@ public class GamePresenter extends AbstractPresenter {
             playerFourLargestArmyView.getChildren().add(rectanglesLargestArmy.get(3));
             playerFourLongestRoadView.getChildren().add(rectanglesLongestRoad.get(3));
         }
+    }
+
+    /**
+     * The method gets invoked when the Game Presenter is created.
+     * <p>
+     * This method creates Tabs with game chat, game event log and pricesView. Then it fills TabPane with tabs.
+     *
+     * @author Iskander Yusupov
+     * @since 2021-06-14
+     */
+    private void setUpTabs() {
+        Tab tabChat = new Tab();
+        tabChat.setText("Chat");
+        tabChat.setContent(gameChatArea);
+        Tab tabGameLog = new Tab();
+        tabGameLog.setText("Log");
+        Tab tabPrices = new Tab();
+        tabPrices.setText("Prices");
+        tabPrices.setContent(pricesView);
+        tabPane.getTabs().addAll(tabChat, tabGameLog, tabPrices);
+    }
+
+    /**
+     * The method gets invoked when the Game Presenter is created.
+     * <p>
+     * This method creates image and imagePattern. Then it creates and fills rectanglePrices  with
+     * <p>
+     * ImagePattern. Rectangle is added to the FXML Pane.
+     * <p>
+     *
+     * @author Iskander Yusupov
+     * @since 2021-06-08
+     */
+    private void setUpPrices() {
+        Image imagePrices = new Image("textures/resized/Baukosten.png");
+        Rectangle rectanglePrices = new Rectangle(225, 225);
+        rectanglePrices.setFill(new ImagePattern(imagePrices));
+        pricesView.getChildren().add(rectanglePrices);
     }
 
 
@@ -2950,9 +2967,9 @@ public class GamePresenter extends AbstractPresenter {
                     Tooltip.install(r, hover);
                     hover.setShowDelay(Duration.millis(0));
 
-                    r.setOnMouseClicked(new EventHandler<MouseEvent>() {
+                    r.setOnMouseClicked(new EventHandler<>() {
                         final String title = hover.getText();
-                        final String description = "your victory points for the game you earned until now";
+                        final String description = "Cards which aren't playable but increase your victory points at the end of game";
                         final Boolean isDevelopmentCard = false;
 
                         @Override
@@ -3000,7 +3017,7 @@ public class GamePresenter extends AbstractPresenter {
 
                     r.setOnMouseClicked(new EventHandler<>() {
                         final String title = hover.getText();
-                        final String description = "With this card played out, you can choose a resource. All players, who are currently having the chosen resource on their hand, must give you all of them";
+                        final String description = "When you play out this card, you can choose a resource. Every player who currently has the chosen resource on their hand must give you all of them.";
                         final Boolean isDevelopmentCard = true;
 
                         @Override
@@ -3028,7 +3045,7 @@ public class GamePresenter extends AbstractPresenter {
 
                     r.setOnMouseClicked(new EventHandler<>() {
                         final String title = hover.getText();
-                        final String description = "The Road Building development card. When this card is played out, you immediately get two ressource cards of your choice from the bank";
+                        final String description = "The Road Building development card. With this card played out, you can build two roads this turn free of charge";
                         final Boolean isDevelopmentCard = true;
 
                         @Override
@@ -3056,8 +3073,8 @@ public class GamePresenter extends AbstractPresenter {
 
                     r.setOnMouseClicked(new EventHandler<>() {
                         final String title = hover.getText();
-                        final String description = "The Year of Plenty development car. With this card played out, you can build two roads this turn free of charge";
-                        final Boolean isDevelopmentCard = true;
+                        final String description = "The Year of Plenty development card. When this card is played out, you immediately get two resource cards of your choice from the bank";
+                        final Boolean isDevelopmentCard = false;
 
                         @Override
                         public void handle(MouseEvent mouseEvent) {
@@ -3082,7 +3099,7 @@ public class GamePresenter extends AbstractPresenter {
                     Tooltip.install(r, hover);
                     hover.setShowDelay(Duration.millis(0));
 
-                    r.setOnMouseClicked(new EventHandler<MouseEvent>() {
+                    r.setOnMouseClicked(new EventHandler<>() {
                         final String title = hover.getText();
                         final String description = "You can build these to get resources from tiles";
                         final Boolean isDevelopmentCard = false;
@@ -3120,7 +3137,7 @@ public class GamePresenter extends AbstractPresenter {
                     Tooltip.install(r, hover);
                     hover.setShowDelay(Duration.millis(0));
 
-                    r.setOnMouseClicked(new EventHandler<MouseEvent>() {
+                    r.setOnMouseClicked(new EventHandler<>() {
                         final String title = hover.getText();
                         final String description = "A bigger version of the settlements";
                         final Boolean isDevelopmentCard = false;
@@ -3177,9 +3194,7 @@ public class GamePresenter extends AbstractPresenter {
             clickAlert.getButtonTypes().setAll(ok, playThisCard);
 
             Button playCard = (Button) clickAlert.getDialogPane().lookupButton(playThisCard);
-            playCard.setOnAction(event -> {
-                gameService.playDevelopmentCard((UserDTO) joinedLobbyUser, currentLobby, cardName);
-            });
+            playCard.setOnAction(event -> gameService.playDevelopmentCard((UserDTO) joinedLobbyUser, currentLobby, cardName));
         }
         clickAlert.setHeaderText(cardName);
         clickAlert.setContentText(description);
@@ -3191,9 +3206,11 @@ public class GamePresenter extends AbstractPresenter {
     }
 
     /**
-     * This method is invoked if a TooMuchResourceCardsMessage is layed on the bus.
+     * This method is invoked if a TooMuchResourceCardsMessage detected on the bus.
      *
-     * @param tooMuchResourceCardsMessage //TODO: JavaDoc fehlt
+     * @param tooMuchResourceCardsMessage the tooMuchResourceCardsMessage detected on the EventBus
+     * @author Marius Birk
+     * @since 2021-05-01
      */
     @Subscribe
     public void onTooMuchResourceCardsMessage(TooMuchResourceCardsMessage tooMuchResourceCardsMessage) {
@@ -3205,12 +3222,12 @@ public class GamePresenter extends AbstractPresenter {
     }
 
     /**
-     * This method will be invoked if a choosePlayerMessage is layed on the bus.
+     * This method will be invoked if a choosePlayerMessage is detected on the bus.
      * <p>
      * The method sets up an alert to choose a player to draw a card from.
      * That will be done on another Thread.
      *
-     * @param choosePlayerMessage //TODO: fehlt
+     * @param choosePlayerMessage the choosePlayerMessage detected on the EventBus
      * @author Marius Birk
      * @since 2021-05-01
      */

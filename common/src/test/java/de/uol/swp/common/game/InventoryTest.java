@@ -1,4 +1,4 @@
-package de.uol.swp.common.game.inventory;
+package de.uol.swp.common.game;
 
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
@@ -32,7 +32,7 @@ public class InventoryTest {
      */
     @Test
     void onGetPrivateView() {
-        assertTrue(privateInventory instanceof HashMap);
+        assertNotNull(privateInventory);
 
         // Resource Cards
         assertEquals(privateInventory.get("Lumber"), 0);
@@ -68,7 +68,7 @@ public class InventoryTest {
      */
     @Test
     void onGetPublicView() {
-        assertTrue(publicInventory instanceof HashMap);
+        assertNotNull(publicInventory);
 
         assertEquals(publicInventory.get("Resource"), 0);
         assertEquals(publicInventory.get("Development Cards"), 0);
@@ -102,7 +102,7 @@ public class InventoryTest {
         inventory.cardMonopoly.incNumber();
         inventory.cardRoadBuilding.incNumber();
         inventory.cardYearOfPlenty.incNumber();
-        inventory.incCardStackVictoryPoint();
+        inventory.incCardVictoryPoint();
 
         // Inventory analysis
         privateInventory = inventory.getPrivateView();

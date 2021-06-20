@@ -7,7 +7,7 @@ import de.uol.swp.common.message.AbstractServerMessage;
  * contains the name of the player with the currentTurn and the information, if the game is in the opening phase.
  *
  * @author Pieter Vogt
- * @since 2021 //TODO Datum unvollständig
+ * @since 2021-03-22
  *
  * Enhanced by Carsten Dekker
  * @since 2021-04-30

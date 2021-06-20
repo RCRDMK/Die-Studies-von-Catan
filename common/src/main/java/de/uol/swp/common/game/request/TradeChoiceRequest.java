@@ -4,6 +4,7 @@ import de.uol.swp.common.user.UserDTO;
 
 /**
  * this request informs the server which bidder the seller accepted
+ *
  * @author Alexander Losse, Ricardo Mook
  * @since 2021-04-11
  */

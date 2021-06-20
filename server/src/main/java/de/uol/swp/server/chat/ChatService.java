@@ -12,7 +12,6 @@ import de.uol.swp.server.usermanagement.UserService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.LinkedList;
 
 /**
  * Service that handles the chat
@@ -26,7 +25,6 @@ import java.util.LinkedList;
 @Singleton
 public class ChatService extends AbstractService {
     private static final Logger LOG = LogManager.getLogger(UserService.class);
-    private final LinkedList<RequestChatMessage> messageList = new LinkedList();
     private final CheatService cheatService;
 
 
@@ -51,8 +49,8 @@ public class ChatService extends AbstractService {
      * Handles RequestChatMessages detected on the EventBus
      * <p>
      * If a RequestChatMessage is detected on the EventBus, this method is called.
-     * It will store the received Message in the chatList HashMap and post a ResponseChatMessage on the EventBus if the chatMessage isnt a cheat
-     * If the chatMessage is a cheat, it calls the cheatServce.parseExecuteCheat function and passes the
+     * It will store the received Message in the chatList HashMap and post a ResponseChatMessage on the EventBus if the chatMessage isn't a cheat
+     * If the chatMessage is a cheat, it calls the cheatService.parseExecuteCheat function and passes the
      * RequestChatMessage as argument
      *
      * @param message The RequestChatMessage found on the EventBus
@@ -66,14 +64,13 @@ public class ChatService extends AbstractService {
         //  Proceed when message isn't a cheat
         if (!cheatService.isCheat(message)) {
             // Store Message in chatList
-            this.messageList.add(message);
             LOG.debug("Got new chat message from user: " + message.getUsername() + " with content: '" + message.getMessage() + "' and added it to the messageList");
             ResponseChatMessage msg = new ResponseChatMessage(message.getMessage(), message.getChat(), message.getUsername(), message.getTime());
             post(msg);
             LOG.debug("Posted ResponseChatMessage on eventBus");
         } else {
-            // Parse & Execute Cheatcodes
-            LOG.debug("Cheatmessage " + message.getMessage() + " sent by " + message.getUsername());
+            // Parse & Execute Cheat codes
+            LOG.debug("Cheat message " + message.getMessage() + " sent by " + message.getUsername());
             cheatService.parseExecuteCheat(message);
         }
     }

@@ -36,12 +36,13 @@ import java.util.List;
 /**
  * Manages the lobby menu
  * <p>
- * Class was build exactly like MainMenuPresenter. Only ActionEvents were added
+ * Class was build exactly like MainMenuPresenter.
  *
  * @author Ricardo Mook, Marc Hermes
  * @see de.uol.swp.client.AbstractPresenter
  * @since 2020-11-19
  */
+@SuppressWarnings("UnstableApiUsage")
 public class LobbyPresenter extends AbstractPresenter {
 
     public static final String fxml = "/fxml/LobbyView.fxml";
@@ -63,9 +64,6 @@ public class LobbyPresenter extends AbstractPresenter {
     private String gameFieldVariant = "Standard";
 
     private int minimumAmountOfPlayers = 2;
-
-    @FXML
-    private ToggleGroup gameFieldToggleButtons;
 
     @FXML
     private RadioButton standardGameField;
@@ -210,7 +208,7 @@ public class LobbyPresenter extends AbstractPresenter {
      */
     @FXML
     public void onJoinGame() {
-        LOG.debug("JoinGame Button Presse");
+        LOG.debug("JoinGame Button Pressed");
         lobbyService.joinGame(this.currentLobby, (UserDTO) this.joinedLobbyUser);
         gameAlreadyExistsLabel.setVisible(false);
         notLobbyOwnerLabel.setVisible(false);
@@ -279,11 +277,11 @@ public class LobbyPresenter extends AbstractPresenter {
     }
 
     /**
-     * Sets the clickability of the lobbys options-buttons.
+     * Sets the click-ability of the lobbies options-buttons.
      * <p>
-     * If a User joins a lobby, hes automatically denied to klick any options-buttons regarding game-settings like wich
+     * If a User joins a lobby, hes automatically denied to click any options-buttons regarding game-settings like which
      * game-field to chose and so on. When the User has created the lobby, hes automatically enabled to change
-     * game-settings. If the Lobbyowner leaves, the variable "isLobbyOwner" gets updated on every client and after that
+     * game-settings. If the lobbyOwner leaves, the variable "isLobbyOwner" gets updated on every client and after that
      * this method is called again.
      * </p>
      *
@@ -325,7 +323,7 @@ public class LobbyPresenter extends AbstractPresenter {
         if (this.currentLobby == null) {
             LOG.debug("Requesting update of User list in lobby because lobby was created.");
             this.joinedLobbyUser = lcsr.getUser();
-            ArrayList<UserDTO> onlyLobbyOwner = new ArrayList<UserDTO>();
+            ArrayList<UserDTO> onlyLobbyOwner = new ArrayList<>();
             onlyLobbyOwner.add((UserDTO) joinedLobbyUser);
             this.lobbyOwnerName = joinedLobbyUser.getUsername();
             updateLobbyUsersList(onlyLobbyOwner);
@@ -384,7 +382,7 @@ public class LobbyPresenter extends AbstractPresenter {
     /**
      * The method invoked when the Lobby Presenter is first used: when a lobby is joined/created.
      * <p>
-     * The Alert asking the user whether he is ready to start the game or not aswell as its corresponding buttons
+     * The Alert asking the user whether he is ready to start the game or not as well as its corresponding buttons
      * buttonTypeYes/No are created. Also 2 more hidden buttons are created whose ActionEvents are linked to the
      * buttonTypeYes/No buttons of the Alert. When either of those buttons is pressed onBtnYes/NoClicked will be called.
      * The initial Modality of the Alert is also changed so that the Main Window can still be used even when the Alert
@@ -666,17 +664,22 @@ public class LobbyPresenter extends AbstractPresenter {
     /**
      * Adds the ResponseChatMessage to the textArea
      *
-     * @param message
+     * @param message the chatMessage to update the chat with
+     * @author Alexander Losse, Marc Hermes
+     * @since 2021-06-15
+     * @param message <p>
+     *
+     * Enhanced by Sergej Tulnev
+     * @since 2021-06-17
+     * <p>
+     * If the user has a long message, it will have a line break
      */
     private void updateChat(ResponseChatMessage message) {
-        updateChatLogic(message);
-    }
-
-    private void updateChatLogic(ResponseChatMessage rcm) {
         var time = new SimpleDateFormat("HH:mm");
-        Date resultdate = new Date((long) rcm.getTime().doubleValue());
-        var readableTime = time.format(resultdate);
-        lobbyChatArea.insertText(lobbyChatArea.getLength(), readableTime + " " + rcm.getUsername() + ": " + rcm.getMessage() + "\n");
+        Date resultDate = new Date((long) message.getTime().doubleValue());
+        var readableTime = time.format(resultDate);
+        lobbyChatArea.insertText(lobbyChatArea.getLength(), readableTime + " " + message.getUsername() + ": " + message.getMessage() + "\n");
+        lobbyChatArea.setWrapText(true);
     }
 
 
@@ -849,13 +852,13 @@ public class LobbyPresenter extends AbstractPresenter {
      */
     @Subscribe
     public void onJoinGameOnGoingResponse(JoinOnGoingGameResponse joggr) {
-        if(this.currentLobby != null) {
-            if(this.currentLobby.equals(joggr.getGameName()) && !joggr.isJoinedSuccessful()) {
+        if (this.currentLobby != null) {
+            if (this.currentLobby.equals(joggr.getGameName()) && !joggr.isJoinedSuccessful()) {
                 LOG.debug("Couldn't join ongoing game because: " + joggr.getReasonForFailedJoin());
                 notEnoughPlayersLabel.setVisible(false);
                 notLobbyOwnerLabel.setVisible(false);
                 gameAlreadyExistsLabel.setVisible(false);
-                Platform.runLater(() ->reasonWhyNotAbleToJoinGame.setText(joggr.getReasonForFailedJoin()));
+                Platform.runLater(() -> reasonWhyNotAbleToJoinGame.setText(joggr.getReasonForFailedJoin()));
                 reasonWhyNotAbleToJoinGame.setVisible(true);
             }
         }

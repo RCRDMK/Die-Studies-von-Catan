@@ -4,7 +4,6 @@ import de.uol.swp.common.message.AbstractRequestMessage;
 import de.uol.swp.common.user.User;
 
 
-
 /**
  * Request sent to the server when a user wants to roll the dice
  * or when the roll cheat is executed
@@ -31,7 +30,7 @@ public class RollDiceRequest extends AbstractRequestMessage {
      * <p>
      * enhanced by René Meyer, Sergej Tulnev
      *
-     * @param name Lobby - Gamename
+     * @param name Lobby - GameName
      * @param user User who is sending the RollDiceRequest
      * @since 2021-04-17
      * @since 2021-01-07
@@ -46,7 +45,7 @@ public class RollDiceRequest extends AbstractRequestMessage {
      * CheatEyes RollDiceRequest Constructor overloading.
      * We call this constructor for the roll cheat.
      *
-     * @param name      Lobby - Gamename
+     * @param name      Lobby - GameName
      * @param user      User who is sending the RollDiceRequest
      * @param cheatEyes Integer for roll Cheat
      * @author René Meyer, Sergej Tulnev

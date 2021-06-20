@@ -6,10 +6,10 @@ import java.io.Serializable;
 import java.util.*;
 
 /**
- * Manages the logic behind the playfield.
- * <p>This Class holds and processes the data about the playfield. It can return the longest road, and
+ * Manages the logic behind the play field.
+ * <p>This Class holds and processes the data about the play field. It can return the longest road, and
  * potentially the most settlements, the player with the most cities, overall number of buildings built, length of
- * combined roads and so on (especially interesting for endscreen, maybe?).
+ * combined roads and so on (especially interesting for end screen, maybe?).
  * </p>
  *
  * @author Pieter Vogt
@@ -20,8 +20,8 @@ public class MapGraph implements Serializable {
     private final HashSet<StreetNode> streetNodeHashSet = new HashSet<>();
     private final HashSet<BuildingNode> buildingNodeHashSet = new HashSet<>();
     private final HashSet<Hexagon> hexagonHashSet = new HashSet<>();
-    private final int[] numOfRoads = new int[]{0,0,0,0};
-    private int[] numOfBuildings = new int[]{0,0,0,0};
+    private final int[] numOfRoads = new int[]{0, 0, 0, 0};
+    private final int[] numOfBuildings = new int[]{0, 0, 0, 0};
     private final ArrayList<BuildingNode> builtBuildings = new ArrayList<>();
     // middle hexagon for reference
     private final Hexagon middle = new Hexagon("middle");
@@ -54,11 +54,12 @@ public class MapGraph implements Serializable {
         return longestStreetPathCalculator;
     }
 
-    public int[] getNumOfRoads() {return numOfRoads; }
-    public int[] getNumOfBuildings() {return numOfBuildings; }
+    public int[] getNumOfRoads() {
+        return numOfRoads;
+    }
 
-    public void setNumOfBuildings(int[] numOfBuildings) {
-        this.numOfBuildings = numOfBuildings;
+    public int[] getNumOfBuildings() {
+        return numOfBuildings;
     }
 
     /**
@@ -66,7 +67,7 @@ public class MapGraph implements Serializable {
      * <p>Creates the Hexagons, BuildingNodes and StreetNodes, interconnects them and updates the Lists to store
      * them.</p>
      *
-     * @param mapTypeToGenerate The standard-case is to generate a MapGraph for a standard-playfield. So if you wish to
+     * @param mapTypeToGenerate The standard-case is to generate a MapGraph for a standard-play field. So if you wish to
      *                          generate one, just parse "".
      * @author Pieter Vogt
      * @since 2021-04-10
@@ -94,7 +95,7 @@ public class MapGraph implements Serializable {
 
             default: {
                 generateStandardField();
-                //einfügen der dicetoken und terraintypes und harbors
+                //einfügen der dice token und terrain types und harbors
                 configureTerrainTypeAndDiceTokensForAllHexagonsStandard();
                 configureHarborsStandard();
             }
@@ -299,13 +300,10 @@ public class MapGraph implements Serializable {
      * @since 2021-05-14
      */
     public void configureTerrainTypeAndDiceTokensForAllHexagonsRandomly() {
-        ArrayList<Hexagon> hexagons = new ArrayList<>();
-        for (Hexagon hexagon : hexagonHashSet) {
-            if (!hexagon.equals(middle)) {
-                hexagons.add(hexagon);
-            }
-        }
+        ArrayList<Hexagon> hexagons = new ArrayList<>(hexagonHashSet);
+
         ArrayList<Integer> diceTokenList = new ArrayList<>();
+        //diceTokenList.add(0);
         diceTokenList.add(5);
         diceTokenList.add(2);
         diceTokenList.add(6);
@@ -327,6 +325,7 @@ public class MapGraph implements Serializable {
 
 
         ArrayList<Integer> terrainType = new ArrayList<>();
+        terrainType.add(6);
         terrainType.add(1);
         terrainType.add(2);
         terrainType.add(1);
@@ -346,14 +345,18 @@ public class MapGraph implements Serializable {
         terrainType.add(1);
         terrainType.add(5);
 
-        middle.configureTerrainTypeAndDiceToken(6, 0);
-        for (int i = 0; i < 18; i++) {
-            int rand1 = randomInt(0, 18 - i);
+        for (int i = 0; i < 19; i++) {
+            int rand1 = randomInt(0, 19 - i);
             int rand2 = randomInt(0, 18 - i);
-            hexagons.get(i).configureTerrainTypeAndDiceToken(terrainType.get(rand1), diceTokenList.get(rand2));
+            if(terrainType.get(rand1) !=6) {
+                hexagons.get(i).configureTerrainTypeAndDiceToken(terrainType.get(rand1), diceTokenList.get(rand2));
 
-            terrainType.remove(rand1);
-            diceTokenList.remove(rand2);
+                terrainType.remove(rand1);
+                diceTokenList.remove(rand2);
+            } else {
+                hexagons.get(i).configureTerrainTypeAndDiceToken(terrainType.get(rand1), 0);
+                terrainType.remove(rand1);
+            }
         }
 
     }
@@ -436,7 +439,7 @@ public class MapGraph implements Serializable {
      * @since 2021-05-14
      */
     public void configureHarborsStandard() {
-        // 0 = no harbor, 1 = 2:1 Sheep, 2 = 2:1 Clay, 3 = 2:1 Wood, 4 = 2:1 Grain, 5 = 2:1 Ore, 6 = 3:1 Any*/
+        // 0 = no harbor, 1 = 2:1 Wool, 2 = 2:1 Brick, 3 = 2:1 Lumber, 4 = 2:1 Grain, 5 = 2:1 Ore, 6 = 3:1 Any
 
         middle.getHexLeft().getHexTopLeft().getBuildingTopLeft().setTypeOfHarbor(5);
         middle.getHexLeft().getHexTopLeft().getBuildingBottomLeft().setTypeOfHarbor(5);
@@ -517,31 +520,6 @@ public class MapGraph implements Serializable {
      */
     private int randomInt(int min, int max) {
         return (int) (Math.random() * (max - min)) + min;
-    }
-
-    /**
-     * Returns the index of the player with the longest road.
-     * <p>The first player, that has a Route of at least 5 StreetNode-objects, gets awarded the "Longest
-     * Traderoute"-Flag.
-     * </p>
-     *
-     * enhanced by Marc Hermes 2021-05-19
-     *
-     * @return The int array representing the index of the player with the longest road, as well as the length of the longest road. [0] -> the PlayerIndex, [1] -> the length
-     * @author Pieter Vogt
-     * @see de.uol.swp.common.game.dto.GameDTO
-     * @since 2021-04-02
-     */
-    public int[] returnPlayerWithLongestRoad() {
-        int[] returnValue = new int[2];
-        for (int i = 0; i < 4; i++) {
-            int length = longestStreetPathCalculator.getLongestPath(i);
-            if (length > returnValue[1]) {
-                returnValue[1] = length;
-                returnValue[0] = i;
-            }
-        }
-        return returnValue;
     }
 
     public ArrayList<BuildingNode> getBuiltBuildings() {
@@ -661,14 +639,14 @@ public class MapGraph implements Serializable {
             boolean existingConnection = false;
             boolean buildingAllowed = false;
             boolean correctBuildingPhaseTwo = false;
-            if (startingPhase > 0){
+            if (startingPhase > 0) {
                 buildingAllowed = true;
             }
 
             for (MapGraph.BuildingNode connectedBuildingNode : this.getConnectedBuildingNodes()) {
                 if (connectedBuildingNode.getOccupiedByPlayer() == playerIndex) {
                     existingConnection = true;
-                    correctBuildingPhaseTwo = builtBuildings.get(builtBuildings.size()-1).getUuid().equals(connectedBuildingNode.getUuid());
+                    correctBuildingPhaseTwo = builtBuildings.get(builtBuildings.size() - 1).getUuid().equals(connectedBuildingNode.getUuid());
                 }
                 for (MapGraph.StreetNode connectedStreetNode : connectedBuildingNode.getConnectedStreetNodes()) {
                     if (connectedStreetNode.getOccupiedByPlayer() == playerIndex) {
@@ -683,7 +661,7 @@ public class MapGraph implements Serializable {
 
             if (this.occupiedByPlayer == 666 && existingConnection && buildingAllowed && (startingPhase == 0 ||
                     ((startingPhase == 1 || (startingPhase == 2 && correctBuildingPhaseTwo)) &&
-                    numOfRoads[playerIndex] == startingPhase-1 && numOfRoads[playerIndex] < numOfBuildings[playerIndex]))) {
+                            numOfRoads[playerIndex] == startingPhase - 1 && numOfRoads[playerIndex] < numOfBuildings[playerIndex]))) {
                 numOfRoads[playerIndex]++;
                 return true;
             } else return false;
@@ -782,13 +760,14 @@ public class MapGraph implements Serializable {
                 for (MapGraph.BuildingNode connectedBuildingNode : connectedStreetNode.getConnectedBuildingNodes()) {
                     if (connectedBuildingNode.getOccupiedByPlayer() != 666) {
                         buildingAllowed = false;
+                        break;
                     }
                 }
             }
 
             if (occupiedByPlayer == 666 || occupiedByPlayer == playerIndex) {
                 if ((sizeOfSettlement < 1 && existingStreet && buildingAllowed &&
-                        (startingPhase == 0 || numOfBuildings[playerIndex] == startingPhase-1)) ||
+                        (startingPhase == 0 || numOfBuildings[playerIndex] == startingPhase - 1)) ||
                         (startingPhase == 0 && sizeOfSettlement == 1 && occupiedByPlayer == playerIndex)) {
                     numOfBuildings[playerIndex]++;
                     return true;
@@ -796,21 +775,20 @@ public class MapGraph implements Serializable {
             } else return false;
         }
 
-        public boolean buildOrDevelopSettlement(int playerIndex) {
+        public void buildOrDevelopSettlement(int playerIndex) {
             this.occupiedByPlayer = playerIndex;
             if (sizeOfSettlement == 0) {
                 longestStreetPathCalculator.updateMatrixWithNewBuilding(this, playerIndex);
             }
             sizeOfSettlement++;
-            return true;
         }
     }
 
     /**
-     * Represents the logical structure of one hexagonal cardboard-piece to build the Playfield of.
+     * Represents the logical structure of one hexagonal cardboard-piece to build the play field of.
      * <p>This class represents the logic of the pathfinding- and the building-system. It houses the pointers to the
-     * building-spots and is aware of its neighbour-hexagonals. With this, we are able to send specific commands to
-     * specific places of the playfield. Furthermore this has superseded the GameField-class and now also represents the
+     * building-spots and is aware of its neighbour-hexagons. With this, we are able to send specific commands to
+     * specific places of the play field. Furthermore this has superseded the GameField-class and now also represents the
      * type of Terrain and the diceToken.</p>
      *
      * @author Pieter Vogt
@@ -847,9 +825,9 @@ public class MapGraph implements Serializable {
         private BuildingNode buildingTopRight;
         private BuildingNode buildingTop;
 
-        private Set<BuildingNode> buildingNodes = new HashSet<>();
-        private Set<StreetNode> streetNodes = new HashSet<>();
-        private Set<Hexagon> hexagons = new HashSet<>();
+        private final Set<BuildingNode> buildingNodes = new HashSet<>();
+        private final Set<StreetNode> streetNodes = new HashSet<>();
+        private final Set<Hexagon> hexagons = new HashSet<>();
 
         private boolean occupiedByRobber;
 
@@ -905,96 +883,48 @@ public class MapGraph implements Serializable {
             return streetLeft;
         }
 
-        public void setStreetLeft(StreetNode streetLeft) {
-            this.streetLeft = streetLeft;
-        }
-
         public StreetNode getStreetBottomLeft() {
             return streetBottomLeft;
-        }
-
-        public void setStreetBottomLeft(StreetNode streetBottomLeft) {
-            this.streetBottomLeft = streetBottomLeft;
         }
 
         public StreetNode getStreetBottomRight() {
             return streetBottomRight;
         }
 
-        public void setStreetBottomRight(StreetNode streetBottomRight) {
-            this.streetBottomRight = streetBottomRight;
-        }
-
         public StreetNode getStreetRight() {
             return streetRight;
-        }
-
-        public void setStreetRight(StreetNode streetRight) {
-            this.streetRight = streetRight;
         }
 
         public StreetNode getStreetTopRight() {
             return streetTopRight;
         }
 
-        public void setStreetTopRight(StreetNode streetTopRight) {
-            this.streetTopRight = streetTopRight;
-        }
-
         public StreetNode getStreetTopLeft() {
             return streetTopLeft;
-        }
-
-        public void setStreetTopLeft(StreetNode streetTopLeft) {
-            this.streetTopLeft = streetTopLeft;
         }
 
         public BuildingNode getBuildingTopLeft() {
             return buildingTopLeft;
         }
 
-        public void setBuildingTopLeft(BuildingNode buildingTopLeft) {
-            this.buildingTopLeft = buildingTopLeft;
-        }
-
         public BuildingNode getBuildingBottomLeft() {
             return buildingBottomLeft;
-        }
-
-        public void setBuildingBottomLeft(BuildingNode buildingBottomLeft) {
-            this.buildingBottomLeft = buildingBottomLeft;
         }
 
         public BuildingNode getBuildingBottom() {
             return buildingBottom;
         }
 
-        public void setBuildingBottom(BuildingNode buildingBottom) {
-            this.buildingBottom = buildingBottom;
-        }
-
         public BuildingNode getBuildingBottomRight() {
             return buildingBottomRight;
-        }
-
-        public void setBuildingBottomRight(BuildingNode buildingBottomRight) {
-            this.buildingBottomRight = buildingBottomRight;
         }
 
         public BuildingNode getBuildingTopRight() {
             return buildingTopRight;
         }
 
-        public void setBuildingTopRight(BuildingNode buildingTopRight) {
-            this.buildingTopRight = buildingTopRight;
-        }
-
         public BuildingNode getBuildingTop() {
             return buildingTop;
-        }
-
-        public void setBuildingTop(BuildingNode buildingTop) {
-            this.buildingTop = buildingTop;
         }
 
         public Hexagon getHexTopLeft() {
@@ -1047,26 +977,6 @@ public class MapGraph implements Serializable {
 
         public Set<BuildingNode> getBuildingNodes() {
             return buildingNodes;
-        }
-
-        public void setBuildingNodes(Set<BuildingNode> buildingNodes) {
-            this.buildingNodes = buildingNodes;
-        }
-
-        public Set<StreetNode> getStreetNodes() {
-            return streetNodes;
-        }
-
-        public void setStreetNodes(Set<StreetNode> streetNodes) {
-            this.streetNodes = streetNodes;
-        }
-
-        public Set<Hexagon> getHexagons() {
-            return hexagons;
-        }
-
-        public void setHexagons(Set<Hexagon> hexagons) {
-            this.hexagons = hexagons;
         }
 
         public List<String> getSelfPosition() {
@@ -1143,13 +1053,13 @@ public class MapGraph implements Serializable {
          * NodeSpot is empty. If so, it fills it with a new one. Because of that, we can call this function with already
          * partially occupied Hexagons without overwriting Nodes that might already been shared between multiple
          * Hexagons. This is especially important when expanding the inner ring of Hexagons a second time to get the
-         * full Standard-Playfield.</p>
+         * full Standard-play field.</p>
          *
          * @author Pieter Vogt
          * @since 2021-04-08
          */
         public void generateNodes() {
-            //First checking streetnodes...
+            //First checking streetNodes...
             if (this.streetTopLeft == null && hexTopLeft != null) {
                 if (hexTopLeft.getStreetBottomRight() == null) {
                     this.streetTopLeft = new StreetNode("topLeft", this, UUID.randomUUID());
@@ -1527,7 +1437,7 @@ public class MapGraph implements Serializable {
                 streetBottomRight.addBuildingNode(buildingBottom);
                 streetBottomRight.addBuildingNode(buildingBottomRight);
 
-            } catch (ListFullException e) {
+            } catch (ListFullException ignored) {
             }
             //... then we try to introduce the StreetNodes to the BuildingNodes.
             try {
@@ -1548,7 +1458,7 @@ public class MapGraph implements Serializable {
 
                 buildingBottom.addStreetNode(streetBottomLeft);
                 buildingBottom.addStreetNode(streetBottomRight);
-            } catch (ListFullException e) {
+            } catch (ListFullException ignored) {
             }
         }
 

@@ -10,6 +10,7 @@ import de.uol.swp.client.lobby.LobbyService;
 import de.uol.swp.common.game.dto.StatsDTO;
 import de.uol.swp.common.game.message.GameCreatedMessage;
 import de.uol.swp.common.game.message.GameFinishedMessage;
+import de.uol.swp.common.lobby.response.JoinOnGoingGameResponse;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import javafx.application.Platform;
@@ -21,8 +22,6 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /**
  * Manages the SummaryView
@@ -33,9 +32,9 @@ import org.apache.logging.log4j.Logger;
  * @see de.uol.swp.client.AbstractPresenter
  * @since 2021-04-18
  */
+@SuppressWarnings("UnstableApiUsage")
 public class SummaryPresenter extends AbstractPresenter {
     public static final String fxml = "/fxml/SummaryView.fxml";
-    private static final Logger LOG = LogManager.getLogger(GamePresenter.class);
 
     @Inject
     private GameService gameService;
@@ -76,7 +75,7 @@ public class SummaryPresenter extends AbstractPresenter {
     }
 
     /**
-     * Subscribe to GameCreatedMessage to get the actual current user and corresponding game
+     * Subscribe to GameCreatedMessage to get the actual current user and corresponding gameName
      * <p>
      * This is needed so we have the currentUser and the gameName in the SummaryPresenter
      *
@@ -90,6 +89,21 @@ public class SummaryPresenter extends AbstractPresenter {
         if (this.gameName == null) {
             this.currentUser = gcm.getUser();
             this.gameName = gcm.getName();
+        }
+    }
+
+    /**
+     * Subscribe to the JoinOnGoingGameResponse to get the actual current user and corresponding gameName
+     *
+     * @param joggr the JoinOnGoingGameResponse detected on the EventBus
+     * @author Marc Hermes
+     * @since 2021-06-19
+     */
+    @Subscribe
+    public void onGameJoined(JoinOnGoingGameResponse joggr) {
+        if(this.gameName == null && joggr.isJoinedSuccessful()) {
+            this.currentUser = joggr.getUser();
+            this.gameName = joggr.getGameName();
         }
     }
 
@@ -144,14 +158,14 @@ public class SummaryPresenter extends AbstractPresenter {
                 winnerLabel.setText("Sorry, you lost the game " + gameName + " to the user " + statsDTO.getWinner());
                 winnerLabel.setTextFill(Color.ORANGERED);
             }
-            if (generalTableStats.getItems().stream().count() == 0) {
+            if ((long) generalTableStats.getItems().size() == 0) {
                 initGeneralTable();
             }
-            if (detailedTableStats.getItems().stream().count() == 0) {
+            if ((long) detailedTableStats.getItems().size() == 0) {
                 initDetailedTable();
             }
-            if (resourceTableStats.getItems().stream().count() == 0) {
-                initRessourceTable();
+            if ((long) resourceTableStats.getItems().size() == 0) {
+                initResourceTable();
             }
         });
     }
@@ -246,16 +260,16 @@ public class SummaryPresenter extends AbstractPresenter {
     }
 
     /**
-     * Initializes the ressource Table
+     * Initializes the resource Table
      * <p>
-     * This method prepares the ressourceTable and loops the users from the game
-     * to add ressource Stats to the 3rd table
+     * This method prepares the resourceTable and loops the users from the game
+     * to add resource Stats to the 3rd table
      *
      * @author René Meyer, Sergej Tulnev
      * @see TableColumn
      * @since 2021-05-08
      */
-    private void initRessourceTable() {
+    private void initResourceTable() {
         // Init Table
         TableColumn<InventoryTableStats, String> userColumn = new TableColumn<>("User");
         userColumn.setCellValueFactory(new PropertyValueFactory<>("user"));
@@ -276,7 +290,7 @@ public class SummaryPresenter extends AbstractPresenter {
         oreColumn.setCellValueFactory(new PropertyValueFactory<>("ore"));
         oreColumn.setPrefWidth(66);
         var columns = resourceTableStats.getColumns();
-        resourceTableStats.getColumns().addAll(userColumn, lumberColumn, brickColumn, grainColumn, woolColumn, oreColumn);
+        columns.addAll(userColumn, lumberColumn, brickColumn, grainColumn, woolColumn, oreColumn);
 
         // Get all User Data from game to display it in the tableView
         var inventories = statsDTO.getInventoryArrayList();

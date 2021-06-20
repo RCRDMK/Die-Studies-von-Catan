@@ -2,7 +2,6 @@ package de.uol.swp.server.AI;
 
 import de.uol.swp.common.game.MapGraph;
 import de.uol.swp.common.game.dto.GameDTO;
-import de.uol.swp.common.game.inventory.Inventory;
 import de.uol.swp.common.game.message.TooMuchResourceCardsMessage;
 import de.uol.swp.common.game.message.TradeInformSellerAboutBidsMessage;
 import de.uol.swp.common.game.message.TradeOfferInformBiddersMessage;
@@ -58,7 +57,6 @@ public class RandomAI extends AbstractAISystem {
      * @since 2021-05-19
      */
     public ArrayList<AIAction> startTurnOrder() {
-
         if (game.isStartingTurns()) {
             startingTurnLogic();
         } else {
@@ -215,7 +213,7 @@ public class RandomAI extends AbstractAISystem {
      */
     private void playDevelopmentCardLogic() {
         ArrayList<String> cards = canPlayDevelopmentCard();
-        if (cards.size() > 0) {
+        if (!cards.isEmpty()) {
             String cardToPlay = cards.get(randomInt(0, cards.size()));
             switch (cardToPlay) {
                 case "Year of Plenty":
@@ -252,9 +250,12 @@ public class RandomAI extends AbstractAISystem {
                             }
                         }
                     }
-                    if (street1 != null & street2 != null) {
+                    if (street1 != null && street2 != null) {
                         playDevelopmentCardRoadBuilding(street1, street2);
                     }
+                    break;
+
+                default:
                     break;
             }
         }
@@ -270,7 +271,7 @@ public class RandomAI extends AbstractAISystem {
      * @since 2021-05-19
      */
     private void makeRandomActionsLogic() {
-        int amountOfActions = randomInt(0, 20);
+        int amountOfActions = randomInt(0, 6);
         Integer[] actions = {0, 1, 1, 1, 2, 2, 2, 2, 3, 3};
         List<Integer> actionsList = new ArrayList<>(Arrays.asList(actions));
         for (int i = 0; i <= amountOfActions; i++) {
@@ -303,6 +304,8 @@ public class RandomAI extends AbstractAISystem {
                         actionsList.remove((Integer) 3);
                         break;
                     }
+                default:
+                    break;
             }
         }
     }
@@ -477,7 +480,7 @@ public class RandomAI extends AbstractAISystem {
         }
         if (notAcceptableTradeItems > 1 + randomInt(0, 2)) {
             offerListAI.clear();
-        } else if (notAcceptableTradeItems <= 1 + randomInt(0, 2)) {
+        } else {
             int tries = 0;
             while (notAcceptableTradeItems > 0 && tries < 50) {
                 tries++;
@@ -485,7 +488,7 @@ public class RandomAI extends AbstractAISystem {
                 for (TradeItem tradeItemOffer : offerListAI) {
                     if (tradeItemOffer.getCount() > 0 && randomResource.equals(tradeItemOffer.getName())) {
                         notAcceptableTradeItems--;
-                        tradeItemOffer.decCount(1);
+                        tradeItemOffer.decCount(tradeItemOffer.getCount());
                         if (notAcceptableTradeItems == 0) {
                             break;
                         }

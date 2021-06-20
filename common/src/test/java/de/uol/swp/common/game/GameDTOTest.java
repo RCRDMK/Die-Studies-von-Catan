@@ -1,7 +1,6 @@
 package de.uol.swp.common.game;
 
 import de.uol.swp.common.game.dto.GameDTO;
-import de.uol.swp.common.game.inventory.Inventory;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import org.junit.jupiter.api.Test;
@@ -66,7 +65,7 @@ public class GameDTOTest {
     }
 
     /**
-     * This test trys to remove the defaultUser from the defaultGame, which ends up in an IllegalArgumentException.
+     * This test tries to remove the defaultUser from the defaultGame, which ends up in an IllegalArgumentException.
      *
      * @author Marius Birk
      * @since 2021-05-25
@@ -162,10 +161,9 @@ public class GameDTOTest {
 
         assertEquals(4, inventories.size());
 
-        assertEquals(userDTO.getUsername(), inventories.get(0).getUser().getUsername());
-        assertEquals(userDTO1.getUsername(), inventories.get(1).getUser().getUsername());
-        assertEquals(userDTO2.getUsername(), inventories.get(2).getUser().getUsername());
-        assertEquals(userDTO3.getUsername(), inventories.get(3).getUser().getUsername());
-
+        assertTrue(inventories.contains(defaultGame.getInventory(userDTO)));
+        assertTrue(inventories.contains(defaultGame.getInventory(userDTO1)));
+        assertTrue(inventories.contains(defaultGame.getInventory(userDTO2)));
+        assertTrue(inventories.contains(defaultGame.getInventory(userDTO3)));
     }
 }

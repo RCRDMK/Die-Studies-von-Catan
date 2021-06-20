@@ -2,7 +2,6 @@ package de.uol.swp.common.user.response;
 
 import de.uol.swp.common.message.AbstractResponseMessage;
 import de.uol.swp.common.user.User;
-import de.uol.swp.common.user.request.RetrieveUserInformationRequest;
 
 import java.util.Objects;
 
