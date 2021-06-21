@@ -3060,7 +3060,7 @@ public class GamePresenter extends AbstractPresenter {
                     r.setOnMouseClicked(new EventHandler<>() {
                         final String title = hover.getText();
                         final String description = "The Year of Plenty development card. When this card is played out, you immediately get two resource cards of your choice from the bank";
-                        final Boolean isDevelopmentCard = false;
+                        final Boolean isDevelopmentCard = true;
 
                         @Override
                         public void handle(MouseEvent mouseEvent) {
