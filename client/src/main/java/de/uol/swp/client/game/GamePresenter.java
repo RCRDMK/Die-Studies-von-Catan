@@ -97,7 +97,7 @@ public class GamePresenter extends AbstractPresenter {
 
     private User joinedLobbyUser;
 
-    private String currentLobby;
+    private String currentGame;
 
     private Alert alert;
 
@@ -322,7 +322,7 @@ public class GamePresenter extends AbstractPresenter {
         try {
             var chatMessage = gameChatInput.getCharacters().toString();
             // ChatID = game_lobbyName so we have separate lobby and game chat separated by id
-            var chatId = "game_" + currentLobby;
+            var chatId = "game_" + currentGame;
             if (!chatMessage.isEmpty()) {
                 RequestChatMessage message = new RequestChatMessage(chatMessage, chatId, joinedLobbyUser.getUsername(),
                         System.currentTimeMillis());
@@ -363,8 +363,8 @@ public class GamePresenter extends AbstractPresenter {
      */
     public void onResponseChatMessageLogic(ResponseChatMessage rcm) {
         // Only update Messages from used game chat
-        if (this.currentLobby != null) {
-            if (rcm.getChat().equals("game_" + currentLobby)) {
+        if (this.currentGame != null) {
+            if (rcm.getChat().equals("game_" + currentGame)) {
                 LOG.debug("Updated game chat area with new message..");
                 updateChat(rcm);
             }
@@ -413,7 +413,7 @@ public class GamePresenter extends AbstractPresenter {
         this.endTurnButton.setDisable(true);
         this.tradeButton.setDisable(true);
         String tradeCode = UUID.randomUUID().toString().trim().substring(0, 7);
-        gameService.sendTradeStartedRequest((UserDTO) this.joinedLobbyUser, this.currentLobby, tradeCode);
+        gameService.sendTradeStartedRequest((UserDTO) this.joinedLobbyUser, this.currentGame, tradeCode);
     }
 
     /**
@@ -538,7 +538,7 @@ public class GamePresenter extends AbstractPresenter {
 
     @FXML
     public void onBuyDevelopmentCard() {
-        gameService.buyDevelopmentCard(this.joinedLobbyUser, this.currentLobby);
+        gameService.buyDevelopmentCard(this.joinedLobbyUser, this.currentGame);
     }
 
     /**
@@ -560,8 +560,8 @@ public class GamePresenter extends AbstractPresenter {
      */
     @FXML
     public void onRollDice() {
-        if (this.currentLobby != null) {
-            gameService.rollDice(this.currentLobby, (UserDTO) this.joinedLobbyUser);
+        if (this.currentGame != null) {
+            gameService.rollDice(this.currentGame, (UserDTO) this.joinedLobbyUser);
             rolledDice = true;
             switchTurnPhaseButtons();
         }
@@ -578,7 +578,7 @@ public class GamePresenter extends AbstractPresenter {
      */
     @FXML
     public void onEndTurn() {
-        gameService.endTurn((UserDTO) this.joinedLobbyUser, this.currentLobby);
+        gameService.endTurn((UserDTO) this.joinedLobbyUser, this.currentGame);
         for (MapGraphNodeContainer mapGraphNode : mapGraphNodeContainers) {
             if (mapGraphNode.getMapGraphNode().getOccupiedByPlayer() == 666) {
                 mapGraphNode.getCircle().setVisible(false);
@@ -619,10 +619,10 @@ public class GamePresenter extends AbstractPresenter {
      * @since 2021-04-22
      */
     public void gameStartedSuccessfulLogic(GameCreatedMessage gcm) {
-        if (this.currentLobby == null) {
+        if (this.currentGame == null) {
             LOG.debug("Updating User list in game scene because game was created.");
             this.joinedLobbyUser = gcm.getUser();
-            this.currentLobby = gcm.getName();
+            this.currentGame = gcm.getName();
             this.gameFieldVariant = gcm.getGameFieldVariant();
             updateGameUsersList(gcm.getUsers(), gcm.getHumans());
             for (int i = 1; i <= 67; i++) {
@@ -680,10 +680,10 @@ public class GamePresenter extends AbstractPresenter {
      */
     @Subscribe
     public void onJoinOnGoingGameResponse(JoinOnGoingGameResponse joggr) {
-        if (this.currentLobby == null && joggr.isJoinedSuccessful()) {
+        if (this.currentGame == null && joggr.isJoinedSuccessful()) {
             LOG.debug("Updating User list in game scene because game was joined.");
             this.joinedLobbyUser = joggr.getUser();
-            this.currentLobby = joggr.getGameName();
+            this.currentGame = joggr.getGameName();
             this.gameFieldVariant = joggr.getGameFieldVariant();
             updateGameUsersList(joggr.getUsers(), joggr.getHumans());
             for (int i = 1; i <= 67; i++) {
@@ -930,7 +930,7 @@ public class GamePresenter extends AbstractPresenter {
                     if (itsMyTurn && !rolledDice) {
                         rollDiceButton.setDisable(false);
                     }
-                    gameService.discardResources(this.currentLobby, this.joinedLobbyUser, inventory);
+                    gameService.discardResources(this.currentGame, this.joinedLobbyUser, inventory);
                 } else {
                     windowEvent.consume();
                 }
@@ -1052,7 +1052,7 @@ public class GamePresenter extends AbstractPresenter {
      */
     @Subscribe
     public void nextPlayerTurn(NextTurnMessage message) {
-        if (message.getGameName().equals(currentLobby)) {
+        if (message.getGameName().equals(currentGame)) {
             String text = "is making his turn";
             LOG.debug("Updated game Event Log area with new message");
             updateEventLogLogic(text, message.getPlayerWithCurrentTurn());
@@ -1102,9 +1102,9 @@ public class GamePresenter extends AbstractPresenter {
      * @since 2021-03-15
      */
     public void gameLeftSuccessfulLogic(GameLeftSuccessfulResponse glsr) {
-        if (this.currentLobby != null) {
-            if (this.currentLobby.equals(glsr.getName())) {
-                this.currentLobby = null;
+        if (this.currentGame != null) {
+            if (this.currentGame.equals(glsr.getName())) {
+                this.currentGame = null;
                 clearEventBus();
             }
         }
@@ -1125,9 +1125,9 @@ public class GamePresenter extends AbstractPresenter {
     @FXML
     public void onLeaveGame() {
 
-        if (this.currentLobby != null && this.joinedLobbyUser != null) {
-            gameService.leaveGame(this.currentLobby, this.joinedLobbyUser);
-        } else if (this.currentLobby == null && this.joinedLobbyUser != null) {
+        if (this.currentGame != null && this.joinedLobbyUser != null) {
+            gameService.leaveGame(this.currentGame, this.joinedLobbyUser);
+        } else if (this.currentGame == null && this.joinedLobbyUser != null) {
             throw new GamePresenterException("Name of the current Lobby is not available!");
         } else {
             throw new GamePresenterException("User of the current Lobby is not available");
@@ -1166,8 +1166,8 @@ public class GamePresenter extends AbstractPresenter {
      * @since 2021-03-17
      */
     public void otherUserLeftSuccessfulLogic(UserLeftGameMessage ulgm) {
-        if (this.currentLobby != null) {
-            if (this.currentLobby.equals(ulgm.getName())) {
+        if (this.currentGame != null) {
+            if (this.currentGame.equals(ulgm.getName())) {
                 LOG.debug("Requesting update of User list in lobby because a User left the lobby.");
                 gameService.retrieveAllThisGameUsers(ulgm.getName());
             }
@@ -1192,8 +1192,8 @@ public class GamePresenter extends AbstractPresenter {
      * @since 2021-03-14
      */
     public void gameUserListLogic(AllThisGameUsersResponse atgur) {
-        if (this.currentLobby != null) {
-            if (this.currentLobby.equals(atgur.getName())) {
+        if (this.currentGame != null) {
+            if (this.currentGame.equals(atgur.getName())) {
                 LOG.debug("Update of user list " + atgur.getUsers());
                 updateGameUsersList(atgur.getUsers(), atgur.getHumanUsers());
 
@@ -1213,8 +1213,8 @@ public class GamePresenter extends AbstractPresenter {
      */
     @Subscribe
     public void onJoinOnGoingGameMessage(JoinOnGoingGameMessage joggm) {
-        if (this.currentLobby != null) {
-            if (this.currentLobby.equals(joggm.getName())) {
+        if (this.currentGame != null) {
+            if (this.currentGame.equals(joggm.getName())) {
                 String text = "joined the game";
                 LOG.debug("Updated game Event Log area with new message");
                 updateEventLogLogic(text, joggm.getUser().getUsername());
@@ -1551,7 +1551,7 @@ public class GamePresenter extends AbstractPresenter {
                         typeOfNode = "StreetNode";
                     }
                     if (currentDevelopmentCard.equals("")) {
-                        gameService.constructBuilding((UserDTO) joinedLobbyUser.getWithoutPassword(), currentLobby, container.getMapGraphNode().getUuid(), typeOfNode);
+                        gameService.constructBuilding((UserDTO) joinedLobbyUser.getWithoutPassword(), currentGame, container.getMapGraphNode().getUuid(), typeOfNode);
                     } else if (currentDevelopmentCard.equals("Road Building") && typeOfNode.equals("StreetNode")) {
                         if (street1 == null) {
                             street1 = container.getMapGraphNode().getUuid();
@@ -1694,11 +1694,11 @@ public class GamePresenter extends AbstractPresenter {
      */
     @Subscribe
     public void onNotEnoughResourcesMessages(NotEnoughResourcesMessage notEnoughResourcesMessage) {
-        if (this.currentLobby != null) {
+        if (this.currentGame != null) {
             String text = "have not enough ressources";
             LOG.debug("Updated game Event Log area with new message");
             updateEventLogLogic(text, "You");
-            if (this.currentLobby.equals(notEnoughResourcesMessage.getName())) {
+            if (this.currentGame.equals(notEnoughResourcesMessage.getName())) {
                 Platform.runLater(() -> {
                     this.alert.setTitle(notEnoughResourcesMessage.getName());
                     this.alert.setHeaderText("You have not enough Resources!");
@@ -1717,8 +1717,8 @@ public class GamePresenter extends AbstractPresenter {
      */
     @Subscribe
     public void onSettlementFullyDevelopedMessage(SettlementFullyDevelopedMessage sfdm) {
-        if (this.currentLobby != null) {
-            if (this.currentLobby.equals(sfdm.getName())) {
+        if (this.currentGame != null) {
+            if (this.currentGame.equals(sfdm.getName())) {
                 String text = "can not develop a fully developed settlement";
                 LOG.debug("Updated game Event Log area with new message");
                 updateEventLogLogic(text, "You");
@@ -1781,8 +1781,8 @@ public class GamePresenter extends AbstractPresenter {
      * @since 2021-04-20
      */
     public void moveRobberMessageLogic(MoveRobberMessage moveRobberMessage) {
-        if (this.currentLobby != null) {
-            if (this.currentLobby.equals(moveRobberMessage.getName())) {
+        if (this.currentGame != null) {
+            if (this.currentGame.equals(moveRobberMessage.getName())) {
                 Platform.runLater(() -> {
                     this.alert.setTitle(moveRobberMessage.getName());
                     this.alert.setHeaderText("Click on a field to move the Robber!");
@@ -2043,7 +2043,7 @@ public class GamePresenter extends AbstractPresenter {
         resolveButton.setOnAction(event -> {
             switch (this.currentDevelopmentCard) {
                 case "Year of Plenty":
-                    gameService.resolveDevelopmentCardYearOfPlenty((UserDTO) joinedLobbyUser, currentLobby, currentDevelopmentCard, resource1, resource2);
+                    gameService.resolveDevelopmentCardYearOfPlenty((UserDTO) joinedLobbyUser, currentGame, currentDevelopmentCard, resource1, resource2);
                     resource1 = "";
                     resource2 = "";
                     selectedResource1.setVisible(false);
@@ -2051,13 +2051,13 @@ public class GamePresenter extends AbstractPresenter {
                     currentDevelopmentCard = "";
                     break;
                 case "Monopoly":
-                    gameService.resolveDevelopmentCardMonopoly((UserDTO) joinedLobbyUser, currentLobby, currentDevelopmentCard, resource1);
+                    gameService.resolveDevelopmentCardMonopoly((UserDTO) joinedLobbyUser, currentGame, currentDevelopmentCard, resource1);
                     resource1 = "";
                     selectedResource1.setVisible(false);
                     currentDevelopmentCard = "";
                     break;
                 case "Road Building":
-                    gameService.resolveDevelopmentCardRoadBuilding((UserDTO) joinedLobbyUser, currentLobby, currentDevelopmentCard, street1, street2);
+                    gameService.resolveDevelopmentCardRoadBuilding((UserDTO) joinedLobbyUser, currentGame, currentDevelopmentCard, street1, street2);
                     street1 = null;
                     street2 = null;
                     selectedStreet1.setVisible(false);
@@ -2144,11 +2144,11 @@ public class GamePresenter extends AbstractPresenter {
      */
     @Subscribe
     public void onRollDiceResultMessage(RollDiceResultMessage message) {
-        if (this.currentLobby != null) {
+        if (this.currentGame != null) {
             String text = "rolled a " + message.getDiceEyes1() + " and a " + message.getDiceEyes2();
             LOG.debug("Updated game Event Log area with new message");
             updateEventLogLogic(text, userIsOnTurn);
-            if (message.getName().equals(currentLobby)) {
+            if (message.getName().equals(currentGame)) {
                 shuffleTheDice(message.getDiceEyes1(), message.getDiceEyes2());
             }
         }
@@ -2207,8 +2207,8 @@ public class GamePresenter extends AbstractPresenter {
      */
     @Subscribe
     public void onSuccessfulConstructionMessage(SuccessfulConstructionMessage message) {
-        if (this.currentLobby != null) {
-            if (this.currentLobby.equals(message.getName())) {
+        if (this.currentGame != null) {
+            if (this.currentGame.equals(message.getName())) {
                 MapGraphNodeContainer mapGraphNodeContainer = nodeContainerHashMap.get(message.getUuid());
                 if (message.getTypeOfNode().equals("BuildingNode")) {
                     MapGraph.BuildingNode buildingNode = (MapGraph.BuildingNode) mapGraphNodeContainer.getMapGraphNode();
@@ -2395,7 +2395,7 @@ public class GamePresenter extends AbstractPresenter {
      */
     @Subscribe
     public void onPrivateInventoryChangeMessage(PrivateInventoryChangeMessage privateInventoryChangeMessage) {
-        if (this.currentLobby != null) {
+        if (this.currentGame != null) {
             int tempLumber = privateInventoryChangeMessage.getPrivateInventory().get("Lumber");
             int tempGrain = privateInventoryChangeMessage.getPrivateInventory().get("Grain");
             int tempWool = privateInventoryChangeMessage.getPrivateInventory().get("Wool");
@@ -2404,8 +2404,8 @@ public class GamePresenter extends AbstractPresenter {
 
             if (tempLumber != pILumber || tempGrain != pIGrain || tempBrick != pIBrick || tempWool != pIWool
                     || tempOre != pIOre) {
-                String text = "ressources are now Lumber: " + tempLumber + " Grain: " + tempGrain + " Wool: " +
-                        tempWool + " Brick: " + tempBrick + " Ore: " + tempOre;
+                String text = "ressources are now Lumber: " + tempLumber + "\nGrain: " + tempGrain + "\nWool: " +
+                        tempWool + "\nBrick: " + tempBrick + "\nOre: " + tempOre;
                 LOG.debug("Updated game Event Log area with new message");
                 updateEventLogLogic(text, "Your");
                 pILumber = tempLumber;
@@ -2414,7 +2414,7 @@ public class GamePresenter extends AbstractPresenter {
                 pIWool = tempWool;
                 pIOre = tempOre;
             }
-            if (this.currentLobby.equals(privateInventoryChangeMessage.getName())) {
+            if (this.currentGame.equals(privateInventoryChangeMessage.getName())) {
                 if (tooMuchAlert != null) {
                     Platform.runLater(() -> {
                         lumberLabelRobberMenu.setText(String.valueOf(tempLumber));
@@ -2523,8 +2523,8 @@ public class GamePresenter extends AbstractPresenter {
      * @since 2021-05-28
      */
     private void onPublicInventoryChangeMessageLogic(PublicInventoryChangeMessage puicm) {
-        if (this.currentLobby != null) {
-            if (this.currentLobby.equals(puicm.getName())) {
+        if (this.currentGame != null) {
+            if (this.currentGame.equals(puicm.getName())) {
                 updatePublicInventory(puicm.getPublicInventories());
             }
         }
@@ -2804,8 +2804,8 @@ public class GamePresenter extends AbstractPresenter {
      */
     @Subscribe
     public void onResolveCardNotSuccessfulResponse(ResolveDevelopmentCardNotSuccessfulResponse rdcns) {
-        if (this.currentLobby != null) {
-            if (this.currentLobby.equals(rdcns.getGameName())) {
+        if (this.currentGame != null) {
+            if (this.currentGame.equals(rdcns.getGameName())) {
                 this.currentDevelopmentCard = rdcns.getDevCard();
                 Platform.runLater(() -> {
                     this.resolveDevelopmentCardAlert.setTitle(currentDevelopmentCard + " in " + rdcns.getGameName());
@@ -2838,8 +2838,8 @@ public class GamePresenter extends AbstractPresenter {
      */
     @Subscribe
     public void onPlayDevelopmentCardResponse(PlayDevelopmentCardResponse pdcr) {
-        if (this.currentLobby != null) {
-            if (this.currentLobby.equals(pdcr.getGameName())) {
+        if (this.currentGame != null) {
+            if (this.currentGame.equals(pdcr.getGameName())) {
                 if (pdcr.isCanPlayCard()) {
                     this.currentDevelopmentCard = pdcr.getDevCard();
                     if (!pdcr.getDevCard().equals("Knight")) {
@@ -2894,11 +2894,11 @@ public class GamePresenter extends AbstractPresenter {
      */
     @Subscribe
     public void onResolveDevelopmentCardMessage(ResolveDevelopmentCardMessage rdcm) {
-        if (this.currentLobby != null) {
+        if (this.currentGame != null) {
             String text = "played a Development Card";
             LOG.debug("Updated game Event Log area with new message");
             updateEventLogLogic(text, rdcm.getUser().getUsername());
-            if (this.currentLobby.equals(rdcm.getName())) {
+            if (this.currentGame.equals(rdcm.getName())) {
                 LOG.debug("The user " + rdcm.getUser().getUsername() + " successfully resolved the card " + rdcm.getDevCard());
             }
         }
@@ -2914,11 +2914,11 @@ public class GamePresenter extends AbstractPresenter {
      */
     @Subscribe
     public void notEnoughResTrade(TradeCardErrorMessage message) {
-        if (this.currentLobby != null) {
+        if (this.currentGame != null) {
             String text = "have to enough ressources to trade";
             LOG.debug("Updated game Event Log area with new message");
             updateEventLogLogic(text, "You");
-            if (this.currentLobby.equals(message.getName())) {
+            if (this.currentGame.equals(message.getName())) {
                 Platform.runLater(() -> {
                     this.alert.setTitle(message.getName());
                     this.alert.setHeaderText("You have not enough Resources for the trade in: " + message.getTradeCode());
@@ -3098,7 +3098,7 @@ public class GamePresenter extends AbstractPresenter {
 
                         @Override
                         public void handle(MouseEvent mouseEvent) {
-                            gameService.playDevelopmentCard((UserDTO) joinedLobbyUser, currentLobby, title);
+                            gameService.playDevelopmentCard((UserDTO) joinedLobbyUser, currentGame, title);
                         }
                     });
 
@@ -3126,7 +3126,7 @@ public class GamePresenter extends AbstractPresenter {
 
                         @Override
                         public void handle(MouseEvent mouseEvent) {
-                            gameService.playDevelopmentCard((UserDTO) joinedLobbyUser, currentLobby, title);
+                            gameService.playDevelopmentCard((UserDTO) joinedLobbyUser, currentGame, title);
                         }
                     });
 
@@ -3154,7 +3154,7 @@ public class GamePresenter extends AbstractPresenter {
 
                         @Override
                         public void handle(MouseEvent mouseEvent) {
-                            gameService.playDevelopmentCard((UserDTO) joinedLobbyUser, currentLobby, title);
+                            gameService.playDevelopmentCard((UserDTO) joinedLobbyUser, currentGame, title);
                         }
                     });
 
@@ -3182,7 +3182,7 @@ public class GamePresenter extends AbstractPresenter {
 
                         @Override
                         public void handle(MouseEvent mouseEvent) {
-                            gameService.playDevelopmentCard((UserDTO) joinedLobbyUser, currentLobby, title);
+                            gameService.playDevelopmentCard((UserDTO) joinedLobbyUser, currentGame, title);
                         }
                     });
 
@@ -3288,7 +3288,7 @@ public class GamePresenter extends AbstractPresenter {
             clickAlert.getButtonTypes().setAll(ok, playThisCard);
 
             Button playCard = (Button) clickAlert.getDialogPane().lookupButton(playThisCard);
-            playCard.setOnAction(event -> gameService.playDevelopmentCard((UserDTO) joinedLobbyUser, currentLobby, cardName));
+            playCard.setOnAction(event -> gameService.playDevelopmentCard((UserDTO) joinedLobbyUser, currentGame, cardName));
         }
         clickAlert.setHeaderText(cardName);
         clickAlert.setContentText(description);
@@ -3309,11 +3309,11 @@ public class GamePresenter extends AbstractPresenter {
      */
     @Subscribe
     public void onTooMuchResourceCardsMessage(TooMuchResourceCardsMessage tooMuchResourceCardsMessage) {
-        if (this.currentLobby != null) {
+        if (this.currentGame != null) {
             String text = "have to much ressources";
             LOG.debug("Updated game Event Log area with new message");
             updateEventLogLogic(text, "You");
-            if (this.currentLobby.equals(tooMuchResourceCardsMessage.getName())) {
+            if (this.currentGame.equals(tooMuchResourceCardsMessage.getName())) {
                 Platform.runLater(() -> showRobberResourceMenu(tooMuchResourceCardsMessage));
             }
         }
@@ -3332,8 +3332,8 @@ public class GamePresenter extends AbstractPresenter {
      */
     @Subscribe
     public void onChoosePlayerMessage(ChoosePlayerMessage choosePlayerMessage) {
-        if (this.currentLobby != null) {
-            if (this.currentLobby.equals(choosePlayerMessage.getName())) {
+        if (this.currentGame != null) {
+            if (this.currentGame.equals(choosePlayerMessage.getName())) {
                 if (!choosePlayerMessage.getUserList().isEmpty()) {
                     String text = "have to choose a player";
                     LOG.debug("Updated game Event Log area with new message");
@@ -3357,7 +3357,7 @@ public class GamePresenter extends AbstractPresenter {
 
     @Subscribe
     public void onTradeEndedLogMessage(TradeEndedLogMessage tradeEndedLogMessage) {
-        if (this.currentLobby != null) {
+        if (this.currentGame != null) {
             if (tradeEndedLogMessage.getSuccess()) {
                 String text = " was accepted at trade:" + tradeEndedLogMessage.getTradeCode();
                 LOG.debug("Updated game Event Log area with new message");
@@ -3382,7 +3382,7 @@ public class GamePresenter extends AbstractPresenter {
 
     @Subscribe
     public void onNotSuccessfulConstructionMessage(NotSuccessfulConstructionMessage notSuccessfulConstructionMessage) {
-        if (this.currentLobby != null) {
+        if (this.currentGame != null) {
             String text = "can not build here";
             LOG.debug("Updated game Event Log area with new message");
             updateEventLogLogic(text, "You");
@@ -3401,7 +3401,7 @@ public class GamePresenter extends AbstractPresenter {
 
     @Subscribe
     public void onDrawRandomResourceFromPlayerMessage(DrawRandomResourceFromPlayerMessage drawRandomResourceFromPlayerMessage) {
-        if (this.currentLobby != null) {
+        if (this.currentGame != null) {
             String text = "took a card from " + drawRandomResourceFromPlayerMessage.getUserToLossTheCard().getUsername();
             LOG.debug("Updated game Event Log area with new message");
             updateEventLogLogic(text, drawRandomResourceFromPlayerMessage.getUserToGetTheCard().getUsername());

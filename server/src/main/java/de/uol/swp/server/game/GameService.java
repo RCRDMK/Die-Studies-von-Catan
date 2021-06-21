@@ -870,7 +870,7 @@ public class GameService extends AbstractService {
                         sendToAllInGame(game.getName(), gameMessage);
                         updateInventory(game);
                         var currentTurnMessage = new NextTurnMessage(game.getName(), game.getUser(game.getTurn()).getUsername(), game.getTurn(), game.isStartingTurns());
-                        sendToAllInGame(game.getName(), currentTurnMessage);
+                        sendToSpecificUserInGame(game, currentTurnMessage, request.getUser());
                     }
                 } else {
                     String reason = game.getTradeList().size() != 0 ? "A Trade is currently ongoing." : "You are not registered in this game!";
