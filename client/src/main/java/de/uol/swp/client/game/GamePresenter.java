@@ -2074,7 +2074,7 @@ public class GamePresenter extends AbstractPresenter {
                 endTurnButton.setDisable(false);
             }
         });
-        resolveDevelopmentCardAlert.initModality(Modality.NONE);
+        resolveDevelopmentCardAlert.initModality(Modality.APPLICATION_MODAL);
         resolveDevelopmentCardAlert.getDialogPane().getChildren().addAll(resourceRectangles);
         resolveDevelopmentCardAlert.getDialogPane().getChildren().addAll(selectedResource1, selectedResource2);
         gameAnchorPane.getChildren().add(selectedStreet1);
@@ -2404,7 +2404,7 @@ public class GamePresenter extends AbstractPresenter {
 
             if (tempLumber != pILumber || tempGrain != pIGrain || tempBrick != pIBrick || tempWool != pIWool
                     || tempOre != pIOre) {
-                String text = "ressources are now Lumber: " + tempLumber + "\nGrain: " + tempGrain + "\nWool: " +
+                String text = "ressources are now \nLumber: " + tempLumber + "\nGrain: " + tempGrain + "\nWool: " +
                         tempWool + "\nBrick: " + tempBrick + "\nOre: " + tempOre;
                 LOG.debug("Updated game Event Log area with new message");
                 updateEventLogLogic(text, "Your");
@@ -3013,7 +3013,6 @@ public class GamePresenter extends AbstractPresenter {
                         @Override
                         public void handle(MouseEvent mouseEvent) {
                             onClickOnDevelopmentCard(title, description, image, isDevelopmentCard);
-
                         }
                     });
 
@@ -3051,7 +3050,6 @@ public class GamePresenter extends AbstractPresenter {
                         @Override
                         public void handle(MouseEvent mouseEvent) {
                             onClickOnDevelopmentCard(title, description, image, isDevelopmentCard);
-
                         }
                     });
 
@@ -3069,7 +3067,6 @@ public class GamePresenter extends AbstractPresenter {
                         @Override
                         public void handle(MouseEvent mouseEvent) {
                             onClickOnDevelopmentCard(title, description, image, isDevelopmentCard);
-
                         }
                     });
 
@@ -3089,7 +3086,6 @@ public class GamePresenter extends AbstractPresenter {
                         @Override
                         public void handle(MouseEvent mouseEvent) {
                             onClickOnDevelopmentCard(title, description, image, isDevelopmentCard);
-
                         }
                     });
 
@@ -3117,7 +3113,6 @@ public class GamePresenter extends AbstractPresenter {
                         @Override
                         public void handle(MouseEvent mouseEvent) {
                             onClickOnDevelopmentCard(title, description, image, isDevelopmentCard);
-
                         }
                     });
 
@@ -3145,7 +3140,6 @@ public class GamePresenter extends AbstractPresenter {
                         @Override
                         public void handle(MouseEvent mouseEvent) {
                             onClickOnDevelopmentCard(title, description, image, isDevelopmentCard);
-
                         }
                     });
 
@@ -3173,7 +3167,6 @@ public class GamePresenter extends AbstractPresenter {
                         @Override
                         public void handle(MouseEvent mouseEvent) {
                             onClickOnDevelopmentCard(title, description, image, isDevelopmentCard);
-
                         }
                     });
 
@@ -3201,7 +3194,6 @@ public class GamePresenter extends AbstractPresenter {
                         @Override
                         public void handle(MouseEvent mouseEvent) {
                             onClickOnDevelopmentCard(title, description, image, isDevelopmentCard);
-
                         }
                     });
 
@@ -3220,7 +3212,6 @@ public class GamePresenter extends AbstractPresenter {
                         @Override
                         public void handle(MouseEvent mouseEvent) {
                             onClickOnDevelopmentCard(title, description, image, isDevelopmentCard);
-
                         }
                     });
 
@@ -3239,15 +3230,10 @@ public class GamePresenter extends AbstractPresenter {
                         @Override
                         public void handle(MouseEvent mouseEvent) {
                             onClickOnDevelopmentCard(title, description, image, isDevelopmentCard);
-
                         }
                     });
-
                     break;
-
-
             }
-
         }
         privateInventoryView.add(privateLumberLabel, 0, 1);
         privateInventoryView.add(privateBrickLabel, 1, 1);
@@ -3292,7 +3278,10 @@ public class GamePresenter extends AbstractPresenter {
         }
         clickAlert.setHeaderText(cardName);
         clickAlert.setContentText(description);
-        clickAlert.setGraphic(new ImageView(cardImage));
+        final ImageView imageView = new ImageView(cardImage);
+        imageView.setFitHeight(500);
+        imageView.setFitWidth(300);
+        clickAlert.setGraphic(imageView);
 
         clickAlert.show();
 
