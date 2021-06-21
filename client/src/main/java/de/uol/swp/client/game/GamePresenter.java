@@ -373,12 +373,18 @@ public class GamePresenter extends AbstractPresenter {
      * @author René Meyer
      * @see de.uol.swp.common.chat.ResponseChatMessage
      * @since 2021-03-13
+     * <p>
+     * Enhanced by Sergej Tulnev
+     * @since 2021-06-17
+     * <p>
+     *  If the user has a long message, it will have a line break
      */
     private void updateChat(ResponseChatMessage rcm) {
         var time = new SimpleDateFormat("HH:mm");
         Date resultDate = new Date((long) rcm.getTime().doubleValue());
         var readableTime = time.format(resultDate);
         gameChatArea.insertText(gameChatArea.getLength(), readableTime + " " + rcm.getUsername() + ": " + rcm.getMessage() + "\n");
+        gameChatArea.setWrapText(true);
     }
 
     /**
