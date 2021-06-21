@@ -952,7 +952,7 @@ public class GameService extends AbstractService {
         } else {
             //RandomAI randomAI = new RandomAI(game);
             LOG.debug("Rufe random AI auf");
-            AIToServerTranslator.translate(new RandomAI(game).startTurnOrder(), this);
+                AIToServerTranslator.translate(new RandomAI(game).startTurnOrder(), this);
         }
     }
 

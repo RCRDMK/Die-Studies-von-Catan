@@ -37,7 +37,6 @@ public class SQLBasedUserStoreTest {
     @Test
     public void findUserWithUserNameTestSuccess() throws Exception {
         userStore.createUser(defaultUser.getUsername(), defaultUser.getPassword(), defaultUser.getEMail());
-        //lock.await(1000, TimeUnit.MILLISECONDS);
         Optional<User> foundUser = userStore.findUser(defaultUser.getUsername());
 
         assertTrue(foundUser.isPresent());
@@ -57,7 +56,6 @@ public class SQLBasedUserStoreTest {
     @Test
     public void findUserWithUserNamePasswordTestSuccess() throws Exception {
         userStore.createUser(defaultUser.getUsername(), defaultUser.getPassword(), defaultUser.getEMail());
-        //lock.await(1000, TimeUnit.MILLISECONDS);
         Optional<User> foundUser = userStore.findUser(defaultUser.getUsername(), defaultUser.getPassword());
 
         assertTrue(foundUser.isPresent());
@@ -101,13 +99,14 @@ public class SQLBasedUserStoreTest {
     @Test
     public void updateUserPasswordTestSuccess() throws Exception {
         userStore.createUser(defaultUser.getUsername(), defaultUser.getPassword(), defaultUser.getEMail());
-        //lock.await(1000, TimeUnit.MILLISECONDS);
+
         userStore.updateUserPassword(defaultUser.getUsername(), "123456789");
 
         Optional<User> updatedUser = userStore.findUser(defaultUser.getUsername());
 
         assertTrue(updatedUser.isPresent());
         assertNotEquals(defaultUser.getPassword(), updatedUser.get().getPassword());
+        //TODO Carsten gefragt, wie der Umgang mit Passwörtern seit Umstellung ist.
         assertNotEquals("123456789", updatedUser.get().getPassword());
 
         userStore.removeUser(defaultUser.getUsername());
@@ -136,8 +135,8 @@ public class SQLBasedUserStoreTest {
         List<User> userList = userStore.getAllUsers();
 
         String wantedToFind = null;
-        for(User user: userList){
-            if (user.getUsername().equals("Marco")){
+        for (User user : userList) {
+            if (user.getUsername().equals("Marco")) {
                 wantedToFind = user.getUsername();
             }
         }
