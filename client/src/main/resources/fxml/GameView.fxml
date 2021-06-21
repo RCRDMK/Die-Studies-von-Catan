@@ -3,7 +3,6 @@
 <?import javafx.scene.canvas.Canvas?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.Font?>
 <AnchorPane xmlns:fx="http://javafx.com/fxml/1" fx:id="gameAnchorPane" maxHeight="-Infinity" maxWidth="-Infinity"
             prefHeight="634.0"
             prefWidth="1280.0" stylesheets="@../css/swp.css" xmlns="http://javafx.com/javafx/11.0.1"
@@ -16,13 +15,6 @@
                   prefWidth="225.0" GridPane.rowIndex="2"/>
         <TextArea fx:id="gameEventLogArea" editable="false" layoutX="1050.0" layoutY="30.0" prefHeight="330.0"
                   prefWidth="225.0" GridPane.rowIndex="2"/>
-        <Label fx:id="buildingNotSuccessfulLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="1050.0"
-               layoutY="420.0" prefHeight="16.0" prefWidth="182.0" text="You are not allowed to build here"
-               textAlignment="CENTER" textFill="WHITE" visible="false">
-            <font>
-                <Font size="10.0"/>
-            </font>
-        </Label>
         <Label fx:id="gameUserView1" contentDisplay="CENTER" layoutX="160.0" layoutY="25.0" prefHeight="25.0"
                prefWidth="120.0" style="-fx-background-color: #8B0000"/>
         <Label fx:id="gameUserView2" contentDisplay="CENTER" layoutX="905.0" layoutY="25.0" prefHeight="25.0"

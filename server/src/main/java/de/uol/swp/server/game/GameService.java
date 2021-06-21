@@ -6,10 +6,10 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import de.uol.swp.common.chat.ResponseChatMessage;
 import de.uol.swp.common.game.Game;
+import de.uol.swp.common.game.Inventory;
 import de.uol.swp.common.game.MapGraph;
 import de.uol.swp.common.game.dto.GameDTO;
 import de.uol.swp.common.game.dto.StatsDTO;
-import de.uol.swp.common.game.Inventory;
 import de.uol.swp.common.game.message.*;
 import de.uol.swp.common.game.request.*;
 import de.uol.swp.common.game.response.*;
@@ -148,8 +148,9 @@ public class GameService extends AbstractService {
      * Handles incoming build requests.
      * <p>
      * Sets continuous road and checks for the longest road.
-     *
+     * <p>
      * enhanced by Iskander Yusupov, since 06-06-2021
+     * enhanced by Philip Nitsche
      *
      * @param message Contains the data needed to change the mapGraph
      * @author Pieter Vogt
@@ -231,6 +232,7 @@ public class GameService extends AbstractService {
                                         SettlementFullyDevelopedMessage sfdm = new SettlementFullyDevelopedMessage(game.getName(), message.getUser());
                                         sendToSpecificUserInGame(game, sfdm, message.getUser());
                                     } else {
+                                        sendToAllInGame(game.getName(), new NotSuccessfulConstructionMessage(message.getUser(), "BuildingNode"));
                                         NotEnoughResourcesMessage nerm = new NotEnoughResourcesMessage(game.getName(), message.getUser());
                                         sendToSpecificUserInGame(game, nerm, message.getUser());
                                     }
@@ -260,7 +262,9 @@ public class GameService extends AbstractService {
                                             checkForLongestRoad(game);
                                             updateInventory(game);
                                             return true;
-                                        } //else sendToAllInGame(game.getName(), new NotSuccessfulConstructionMessage(playerIndex, message.getUuid(), "StreetNode"));
+                                        } else {
+                                            sendToAllInGame(game.getName(), new NotSuccessfulConstructionMessage(message.getUser(), "StreetNode"));
+                                        }
                                     } else {
                                         NotEnoughResourcesMessage nerm = new NotEnoughResourcesMessage();
                                         nerm.setName(game.getName());
@@ -453,7 +457,7 @@ public class GameService extends AbstractService {
      * <p>
      * This method handles the distribution of the resources to the users. First the method gets the game and gets the
      * corresponding hexagons. After that the method gives the second built buildings in the opening turn the resource.
-     *
+     * <p>
      * enhanced by Anton Nikiforov
      *
      * @param gameName Name of the Game
@@ -1502,6 +1506,7 @@ public class GameService extends AbstractService {
      *
      * @param request TradeChoiceRequest containing the choice the seller made
      * @author Alexander Losse, Ricardo Mook
+     * Enhanced by Philip Nitsche
      * @since 2021-04-13
      */
     @Subscribe
@@ -1524,37 +1529,15 @@ public class GameService extends AbstractService {
                     inventoryBidder.decCardStack(bidItem.getName(), bidItem.getCount());
                 }
             }
-            tradeEndedChatMessageHelper(game.getName(), request.getTradeCode(), request.getUser().getUsername(), request.getTradeAccepted());
+            try {
+                TradeEndedLogMessage result = new TradeEndedLogMessage(request.getTradeCode(), request.getUser().getUsername(), request.getTradeAccepted());
+                sendToAllInGame(game.getName(), result);
+            } catch (Exception e) {
+                LOG.debug(e);
+            }
             sendToAllInGame(request.getName(), new TradeEndedMessage(request.getName(), request.getTradeCode()));
             game.removeTrade(request.getTradeCode());
             updateInventory(game);
-        }
-    }
-
-    /**
-     * help method to deliver a chatMessage to all players of the game how the trade ended
-     *
-     * @param gameName     the game name
-     * @param tradeCode    the trade code
-     * @param winnerBidder the winners name
-     * @param success      bool if successful or not
-     * @author Alexander Losse, Ricardo Mook
-     * @since 2021-04-11
-     */
-    private void tradeEndedChatMessageHelper(String gameName, String tradeCode, String winnerBidder, Boolean success) {
-        try {
-            String chatMessage;
-            var chatId = "game_" + gameName;
-            if (success) {
-                chatMessage = "The offer from Player " + winnerBidder + " was accepted at trade: " + tradeCode;
-            } else {
-                chatMessage = "None of the bids was accepted. Sorry! :(";
-            }
-            ResponseChatMessage msg = new ResponseChatMessage(chatMessage, chatId, "TradeInfo", System.currentTimeMillis());
-            post(msg);
-            LOG.debug("Posted ResponseChatMessage on eventBus");
-        } catch (Exception e) {
-            LOG.debug(e);
         }
     }
 
@@ -1647,9 +1630,12 @@ public class GameService extends AbstractService {
                 if (woolHarbor) woolOffer.get(3).setCount(2);
                 if (oreHarbor) oreOffer.get(4).setCount(2);
 
-                if (lumberOffer.get(0).getCount() > inventory.lumber.getNumber()) lumberOffer.get(0).setNotEnough(true);
-                if (brickOffer.get(1).getCount() > inventory.brick.getNumber()) brickOffer.get(0).setNotEnough(true);
-                if (grainOffer.get(2).getCount() > inventory.grain.getNumber()) grainOffer.get(0).setNotEnough(true);
+                if (lumberOffer.get(0).getCount() > inventory.lumber.getNumber())
+                    lumberOffer.get(0).setNotEnough(true);
+                if (brickOffer.get(1).getCount() > inventory.brick.getNumber())
+                    brickOffer.get(0).setNotEnough(true);
+                if (grainOffer.get(2).getCount() > inventory.grain.getNumber())
+                    grainOffer.get(0).setNotEnough(true);
                 if (woolOffer.get(3).getCount() > inventory.wool.getNumber()) woolOffer.get(0).setNotEnough(true);
                 if (oreOffer.get(4).getCount() > inventory.ore.getNumber()) oreOffer.get(0).setNotEnough(true);
 
@@ -1737,7 +1723,8 @@ public class GameService extends AbstractService {
      * @since 2021-05-01
      */
     @Subscribe
-    public void onDrawRandomResourceFromPlayerMessage(DrawRandomResourceFromPlayerRequest drawRandomResourceFromPlayerRequest) {
+    public void onDrawRandomResourceFromPlayerRequest(DrawRandomResourceFromPlayerRequest
+                                                              drawRandomResourceFromPlayerRequest) {
         Optional<Game> optionalGame = gameManagement.getGame(drawRandomResourceFromPlayerRequest.getName());
         if (optionalGame.isPresent()) {
             Game game = optionalGame.get();
@@ -1756,6 +1743,7 @@ public class GameService extends AbstractService {
                         }
                         game.getInventory(user).decCardStack(resource, 1);
                         game.getInventory(drawRandomResourceFromPlayerRequest.getUser()).incCardStack(resource, 1);
+                        sendToAllInGame(game.getName(), new DrawRandomResourceFromPlayerMessage(drawRandomResourceFromPlayerRequest.getUser(), user));
                         updateInventory(game);
                         break;
 

@@ -176,10 +176,6 @@ public class GamePresenter extends AbstractPresenter {
     private Button tradeButton;
 
     @FXML
-    public Label buildingNotSuccessfulLabel;
-
-
-    @FXML
     private Pane picturePlayerView1;
 
     @FXML
@@ -307,6 +303,7 @@ public class GamePresenter extends AbstractPresenter {
     private int pIWool = 0;
     private int pIOre = 0;
     private int pIBrick = 0;
+    private String userIsOnTurn;
 
     private final HashMap<UUID, MapGraphNodeContainer> nodeContainerHashMap = new HashMap<>();
 
@@ -389,7 +386,7 @@ public class GamePresenter extends AbstractPresenter {
      * Enhanced by Sergej Tulnev
      * @since 2021-06-17
      * <p>
-     *  If the user has a long message, it will have a line break
+     * If the user has a long message, it will have a line break
      */
     private void updateChat(ResponseChatMessage rcm) {
         var time = new SimpleDateFormat("HH:mm");
@@ -1051,6 +1048,7 @@ public class GamePresenter extends AbstractPresenter {
      * @since 2021-04-30
      * <p>
      * Enhanced by Alexander Losse on 2021-05-30
+     * Enhanced by Philip Nitsche
      */
     @Subscribe
     public void nextPlayerTurn(NextTurnMessage message) {
@@ -1058,6 +1056,7 @@ public class GamePresenter extends AbstractPresenter {
             String text = "is making his turn";
             LOG.debug("Updated game Event Log area with new message");
             updateEventLogLogic(text, message.getPlayerWithCurrentTurn());
+            userIsOnTurn = message.getPlayerWithCurrentTurn();
             rolledDice = false;
             if (message.getPlayerWithCurrentTurn().equals(joinedLobbyUser.getUsername())) {
                 startingTurn = message.isInStartingTurn();
@@ -1142,6 +1141,7 @@ public class GamePresenter extends AbstractPresenter {
      *
      * @param message the UserLeftGameMessage object seen on the EventBus
      * @author Iskander Yusupov
+     * Enhanced by Philip Nitsche
      * @see de.uol.swp.common.game.message.UserLeftGameMessage
      * @since 2021-03-17
      */
@@ -1653,6 +1653,7 @@ public class GamePresenter extends AbstractPresenter {
      *
      * @param buyDevelopmentCardMessage GameMessage
      * @author Marius Birk
+     * Enhanced by Philip Nitsche
      * @see BuyDevelopmentCardMessage
      * @since 2021-05-27
      */
@@ -1660,7 +1661,7 @@ public class GamePresenter extends AbstractPresenter {
     public void onBuyDevelopmentCardMessage(BuyDevelopmentCardMessage buyDevelopmentCardMessage) {
         String text = "bought a Development Card";
         LOG.debug("Updated game Event Log area with new message");
-        updateEventLogLogic(text, buyDevelopmentCardMessage.getUser().getUsername());
+        updateEventLogLogic(text, userIsOnTurn);
         buyDevelopmentCardMessageLogic(buyDevelopmentCardMessage.getDevCardsNumber());
     }
 
@@ -1680,6 +1681,14 @@ public class GamePresenter extends AbstractPresenter {
         buyDevCard.setTooltip(hover);
     }
 
+    /**
+     * This method will be invoked if a NotEnoughResourcesMessage is detected on the bus.
+     * <p>
+     * The shows the Player that he has not enough ressources.
+     * Enhanced by Philip Nitsche
+     *
+     * @param notEnoughResourcesMessage the NotEnoughResourcesMessage detected on the EventBus.
+     */
     @Subscribe
     public void onNotEnoughResourcesMessages(NotEnoughResourcesMessage notEnoughResourcesMessage) {
         if (this.currentLobby != null) {
@@ -1707,6 +1716,9 @@ public class GamePresenter extends AbstractPresenter {
     public void onSettlementFullyDevelopedMessage(SettlementFullyDevelopedMessage sfdm) {
         if (this.currentLobby != null) {
             if (this.currentLobby.equals(sfdm.getName())) {
+                String text = "can not develop a fully developed settlement";
+                LOG.debug("Updated game Event Log area with new message");
+                updateEventLogLogic(text, "You");
                 Platform.runLater(() -> {
                     this.alert.setTitle(sfdm.getName());
                     this.alert.setHeaderText("This settlement is fully developed!");
@@ -1762,6 +1774,7 @@ public class GamePresenter extends AbstractPresenter {
      *
      * @param moveRobberMessage the MoveRobberMessage that was detected on the EventBus
      * @author Marius Birk
+     * Enhanced by Philip Nitsche
      * @since 2021-04-20
      */
     public void moveRobberMessageLogic(MoveRobberMessage moveRobberMessage) {
@@ -2123,14 +2136,15 @@ public class GamePresenter extends AbstractPresenter {
      *
      * @param message the RollDiceResultMessage object seen on the eventBus
      * @author Carsten Dekker
+     * Enhanced by Philip Nitsche
      * @since 2021-04-30
      */
     @Subscribe
     public void onRollDiceResultMessage(RollDiceResultMessage message) {
         if (this.currentLobby != null) {
-            String text = message.getDiceEyes1() + " and a " + message.getDiceEyes2() + " was rolled";
+            String text = "rolled a " + message.getDiceEyes1() + " and a " + message.getDiceEyes2();
             LOG.debug("Updated game Event Log area with new message");
-            updateEventLogLogic(text, "A");
+            updateEventLogLogic(text, userIsOnTurn);
             if (message.getName().equals(currentLobby)) {
                 shuffleTheDice(message.getDiceEyes1(), message.getDiceEyes2());
             }
@@ -2185,6 +2199,7 @@ public class GamePresenter extends AbstractPresenter {
      *
      * @param message The data about the changed properties of the MapGraph
      * @author Pieter Vogt
+     * Enhanced by Philip Nitsche
      * @since 2021-04-15
      */
     @Subscribe
@@ -2345,10 +2360,14 @@ public class GamePresenter extends AbstractPresenter {
      *
      * @param successfulMovedRobberMessage the successfulMovedRobberMessage detected on the EventBus
      * @author Marius Birk
+     * Enhanced by Philip Nitsche
      * @since 2021-04-22
      */
     @Subscribe
     public void onSuccessfulMovedRobberMessage(SuccessfulMovedRobberMessage successfulMovedRobberMessage) {
+        String text = "moved the Robber";
+        LOG.debug("Updated game Event Log area with new message");
+        updateEventLogLogic(text, userIsOnTurn);
         for (HexagonContainer hexagonContainer : hexagonContainers) {
             if (hexagonContainer.getHexagon().getUuid().equals(successfulMovedRobberMessage.getNewField())) {
                 robber.setLayoutX(hexagonContainer.getHexagonShape().getLayoutX() - robber.getWidth() / 2);
@@ -2365,6 +2384,7 @@ public class GamePresenter extends AbstractPresenter {
      *
      * @param privateInventoryChangeMessage the PrivateInventoryChangeMessage received from the server
      * @author Marc Hermes
+     * Enhanced by Philip Nitsche
      * @since 2021-05-16
      * @since 2021-05-02
      */
@@ -2850,6 +2870,9 @@ public class GamePresenter extends AbstractPresenter {
                         });
 
                     } else {
+                        String text = "can not play this development card";
+                        LOG.debug("Updated game Event Log area with new message");
+                        updateEventLogLogic(text, pdcr.getUserName());
                         LOG.debug("The user " + pdcr.getUserName() + " cannot play the card " + pdcr.getDevCard());
                     }
                 }
@@ -2867,6 +2890,9 @@ public class GamePresenter extends AbstractPresenter {
     @Subscribe
     public void onResolveDevelopmentCardMessage(ResolveDevelopmentCardMessage rdcm) {
         if (this.currentLobby != null) {
+            String text = "played a Development Card";
+            LOG.debug("Updated game Event Log area with new message");
+            updateEventLogLogic(text, rdcm.getUser().getUsername());
             if (this.currentLobby.equals(rdcm.getName())) {
                 LOG.debug("The user " + rdcm.getUser().getUsername() + " successfully resolved the card " + rdcm.getDevCard());
             }
@@ -2878,6 +2904,7 @@ public class GamePresenter extends AbstractPresenter {
      *
      * @param message TradeCardErrorMessage
      * @author Alexander Losse, Ricardo Mook
+     * Enhanced by Philip Nitsche
      * @since 2021-04-25
      */
     @Subscribe
@@ -3272,6 +3299,7 @@ public class GamePresenter extends AbstractPresenter {
      *
      * @param tooMuchResourceCardsMessage the tooMuchResourceCardsMessage detected on the EventBus
      * @author Marius Birk
+     * Enhanced by Philip Nitsche
      * @since 2021-05-01
      */
     @Subscribe
@@ -3294,6 +3322,7 @@ public class GamePresenter extends AbstractPresenter {
      *
      * @param choosePlayerMessage the choosePlayerMessage detected on the EventBus
      * @author Marius Birk
+     * Enhanced by Philip Nitsche
      * @since 2021-05-01
      */
     @Subscribe
@@ -3308,6 +3337,69 @@ public class GamePresenter extends AbstractPresenter {
 
                 }
             }
+        }
+    }
+
+    /**
+     * This method will be invoked if a tradeEndedLogMessage is detected on the bus.
+     * <p>
+     * The method updates the event log with trade news.
+     *
+     * @param tradeEndedLogMessage the tradeEndedLogMessage detected on the EventBus
+     * @author Philip Nitsche
+     * @since 2021-06-21
+     */
+
+    @Subscribe
+    public void onTradeEndedLogMessage(TradeEndedLogMessage tradeEndedLogMessage) {
+        if (this.currentLobby != null) {
+            if (tradeEndedLogMessage.getSuccess()) {
+                String text = " was accepted at trade:" + tradeEndedLogMessage.getTradeCode();
+                LOG.debug("Updated game Event Log area with new message");
+                updateEventLogLogic(text, "The offer from Player " + tradeEndedLogMessage.getWinnerBidder());
+            } else {
+                String text = "of the bids was accepted. Sorry! :(";
+                LOG.debug("Updated game Event Log area with new message");
+                updateEventLogLogic(text, "None");
+            }
+        }
+    }
+
+    /**
+     * This method will be invoked if a notSuccessfulConstructionMessage is detected on the bus.
+     * <p>
+     * The method updates the event log when a player is not allowed to build where he tried to.
+     *
+     * @param notSuccessfulConstructionMessage the notSuccessfulConstructionMessage detected on the EventBus
+     * @author Philip Nitsche
+     * @since 2021-06-21
+     */
+
+    @Subscribe
+    public void onNotSuccessfulConstructionMessage(NotSuccessfulConstructionMessage notSuccessfulConstructionMessage) {
+        if (this.currentLobby != null) {
+            String text = "can not build here";
+            LOG.debug("Updated game Event Log area with new message");
+            updateEventLogLogic(text, "You");
+        }
+    }
+
+    /**
+     * This method will be invoked if a drawRandomResourceFromPlayerMessage is detected on the bus.
+     * <p>
+     * The method updates the event log when a player takes a card from an other player with the robber.
+     *
+     * @param drawRandomResourceFromPlayerMessage the drawRandomResourceFromPlayerMessage detected on the EventBus
+     * @author Philip Nitsche
+     * @since 2021-06-21
+     */
+
+    @Subscribe
+    public void onDrawRandomResourceFromPlayerMessage(DrawRandomResourceFromPlayerMessage drawRandomResourceFromPlayerMessage) {
+        if (this.currentLobby != null) {
+            String text = "took a card from " + drawRandomResourceFromPlayerMessage.getUserToLossTheCard().getUsername();
+            LOG.debug("Updated game Event Log area with new message");
+            updateEventLogLogic(text, drawRandomResourceFromPlayerMessage.getUserToGetTheCard().getUsername());
         }
     }
 
@@ -3377,6 +3469,6 @@ public class GamePresenter extends AbstractPresenter {
         var time = new SimpleDateFormat("HH:mm");
         var resultdate = new Date(System.currentTimeMillis());
         var readableTime = time.format(resultdate);
-        gameEventLogArea.insertText(gameEventLogArea.getLength(), readableTime + " : " + player + " " + text + "\n");
+        gameEventLogArea.insertText(gameEventLogArea.getLength(), readableTime + " : " + player + " " + text + "." + "\n");
     }
 }

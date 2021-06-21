@@ -4,10 +4,10 @@ import com.google.common.eventbus.DeadEvent;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import de.uol.swp.common.game.Game;
-import de.uol.swp.common.game.dto.GameDTO;
 import de.uol.swp.common.game.Inventory;
-import de.uol.swp.common.game.message.*;
 import de.uol.swp.common.game.MapGraph;
+import de.uol.swp.common.game.dto.GameDTO;
+import de.uol.swp.common.game.message.*;
 import de.uol.swp.common.game.request.*;
 import de.uol.swp.common.game.response.AllCreatedGamesResponse;
 import de.uol.swp.common.game.response.PlayDevelopmentCardResponse;
@@ -15,11 +15,11 @@ import de.uol.swp.common.game.response.ResolveDevelopmentCardNotSuccessfulRespon
 import de.uol.swp.common.game.trade.Trade;
 import de.uol.swp.common.game.trade.TradeItem;
 import de.uol.swp.common.lobby.Lobby;
+import de.uol.swp.common.lobby.request.JoinOnGoingGameRequest;
 import de.uol.swp.common.lobby.request.StartGameRequest;
 import de.uol.swp.common.message.MessageContext;
 import de.uol.swp.common.message.ResponseMessage;
 import de.uol.swp.common.message.ServerMessage;
-import de.uol.swp.common.lobby.request.JoinOnGoingGameRequest;
 import de.uol.swp.common.user.Session;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
@@ -1886,7 +1886,7 @@ public class GameServiceTest {
         Game game = optionalGame.get();
 
         Inventory inv0 = game.getInventory(game.getUser(game.getTurn()));
-        Inventory inv1 = game.getInventory(game.getUser(game.getTurn()+1));
+        Inventory inv1 = game.getInventory(game.getUser(game.getTurn() + 1));
 
         inv1.incCardStack("Ore", 1);
         inv1.incCardStack("Lumber", 1);
@@ -1894,13 +1894,13 @@ public class GameServiceTest {
         inv1.incCardStack("Grain", 1);
         inv1.incCardStack("Brick", 1);
 
-        DrawRandomResourceFromPlayerRequest drrfpr = new DrawRandomResourceFromPlayerRequest(game.getName(), (UserDTO) game.getUser(game.getTurn()), game.getUser(game.getTurn()+1).getUsername());
+        DrawRandomResourceFromPlayerRequest drrfpr = new DrawRandomResourceFromPlayerRequest(game.getName(), (UserDTO) game.getUser(game.getTurn()), game.getUser(game.getTurn() + 1).getUsername());
 
-        gameService.onDrawRandomResourceFromPlayerMessage(drrfpr);
-        gameService.onDrawRandomResourceFromPlayerMessage(drrfpr);
-        gameService.onDrawRandomResourceFromPlayerMessage(drrfpr);
-        gameService.onDrawRandomResourceFromPlayerMessage(drrfpr);
-        gameService.onDrawRandomResourceFromPlayerMessage(drrfpr);
+        gameService.onDrawRandomResourceFromPlayerRequest(drrfpr);
+        gameService.onDrawRandomResourceFromPlayerRequest(drrfpr);
+        gameService.onDrawRandomResourceFromPlayerRequest(drrfpr);
+        gameService.onDrawRandomResourceFromPlayerRequest(drrfpr);
+        gameService.onDrawRandomResourceFromPlayerRequest(drrfpr);
 
         assertEquals(inv0.getSpecificResourceAmount("Ore"), 1);
         assertEquals(inv0.getSpecificResourceAmount("Lumber"), 1);
