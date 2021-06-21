@@ -12,6 +12,20 @@
     -fx-text-fill: #ffffff;
 }
 
+.kick-button {
+    -fx-background-color: transparent, transparent, transparent, transparent, transparent;
+    -fx-pref-height: 25;
+    -fx-pref-width: 25;
+    -fx-min-height: 25;
+    -fx-min-width: 25;
+    -fx-max-height: 25;
+    -fx-max-width: 25;
+}
+
+.kick-button:disabled{
+    -fx-opacity: 0.3;
+}
+
 .list-view .label {
     -fx-text-fill: #000000;
 }

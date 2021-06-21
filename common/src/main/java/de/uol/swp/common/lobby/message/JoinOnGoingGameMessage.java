@@ -17,6 +17,7 @@ public class JoinOnGoingGameMessage extends AbstractGameMessage {
 
     private final ArrayList<User> users;
     private final Set<User> humans;
+    private final User gameOwner;
 
     /**
      * Constructor used for serialization
@@ -27,6 +28,7 @@ public class JoinOnGoingGameMessage extends AbstractGameMessage {
     public JoinOnGoingGameMessage() {
         this.users = null;
         this.humans = null;
+        this.gameOwner = null;
     }
 
     /**
@@ -36,13 +38,15 @@ public class JoinOnGoingGameMessage extends AbstractGameMessage {
      * @param user     the user who joined the game
      * @param users    the current list of players in the game
      * @param humans   the current list of actual human players in the game
+     * @param gameOwner the current owner of the game
      * @author Marc Hermes
      * @since 2021-05-27
      */
-    public JoinOnGoingGameMessage(String gameName, UserDTO user, ArrayList<User> users, Set<User> humans) {
+    public JoinOnGoingGameMessage(String gameName, UserDTO user, ArrayList<User> users, Set<User> humans, User gameOwner) {
         super(gameName, user);
         this.users = users;
         this.humans = humans;
+        this.gameOwner = gameOwner;
     }
 
     /**
@@ -66,4 +70,13 @@ public class JoinOnGoingGameMessage extends AbstractGameMessage {
     public Set<User> getHumans() {
         return humans;
     }
+
+    /**
+     * Getter for the User, who is the game owner
+     *
+     * @return User, who is the game owner
+     * @author Iskander Yusupov
+     * @since 2021-06-21
+     */
+    public User getGameOwner() { return gameOwner; }
 }

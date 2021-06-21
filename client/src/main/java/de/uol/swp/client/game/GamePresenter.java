@@ -172,13 +172,13 @@ public class GamePresenter extends AbstractPresenter {
     public Label buildingNotSuccessfulLabel;
 
     @FXML
-    private Button kickPlayer1Button;
+    private Button kickPlayerOneButton;
     @FXML
-    private Button kickPlayer2Button;
+    private Button kickPlayerTwoButton;
     @FXML
-    private Button kickPlayer3Button;
+    private Button kickPlayerThreeButton;
     @FXML
-    private Button kickPlayer4Button;
+    private Button kickPlayerFourButton;
 
     @FXML
     private Pane picturePlayerView1;
@@ -384,7 +384,7 @@ public class GamePresenter extends AbstractPresenter {
      * Enhanced by Sergej Tulnev
      * @since 2021-06-17
      * <p>
-     *  If the user has a long message, it will have a line break
+     * If the user has a long message, it will have a line break
      */
     private void updateChat(ResponseChatMessage rcm) {
         var time = new SimpleDateFormat("HH:mm");
@@ -623,6 +623,7 @@ public class GamePresenter extends AbstractPresenter {
             this.currentLobby = gcm.getName();
             this.gameFieldVariant = gcm.getGameFieldVariant();
             updateGameUsersList(gcm.getUsers(), gcm.getHumans());
+            updateKickButtons(gcm.getUsers(), gcm.getHumans(), gcm.getGameOwner());
             for (int i = 1; i <= 67; i++) {
                 Image image;
                 image = new Image("img/profilePictures/" + i + ".png");
@@ -643,6 +644,8 @@ public class GamePresenter extends AbstractPresenter {
                 setUpTabs();
                 setUpPrices();
                 setUpLargestArmyAndLongestRoadPanes(gcm.getUsers());
+                setUpKickButtons(gcm.getUsers());
+                updateKickButtons(gcm.getUsers(), gcm.getHumans(), gcm.getGameOwner());
             });
             evaluateMyPlayerNumber(gcm.getUsers());
             buyDevelopmentCardMessageLogic(25);
@@ -684,6 +687,7 @@ public class GamePresenter extends AbstractPresenter {
             this.currentLobby = joggr.getGameName();
             this.gameFieldVariant = joggr.getGameFieldVariant();
             updateGameUsersList(joggr.getUsers(), joggr.getHumans());
+            updateKickButtons(joggr.getUsers(), joggr.getHumans(), joggr.getGameOwner());
             for (int i = 1; i <= 67; i++) {
                 Image image;
                 image = new Image("img/profilePictures/" + i + ".png");
@@ -703,6 +707,8 @@ public class GamePresenter extends AbstractPresenter {
                 setUpTabs();
                 setUpPrices();
                 setUpLargestArmyAndLongestRoadPanes(joggr.getUsers());
+                setUpKickButtons(joggr.getUsers());
+                updateKickButtons(joggr.getUsers(), joggr.getHumans(), joggr.getGameOwner());
                 updateGameField();
             });
         }
@@ -1185,7 +1191,7 @@ public class GamePresenter extends AbstractPresenter {
             if (this.currentLobby.equals(atgur.getName())) {
                 LOG.debug("Update of user list " + atgur.getUsers());
                 updateGameUsersList(atgur.getUsers(), atgur.getHumanUsers());
-
+                updateKickButtons(atgur.getUsers(), atgur.getHumanUsers(), atgur.getGameOwner());
             }
         }
     }
@@ -1206,6 +1212,7 @@ public class GamePresenter extends AbstractPresenter {
             if (this.currentLobby.equals(joggm.getName())) {
                 LOG.debug("The user " + joggm.getUser().getUsername() + " joined the game!");
                 updateGameUsersList(joggm.getUsers(), joggm.getHumans());
+                updateKickButtons(joggm.getUsers(), joggm.getHumans(), joggm.getGameOwner());
             }
         }
     }
@@ -1257,6 +1264,115 @@ public class GamePresenter extends AbstractPresenter {
                 gameUserView4.setVisible(true);
             }
         });
+    }
+
+    /**
+     * @param list
+     * @author Iskander Yusupov
+     * @since 2021-06-21
+     */
+    public void setUpKickButtons(ArrayList<User> list) {
+        Image kickIcon1 = new Image("textures/resized/Kick_Icon.jpg");
+        ImageView kickView1 = new ImageView(kickIcon1);
+        kickView1.setFitHeight(25);
+        kickView1.setPreserveRatio(true);
+        kickPlayerOneButton.setPrefSize(25, 25);
+        kickPlayerOneButton.setGraphic(kickView1);
+        kickPlayerOneButton.setAlignment(Pos.CENTER);
+        kickPlayerOneButton.getStyleClass().add("kick-button");
+        Tooltip hoverKickPlayerOne = new Tooltip("");
+
+        hoverKickPlayerOne.setText("Kick Player One");
+        Tooltip.install(kickPlayerOneButton, hoverKickPlayerOne);
+        hoverKickPlayerOne.setShowDelay(Duration.millis(0));
+        Image kickIcon2 = new Image("textures/resized/Kick_Icon.jpg");
+        ImageView kickView2 = new ImageView(kickIcon2);
+        kickView2.setFitHeight(25);
+        kickView2.setPreserveRatio(true);
+        kickPlayerTwoButton.setPrefSize(25, 25);
+        kickPlayerTwoButton.setGraphic(kickView2);
+        kickPlayerTwoButton.setAlignment(Pos.CENTER);
+        kickPlayerTwoButton.getStyleClass().add("kick-button");
+        Tooltip hoverKickPlayerTwo = new Tooltip("");
+
+        hoverKickPlayerTwo.setText("Kick Player Two");
+        Tooltip.install(kickPlayerTwoButton, hoverKickPlayerTwo);
+        hoverKickPlayerTwo.setShowDelay(Duration.millis(0));
+        if (list.size() > 2) {
+            Image kickIcon3 = new Image("textures/resized/Kick_Icon.jpg");
+            ImageView kickView3 = new ImageView(kickIcon3);
+            kickView3.setFitHeight(25);
+            kickView3.setPreserveRatio(true);
+            kickPlayerThreeButton.setPrefSize(25, 25);
+            kickPlayerThreeButton.setGraphic(kickView3);
+            kickPlayerThreeButton.setAlignment(Pos.CENTER);
+            kickPlayerThreeButton.getStyleClass().add("kick-button");
+            Tooltip hoverKickPlayerThree = new Tooltip("");
+
+            hoverKickPlayerThree.setText("Kick Player Three");
+            Tooltip.install(kickPlayerThreeButton, hoverKickPlayerThree);
+            hoverKickPlayerThree.setShowDelay(Duration.millis(0));
+        }
+        if (list.size() > 3) {
+            Image kickIcon4 = new Image("textures/resized/Kick_Icon.jpg");
+            ImageView kickView4 = new ImageView(kickIcon4);
+            kickView4.setFitHeight(25);
+            kickView4.setPreserveRatio(true);
+            kickPlayerFourButton.setPrefSize(25, 25);
+            kickPlayerFourButton.setGraphic(kickView4);
+            kickPlayerFourButton.setAlignment(Pos.CENTER);
+            kickPlayerFourButton.getStyleClass().add("kick-button");
+            Tooltip hoverKickPlayerFour = new Tooltip("");
+
+            hoverKickPlayerFour.setText("Kick Player Four");
+            Tooltip.install(kickPlayerFourButton, hoverKickPlayerFour);
+            hoverKickPlayerFour.setShowDelay(Duration.millis(0));
+        }
+    }
+
+    /**
+     * @param list
+     * @param humans
+     * @param gameOwner
+     * @author Iskander Yusupov
+     * @since 2021-06-21
+     */
+    public void updateKickButtons(ArrayList<User> list, Set<User> humans, User gameOwner) {
+        if (joinedLobbyUser == gameOwner) {
+            kickPlayerOneButton.setVisible(true);
+            if (!humans.contains(list.get(0)) || list.get(0) == gameOwner) {
+                kickPlayerOneButton.setDisable(true);
+            } else {
+                kickPlayerOneButton.setDisable(false);
+            }
+            kickPlayerTwoButton.setVisible(true);
+            if (!humans.contains(list.get(1)) && list.get(1) == gameOwner) {
+                kickPlayerTwoButton.setDisable(true);
+            } else {
+                kickPlayerTwoButton.setDisable(false);
+            }
+            if (list.size() > 2) {
+                kickPlayerThreeButton.setVisible(true);
+                if (!humans.contains(list.get(2)) && list.get(2) == gameOwner) {
+                    kickPlayerThreeButton.setDisable(true);
+                } else {
+                    kickPlayerThreeButton.setDisable(false);
+                }
+            }
+            if (list.size() > 3) {
+                kickPlayerFourButton.setVisible(true);
+                if (!humans.contains(list.get(3)) && list.get(3) == gameOwner) {
+                    kickPlayerFourButton.setDisable(true);
+                } else {
+                    kickPlayerFourButton.setDisable(false);
+                }
+            }
+        } else {
+            kickPlayerOneButton.setVisible(false);
+            kickPlayerTwoButton.setVisible(false);
+            kickPlayerThreeButton.setVisible(false);
+            kickPlayerFourButton.setVisible(false);
+        }
     }
 
     /**

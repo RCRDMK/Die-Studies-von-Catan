@@ -139,7 +139,7 @@ public class GameService extends AbstractService {
             Set<User> actualUsers = game.getUsers();
             if (retrieveAllThisGameUsersRequest.getMessageContext().isPresent()) {
                 Optional<MessageContext> ctx = retrieveAllThisGameUsersRequest.getMessageContext();
-                sendToSpecificUser(ctx.get(), new AllThisGameUsersResponse(actualUsers, gameUsers, retrieveAllThisGameUsersRequest.getName()));
+                sendToSpecificUser(ctx.get(), new AllThisGameUsersResponse(actualUsers, gameUsers, retrieveAllThisGameUsersRequest.getName(), game.getOwner()));
             }
         }
     }
@@ -148,7 +148,7 @@ public class GameService extends AbstractService {
      * Handles incoming build requests.
      * <p>
      * Sets continuous road and checks for the longest road.
-     *
+     * <p>
      * enhanced by Iskander Yusupov, since 06-06-2021
      *
      * @param message Contains the data needed to change the mapGraph
@@ -453,7 +453,7 @@ public class GameService extends AbstractService {
      * <p>
      * This method handles the distribution of the resources to the users. First the method gets the game and gets the
      * corresponding hexagons. After that the method gives the second built buildings in the opening turn the resource.
-     *
+     * <p>
      * enhanced by Anton Nikiforov
      *
      * @param gameName Name of the Game
@@ -774,7 +774,7 @@ public class GameService extends AbstractService {
                 game.setUpInventories();
                 post(new GameStartedMessage(lobby.getName()));
                 for (User user : game.getUsers()) {
-                    sendToSpecificUserInGame(game, new GameCreatedMessage(game.getName(), (UserDTO) user, game.getMapGraph(), game.getUsersList(), game.getUsers(), gameFieldVariant), user);
+                    sendToSpecificUserInGame(game, new GameCreatedMessage(game.getName(), (UserDTO) user, game.getMapGraph(), game.getUsersList(), game.getUsers(), gameFieldVariant, game.getOwner()), user);
                 }
                 updateInventory(game);
                 sendToAllInGame(game.getName(), new NextTurnMessage(game.getName(), game.getUser(game.getTurn()).getUsername(), game.getTurn(), game.isStartingTurns()));
@@ -844,7 +844,7 @@ public class GameService extends AbstractService {
         Optional<Game> optionalGame = gameManagement.getGame(request.getName());
         if (optionalLobby.isPresent() && request.getMessageContext().isPresent()) {
             Lobby lobby = optionalLobby.get();
-            var response = new JoinOnGoingGameResponse(lobby.getName(), request.getUser(), false, null, null, null, lobby.getGameFieldVariant(), "The game doesn't exist!");
+            var response = new JoinOnGoingGameResponse(lobby.getName(), request.getUser(), false, null, null, null, lobby.getGameFieldVariant(), "The game doesn't exist!", null);
             if (lobby.getGameStarted() && optionalGame.isPresent()) {
                 Game game = optionalGame.get();
                 boolean foundUser = false;
@@ -860,9 +860,9 @@ public class GameService extends AbstractService {
                     if (!game.getUsers().contains(user)) {
                         game.joinUser(user);
                         // send information to user
-                        response = new JoinOnGoingGameResponse(game.getName(), request.getUser(), true, game.getMapGraph(), game.getUsersList(), game.getUsers(), lobby.getGameFieldVariant(), "");
+                        response = new JoinOnGoingGameResponse(game.getName(), request.getUser(), true, game.getMapGraph(), game.getUsersList(), game.getUsers(), lobby.getGameFieldVariant(), "", game.getOwner());
                         sendToSpecificUser(request.getMessageContext().get(), response);
-                        var gameMessage = new JoinOnGoingGameMessage(game.getName(), request.getUser(), game.getUsersList(), game.getUsers());
+                        var gameMessage = new JoinOnGoingGameMessage(game.getName(), request.getUser(), game.getUsersList(), game.getUsers(), game.getOwner());
                         sendToAllInGame(game.getName(), gameMessage);
                         updateInventory(game);
                         var currentTurnMessage = new NextTurnMessage(game.getName(), game.getUser(game.getTurn()).getUsername(), game.getTurn(), game.isStartingTurns());
@@ -870,7 +870,7 @@ public class GameService extends AbstractService {
                     }
                 } else {
                     String reason = game.getTradeList().size() != 0 ? "A Trade is currently ongoing." : "You are not registered in this game!";
-                    response = new JoinOnGoingGameResponse(game.getName(), request.getUser(), false, null, null, null, lobby.getGameFieldVariant(), reason);
+                    response = new JoinOnGoingGameResponse(game.getName(), request.getUser(), false, null, null, null, lobby.getGameFieldVariant(), reason, null);
                     sendToSpecificUser(request.getMessageContext().get(), response);
 
                 }
