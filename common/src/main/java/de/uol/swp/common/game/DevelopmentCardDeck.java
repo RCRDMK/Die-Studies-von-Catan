@@ -1,4 +1,4 @@
-package de.uol.swp.common.game.inventory;
+package de.uol.swp.common.game;
 
 import java.io.Serializable;
 import java.util.Collections;
@@ -38,5 +38,16 @@ public class DevelopmentCardDeck implements Serializable {
     public String drawnCard() {
         if (deck.size() > 0) return deck.pop();
         else return null;
+    }
+
+    /**
+     * Getter for the number of dev cards in the deck
+     *
+     * @return the number of dev Cards in the deck
+     * @author Marc Hermes
+     * @since 2021-06-19
+     */
+    public int getNumberOfDevCards() {
+        return deck.size();
     }
 }

@@ -10,6 +10,7 @@ import de.uol.swp.client.lobby.LobbyService;
 import de.uol.swp.common.game.dto.StatsDTO;
 import de.uol.swp.common.game.message.GameCreatedMessage;
 import de.uol.swp.common.game.message.GameFinishedMessage;
+import de.uol.swp.common.lobby.response.JoinOnGoingGameResponse;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import javafx.application.Platform;
@@ -74,7 +75,7 @@ public class SummaryPresenter extends AbstractPresenter {
     }
 
     /**
-     * Subscribe to GameCreatedMessage to get the actual current user and corresponding game
+     * Subscribe to GameCreatedMessage to get the actual current user and corresponding gameName
      * <p>
      * This is needed so we have the currentUser and the gameName in the SummaryPresenter
      *
@@ -88,6 +89,21 @@ public class SummaryPresenter extends AbstractPresenter {
         if (this.gameName == null) {
             this.currentUser = gcm.getUser();
             this.gameName = gcm.getName();
+        }
+    }
+
+    /**
+     * Subscribe to the JoinOnGoingGameResponse to get the actual current user and corresponding gameName
+     *
+     * @param joggr the JoinOnGoingGameResponse detected on the EventBus
+     * @author Marc Hermes
+     * @since 2021-06-19
+     */
+    @Subscribe
+    public void onGameJoined(JoinOnGoingGameResponse joggr) {
+        if(this.gameName == null && joggr.isJoinedSuccessful()) {
+            this.currentUser = joggr.getUser();
+            this.gameName = joggr.getGameName();
         }
     }
 

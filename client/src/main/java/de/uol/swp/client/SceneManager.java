@@ -68,11 +68,12 @@ public class SceneManager {
     private Scene nextTradeScene;
     private Scene userSettingsScene;
     private Scene userGameRulesScene;
+    private MediaPlayer player;
+    private Scene summaryScene;
     private Scene nextSummaryScene;
     private final Injector injector;
     private final TabPane tabPane = new TabPane();
     private TabHelper tabHelper;
-    private MediaPlayer player;
 
 
     @Inject
@@ -353,9 +354,7 @@ public class SceneManager {
         userGameRulesScene = new Scene(rootPane, 800, 500);
         userGameRulesScene.getStylesheets().add(styleSheet);
         rootPane.getStyleClass().add("rules");
-
     }
-
 
     /**
      * Handles ShowRegistrationViewEvent detected on the EventBus
@@ -651,6 +650,7 @@ public class SceneManager {
      */
     public void createSummaryTab(String gameName) {
         newSummaryTab(gameName);
+        hideSummaryTab(gameName);
     }
 
     /**
@@ -832,7 +832,6 @@ public class SceneManager {
         summaryTab.setContent(nextSummaryScene.getRoot());
         summaryTab.setClosable(false);
         Platform.runLater(() -> tabHelper.addTab(summaryTab));
-        hideSummaryTab(gameName);
         nextSummaryScene = initSummaryView();
     }
 

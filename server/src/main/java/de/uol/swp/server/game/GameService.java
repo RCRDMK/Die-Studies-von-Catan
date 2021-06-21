@@ -9,7 +9,7 @@ import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.MapGraph;
 import de.uol.swp.common.game.dto.GameDTO;
 import de.uol.swp.common.game.dto.StatsDTO;
-import de.uol.swp.common.game.inventory.Inventory;
+import de.uol.swp.common.game.Inventory;
 import de.uol.swp.common.game.message.*;
 import de.uol.swp.common.game.request.*;
 import de.uol.swp.common.game.response.*;
@@ -990,8 +990,8 @@ public class GameService extends AbstractService {
                         takeResource(game, request.getUser(), "Grain", 1);
                         inventory.incCardStack(devCard, 1);
                         game.rememberDevCardBoughtThisTurn(devCard, 1);
-                        BuyDevelopmentCardMessage response = new BuyDevelopmentCardMessage(request.getName(), request.getUser(), devCard);
-                        sendToSpecificUserInGame(game, response, request.getUser());
+                        BuyDevelopmentCardMessage response = new BuyDevelopmentCardMessage(game.getDevelopmentCardDeck().getNumberOfDevCards());
+                        sendToAllInGame(game.getName(), response);
                     } else {
                         var chatId = "game_" + game.getName();
                         ResponseChatMessage msg = new ResponseChatMessage("No development cards are available.", chatId, "Bank", System.currentTimeMillis());

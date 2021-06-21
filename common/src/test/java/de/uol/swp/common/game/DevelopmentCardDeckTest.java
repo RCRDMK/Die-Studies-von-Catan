@@ -1,4 +1,4 @@
-package de.uol.swp.common.game.inventory;
+package de.uol.swp.common.game;
 
 import org.junit.jupiter.api.Test;
 
@@ -22,6 +22,7 @@ public class DevelopmentCardDeckTest {
     void onDrawnCardTest() {
         DevelopmentCardDeck developmentCardDeck = new DevelopmentCardDeck();
         for (int i = 0; i < 25; i++) {
+            assertEquals(developmentCardDeck.getNumberOfDevCards(), 25 - i);
             String result = developmentCardDeck.drawnCard();
             assertTrue(result.equals("Victory Point Card") ||
                     result.equals("Knight") ||
