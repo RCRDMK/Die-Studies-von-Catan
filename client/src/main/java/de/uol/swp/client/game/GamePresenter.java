@@ -1340,32 +1340,16 @@ public class GamePresenter extends AbstractPresenter {
     public void updateKickButtons(ArrayList<User> list, Set<User> humans, User gameOwner) {
         if (joinedLobbyUser == gameOwner) {
             kickPlayerOneButton.setVisible(true);
-            if (!humans.contains(list.get(0)) || list.get(0) == gameOwner) {
-                kickPlayerOneButton.setDisable(true);
-            } else {
-                kickPlayerOneButton.setDisable(false);
-            }
+            kickPlayerOneButton.setDisable(!humans.contains(list.get(0)) || list.get(0) == gameOwner);
             kickPlayerTwoButton.setVisible(true);
-            if (!humans.contains(list.get(1)) && list.get(1) == gameOwner) {
-                kickPlayerTwoButton.setDisable(true);
-            } else {
-                kickPlayerTwoButton.setDisable(false);
-            }
+            kickPlayerTwoButton.setDisable(!humans.contains(list.get(1)) || list.get(1) == gameOwner);
             if (list.size() > 2) {
                 kickPlayerThreeButton.setVisible(true);
-                if (!humans.contains(list.get(2)) && list.get(2) == gameOwner) {
-                    kickPlayerThreeButton.setDisable(true);
-                } else {
-                    kickPlayerThreeButton.setDisable(false);
-                }
+                kickPlayerThreeButton.setDisable(!humans.contains(list.get(2)) || list.get(2) == gameOwner);
             }
             if (list.size() > 3) {
                 kickPlayerFourButton.setVisible(true);
-                if (!humans.contains(list.get(3)) && list.get(3) == gameOwner) {
-                    kickPlayerFourButton.setDisable(true);
-                } else {
-                    kickPlayerFourButton.setDisable(false);
-                }
+                kickPlayerFourButton.setDisable(!humans.contains(list.get(3)) || list.get(3) == gameOwner);
             }
         } else {
             kickPlayerOneButton.setVisible(false);
