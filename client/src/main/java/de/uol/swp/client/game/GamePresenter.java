@@ -1147,7 +1147,7 @@ public class GamePresenter extends AbstractPresenter {
      */
     @Subscribe
     public void otherUserLeftSuccessful(UserLeftGameMessage message) {
-        String text = "left the Lobby";
+        String text = "left the Game";
         LOG.debug("Updated game Event Log area with new message");
         updateEventLogLogic(text, message.getUser().getUsername());
         otherUserLeftSuccessfulLogic(message);
@@ -1215,6 +1215,9 @@ public class GamePresenter extends AbstractPresenter {
     public void onJoinOnGoingGameMessage(JoinOnGoingGameMessage joggm) {
         if (this.currentLobby != null) {
             if (this.currentLobby.equals(joggm.getName())) {
+                String text = "joined the game";
+                LOG.debug("Updated game Event Log area with new message");
+                updateEventLogLogic(text, joggm.getUser().getUsername());
                 LOG.debug("The user " + joggm.getUser().getUsername() + " joined the game!");
                 updateGameUsersList(joggm.getUsers(), joggm.getHumans());
             }
@@ -2365,9 +2368,11 @@ public class GamePresenter extends AbstractPresenter {
      */
     @Subscribe
     public void onSuccessfulMovedRobberMessage(SuccessfulMovedRobberMessage successfulMovedRobberMessage) {
-        String text = "moved the Robber";
-        LOG.debug("Updated game Event Log area with new message");
-        updateEventLogLogic(text, userIsOnTurn);
+        if (userIsOnTurn != null) {
+            String text = "moved the Robber";
+            LOG.debug("Updated game Event Log area with new message");
+            updateEventLogLogic(text, userIsOnTurn);
+        }
         for (HexagonContainer hexagonContainer : hexagonContainers) {
             if (hexagonContainer.getHexagon().getUuid().equals(successfulMovedRobberMessage.getNewField())) {
                 robber.setLayoutX(hexagonContainer.getHexagonShape().getLayoutX() - robber.getWidth() / 2);
