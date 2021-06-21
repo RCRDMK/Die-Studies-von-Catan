@@ -1285,6 +1285,7 @@ public class GamePresenter extends AbstractPresenter {
         hoverKickPlayerOne.setText("Kick Player One");
         Tooltip.install(kickPlayerOneButton, hoverKickPlayerOne);
         hoverKickPlayerOne.setShowDelay(Duration.millis(0));
+
         Image kickIcon2 = new Image("textures/resized/Kick_Icon.jpg");
         ImageView kickView2 = new ImageView(kickIcon2);
         kickView2.setFitHeight(25);
@@ -1338,18 +1339,19 @@ public class GamePresenter extends AbstractPresenter {
      * @since 2021-06-21
      */
     public void updateKickButtons(ArrayList<User> list, Set<User> humans, User gameOwner) {
-        if (joinedLobbyUser == gameOwner) {
+        if (joinedLobbyUser.equals(gameOwner)) {
             kickPlayerOneButton.setVisible(true);
-            kickPlayerOneButton.setDisable(!humans.contains(list.get(0)) || list.get(0) == gameOwner);
+            kickPlayerOneButton.setDisable(!humans.contains(list.get(0)) || list.get(0).equals(gameOwner));
             kickPlayerTwoButton.setVisible(true);
-            kickPlayerTwoButton.setDisable(!humans.contains(list.get(1)) || list.get(1) == gameOwner);
+            kickPlayerTwoButton.setDisable(!humans.contains(list.get(1)) || list.get(1).equals(gameOwner));
+
             if (list.size() > 2) {
                 kickPlayerThreeButton.setVisible(true);
-                kickPlayerThreeButton.setDisable(!humans.contains(list.get(2)) || list.get(2) == gameOwner);
+                kickPlayerThreeButton.setDisable(!humans.contains(list.get(2)) || list.get(2).equals(gameOwner));
             }
             if (list.size() > 3) {
                 kickPlayerFourButton.setVisible(true);
-                kickPlayerFourButton.setDisable(!humans.contains(list.get(3)) || list.get(3) == gameOwner);
+                kickPlayerFourButton.setDisable(!humans.contains(list.get(3)) || list.get(3).equals(gameOwner));
             }
         } else {
             kickPlayerOneButton.setVisible(false);
