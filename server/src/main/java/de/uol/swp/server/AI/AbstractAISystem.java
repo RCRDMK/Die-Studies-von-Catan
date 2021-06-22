@@ -107,6 +107,7 @@ public abstract class AbstractAISystem implements AISystem {
             game.getBankInventory().incCardStack("Ore", 1);
             game.getBankInventory().incCardStack("Grain", 1);
             game.getBankInventory().incCardStack("Wool", 1);
+            game.rememberDevCardBoughtThisTurn(devCard, 1);
             aiActions.add(bdca);
         }
 
