@@ -35,6 +35,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.Background;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
@@ -2790,6 +2791,9 @@ public class GamePresenter extends AbstractPresenter {
         Tab tabPrices = new Tab();
         tabPrices.setText("Prices");
         tabPrices.setContent(pricesView);
+        tabChat.setClosable(false);
+        tabPrices.setClosable(false);
+        tabGameLog.setClosable(false);
         tabPane.getTabs().addAll(tabChat, tabGameLog, tabPrices);
     }
 
