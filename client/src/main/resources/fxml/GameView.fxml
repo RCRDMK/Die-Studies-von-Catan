@@ -8,10 +8,10 @@
 <AnchorPane fx:id="gameAnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="634.0" prefWidth="1280.0" stylesheets="@../css/swp.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.uol.swp.client.game.GamePresenter">
 
     <children>
-        <Button fx:id="kickPlayerOneButton" layoutX="132.0" layoutY="117.0" visible="false"/>
-        <Button fx:id="kickPlayerTwoButton" layoutX="877.0" layoutY="117.0" visible="false"/>
-        <Button fx:id="kickPlayerThreeButton" layoutX="132.0" layoutY="372.0" visible="false"/>
-        <Button fx:id="kickPlayerFourButton" layoutX="877.0" layoutY="372.0" visible="false"/>
+        <Button fx:id="kickPlayerOneButton" onAction="#onKickPlayer" layoutX="132.0" layoutY="117.0" visible="false"/>
+        <Button fx:id="kickPlayerTwoButton" onAction="#onKickPlayer" layoutX="877.0" layoutY="117.0" visible="false"/>
+        <Button fx:id="kickPlayerThreeButton" onAction="#onKickPlayer" layoutX="132.0" layoutY="372.0" visible="false"/>
+        <Button fx:id="kickPlayerFourButton" onAction="#onKickPlayer" layoutX="877.0" layoutY="372.0" visible="false"/>
         <TabPane fx:id="tabPane" layoutX="1050.0" layoutY="25.0" />
         <Pane fx:id="pricesView" layoutX="1050.0" layoutY="60.0" prefHeight="225.0" prefWidth="225.0" />
         <TextArea fx:id="gameChatArea" editable="false" layoutX="1050.0" layoutY="30.0" prefHeight="330.0" prefWidth="225.0" GridPane.rowIndex="2" />

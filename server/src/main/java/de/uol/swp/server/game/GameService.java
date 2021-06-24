@@ -78,6 +78,11 @@ public class GameService extends AbstractService {
         this.userService = userService;
     }
 
+    /**
+     * TODO:
+     *
+     * @param gameLeaveUserRequest
+     */
     @Subscribe
     public void onGameLeaveUserRequest(GameLeaveUserRequest gameLeaveUserRequest) {
         Optional<Game> optionalGame = gameManagement.getGame(gameLeaveUserRequest.getName());
@@ -117,6 +122,42 @@ public class GameService extends AbstractService {
                 throw new GameManagementException("Game unknown!");
             }
         }
+    }
+
+    /**
+     * @param kickPlayerRequest
+     * @author Iskander Yusupov
+     * @since 2021-06-2021
+     */
+    @Subscribe
+    public void onGameKickPlayerRequest(KickPlayerRequest kickPlayerRequest) {
+        Optional<Game> optionalGame = gameManagement.getGame(kickPlayerRequest.getName());
+        Optional<Lobby> lobby = lobbyService.getLobby(kickPlayerRequest.getName());
+        if (optionalGame.isPresent()) {
+            Game game = optionalGame.get();
+            if (game.getUsers().contains(kickPlayerRequest.getUser())) {
+                if (kickPlayerRequest.getMessageContext().isPresent()) {
+                    Optional<MessageContext> ctx = kickPlayerRequest.getMessageContext();
+                    sendToSpecificUser(ctx.get(), new PlayerKickedSuccessfulResponse(kickPlayerRequest.getName(), kickPlayerRequest.getUser()));
+                }
+                game.kickPlayer(kickPlayerRequest.getUser());
+                sendToAll(new GameSizeChangedMessage(kickPlayerRequest.getName()));
+                ArrayList<UserDTO> usersInGame = new ArrayList<>();
+                for (User user : game.getUsers()) usersInGame.add((UserDTO) user);
+                sendToAllInGame(kickPlayerRequest.getName(), new UserLeftGameMessage(kickPlayerRequest.getName(), kickPlayerRequest.getUser(), usersInGame));
+                // Check if the kicked from the game player is the turnPlayer, so that the AI may replace him now
+                if (kickPlayerRequest.getUser().equals(game.getUser(game.getTurn()))) {
+                    if (!game.rolledDiceThisTurn() && !game.isStartingTurns()) {
+                        RollDiceRequest rdr = new RollDiceRequest(game.getName(), game.getUser(game.getTurn()));
+                        onRollDiceRequest(rdr);
+                    }
+                    startTurnForAI((GameDTO) game);
+                }
+            }
+        } else {
+            throw new GameManagementException("Game unknown!");
+        }
+
     }
 
     /**
@@ -952,7 +993,7 @@ public class GameService extends AbstractService {
         } else {
             //RandomAI randomAI = new RandomAI(game);
             LOG.debug("Rufe random AI auf");
-                AIToServerTranslator.translate(new RandomAI(game).startTurnOrder(), this);
+            AIToServerTranslator.translate(new RandomAI(game).startTurnOrder(), this);
         }
     }
 

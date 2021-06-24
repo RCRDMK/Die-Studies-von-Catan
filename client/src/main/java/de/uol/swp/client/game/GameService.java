@@ -95,6 +95,19 @@ public class GameService {
     }
 
     /**
+     * Posts a request to kick the player from the game on the Eventbus
+     *
+     * @author Iskander Yusupov
+     * @see KickPlayerRequest
+     * @since 2021-06-24
+     */
+    public void kickPlayer(String game, User user) {
+        KickPlayerRequest kickPlayerRequest = new KickPlayerRequest(game, (UserDTO) user);
+        eventBus.post(kickPlayerRequest);
+    }
+
+
+    /**
      * Return from Summary Screen to main Screen
      * <p>
      * Leaves the current game and posts a new SummaryConfirmedMessage on the eventbus

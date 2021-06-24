@@ -12,10 +12,7 @@ import de.uol.swp.common.chat.ResponseChatMessage;
 import de.uol.swp.common.game.Inventory;
 import de.uol.swp.common.game.MapGraph;
 import de.uol.swp.common.game.message.*;
-import de.uol.swp.common.game.response.AllThisGameUsersResponse;
-import de.uol.swp.common.game.response.GameLeftSuccessfulResponse;
-import de.uol.swp.common.game.response.PlayDevelopmentCardResponse;
-import de.uol.swp.common.game.response.ResolveDevelopmentCardNotSuccessfulResponse;
+import de.uol.swp.common.game.response.*;
 import de.uol.swp.common.lobby.message.JoinOnGoingGameMessage;
 import de.uol.swp.common.lobby.response.JoinOnGoingGameResponse;
 import de.uol.swp.common.user.User;
@@ -103,6 +100,8 @@ public class GamePresenter extends AbstractPresenter {
     private Button btnOkay;
 
     private ObservableList<String> gameUsers;
+
+    private ObservableList<User> gameUsersAsObjects;
 
     private String gameFieldVariant;
 
@@ -1091,6 +1090,79 @@ public class GamePresenter extends AbstractPresenter {
     }
 
     /**
+     * Method called when the kickPlayerOne,-Two,-Three or -Four Button is pressed
+     * <p>
+     * It throws a GamePresenterException if joinedLobbyUser and/or currentLobby are not initialised
+     *
+     * @author Iskander Yusupov
+     * @see de.uol.swp.client.game.GameService
+     * @see de.uol.swp.client.game.GamePresenterException
+     * @since 2021-06-24
+     */
+    @FXML
+    public void onKickPlayer() {
+        if (currentLobby != null) {
+            if (kickPlayerOneButton.isPressed() && this.gameUsersAsObjects.get(0) != null) {
+                gameService.kickPlayer(this.currentLobby, this.gameUsersAsObjects.get(0));
+            } else {
+                throw new GamePresenterException("User of the current Lobby is not available");
+            }
+            if (kickPlayerTwoButton.isPressed() && this.gameUsersAsObjects.get(1) != null) {
+                gameService.kickPlayer(this.currentLobby, this.gameUsersAsObjects.get(1));
+            } else {
+                throw new GamePresenterException("User of the current Lobby is not available");
+            }
+            if (kickPlayerThreeButton.isPressed() && this.gameUsersAsObjects.get(2) != null) {
+                gameService.kickPlayer(this.currentLobby, this.gameUsersAsObjects.get(2));
+            } else {
+                throw new GamePresenterException("User of the current Lobby is not available");
+            }
+            if (kickPlayerFourButton.isPressed() && this.gameUsersAsObjects.get(3) != null) {
+                gameService.kickPlayer(this.currentLobby, this.gameUsersAsObjects.get(3));
+            } else {
+                throw new GamePresenterException("User of the current Lobby is not available");
+            }
+        } else {
+            throw new GamePresenterException("Name of the current Lobby is not available!");
+        }
+    }
+
+    /**
+     * Handles successful kicking of the player from the game
+     * <p>
+     * If a PlayerKickedSuccessfulResponse is detected on the EventBus the method playerLeftSuccessfulLogic is invoked.
+     *
+     * @param playerKickedSuccessfulResponse the playerKickedSuccessfulResponse object seen on the EventBus
+     * @author Iskander Yusupov
+     * @see PlayerKickedSuccessfulResponse
+     * @since 2021-06-24
+     */
+    @Subscribe
+    public void playerKickedSuccessful(PlayerKickedSuccessfulResponse playerKickedSuccessfulResponse) {
+        playerKickedSuccessfulLogic(playerKickedSuccessfulResponse);
+    }
+
+    /**
+     * The method invoked by playerKickedSuccessful()
+     * <p>
+     * If the Player is kicked from the Game, meaning this Game Presenter is no longer needed, this presenter will no longer be registered
+     * on the event bus and no longer be reachable for responses, messages etc.
+     *
+     * @param pksr the PlayerKickedSuccessful given by the original subscriber method
+     * @author Iskander Yusupov
+     * @see PlayerKickedSuccessfulResponse
+     * @since 2021-06-24
+     */
+    public void playerKickedSuccessfulLogic(PlayerKickedSuccessfulResponse pksr) {
+        if (this.currentLobby != null) {
+            if (this.currentLobby.equals(pksr.getName())) {
+                this.currentLobby = null;
+                clearEventBus();
+            }
+        }
+    }
+
+    /**
      * The method invoked by gameLeftSuccessful()
      * <p>
      * If the Game is left, meaning this Game Presenter is no longer needed, this presenter will no longer be registered
@@ -1250,6 +1322,12 @@ public class GamePresenter extends AbstractPresenter {
                     gameUsers.add(u.getUsername() + " (KI)");
                 }
             });
+            if (gameUsersAsObjects == null) {
+                gameUsersAsObjects = FXCollections.observableArrayList();
+            }
+            gameUsersAsObjects.clear();
+            gameUsersAsObjects.addAll(l);
+
             gameUserView1.setText(gameUsers.get(0));
             gameUserView1.setAlignment(Pos.CENTER);
             gameUserView2.setText(gameUsers.get(1));
@@ -1266,6 +1344,7 @@ public class GamePresenter extends AbstractPresenter {
             }
         });
     }
+
 
     /**
      * @param list
