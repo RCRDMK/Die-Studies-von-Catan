@@ -377,11 +377,9 @@ public class ClientApp extends Application implements ConnectionListener {
         LOG.debug("Successfully kicked from the game game  " + message.getName());
         sceneManager.removeGameTab(message.getName());
         sceneManager.unsuspendLobbyTab(message.getName());
-        /*
-        if(message.hardKick){
-        sceneManager.removeLobbyTab(message.getName());
+        if (message.isToBan()) {
+            sceneManager.removeLobbyTab(message.getName());
         }
-         */
     }
 
     /**

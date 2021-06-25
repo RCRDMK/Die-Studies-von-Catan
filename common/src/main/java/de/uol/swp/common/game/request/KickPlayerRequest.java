@@ -13,6 +13,8 @@ import de.uol.swp.common.user.UserDTO;
  */
 public class KickPlayerRequest extends AbstractGameRequest {
     private final String playerToKick;
+    private final boolean toBan;
+
     /**
      * Default constructor
      * <p>
@@ -23,6 +25,7 @@ public class KickPlayerRequest extends AbstractGameRequest {
      */
     public KickPlayerRequest() {
         playerToKick = "";
+        toBan = false;
     }
 
     /**
@@ -34,12 +37,17 @@ public class KickPlayerRequest extends AbstractGameRequest {
      * @author Iskander Yusupov
      * @since 2021-01-15
      */
-    public KickPlayerRequest(String gameName, UserDTO user, String playerToKick) {
+    public KickPlayerRequest(String gameName, UserDTO user, String playerToKick, boolean toBan) {
         super(gameName, user);
         this.playerToKick = playerToKick;
+        this.toBan = toBan;
     }
 
     public String getPlayerToKick() {
         return playerToKick;
+    }
+
+    public boolean isToBan() {
+        return toBan;
     }
 }

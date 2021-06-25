@@ -101,8 +101,8 @@ public class GameService {
      * @see KickPlayerRequest
      * @since 2021-06-24
      */
-    public void kickPlayer(String game, User user, String playerToKick) {
-        KickPlayerRequest kickPlayerRequest = new KickPlayerRequest(game, (UserDTO) user, playerToKick);
+    public void kickPlayer(String game, User user, String playerToKick, boolean ban) {
+        KickPlayerRequest kickPlayerRequest = new KickPlayerRequest(game, (UserDTO) user, playerToKick, ban);
         eventBus.post(kickPlayerRequest);
     }
 

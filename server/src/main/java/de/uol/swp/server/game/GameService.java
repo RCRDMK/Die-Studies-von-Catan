@@ -147,7 +147,7 @@ public class GameService extends AbstractService {
                     Optional<MessageContext> ctx = kickPlayerRequest.getMessageContext();
                     sendToSpecificUser(ctx.get(), new PlayerKickedSuccessfulResponse(kickPlayerRequest.getName(), kickPlayerRequest.getUser(), kickPlayerRequest.getPlayerToKick()));
                 }
-                PlayerKickedMessage playerKickedMessage = new PlayerKickedMessage(game.getName(), (UserDTO) userToKick);
+                PlayerKickedMessage playerKickedMessage = new PlayerKickedMessage(game.getName(), (UserDTO) userToKick, kickPlayerRequest.isToBan());
                 sendToSpecificUserInGame(game, playerKickedMessage, userToKick);
                 game.kickPlayer(userToKick);
                 sendToAll(new GameSizeChangedMessage(kickPlayerRequest.getName()));

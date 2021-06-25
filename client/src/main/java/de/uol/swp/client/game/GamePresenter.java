@@ -33,7 +33,6 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.Background;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
@@ -150,6 +149,8 @@ public class GamePresenter extends AbstractPresenter {
     private final ArrayList<Rectangle> rectangles = new ArrayList<>();
     private final ArrayList<Rectangle> rectanglesLargestArmy = new ArrayList<>();
     private final ArrayList<Rectangle> rectanglesLongestRoad = new ArrayList<>();
+
+    private boolean toBan;
 
     @FXML
     private AnchorPane gameAnchorPane;
@@ -646,6 +647,7 @@ public class GamePresenter extends AbstractPresenter {
                 setUpPrices();
                 setUpLargestArmyAndLongestRoadPanes(gcm.getUsers());
                 setUpKickButtons(gcm.getUsers());
+                setupButtonsAndAlerts();
                 updateKickButtons(gcm.getUsers(), gcm.getHumans(), gcm.getGameOwner());
             });
             evaluateMyPlayerNumber(gcm.getUsers());
@@ -709,6 +711,7 @@ public class GamePresenter extends AbstractPresenter {
                 setUpPrices();
                 setUpLargestArmyAndLongestRoadPanes(joggr.getUsers());
                 setUpKickButtons(joggr.getUsers());
+                setupButtonsAndAlerts();
                 updateKickButtons(joggr.getUsers(), joggr.getHumans(), joggr.getGameOwner());
                 updateGameField();
             });
@@ -1113,12 +1116,70 @@ public class GamePresenter extends AbstractPresenter {
             playerToKick = gameUsers.get(3);
         }
         if (playerToKick != null) {
-            /////Alert
-            gameService.kickPlayer(currentLobby, joinedLobbyUser, playerToKick);
+            Platform.runLater(() -> {
+                this.alert.setTitle("Do you want to kick or ban the player from the game?");
+                this.alert.setHeaderText("Kick or ban the player?");
+                this.alert.show();
+            });
+            if (toBan) {
+                gameService.kickPlayer(currentLobby, joinedLobbyUser, playerToKick, true);
+            } else {
+                gameService.kickPlayer(currentLobby, joinedLobbyUser, playerToKick, false);
+            }
         } else {
             throw new GamePresenterException("Player that should be kicked is not found!");
         }
 
+    }
+
+    /**
+     *
+     */
+    public void setupButtonsAndAlerts() {
+        this.alert = new Alert(Alert.AlertType.CONFIRMATION);
+        ButtonType buttonTypeKick = new ButtonType("Kick", ButtonBar.ButtonData.YES);
+        ButtonType buttonTypeBan = new ButtonType("Ban", ButtonBar.ButtonData.NO);
+        alert.getButtonTypes().setAll(buttonTypeKick, buttonTypeBan);
+        Button buttonKick = (Button) alert.getDialogPane().lookupButton(buttonTypeKick);
+        buttonKick.setOnAction(event -> {
+            onButtonKickClicked();
+            event.consume();
+        });
+        Button buttonBan = (Button) alert.getDialogPane().lookupButton(buttonTypeBan);
+        buttonBan.setOnAction(event -> {
+            onButtonBanClicked();
+            event.consume();
+        });
+        this.alert.initModality(Modality.NONE);
+
+    }
+
+    /**
+     * The method invoked when the Yes Button of the Alert is pressed
+     * <p>
+     * When the Button "Yes" is pressed in the Alert the Alert will be closed and the lobbyService will be called to
+     * send a PlayerReadyRequest with "true" to the Server.
+     *
+     * @author Marc Hermes
+     * @since 2021-02-08
+     */
+    public void onButtonKickClicked() {
+        alert.close();
+        this.toBan = false;
+    }
+
+    /**
+     * The method invoked when the No Button of the Alert is pressed
+     * <p>
+     * When the Button "No" is pressed in the Alert the Alert will be closed and the lobbyService will be called to send
+     * a PlayerReadyRequest with "false" to the Server.
+     *
+     * @author Marc Hermes
+     * @since 2021-02-08
+     */
+    public void onButtonBanClicked() {
+        alert.close();
+        this.toBan = true;
     }
 
     /**
