@@ -12,7 +12,7 @@ import de.uol.swp.common.user.UserDTO;
  * @since 2021-06-24
  */
 public class KickPlayerRequest extends AbstractGameRequest {
-
+    private final String playerToKick;
     /**
      * Default constructor
      * <p>
@@ -22,6 +22,7 @@ public class KickPlayerRequest extends AbstractGameRequest {
      * @since 2021-06-24
      */
     public KickPlayerRequest() {
+        playerToKick = "";
     }
 
     /**
@@ -33,8 +34,12 @@ public class KickPlayerRequest extends AbstractGameRequest {
      * @author Iskander Yusupov
      * @since 2021-01-15
      */
-    public KickPlayerRequest(String gameName, UserDTO user) {
+    public KickPlayerRequest(String gameName, UserDTO user, String playerToKick) {
         super(gameName, user);
+        this.playerToKick = playerToKick;
     }
 
+    public String getPlayerToKick() {
+        return playerToKick;
+    }
 }

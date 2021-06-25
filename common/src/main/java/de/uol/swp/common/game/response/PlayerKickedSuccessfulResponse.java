@@ -19,23 +19,30 @@ public class PlayerKickedSuccessfulResponse extends AbstractResponseMessage {
 
     private static final long serialVersionUID = -2343451823425219873L;
 
-    private final User user;
+    private final String kickedPlayer;
+
+    private final User owner;
 
     private final String name;
 
 
-    public PlayerKickedSuccessfulResponse(String name, User user) {
-        this.user = user;
+    public PlayerKickedSuccessfulResponse(String name, User owner, String kickedPlayer) {
+        this.owner = owner;
         this.name = name;
+        this.kickedPlayer = kickedPlayer;
     }
 
 
-    public User getUser() {
-        return user;
+    public User getOwner() {
+        return owner;
     }
 
     public String getName() {
         return name;
+    }
+
+    public String getKickedPlayer(){
+        return kickedPlayer;
     }
 
     @Override
@@ -44,12 +51,12 @@ public class PlayerKickedSuccessfulResponse extends AbstractResponseMessage {
         if (o == null || getClass() != o.getClass()) return false;
         PlayerKickedSuccessfulResponse that =
                 (PlayerKickedSuccessfulResponse) o;
-        return Objects.equals(user, that.user);
+        return Objects.equals(owner, that.owner);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(user);
+        return Objects.hash(owner);
     }
 
 }

@@ -370,6 +370,21 @@ public class ClientApp extends Application implements ConnectionListener {
     }
 
     /**
+     * @param message
+     */
+    @Subscribe
+    public void playerKicked(PlayerKickedMessage message) {
+        LOG.debug("Successfully kicked from the game game  " + message.getName());
+        sceneManager.removeGameTab(message.getName());
+        sceneManager.unsuspendLobbyTab(message.getName());
+        /*
+        if(message.hardKick){
+        sceneManager.removeLobbyTab(message.getName());
+        }
+         */
+    }
+
+    /**
      * Handles unsuccessful registrations
      * <p>
      * If a RegistrationExceptionMessage object is detected on the EventBus this
@@ -534,14 +549,14 @@ public class ClientApp extends Application implements ConnectionListener {
      */
     private void checkForTimeout() {
         timer = new Timer();
-            timer.schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    if ((System.currentTimeMillis() - lastPingResponse) >= 120000) {
-                        checkoutTimeout();
-                    }
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                if ((System.currentTimeMillis() - lastPingResponse) >= 120000) {
+                    checkoutTimeout();
                 }
-            }, 60000, 60000);
+            }
+        }, 60000, 60000);
     }
 
     /**

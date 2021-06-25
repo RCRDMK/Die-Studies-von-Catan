@@ -135,18 +135,27 @@ public class GameService extends AbstractService {
         Optional<Lobby> lobby = lobbyService.getLobby(kickPlayerRequest.getName());
         if (optionalGame.isPresent()) {
             Game game = optionalGame.get();
-            if (game.getUsers().contains(kickPlayerRequest.getUser())) {
+            User userToKick = null;
+            for (User user : game.getUsers()) {
+                if (user.getUsername().equals(kickPlayerRequest.getPlayerToKick())) {
+                    userToKick = user;
+                    break;
+                }
+            }
+            if (userToKick != null && game.getOwner().equals(kickPlayerRequest.getUser())) {
                 if (kickPlayerRequest.getMessageContext().isPresent()) {
                     Optional<MessageContext> ctx = kickPlayerRequest.getMessageContext();
-                    sendToSpecificUser(ctx.get(), new PlayerKickedSuccessfulResponse(kickPlayerRequest.getName(), kickPlayerRequest.getUser()));
+                    sendToSpecificUser(ctx.get(), new PlayerKickedSuccessfulResponse(kickPlayerRequest.getName(), kickPlayerRequest.getUser(), kickPlayerRequest.getPlayerToKick()));
                 }
-                game.kickPlayer(kickPlayerRequest.getUser());
+                PlayerKickedMessage playerKickedMessage = new PlayerKickedMessage(game.getName(), (UserDTO) userToKick);
+                sendToSpecificUserInGame(game, playerKickedMessage, userToKick);
+                game.kickPlayer(userToKick);
                 sendToAll(new GameSizeChangedMessage(kickPlayerRequest.getName()));
                 ArrayList<UserDTO> usersInGame = new ArrayList<>();
                 for (User user : game.getUsers()) usersInGame.add((UserDTO) user);
                 sendToAllInGame(kickPlayerRequest.getName(), new UserLeftGameMessage(kickPlayerRequest.getName(), kickPlayerRequest.getUser(), usersInGame));
                 // Check if the kicked from the game player is the turnPlayer, so that the AI may replace him now
-                if (kickPlayerRequest.getUser().equals(game.getUser(game.getTurn()))) {
+                if (userToKick.equals(game.getUser(game.getTurn()))) {
                     if (!game.rolledDiceThisTurn() && !game.isStartingTurns()) {
                         RollDiceRequest rdr = new RollDiceRequest(game.getName(), game.getUser(game.getTurn()));
                         onRollDiceRequest(rdr);

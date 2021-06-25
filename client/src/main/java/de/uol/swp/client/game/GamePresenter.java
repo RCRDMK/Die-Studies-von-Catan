@@ -20,6 +20,7 @@ import de.uol.swp.common.user.UserDTO;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -1100,31 +1101,24 @@ public class GamePresenter extends AbstractPresenter {
      * @since 2021-06-24
      */
     @FXML
-    public void onKickPlayer() {
-        if (currentLobby != null) {
-            if (kickPlayerOneButton.isPressed() && this.gameUsersAsObjects.get(0) != null) {
-                gameService.kickPlayer(this.currentLobby, this.gameUsersAsObjects.get(0));
-            } else {
-                throw new GamePresenterException("User of the current Lobby is not available");
-            }
-            if (kickPlayerTwoButton.isPressed() && this.gameUsersAsObjects.get(1) != null) {
-                gameService.kickPlayer(this.currentLobby, this.gameUsersAsObjects.get(1));
-            } else {
-                throw new GamePresenterException("User of the current Lobby is not available");
-            }
-            if (kickPlayerThreeButton.isPressed() && this.gameUsersAsObjects.get(2) != null) {
-                gameService.kickPlayer(this.currentLobby, this.gameUsersAsObjects.get(2));
-            } else {
-                throw new GamePresenterException("User of the current Lobby is not available");
-            }
-            if (kickPlayerFourButton.isPressed() && this.gameUsersAsObjects.get(3) != null) {
-                gameService.kickPlayer(this.currentLobby, this.gameUsersAsObjects.get(3));
-            } else {
-                throw new GamePresenterException("User of the current Lobby is not available");
-            }
-        } else {
-            throw new GamePresenterException("Name of the current Lobby is not available!");
+    public void onKickPlayer(ActionEvent event) {
+        String playerToKick = null;
+        if (event.getSource().equals(kickPlayerOneButton)) {
+            playerToKick = gameUsers.get(0);
+        } else if (event.getSource().equals(kickPlayerTwoButton)) {
+            playerToKick = gameUsers.get(1);
+        } else if (event.getSource().equals(kickPlayerThreeButton)) {
+            playerToKick = gameUsers.get(2);
+        } else if (event.getSource().equals(kickPlayerFourButton)) {
+            playerToKick = gameUsers.get(3);
         }
+        if (playerToKick != null) {
+            /////Alert
+            gameService.kickPlayer(currentLobby, joinedLobbyUser, playerToKick);
+        } else {
+            throw new GamePresenterException("Player that should be kicked is not found!");
+        }
+
     }
 
     /**
@@ -1156,8 +1150,22 @@ public class GamePresenter extends AbstractPresenter {
     public void playerKickedSuccessfulLogic(PlayerKickedSuccessfulResponse pksr) {
         if (this.currentLobby != null) {
             if (this.currentLobby.equals(pksr.getName())) {
+                LOG.debug("You successfully kicked the player " + pksr.getKickedPlayer() + "!");
+            }
+        }
+    }
+
+    @Subscribe
+    public void playerKicked(PlayerKickedMessage playerKickedMessage) {
+        playerKickedLogic(playerKickedMessage);
+    }
+
+    public void playerKickedLogic(PlayerKickedMessage pkm) {
+        if (this.currentLobby != null) {
+            if (this.currentLobby.equals(pkm.getName())) {
                 this.currentLobby = null;
                 clearEventBus();
+                LOG.debug(pkm.getUser().getUsername() + "was kicked from the game!");
             }
         }
     }
@@ -1322,11 +1330,11 @@ public class GamePresenter extends AbstractPresenter {
                     gameUsers.add(u.getUsername() + " (KI)");
                 }
             });
-            if (gameUsersAsObjects == null) {
+         /*   if (gameUsersAsObjects == null) {
                 gameUsersAsObjects = FXCollections.observableArrayList();
             }
             gameUsersAsObjects.clear();
-            gameUsersAsObjects.addAll(l);
+            gameUsersAsObjects.addAll(l);*/
 
             gameUserView1.setText(gameUsers.get(0));
             gameUserView1.setAlignment(Pos.CENTER);
