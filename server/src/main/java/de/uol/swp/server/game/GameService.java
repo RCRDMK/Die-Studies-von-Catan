@@ -19,6 +19,7 @@ import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.message.JoinOnGoingGameMessage;
 import de.uol.swp.common.lobby.message.StartGameMessage;
 import de.uol.swp.common.lobby.request.JoinOnGoingGameRequest;
+import de.uol.swp.common.lobby.request.LobbyLeaveUserRequest;
 import de.uol.swp.common.lobby.request.StartGameRequest;
 import de.uol.swp.common.lobby.response.JoinOnGoingGameResponse;
 import de.uol.swp.common.message.MessageContext;
@@ -137,6 +138,7 @@ public class GameService extends AbstractService {
      * If a KickPlayerRequest is detected on the EventBus, this method is called. It prepares the sending
      * of a PlayerKickedSuccessfulResponse for a specific user that sent the initial request.
      * PlayerKickedMessage will be send to the player that is kicked.
+     * LobbyLeaveUserRequest will be send to the player that is banned.
      * Everyone in the game receive UserLeftGameMessage and GameSizeChangedMessage.
      * Check if the player leaving the game is the turnPlayer, so that the AI may replace him.
      *
@@ -165,6 +167,10 @@ public class GameService extends AbstractService {
                 PlayerKickedMessage playerKickedMessage = new PlayerKickedMessage(game.getName(), (UserDTO) userToKick, kickPlayerRequest.isToBan());
                 sendToSpecificUserInGame(game, playerKickedMessage, userToKick);
                 game.kickPlayer(userToKick);
+                if (kickPlayerRequest.isToBan()) {
+                    LobbyLeaveUserRequest lobbyLeaveUserRequest = new LobbyLeaveUserRequest(game.getName(), (UserDTO) userToKick);
+                    lobbyService.onLobbyLeaveUserRequest(lobbyLeaveUserRequest);
+                }
                 sendToAll(new GameSizeChangedMessage(kickPlayerRequest.getName()));
                 ArrayList<UserDTO> usersInGame = new ArrayList<>();
                 for (User user : game.getUsers()) usersInGame.add((UserDTO) user);

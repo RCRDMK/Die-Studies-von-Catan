@@ -91,6 +91,8 @@ public class GamePresenter extends AbstractPresenter {
 
     private User joinedLobbyUser;
 
+    private String playerToKick;
+
     private String currentLobby;
 
     private Alert alert;
@@ -147,8 +149,6 @@ public class GamePresenter extends AbstractPresenter {
     private final ArrayList<Rectangle> rectangles = new ArrayList<>();
     private final ArrayList<Rectangle> rectanglesLargestArmy = new ArrayList<>();
     private final ArrayList<Rectangle> rectanglesLongestRoad = new ArrayList<>();
-
-    private boolean toBan;
 
     @FXML
     private AnchorPane gameAnchorPane;
@@ -1094,11 +1094,8 @@ public class GamePresenter extends AbstractPresenter {
     /**
      * Method called when the kickPlayerOne,-Two,-Three or -Four Button is pressed
      * <p>
-     * It checks, which kick button is pressed, opens Alert window and calls the gameService
+     * It checks, which kick button is pressed, opens Alert window.
      * <p>
-     * to send kickPlayerRequest with true if "Ban" option is chosen
-     * <p>
-     * or to send kickPlayerRequest with false if "Kick" option is chosen.
      *
      * @author Iskander Yusupov
      * @see de.uol.swp.client.game.GameService
@@ -1107,7 +1104,6 @@ public class GamePresenter extends AbstractPresenter {
      */
     @FXML
     public void onKickPlayer(ActionEvent event) {
-        String playerToKick = null;
         if (event.getSource().equals(kickPlayerOneButton)) {
             playerToKick = gameUsers.get(0);
         } else if (event.getSource().equals(kickPlayerTwoButton)) {
@@ -1123,11 +1119,6 @@ public class GamePresenter extends AbstractPresenter {
                 this.alert.setHeaderText("Kick or ban the player?");
                 this.alert.show();
             });
-            if (toBan) {
-                gameService.kickPlayer(currentLobby, joinedLobbyUser, playerToKick, true);
-            } else {
-                gameService.kickPlayer(currentLobby, joinedLobbyUser, playerToKick, false);
-            }
         } else {
             throw new GamePresenterException("Player that requested be kicked is not found!");
         }
@@ -1164,27 +1155,28 @@ public class GamePresenter extends AbstractPresenter {
     /**
      * The method invoked when the Kick Button of the Alert is pressed
      * <p>
-     * When the Button "Kick" is pressed in the Alert the Alert will be closed and toBan variable will be set to "false"
+     * The Alert will be closed, gameService will be called to send KickPlayerRequest.
      *
      * @author Iskander Yusupov
      * @since 2021-06-25
      */
     public void onButtonKickClicked() {
         alert.close();
-        this.toBan = false;
+        gameService.kickPlayer(currentLobby, joinedLobbyUser, this.playerToKick, false);
     }
 
     /**
      * The method invoked when the Ban Button of the Alert is pressed
      * <p>
-     * When the Button "Ban" is pressed in the Alert the Alert will be closed and toBan variable will be set to "true"
+     * The Alert will be closed, gameService will be called to send KickPlayerRequest.
      *
      * @author Iskander Yusupov
      * @since 2021-06-25
      */
     public void onButtonBanClicked() {
         alert.close();
-        this.toBan = true;
+        // this.toBan = true;
+        gameService.kickPlayer(currentLobby, joinedLobbyUser, this.playerToKick, true);
     }
 
     /**
