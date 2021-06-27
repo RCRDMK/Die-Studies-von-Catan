@@ -4,7 +4,6 @@ import javafx.application.Application;
 import javafx.application.HostServices;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.scene.control.Hyperlink;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
@@ -30,9 +29,6 @@ public class GameRulesPresenter extends Application {
 
     @FXML
     ImageView rightPageImage;
-
-    @FXML
-    Hyperlink hyperlink;
 
     HostServices hostServices = getHostServices();
 
