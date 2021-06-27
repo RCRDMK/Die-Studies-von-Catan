@@ -1,23 +1,14 @@
 package de.uol.swp.client.game;
 
-import de.uol.swp.client.AbstractPresenter;
 import javafx.application.Application;
 import javafx.application.HostServices;
 import javafx.application.Platform;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
 import javafx.scene.control.Hyperlink;
-import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.application.HostServices;
 import javafx.stage.Stage;
 
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
 
 
 /**
