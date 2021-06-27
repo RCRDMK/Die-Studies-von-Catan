@@ -101,8 +101,6 @@ public class GamePresenter extends AbstractPresenter {
 
     private ObservableList<String> gameUsers;
 
-    private ObservableList<User> gameUsersAsObjects;
-
     private String gameFieldVariant;
 
     private final ArrayList<HexagonContainer> hexagonContainers = new ArrayList<>();
@@ -1096,7 +1094,11 @@ public class GamePresenter extends AbstractPresenter {
     /**
      * Method called when the kickPlayerOne,-Two,-Three or -Four Button is pressed
      * <p>
-     * It throws a GamePresenterException if joinedLobbyUser and/or currentLobby are not initialised
+     * It checks, which kick button is pressed, opens Alert window and calls the gameService
+     * <p>
+     * to send kickPlayerRequest with true if "Ban" option is chosen
+     * <p>
+     * or to send kickPlayerRequest with false if "Kick" option is chosen.
      *
      * @author Iskander Yusupov
      * @see de.uol.swp.client.game.GameService
@@ -1127,13 +1129,18 @@ public class GamePresenter extends AbstractPresenter {
                 gameService.kickPlayer(currentLobby, joinedLobbyUser, playerToKick, false);
             }
         } else {
-            throw new GamePresenterException("Player that should be kicked is not found!");
+            throw new GamePresenterException("Player that requested be kicked is not found!");
         }
 
     }
 
     /**
+     * The method gets invoked when the Game Presenter is created.
+     * <p>
+     * Method creates alert confirmation window Alert with two buttons "Kick" and "Ban".
      *
+     * @author Iskander Yusupov
+     * @since 2021-06-25
      */
     public void setupButtonsAndAlerts() {
         this.alert = new Alert(Alert.AlertType.CONFIRMATION);
@@ -1155,13 +1162,12 @@ public class GamePresenter extends AbstractPresenter {
     }
 
     /**
-     * The method invoked when the Yes Button of the Alert is pressed
+     * The method invoked when the Kick Button of the Alert is pressed
      * <p>
-     * When the Button "Yes" is pressed in the Alert the Alert will be closed and the lobbyService will be called to
-     * send a PlayerReadyRequest with "true" to the Server.
+     * When the Button "Kick" is pressed in the Alert the Alert will be closed and toBan variable will be set to "false"
      *
-     * @author Marc Hermes
-     * @since 2021-02-08
+     * @author Iskander Yusupov
+     * @since 2021-06-25
      */
     public void onButtonKickClicked() {
         alert.close();
@@ -1169,13 +1175,12 @@ public class GamePresenter extends AbstractPresenter {
     }
 
     /**
-     * The method invoked when the No Button of the Alert is pressed
+     * The method invoked when the Ban Button of the Alert is pressed
      * <p>
-     * When the Button "No" is pressed in the Alert the Alert will be closed and the lobbyService will be called to send
-     * a PlayerReadyRequest with "false" to the Server.
+     * When the Button "Ban" is pressed in the Alert the Alert will be closed and toBan variable will be set to "true"
      *
-     * @author Marc Hermes
-     * @since 2021-02-08
+     * @author Iskander Yusupov
+     * @since 2021-06-25
      */
     public void onButtonBanClicked() {
         alert.close();
@@ -1185,7 +1190,7 @@ public class GamePresenter extends AbstractPresenter {
     /**
      * Handles successful kicking of the player from the game
      * <p>
-     * If a PlayerKickedSuccessfulResponse is detected on the EventBus the method playerLeftSuccessfulLogic is invoked.
+     * If a PlayerKickedSuccessfulResponse is detected on the EventBus the method playerKickedSuccessfulLogic is invoked.
      *
      * @param playerKickedSuccessfulResponse the playerKickedSuccessfulResponse object seen on the EventBus
      * @author Iskander Yusupov
@@ -1200,8 +1205,7 @@ public class GamePresenter extends AbstractPresenter {
     /**
      * The method invoked by playerKickedSuccessful()
      * <p>
-     * If the Player is kicked from the Game, meaning this Game Presenter is no longer needed, this presenter will no longer be registered
-     * on the event bus and no longer be reachable for responses, messages etc.
+     * If a PlayerKickedMessage is detected on the EventBus the method playerKickedMessageLogic is invoked.
      *
      * @param pksr the PlayerKickedSuccessful given by the original subscriber method
      * @author Iskander Yusupov
@@ -1216,11 +1220,32 @@ public class GamePresenter extends AbstractPresenter {
         }
     }
 
+    /**
+     * Handles kicking of the player from the game
+     * <p>
+     * If a PlayerKickedMessage is detected on the EventBus the method playerKickedMessageLogic is invoked.
+     *
+     * @param playerKickedMessage the PlayerKickedMessage object seen on the EventBus
+     * @author Iskander Yusupov
+     * @see PlayerKickedMessage
+     * @since 2021-06-25
+     */
     @Subscribe
     public void playerKicked(PlayerKickedMessage playerKickedMessage) {
         playerKickedLogic(playerKickedMessage);
     }
 
+    /**
+     * The method invoked by playerKicked()
+     * <p>
+     * If the Player is kicked from the Game, meaning this Game Presenter is no longer needed, this presenter will no longer be registered
+     * on the event bus and no longer be reachable for responses, messages etc.
+     *
+     * @param pkm
+     * @author Iskander Yusupov
+     * @see PlayerKickedMessage
+     * @since 2021-06-25
+     */
     public void playerKickedLogic(PlayerKickedMessage pkm) {
         if (this.currentLobby != null) {
             if (this.currentLobby.equals(pkm.getName())) {
@@ -1391,12 +1416,6 @@ public class GamePresenter extends AbstractPresenter {
                     gameUsers.add(u.getUsername() + " (KI)");
                 }
             });
-         /*   if (gameUsersAsObjects == null) {
-                gameUsersAsObjects = FXCollections.observableArrayList();
-            }
-            gameUsersAsObjects.clear();
-            gameUsersAsObjects.addAll(l);*/
-
             gameUserView1.setText(gameUsers.get(0));
             gameUserView1.setAlignment(Pos.CENTER);
             gameUserView2.setText(gameUsers.get(1));
@@ -1416,6 +1435,11 @@ public class GamePresenter extends AbstractPresenter {
 
 
     /**
+     * The method invoked when the Game Presenter is first used.
+     * <p>
+     * It creates four images and image patterns. Each kick button receives it's own image pattern.
+     * Each button will give small tooltip upon the hovering on it.
+     *
      * @param list
      * @author Iskander Yusupov
      * @since 2021-06-21
@@ -1481,6 +1505,14 @@ public class GamePresenter extends AbstractPresenter {
     }
 
     /**
+     * Updates the kick buttons in the game view of the current game according to the list given
+     * <p>
+     * Buttons are invisible for anyone, who is not an lobby/game owner.
+     * <p>
+     * If player is a bot or an lobby/game owner, he can't be kicked, button under his/her portrait will
+     * <p>
+     * be disabled.
+     *
      * @param list
      * @param humans
      * @param gameOwner

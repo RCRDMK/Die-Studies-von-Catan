@@ -6,10 +6,10 @@ import de.uol.swp.common.user.User;
 import java.util.Objects;
 
 /**
- * Response that is sent to the User who was requested to be kicked from the game.
+ * Response that is sent to the User who sent request to kick other player from the game.
  * <p>
- * Contains the user who from the request initially
- * as well as the name of the game
+ * Contains the user (lobby/game owner) who from the request initially
+ * as well as the name of the game and name of the player that was kicked.
  *
  * @author Iskander Yusupov
  * @since 2021-06-24
@@ -25,7 +25,16 @@ public class PlayerKickedSuccessfulResponse extends AbstractResponseMessage {
 
     private final String name;
 
-
+    /**
+     * Constructor
+     * <p>
+     *
+     * @param name         name of the game
+     * @param owner        lobby/game owner
+     * @param kickedPlayer name of the player that is kicked
+     * @author Iskander Yusupov
+     * @since 2021-06-25
+     */
     public PlayerKickedSuccessfulResponse(String name, User owner, String kickedPlayer) {
         this.owner = owner;
         this.name = name;
@@ -41,7 +50,7 @@ public class PlayerKickedSuccessfulResponse extends AbstractResponseMessage {
         return name;
     }
 
-    public String getKickedPlayer(){
+    public String getKickedPlayer() {
         return kickedPlayer;
     }
 

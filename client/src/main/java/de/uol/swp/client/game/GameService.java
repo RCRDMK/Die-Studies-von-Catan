@@ -96,13 +96,18 @@ public class GameService {
 
     /**
      * Posts a request to kick the player from the game on the Eventbus
+     * <p>
      *
-     * @author Iskander Yusupov
+     * @param gameName     name of the game
+     * @param user         lobby/game owner
+     * @param playerToKick name of the player that will be kicked
+     * @param toBan        boolean for true or false (if true, player will be banned from the game, is false player will be kicked.)
      * @see KickPlayerRequest
+     * @author Iskander Yusupov
      * @since 2021-06-24
      */
-    public void kickPlayer(String game, User user, String playerToKick, boolean ban) {
-        KickPlayerRequest kickPlayerRequest = new KickPlayerRequest(game, (UserDTO) user, playerToKick, ban);
+    public void kickPlayer(String gameName, User user, String playerToKick, boolean toBan) {
+        KickPlayerRequest kickPlayerRequest = new KickPlayerRequest(gameName, (UserDTO) user, playerToKick, toBan);
         eventBus.post(kickPlayerRequest);
     }
 

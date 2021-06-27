@@ -79,7 +79,14 @@ public class GameService extends AbstractService {
     }
 
     /**
-     * TODO:
+     * Handles GameLeaveUserRequest found on the EventBus
+     * <p>
+     * If a GameLeaveUserRequest is detected on the EventBus, this method is called. It prepares the sending
+     * of a GameLeftSuccessfulResponse for a specific user that sent the initial request.
+     * Everyone in the game receive UserLeftGameMessage and GameSizeChangedMessage.
+     * If user that left the game was alone in the game, game will be dropped. Everyone will receive
+     * GameDroppedMessage.
+     * Check if the player leaving the game is the turnPlayer, so that the AI may replace him.
      *
      * @param gameLeaveUserRequest
      */
@@ -125,6 +132,14 @@ public class GameService extends AbstractService {
     }
 
     /**
+     * Handles KickPlayerRequest found on the EventBus
+     * <p>
+     * If a KickPlayerRequest is detected on the EventBus, this method is called. It prepares the sending
+     * of a PlayerKickedSuccessfulResponse for a specific user that sent the initial request.
+     * PlayerKickedMessage will be send to the player that is kicked.
+     * Everyone in the game receive UserLeftGameMessage and GameSizeChangedMessage.
+     * Check if the player leaving the game is the turnPlayer, so that the AI may replace him.
+     *
      * @param kickPlayerRequest
      * @author Iskander Yusupov
      * @since 2021-06-2021

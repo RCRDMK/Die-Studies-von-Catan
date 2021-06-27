@@ -370,7 +370,19 @@ public class ClientApp extends Application implements ConnectionListener {
     }
 
     /**
-     * @param message
+     * Handles the successful kicking of a player from the game
+     * <p>
+     * If an PlayerKickedMessage object is detected on the EventBus this method is called.
+     * It tells the SceneManager to remove the tab corresponding to the game that was kicked
+     * and unsuspends the LobbyTab.
+     * If isToBan equals true, method tells the SceneManager to remove lobby tab, so the player will
+     * be banned from the game.
+     * <p>
+     *
+     * @param message the PlayerKickedMessage detected on the EventBus
+     * @author Iskander Yusupov
+     * @see PlayerKickedMessage
+     * @since 2021-06-25
      */
     @Subscribe
     public void playerKicked(PlayerKickedMessage message) {
