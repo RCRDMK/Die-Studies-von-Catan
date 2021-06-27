@@ -20,7 +20,7 @@
             <Image url="@../img/GameRules/2.jpg" />
          </image>
       </ImageView>
-      <Label layoutX="407.0" layoutY="598.0" text="If you're having trouble reading the rules, you can download the rules" />
-      <Hyperlink layoutX="784.0" layoutY="595.0" text="here" onAction="#onGameRulesLinkClicked"/>
+      <Label fx:id="label" layoutX="407.0" layoutY="598.0" text="If you're having trouble reading the rules, you can download the rules" textFill="black"/>
+      <Hyperlink fx:id="hyperlink" layoutX="780.0" layoutY="595.0" text="here" onAction="#onGameRulesLinkClicked"/>
    </children>
 </AnchorPane>
