@@ -2,7 +2,9 @@ package de.uol.swp.client.game;
 
 import de.uol.swp.client.AbstractPresenter;
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Hyperlink;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
@@ -23,6 +25,9 @@ public class GameRulesPresenter extends AbstractPresenter {
 
     @FXML
     ImageView rightPageImage;
+
+    @FXML
+    Hyperlink link;
 
 
     private int imagecounter = 1;
@@ -58,7 +63,7 @@ public class GameRulesPresenter extends AbstractPresenter {
      * But only when the imagecounter is smaller or equals 13. If it is, the imagecounter will get increased by 2.
      *
      * @author Ricardo Mook
-     * @see 2021-06-10
+     * @since 2021-06-10
      */
 
     @FXML
@@ -73,6 +78,13 @@ public class GameRulesPresenter extends AbstractPresenter {
                 Image rightPage = new Image("/img/GameRules/" + (imagecounter + 1) + ".jpg");
                 rightPageImage.setImage(rightPage);
             }
+        });
+    }
+
+    @FXML
+    public void onGameRulesLinkClicked(ActionEvent actionEvent) {
+        Platform.runLater(()-> {
+            link.setText("http://docs.oracle.com/javase/8/javafx/api/javafx/scene/control/Hyperlink.html");
         });
     }
 }
