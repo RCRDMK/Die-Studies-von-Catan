@@ -93,7 +93,9 @@ public class GameService extends AbstractService {
      * GameDroppedMessage.
      * Check if the player leaving the game is the turnPlayer, so that the AI may replace him.
      *
-     * @param gameLeaveUserRequest
+     * @param gameLeaveUserRequest the GameLeaveUserRequest detected on the EventBus
+     * @author Kirstin Beyer, Iskander Yusupov
+     * @since 2021-01-24
      */
     @Subscribe
     public void onGameLeaveUserRequest(GameLeaveUserRequest gameLeaveUserRequest) throws InterruptedException {
@@ -146,14 +148,13 @@ public class GameService extends AbstractService {
      * Everyone in the game receive UserLeftGameMessage and GameSizeChangedMessage.
      * Check if the player leaving the game is the turnPlayer, so that the AI may replace him.
      *
-     * @param kickPlayerRequest
+     * @param kickPlayerRequest the kickPlayerRequest detected on the EventBus
      * @author Iskander Yusupov
      * @since 2021-06-2021
      */
     @Subscribe
-    public void onGameKickPlayerRequest(KickPlayerRequest kickPlayerRequest) {
+    public void onGameKickPlayerRequest(KickPlayerRequest kickPlayerRequest) throws InterruptedException {
         Optional<Game> optionalGame = gameManagement.getGame(kickPlayerRequest.getName());
-        Optional<Lobby> lobby = lobbyService.getLobby(kickPlayerRequest.getName());
         if (optionalGame.isPresent()) {
             Game game = optionalGame.get();
             User userToKick = null;

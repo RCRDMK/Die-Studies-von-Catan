@@ -10,7 +10,6 @@ import de.uol.swp.common.game.message.*;
 import de.uol.swp.common.game.MapGraph;
 import de.uol.swp.common.game.request.*;
 import de.uol.swp.common.game.response.AllCreatedGamesResponse;
-import de.uol.swp.common.game.response.AllThisGameUsersResponse;
 import de.uol.swp.common.game.response.PlayDevelopmentCardResponse;
 import de.uol.swp.common.game.response.ResolveDevelopmentCardNotSuccessfulResponse;
 import de.uol.swp.common.game.trade.Trade;
@@ -124,7 +123,6 @@ public class GameServiceTest {
      * @author Iskander Yusupov
      * @since 2020-03-14
      */
-
     @Test
     void onRetrieveAllThisGameUsersRequestUserLeft() throws InterruptedException {
         loginUsers();
@@ -165,7 +163,6 @@ public class GameServiceTest {
         gameService.onGameLeaveUserRequest(gameLeaveUserRequest);
         gameService.onRetrieveAllThisGameUsersRequest(retrieveAllThisGameUsersRequest);
         assertFalse(game.getUsers().contains(userDTO1));
-        // TODO: (event instanceof AllThisGameUsersResponse) zu testen
 
         GameLeaveUserRequest gameLeaveUserRequest2 = new GameLeaveUserRequest(lobby.getName(), userDTO2);
         gameService.onGameLeaveUserRequest(gameLeaveUserRequest2);
@@ -209,9 +206,8 @@ public class GameServiceTest {
      * @author Iskander Yusupov
      * @since 2020-06-28
      */
-
     @Test
-    void onRetrieveAllThisGameUsersRequestPlayerKickedTest() {
+    void onRetrieveAllThisGameUsersRequestPlayerKickedTest() throws InterruptedException {
         loginUsers();
         lobbyManagement.createLobby("test", userDTO);
         Optional<Lobby> optionalLobby = lobbyManagement.getLobby("test");
@@ -234,14 +230,14 @@ public class GameServiceTest {
         game.joinUser(userDTO3);
 
         RetrieveAllThisGameUsersRequest retrieveAllThisGameUsersRequest = new RetrieveAllThisGameUsersRequest(lobby.getName());
-        assertSame(gameManagement.getGame(lobby.getName()).get().getName(), retrieveAllThisGameUsersRequest.getName());
-
+        Optional<Game> sameGame = gameManagement.getGame(lobby.getName());
+        assertTrue(sameGame.isPresent());
+        assertSame(sameGame.get().getName(), retrieveAllThisGameUsersRequest.getName());
 
         KickPlayerRequest kickPlayerRequest = new KickPlayerRequest(lobby.getName(), userDTO, userDTO1.getUsername(), false);
         gameService.onGameKickPlayerRequest(kickPlayerRequest);
         gameService.onRetrieveAllThisGameUsersRequest(retrieveAllThisGameUsersRequest);
         assertFalse(game.getUsers().contains(userDTO1));
-        // TODO: (event instanceof AllThisGameUsersResponse) zu testen
         KickPlayerRequest kickPlayerRequest2 = new KickPlayerRequest(lobby.getName(), userDTO, userDTO2.getUsername(), false);
         gameService.onGameKickPlayerRequest(kickPlayerRequest2);
         gameService.onRetrieveAllThisGameUsersRequest(retrieveAllThisGameUsersRequest);
@@ -2011,7 +2007,6 @@ public class GameServiceTest {
         gameService.onStartGameRequest(sgr);
     }
 
-
     /**
      * Method used for testing all functionality of the random AI
      * <p>
@@ -2033,7 +2028,6 @@ public class GameServiceTest {
         Optional<Game> optionalGame = gameManagement.getGame("test");
         assertTrue(optionalGame.isPresent());
         Game game = optionalGame.get();
-
 
         lobbyManagement.createLobby("test1", userDTO);
         Optional<Lobby> optionalLobby1 = lobbyManagement.getLobby("test1");

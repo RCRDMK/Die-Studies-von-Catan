@@ -1233,7 +1233,7 @@ public class GamePresenter extends AbstractPresenter {
      * If the Player is kicked from the Game, meaning this Game Presenter is no longer needed, this presenter will no longer be registered
      * on the event bus and no longer be reachable for responses, messages etc.
      *
-     * @param pkm
+     * @param pkm the playerKickedMessage detected on the EventBus
      * @author Iskander Yusupov
      * @see PlayerKickedMessage
      * @since 2021-06-25
@@ -1432,7 +1432,7 @@ public class GamePresenter extends AbstractPresenter {
      * It creates four images and image patterns. Each kick button receives it's own image pattern.
      * Each button will give small tooltip upon the hovering on it.
      *
-     * @param list
+     * @param list the list of the Users in this Game
      * @author Iskander Yusupov
      * @since 2021-06-21
      */
@@ -1505,9 +1505,9 @@ public class GamePresenter extends AbstractPresenter {
      * <p>
      * be disabled.
      *
-     * @param list
-     * @param humans
-     * @param gameOwner
+     * @param list the list of all Users in this game
+     * @param humans the list of all human players in this Game
+     * @param gameOwner the owner of the game
      * @author Iskander Yusupov
      * @since 2021-06-21
      */
