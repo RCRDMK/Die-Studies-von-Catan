@@ -40,7 +40,7 @@ public class UserLeftGameMessage extends AbstractGameMessage {
      */
     public UserLeftGameMessage(String gameName, UserDTO user, ArrayList<UserDTO> users) {
         super(gameName, user);
-        this.users=users;
+        this.users = users;
     }
 
     public List<UserDTO> getUsers() {

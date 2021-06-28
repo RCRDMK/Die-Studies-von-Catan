@@ -1,22 +1,16 @@
 package de.uol.swp.client.game;
 
-import com.google.common.eventbus.Subscribe;
-import com.google.inject.Inject;
-import de.uol.swp.client.AbstractPresenter;
-import de.uol.swp.client.chat.ChatService;
-import de.uol.swp.client.game.HelperObjects.HexagonContainer;
-import de.uol.swp.client.game.HelperObjects.MapGraphNodeContainer;
-import de.uol.swp.client.game.HelperObjects.Vector;
-import de.uol.swp.common.chat.RequestChatMessage;
-import de.uol.swp.common.chat.ResponseChatMessage;
-import de.uol.swp.common.game.Inventory;
-import de.uol.swp.common.game.MapGraph;
-import de.uol.swp.common.game.message.*;
-import de.uol.swp.common.game.response.*;
-import de.uol.swp.common.lobby.message.JoinOnGoingGameMessage;
-import de.uol.swp.common.lobby.response.JoinOnGoingGameResponse;
-import de.uol.swp.common.user.User;
-import de.uol.swp.common.user.UserDTO;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -28,7 +22,19 @@ import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Dialog;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
+import javafx.scene.control.MenuButton;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -46,14 +52,52 @@ import javafx.stage.Screen;
 import javafx.stage.StageStyle;
 import javafx.stage.Window;
 import javafx.util.Duration;
+
+import com.google.common.eventbus.Subscribe;
+import com.google.inject.Inject;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import de.uol.swp.client.AbstractPresenter;
+import de.uol.swp.client.chat.ChatService;
+import de.uol.swp.client.game.HelperObjects.HexagonContainer;
+import de.uol.swp.client.game.HelperObjects.MapGraphNodeContainer;
+import de.uol.swp.client.game.HelperObjects.Vector;
+import de.uol.swp.common.chat.RequestChatMessage;
+import de.uol.swp.common.chat.ResponseChatMessage;
+import de.uol.swp.common.game.Inventory;
+import de.uol.swp.common.game.MapGraph;
+import de.uol.swp.common.game.message.BuyDevelopmentCardMessage;
+import de.uol.swp.common.game.message.ChoosePlayerMessage;
+import de.uol.swp.common.game.message.DrawRandomResourceFromPlayerMessage;
+import de.uol.swp.common.game.message.GameCreatedMessage;
+import de.uol.swp.common.game.message.MoveRobberMessage;
+import de.uol.swp.common.game.message.NextTurnMessage;
+import de.uol.swp.common.game.message.NotEnoughResourcesMessage;
+import de.uol.swp.common.game.message.NotSuccessfulConstructionMessage;
+import de.uol.swp.common.game.message.PlayerKickedMessage;
+import de.uol.swp.common.game.message.PrivateInventoryChangeMessage;
+import de.uol.swp.common.game.message.PublicInventoryChangeMessage;
+import de.uol.swp.common.game.message.ResolveDevelopmentCardMessage;
+import de.uol.swp.common.game.message.RollDiceResultMessage;
+import de.uol.swp.common.game.message.SettlementFullyDevelopedMessage;
+import de.uol.swp.common.game.message.SuccessfulConstructionMessage;
+import de.uol.swp.common.game.message.SuccessfulMovedRobberMessage;
+import de.uol.swp.common.game.message.TooMuchResourceCardsMessage;
+import de.uol.swp.common.game.message.TradeCardErrorMessage;
+import de.uol.swp.common.game.message.TradeEndedLogMessage;
+import de.uol.swp.common.game.message.TradeEndedMessage;
+import de.uol.swp.common.game.message.UserLeftGameMessage;
+import de.uol.swp.common.game.response.AllThisGameUsersResponse;
+import de.uol.swp.common.game.response.GameLeftSuccessfulResponse;
+import de.uol.swp.common.game.response.PlayDevelopmentCardResponse;
+import de.uol.swp.common.game.response.PlayerKickedSuccessfulResponse;
+import de.uol.swp.common.game.response.ResolveDevelopmentCardNotSuccessfulResponse;
+import de.uol.swp.common.lobby.message.JoinOnGoingGameMessage;
+import de.uol.swp.common.lobby.response.JoinOnGoingGameResponse;
+import de.uol.swp.common.user.User;
+import de.uol.swp.common.user.UserDTO;
 
 /**
  * Manages the GameView
@@ -75,15 +119,19 @@ public class GamePresenter extends AbstractPresenter {
     private static final Logger LOG = LogManager.getLogger(GamePresenter.class);
 
     @FXML
-    private final TabPane tabPane = new TabPane();
+    private TabPane tabPane = new TabPane();
 
     @FXML
     public TextField gameChatInput;
 
     @FXML
     public MenuButton buildMenu;
+
     @FXML
     public TextArea gameChatArea;
+
+    @FXML
+    public TextArea gameEventLogArea;
 
     public Dialog<Object> tooMuchAlert;
 
@@ -93,7 +141,7 @@ public class GamePresenter extends AbstractPresenter {
 
     private String playerToKick;
 
-    private String currentLobby;
+    private String currentGame;
 
     private Alert alert;
 
@@ -149,6 +197,9 @@ public class GamePresenter extends AbstractPresenter {
     private final ArrayList<Rectangle> rectangles = new ArrayList<>();
     private final ArrayList<Rectangle> rectanglesLargestArmy = new ArrayList<>();
     private final ArrayList<Rectangle> rectanglesLongestRoad = new ArrayList<>();
+
+    @FXML
+    public Button gameChatSendMessage;
 
     @FXML
     private AnchorPane gameAnchorPane;
@@ -302,7 +353,15 @@ public class GamePresenter extends AbstractPresenter {
 
     private int myPlayerNumber;
 
+    private int pILumber = 0;
+    private int pIGrain = 0;
+    private int pIWool = 0;
+    private int pIOre = 0;
+    private int pIBrick = 0;
+    private String userIsOnTurn;
+
     private final HashMap<UUID, MapGraphNodeContainer> nodeContainerHashMap = new HashMap<>();
+    private Alert kickAlert;
 
     /**
      * Method called when the send Message button is pressed
@@ -319,7 +378,7 @@ public class GamePresenter extends AbstractPresenter {
         try {
             var chatMessage = gameChatInput.getCharacters().toString();
             // ChatID = game_lobbyName so we have separate lobby and game chat separated by id
-            var chatId = "game_" + currentLobby;
+            var chatId = "game_" + currentGame;
             if (!chatMessage.isEmpty()) {
                 RequestChatMessage message = new RequestChatMessage(chatMessage, chatId, joinedLobbyUser.getUsername(),
                         System.currentTimeMillis());
@@ -360,8 +419,8 @@ public class GamePresenter extends AbstractPresenter {
      */
     public void onResponseChatMessageLogic(ResponseChatMessage rcm) {
         // Only update Messages from used game chat
-        if (this.currentLobby != null) {
-            if (rcm.getChat().equals("game_" + currentLobby)) {
+        if (this.currentGame != null) {
+            if (rcm.getChat().equals("game_" + currentGame)) {
                 LOG.debug("Updated game chat area with new message..");
                 updateChat(rcm);
             }
@@ -389,7 +448,8 @@ public class GamePresenter extends AbstractPresenter {
         var time = new SimpleDateFormat("HH:mm");
         Date resultDate = new Date((long) rcm.getTime().doubleValue());
         var readableTime = time.format(resultDate);
-        gameChatArea.insertText(gameChatArea.getLength(), readableTime + " " + rcm.getUsername() + ": " + rcm.getMessage() + "\n");
+        gameChatArea.insertText(gameChatArea.getLength(),
+                readableTime + " " + rcm.getUsername() + ": " + rcm.getMessage() + "\n");
         gameChatArea.setWrapText(true);
     }
 
@@ -410,7 +470,7 @@ public class GamePresenter extends AbstractPresenter {
         this.endTurnButton.setDisable(true);
         this.tradeButton.setDisable(true);
         String tradeCode = UUID.randomUUID().toString().trim().substring(0, 7);
-        gameService.sendTradeStartedRequest((UserDTO) this.joinedLobbyUser, this.currentLobby, tradeCode);
+        gameService.sendTradeStartedRequest((UserDTO) this.joinedLobbyUser, this.currentGame, tradeCode);
     }
 
     /**
@@ -456,20 +516,27 @@ public class GamePresenter extends AbstractPresenter {
     public void updatePossibleBuildingSpots(int mode) {
         if (mode == 0) {
             for (MapGraphNodeContainer container : mapGraphNodeContainers) {
-                if (container.getMapGraphNode().getOccupiedByPlayer() == 666 && container.getMapGraphNode() instanceof MapGraph.BuildingNode) {
+                if (container.getMapGraphNode().getOccupiedByPlayer() == 666 && container
+                        .getMapGraphNode() instanceof MapGraph.BuildingNode) {
                     container.getCircle().setVisible(false);
-                } else if (container.getMapGraphNode().getOccupiedByPlayer() == myPlayerNumber && container.getMapGraphNode() instanceof MapGraph.BuildingNode) {
+                } else if (container.getMapGraphNode().getOccupiedByPlayer() == myPlayerNumber && container
+                        .getMapGraphNode() instanceof MapGraph.BuildingNode) {
                     container.getCircle().setDisable(true);
                 }
-                if (container.getMapGraphNode().getOccupiedByPlayer() == myPlayerNumber && container.getMapGraphNode() instanceof MapGraph.BuildingNode) {
-                    for (MapGraph.StreetNode streetNode : ((MapGraph.BuildingNode) container.getMapGraphNode()).getConnectedStreetNodes()) {
-                        if (streetNode.getOccupiedByPlayer() != myPlayerNumber && streetNode.getOccupiedByPlayer() == 666) {
+                if (container.getMapGraphNode().getOccupiedByPlayer() == myPlayerNumber && container
+                        .getMapGraphNode() instanceof MapGraph.BuildingNode) {
+                    for (MapGraph.StreetNode streetNode : ((MapGraph.BuildingNode) container.getMapGraphNode())
+                            .getConnectedStreetNodes()) {
+                        if (streetNode.getOccupiedByPlayer() != myPlayerNumber && streetNode
+                                .getOccupiedByPlayer() == 666) {
                             MapGraphNodeContainer container1 = nodeContainerHashMap.get(streetNode.getUuid());
                             container1.getCircle().setVisible(true);
                         }
                     }
-                } else if (container.getMapGraphNode().getOccupiedByPlayer() == myPlayerNumber && container.getMapGraphNode() instanceof MapGraph.StreetNode) {
-                    for (MapGraph.BuildingNode buildingNode : ((MapGraph.StreetNode) container.getMapGraphNode()).getConnectedBuildingNodes()) {
+                } else if (container.getMapGraphNode().getOccupiedByPlayer() == myPlayerNumber && container
+                        .getMapGraphNode() instanceof MapGraph.StreetNode) {
+                    for (MapGraph.BuildingNode buildingNode : ((MapGraph.StreetNode) container.getMapGraphNode())
+                            .getConnectedBuildingNodes()) {
                         if (buildingNode.getOccupiedByPlayer() == 420 || buildingNode.getOccupiedByPlayer() == 666) {
                             for (MapGraph.StreetNode streetNode1 : buildingNode.getConnectedStreetNodes()) {
                                 if (streetNode1.getOccupiedByPlayer() == 666) {
@@ -483,16 +550,20 @@ public class GamePresenter extends AbstractPresenter {
             }
         } else {
             for (MapGraphNodeContainer container : mapGraphNodeContainers) {
-                if (container.getMapGraphNode().getOccupiedByPlayer() == 666 && container.getMapGraphNode() instanceof MapGraph.StreetNode) {
+                if (container.getMapGraphNode().getOccupiedByPlayer() == 666 && container
+                        .getMapGraphNode() instanceof MapGraph.StreetNode) {
                     container.getCircle().setVisible(false);
                 }
-                if (container.getMapGraphNode().getOccupiedByPlayer() == 666 && container.getMapGraphNode() instanceof MapGraph.BuildingNode) {
-                    for (MapGraph.StreetNode streetNode : ((MapGraph.BuildingNode) container.getMapGraphNode()).getConnectedStreetNodes()) {
+                if (container.getMapGraphNode().getOccupiedByPlayer() == 666 && container
+                        .getMapGraphNode() instanceof MapGraph.BuildingNode) {
+                    for (MapGraph.StreetNode streetNode : ((MapGraph.BuildingNode) container.getMapGraphNode())
+                            .getConnectedStreetNodes()) {
                         if (streetNode.getOccupiedByPlayer() == myPlayerNumber) {
                             container.getCircle().setVisible(true);
                         }
                     }
-                } else if (container.getMapGraphNode().getOccupiedByPlayer() == myPlayerNumber && container.getMapGraphNode() instanceof MapGraph.BuildingNode) {
+                } else if (container.getMapGraphNode().getOccupiedByPlayer() == myPlayerNumber && container
+                        .getMapGraphNode() instanceof MapGraph.BuildingNode) {
                     container.getCircle().setDisable(false);
                 }
             }
@@ -524,10 +595,12 @@ public class GamePresenter extends AbstractPresenter {
     @FXML
     public void onBuildTown() {
         for (MapGraphNodeContainer container : mapGraphNodeContainers) {
-            if (container.getMapGraphNode().getOccupiedByPlayer() == myPlayerNumber && container.getMapGraphNode() instanceof MapGraph.BuildingNode) {
+            if (container.getMapGraphNode().getOccupiedByPlayer() == myPlayerNumber && container
+                    .getMapGraphNode() instanceof MapGraph.BuildingNode) {
                 container.getCircle().setVisible(true);
                 container.getCircle().setDisable(false);
-            } else if (container.getMapGraphNode().getOccupiedByPlayer() == 666 || container.getMapGraphNode().getOccupiedByPlayer() == 420) {
+            } else if (container.getMapGraphNode().getOccupiedByPlayer() == 666 || container.getMapGraphNode()
+                    .getOccupiedByPlayer() == 420) {
                 container.getCircle().setVisible(false);
             }
         }
@@ -535,7 +608,7 @@ public class GamePresenter extends AbstractPresenter {
 
     @FXML
     public void onBuyDevelopmentCard() {
-        gameService.buyDevelopmentCard(this.joinedLobbyUser, this.currentLobby);
+        gameService.buyDevelopmentCard(this.joinedLobbyUser, this.currentGame);
     }
 
     /**
@@ -557,8 +630,8 @@ public class GamePresenter extends AbstractPresenter {
      */
     @FXML
     public void onRollDice() {
-        if (this.currentLobby != null) {
-            gameService.rollDice(this.currentLobby, (UserDTO) this.joinedLobbyUser);
+        if (this.currentGame != null) {
+            gameService.rollDice(this.currentGame, (UserDTO) this.joinedLobbyUser);
             rolledDice = true;
             switchTurnPhaseButtons();
         }
@@ -575,7 +648,7 @@ public class GamePresenter extends AbstractPresenter {
      */
     @FXML
     public void onEndTurn() {
-        gameService.endTurn((UserDTO) this.joinedLobbyUser, this.currentLobby);
+        gameService.endTurn((UserDTO) this.joinedLobbyUser, this.currentGame);
         for (MapGraphNodeContainer mapGraphNode : mapGraphNodeContainers) {
             if (mapGraphNode.getMapGraphNode().getOccupiedByPlayer() == 666) {
                 mapGraphNode.getCircle().setVisible(false);
@@ -616,13 +689,12 @@ public class GamePresenter extends AbstractPresenter {
      * @since 2021-04-22
      */
     public void gameStartedSuccessfulLogic(GameCreatedMessage gcm) {
-        if (this.currentLobby == null) {
+        if (this.currentGame == null) {
             LOG.debug("Updating User list in game scene because game was created.");
             this.joinedLobbyUser = gcm.getUser();
-            this.currentLobby = gcm.getName();
+            this.currentGame = gcm.getName();
             this.gameFieldVariant = gcm.getGameFieldVariant();
             updateGameUsersList(gcm.getUsers(), gcm.getHumans());
-            updateKickButtons(gcm.getUsers(), gcm.getHumans(), gcm.getGameOwner());
             for (int i = 1; i <= 67; i++) {
                 Image image;
                 image = new Image("img/profilePictures/" + i + ".png");
@@ -644,7 +716,7 @@ public class GamePresenter extends AbstractPresenter {
                 setUpPrices();
                 setUpLargestArmyAndLongestRoadPanes(gcm.getUsers());
                 setUpKickButtons(gcm.getUsers());
-                setupButtonsAndAlerts();
+                setupKickButtonAndAlert();
                 updateKickButtons(gcm.getUsers(), gcm.getHumans(), gcm.getGameOwner());
             });
             evaluateMyPlayerNumber(gcm.getUsers());
@@ -681,13 +753,12 @@ public class GamePresenter extends AbstractPresenter {
      */
     @Subscribe
     public void onJoinOnGoingGameResponse(JoinOnGoingGameResponse joggr) {
-        if (this.currentLobby == null && joggr.isJoinedSuccessful()) {
+        if (this.currentGame == null && joggr.isJoinedSuccessful()) {
             LOG.debug("Updating User list in game scene because game was joined.");
             this.joinedLobbyUser = joggr.getUser();
-            this.currentLobby = joggr.getGameName();
+            this.currentGame = joggr.getGameName();
             this.gameFieldVariant = joggr.getGameFieldVariant();
             updateGameUsersList(joggr.getUsers(), joggr.getHumans());
-            updateKickButtons(joggr.getUsers(), joggr.getHumans(), joggr.getGameOwner());
             for (int i = 1; i <= 67; i++) {
                 Image image;
                 image = new Image("img/profilePictures/" + i + ".png");
@@ -708,7 +779,7 @@ public class GamePresenter extends AbstractPresenter {
                 setUpPrices();
                 setUpLargestArmyAndLongestRoadPanes(joggr.getUsers());
                 setUpKickButtons(joggr.getUsers());
-                setupButtonsAndAlerts();
+                setupKickButtonAndAlert();
                 updateKickButtons(joggr.getUsers(), joggr.getHumans(), joggr.getGameOwner());
                 updateGameField();
             });
@@ -793,7 +864,8 @@ public class GamePresenter extends AbstractPresenter {
             if (Integer.parseInt(lumberLabelRobberMenu.getText()) > 0) {
                 if (Integer.parseInt(toDiscardLabel.getText()) > 0) {
                     toDiscardLabel.setText(Integer.toString(Integer.parseInt(toDiscardLabel.getText()) - 1));
-                    lumberLabelRobberMenu.setText(Integer.toString(Integer.parseInt(lumberLabelRobberMenu.getText()) - 1));
+                    lumberLabelRobberMenu
+                            .setText(Integer.toString(Integer.parseInt(lumberLabelRobberMenu.getText()) - 1));
                 }
             }
         });
@@ -802,7 +874,8 @@ public class GamePresenter extends AbstractPresenter {
             if (Integer.parseInt(brickLabelRobberMenu.getText()) > 0) {
                 if (Integer.parseInt(toDiscardLabel.getText()) > 0) {
                     toDiscardLabel.setText(Integer.toString(Integer.parseInt(toDiscardLabel.getText()) - 1));
-                    brickLabelRobberMenu.setText(Integer.toString(Integer.parseInt(brickLabelRobberMenu.getText()) - 1));
+                    brickLabelRobberMenu
+                            .setText(Integer.toString(Integer.parseInt(brickLabelRobberMenu.getText()) - 1));
                 }
             }
         });
@@ -811,7 +884,8 @@ public class GamePresenter extends AbstractPresenter {
             if (Integer.parseInt(grainLabelRobberMenu.getText()) > 0) {
                 if (Integer.parseInt(toDiscardLabel.getText()) > 0) {
                     toDiscardLabel.setText(Integer.toString(Integer.parseInt(toDiscardLabel.getText()) - 1));
-                    grainLabelRobberMenu.setText(Integer.toString(Integer.parseInt(grainLabelRobberMenu.getText()) - 1));
+                    grainLabelRobberMenu
+                            .setText(Integer.toString(Integer.parseInt(grainLabelRobberMenu.getText()) - 1));
                 }
             }
         });
@@ -889,10 +963,8 @@ public class GamePresenter extends AbstractPresenter {
         }
         picturePlayerView1.getChildren().add(rectangles.get(0));
         picturePlayerView2.getChildren().add(rectangles.get(1));
-        if (rectangles.size() > 2)
-            picturePlayerView3.getChildren().add(rectangles.get(2));
-        if (rectangles.size() > 3)
-            picturePlayerView4.getChildren().add(rectangles.get(3));
+        if (rectangles.size() > 2) { picturePlayerView3.getChildren().add(rectangles.get(2)); }
+        if (rectangles.size() > 3) { picturePlayerView4.getChildren().add(rectangles.get(3)); }
     }
 
     /**
@@ -935,13 +1007,14 @@ public class GamePresenter extends AbstractPresenter {
                     if (itsMyTurn && !rolledDice) {
                         rollDiceButton.setDisable(false);
                     }
-                    gameService.discardResources(this.currentLobby, this.joinedLobbyUser, inventory);
+                    gameService.discardResources(this.currentGame, this.joinedLobbyUser, inventory);
                 } else {
                     windowEvent.consume();
                 }
             });
 
-            tooMuchAlert.setHeaderText("Choose the resources you want to discard in the " + tooMuchResourceCardsMessage.getName() + " lobby!");
+            tooMuchAlert.setHeaderText("Choose the resources you want to discard in the " + tooMuchResourceCardsMessage
+                    .getName() + " lobby!");
             tooMuchAlert.setTitle(tooMuchResourceCardsMessage.getName());
             toDiscardLabel.setText(Integer.toString(tooMuchResourceCardsMessage.getCards()));
             tooMuchAlert.getDialogPane().getButtonTypes().add(new ButtonType("Send"));
@@ -1053,10 +1126,17 @@ public class GamePresenter extends AbstractPresenter {
      * @since 2021-04-30
      * <p>
      * Enhanced by Alexander Losse on 2021-05-30
+     * Enhanced by Philip Nitsche
      */
     @Subscribe
     public void nextPlayerTurn(NextTurnMessage message) {
-        if (message.getGameName().equals(currentLobby)) {
+        if (message.getGameName().equals(currentGame)) {
+            if (this.currentGame != null && userIsOnTurn != null) {
+                String text = "is making his turn";
+                LOG.debug("Updated game Event Log area with new message");
+                updateEventLogLogic(text, message.getPlayerWithCurrentTurn());
+            }
+            userIsOnTurn = message.getPlayerWithCurrentTurn();
             rolledDice = false;
             if (message.getPlayerWithCurrentTurn().equals(joinedLobbyUser.getUsername())) {
                 startingTurn = message.isInStartingTurn();
@@ -1114,9 +1194,9 @@ public class GamePresenter extends AbstractPresenter {
         }
         if (playerToKick != null) {
             Platform.runLater(() -> {
-                this.alert.setTitle("Do you want to kick or ban the player from the game?");
-                this.alert.setHeaderText("Kick or ban the player?");
-                this.alert.show();
+                this.kickAlert.setTitle("Do you want to kick or ban the player from the game?");
+                this.kickAlert.setHeaderText("Kick or ban the player?");
+                this.kickAlert.show();
             });
         } else {
             throw new GamePresenterException("Player that requested be kicked is not found!");
@@ -1132,22 +1212,22 @@ public class GamePresenter extends AbstractPresenter {
      * @author Iskander Yusupov
      * @since 2021-06-25
      */
-    public void setupButtonsAndAlerts() {
-        this.alert = new Alert(Alert.AlertType.CONFIRMATION);
+    public void setupKickButtonAndAlert() {
+        kickAlert = new Alert(Alert.AlertType.CONFIRMATION);
         ButtonType buttonTypeKick = new ButtonType("Kick", ButtonBar.ButtonData.YES);
         ButtonType buttonTypeBan = new ButtonType("Ban", ButtonBar.ButtonData.NO);
-        alert.getButtonTypes().setAll(buttonTypeKick, buttonTypeBan);
-        Button buttonKick = (Button) alert.getDialogPane().lookupButton(buttonTypeKick);
+        kickAlert.getButtonTypes().setAll(buttonTypeKick, buttonTypeBan);
+        Button buttonKick = (Button) kickAlert.getDialogPane().lookupButton(buttonTypeKick);
         buttonKick.setOnAction(event -> {
             onButtonKickClicked();
             event.consume();
         });
-        Button buttonBan = (Button) alert.getDialogPane().lookupButton(buttonTypeBan);
+        Button buttonBan = (Button) kickAlert.getDialogPane().lookupButton(buttonTypeBan);
         buttonBan.setOnAction(event -> {
             onButtonBanClicked();
             event.consume();
         });
-        this.alert.initModality(Modality.NONE);
+        kickAlert.initModality(Modality.APPLICATION_MODAL);
 
     }
 
@@ -1160,8 +1240,8 @@ public class GamePresenter extends AbstractPresenter {
      * @since 2021-06-25
      */
     public void onButtonKickClicked() {
-        alert.close();
-        gameService.kickPlayer(currentLobby, joinedLobbyUser, this.playerToKick, false);
+        kickAlert.close();
+        gameService.kickPlayer(currentGame, joinedLobbyUser, this.playerToKick, false);
     }
 
     /**
@@ -1173,9 +1253,8 @@ public class GamePresenter extends AbstractPresenter {
      * @since 2021-06-25
      */
     public void onButtonBanClicked() {
-        alert.close();
-        // this.toBan = true;
-        gameService.kickPlayer(currentLobby, joinedLobbyUser, this.playerToKick, true);
+        kickAlert.close();
+        gameService.kickPlayer(currentGame, joinedLobbyUser, this.playerToKick, true);
     }
 
     /**
@@ -1204,8 +1283,8 @@ public class GamePresenter extends AbstractPresenter {
      * @since 2021-06-24
      */
     public void playerKickedSuccessfulLogic(PlayerKickedSuccessfulResponse pksr) {
-        if (this.currentLobby != null) {
-            if (this.currentLobby.equals(pksr.getName())) {
+        if (this.currentGame != null) {
+            if (this.currentGame.equals(pksr.getName())) {
                 LOG.debug("You successfully kicked the player " + pksr.getKickedPlayer() + "!");
             }
         }
@@ -1238,9 +1317,9 @@ public class GamePresenter extends AbstractPresenter {
      * @since 2021-06-25
      */
     public void playerKickedLogic(PlayerKickedMessage pkm) {
-        if (this.currentLobby != null) {
-            if (this.currentLobby.equals(pkm.getName())) {
-                this.currentLobby = null;
+        if (this.currentGame != null) {
+            if (this.currentGame.equals(pkm.getName())) {
+                this.currentGame = null;
                 clearEventBus();
                 LOG.debug(pkm.getUser().getUsername() + "was kicked from the game!");
             }
@@ -1259,9 +1338,9 @@ public class GamePresenter extends AbstractPresenter {
      * @since 2021-03-15
      */
     public void gameLeftSuccessfulLogic(GameLeftSuccessfulResponse glsr) {
-        if (this.currentLobby != null) {
-            if (this.currentLobby.equals(glsr.getName())) {
-                this.currentLobby = null;
+        if (this.currentGame != null) {
+            if (this.currentGame.equals(glsr.getName())) {
+                this.currentGame = null;
                 clearEventBus();
             }
         }
@@ -1282,9 +1361,9 @@ public class GamePresenter extends AbstractPresenter {
     @FXML
     public void onLeaveGame() {
 
-        if (this.currentLobby != null && this.joinedLobbyUser != null) {
-            gameService.leaveGame(this.currentLobby, this.joinedLobbyUser);
-        } else if (this.currentLobby == null && this.joinedLobbyUser != null) {
+        if (this.currentGame != null && this.joinedLobbyUser != null) {
+            gameService.leaveGame(this.currentGame, this.joinedLobbyUser);
+        } else if (this.currentGame == null && this.joinedLobbyUser != null) {
             throw new GamePresenterException("Name of the current Lobby is not available!");
         } else {
             throw new GamePresenterException("User of the current Lobby is not available");
@@ -1298,12 +1377,18 @@ public class GamePresenter extends AbstractPresenter {
      *
      * @param message the UserLeftGameMessage object seen on the EventBus
      * @author Iskander Yusupov
+     * Enhanced by Philip Nitsche
      * @see de.uol.swp.common.game.message.UserLeftGameMessage
      * @since 2021-03-17
      */
     @Subscribe
     public void otherUserLeftSuccessful(UserLeftGameMessage message) {
-        otherUserLeftSuccessfulLogic(message);
+        if (this.currentGame != null && userIsOnTurn != null) {
+            String text = "left the Game";
+            LOG.debug("Updated game Event Log area with new message");
+            updateEventLogLogic(text, message.getUser().getUsername());
+            otherUserLeftSuccessfulLogic(message);
+        }
     }
 
     /**
@@ -1319,8 +1404,8 @@ public class GamePresenter extends AbstractPresenter {
      * @since 2021-03-17
      */
     public void otherUserLeftSuccessfulLogic(UserLeftGameMessage ulgm) {
-        if (this.currentLobby != null) {
-            if (this.currentLobby.equals(ulgm.getName())) {
+        if (this.currentGame != null) {
+            if (this.currentGame.equals(ulgm.getName())) {
                 LOG.debug("Requesting update of User list in lobby because a User left the lobby.");
                 gameService.retrieveAllThisGameUsers(ulgm.getName());
             }
@@ -1345,8 +1430,8 @@ public class GamePresenter extends AbstractPresenter {
      * @since 2021-03-14
      */
     public void gameUserListLogic(AllThisGameUsersResponse atgur) {
-        if (this.currentLobby != null) {
-            if (this.currentLobby.equals(atgur.getName())) {
+        if (this.currentGame != null) {
+            if (this.currentGame.equals(atgur.getName())) {
                 LOG.debug("Update of user list " + atgur.getUsers());
                 updateGameUsersList(atgur.getUsers(), atgur.getHumanUsers());
                 updateKickButtons(atgur.getUsers(), atgur.getHumanUsers(), atgur.getGameOwner());
@@ -1366,8 +1451,11 @@ public class GamePresenter extends AbstractPresenter {
      */
     @Subscribe
     public void onJoinOnGoingGameMessage(JoinOnGoingGameMessage joggm) {
-        if (this.currentLobby != null) {
-            if (this.currentLobby.equals(joggm.getName())) {
+        if (this.currentGame != null) {
+            if (this.currentGame.equals(joggm.getName())) {
+                String text = "joined the game";
+                LOG.debug("Updated game Event Log area with new message");
+                updateEventLogLogic(text, joggm.getUser().getUsername());
                 LOG.debug("The user " + joggm.getUser().getUsername() + " joined the game!");
                 updateGameUsersList(joggm.getUsers(), joggm.getHumans());
                 updateKickButtons(joggm.getUsers(), joggm.getHumans(), joggm.getGameOwner());
@@ -1504,8 +1592,8 @@ public class GamePresenter extends AbstractPresenter {
      * <p>
      * be disabled.
      *
-     * @param list the list of all Users in this game
-     * @param humans the list of all human players in this Game
+     * @param list      the list of all Users in this game
+     * @param humans    the list of all human players in this Game
      * @param gameOwner the owner of the game
      * @author Iskander Yusupov
      * @since 2021-06-21
@@ -1544,10 +1632,11 @@ public class GamePresenter extends AbstractPresenter {
      * @since 2021-01-24
      */
     public double cardSize() {
-        double d = Math.min(canvas.getHeight(), canvas.getWidth()); //Determine minimum pixels in height and length of the canvas (we don't want the game field to scale out of canvas, so we orient at the smaller axis)
+        double d = Math.min(canvas.getHeight(),
+                canvas.getWidth()); //Determine minimum pixels in height and length of the canvas (we don't want the game field to scale out of canvas, so we orient at the smaller axis)
         if (!gameFieldVariant.equals("VeryRandom")) {
             return d / 5.5; // Divide by 8 because the game field is 7 cards wide and add 1/2 card each side for margin so the cards don't touch the boundaries of the canvas.
-        } else return d / 7;
+        } else { return d / 7; }
     }
 
     /**
@@ -1606,8 +1695,10 @@ public class GamePresenter extends AbstractPresenter {
      */
     public void draw() {
 
-        Vector centerOfCanvasVector = new Vector((canvas.getWidth() / 2 + canvas.getLayoutX()), canvas.getHeight() / 2 + canvas.getLayoutY());
-        GraphicsContext g = this.canvas.getGraphicsContext2D(); //This is the object that is doing the drawing and has all the graphics related methods.
+        Vector centerOfCanvasVector = new Vector((canvas.getWidth() / 2 + canvas.getLayoutX()),
+                canvas.getHeight() / 2 + canvas.getLayoutY());
+        GraphicsContext g = this.canvas
+                .getGraphicsContext2D(); //This is the object that is doing the drawing and has all the graphics related methods.
 
         //Drawing background.
 
@@ -1618,13 +1709,16 @@ public class GamePresenter extends AbstractPresenter {
 
         for (HexagonContainer hexagonContainer : this.hexagonContainers) {
 
-            Vector placementVector = Vector.convertStringListToVector(hexagonContainer.getHexagon().getSelfPosition(), cardSize(), centerOfCanvasVector);
+            Vector placementVector = Vector
+                    .convertStringListToVector(hexagonContainer.getHexagon().getSelfPosition(), cardSize(),
+                            centerOfCanvasVector);
             hexagonContainer.getHexagonShape().setLayoutX(placementVector.getX());
             hexagonContainer.getHexagonShape().setLayoutY(placementVector.getY());
             hexagonContainer.getHexagonShape().setFill(determinePictureOfTerrain(hexagonContainer.getHexagon()));
 
             if (hexagonContainer.getHexagon().getDiceToken() != 0) {
-                Text text = new Text(placementVector.getX(), placementVector.getY(), Integer.toString(hexagonContainer.getHexagon().getDiceToken()));
+                Text text = new Text(placementVector.getX(), placementVector.getY(),
+                        Integer.toString(hexagonContainer.getHexagon().getDiceToken()));
                 text.setFill(Color.BLACK);
                 text.setMouseTransparent(true);
                 gameAnchorPane.getChildren().add(text);
@@ -1649,7 +1743,9 @@ public class GamePresenter extends AbstractPresenter {
                 double itemSize = cardSize() / 10;
                 MapGraph.BuildingNode buildingNode = (MapGraph.BuildingNode) mapGraphNodeContainer.getMapGraphNode();
 
-                Vector parentVector = Vector.convertStringListToVector(buildingNode.getParent().getSelfPosition(), cardSize(), centerOfCanvasVector);
+                Vector parentVector = Vector
+                        .convertStringListToVector(buildingNode.getParent().getSelfPosition(), cardSize(),
+                                centerOfCanvasVector);
                 Vector selfVector = Vector.getVectorFromMapGraphNode(buildingNode, cardSize());
                 Vector drawVector = Vector.addVector(parentVector, selfVector);
 
@@ -1664,7 +1760,10 @@ public class GamePresenter extends AbstractPresenter {
                     //Creating Symbols and Tooltips for harbors.
                     double harborSymbolSize = 25.0;
                     ImagePattern harborTexture = new ImagePattern(new Image("textures/hafen.png"));
-                    Rectangle harborSymbol = new Rectangle(mapGraphNodeContainer.getCircle().getLayoutX() - harborSymbolSize / 2, mapGraphNodeContainer.getCircle().getLayoutY() - harborSymbolSize, harborSymbolSize, harborSymbolSize);
+                    Rectangle harborSymbol = new Rectangle(
+                            mapGraphNodeContainer.getCircle().getLayoutX() - harborSymbolSize / 2,
+                            mapGraphNodeContainer.getCircle().getLayoutY() - harborSymbolSize, harborSymbolSize,
+                            harborSymbolSize);
                     harborSymbol.setFill(harborTexture);
 
                     gameAnchorPane.getChildren().add(harborSymbol);
@@ -1709,7 +1808,9 @@ public class GamePresenter extends AbstractPresenter {
                 double itemSize = cardSize() / 15;
                 MapGraph.StreetNode streetNode = (MapGraph.StreetNode) mapGraphNodeContainer.getMapGraphNode();
 
-                Vector parentVector = Vector.convertStringListToVector(streetNode.getParent().getSelfPosition(), cardSize(), centerOfCanvasVector);
+                Vector parentVector = Vector
+                        .convertStringListToVector(streetNode.getParent().getSelfPosition(), cardSize(),
+                                centerOfCanvasVector);
 
                 Vector selfVector = Vector.getVectorFromMapGraphNode(streetNode, cardSize());
                 Vector drawVector = Vector.addVector(parentVector, selfVector);
@@ -1719,9 +1820,13 @@ public class GamePresenter extends AbstractPresenter {
                 rectangle.setLayoutY(drawVector.getY() - rectangle.getHeight() / 2);
                 rectangle.setVisible(false);
 
-                if (mapGraphNodeContainer.getMapGraphNode().getPositionToParent().equals("topRight") || mapGraphNodeContainer.getMapGraphNode().getPositionToParent().equals("bottomLeft")) {
+                if (mapGraphNodeContainer.getMapGraphNode().getPositionToParent()
+                        .equals("topRight") || mapGraphNodeContainer.getMapGraphNode().getPositionToParent()
+                        .equals("bottomLeft")) {
                     rectangle.setRotate(120);
-                } else if (mapGraphNodeContainer.getMapGraphNode().getPositionToParent().equals("topLeft") || mapGraphNodeContainer.getMapGraphNode().getPositionToParent().equals("bottomRight")) {
+                } else if (mapGraphNodeContainer.getMapGraphNode().getPositionToParent()
+                        .equals("topLeft") || mapGraphNodeContainer.getMapGraphNode().getPositionToParent()
+                        .equals("bottomRight")) {
                     rectangle.setRotate(60);
                 }
 
@@ -1765,7 +1870,8 @@ public class GamePresenter extends AbstractPresenter {
         LOG.debug("Setting up " + mapGraph.getBuildingNodeHashSet().size() + " BuildingNodeContainers...");
 
         for (MapGraph.BuildingNode buildingNode : mapGraph.getBuildingNodeHashSet()) {
-            MapGraphNodeContainer mapGraphNodeContainer = new MapGraphNodeContainer(new Circle(cardSize() / 6), buildingNode);
+            MapGraphNodeContainer mapGraphNodeContainer = new MapGraphNodeContainer(new Circle(cardSize() / 6),
+                    buildingNode);
             this.mapGraphNodeContainers.add(mapGraphNodeContainer);
             nodeContainerHashMap.put(buildingNode.getUuid(), mapGraphNodeContainer);
             gameAnchorPane.getChildren().add(mapGraphNodeContainer.getCircle());
@@ -1775,7 +1881,8 @@ public class GamePresenter extends AbstractPresenter {
         LOG.debug("Setting up " + mapGraph.getStreetNodeHashSet().size() + " StreetNodeContainers...");
 
         for (MapGraph.StreetNode streetNode : mapGraph.getStreetNodeHashSet()) {
-            MapGraphNodeContainer mapGraphNodeContainer = new MapGraphNodeContainer(new Circle(cardSize() / 8), streetNode, new Rectangle(cardSize() / 8.4, cardSize() / 1.9));
+            MapGraphNodeContainer mapGraphNodeContainer = new MapGraphNodeContainer(new Circle(cardSize() / 8),
+                    streetNode, new Rectangle(cardSize() / 8.4, cardSize() / 1.9));
             this.mapGraphNodeContainers.add(mapGraphNodeContainer);
             gameAnchorPane.getChildren().add(mapGraphNodeContainer.getCircle());
             gameAnchorPane.getChildren().add(mapGraphNodeContainer.getRectangle());
@@ -1811,7 +1918,8 @@ public class GamePresenter extends AbstractPresenter {
                         typeOfNode = "StreetNode";
                     }
                     if (currentDevelopmentCard.equals("")) {
-                        gameService.constructBuilding((UserDTO) joinedLobbyUser.getWithoutPassword(), currentLobby, container.getMapGraphNode().getUuid(), typeOfNode);
+                        gameService.constructBuilding((UserDTO) joinedLobbyUser.getWithoutPassword(), currentGame,
+                                container.getMapGraphNode().getUuid(), typeOfNode);
                     } else if (currentDevelopmentCard.equals("Road Building") && typeOfNode.equals("StreetNode")) {
                         if (street1 == null) {
                             street1 = container.getMapGraphNode().getUuid();
@@ -1833,7 +1941,8 @@ public class GamePresenter extends AbstractPresenter {
                             for (MapGraph.BuildingNode buildingNode : streetNode1.getConnectedBuildingNodes()) {
                                 for (MapGraph.StreetNode streetNode2 : buildingNode.getConnectedStreetNodes()) {
                                     if (streetNode2.getOccupiedByPlayer() == 666) {
-                                        MapGraphNodeContainer mapGraphNodeContainer = nodeContainerHashMap.get(streetNode2.getUuid());
+                                        MapGraphNodeContainer mapGraphNodeContainer = nodeContainerHashMap
+                                                .get(streetNode2.getUuid());
                                         mapGraphNodeContainer.getCircle().setVisible(false);
                                     }
                                 }
@@ -1874,14 +1983,16 @@ public class GamePresenter extends AbstractPresenter {
             if (mapGraphNodeContainer.getMapGraphNode() instanceof MapGraph.BuildingNode) {
                 MapGraph.BuildingNode buildingNode = (MapGraph.BuildingNode) mapGraphNodeContainer.getMapGraphNode();
                 if (buildingNode.getSizeOfSettlement() == 1) {
-                    mapGraphNodeContainer.getCircle().setFill(determineBuildingPicture(mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer(), 1));
+                    mapGraphNodeContainer.getCircle().setFill(
+                            determineBuildingPicture(mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer(), 1));
                     if (mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer() != 666) {
                         mapGraphNodeContainer.getCircle().setRadius(cardSize() / 3.5);
                         mapGraphNodeContainer.getCircle().setVisible(true);
                     }
 
                 } else if (buildingNode.getSizeOfSettlement() == 2) {
-                    mapGraphNodeContainer.getCircle().setFill(determineBuildingPicture(mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer(), 2));
+                    mapGraphNodeContainer.getCircle().setFill(
+                            determineBuildingPicture(mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer(), 2));
                     if (mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer() != 666) {
                         mapGraphNodeContainer.getCircle().setRadius(cardSize() / 3.5);
                         mapGraphNodeContainer.getCircle().setVisible(true);
@@ -1889,14 +2000,16 @@ public class GamePresenter extends AbstractPresenter {
 
                 }
             } else if (mapGraphNodeContainer.getMapGraphNode() instanceof MapGraph.StreetNode) {
-                mapGraphNodeContainer.getRectangle().setFill(determineBuildingPicture(mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer(), 0));
+                mapGraphNodeContainer.getRectangle().setFill(
+                        determineBuildingPicture(mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer(), 0));
                 if (mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer() != 666) {
                     mapGraphNodeContainer.getRectangle().setVisible(true);
                 }
             }
         }
         for (MapGraphNodeContainer mapGraphNodeContainer1 : mapGraphNodeContainers) {
-            if (mapGraphNodeContainer1.getMapGraphNode().getOccupiedByPlayer() != 666 && mapGraphNodeContainer1.getMapGraphNode() instanceof MapGraph.BuildingNode) {
+            if (mapGraphNodeContainer1.getMapGraphNode().getOccupiedByPlayer() != 666 && mapGraphNodeContainer1
+                    .getMapGraphNode() instanceof MapGraph.BuildingNode) {
                 mapGraphNodeContainer1.getCircle().toFront();
             }
         }
@@ -1916,12 +2029,18 @@ public class GamePresenter extends AbstractPresenter {
      *
      * @param buyDevelopmentCardMessage GameMessage
      * @author Marius Birk
+     * Enhanced by Philip Nitsche
      * @see BuyDevelopmentCardMessage
      * @since 2021-05-27
      */
     @Subscribe
     public void onBuyDevelopmentCardMessage(BuyDevelopmentCardMessage buyDevelopmentCardMessage) {
-        buyDevelopmentCardMessageLogic(buyDevelopmentCardMessage.getDevCardsNumber());
+        if (this.currentGame != null && userIsOnTurn != null) {
+            String text = "bought a Development Card";
+            LOG.debug("Updated game Event Log area with new message");
+            updateEventLogLogic(text, userIsOnTurn);
+            buyDevelopmentCardMessageLogic(buyDevelopmentCardMessage.getDevCardsNumber());
+        }
     }
 
     /**
@@ -1935,15 +2054,26 @@ public class GamePresenter extends AbstractPresenter {
      */
     public void buyDevelopmentCardMessageLogic(int devCardsNumber) {
         Tooltip hover = new Tooltip(devCardsNumber + " Cards left");
-        if (devCardsNumber == 1) hover.setText("1 Card left");
+        if (devCardsNumber == 1) { hover.setText("1 Card left"); }
         hover.setShowDelay(Duration.millis(50));
         buyDevCard.setTooltip(hover);
     }
 
+    /**
+     * This method will be invoked if a NotEnoughResourcesMessage is detected on the bus.
+     * <p>
+     * The shows the Player that he has not enough ressources.
+     * Enhanced by Philip Nitsche
+     *
+     * @param notEnoughResourcesMessage the NotEnoughResourcesMessage detected on the EventBus.
+     */
     @Subscribe
     public void onNotEnoughResourcesMessages(NotEnoughResourcesMessage notEnoughResourcesMessage) {
-        if (this.currentLobby != null) {
-            if (this.currentLobby.equals(notEnoughResourcesMessage.getName())) {
+        if (this.currentGame != null) {
+            String text = "have not enough ressources";
+            LOG.debug("Updated game Event Log area with new message");
+            updateEventLogLogic(text, "You");
+            if (this.currentGame.equals(notEnoughResourcesMessage.getName())) {
                 Platform.runLater(() -> {
                     this.alert.setTitle(notEnoughResourcesMessage.getName());
                     this.alert.setHeaderText("You have not enough Resources!");
@@ -1962,8 +2092,11 @@ public class GamePresenter extends AbstractPresenter {
      */
     @Subscribe
     public void onSettlementFullyDevelopedMessage(SettlementFullyDevelopedMessage sfdm) {
-        if (this.currentLobby != null) {
-            if (this.currentLobby.equals(sfdm.getName())) {
+        if (this.currentGame != null) {
+            if (this.currentGame.equals(sfdm.getName())) {
+                String text = "can not develop a fully developed settlement";
+                LOG.debug("Updated game Event Log area with new message");
+                updateEventLogLogic(text, "You");
                 Platform.runLater(() -> {
                     this.alert.setTitle(sfdm.getName());
                     this.alert.setHeaderText("This settlement is fully developed!");
@@ -2019,11 +2152,12 @@ public class GamePresenter extends AbstractPresenter {
      *
      * @param moveRobberMessage the MoveRobberMessage that was detected on the EventBus
      * @author Marius Birk
+     * Enhanced by Philip Nitsche
      * @since 2021-04-20
      */
     public void moveRobberMessageLogic(MoveRobberMessage moveRobberMessage) {
-        if (this.currentLobby != null) {
-            if (this.currentLobby.equals(moveRobberMessage.getName())) {
+        if (this.currentGame != null) {
+            if (this.currentGame.equals(moveRobberMessage.getName())) {
                 Platform.runLater(() -> {
                     this.alert.setTitle(moveRobberMessage.getName());
                     this.alert.setHeaderText("Click on a field to move the Robber!");
@@ -2045,10 +2179,17 @@ public class GamePresenter extends AbstractPresenter {
                                         switchTurnPhaseButtons();
                                     }
                                     if (currentDevelopmentCard.equals("Knight")) {
-                                        gameService.resolveDevelopmentCardKnight((UserDTO) moveRobberMessage.getUser(), moveRobberMessage.getName(), currentDevelopmentCard, container.getHexagon().getUuid());
+                                        String text = "used a Knight";
+                                        LOG.debug("Updated game Event Log area with new message");
+                                        updateEventLogLogic(text, moveRobberMessage.getUser().getUsername());
+                                        gameService.resolveDevelopmentCardKnight((UserDTO) moveRobberMessage.getUser(),
+                                                moveRobberMessage.getName(), currentDevelopmentCard,
+                                                container.getHexagon().getUuid());
                                         currentDevelopmentCard = "";
                                     } else {
-                                        gameService.movedRobber(moveRobberMessage.getName(), moveRobberMessage.getUser(), container.getHexagon().getUuid());
+                                        gameService
+                                                .movedRobber(moveRobberMessage.getName(), moveRobberMessage.getUser(),
+                                                        container.getHexagon().getUuid());
                                     }
                                 }
                             }
@@ -2132,14 +2273,17 @@ public class GamePresenter extends AbstractPresenter {
         if (!chooseAlert.isShowing()) {
             chooseAlert.showAndWait();
         }
-        gameService.drawRandomCardFromPlayer(choosePlayerMessage.getName(), choosePlayerMessage.getUser(), chooseAlert.getResult().getText());
+        gameService.drawRandomCardFromPlayer(choosePlayerMessage.getName(), choosePlayerMessage.getUser(),
+                chooseAlert.getResult().getText());
         chooseAlert.close();
     }
 
     /**
-     * Method used for setting up the Alert for the ResolveDevelopmentCard functionality, as well as the pictures and functionality of the buttons and user interaction.
+     * Method used for setting up the Alert for the ResolveDevelopmentCard functionality, as well as the pictures and
+     * functionality of the buttons and user interaction.
      * <p>
-     * Depending on the current developmentCard the alert will show different elements. Pressing the "Ok" button will call the corresponding gameService method that sends the Request
+     * Depending on the current developmentCard the alert will show different elements. Pressing the "Ok" button will
+     * call the corresponding gameService method that sends the Request
      * to resolve the developmentCard.
      *
      * @author Marc Hermes
@@ -2157,7 +2301,9 @@ public class GamePresenter extends AbstractPresenter {
                     selectedResource1.setVisible(true);
                 } else if (resource2.equals("") && currentDevelopmentCard.equals("Year of Plenty")) {
                     resource2 = "Lumber";
-                    selectedResource2.setLayoutX(rect.getLayoutX() + selectedResource2.getRadius() / 2 + rect.getWidth() - selectedResource2.getRadius());
+                    selectedResource2.setLayoutX(
+                            rect.getLayoutX() + selectedResource2.getRadius() / 2 + rect.getWidth() - selectedResource2
+                                    .getRadius());
                     selectedResource2.setLayoutY(rect.getLayoutY() + selectedResource2.getRadius());
                     selectedResource2.setVisible(true);
                 } else {
@@ -2175,7 +2321,9 @@ public class GamePresenter extends AbstractPresenter {
                     selectedResource1.setVisible(true);
                 } else if (resource2.equals("") && currentDevelopmentCard.equals("Year of Plenty")) {
                     resource2 = "Brick";
-                    selectedResource2.setLayoutX(rect.getLayoutX() + selectedResource2.getRadius() / 2 + rect.getWidth() - selectedResource2.getRadius());
+                    selectedResource2.setLayoutX(
+                            rect.getLayoutX() + selectedResource2.getRadius() / 2 + rect.getWidth() - selectedResource2
+                                    .getRadius());
                     selectedResource2.setLayoutY(rect.getLayoutY() + selectedResource2.getRadius());
                     selectedResource2.setVisible(true);
                 } else {
@@ -2193,7 +2341,9 @@ public class GamePresenter extends AbstractPresenter {
                     selectedResource1.setVisible(true);
                 } else if (resource2.equals("") && currentDevelopmentCard.equals("Year of Plenty")) {
                     resource2 = "Grain";
-                    selectedResource2.setLayoutX(rect.getLayoutX() + selectedResource2.getRadius() / 2 + rect.getWidth() - selectedResource2.getRadius());
+                    selectedResource2.setLayoutX(
+                            rect.getLayoutX() + selectedResource2.getRadius() / 2 + rect.getWidth() - selectedResource2
+                                    .getRadius());
                     selectedResource2.setLayoutY(rect.getLayoutY() + selectedResource2.getRadius());
                     selectedResource2.setVisible(true);
                 } else {
@@ -2211,7 +2361,9 @@ public class GamePresenter extends AbstractPresenter {
                     selectedResource1.setVisible(true);
                 } else if (resource2.equals("") && currentDevelopmentCard.equals("Year of Plenty")) {
                     resource2 = "Wool";
-                    selectedResource2.setLayoutX(rect.getLayoutX() + selectedResource2.getRadius() / 2 + rect.getWidth() - selectedResource2.getRadius());
+                    selectedResource2.setLayoutX(
+                            rect.getLayoutX() + selectedResource2.getRadius() / 2 + rect.getWidth() - selectedResource2
+                                    .getRadius());
                     selectedResource2.setLayoutY(rect.getLayoutY() + selectedResource2.getRadius());
                     selectedResource2.setVisible(true);
                 } else {
@@ -2229,7 +2381,9 @@ public class GamePresenter extends AbstractPresenter {
                     selectedResource1.setVisible(true);
                 } else if (resource2.equals("") && currentDevelopmentCard.equals("Year of Plenty")) {
                     resource2 = "Ore";
-                    selectedResource2.setLayoutX(rect.getLayoutX() + selectedResource2.getRadius() / 2 + rect.getWidth() - selectedResource2.getRadius());
+                    selectedResource2.setLayoutX(
+                            rect.getLayoutX() + selectedResource2.getRadius() / 2 + rect.getWidth() - selectedResource2
+                                    .getRadius());
                     selectedResource2.setLayoutY(rect.getLayoutY() + selectedResource2.getRadius());
                     selectedResource2.setVisible(true);
                 } else {
@@ -2281,7 +2435,8 @@ public class GamePresenter extends AbstractPresenter {
         resolveButton.setOnAction(event -> {
             switch (this.currentDevelopmentCard) {
                 case "Year of Plenty":
-                    gameService.resolveDevelopmentCardYearOfPlenty((UserDTO) joinedLobbyUser, currentLobby, currentDevelopmentCard, resource1, resource2);
+                    gameService.resolveDevelopmentCardYearOfPlenty((UserDTO) joinedLobbyUser, currentGame,
+                            currentDevelopmentCard, resource1, resource2);
                     resource1 = "";
                     resource2 = "";
                     selectedResource1.setVisible(false);
@@ -2289,13 +2444,15 @@ public class GamePresenter extends AbstractPresenter {
                     currentDevelopmentCard = "";
                     break;
                 case "Monopoly":
-                    gameService.resolveDevelopmentCardMonopoly((UserDTO) joinedLobbyUser, currentLobby, currentDevelopmentCard, resource1);
+                    gameService.resolveDevelopmentCardMonopoly((UserDTO) joinedLobbyUser, currentGame,
+                            currentDevelopmentCard, resource1);
                     resource1 = "";
                     selectedResource1.setVisible(false);
                     currentDevelopmentCard = "";
                     break;
                 case "Road Building":
-                    gameService.resolveDevelopmentCardRoadBuilding((UserDTO) joinedLobbyUser, currentLobby, currentDevelopmentCard, street1, street2);
+                    gameService.resolveDevelopmentCardRoadBuilding((UserDTO) joinedLobbyUser, currentGame,
+                            currentDevelopmentCard, street1, street2);
                     street1 = null;
                     street2 = null;
                     selectedStreet1.setVisible(false);
@@ -2312,7 +2469,7 @@ public class GamePresenter extends AbstractPresenter {
                 endTurnButton.setDisable(false);
             }
         });
-        resolveDevelopmentCardAlert.initModality(Modality.NONE);
+        resolveDevelopmentCardAlert.initModality(Modality.APPLICATION_MODAL);
         resolveDevelopmentCardAlert.getDialogPane().getChildren().addAll(resourceRectangles);
         resolveDevelopmentCardAlert.getDialogPane().getChildren().addAll(selectedResource1, selectedResource2);
         gameAnchorPane.getChildren().add(selectedStreet1);
@@ -2363,10 +2520,8 @@ public class GamePresenter extends AbstractPresenter {
             oldGridPane.getChildren().remove(rectangleDie2);
             rectangleDie1.setFill(diceImages.get(0));
             rectangleDie2.setFill(diceImages.get(0));
-            if (!newGridPane.getChildren().contains(rectangleDie1))
-                newGridPane.add(rectangleDie1, 0, 0);
-            if (!newGridPane.getChildren().contains(rectangleDie2))
-                newGridPane.add(rectangleDie2, 1, 0);
+            if (!newGridPane.getChildren().contains(rectangleDie1)) { newGridPane.add(rectangleDie1, 0, 0); }
+            if (!newGridPane.getChildren().contains(rectangleDie2)) { newGridPane.add(rectangleDie2, 1, 0); }
         });
     }
 
@@ -2377,12 +2532,16 @@ public class GamePresenter extends AbstractPresenter {
      *
      * @param message the RollDiceResultMessage object seen on the eventBus
      * @author Carsten Dekker
+     * Enhanced by Philip Nitsche
      * @since 2021-04-30
      */
     @Subscribe
     public void onRollDiceResultMessage(RollDiceResultMessage message) {
-        if (this.currentLobby != null) {
-            if (message.getName().equals(currentLobby)) {
+        if (this.currentGame != null) {
+            String text = "rolled a " + message.getDiceEyes1() + " and a " + message.getDiceEyes2();
+            LOG.debug("Updated game Event Log area with new message");
+            updateEventLogLogic(text, userIsOnTurn);
+            if (message.getName().equals(currentGame)) {
                 shuffleTheDice(message.getDiceEyes1(), message.getDiceEyes2());
             }
         }
@@ -2436,18 +2595,30 @@ public class GamePresenter extends AbstractPresenter {
      *
      * @param message The data about the changed properties of the MapGraph
      * @author Pieter Vogt
+     * Enhanced by Philip Nitsche
      * @since 2021-04-15
      */
     @Subscribe
     public void onSuccessfulConstructionMessage(SuccessfulConstructionMessage message) {
-        if (this.currentLobby != null) {
-            if (this.currentLobby.equals(message.getName())) {
+        if (this.currentGame != null) {
+            if (this.currentGame.equals(message.getName())) {
                 MapGraphNodeContainer mapGraphNodeContainer = nodeContainerHashMap.get(message.getUuid());
                 if (message.getTypeOfNode().equals("BuildingNode")) {
-                    MapGraph.BuildingNode buildingNode = (MapGraph.BuildingNode) mapGraphNodeContainer.getMapGraphNode();
+                    MapGraph.BuildingNode buildingNode = (MapGraph.BuildingNode) mapGraphNodeContainer
+                            .getMapGraphNode();
+                    if (buildingNode.getSizeOfSettlement() == 1) {
+                        String text = "developed a Settlement";
+                        LOG.debug("Updated game Event Log area with new message");
+                        updateEventLogLogic(text, message.getUser().getUsername());
+                    } else {
+                        String text = "build a Settlement";
+                        LOG.debug("Updated game Event Log area with new message");
+                        updateEventLogLogic(text, message.getUser().getUsername());
+                    }
                     buildingNode.setOccupiedByPlayer(message.getPlayerIndex());
                     buildingNode.incSizeOfSettlement();
-                    for (MapGraph.StreetNode streetNode : ((MapGraph.BuildingNode) mapGraphNodeContainer.getMapGraphNode()).getConnectedStreetNodes()) {
+                    for (MapGraph.StreetNode streetNode : ((MapGraph.BuildingNode) mapGraphNodeContainer
+                            .getMapGraphNode()).getConnectedStreetNodes()) {
                         for (MapGraph.BuildingNode buildingNode1 : streetNode.getConnectedBuildingNodes()) {
                             if (!buildingNode1.equals(buildingNode)) {
                                 buildingNode1.setOccupiedByPlayer(420);
@@ -2455,13 +2626,19 @@ public class GamePresenter extends AbstractPresenter {
                         }
                     }
                     for (MapGraphNodeContainer mapGraphNodeContainer1 : mapGraphNodeContainers) {
-                        if ((mapGraphNodeContainer1.getMapGraphNode().getOccupiedByPlayer() == 420 || mapGraphNodeContainer1.getMapGraphNode().getOccupiedByPlayer() == 666) && mapGraphNodeContainer1.getMapGraphNode() instanceof MapGraph.BuildingNode) {
+                        if ((mapGraphNodeContainer1.getMapGraphNode()
+                                .getOccupiedByPlayer() == 420 || mapGraphNodeContainer1.getMapGraphNode()
+                                .getOccupiedByPlayer() == 666) && mapGraphNodeContainer1
+                                .getMapGraphNode() instanceof MapGraph.BuildingNode) {
                             mapGraphNodeContainer1.getCircle().setVisible(false);
                         }
                     }
-                    if (startingTurn && mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer() == myPlayerNumber) {
-                        for (MapGraph.StreetNode streetNode : ((MapGraph.BuildingNode) mapGraphNodeContainer.getMapGraphNode()).getConnectedStreetNodes()) {
-                            MapGraphNodeContainer mapGraphNodeContainer1 = nodeContainerHashMap.get(streetNode.getUuid());
+                    if (startingTurn && mapGraphNodeContainer.getMapGraphNode()
+                            .getOccupiedByPlayer() == myPlayerNumber) {
+                        for (MapGraph.StreetNode streetNode : ((MapGraph.BuildingNode) mapGraphNodeContainer
+                                .getMapGraphNode()).getConnectedStreetNodes()) {
+                            MapGraphNodeContainer mapGraphNodeContainer1 = nodeContainerHashMap
+                                    .get(streetNode.getUuid());
                             mapGraphNodeContainer1.getCircle().setVisible(true);
                         }
                     }
@@ -2471,26 +2648,37 @@ public class GamePresenter extends AbstractPresenter {
                     if (mapGraphNodeContainer.getCircle().getFill().equals(Color.color(0.5, 0.5, 0.5))) {
                         Platform.runLater(() -> {
                             mapGraphNodeContainer.getCircle().setRadius(cardSize() / 3.5);
-                            mapGraphNodeContainer.getCircle().setFill(determineBuildingPicture(mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer(), 1));
+                            mapGraphNodeContainer.getCircle().setFill(determineBuildingPicture(
+                                    mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer(), 1));
                             mapGraphNodeContainer.getCircle().setVisible(true);
                             for (MapGraphNodeContainer mapGraphNodeContainer1 : mapGraphNodeContainers) {
-                                if (mapGraphNodeContainer1.getMapGraphNode().getOccupiedByPlayer() != 666 && mapGraphNodeContainer1.getMapGraphNode().getOccupiedByPlayer() != 420 && mapGraphNodeContainer1.getMapGraphNode() instanceof MapGraph.BuildingNode) {
+                                if (mapGraphNodeContainer1.getMapGraphNode()
+                                        .getOccupiedByPlayer() != 666 && mapGraphNodeContainer1.getMapGraphNode()
+                                        .getOccupiedByPlayer() != 420 && mapGraphNodeContainer1
+                                        .getMapGraphNode() instanceof MapGraph.BuildingNode) {
                                     mapGraphNodeContainer1.getCircle().toFront();
                                 }
                             }
                         });
                     } else {
                         for (MapGraphNodeContainer mapGraphNodeContainer1 : mapGraphNodeContainers) {
-                            if ((mapGraphNodeContainer1.getMapGraphNode().getOccupiedByPlayer() == 420 || mapGraphNodeContainer1.getMapGraphNode().getOccupiedByPlayer() == 666) && mapGraphNodeContainer1.getMapGraphNode() instanceof MapGraph.BuildingNode) {
+                            if ((mapGraphNodeContainer1.getMapGraphNode()
+                                    .getOccupiedByPlayer() == 420 || mapGraphNodeContainer1.getMapGraphNode()
+                                    .getOccupiedByPlayer() == 666) && mapGraphNodeContainer1
+                                    .getMapGraphNode() instanceof MapGraph.BuildingNode) {
                                 mapGraphNodeContainer1.getCircle().setVisible(false);
                             }
                         }
 
                         Platform.runLater(() -> {
                             mapGraphNodeContainer.getCircle().setRadius(cardSize() / 3.5);
-                            mapGraphNodeContainer.getCircle().setFill(determineBuildingPicture(mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer(), 2));
+                            mapGraphNodeContainer.getCircle().setFill(determineBuildingPicture(
+                                    mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer(), 2));
                             for (MapGraphNodeContainer mapGraphNodeContainer1 : mapGraphNodeContainers) {
-                                if (mapGraphNodeContainer1.getMapGraphNode().getOccupiedByPlayer() != 666 && mapGraphNodeContainer1.getMapGraphNode().getOccupiedByPlayer() != 420 && mapGraphNodeContainer1.getMapGraphNode() instanceof MapGraph.BuildingNode) {
+                                if (mapGraphNodeContainer1.getMapGraphNode()
+                                        .getOccupiedByPlayer() != 666 && mapGraphNodeContainer1.getMapGraphNode()
+                                        .getOccupiedByPlayer() != 420 && mapGraphNodeContainer1
+                                        .getMapGraphNode() instanceof MapGraph.BuildingNode) {
                                     mapGraphNodeContainer1.getCircle().toFront();
                                 }
                             }
@@ -2499,9 +2687,14 @@ public class GamePresenter extends AbstractPresenter {
                 } else {
                     MapGraph.StreetNode streetNode = (MapGraph.StreetNode) mapGraphNodeContainer.getMapGraphNode();
                     streetNode.setOccupiedByPlayer(message.getPlayerIndex());
+                    String text = "build a Street";
+                    LOG.debug("Updated game Event Log area with new message");
+                    updateEventLogLogic(text, message.getUser().getUsername());
                     if (startingTurn) {
                         for (MapGraphNodeContainer mapGraphNodeContainer1 : mapGraphNodeContainers) {
-                            if (mapGraphNodeContainer1.getMapGraphNode().getOccupiedByPlayer() == 666 && mapGraphNodeContainer1.getMapGraphNode() instanceof MapGraph.StreetNode) {
+                            if (mapGraphNodeContainer1.getMapGraphNode()
+                                    .getOccupiedByPlayer() == 666 && mapGraphNodeContainer1
+                                    .getMapGraphNode() instanceof MapGraph.StreetNode) {
                                 mapGraphNodeContainer1.getCircle().setVisible(false);
                             }
                         }
@@ -2511,10 +2704,15 @@ public class GamePresenter extends AbstractPresenter {
                     }
                     Platform.runLater(() -> {
                         mapGraphNodeContainer.getCircle().setVisible(false);
-                        mapGraphNodeContainer.getRectangle().setFill(determineBuildingPicture(mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer(), 0));
+                        mapGraphNodeContainer.getRectangle().setFill(
+                                determineBuildingPicture(mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer(),
+                                        0));
                         mapGraphNodeContainer.getRectangle().setVisible(true);
                         for (MapGraphNodeContainer mapGraphNodeContainer2 : mapGraphNodeContainers) {
-                            if (mapGraphNodeContainer2.getMapGraphNode().getOccupiedByPlayer() != 666 && mapGraphNodeContainer2.getMapGraphNode().getOccupiedByPlayer() != 420 && mapGraphNodeContainer2.getMapGraphNode() instanceof MapGraph.BuildingNode) {
+                            if (mapGraphNodeContainer2.getMapGraphNode()
+                                    .getOccupiedByPlayer() != 666 && mapGraphNodeContainer2.getMapGraphNode()
+                                    .getOccupiedByPlayer() != 420 && mapGraphNodeContainer2
+                                    .getMapGraphNode() instanceof MapGraph.BuildingNode) {
                                 mapGraphNodeContainer2.getCircle().toFront();
                             }
                         }
@@ -2584,10 +2782,16 @@ public class GamePresenter extends AbstractPresenter {
      *
      * @param successfulMovedRobberMessage the successfulMovedRobberMessage detected on the EventBus
      * @author Marius Birk
+     * Enhanced by Philip Nitsche
      * @since 2021-04-22
      */
     @Subscribe
     public void onSuccessfulMovedRobberMessage(SuccessfulMovedRobberMessage successfulMovedRobberMessage) {
+        if (this.currentGame != null && userIsOnTurn != null) {
+            String text = "moved the Robber";
+            LOG.debug("Updated game Event Log area with new message");
+            updateEventLogLogic(text, userIsOnTurn);
+        }
         for (HexagonContainer hexagonContainer : hexagonContainers) {
             if (hexagonContainer.getHexagon().getUuid().equals(successfulMovedRobberMessage.getNewField())) {
                 robber.setLayoutX(hexagonContainer.getHexagonShape().getLayoutX() - robber.getWidth() / 2);
@@ -2604,21 +2808,44 @@ public class GamePresenter extends AbstractPresenter {
      *
      * @param privateInventoryChangeMessage the PrivateInventoryChangeMessage received from the server
      * @author Marc Hermes
+     * Enhanced by Philip Nitsche
      * @since 2021-05-16
      * @since 2021-05-02
      */
     @Subscribe
     public void onPrivateInventoryChangeMessage(PrivateInventoryChangeMessage privateInventoryChangeMessage) {
-        if (this.currentLobby != null) {
-            if (this.currentLobby.equals(privateInventoryChangeMessage.getName())) {
+        if (this.currentGame != null) {
+            int tempLumber = privateInventoryChangeMessage.getPrivateInventory().get("Lumber");
+            int tempGrain = privateInventoryChangeMessage.getPrivateInventory().get("Grain");
+            int tempWool = privateInventoryChangeMessage.getPrivateInventory().get("Wool");
+            int tempBrick = privateInventoryChangeMessage.getPrivateInventory().get("Brick");
+            int tempOre = privateInventoryChangeMessage.getPrivateInventory().get("Ore");
+
+            if (tempLumber != pILumber || tempGrain != pIGrain || tempBrick != pIBrick || tempWool != pIWool
+                    || tempOre != pIOre) {
+                String text = "ressources are now \nLumber: " + tempLumber + "\nGrain: " + tempGrain + "\nWool: " +
+                        tempWool + "\nBrick: " + tempBrick + "\nOre: " + tempOre;
+                LOG.debug("Updated game Event Log area with new message");
+                updateEventLogLogic(text, "Your");
+                pILumber = tempLumber;
+                pIGrain = tempGrain;
+                pIBrick = tempBrick;
+                pIWool = tempWool;
+                pIOre = tempOre;
+            }
+            if (this.currentGame.equals(privateInventoryChangeMessage.getName())) {
                 if (tooMuchAlert != null) {
                     Platform.runLater(() -> {
-                        lumberLabelRobberMenu.setText(String.valueOf(privateInventoryChangeMessage.getPrivateInventory().get("Lumber")));
-                        brickLabelRobberMenu.setText(String.valueOf(privateInventoryChangeMessage.getPrivateInventory().get("Brick")));
-                        grainLabelRobberMenu.setText(String.valueOf(privateInventoryChangeMessage.getPrivateInventory().get("Grain")));
-                        woolLabelRobberMenu.setText(String.valueOf(privateInventoryChangeMessage.getPrivateInventory().get("Wool")));
-                        oreLabelRobberMenu.setText(String.valueOf(privateInventoryChangeMessage.getPrivateInventory().get("Ore")));
-                        int toDiscard = Integer.parseInt(lumberLabelRobberMenu.getText()) + Integer.parseInt(grainLabelRobberMenu.getText()) + Integer.parseInt(woolLabelRobberMenu.getText()) + Integer.parseInt(brickLabelRobberMenu.getText()) + Integer.parseInt(oreLabelRobberMenu.getText());
+                        lumberLabelRobberMenu.setText(String.valueOf(tempLumber));
+                        brickLabelRobberMenu.setText(String.valueOf(tempBrick));
+                        grainLabelRobberMenu.setText(String.valueOf(tempGrain));
+                        woolLabelRobberMenu.setText(String.valueOf(tempWool));
+                        oreLabelRobberMenu.setText(String.valueOf(tempOre));
+                        int toDiscard = Integer.parseInt(lumberLabelRobberMenu.getText()) +
+                                Integer.parseInt(grainLabelRobberMenu.getText()) +
+                                Integer.parseInt(woolLabelRobberMenu.getText()) +
+                                Integer.parseInt(brickLabelRobberMenu.getText()) +
+                                Integer.parseInt(oreLabelRobberMenu.getText());
                         if (toDiscard % 2 == 0) {
                             toDiscardLabel.setText(String.valueOf(toDiscard / 2));
                         } else {
@@ -2715,8 +2942,8 @@ public class GamePresenter extends AbstractPresenter {
      * @since 2021-05-28
      */
     private void onPublicInventoryChangeMessageLogic(PublicInventoryChangeMessage puicm) {
-        if (this.currentLobby != null) {
-            if (this.currentLobby.equals(puicm.getName())) {
+        if (this.currentGame != null) {
+            if (this.currentGame.equals(puicm.getName())) {
                 updatePublicInventory(puicm.getPublicInventories());
             }
         }
@@ -2785,7 +3012,8 @@ public class GamePresenter extends AbstractPresenter {
      * @see Inventory
      * @since 2021-06-02
      */
-    public void fillInPublicInventory(ObservableList<HashMap.Entry<String, Integer>> hashMapEntriesList, HashMap<String, Integer> hashMap) {
+    public void fillInPublicInventory(ObservableList<HashMap.Entry<String, Integer>> hashMapEntriesList,
+                                      HashMap<String, Integer> hashMap) {
         hashMapEntriesList.clear();
         hashMapEntriesList.add(null);
         hashMapEntriesList.add(null);
@@ -2959,6 +3187,7 @@ public class GamePresenter extends AbstractPresenter {
         tabChat.setContent(gameChatArea);
         Tab tabGameLog = new Tab();
         tabGameLog.setText("Log");
+        tabGameLog.setContent(gameEventLogArea);
         Tab tabPrices = new Tab();
         tabPrices.setText("Prices");
         tabPrices.setContent(pricesView);
@@ -2998,8 +3227,8 @@ public class GamePresenter extends AbstractPresenter {
      */
     @Subscribe
     public void onResolveCardNotSuccessfulResponse(ResolveDevelopmentCardNotSuccessfulResponse rdcns) {
-        if (this.currentLobby != null) {
-            if (this.currentLobby.equals(rdcns.getGameName())) {
+        if (this.currentGame != null) {
+            if (this.currentGame.equals(rdcns.getGameName())) {
                 this.currentDevelopmentCard = rdcns.getDevCard();
                 Platform.runLater(() -> {
                     this.resolveDevelopmentCardAlert.setTitle(currentDevelopmentCard + " in " + rdcns.getGameName());
@@ -3021,10 +3250,12 @@ public class GamePresenter extends AbstractPresenter {
      * The method called when a PlayDevelopmentCardResponse is received
      * <p>
      * Depending on which developmentCard is played the resolveDevelopmentCardAlert is shown.
-     * Also if the currently played DevelopmentCard is "Year of Plenty" or "Monopoly" the visibility of the rectangles with the pictures of the resources is set to "true".
+     * Also if the currently played DevelopmentCard is "Year of Plenty" or "Monopoly" the visibility of the rectangles
+     * with the pictures of the resources is set to "true".
      * Furthermore the circles displaying the empty building spots are hidden.
      * <p>
-     * In case the developmentCard is "Road Building", the resourceRectangles are hidden and the empty street building will be shown on the game field.
+     * In case the developmentCard is "Road Building", the resourceRectangles are hidden and the empty street building
+     * will be shown on the game field.
      *
      * @param pdcr the PlayDevelopmentCardResponse received from the server
      * @author Marc Hermes
@@ -3032,16 +3263,18 @@ public class GamePresenter extends AbstractPresenter {
      */
     @Subscribe
     public void onPlayDevelopmentCardResponse(PlayDevelopmentCardResponse pdcr) {
-        if (this.currentLobby != null) {
-            if (this.currentLobby.equals(pdcr.getGameName())) {
+        if (this.currentGame != null) {
+            if (this.currentGame.equals(pdcr.getGameName())) {
                 if (pdcr.isCanPlayCard()) {
                     this.currentDevelopmentCard = pdcr.getDevCard();
                     if (!pdcr.getDevCard().equals("Knight")) {
                         LOG.debug("The card " + pdcr.getDevCard() + " was played by the user " + pdcr.getUserName());
                         this.currentDevelopmentCard = pdcr.getDevCard();
                         Platform.runLater(() -> {
-                            this.resolveDevelopmentCardAlert.setTitle(currentDevelopmentCard + " in " + pdcr.getGameName());
-                            if (this.currentDevelopmentCard.equals("Year of Plenty") || this.currentDevelopmentCard.equals("Monopoly")) {
+                            this.resolveDevelopmentCardAlert
+                                    .setTitle(currentDevelopmentCard + " in " + pdcr.getGameName());
+                            if (this.currentDevelopmentCard.equals("Year of Plenty") || this.currentDevelopmentCard
+                                    .equals("Monopoly")) {
                                 this.resolveDevelopmentCardAlert.setHeaderText("Select Resource/s");
                                 for (Rectangle rect : resourceRectangles) {
                                     rect.setVisible(true);
@@ -3052,8 +3285,10 @@ public class GamePresenter extends AbstractPresenter {
                                     }
                                 }
                             } else if (this.currentDevelopmentCard.equals("Road Building")) {
+
                                 updatePossibleBuildingSpots(0);
-                                this.resolveDevelopmentCardAlert.setHeaderText("Select 2 building spots for the streets");
+                                this.resolveDevelopmentCardAlert
+                                        .setHeaderText("Select 2 building spots for the streets");
                                 for (Rectangle rect : resourceRectangles) {
                                     rect.setVisible(false);
                                 }
@@ -3068,6 +3303,9 @@ public class GamePresenter extends AbstractPresenter {
                         });
 
                     } else {
+                        String text = "can not play this development card";
+                        LOG.debug("Updated game Event Log area with new message");
+                        updateEventLogLogic(text, pdcr.getUserName());
                         LOG.debug("The user " + pdcr.getUserName() + " cannot play the card " + pdcr.getDevCard());
                     }
                 }
@@ -3084,9 +3322,13 @@ public class GamePresenter extends AbstractPresenter {
      */
     @Subscribe
     public void onResolveDevelopmentCardMessage(ResolveDevelopmentCardMessage rdcm) {
-        if (this.currentLobby != null) {
-            if (this.currentLobby.equals(rdcm.getName())) {
-                LOG.debug("The user " + rdcm.getUser().getUsername() + " successfully resolved the card " + rdcm.getDevCard());
+        if (this.currentGame != null) {
+            String text = "played a Development Card";
+            LOG.debug("Updated game Event Log area with new message");
+            updateEventLogLogic(text, rdcm.getUser().getUsername());
+            if (this.currentGame.equals(rdcm.getName())) {
+                LOG.debug("The user " + rdcm.getUser().getUsername() + " successfully resolved the card " + rdcm
+                        .getDevCard());
             }
         }
     }
@@ -3096,15 +3338,20 @@ public class GamePresenter extends AbstractPresenter {
      *
      * @param message TradeCardErrorMessage
      * @author Alexander Losse, Ricardo Mook
+     * Enhanced by Philip Nitsche
      * @since 2021-04-25
      */
     @Subscribe
     public void notEnoughResTrade(TradeCardErrorMessage message) {
-        if (this.currentLobby != null) {
-            if (this.currentLobby.equals(message.getName())) {
+        if (this.currentGame != null) {
+            String text = "have to enough ressources to trade";
+            LOG.debug("Updated game Event Log area with new message");
+            updateEventLogLogic(text, "You");
+            if (this.currentGame.equals(message.getName())) {
                 Platform.runLater(() -> {
                     this.alert.setTitle(message.getName());
-                    this.alert.setHeaderText("You have not enough Resources for the trade in: " + message.getTradeCode());
+                    this.alert
+                            .setHeaderText("You have not enough Resources for the trade in: " + message.getTradeCode());
                     this.alert.show();
                 });
             }
@@ -3196,7 +3443,6 @@ public class GamePresenter extends AbstractPresenter {
                         @Override
                         public void handle(MouseEvent mouseEvent) {
                             onClickOnDevelopmentCard(title, description, image, isDevelopmentCard);
-
                         }
                     });
 
@@ -3234,7 +3480,6 @@ public class GamePresenter extends AbstractPresenter {
                         @Override
                         public void handle(MouseEvent mouseEvent) {
                             onClickOnDevelopmentCard(title, description, image, isDevelopmentCard);
-
                         }
                     });
 
@@ -3252,7 +3497,6 @@ public class GamePresenter extends AbstractPresenter {
                         @Override
                         public void handle(MouseEvent mouseEvent) {
                             onClickOnDevelopmentCard(title, description, image, isDevelopmentCard);
-
                         }
                     });
 
@@ -3272,7 +3516,6 @@ public class GamePresenter extends AbstractPresenter {
                         @Override
                         public void handle(MouseEvent mouseEvent) {
                             onClickOnDevelopmentCard(title, description, image, isDevelopmentCard);
-
                         }
                     });
 
@@ -3281,7 +3524,7 @@ public class GamePresenter extends AbstractPresenter {
 
                         @Override
                         public void handle(MouseEvent mouseEvent) {
-                            gameService.playDevelopmentCard((UserDTO) joinedLobbyUser, currentLobby, title);
+                            gameService.playDevelopmentCard((UserDTO) joinedLobbyUser, currentGame, title);
                         }
                     });
 
@@ -3300,7 +3543,6 @@ public class GamePresenter extends AbstractPresenter {
                         @Override
                         public void handle(MouseEvent mouseEvent) {
                             onClickOnDevelopmentCard(title, description, image, isDevelopmentCard);
-
                         }
                     });
 
@@ -3309,7 +3551,7 @@ public class GamePresenter extends AbstractPresenter {
 
                         @Override
                         public void handle(MouseEvent mouseEvent) {
-                            gameService.playDevelopmentCard((UserDTO) joinedLobbyUser, currentLobby, title);
+                            gameService.playDevelopmentCard((UserDTO) joinedLobbyUser, currentGame, title);
                         }
                     });
 
@@ -3328,7 +3570,6 @@ public class GamePresenter extends AbstractPresenter {
                         @Override
                         public void handle(MouseEvent mouseEvent) {
                             onClickOnDevelopmentCard(title, description, image, isDevelopmentCard);
-
                         }
                     });
 
@@ -3337,7 +3578,7 @@ public class GamePresenter extends AbstractPresenter {
 
                         @Override
                         public void handle(MouseEvent mouseEvent) {
-                            gameService.playDevelopmentCard((UserDTO) joinedLobbyUser, currentLobby, title);
+                            gameService.playDevelopmentCard((UserDTO) joinedLobbyUser, currentGame, title);
                         }
                     });
 
@@ -3356,7 +3597,6 @@ public class GamePresenter extends AbstractPresenter {
                         @Override
                         public void handle(MouseEvent mouseEvent) {
                             onClickOnDevelopmentCard(title, description, image, isDevelopmentCard);
-
                         }
                     });
 
@@ -3365,7 +3605,7 @@ public class GamePresenter extends AbstractPresenter {
 
                         @Override
                         public void handle(MouseEvent mouseEvent) {
-                            gameService.playDevelopmentCard((UserDTO) joinedLobbyUser, currentLobby, title);
+                            gameService.playDevelopmentCard((UserDTO) joinedLobbyUser, currentGame, title);
                         }
                     });
 
@@ -3384,7 +3624,6 @@ public class GamePresenter extends AbstractPresenter {
                         @Override
                         public void handle(MouseEvent mouseEvent) {
                             onClickOnDevelopmentCard(title, description, image, isDevelopmentCard);
-
                         }
                     });
 
@@ -3403,7 +3642,6 @@ public class GamePresenter extends AbstractPresenter {
                         @Override
                         public void handle(MouseEvent mouseEvent) {
                             onClickOnDevelopmentCard(title, description, image, isDevelopmentCard);
-
                         }
                     });
 
@@ -3422,15 +3660,10 @@ public class GamePresenter extends AbstractPresenter {
                         @Override
                         public void handle(MouseEvent mouseEvent) {
                             onClickOnDevelopmentCard(title, description, image, isDevelopmentCard);
-
                         }
                     });
-
                     break;
-
-
             }
-
         }
         privateInventoryView.add(privateLumberLabel, 0, 1);
         privateInventoryView.add(privateBrickLabel, 1, 1);
@@ -3460,7 +3693,8 @@ public class GamePresenter extends AbstractPresenter {
      * @author Ricardo Mook
      * @since 2021-05-30
      */
-    public void onClickOnDevelopmentCard(String cardName, String description, Image cardImage, Boolean isDevelopmentCard) {
+    public void onClickOnDevelopmentCard(String cardName, String description, Image cardImage,
+                                         Boolean isDevelopmentCard) {
         Alert clickAlert = new Alert(Alert.AlertType.NONE);
         ButtonType ok = new ButtonType("Ok", ButtonBar.ButtonData.NO);
         clickAlert.getButtonTypes().setAll(ok);
@@ -3470,13 +3704,17 @@ public class GamePresenter extends AbstractPresenter {
             clickAlert.getButtonTypes().setAll(ok, playThisCard);
 
             Button playCard = (Button) clickAlert.getDialogPane().lookupButton(playThisCard);
-            playCard.setOnAction(event -> gameService.playDevelopmentCard((UserDTO) joinedLobbyUser, currentLobby, cardName));
+            playCard.setOnAction(
+                    event -> gameService.playDevelopmentCard((UserDTO) joinedLobbyUser, currentGame, cardName));
         }
         clickAlert.setTitle(cardName);
         Text contentText = new Text(description);
         contentText.setWrappingWidth(200);
         clickAlert.getDialogPane().setContent(contentText);
-        clickAlert.setGraphic(new ImageView(cardImage));
+        final ImageView imageView = new ImageView(cardImage);
+        imageView.setFitHeight(500);
+        imageView.setFitWidth(300);
+        clickAlert.setGraphic(imageView);
 
         clickAlert.show();
 
@@ -3487,12 +3725,16 @@ public class GamePresenter extends AbstractPresenter {
      *
      * @param tooMuchResourceCardsMessage the tooMuchResourceCardsMessage detected on the EventBus
      * @author Marius Birk
+     * Enhanced by Philip Nitsche
      * @since 2021-05-01
      */
     @Subscribe
     public void onTooMuchResourceCardsMessage(TooMuchResourceCardsMessage tooMuchResourceCardsMessage) {
-        if (this.currentLobby != null) {
-            if (this.currentLobby.equals(tooMuchResourceCardsMessage.getName())) {
+        if (this.currentGame != null) {
+            String text = "have to much ressources";
+            LOG.debug("Updated game Event Log area with new message");
+            updateEventLogLogic(text, "You");
+            if (this.currentGame.equals(tooMuchResourceCardsMessage.getName())) {
                 Platform.runLater(() -> showRobberResourceMenu(tooMuchResourceCardsMessage));
             }
         }
@@ -3506,17 +3748,86 @@ public class GamePresenter extends AbstractPresenter {
      *
      * @param choosePlayerMessage the choosePlayerMessage detected on the EventBus
      * @author Marius Birk
+     * Enhanced by Philip Nitsche
      * @since 2021-05-01
      */
     @Subscribe
     public void onChoosePlayerMessage(ChoosePlayerMessage choosePlayerMessage) {
-        if (this.currentLobby != null) {
-            if (this.currentLobby.equals(choosePlayerMessage.getName())) {
+        if (this.currentGame != null) {
+            if (this.currentGame.equals(choosePlayerMessage.getName())) {
                 if (!choosePlayerMessage.getUserList().isEmpty()) {
+                    String text = "have to choose a player";
+                    LOG.debug("Updated game Event Log area with new message");
+                    updateEventLogLogic(text, "You");
                     Platform.runLater(() -> showChoosePlayerAlert(choosePlayerMessage));
 
                 }
             }
+        }
+    }
+
+    /**
+     * This method will be invoked if a tradeEndedLogMessage is detected on the bus.
+     * <p>
+     * The method updates the event log with trade news.
+     *
+     * @param tradeEndedLogMessage the tradeEndedLogMessage detected on the EventBus
+     * @author Philip Nitsche
+     * @since 2021-06-21
+     */
+
+    @Subscribe
+    public void onTradeEndedLogMessage(TradeEndedLogMessage tradeEndedLogMessage) {
+        if (this.currentGame != null) {
+            if (tradeEndedLogMessage.getSuccess()) {
+                String text = " was accepted at trade:" + tradeEndedLogMessage.getTradeCode();
+                LOG.debug("Updated game Event Log area with new message");
+                updateEventLogLogic(text, "The offer from Player " + tradeEndedLogMessage.getWinnerBidder());
+            } else {
+                String text = "of the bids was accepted. Sorry! :(";
+                LOG.debug("Updated game Event Log area with new message");
+                updateEventLogLogic(text, "None");
+            }
+        }
+    }
+
+    /**
+     * This method will be invoked if a notSuccessfulConstructionMessage is detected on the bus.
+     * <p>
+     * The method updates the event log when a player is not allowed to build where he tried to.
+     *
+     * @param notSuccessfulConstructionMessage the notSuccessfulConstructionMessage detected on the EventBus
+     * @author Philip Nitsche
+     * @since 2021-06-21
+     */
+
+    @Subscribe
+    public void onNotSuccessfulConstructionMessage(NotSuccessfulConstructionMessage notSuccessfulConstructionMessage) {
+        if (this.currentGame != null) {
+            String text = "can not build here";
+            LOG.debug("Updated game Event Log area with new message");
+            updateEventLogLogic(text, "You");
+        }
+    }
+
+    /**
+     * This method will be invoked if a drawRandomResourceFromPlayerMessage is detected on the bus.
+     * <p>
+     * The method updates the event log when a player takes a card from an other player with the robber.
+     *
+     * @param drawRandomResourceFromPlayerMessage the drawRandomResourceFromPlayerMessage detected on the EventBus
+     * @author Philip Nitsche
+     * @since 2021-06-21
+     */
+
+    @Subscribe
+    public void onDrawRandomResourceFromPlayerMessage(
+            DrawRandomResourceFromPlayerMessage drawRandomResourceFromPlayerMessage) {
+        if (this.currentGame != null) {
+            String text = "took a card from " + drawRandomResourceFromPlayerMessage.getUserToLossTheCard()
+                    .getUsername();
+            LOG.debug("Updated game Event Log area with new message");
+            updateEventLogLogic(text, drawRandomResourceFromPlayerMessage.getUserToGetTheCard().getUsername());
         }
     }
 
@@ -3549,7 +3860,9 @@ public class GamePresenter extends AbstractPresenter {
 
                 } else { //opening phase
                     for (MapGraphNodeContainer mapGraphNodeContainer : mapGraphNodeContainers) {
-                        if (mapGraphNodeContainer.getMapGraphNode().getOccupiedByPlayer() == 666 && mapGraphNodeContainer.getMapGraphNode() instanceof MapGraph.BuildingNode) {
+                        if (mapGraphNodeContainer.getMapGraphNode()
+                                .getOccupiedByPlayer() == 666 && mapGraphNodeContainer
+                                .getMapGraphNode() instanceof MapGraph.BuildingNode) {
                             mapGraphNodeContainer.getCircle().setVisible(true);
                         }
                     }
@@ -3570,4 +3883,23 @@ public class GamePresenter extends AbstractPresenter {
         });
     }
 
+    /**
+     * Adds the Message to the eventLogTextArea
+     * <p>
+     * First the message gets formatted with the readableTime.
+     * After the formatting the Message gets added to the textArea.
+     * The formatted Message contains the readableTime and message
+     *
+     * @param text the Message given by the original subscriber methods.
+     * @author Philip
+     * @see de.uol.swp.common.chat.ResponseChatMessage
+     * @since 2021-05-31
+     */
+    private void updateEventLogLogic(String text, String player) {
+        var time = new SimpleDateFormat("HH:mm");
+        var resultdate = new Date(System.currentTimeMillis());
+        var readableTime = time.format(resultdate);
+        gameEventLogArea
+                .insertText(gameEventLogArea.getLength(), readableTime + " : " + player + " " + text + "." + "\n");
+    }
 }

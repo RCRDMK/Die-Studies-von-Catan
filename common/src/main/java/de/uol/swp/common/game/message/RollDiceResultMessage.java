@@ -21,8 +21,8 @@ public class RollDiceResultMessage extends AbstractGameMessage {
      *
      * @param diceEyes1 eyes from die one
      * @param diceEyes2 eyes from die two
-     * @param turn current turn in the game
-     * @param gameName name of the game
+     * @param turn      current turn in the game
+     * @param gameName  name of the game
      */
     public RollDiceResultMessage(int diceEyes1, int diceEyes2, int turn, String gameName) {
         this.diceEyes1 = diceEyes1;

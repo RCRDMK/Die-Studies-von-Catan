@@ -90,7 +90,7 @@ public class AIToServerTranslator {
             } else if (aiAction instanceof DrawRandomResourceFromPlayerAction) {
                 DrawRandomResourceFromPlayerAction drrfpa = (DrawRandomResourceFromPlayerAction) aiAction;
                 DrawRandomResourceFromPlayerRequest drrfpm = new DrawRandomResourceFromPlayerRequest(gameName, user, drrfpa.getPlayerName(), drrfpa.getResource());
-                gameService.onDrawRandomResourceFromPlayerMessage(drrfpm);
+                gameService.onDrawRandomResourceFromPlayerRequest(drrfpm);
 
             } else if (aiAction instanceof PlayDevelopmentCardAction) {
                 PlayDevelopmentCardAction pda = (PlayDevelopmentCardAction) aiAction;
