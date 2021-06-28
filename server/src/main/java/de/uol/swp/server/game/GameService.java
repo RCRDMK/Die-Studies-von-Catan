@@ -60,6 +60,10 @@ public class GameService extends AbstractService {
     private final LobbyService lobbyService;
     private final AuthenticationService authenticationService;
     private final UserService userService;
+    // used for differentiating between the actual GameService and the GameService used for tests, where the Threads of the AI need to be joined
+    // if the Threads aren't joined for the tests the tests will fail because they run through and check the JUNIT asserts without the threads being done.
+    // We don't want to join the threads for non test-purposes though, since that would make the GameService slow to respond.
+    private boolean joiningAIThreadsNeeded = false;
 
     /**
      * Constructor
@@ -89,10 +93,12 @@ public class GameService extends AbstractService {
      * GameDroppedMessage.
      * Check if the player leaving the game is the turnPlayer, so that the AI may replace him.
      *
-     * @param gameLeaveUserRequest
+     * @param gameLeaveUserRequest the GameLeaveUserRequest detected on the EventBus
+     * @author Kirstin Beyer, Iskander Yusupov
+     * @since 2021-01-24
      */
     @Subscribe
-    public void onGameLeaveUserRequest(GameLeaveUserRequest gameLeaveUserRequest) {
+    public void onGameLeaveUserRequest(GameLeaveUserRequest gameLeaveUserRequest) throws InterruptedException {
         Optional<Game> optionalGame = gameManagement.getGame(gameLeaveUserRequest.getName());
         Optional<Lobby> lobby = lobbyService.getLobby(gameLeaveUserRequest.getName());
         if (optionalGame.isPresent()) {
@@ -113,7 +119,6 @@ public class GameService extends AbstractService {
                         sendToSpecificUser(ctx.get(), new GameLeftSuccessfulResponse(gameLeaveUserRequest.getName(), gameLeaveUserRequest.getUser()));
                     }
                     game.leaveUser(gameLeaveUserRequest.getUser());
-                    sendToAll(new GameSizeChangedMessage(gameLeaveUserRequest.getName()));
                     ArrayList<UserDTO> usersInGame = new ArrayList<>();
                     for (User user : game.getUsers()) usersInGame.add((UserDTO) user);
                     sendToAllInGame(gameLeaveUserRequest.getName(), new UserLeftGameMessage(gameLeaveUserRequest.getName(), gameLeaveUserRequest.getUser(), usersInGame));
@@ -142,14 +147,13 @@ public class GameService extends AbstractService {
      * Everyone in the game receive UserLeftGameMessage and GameSizeChangedMessage.
      * Check if the player leaving the game is the turnPlayer, so that the AI may replace him.
      *
-     * @param kickPlayerRequest
+     * @param kickPlayerRequest the kickPlayerRequest detected on the EventBus
      * @author Iskander Yusupov
      * @since 2021-06-2021
      */
     @Subscribe
-    public void onGameKickPlayerRequest(KickPlayerRequest kickPlayerRequest) {
+    public void onGameKickPlayerRequest(KickPlayerRequest kickPlayerRequest) throws InterruptedException {
         Optional<Game> optionalGame = gameManagement.getGame(kickPlayerRequest.getName());
-        Optional<Lobby> lobby = lobbyService.getLobby(kickPlayerRequest.getName());
         if (optionalGame.isPresent()) {
             Game game = optionalGame.get();
             User userToKick = null;
@@ -171,7 +175,6 @@ public class GameService extends AbstractService {
                     LobbyLeaveUserRequest lobbyLeaveUserRequest = new LobbyLeaveUserRequest(game.getName(), (UserDTO) userToKick);
                     lobbyService.onLobbyLeaveUserRequest(lobbyLeaveUserRequest);
                 }
-                sendToAll(new GameSizeChangedMessage(kickPlayerRequest.getName()));
                 ArrayList<UserDTO> usersInGame = new ArrayList<>();
                 for (User user : game.getUsers()) usersInGame.add((UserDTO) user);
                 sendToAllInGame(kickPlayerRequest.getName(), new UserLeftGameMessage(kickPlayerRequest.getName(), kickPlayerRequest.getUser(), usersInGame));
@@ -288,13 +291,12 @@ public class GameService extends AbstractService {
                                                 }
                                             }
                                         }
-
+                                        checkForLongestRoad(game);
+                                        updateInventory(game);
                                         if (game.isStartingTurns() && game.getMapGraph().getNumOfRoads()[playerIndex] == game.getStartingPhase()
                                                 && game.getMapGraph().getNumOfRoads()[playerIndex] == game.getMapGraph().getNumOfBuildings()[playerIndex]) {
                                             endTurn(game, message.getUser());
                                         }
-                                        checkForLongestRoad(game);
-                                        updateInventory(game);
                                         return true;
                                     }
                                 } else {
@@ -323,15 +325,15 @@ public class GameService extends AbstractService {
                                                     message.getUuid(), "StreetNode"));
                                             int continuousRoad = game.getMapGraph().getLongestStreetPathCalculator().getLongestPath(game.getTurn());
                                             inventory.setContinuousRoad(continuousRoad == 0 ? 1 : continuousRoad);
+                                            inventory.road.decNumber();
+                                            checkForLongestRoad(game);
+                                            updateInventory(game);
                                             if (game.isStartingTurns() && game.getMapGraph().getNumOfRoads()[playerIndex] == game.getStartingPhase()
                                                     && game.getMapGraph().getNumOfRoads()[playerIndex] == game.getMapGraph().getNumOfBuildings()[playerIndex]) {
                                                 endTurn(game, message.getUser());
                                             }
-                                            inventory.road.decNumber();
-                                            checkForLongestRoad(game);
-                                            updateInventory(game);
                                             return true;
-                                        } //else sendToAllInGame(game.getName(), new NotSuccessfulConstructionMessage(playerIndex, message.getUuid(), "StreetNode"));
+                                        }
                                     } else {
                                         NotEnoughResourcesMessage nerm = new NotEnoughResourcesMessage();
                                         nerm.setName(game.getName());
@@ -708,7 +710,7 @@ public class GameService extends AbstractService {
      * @since 2021-04-25
      */
     @Subscribe
-    public void onRobbersNewFieldRequest(RobbersNewFieldRequest robbersNewFieldRequest) {
+    public void onRobbersNewFieldRequest(RobbersNewFieldRequest robbersNewFieldRequest) throws InterruptedException {
         Optional<Game> optionalGame = gameManagement.getGame(robbersNewFieldRequest.getName());
         if (optionalGame.isPresent()) {
             Game game = optionalGame.get();
@@ -785,7 +787,11 @@ public class GameService extends AbstractService {
                                 users.removeAll(lobby.getPlayersReady());
                             }
                             if (lobby.getPlayersReady().size() > 0 && gameManagement.getGame(lobby.getName()).isEmpty()) {
-                                startGame(lobby, lobby.getGameFieldVariant());
+                                try {
+                                    startGame(lobby, lobby.getGameFieldVariant());
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
                             } else if (lobby.getPlayersReady().size() < 1) {
                                 sendToListOfUsers(users, new NotEnoughPlayersMessage(lobby.getName()));
                             }
@@ -823,7 +829,7 @@ public class GameService extends AbstractService {
      * @since 2021-01-24
      */
 
-    public void startGame(Lobby lobby, String gameFieldVariant) {
+    public void startGame(Lobby lobby, String gameFieldVariant) throws InterruptedException {
         if (lobby.getPlayersReady().size() > 0) {
             Set<User> newUserList = new TreeSet<>();
             for (User user : lobby.getUsers()) {
@@ -880,7 +886,7 @@ public class GameService extends AbstractService {
      * @since 2021-01-24
      */
     @Subscribe
-    public void onPlayerReadyRequest(PlayerReadyRequest playerReadyRequest) {
+    public void onPlayerReadyRequest(PlayerReadyRequest playerReadyRequest) throws InterruptedException {
         Optional<Lobby> optionalLobby = lobbyService.getLobby(playerReadyRequest.getName());
         if (optionalLobby.isPresent()) {
             Lobby lobby = optionalLobby.get();
@@ -978,6 +984,19 @@ public class GameService extends AbstractService {
         }
     }
 
+    /**
+     * Used to the the turn for a user in a certain game
+     * <p>
+     * First check if the player for whom the turn should end is the turn player, there is currently no card to be played,
+     * there is no trade ongoing, and either it's the starting turns or the dice were rolled this turn.
+     * If everything checks out, call nextRound() for the game and distribute resources if the opening turns just ended.
+     * After that check if the current turn player is an AI and if it is roll the dice for it, and start a
+     * new thread for the AI
+     * @param game the game for which the turn is to be ended
+     * @param user the user who wants to end his turn
+     * @author Marc Hermes
+     * @since 2021-06-19
+     */
     public void endTurn(Game game, UserDTO user) {
         if (user.equals(game.getUser(game.getTurn())) && game.getCurrentCard().equals("") && game.getTradeList().isEmpty() && (game.rolledDiceThisTurn() || game.isStartingTurns())) {
             try {
@@ -989,14 +1008,25 @@ public class GameService extends AbstractService {
                 sendToAllInGame(game.getName(), new NextTurnMessage(game.getName(),
                         game.getUser(game.getTurn()).getUsername(), game.getTurn(), game.isStartingTurns()));
                 // Check if the turnPlayer is an actual user in the game, if not, start the AI
-                if (!game.getUsers().contains(game.getUser(game.getTurn())) && game.getOverallTurns() < 200 && !game.hasConcluded()) {
+                if (!game.getUsers().contains(game.getUser(game.getTurn())) && !game.hasConcluded()) {
                     if (!game.isStartingTurns()) {
                         RollDiceRequest rdr = new RollDiceRequest(game.getName(), game.getUser(game.getTurn()));
                         onRollDiceRequest(rdr);
                     }
-                    startTurnForAI((GameDTO) game);
+                    Thread aiThread = new Thread(() -> {
+                        try {
+                            startTurnForAI((GameDTO) game);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    });
+                    aiThread.start();
+                    if(joiningAIThreadsNeeded) {
+                        aiThread.join();
+                    }
+
                 }
-            } catch (GameManagementException e) {
+            } catch (GameManagementException | InterruptedException e) {
                 LOG.debug(e);
                 LOG.debug("Sender " + user.getUsername() + " was not player with current turn");
             }
@@ -1015,13 +1045,12 @@ public class GameService extends AbstractService {
      * @author Marc Hermes
      * @since 2021-05-11
      */
-    public void startTurnForAI(GameDTO game) {
+    public void startTurnForAI(GameDTO game) throws InterruptedException {
         if (game.isUsedForTest()) {
             game.setLastRolledDiceValue(5);
             TestAI testAI = new TestAI(game);
             AIToServerTranslator.translate(testAI.startTurnOrder(), this);
         } else {
-            //RandomAI randomAI = new RandomAI(game);
             LOG.debug("Rufe random AI auf");
             AIToServerTranslator.translate(new RandomAI(game).startTurnOrder(), this);
         }
@@ -1127,8 +1156,6 @@ public class GameService extends AbstractService {
 
                     case "Road Building":
                         if (inventory.cardRoadBuilding.getNumber() > 0 && currentCardOfGame.equals("") && (!alreadyPlayedCard || game.isUsedForTest()) && inventory.road.getNumber() > 1) {
-                            // TODO: check if the player is allowed to even attempt to build 2 streets i.e. not possible when there are no legal spaces to build 2 streets
-                            // TODO: probs very complicated to check that, so maybe just ignore that fringe scenario???
                             game.setCurrentCard("Road Building");
                             game.setPlayedCardThisTurn(true);
                             PlayDevelopmentCardResponse response = new PlayDevelopmentCardResponse(devCard, true, turnPlayer.getUsername(), game.getName());
@@ -1198,7 +1225,7 @@ public class GameService extends AbstractService {
      * @since 2021-05-11
      */
     @Subscribe
-    public void onResolveDevelopmentCardRequest(ResolveDevelopmentCardRequest request) {
+    public void onResolveDevelopmentCardRequest(ResolveDevelopmentCardRequest request) throws InterruptedException {
         Optional<Game> optionalGame = gameManagement.getGame(request.getName());
         if (optionalGame.isPresent()) {
 
@@ -1444,7 +1471,7 @@ public class GameService extends AbstractService {
      * @since 2021-04-08
      */
     @Subscribe
-    public void onLogoutRequest(LogoutRequest request) {
+    public void onLogoutRequest(LogoutRequest request) throws InterruptedException {
         if (request.getSession().isPresent()) {
             Session session = request.getSession().get();
             var userToLogOut = session.getUser();
@@ -1497,7 +1524,7 @@ public class GameService extends AbstractService {
      * @since 2021-04-11
      */
     @Subscribe
-    public void onTradeItemRequest(TradeItemRequest request) {
+    public void onTradeItemRequest(TradeItemRequest request) throws InterruptedException {
         LOG.debug("Got message " + request.getUser().getUsername());
         Optional<Game> optionalGame = gameManagement.getGame(request.getName());
 
@@ -1849,7 +1876,7 @@ public class GameService extends AbstractService {
      * @author Marius Birk
      * @since 2021-05-13
      */
-    public void tooMuchResources(Game game) {
+    public void tooMuchResources(Game game) throws InterruptedException {
         for (User user : game.getUsersList()) {
             if (game.getInventory(user).sumResource() > 7) {
                 TooMuchResourceCardsMessage tooMuchResourceCardsMessage;
@@ -1895,5 +1922,16 @@ public class GameService extends AbstractService {
         if (inventory.get("Ore") > 0) resources.add("Ore");
         if (resources.size() > 0) return resources.get((int) (Math.random() * resources.size()));
         else return "";
+    }
+
+    /**
+     * Setter for the joiningAIThreadsNeeded boolean variable
+     *
+     * @param joiningAIThreadsNeeded the value the variable is to be set to
+     * @author Marc Hermes
+     * @since 2021-06-19
+     */
+    public void setJoiningAIThreadsNeeded(boolean joiningAIThreadsNeeded) {
+        this.joiningAIThreadsNeeded = joiningAIThreadsNeeded;
     }
 }

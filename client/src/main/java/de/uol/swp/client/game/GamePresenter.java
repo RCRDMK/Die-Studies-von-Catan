@@ -225,7 +225,6 @@ public class GamePresenter extends AbstractPresenter {
     @FXML
     private Pane pricesView;
 
-
     @FXML
     private ListView<HashMap.Entry<String, Integer>> publicInventory1View;
     @FXML
@@ -1233,7 +1232,7 @@ public class GamePresenter extends AbstractPresenter {
      * If the Player is kicked from the Game, meaning this Game Presenter is no longer needed, this presenter will no longer be registered
      * on the event bus and no longer be reachable for responses, messages etc.
      *
-     * @param pkm
+     * @param pkm the playerKickedMessage detected on the EventBus
      * @author Iskander Yusupov
      * @see PlayerKickedMessage
      * @since 2021-06-25
@@ -1432,7 +1431,7 @@ public class GamePresenter extends AbstractPresenter {
      * It creates four images and image patterns. Each kick button receives it's own image pattern.
      * Each button will give small tooltip upon the hovering on it.
      *
-     * @param list
+     * @param list the list of the Users in this Game
      * @author Iskander Yusupov
      * @since 2021-06-21
      */
@@ -1505,9 +1504,9 @@ public class GamePresenter extends AbstractPresenter {
      * <p>
      * be disabled.
      *
-     * @param list
-     * @param humans
-     * @param gameOwner
+     * @param list the list of all Users in this game
+     * @param humans the list of all human players in this Game
+     * @param gameOwner the owner of the game
      * @author Iskander Yusupov
      * @since 2021-06-21
      */
@@ -3295,7 +3294,7 @@ public class GamePresenter extends AbstractPresenter {
 
                     r.setOnMouseClicked(new EventHandler<>() {
                         final String title = hover.getText();
-                        final String description = "When you play out this card, you can choose a resource. Every player who currently has the chosen resource on their hand must give you all of them.";
+                        final String description = "When you play this card, you can choose a resource. Every player who currently has the chosen resource in their hand must give you all of them.";
                         final Boolean isDevelopmentCard = true;
 
                         @Override
@@ -3323,7 +3322,7 @@ public class GamePresenter extends AbstractPresenter {
 
                     r.setOnMouseClicked(new EventHandler<>() {
                         final String title = hover.getText();
-                        final String description = "The Road Building development card. With this card played out, you can build two roads this turn free of charge";
+                        final String description = "The Road Building development card. When this card is played, you can build two roads this turn free of charge";
                         final Boolean isDevelopmentCard = true;
 
                         @Override
@@ -3351,8 +3350,8 @@ public class GamePresenter extends AbstractPresenter {
 
                     r.setOnMouseClicked(new EventHandler<>() {
                         final String title = hover.getText();
-                        final String description = "The Year of Plenty development card. When this card is played out, you immediately get two resource cards of your choice from the bank";
-                        final Boolean isDevelopmentCard = false;
+                        final String description = "The Year of Plenty development card. When this card is played, you immediately get two resource cards of your choice from the bank";
+                        final Boolean isDevelopmentCard = true;
 
                         @Override
                         public void handle(MouseEvent mouseEvent) {
@@ -3379,7 +3378,7 @@ public class GamePresenter extends AbstractPresenter {
 
                     r.setOnMouseClicked(new EventHandler<>() {
                         final String title = hover.getText();
-                        final String description = "You can build these to get resources from tiles";
+                        final String description = "You can build these to get resources from hexagons";
                         final Boolean isDevelopmentCard = false;
 
                         @Override
@@ -3461,9 +3460,8 @@ public class GamePresenter extends AbstractPresenter {
      * @author Ricardo Mook
      * @since 2021-05-30
      */
-
     public void onClickOnDevelopmentCard(String cardName, String description, Image cardImage, Boolean isDevelopmentCard) {
-        Alert clickAlert = new Alert(Alert.AlertType.CONFIRMATION);
+        Alert clickAlert = new Alert(Alert.AlertType.NONE);
         ButtonType ok = new ButtonType("Ok", ButtonBar.ButtonData.NO);
         clickAlert.getButtonTypes().setAll(ok);
 
@@ -3474,12 +3472,13 @@ public class GamePresenter extends AbstractPresenter {
             Button playCard = (Button) clickAlert.getDialogPane().lookupButton(playThisCard);
             playCard.setOnAction(event -> gameService.playDevelopmentCard((UserDTO) joinedLobbyUser, currentLobby, cardName));
         }
-        clickAlert.setHeaderText(cardName);
-        clickAlert.setContentText(description);
+        clickAlert.setTitle(cardName);
+        Text contentText = new Text(description);
+        contentText.setWrappingWidth(200);
+        clickAlert.getDialogPane().setContent(contentText);
         clickAlert.setGraphic(new ImageView(cardImage));
 
         clickAlert.show();
-
 
     }
 
