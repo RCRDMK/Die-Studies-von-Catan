@@ -34,6 +34,10 @@
     -fx-text-fill: #ffffff;
 }
 
+.rules .label{
+    -fx-text-fill: #000000;
+}
+
 .error-label {
     -fx-text-fill: red !important;
 }
