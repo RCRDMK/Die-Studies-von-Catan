@@ -40,13 +40,13 @@ public class GameCreatedMessage extends AbstractGameMessage {
      * <p>
      * enhanced by Alexander Losse, Ricardo Mook 2021-03-05
      *
-     * @param name
-     * @param user
-     * @param mapGraph
-     * @param users
-     * @param humans
-     * @param gameFieldVariant
-     * @param gameOwner
+     * @param name the name of the game
+     * @param user the user that received this message
+     * @param mapGraph the mapGraph of the game
+     * @param users the list of all users in the game
+     * @param humans the human players in this game
+     * @param gameFieldVariant the variant of the game field
+     * @param gameOwner the owner of this game
      * @since 2021-01-07
      */
     public GameCreatedMessage(String name, UserDTO user, MapGraph mapGraph, ArrayList<User> users, Set<User> humans, String gameFieldVariant, User gameOwner) {

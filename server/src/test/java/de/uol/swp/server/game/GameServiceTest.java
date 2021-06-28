@@ -10,7 +10,6 @@ import de.uol.swp.common.game.dto.GameDTO;
 import de.uol.swp.common.game.message.*;
 import de.uol.swp.common.game.request.*;
 import de.uol.swp.common.game.response.AllCreatedGamesResponse;
-import de.uol.swp.common.game.response.AllThisGameUsersResponse;
 import de.uol.swp.common.game.response.PlayDevelopmentCardResponse;
 import de.uol.swp.common.game.response.ResolveDevelopmentCardNotSuccessfulResponse;
 import de.uol.swp.common.game.trade.Trade;
@@ -73,6 +72,7 @@ public class GameServiceTest {
     }
 
     public GameServiceTest() throws SQLException {
+        gameService.setJoiningAIThreadsNeeded(true);
     }
 
     void loginUsers() {
@@ -123,9 +123,8 @@ public class GameServiceTest {
      * @author Iskander Yusupov
      * @since 2020-03-14
      */
-
     @Test
-    void onRetrieveAllThisGameUsersRequestUserLeft() {
+    void onRetrieveAllThisGameUsersRequestUserLeft() throws InterruptedException {
         loginUsers();
         lobbyManagement.createLobby("test", userDTO);
         Optional<Lobby> optionalLobby = lobbyManagement.getLobby("test");
@@ -164,7 +163,6 @@ public class GameServiceTest {
         gameService.onGameLeaveUserRequest(gameLeaveUserRequest);
         gameService.onRetrieveAllThisGameUsersRequest(retrieveAllThisGameUsersRequest);
         assertFalse(game.getUsers().contains(userDTO1));
-        // TODO: (event instanceof AllThisGameUsersResponse) zu testen
 
         GameLeaveUserRequest gameLeaveUserRequest2 = new GameLeaveUserRequest(lobby.getName(), userDTO2);
         gameService.onGameLeaveUserRequest(gameLeaveUserRequest2);
@@ -208,9 +206,8 @@ public class GameServiceTest {
      * @author Iskander Yusupov
      * @since 2020-06-28
      */
-
     @Test
-    void onRetrieveAllThisGameUsersRequestPlayerKickedTest() {
+    void onRetrieveAllThisGameUsersRequestPlayerKickedTest() throws InterruptedException {
         loginUsers();
         lobbyManagement.createLobby("test", userDTO);
         Optional<Lobby> optionalLobby = lobbyManagement.getLobby("test");
@@ -233,14 +230,14 @@ public class GameServiceTest {
         game.joinUser(userDTO3);
 
         RetrieveAllThisGameUsersRequest retrieveAllThisGameUsersRequest = new RetrieveAllThisGameUsersRequest(lobby.getName());
-        assertSame(gameManagement.getGame(lobby.getName()).get().getName(), retrieveAllThisGameUsersRequest.getName());
-
+        Optional<Game> sameGame = gameManagement.getGame(lobby.getName());
+        assertTrue(sameGame.isPresent());
+        assertSame(sameGame.get().getName(), retrieveAllThisGameUsersRequest.getName());
 
         KickPlayerRequest kickPlayerRequest = new KickPlayerRequest(lobby.getName(), userDTO, userDTO1.getUsername(), false);
         gameService.onGameKickPlayerRequest(kickPlayerRequest);
         gameService.onRetrieveAllThisGameUsersRequest(retrieveAllThisGameUsersRequest);
         assertFalse(game.getUsers().contains(userDTO1));
-        // TODO: (event instanceof AllThisGameUsersResponse) zu testen
         KickPlayerRequest kickPlayerRequest2 = new KickPlayerRequest(lobby.getName(), userDTO, userDTO2.getUsername(), false);
         gameService.onGameKickPlayerRequest(kickPlayerRequest2);
         gameService.onRetrieveAllThisGameUsersRequest(retrieveAllThisGameUsersRequest);
@@ -290,7 +287,7 @@ public class GameServiceTest {
      * @since 2021-04-30
      */
     @Test
-    public void TradeTest() {
+    public void TradeTest() throws InterruptedException {
         String tradeCode = "seller1acv";
         loginUsers();
         lobbyManagement.createLobby("test", userDTO);
@@ -480,7 +477,7 @@ public class GameServiceTest {
      * @since 2021-04-26
      */
     @Test
-    void distributeResourcesTest() {
+    void distributeResourcesTest() throws InterruptedException {
         loginUsers();
         lobbyManagement.createLobby("test", userDTO);
         Optional<Lobby> optionalLobby = lobbyManagement.getLobby("test");
@@ -549,7 +546,7 @@ public class GameServiceTest {
      * @since 2021-05-05
      */
     @Test
-    void playAndResolveDevelopmentCardRequestTest() {
+    void playAndResolveDevelopmentCardRequestTest() throws InterruptedException {
         loginUsers();
         lobbyManagement.createLobby("test", userDTO);
         Optional<Lobby> optionalLobby = lobbyManagement.getLobby("test");
@@ -853,7 +850,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void ResourcesToDiscardTest() {
+    public void ResourcesToDiscardTest() throws InterruptedException {
         loginUsers();
         lobbyManagement.createLobby("test", userDTO);
         Optional<Lobby> optionalLobby = lobbyManagement.getLobby("test");
@@ -907,7 +904,7 @@ public class GameServiceTest {
      * @since 2021-05-14
      */
     @Test
-    void veryRandomGameFieldGenerateTest() {
+    void veryRandomGameFieldGenerateTest() throws InterruptedException {
 
         loginUsers();
         lobbyManagement.createLobby("test", userDTO);
@@ -948,7 +945,7 @@ public class GameServiceTest {
      * @since 2021-05-14
      */
     @Test
-    void randomGameFieldGenerateTest() {
+    void randomGameFieldGenerateTest() throws InterruptedException {
 
         loginUsers();
         lobbyManagement.createLobby("test", userDTO);
@@ -992,7 +989,7 @@ public class GameServiceTest {
      * @since 2021-05-11
      */
     @Test
-    void missingPlayerAITest() {
+    void missingPlayerAITest() throws InterruptedException {
         loginUsers();
         lobbyManagement.createLobby("test", userDTO);
         Optional<Lobby> optionalLobby = lobbyManagement.getLobby("test");
@@ -1040,7 +1037,7 @@ public class GameServiceTest {
         assertEquals(streetCounter, 1);
 
         // Check if the turn started for the correct player (and thus the AI ended the turn)
-        assertTrue(event instanceof PublicInventoryChangeMessage);
+        assertTrue(event instanceof NextTurnMessage);
         assertEquals(game.getUser(2), game.getUser(game.getTurn()));
     }
 
@@ -1057,7 +1054,7 @@ public class GameServiceTest {
      * @since 2021-05-11
      */
     @Test
-    void replacePlayerDuringOwnTurnAITest() {
+    void replacePlayerDuringOwnTurnAITest() throws InterruptedException {
         loginUsers();
         lobbyManagement.createLobby("test", userDTO);
         Optional<Lobby> optionalLobby = lobbyManagement.getLobby("test");
@@ -1087,38 +1084,38 @@ public class GameServiceTest {
         // play the opening turn for the AI
 
         // Check if the turn started for the correct player (and thus the AI ended the turn)
-        assertTrue(event instanceof PublicInventoryChangeMessage);
+        assertTrue(event instanceof NextTurnMessage);
         assertEquals(game.getUser(1), game.getUser(game.getTurn()));
 
 
         // player 1 opening turn 1
         buildStreetAndBuildingForOpeningTurn(game);
 
-        assertTrue(event instanceof PublicInventoryChangeMessage);
+        assertTrue(event instanceof NextTurnMessage);
         assertEquals(game.getUser(2), game.getUser(game.getTurn()));
 
         // player 2 opening turn 1
         buildStreetAndBuildingForOpeningTurn(game);
 
-        assertTrue(event instanceof PublicInventoryChangeMessage);
+        assertTrue(event instanceof NextTurnMessage);
         assertEquals(game.getUser(3), game.getUser(game.getTurn()));
 
         // player 3 opening turn 1
         buildStreetAndBuildingForOpeningTurn(game);
 
-        assertTrue(event instanceof PublicInventoryChangeMessage);
+        assertTrue(event instanceof NextTurnMessage);
         assertEquals(game.getUser(3), game.getUser(game.getTurn()));
 
         // player 3 opening turn 2
         buildStreetAndBuildingForOpeningTurn(game);
 
-        assertTrue(event instanceof PublicInventoryChangeMessage);
+        assertTrue(event instanceof NextTurnMessage);
         assertEquals(game.getUser(2), game.getUser(game.getTurn()));
 
         // player 2 opening turn 2
         buildStreetAndBuildingForOpeningTurn(game);
 
-        assertTrue(event instanceof PublicInventoryChangeMessage);
+        assertTrue(event instanceof NextTurnMessage);
         assertEquals(game.getUser(1), game.getUser(game.getTurn()));
 
 
@@ -1214,7 +1211,7 @@ public class GameServiceTest {
      * @since 2021-05-12
      */
     @Test
-    void randomAITest() {
+    void randomAITest() throws InterruptedException {
 
         loginUsers();
         lobbyManagement.createLobby("test", userDTO);
@@ -1250,7 +1247,7 @@ public class GameServiceTest {
         gameService.onGameLeaveUserRequest(glur);
 
         // Check if the turn started for the correct player (and thus the AI ended the turn)
-        assertTrue(event instanceof PublicInventoryChangeMessage);
+        assertTrue(event instanceof NextTurnMessage);
         assertEquals(nextUser, game.getUser(game.getTurn()));
 
         // End the turn twice for player 1, because its the opening phase
@@ -1271,7 +1268,7 @@ public class GameServiceTest {
      * @since 2021-04-26
      */
     @Test
-    void onGiveAndTakeResourceTest() {
+    void onGiveAndTakeResourceTest() throws InterruptedException {
         loginUsers();
         lobbyManagement.createLobby("test", userDTO);
         Optional<Lobby> optionalLobby = lobbyManagement.getLobby("test");
@@ -1424,7 +1421,7 @@ public class GameServiceTest {
      * @since 2021-05-28
      */
     @Test
-    void checkForLargestArmy() {
+    void checkForLargestArmy() throws InterruptedException {
         loginUsers();
         lobbyManagement.createLobby("test", userDTO);
         Optional<Lobby> optionalLobby = lobbyManagement.getLobby("test");
@@ -1549,7 +1546,7 @@ public class GameServiceTest {
      * @since 2021-04-26
      */
     @Test
-    void onBankRequestAndBankBuyRequestTest() {
+    void onBankRequestAndBankBuyRequestTest() throws InterruptedException {
         loginUsers();
 
         lobbyManagement.createLobby("test", userDTO);
@@ -1641,7 +1638,7 @@ public class GameServiceTest {
      * @since 2021-06-04
      */
     @Test
-    void buyDevelopmentCardTest() {
+    void buyDevelopmentCardTest() throws InterruptedException {
         loginUsers();
         lobbyManagement.createLobby("test", userDTO);
         Optional<Lobby> optionalLobby = lobbyManagement.getLobby("test");
@@ -1708,7 +1705,7 @@ public class GameServiceTest {
      * @since 2021-06-04
      */
     @Test
-    void logOutRequestTest() {
+    void logOutRequestTest() throws InterruptedException {
         loginUsers();
 
         lobbyManagement.createLobby("test", userDTO);
@@ -1763,7 +1760,7 @@ public class GameServiceTest {
      * @since 2021-06-04
      */
     @Test
-    void joinOnGoingGameTest() {
+    void joinOnGoingGameTest() throws InterruptedException {
         loginUsers();
 
         lobbyManagement.createLobby("test", userDTO);
@@ -1825,7 +1822,7 @@ public class GameServiceTest {
      * @since 2021-06-06
      */
     @Test
-    void drawRandomResourceTest() {
+    void drawRandomResourceTest() throws InterruptedException {
         loginUsers();
 
         lobbyManagement.createLobby("test", userDTO);
@@ -1879,7 +1876,7 @@ public class GameServiceTest {
      * @since 2021-06-06
      */
     @Test
-    void playerReadyRequestTest() {
+    void playerReadyRequestTest() throws InterruptedException {
         loginUsers();
 
         lobbyManagement.createLobby("test", userDTO);
@@ -2010,18 +2007,16 @@ public class GameServiceTest {
         gameService.onStartGameRequest(sgr);
     }
 
-
     /**
      * Method used for testing all functionality of the random AI
      * <p>
      * To do this, create a game with 4 players and forcefully remove the last human player from the game.
-     * Now the AI will continue to play for 200 turns. (Because currently the game doesn't really end yet)
      *
      * @author Marc Hermes
      * @since 2021-06-06
      */
     @Test
-    void fourRandomAIsPlayGame() {
+    void fourRandomAIsPlayGame() throws InterruptedException {
         loginUsers();
         lobbyManagement.createLobby("test", userDTO);
         Optional<Lobby> optionalLobby = lobbyManagement.getLobby("test");
@@ -2034,11 +2029,25 @@ public class GameServiceTest {
         assertTrue(optionalGame.isPresent());
         Game game = optionalGame.get();
 
+        lobbyManagement.createLobby("test1", userDTO);
+        Optional<Lobby> optionalLobby1 = lobbyManagement.getLobby("test1");
+        assertTrue(optionalLobby1.isPresent());
+        Lobby lobby1 = optionalLobby1.get();
+        lobby1.setMinimumAmountOfPlayers(4);
+        lobby1.joinPlayerReady(userDTO);
+        gameService.startGame(lobby1, "Standard");
+        Optional<Game> optionalGame1 = gameManagement.getGame("test1");
+        assertTrue(optionalGame1.isPresent());
+        Game game1 = optionalGame1.get();
+
         game.removeUserForTest(userDTO);
+        game1.removeUserForTest(userDTO);
 
         buildStreetAndBuildingForOpeningTurn(game);
+        buildStreetAndBuildingForOpeningTurn(game1);
 
-        assertTrue(game.hasConcluded() || game.getOverallTurns() == 200);
-        assertTrue(event instanceof PublicInventoryChangeMessage);
+        assertTrue(game.hasConcluded());
+        assertTrue(game1.hasConcluded());
+
     }
 }

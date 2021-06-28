@@ -122,11 +122,6 @@ public class GameDTOTest {
     }
 
     @Test
-    public void nextRoundTest(){
-        //TODO Pieter nach Testmöglichkeit fragen
-    }
-
-    @Test
     public void setUpInventoriesTest(){
         users.addAll(Arrays.asList(userDTO, userDTO1, userDTO2, userDTO3));
         defaultGame = new GameDTO("test", userDTO, "Standard", users);

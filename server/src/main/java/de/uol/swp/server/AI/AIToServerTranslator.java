@@ -1,11 +1,15 @@
 package de.uol.swp.server.AI;
 
+import de.uol.swp.common.game.Game;
+import de.uol.swp.common.game.request.DrawRandomResourceFromPlayerRequest;
+import de.uol.swp.common.game.request.RobbersNewFieldRequest;
 import de.uol.swp.common.game.request.*;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.server.AI.AIActions.*;
 import de.uol.swp.server.game.GameService;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
 /**
  * Class used for translating between the AI and the Server
@@ -26,12 +30,29 @@ public class AIToServerTranslator {
      * @author Marc Hermes
      * @since 2021-05-11
      */
-    public static void translate(ArrayList<AIAction> aiActions, GameService gameService) {
+    public static void translate(ArrayList<AIAction> aiActions, GameService gameService) throws InterruptedException {
 
         for (AIAction aiAction : aiActions) {
+
             String aiActionName = aiAction.getActionType();
             String gameName = aiAction.getGameName();
             UserDTO user = (UserDTO) aiAction.getUser();
+
+            // before every action put the thread of the AI to sleep, which forces a delay in it's actions,
+            // thus increasing the readability of the game
+            Optional<Game> game = gameService.getGameManagement().getGame(gameName);
+            if(game.isPresent()) {
+                if (game.get().getUsers().size() > 0 && !game.get().isUsedForTest()) {
+                    try
+                    {
+                        Thread.sleep(1000);
+                    }
+                    catch(InterruptedException ex)
+                    {
+                        Thread.currentThread().interrupt();
+                    }
+                }
+            }
 
             if (aiAction instanceof EndTurnAction) {
                 EndTurnRequest etr = new EndTurnRequest(gameName, user);
