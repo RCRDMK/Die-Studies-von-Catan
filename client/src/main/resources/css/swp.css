@@ -12,6 +12,20 @@
     -fx-text-fill: #ffffff;
 }
 
+.kick-button {
+    -fx-background-color: transparent, transparent, transparent, transparent, transparent;
+    -fx-pref-height: 25;
+    -fx-pref-width: 25;
+    -fx-min-height: 25;
+    -fx-min-width: 25;
+    -fx-max-height: 25;
+    -fx-max-width: 25;
+}
+
+.kick-button:disabled{
+    -fx-opacity: 0.3;
+}
+
 .list-view .label {
     -fx-text-fill: #000000;
 }
@@ -24,7 +38,7 @@
     -fx-text-fill: red !important;
 }
 
-.list-view{
+.list-view {
     -fx-border-width: 6px;
 }
 
@@ -72,6 +86,10 @@ For more information see https://www.pexels.com/license/ and https://unsplash.co
     -fx-background-image: url("../textures/images/RulesBackground.jpg");
     -fx-background-size: cover;
     -fx-background-repeat: no-repeat;
+}
+
+.tab-pane .tab-header-area .tab-header-background {
+    -fx-background-color: transparent;
 }
 
 #summary {

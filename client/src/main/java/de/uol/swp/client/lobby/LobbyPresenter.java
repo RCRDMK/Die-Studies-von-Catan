@@ -667,12 +667,19 @@ public class LobbyPresenter extends AbstractPresenter {
      * @param message the chatMessage to update the chat with
      * @author Alexander Losse, Marc Hermes
      * @since 2021-06-15
+     * @param message <p>
+     *
+     * Enhanced by Sergej Tulnev
+     * @since 2021-06-17
+     * <p>
+     * If the user has a long message, it will have a line break
      */
     private void updateChat(ResponseChatMessage message) {
         var time = new SimpleDateFormat("HH:mm");
         Date resultDate = new Date((long) message.getTime().doubleValue());
         var readableTime = time.format(resultDate);
         lobbyChatArea.insertText(lobbyChatArea.getLength(), readableTime + " " + message.getUsername() + ": " + message.getMessage() + "\n");
+        lobbyChatArea.setWrapText(true);
     }
 
 

@@ -19,6 +19,7 @@ import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.message.JoinOnGoingGameMessage;
 import de.uol.swp.common.lobby.message.StartGameMessage;
 import de.uol.swp.common.lobby.request.JoinOnGoingGameRequest;
+import de.uol.swp.common.lobby.request.LobbyLeaveUserRequest;
 import de.uol.swp.common.lobby.request.StartGameRequest;
 import de.uol.swp.common.lobby.response.JoinOnGoingGameResponse;
 import de.uol.swp.common.message.MessageContext;
@@ -82,6 +83,18 @@ public class GameService extends AbstractService {
         this.userService = userService;
     }
 
+    /**
+     * Handles GameLeaveUserRequest found on the EventBus
+     * <p>
+     * If a GameLeaveUserRequest is detected on the EventBus, this method is called. It prepares the sending
+     * of a GameLeftSuccessfulResponse for a specific user that sent the initial request.
+     * Everyone in the game receive UserLeftGameMessage and GameSizeChangedMessage.
+     * If user that left the game was alone in the game, game will be dropped. Everyone will receive
+     * GameDroppedMessage.
+     * Check if the player leaving the game is the turnPlayer, so that the AI may replace him.
+     *
+     * @param gameLeaveUserRequest
+     */
     @Subscribe
     public void onGameLeaveUserRequest(GameLeaveUserRequest gameLeaveUserRequest) throws InterruptedException {
         Optional<Game> optionalGame = gameManagement.getGame(gameLeaveUserRequest.getName());
@@ -124,6 +137,64 @@ public class GameService extends AbstractService {
     }
 
     /**
+     * Handles KickPlayerRequest found on the EventBus
+     * <p>
+     * If a KickPlayerRequest is detected on the EventBus, this method is called. It prepares the sending
+     * of a PlayerKickedSuccessfulResponse for a specific user that sent the initial request.
+     * PlayerKickedMessage will be send to the player that is kicked.
+     * LobbyLeaveUserRequest will be send to the player that is banned.
+     * Everyone in the game receive UserLeftGameMessage and GameSizeChangedMessage.
+     * Check if the player leaving the game is the turnPlayer, so that the AI may replace him.
+     *
+     * @param kickPlayerRequest
+     * @author Iskander Yusupov
+     * @since 2021-06-2021
+     */
+    @Subscribe
+    public void onGameKickPlayerRequest(KickPlayerRequest kickPlayerRequest) {
+        Optional<Game> optionalGame = gameManagement.getGame(kickPlayerRequest.getName());
+        Optional<Lobby> lobby = lobbyService.getLobby(kickPlayerRequest.getName());
+        if (optionalGame.isPresent()) {
+            Game game = optionalGame.get();
+            User userToKick = null;
+            for (User user : game.getUsers()) {
+                if (user.getUsername().equals(kickPlayerRequest.getPlayerToKick())) {
+                    userToKick = user;
+                    break;
+                }
+            }
+            if (userToKick != null && game.getOwner().equals(kickPlayerRequest.getUser())) {
+                if (kickPlayerRequest.getMessageContext().isPresent()) {
+                    Optional<MessageContext> ctx = kickPlayerRequest.getMessageContext();
+                    sendToSpecificUser(ctx.get(), new PlayerKickedSuccessfulResponse(kickPlayerRequest.getName(), kickPlayerRequest.getUser(), kickPlayerRequest.getPlayerToKick()));
+                }
+                PlayerKickedMessage playerKickedMessage = new PlayerKickedMessage(game.getName(), (UserDTO) userToKick, kickPlayerRequest.isToBan());
+                sendToSpecificUserInGame(game, playerKickedMessage, userToKick);
+                game.kickPlayer(userToKick);
+                if (kickPlayerRequest.isToBan()) {
+                    LobbyLeaveUserRequest lobbyLeaveUserRequest = new LobbyLeaveUserRequest(game.getName(), (UserDTO) userToKick);
+                    lobbyService.onLobbyLeaveUserRequest(lobbyLeaveUserRequest);
+                }
+                sendToAll(new GameSizeChangedMessage(kickPlayerRequest.getName()));
+                ArrayList<UserDTO> usersInGame = new ArrayList<>();
+                for (User user : game.getUsers()) usersInGame.add((UserDTO) user);
+                sendToAllInGame(kickPlayerRequest.getName(), new UserLeftGameMessage(kickPlayerRequest.getName(), kickPlayerRequest.getUser(), usersInGame));
+                // Check if the kicked from the game player is the turnPlayer, so that the AI may replace him now
+                if (userToKick.equals(game.getUser(game.getTurn()))) {
+                    if (!game.rolledDiceThisTurn() && !game.isStartingTurns()) {
+                        RollDiceRequest rdr = new RollDiceRequest(game.getName(), game.getUser(game.getTurn()));
+                        onRollDiceRequest(rdr);
+                    }
+                    startTurnForAI((GameDTO) game);
+                }
+            }
+        } else {
+            throw new GameManagementException("Game unknown!");
+        }
+
+    }
+
+    /**
      * Handles RetrieveAllThisGameUsersRequests found on the EventBus
      * <p>
      * If a RetrieveAllThisGameUsersRequests is detected on the EventBus, this method is called. It prepares the sending
@@ -143,7 +214,7 @@ public class GameService extends AbstractService {
             Set<User> actualUsers = game.getUsers();
             if (retrieveAllThisGameUsersRequest.getMessageContext().isPresent()) {
                 Optional<MessageContext> ctx = retrieveAllThisGameUsersRequest.getMessageContext();
-                sendToSpecificUser(ctx.get(), new AllThisGameUsersResponse(actualUsers, gameUsers, retrieveAllThisGameUsersRequest.getName()));
+                sendToSpecificUser(ctx.get(), new AllThisGameUsersResponse(actualUsers, gameUsers, retrieveAllThisGameUsersRequest.getName(), game.getOwner()));
             }
         }
     }
@@ -152,7 +223,7 @@ public class GameService extends AbstractService {
      * Handles incoming build requests.
      * <p>
      * Sets continuous road and checks for the longest road.
-     *
+     * <p>
      * enhanced by Iskander Yusupov, since 06-06-2021
      *
      * @param message Contains the data needed to change the mapGraph
@@ -456,7 +527,7 @@ public class GameService extends AbstractService {
      * <p>
      * This method handles the distribution of the resources to the users. First the method gets the game and gets the
      * corresponding hexagons. After that the method gives the second built buildings in the opening turn the resource.
-     *
+     * <p>
      * enhanced by Anton Nikiforov
      *
      * @param gameName Name of the Game
@@ -781,7 +852,7 @@ public class GameService extends AbstractService {
                 game.setUpInventories();
                 post(new GameStartedMessage(lobby.getName()));
                 for (User user : game.getUsers()) {
-                    sendToSpecificUserInGame(game, new GameCreatedMessage(game.getName(), (UserDTO) user, game.getMapGraph(), game.getUsersList(), game.getUsers(), gameFieldVariant), user);
+                    sendToSpecificUserInGame(game, new GameCreatedMessage(game.getName(), (UserDTO) user, game.getMapGraph(), game.getUsersList(), game.getUsers(), gameFieldVariant, game.getOwner()), user);
                 }
                 updateInventory(game);
                 sendToAllInGame(game.getName(), new NextTurnMessage(game.getName(), game.getUser(game.getTurn()).getUsername(), game.getTurn(), game.isStartingTurns()));
@@ -851,7 +922,7 @@ public class GameService extends AbstractService {
         Optional<Game> optionalGame = gameManagement.getGame(request.getName());
         if (optionalLobby.isPresent() && request.getMessageContext().isPresent()) {
             Lobby lobby = optionalLobby.get();
-            var response = new JoinOnGoingGameResponse(lobby.getName(), request.getUser(), false, null, null, null, lobby.getGameFieldVariant(), "The game doesn't exist!");
+            var response = new JoinOnGoingGameResponse(lobby.getName(), request.getUser(), false, null, null, null, lobby.getGameFieldVariant(), "The game doesn't exist!", null);
             if (lobby.getGameStarted() && optionalGame.isPresent()) {
                 Game game = optionalGame.get();
                 boolean foundUser = false;
@@ -867,9 +938,9 @@ public class GameService extends AbstractService {
                     if (!game.getUsers().contains(user)) {
                         game.joinUser(user);
                         // send information to user
-                        response = new JoinOnGoingGameResponse(game.getName(), request.getUser(), true, game.getMapGraph(), game.getUsersList(), game.getUsers(), lobby.getGameFieldVariant(), "");
+                        response = new JoinOnGoingGameResponse(game.getName(), request.getUser(), true, game.getMapGraph(), game.getUsersList(), game.getUsers(), lobby.getGameFieldVariant(), "", game.getOwner());
                         sendToSpecificUser(request.getMessageContext().get(), response);
-                        var gameMessage = new JoinOnGoingGameMessage(game.getName(), request.getUser(), game.getUsersList(), game.getUsers());
+                        var gameMessage = new JoinOnGoingGameMessage(game.getName(), request.getUser(), game.getUsersList(), game.getUsers(), game.getOwner());
                         sendToAllInGame(game.getName(), gameMessage);
                         updateInventory(game);
                         var currentTurnMessage = new NextTurnMessage(game.getName(), game.getUser(game.getTurn()).getUsername(), game.getTurn(), game.isStartingTurns());
@@ -877,7 +948,7 @@ public class GameService extends AbstractService {
                     }
                 } else {
                     String reason = game.getTradeList().size() != 0 ? "A Trade is currently ongoing." : "You are not registered in this game!";
-                    response = new JoinOnGoingGameResponse(game.getName(), request.getUser(), false, null, null, null, lobby.getGameFieldVariant(), reason);
+                    response = new JoinOnGoingGameResponse(game.getName(), request.getUser(), false, null, null, null, lobby.getGameFieldVariant(), reason, null);
                     sendToSpecificUser(request.getMessageContext().get(), response);
 
                 }

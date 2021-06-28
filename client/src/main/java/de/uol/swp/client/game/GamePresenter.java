@@ -12,10 +12,7 @@ import de.uol.swp.common.chat.ResponseChatMessage;
 import de.uol.swp.common.game.Inventory;
 import de.uol.swp.common.game.MapGraph;
 import de.uol.swp.common.game.message.*;
-import de.uol.swp.common.game.response.AllThisGameUsersResponse;
-import de.uol.swp.common.game.response.GameLeftSuccessfulResponse;
-import de.uol.swp.common.game.response.PlayDevelopmentCardResponse;
-import de.uol.swp.common.game.response.ResolveDevelopmentCardNotSuccessfulResponse;
+import de.uol.swp.common.game.response.*;
 import de.uol.swp.common.lobby.message.JoinOnGoingGameMessage;
 import de.uol.swp.common.lobby.response.JoinOnGoingGameResponse;
 import de.uol.swp.common.user.User;
@@ -23,6 +20,7 @@ import de.uol.swp.common.user.UserDTO;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -92,6 +90,8 @@ public class GamePresenter extends AbstractPresenter {
     public Alert chooseAlert;
 
     private User joinedLobbyUser;
+
+    private String playerToKick;
 
     private String currentLobby;
 
@@ -171,6 +171,14 @@ public class GamePresenter extends AbstractPresenter {
     @FXML
     public Label buildingNotSuccessfulLabel;
 
+    @FXML
+    private Button kickPlayerOneButton;
+    @FXML
+    private Button kickPlayerTwoButton;
+    @FXML
+    private Button kickPlayerThreeButton;
+    @FXML
+    private Button kickPlayerFourButton;
 
     @FXML
     private Pane picturePlayerView1;
@@ -372,12 +380,18 @@ public class GamePresenter extends AbstractPresenter {
      * @author René Meyer
      * @see de.uol.swp.common.chat.ResponseChatMessage
      * @since 2021-03-13
+     * <p>
+     * Enhanced by Sergej Tulnev
+     * @since 2021-06-17
+     * <p>
+     * If the user has a long message, it will have a line break
      */
     private void updateChat(ResponseChatMessage rcm) {
         var time = new SimpleDateFormat("HH:mm");
         Date resultDate = new Date((long) rcm.getTime().doubleValue());
         var readableTime = time.format(resultDate);
         gameChatArea.insertText(gameChatArea.getLength(), readableTime + " " + rcm.getUsername() + ": " + rcm.getMessage() + "\n");
+        gameChatArea.setWrapText(true);
     }
 
     /**
@@ -609,6 +623,7 @@ public class GamePresenter extends AbstractPresenter {
             this.currentLobby = gcm.getName();
             this.gameFieldVariant = gcm.getGameFieldVariant();
             updateGameUsersList(gcm.getUsers(), gcm.getHumans());
+            updateKickButtons(gcm.getUsers(), gcm.getHumans(), gcm.getGameOwner());
             for (int i = 1; i <= 67; i++) {
                 Image image;
                 image = new Image("img/profilePictures/" + i + ".png");
@@ -629,6 +644,9 @@ public class GamePresenter extends AbstractPresenter {
                 setUpTabs();
                 setUpPrices();
                 setUpLargestArmyAndLongestRoadPanes(gcm.getUsers());
+                setUpKickButtons(gcm.getUsers());
+                setupButtonsAndAlerts();
+                updateKickButtons(gcm.getUsers(), gcm.getHumans(), gcm.getGameOwner());
             });
             evaluateMyPlayerNumber(gcm.getUsers());
             buyDevelopmentCardMessageLogic(25);
@@ -670,6 +688,7 @@ public class GamePresenter extends AbstractPresenter {
             this.currentLobby = joggr.getGameName();
             this.gameFieldVariant = joggr.getGameFieldVariant();
             updateGameUsersList(joggr.getUsers(), joggr.getHumans());
+            updateKickButtons(joggr.getUsers(), joggr.getHumans(), joggr.getGameOwner());
             for (int i = 1; i <= 67; i++) {
                 Image image;
                 image = new Image("img/profilePictures/" + i + ".png");
@@ -689,6 +708,9 @@ public class GamePresenter extends AbstractPresenter {
                 setUpTabs();
                 setUpPrices();
                 setUpLargestArmyAndLongestRoadPanes(joggr.getUsers());
+                setUpKickButtons(joggr.getUsers());
+                setupButtonsAndAlerts();
+                updateKickButtons(joggr.getUsers(), joggr.getHumans(), joggr.getGameOwner());
                 updateGameField();
             });
         }
@@ -1070,6 +1092,163 @@ public class GamePresenter extends AbstractPresenter {
     }
 
     /**
+     * Method called when the kickPlayerOne,-Two,-Three or -Four Button is pressed
+     * <p>
+     * It checks, which kick button is pressed, opens Alert window.
+     * <p>
+     *
+     * @author Iskander Yusupov
+     * @see de.uol.swp.client.game.GameService
+     * @see de.uol.swp.client.game.GamePresenterException
+     * @since 2021-06-24
+     */
+    @FXML
+    public void onKickPlayer(ActionEvent event) {
+        if (event.getSource().equals(kickPlayerOneButton)) {
+            playerToKick = gameUsers.get(0);
+        } else if (event.getSource().equals(kickPlayerTwoButton)) {
+            playerToKick = gameUsers.get(1);
+        } else if (event.getSource().equals(kickPlayerThreeButton)) {
+            playerToKick = gameUsers.get(2);
+        } else if (event.getSource().equals(kickPlayerFourButton)) {
+            playerToKick = gameUsers.get(3);
+        }
+        if (playerToKick != null) {
+            Platform.runLater(() -> {
+                this.alert.setTitle("Do you want to kick or ban the player from the game?");
+                this.alert.setHeaderText("Kick or ban the player?");
+                this.alert.show();
+            });
+        } else {
+            throw new GamePresenterException("Player that requested be kicked is not found!");
+        }
+
+    }
+
+    /**
+     * The method gets invoked when the Game Presenter is created.
+     * <p>
+     * Method creates alert confirmation window Alert with two buttons "Kick" and "Ban".
+     *
+     * @author Iskander Yusupov
+     * @since 2021-06-25
+     */
+    public void setupButtonsAndAlerts() {
+        this.alert = new Alert(Alert.AlertType.CONFIRMATION);
+        ButtonType buttonTypeKick = new ButtonType("Kick", ButtonBar.ButtonData.YES);
+        ButtonType buttonTypeBan = new ButtonType("Ban", ButtonBar.ButtonData.NO);
+        alert.getButtonTypes().setAll(buttonTypeKick, buttonTypeBan);
+        Button buttonKick = (Button) alert.getDialogPane().lookupButton(buttonTypeKick);
+        buttonKick.setOnAction(event -> {
+            onButtonKickClicked();
+            event.consume();
+        });
+        Button buttonBan = (Button) alert.getDialogPane().lookupButton(buttonTypeBan);
+        buttonBan.setOnAction(event -> {
+            onButtonBanClicked();
+            event.consume();
+        });
+        this.alert.initModality(Modality.NONE);
+
+    }
+
+    /**
+     * The method invoked when the Kick Button of the Alert is pressed
+     * <p>
+     * The Alert will be closed, gameService will be called to send KickPlayerRequest.
+     *
+     * @author Iskander Yusupov
+     * @since 2021-06-25
+     */
+    public void onButtonKickClicked() {
+        alert.close();
+        gameService.kickPlayer(currentLobby, joinedLobbyUser, this.playerToKick, false);
+    }
+
+    /**
+     * The method invoked when the Ban Button of the Alert is pressed
+     * <p>
+     * The Alert will be closed, gameService will be called to send KickPlayerRequest.
+     *
+     * @author Iskander Yusupov
+     * @since 2021-06-25
+     */
+    public void onButtonBanClicked() {
+        alert.close();
+        // this.toBan = true;
+        gameService.kickPlayer(currentLobby, joinedLobbyUser, this.playerToKick, true);
+    }
+
+    /**
+     * Handles successful kicking of the player from the game
+     * <p>
+     * If a PlayerKickedSuccessfulResponse is detected on the EventBus the method playerKickedSuccessfulLogic is invoked.
+     *
+     * @param playerKickedSuccessfulResponse the playerKickedSuccessfulResponse object seen on the EventBus
+     * @author Iskander Yusupov
+     * @see PlayerKickedSuccessfulResponse
+     * @since 2021-06-24
+     */
+    @Subscribe
+    public void playerKickedSuccessful(PlayerKickedSuccessfulResponse playerKickedSuccessfulResponse) {
+        playerKickedSuccessfulLogic(playerKickedSuccessfulResponse);
+    }
+
+    /**
+     * The method invoked by playerKickedSuccessful()
+     * <p>
+     * If a PlayerKickedMessage is detected on the EventBus the method playerKickedMessageLogic is invoked.
+     *
+     * @param pksr the PlayerKickedSuccessful given by the original subscriber method
+     * @author Iskander Yusupov
+     * @see PlayerKickedSuccessfulResponse
+     * @since 2021-06-24
+     */
+    public void playerKickedSuccessfulLogic(PlayerKickedSuccessfulResponse pksr) {
+        if (this.currentLobby != null) {
+            if (this.currentLobby.equals(pksr.getName())) {
+                LOG.debug("You successfully kicked the player " + pksr.getKickedPlayer() + "!");
+            }
+        }
+    }
+
+    /**
+     * Handles kicking of the player from the game
+     * <p>
+     * If a PlayerKickedMessage is detected on the EventBus the method playerKickedMessageLogic is invoked.
+     *
+     * @param playerKickedMessage the PlayerKickedMessage object seen on the EventBus
+     * @author Iskander Yusupov
+     * @see PlayerKickedMessage
+     * @since 2021-06-25
+     */
+    @Subscribe
+    public void playerKicked(PlayerKickedMessage playerKickedMessage) {
+        playerKickedLogic(playerKickedMessage);
+    }
+
+    /**
+     * The method invoked by playerKicked()
+     * <p>
+     * If the Player is kicked from the Game, meaning this Game Presenter is no longer needed, this presenter will no longer be registered
+     * on the event bus and no longer be reachable for responses, messages etc.
+     *
+     * @param pkm
+     * @author Iskander Yusupov
+     * @see PlayerKickedMessage
+     * @since 2021-06-25
+     */
+    public void playerKickedLogic(PlayerKickedMessage pkm) {
+        if (this.currentLobby != null) {
+            if (this.currentLobby.equals(pkm.getName())) {
+                this.currentLobby = null;
+                clearEventBus();
+                LOG.debug(pkm.getUser().getUsername() + "was kicked from the game!");
+            }
+        }
+    }
+
+    /**
      * The method invoked by gameLeftSuccessful()
      * <p>
      * If the Game is left, meaning this Game Presenter is no longer needed, this presenter will no longer be registered
@@ -1171,7 +1350,7 @@ public class GamePresenter extends AbstractPresenter {
             if (this.currentLobby.equals(atgur.getName())) {
                 LOG.debug("Update of user list " + atgur.getUsers());
                 updateGameUsersList(atgur.getUsers(), atgur.getHumanUsers());
-
+                updateKickButtons(atgur.getUsers(), atgur.getHumanUsers(), atgur.getGameOwner());
             }
         }
     }
@@ -1192,6 +1371,7 @@ public class GamePresenter extends AbstractPresenter {
             if (this.currentLobby.equals(joggm.getName())) {
                 LOG.debug("The user " + joggm.getUser().getUsername() + " joined the game!");
                 updateGameUsersList(joggm.getUsers(), joggm.getHumans());
+                updateKickButtons(joggm.getUsers(), joggm.getHumans(), joggm.getGameOwner());
             }
         }
     }
@@ -1243,6 +1423,115 @@ public class GamePresenter extends AbstractPresenter {
                 gameUserView4.setVisible(true);
             }
         });
+    }
+
+
+    /**
+     * The method invoked when the Game Presenter is first used.
+     * <p>
+     * It creates four images and image patterns. Each kick button receives it's own image pattern.
+     * Each button will give small tooltip upon the hovering on it.
+     *
+     * @param list
+     * @author Iskander Yusupov
+     * @since 2021-06-21
+     */
+    public void setUpKickButtons(ArrayList<User> list) {
+        Image kickIcon1 = new Image("textures/resized/Kick_Icon.jpg");
+        ImageView kickView1 = new ImageView(kickIcon1);
+        kickView1.setFitHeight(25);
+        kickView1.setPreserveRatio(true);
+        kickPlayerOneButton.setPrefSize(25, 25);
+        kickPlayerOneButton.setGraphic(kickView1);
+        kickPlayerOneButton.setAlignment(Pos.CENTER);
+        kickPlayerOneButton.getStyleClass().add("kick-button");
+        Tooltip hoverKickPlayerOne = new Tooltip("");
+
+        hoverKickPlayerOne.setText("Kick Player One");
+        Tooltip.install(kickPlayerOneButton, hoverKickPlayerOne);
+        hoverKickPlayerOne.setShowDelay(Duration.millis(0));
+
+        Image kickIcon2 = new Image("textures/resized/Kick_Icon.jpg");
+        ImageView kickView2 = new ImageView(kickIcon2);
+        kickView2.setFitHeight(25);
+        kickView2.setPreserveRatio(true);
+        kickPlayerTwoButton.setPrefSize(25, 25);
+        kickPlayerTwoButton.setGraphic(kickView2);
+        kickPlayerTwoButton.setAlignment(Pos.CENTER);
+        kickPlayerTwoButton.getStyleClass().add("kick-button");
+        Tooltip hoverKickPlayerTwo = new Tooltip("");
+
+        hoverKickPlayerTwo.setText("Kick Player Two");
+        Tooltip.install(kickPlayerTwoButton, hoverKickPlayerTwo);
+        hoverKickPlayerTwo.setShowDelay(Duration.millis(0));
+        if (list.size() > 2) {
+            Image kickIcon3 = new Image("textures/resized/Kick_Icon.jpg");
+            ImageView kickView3 = new ImageView(kickIcon3);
+            kickView3.setFitHeight(25);
+            kickView3.setPreserveRatio(true);
+            kickPlayerThreeButton.setPrefSize(25, 25);
+            kickPlayerThreeButton.setGraphic(kickView3);
+            kickPlayerThreeButton.setAlignment(Pos.CENTER);
+            kickPlayerThreeButton.getStyleClass().add("kick-button");
+            Tooltip hoverKickPlayerThree = new Tooltip("");
+
+            hoverKickPlayerThree.setText("Kick Player Three");
+            Tooltip.install(kickPlayerThreeButton, hoverKickPlayerThree);
+            hoverKickPlayerThree.setShowDelay(Duration.millis(0));
+        }
+        if (list.size() > 3) {
+            Image kickIcon4 = new Image("textures/resized/Kick_Icon.jpg");
+            ImageView kickView4 = new ImageView(kickIcon4);
+            kickView4.setFitHeight(25);
+            kickView4.setPreserveRatio(true);
+            kickPlayerFourButton.setPrefSize(25, 25);
+            kickPlayerFourButton.setGraphic(kickView4);
+            kickPlayerFourButton.setAlignment(Pos.CENTER);
+            kickPlayerFourButton.getStyleClass().add("kick-button");
+            Tooltip hoverKickPlayerFour = new Tooltip("");
+
+            hoverKickPlayerFour.setText("Kick Player Four");
+            Tooltip.install(kickPlayerFourButton, hoverKickPlayerFour);
+            hoverKickPlayerFour.setShowDelay(Duration.millis(0));
+        }
+    }
+
+    /**
+     * Updates the kick buttons in the game view of the current game according to the list given
+     * <p>
+     * Buttons are invisible for anyone, who is not an lobby/game owner.
+     * <p>
+     * If player is a bot or an lobby/game owner, he can't be kicked, button under his/her portrait will
+     * <p>
+     * be disabled.
+     *
+     * @param list
+     * @param humans
+     * @param gameOwner
+     * @author Iskander Yusupov
+     * @since 2021-06-21
+     */
+    public void updateKickButtons(ArrayList<User> list, Set<User> humans, User gameOwner) {
+        if (joinedLobbyUser.equals(gameOwner)) {
+            kickPlayerOneButton.setVisible(true);
+            kickPlayerOneButton.setDisable(!humans.contains(list.get(0)) || list.get(0).equals(gameOwner));
+            kickPlayerTwoButton.setVisible(true);
+            kickPlayerTwoButton.setDisable(!humans.contains(list.get(1)) || list.get(1).equals(gameOwner));
+
+            if (list.size() > 2) {
+                kickPlayerThreeButton.setVisible(true);
+                kickPlayerThreeButton.setDisable(!humans.contains(list.get(2)) || list.get(2).equals(gameOwner));
+            }
+            if (list.size() > 3) {
+                kickPlayerFourButton.setVisible(true);
+                kickPlayerFourButton.setDisable(!humans.contains(list.get(3)) || list.get(3).equals(gameOwner));
+            }
+        } else {
+            kickPlayerOneButton.setVisible(false);
+            kickPlayerTwoButton.setVisible(false);
+            kickPlayerThreeButton.setVisible(false);
+            kickPlayerFourButton.setVisible(false);
+        }
     }
 
     /**
@@ -2674,6 +2963,9 @@ public class GamePresenter extends AbstractPresenter {
         Tab tabPrices = new Tab();
         tabPrices.setText("Prices");
         tabPrices.setContent(pricesView);
+        tabChat.setClosable(false);
+        tabPrices.setClosable(false);
+        tabGameLog.setClosable(false);
         tabPane.getTabs().addAll(tabChat, tabGameLog, tabPrices);
     }
 

@@ -58,7 +58,12 @@ public class RandomAI extends AbstractAISystem {
      */
     public ArrayList<AIAction> startTurnOrder() {
         if (game.isStartingTurns()) {
-            startingTurnLogic();
+            if (game.getInventory(game.getUser(game.getTurn())).settlement.getNumber() == 6-game.getStartingPhase()) {
+                startingTurnLogic();
+            } else if (game.getInventory(game.getUser(game.getTurn())).settlement.getNumber() == 5-game.getStartingPhase()) {
+                System.out.println(game.getStartingPhase());
+                continueStartingTurn();
+            }
         } else {
             // if a 7 was rolled, move the robber to a random hexagon
             if (game.getLastRolledDiceValue() == 7) {
@@ -206,6 +211,27 @@ public class RandomAI extends AbstractAISystem {
     }
 
     /**
+     * Just builds 1 street after a human player has build a settlement.
+     * <p>
+     *    After a human builds a settlement and then leaves the game, this method builds a street upon the settlement
+     *
+     * @author Marius Birk
+     * @since 2021-06-21
+     */
+    private void continueStartingTurn() {
+        for (MapGraph.BuildingNode bn : mapGraph.getBuildingNodeHashSet()) {
+            if (bn.getOccupiedByPlayer() == game.getTurn()) {
+                for (MapGraph.StreetNode sn : bn.getConnectedStreetNodes()) {
+                    if (sn.tryBuildRoad(game.getTurn(), game.getStartingPhase())) {
+                        buildStreet(sn);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    /**
      * Using this method will result in the AI playing 1 random developmentCard that it currently can play.
      *
      * @author Marc Hermes
@@ -324,23 +350,26 @@ public class RandomAI extends AbstractAISystem {
      */
     private boolean makeRandomTradeLogic() {
         boolean startATradeTest = randomInt(0, 10) >= 5;
-        if (startATradeTest) {
-            ArrayList<ArrayList<TradeItem>> wishAndOfferList = createWishAndOfferList();
-            ArrayList<TradeItem> wishList = wishAndOfferList.get(0);
-            ArrayList<TradeItem> offerList = wishAndOfferList.get(1);
-            int amountOfWishes = 0;
-            for (TradeItem ti : wishList) {
-                amountOfWishes += ti.getCount();
+        if (!game.hasConcluded()) {
+            if (startATradeTest) {
+                ArrayList<ArrayList<TradeItem>> wishAndOfferList = createWishAndOfferList();
+                ArrayList<TradeItem> wishList = wishAndOfferList.get(0);
+                ArrayList<TradeItem> offerList = wishAndOfferList.get(1);
+                int amountOfWishes = 0;
+                for (TradeItem ti : wishList) {
+                    amountOfWishes += ti.getCount();
+                }
+                int amountOfOffers = 0;
+                for (TradeItem ti : offerList) {
+                    amountOfOffers += ti.getCount();
+                }
+                if (amountOfWishes > 0 && amountOfOffers > 0) {
+                    tradeStart(wishList, offerList);
+                } else return false;
             }
-            int amountOfOffers = 0;
-            for (TradeItem ti : offerList) {
-                amountOfOffers += ti.getCount();
-            }
-            if (amountOfWishes > 0 && amountOfOffers > 0) {
-                tradeStart(wishList, offerList);
-            } else return false;
+            return startATradeTest;
         }
-        return startATradeTest;
+        return false;
     }
 
     /**

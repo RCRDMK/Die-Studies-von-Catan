@@ -370,6 +370,31 @@ public class ClientApp extends Application implements ConnectionListener {
     }
 
     /**
+     * Handles the successful kicking of a player from the game
+     * <p>
+     * If an PlayerKickedMessage object is detected on the EventBus this method is called.
+     * It tells the SceneManager to remove the tab corresponding to the game that was kicked
+     * and unsuspends the LobbyTab.
+     * If isToBan equals true, method tells the SceneManager to remove lobby tab, so the player will
+     * be banned from the game.
+     * <p>
+     *
+     * @param message the PlayerKickedMessage detected on the EventBus
+     * @author Iskander Yusupov
+     * @see PlayerKickedMessage
+     * @since 2021-06-25
+     */
+    @Subscribe
+    public void playerKicked(PlayerKickedMessage message) {
+        LOG.debug("Successfully kicked from the game game  " + message.getName());
+        sceneManager.removeGameTab(message.getName());
+        sceneManager.unsuspendLobbyTab(message.getName());
+        if (message.isToBan()) {
+            sceneManager.removeLobbyTab(message.getName());
+        }
+    }
+
+    /**
      * Handles unsuccessful registrations
      * <p>
      * If a RegistrationExceptionMessage object is detected on the EventBus this
@@ -534,14 +559,14 @@ public class ClientApp extends Application implements ConnectionListener {
      */
     private void checkForTimeout() {
         timer = new Timer();
-            timer.schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    if ((System.currentTimeMillis() - lastPingResponse) >= 120000) {
-                        checkoutTimeout();
-                    }
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                if ((System.currentTimeMillis() - lastPingResponse) >= 120000) {
+                    checkoutTimeout();
                 }
-            }, 60000, 60000);
+            }
+        }, 60000, 60000);
     }
 
     /**

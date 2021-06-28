@@ -5,6 +5,9 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import de.uol.swp.common.chat.RequestChatMessage;
 import de.uol.swp.common.chat.ResponseChatMessage;
+import de.uol.swp.common.message.MessageContext;
+import de.uol.swp.common.message.ResponseMessage;
+import de.uol.swp.common.message.ServerMessage;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.server.cheat.CheatService;
@@ -22,7 +25,6 @@ import org.junit.jupiter.api.Test;
 
 import java.sql.SQLException;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -99,10 +101,11 @@ public class ChatServiceTest {
      * Test for the ChatService
      * <p>
      * This test first creates a new RequestChatMessage object. It then
-     * posts the RequestChatMessage object on the EventBus. After testing the RequestChatMessage
-     * it creates a ResponseChatMessage with the parameters from the RequestChatMessage and posts that
-     * on the eventbus. Then it tests the ResponseChatMessage object.
-     * So this test covers the full Client-Server Communication for a sent Chatmessage
+     * posts the RequestChatMessage object on the EventBus via calling
+     * the onRequestChatMessage() function in the chatService.
+     * Then it tests if the event is an instance of the ResponseChatMessage
+     * After that it checks if the RequestChatMessage variables match the ResponseChatMessage variables
+     * So this test covers the full Client-Server Communication for a sent chatmessage
      *
      * @author René Meyer, Sergej Tulnev
      * @since 2020-12-10
@@ -111,31 +114,24 @@ public class ChatServiceTest {
     void sendRequestChatMessageTest() {
         RequestChatMessage message = new RequestChatMessage("testMessage", "testLobby", defaultUser.getUsername(),
                 System.currentTimeMillis());
-        bus.post(message);
-    }
+        message.setMessageContext(new MessageContext() {
+            @Override
+            public void writeAndFlush(ResponseMessage message) {
+                bus.post(message);
+            }
 
-    @Subscribe
-    void onRequestChatMessageTest(RequestChatMessage message) throws InterruptedException {
-        lock.await(1000, TimeUnit.MILLISECONDS);
-        assertNotNull(message);
-
-        ResponseChatMessage response = new ResponseChatMessage(message.getMessage(), message.getChat(),
-                message.getUsername(), message.getTime());
-        assertEquals(response.getMessage(), "testMessage");
-        assertEquals(response.getChat(), "testLobby");
-        assertEquals(response.getUsername(), defaultUser.getUsername());
-        assertFalse(response.getTime().isNaN());
-        bus.post(response);
-    }
-
-    @Subscribe
-    void onResponseChatMessageTest(ResponseChatMessage message) throws InterruptedException {
-        lock.await(1000, TimeUnit.MILLISECONDS);
-        assertNotNull(message);
-
-        assertEquals(message.getMessage(), "testMessage");
-        assertEquals(message.getChat(), "testLobby");
-        assertEquals(message.getUsername(), defaultUser.getUsername());
-        assertFalse(message.getTime().isNaN());
+            @Override
+            public void writeAndFlush(ServerMessage message) {
+                bus.post(message);
+            }
+        });
+        chatService.onRequestChatMessage(message);
+        assertTrue(event instanceof ResponseChatMessage);
+        var responseChatMessage = (ResponseChatMessage) event;
+        assertNotNull(responseChatMessage);
+        assertEquals(responseChatMessage.getMessage(), "testMessage");
+        assertEquals(responseChatMessage.getChat(), "testLobby");
+        assertEquals(responseChatMessage.getUsername(), defaultUser.getUsername());
+        assertFalse(responseChatMessage.getTime().isNaN());
     }
 }
