@@ -1073,9 +1073,11 @@ public class GamePresenter extends AbstractPresenter {
     @Subscribe
     public void nextPlayerTurn(NextTurnMessage message) {
         if (message.getGameName().equals(currentGame)) {
-            String text = "is making his turn";
-            LOG.debug("Updated game Event Log area with new message");
-            updateEventLogLogic(text, message.getPlayerWithCurrentTurn());
+            if (this.currentGame != null && userIsOnTurn != null) {
+                String text = "is making his turn";
+                LOG.debug("Updated game Event Log area with new message");
+                updateEventLogLogic(text, message.getPlayerWithCurrentTurn());
+            }
             userIsOnTurn = message.getPlayerWithCurrentTurn();
             rolledDice = false;
             if (message.getPlayerWithCurrentTurn().equals(joinedLobbyUser.getUsername())) {
@@ -1324,10 +1326,12 @@ public class GamePresenter extends AbstractPresenter {
      */
     @Subscribe
     public void otherUserLeftSuccessful(UserLeftGameMessage message) {
-        String text = "left the Game";
-        LOG.debug("Updated game Event Log area with new message");
-        updateEventLogLogic(text, message.getUser().getUsername());
-        otherUserLeftSuccessfulLogic(message);
+        if (this.currentGame != null && userIsOnTurn != null) {
+            String text = "left the Game";
+            LOG.debug("Updated game Event Log area with new message");
+            updateEventLogLogic(text, message.getUser().getUsername());
+            otherUserLeftSuccessfulLogic(message);
+        }
     }
 
     /**
@@ -1949,10 +1953,12 @@ public class GamePresenter extends AbstractPresenter {
      */
     @Subscribe
     public void onBuyDevelopmentCardMessage(BuyDevelopmentCardMessage buyDevelopmentCardMessage) {
-        String text = "bought a Development Card";
-        LOG.debug("Updated game Event Log area with new message");
-        updateEventLogLogic(text, userIsOnTurn);
-        buyDevelopmentCardMessageLogic(buyDevelopmentCardMessage.getDevCardsNumber());
+        if (this.currentGame != null && userIsOnTurn != null) {
+            String text = "bought a Development Card";
+            LOG.debug("Updated game Event Log area with new message");
+            updateEventLogLogic(text, userIsOnTurn);
+            buyDevelopmentCardMessageLogic(buyDevelopmentCardMessage.getDevCardsNumber());
+        }
     }
 
     /**
@@ -2655,7 +2661,7 @@ public class GamePresenter extends AbstractPresenter {
      */
     @Subscribe
     public void onSuccessfulMovedRobberMessage(SuccessfulMovedRobberMessage successfulMovedRobberMessage) {
-        if (userIsOnTurn != null) {
+        if (this.currentGame != null && userIsOnTurn != null) {
             String text = "moved the Robber";
             LOG.debug("Updated game Event Log area with new message");
             updateEventLogLogic(text, userIsOnTurn);
