@@ -85,13 +85,13 @@ import static org.junit.jupiter.api.Assertions.*;
 public class GameServiceTest {
 
     final EventBus bus = new EventBus();
-    final AuthenticationService authenticationService = new AuthenticationService(bus, userManagement);
     GameManagement gameManagement = new GameManagement();
     LobbyManagement lobbyManagement = new LobbyManagement();
     MainMemoryBasedUserStore mainMemoryBasedUserStore = new MainMemoryBasedUserStore();
     final UserManagement userManagement = new UserManagement(mainMemoryBasedUserStore);
     LobbyService lobbyService = new LobbyService(lobbyManagement, new AuthenticationService(bus, userManagement), bus);
     UserService userService = new UserService(bus, userManagement);
+    final AuthenticationService authenticationService = new AuthenticationService(bus, userManagement);
     GameService gameService = new GameService(gameManagement, lobbyService, authenticationService, bus, userService);
 
     UserDTO userDTO = new UserDTO("test1",

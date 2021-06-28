@@ -35,9 +35,9 @@ class UserServiceTest {
     static final User userToDrop = new UserDTO("Carsten", "Stahl", "Carsten@Stahl.com");
 
     final EventBus bus = new EventBus();
-    final UserService userService = new UserService(bus, userManagement);
     MainMemoryBasedUserStore mainMemoryBasedUserStore = new MainMemoryBasedUserStore();
     final UserManagement userManagement = new UserManagement(mainMemoryBasedUserStore);
+    final UserService userService = new UserService(bus, userManagement);
 
     UserServiceTest() throws SQLException {
     }

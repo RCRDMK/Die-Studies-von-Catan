@@ -53,11 +53,11 @@ import static org.junit.jupiter.api.Assertions.*;
 @SuppressWarnings("UnstableApiUsage")
 public class LobbyServiceTest {
     final EventBus bus = new EventBus();
-    final AuthenticationService authenticationService = new AuthenticationService(bus, userManagement);
     MainMemoryBasedUserStore mainMemoryBasedUserStore = new MainMemoryBasedUserStore();
     final UserManagement userManagement = new UserManagement(mainMemoryBasedUserStore);
     LobbyManagement lobbyManagement = new LobbyManagement();
     LobbyService lobbyService = new LobbyService(lobbyManagement, new AuthenticationService(bus, userManagement), bus);
+    final AuthenticationService authenticationService = new AuthenticationService(bus, userManagement);
 
     // Setup UserDTOs
     UserDTO userDTO = new UserDTO("test1",

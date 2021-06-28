@@ -41,9 +41,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 public class ChatServiceTest {
     final EventBus bus = new EventBus();
-    final AuthenticationService authenticationService = new AuthenticationService(bus, userManagement);
     final User defaultUser = new UserDTO("Marco", "test", "marco@test.de");
-    final ChatService chatService = new ChatService(cheatService, bus);
     final CountDownLatch lock = new CountDownLatch(1);
     MainMemoryBasedUserStore mainMemoryBasedUserStore = new MainMemoryBasedUserStore();
     final UserManagement userManagement = new UserManagement(mainMemoryBasedUserStore);
@@ -55,6 +53,8 @@ public class ChatServiceTest {
             new AuthenticationService(bus, userManagement), bus, userService);
     final CheatService cheatService = new CheatService(gameService, bus);
     Object event;
+    final AuthenticationService authenticationService = new AuthenticationService(bus, userManagement);
+    final ChatService chatService = new ChatService(cheatService, bus);
 
     public ChatServiceTest() throws SQLException {
     }
