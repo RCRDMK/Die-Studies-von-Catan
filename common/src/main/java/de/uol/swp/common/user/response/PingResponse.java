@@ -1,8 +1,8 @@
 package de.uol.swp.common.user.response;
 
-import de.uol.swp.common.message.AbstractResponseMessage;
-
 import java.util.Objects;
+
+import de.uol.swp.common.message.AbstractResponseMessage;
 
 /**
  * A message containing the session (typically for a new logged in user)
@@ -62,8 +62,8 @@ public class PingResponse extends AbstractResponseMessage {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) { return true; }
+        if (o == null || getClass() != o.getClass()) { return false; }
         PingResponse that = (PingResponse) o;
         return Objects.equals(username, that.username) && Objects.equals(time, that.time);
     }

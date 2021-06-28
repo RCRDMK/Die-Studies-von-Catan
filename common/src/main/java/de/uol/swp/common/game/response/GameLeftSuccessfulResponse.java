@@ -1,9 +1,9 @@
 package de.uol.swp.common.game.response;
 
+import java.util.Objects;
+
 import de.uol.swp.common.message.AbstractResponseMessage;
 import de.uol.swp.common.user.User;
-
-import java.util.Objects;
 
 /**
  * Response that is sent to the User who requested to leave the game.
@@ -43,8 +43,8 @@ public class GameLeftSuccessfulResponse extends AbstractResponseMessage {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) { return true; }
+        if (o == null || getClass() != o.getClass()) { return false; }
         GameLeftSuccessfulResponse that =
                 (GameLeftSuccessfulResponse) o;
         return Objects.equals(user, that.user);

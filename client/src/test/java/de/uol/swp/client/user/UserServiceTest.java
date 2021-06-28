@@ -1,18 +1,24 @@
 package de.uol.swp.client.user;
 
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+import java.util.concurrent.CountDownLatch;
+
 import com.google.common.eventbus.DeadEvent;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
-import de.uol.swp.common.user.User;
-import de.uol.swp.common.user.UserDTO;
-import de.uol.swp.common.user.request.*;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
-import java.util.concurrent.CountDownLatch;
+import de.uol.swp.common.user.User;
+import de.uol.swp.common.user.UserDTO;
+import de.uol.swp.common.user.request.DropUserRequest;
+import de.uol.swp.common.user.request.LoginRequest;
+import de.uol.swp.common.user.request.LogoutRequest;
+import de.uol.swp.common.user.request.RegisterUserRequest;
+import de.uol.swp.common.user.request.RetrieveAllOnlineUsersRequest;
 
 import static org.junit.jupiter.api.Assertions.*;
 

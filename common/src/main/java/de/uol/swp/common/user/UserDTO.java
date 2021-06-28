@@ -40,11 +40,12 @@ public class UserDTO implements User {
     /**
      * Overloaded Constructor
      * <p>
-     * @author Carsten Dekker
-     * @param username username of the user
-     * @param password password of the user
-     * @param eMail email address of the user
+     *
+     * @param username  username of the user
+     * @param password  password of the user
+     * @param eMail     email address of the user
      * @param pictureID pictureID of the chosen profilePicture
+     * @author Carsten Dekker
      * @since 2021-04-15
      */
     public UserDTO(String username, String password, String eMail, int pictureID) {
@@ -60,9 +61,9 @@ public class UserDTO implements User {
     /**
      * Copy constructor
      *
-     * @author Marco Grawunder
      * @param user User object to copy the values of
      * @return UserDTO copy of User object
+     * @author Marco Grawunder
      * @since 2019-08-13
      */
     public static UserDTO create(User user) {
@@ -106,16 +107,13 @@ public class UserDTO implements User {
     }
 
     @Override
-    public int compareTo(User o) {
-        return username.compareTo(o.getUsername());
+    public int getProfilePictureID() {
+        return profilePictureID;
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (!(obj instanceof UserDTO)) {
-            return false;
-        }
-        return Objects.equals(this.username, ((UserDTO) obj).username);
+    public int compareTo(User o) {
+        return username.compareTo(o.getUsername());
     }
 
     @Override
@@ -124,8 +122,11 @@ public class UserDTO implements User {
     }
 
     @Override
-    public int getProfilePictureID() {
-        return profilePictureID;
+    public boolean equals(Object obj) {
+        if (!(obj instanceof UserDTO)) {
+            return false;
+        }
+        return Objects.equals(this.username, ((UserDTO) obj).username);
     }
 
 }

@@ -1,11 +1,15 @@
 package de.uol.swp.common.game;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Set;
+import java.util.TreeSet;
+
+import org.junit.jupiter.api.Test;
+
 import de.uol.swp.common.game.dto.GameDTO;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
-import org.junit.jupiter.api.Test;
-
-import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -23,7 +27,7 @@ public class GameDTOTest {
     private final UserDTO userDTO3 = new UserDTO("test3", "", "");
     private final Set<User> users = new TreeSet<>();
 
-    private GameDTO defaultGame = new GameDTO("test", new UserDTO("test", "", ""), "",users );
+    private GameDTO defaultGame = new GameDTO("test", new UserDTO("test", "", ""), "", users);
 
     /**
      * This test checks if the user can join the game correctly.
@@ -83,7 +87,7 @@ public class GameDTOTest {
      * @since 2021-05-25
      */
     @Test
-    public void leaveUserTestOwner(){
+    public void leaveUserTestOwner() {
         User user = new UserDTO("test2", "", "");
         defaultGame.joinUser(user);
 
@@ -116,13 +120,13 @@ public class GameDTOTest {
     }
 
     @Test
-    public void updateOwnerTestFail(){
+    public void updateOwnerTestFail() {
         User newUser = new UserDTO("Test", "", "");
-        assertThrows(IllegalArgumentException.class, ()->defaultGame.updateOwner(newUser));
+        assertThrows(IllegalArgumentException.class, () -> defaultGame.updateOwner(newUser));
     }
 
     @Test
-    public void setUpInventoriesTest(){
+    public void setUpInventoriesTest() {
         users.addAll(Arrays.asList(userDTO, userDTO1, userDTO2, userDTO3));
         defaultGame = new GameDTO("test", userDTO, "Standard", users);
         defaultGame.joinUser(userDTO);
@@ -141,7 +145,7 @@ public class GameDTOTest {
     }
 
     @Test
-    public void getInventoriesArrayListTest(){
+    public void getInventoriesArrayListTest() {
         users.addAll(Arrays.asList(userDTO, userDTO1, userDTO2, userDTO3));
         defaultGame = new GameDTO("test", userDTO, "Standard", users);
         defaultGame.joinUser(userDTO);

@@ -1,9 +1,9 @@
 package de.uol.swp.common.user.request;
 
+import java.util.Objects;
+
 import de.uol.swp.common.message.AbstractRequestMessage;
 import de.uol.swp.common.user.User;
-
-import java.util.Objects;
 
 /**
  * A request send from client to server, trying to send
@@ -15,9 +15,9 @@ import java.util.Objects;
 
 public class PingRequest extends AbstractRequestMessage {
 
+    private static final long serialVersionUID = -6032175459878192061L;
     private User user;
     private Long time;
-    private static final long serialVersionUID = -6032175459878192061L;
 
     /**
      * Constructor
@@ -37,17 +37,6 @@ public class PingRequest extends AbstractRequestMessage {
     }
 
     /**
-     * Setter for the user variable
-     *
-     * @param user containing the new user
-     * @author Philip
-     * @since 2021-01-22
-     */
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    /**
      * Getter for the user variable
      *
      * @return User tries to send Ping
@@ -59,14 +48,14 @@ public class PingRequest extends AbstractRequestMessage {
     }
 
     /**
-     * Setter for the time variable
+     * Setter for the user variable
      *
-     * @param time Long containing the new user
+     * @param user containing the new user
      * @author Philip
      * @since 2021-01-22
      */
-    public void setTime(Long time) {
-        this.time = time;
+    public void setUser(User user) {
+        this.user = user;
     }
 
     /**
@@ -80,10 +69,21 @@ public class PingRequest extends AbstractRequestMessage {
         return time;
     }
 
+    /**
+     * Setter for the time variable
+     *
+     * @param time Long containing the new user
+     * @author Philip
+     * @since 2021-01-22
+     */
+    public void setTime(Long time) {
+        this.time = time;
+    }
+
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) { return true; }
+        if (o == null || getClass() != o.getClass()) { return false; }
         PingRequest that = (PingRequest) o;
         return Objects.equals(user, that.user) && Objects.equals(time, that.time);
     }

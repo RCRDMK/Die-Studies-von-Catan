@@ -1,15 +1,14 @@
 package de.uol.swp.client.auth;
 
-import de.uol.swp.client.AbstractPresenter;
-import de.uol.swp.client.register.event.ShowRegistrationViewEvent;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+
 import javafx.fxml.FXML;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
+import de.uol.swp.client.AbstractPresenter;
+import de.uol.swp.client.register.event.ShowRegistrationViewEvent;
 
 /**
  * Manages the login window

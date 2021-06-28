@@ -1,9 +1,9 @@
 package de.uol.swp.common.game;
 
-import de.uol.swp.common.user.User;
-
 import java.io.Serializable;
 import java.util.HashMap;
+
+import de.uol.swp.common.user.User;
 
 /**
  * Creates and manages the Inventory
@@ -14,33 +14,21 @@ import java.util.HashMap;
 public class Inventory implements Serializable {
 
     private final User user;
-
-    public Inventory(User user) {
-        this.user = user;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
     // Resource Cards
     public CardStack lumber = new CardStack();
     public CardStack brick = new CardStack();
     public CardStack grain = new CardStack();
     public CardStack wool = new CardStack();
     public CardStack ore = new CardStack();
-
     // Development Cards
     public CardStack cardKnight = new CardStack();
     public CardStack cardMonopoly = new CardStack();
     public CardStack cardRoadBuilding = new CardStack();
     public CardStack cardYearOfPlenty = new CardStack();
-
     // Building Units
     public UnitStack city = new UnitStack(4);
     public UnitStack road = new UnitStack(15);
     public UnitStack settlement = new UnitStack(5);
-
     // Achievements
     private int victoryPoints = 0;
     private int playedKnights = 0;
@@ -48,6 +36,13 @@ public class Inventory implements Serializable {
     private int cardVictoryPoint = 0;
     private boolean largestArmy = false;
     private boolean longestRoad = false;
+    public Inventory(User user) {
+        this.user = user;
+    }
+
+    public User getUser() {
+        return user;
+    }
 
 
     //Getter and Setter for Achievements
@@ -118,7 +113,7 @@ public class Inventory implements Serializable {
      * @since 2021-02-01
      */
     public int sumResource() {
-        return  lumber.getNumber() +
+        return lumber.getNumber() +
                 brick.getNumber() +
                 grain.getNumber() +
                 wool.getNumber() +
@@ -135,7 +130,7 @@ public class Inventory implements Serializable {
      * @since 2021-02-01
      */
     public int sumDevelopmentCards() {
-        return  cardVictoryPoint +
+        return cardVictoryPoint +
                 cardKnight.getNumber() +
                 cardMonopoly.getNumber() +
                 cardRoadBuilding.getNumber() +
@@ -192,8 +187,9 @@ public class Inventory implements Serializable {
 
         HashMap<String, Integer> publicInventory = new HashMap<>();
 
-        if (victoryPoints < cardVictoryPoint) publicInventory.put("Public Victory Points", 0);
-        else publicInventory.put("Public Victory Points", victoryPoints - cardVictoryPoint);
+        if (victoryPoints < cardVictoryPoint) { publicInventory.put("Public Victory Points", 0); } else {
+            publicInventory.put("Public Victory Points", victoryPoints - cardVictoryPoint);
+        }
 
         publicInventory.put("Resource", sumResource());
         publicInventory.put("Development Cards", sumDevelopmentCards());
@@ -201,11 +197,9 @@ public class Inventory implements Serializable {
         publicInventory.put("Played Knights", playedKnights);
         publicInventory.put("Continuous Road", continuousRoad);
 
-        if (largestArmy) publicInventory.put("Largest Army", 1);
-        else publicInventory.put("Largest Army", 0);
+        if (largestArmy) { publicInventory.put("Largest Army", 1); } else { publicInventory.put("Largest Army", 0); }
 
-        if (longestRoad) publicInventory.put("Longest Road", 1);
-        else publicInventory.put("Longest Road", 0);
+        if (longestRoad) { publicInventory.put("Longest Road", 1); } else { publicInventory.put("Longest Road", 0); }
 
         return publicInventory;
     }
@@ -220,8 +214,8 @@ public class Inventory implements Serializable {
      * <p>
      * enhanced by Anton Nikiforov, Alexander Losse, Iskander Yusupov
      *
-     * @param cardName   the name of the Resource Card
-     * @param amount how much of the Card should be increased
+     * @param cardName the name of the Resource Card
+     * @param amount   how much of the Card should be increased
      * @author Alexander Losse, Ricardo Mook
      * @since 2021-05-16
      * @since 2021-04-08
@@ -350,7 +344,7 @@ public class Inventory implements Serializable {
      * @author Anton Nikiforov
      * @since 2020-03-04
      */
-    public class CardStack implements Serializable{
+    public class CardStack implements Serializable {
 
         private int number = 0;
 
@@ -391,7 +385,7 @@ public class Inventory implements Serializable {
      * @author Anton Nikiforov
      * @since 2020-03-04
      */
-    public class UnitStack extends CardStack{
+    public class UnitStack extends CardStack {
 
         public UnitStack(int number) {
             super.number = number;

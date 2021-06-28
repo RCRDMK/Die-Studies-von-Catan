@@ -1,9 +1,9 @@
 package de.uol.swp.common.user.response;
 
+import java.util.Objects;
+
 import de.uol.swp.common.message.AbstractResponseMessage;
 import de.uol.swp.common.user.User;
-
-import java.util.Objects;
 
 /**
  * Response message for the RetrieveUserInformationResponse
@@ -33,8 +33,8 @@ public class RetrieveUserInformationResponse extends AbstractResponseMessage {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) { return true; }
+        if (o == null || getClass() != o.getClass()) { return false; }
         RetrieveUserInformationResponse that = (RetrieveUserInformationResponse) o;
         return Objects.equals(toMail, that.toMail);
     }

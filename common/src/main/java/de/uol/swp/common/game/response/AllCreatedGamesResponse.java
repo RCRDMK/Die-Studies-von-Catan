@@ -1,13 +1,13 @@
 package de.uol.swp.common.game.response;
 
 
-import de.uol.swp.common.game.Game;
-import de.uol.swp.common.game.dto.GameDTO;
-import de.uol.swp.common.message.AbstractResponseMessage;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
+import de.uol.swp.common.game.Game;
+import de.uol.swp.common.game.dto.GameDTO;
+import de.uol.swp.common.message.AbstractResponseMessage;
 
 /**
  * Response message for the RetrieveAllGamesRequest

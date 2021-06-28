@@ -1,9 +1,9 @@
 package de.uol.swp.common.user.request;
 
+import java.util.Objects;
+
 import de.uol.swp.common.message.AbstractRequestMessage;
 import de.uol.swp.common.user.User;
-
-import java.util.Objects;
 
 /**
  * Request to register a new user
@@ -19,8 +19,8 @@ public class RegisterUserRequest extends AbstractRequestMessage {
     /**
      * Constructor
      *
-     * @author Marco Grawunder
      * @param user the new User to create
+     * @author Marco Grawunder
      * @author Marco Grawunder
      * @since 2019-09-02
      */
@@ -36,8 +36,8 @@ public class RegisterUserRequest extends AbstractRequestMessage {
     /**
      * Getter for the user variable
      *
-     * @author Marco Grawunder
      * @return the new user to create
+     * @author Marco Grawunder
      * @author Marco Grawunder
      * @since 2019-09-02
      */
@@ -47,8 +47,8 @@ public class RegisterUserRequest extends AbstractRequestMessage {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) { return true; }
+        if (o == null || getClass() != o.getClass()) { return false; }
         RegisterUserRequest that = (RegisterUserRequest) o;
         return Objects.equals(toCreate, that.toCreate);
     }

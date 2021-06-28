@@ -1,9 +1,9 @@
 package de.uol.swp.common.game.response;
 
+import java.util.Objects;
+
 import de.uol.swp.common.message.AbstractResponseMessage;
 import de.uol.swp.common.user.User;
-
-import java.util.Objects;
 
 /**
  * Response that is sent to the User who sent request to kick other player from the game.
@@ -56,8 +56,8 @@ public class PlayerKickedSuccessfulResponse extends AbstractResponseMessage {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) { return true; }
+        if (o == null || getClass() != o.getClass()) { return false; }
         PlayerKickedSuccessfulResponse that =
                 (PlayerKickedSuccessfulResponse) o;
         return Objects.equals(owner, that.owner);

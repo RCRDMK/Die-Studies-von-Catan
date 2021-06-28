@@ -1,8 +1,8 @@
 package de.uol.swp.common.user.exception;
 
-import de.uol.swp.common.message.AbstractResponseMessage;
-
 import java.util.Objects;
+
+import de.uol.swp.common.message.AbstractResponseMessage;
 
 /**
  * This exception is thrown if something went wrong during the updateUser process.
@@ -26,13 +26,13 @@ public class UpdateUserExceptionMessage extends AbstractResponseMessage {
 
     @Override
     public String toString() {
-        return "UpdateUserExceptionMessage "+ message;
+        return "UpdateUserExceptionMessage " + message;
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) { return true; }
+        if (o == null || getClass() != o.getClass()) { return false; }
         UpdateUserExceptionMessage that = (UpdateUserExceptionMessage) o;
         return Objects.equals(message, that.message);
     }

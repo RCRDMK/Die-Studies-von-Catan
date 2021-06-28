@@ -1,11 +1,11 @@
 package de.uol.swp.common.lobby.message;
 
+import java.util.ArrayList;
+import java.util.Set;
+
 import de.uol.swp.common.game.message.AbstractGameMessage;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
-
-import java.util.ArrayList;
-import java.util.Set;
 
 /**
  * Method used to signal everyone in the game that a player joined
@@ -34,15 +34,16 @@ public class JoinOnGoingGameMessage extends AbstractGameMessage {
     /**
      * Constructor
      *
-     * @param gameName the name of the game in which the user joined
-     * @param user     the user who joined the game
-     * @param users    the current list of players in the game
-     * @param humans   the current list of actual human players in the game
+     * @param gameName  the name of the game in which the user joined
+     * @param user      the user who joined the game
+     * @param users     the current list of players in the game
+     * @param humans    the current list of actual human players in the game
      * @param gameOwner the current owner of the game
      * @author Marc Hermes
      * @since 2021-05-27
      */
-    public JoinOnGoingGameMessage(String gameName, UserDTO user, ArrayList<User> users, Set<User> humans, User gameOwner) {
+    public JoinOnGoingGameMessage(String gameName, UserDTO user, ArrayList<User> users, Set<User> humans,
+                                  User gameOwner) {
         super(gameName, user);
         this.users = users;
         this.humans = humans;

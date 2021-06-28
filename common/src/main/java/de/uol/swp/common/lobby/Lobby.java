@@ -1,10 +1,10 @@
 package de.uol.swp.common.lobby;
 
-import de.uol.swp.common.user.User;
-
 import java.io.Serializable;
 import java.util.Set;
 import java.util.Timer;
+
+import de.uol.swp.common.user.User;
 
 
 /**
@@ -103,13 +103,6 @@ public interface Lobby extends Serializable {
     Set<User> getUsers();
 
     /**
-     * Setter for the gameFieldVariant
-     *
-     * @param s the String description of the gameFieldVariant
-     */
-    void setGameFieldVariant(String s);
-
-    /**
      * Getter for all user in this lobby which are ready to start the game
      *
      * @return A Set containing all user in this lobby which are ready to start the game
@@ -126,6 +119,13 @@ public interface Lobby extends Serializable {
      * @since 2021-05-18
      */
     String getGameFieldVariant();
+
+    /**
+     * Setter for the gameFieldVariant
+     *
+     * @param s the String description of the gameFieldVariant
+     */
+    void setGameFieldVariant(String s);
 
     /**
      * Empties the playersReady Set
@@ -197,15 +197,6 @@ public interface Lobby extends Serializable {
     void stopTimerForGameStart();
 
     /**
-     * Setter for the minimum amount of players for the game corresponding to this lobby
-     *
-     * @param amount the minimum amount of users to play in the game
-     * @author Marc Hermes
-     * @since 2021-05-27
-     */
-    void setMinimumAmountOfPlayers(int amount);
-
-    /**
      * Getter for the minimum amount of players for the game corresponding to this lobby
      *
      * @return the minimum amount of users to play in the game
@@ -213,6 +204,15 @@ public interface Lobby extends Serializable {
      * @since 2021-05-27
      */
     int getMinimumAmountOfPlayers();
+
+    /**
+     * Setter for the minimum amount of players for the game corresponding to this lobby
+     *
+     * @param amount the minimum amount of users to play in the game
+     * @author Marc Hermes
+     * @since 2021-05-27
+     */
+    void setMinimumAmountOfPlayers(int amount);
 
     /**
      * Getter for the boolean value if the lobby will be used for test purposes

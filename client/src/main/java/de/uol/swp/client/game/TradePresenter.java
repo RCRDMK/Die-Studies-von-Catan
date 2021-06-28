@@ -1,19 +1,34 @@
 package de.uol.swp.client.game;
 
-import com.google.common.eventbus.Subscribe;
-import com.google.inject.Inject;
-import de.uol.swp.client.AbstractPresenter;
-import de.uol.swp.common.game.message.*;
-import de.uol.swp.common.game.response.GameLeftSuccessfulResponse;
-import de.uol.swp.common.game.trade.TradeItem;
-import de.uol.swp.common.user.UserDTO;
+import java.util.ArrayList;
+import java.util.HashMap;
+
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.RadioButton;
+import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import com.google.common.eventbus.Subscribe;
+import com.google.inject.Inject;
+
+import de.uol.swp.client.AbstractPresenter;
+import de.uol.swp.common.game.message.BankResponseMessage;
+import de.uol.swp.common.game.message.TradeCardErrorMessage;
+import de.uol.swp.common.game.message.TradeEndedMessage;
+import de.uol.swp.common.game.message.TradeInformSellerAboutBidsMessage;
+import de.uol.swp.common.game.message.TradeOfferInformBiddersMessage;
+import de.uol.swp.common.game.message.TradeStartedMessage;
+import de.uol.swp.common.game.response.GameLeftSuccessfulResponse;
+import de.uol.swp.common.game.trade.TradeItem;
+import de.uol.swp.common.user.UserDTO;
 
 /**
  * This class is the for the Trade Scene
@@ -31,7 +46,142 @@ public class TradePresenter extends AbstractPresenter {
     private static final String grainString = "Grain";
     private static final String woolString = "Wool";
     private static final String oreString = "Ore";
+    @Inject
+    GameService gameService;
+    @FXML
+    Button addItemOfferButton;
+    @FXML
+    Button addItemWishButton;
+    @FXML
+    Button sendItemsSuggestButton;
+    @FXML
+    Button endTradeButton;
+    @FXML
+    Button rejectOfferButton;
+    @FXML
+    Button createRequestButton;
+    @FXML
+    ChoiceBox<Object> resourceChoice;
+    @FXML
+    ChoiceBox<Object> resourceChoiceBank;
+    @FXML
+    TextField resourceInputValue;
+    @FXML
+    RadioButton offerNoneRadioButton;
+    @FXML
+    RadioButton offer1RadioButton;
+    @FXML
+    RadioButton offer2RadioButton;
+    @FXML
+    RadioButton offer3RadioButton;
+    @FXML
+    RadioButton offer4RadioButton;
+    @FXML
+    Text alert;
+    @FXML
+    Text textCol;
+    @FXML
+    Text lumberW;
+    @FXML
+    Text lumber0;
+    @FXML
+    Text lumber1;
+    @FXML
+    Text lumber2;
+    @FXML
+    Text lumber3;
+    @FXML
+    Text lumber4;
+    @FXML
+    Text brickW;
+    @FXML
+    Text brick0;
+    @FXML
+    Text brick1;
+    @FXML
+    Text brick2;
+    @FXML
+    Text brick3;
+    @FXML
+    Text brick4;
+    @FXML
+    Text grainW;
 
+    ////////////////////////////////////////
+    //
+    //
+    //  FXML STUFF
+    //
+    //
+    ////////////////////////////////////////
+    @FXML
+    Text grain0;
+    @FXML
+    Text grain1;
+    @FXML
+    Text grain2;
+    @FXML
+    Text grain3;
+    @FXML
+    Text grain4;
+    @FXML
+    Text woolW;
+    @FXML
+    Text wool0;
+    @FXML
+    Text wool1;
+    @FXML
+    Text wool2;
+    @FXML
+    Text wool3;
+    @FXML
+    Text wool4;
+    @FXML
+    Text oreW;
+    @FXML
+    Text ore0;
+    @FXML
+    Text ore1;
+    @FXML
+    Text ore2;
+    @FXML
+    Text ore3;
+    @FXML
+    Text ore4;
+    @FXML
+    Text textRowW;
+    @FXML
+    Text textRow0;
+    @FXML
+    Text textRow1;
+    @FXML
+    Text textRow2;
+    @FXML
+    Text textRow3;
+    @FXML
+    Text textRow4;
+    @FXML
+    Text offer1RadioText;
+    @FXML
+    Text offer2RadioText;
+    @FXML
+    Text offer3RadioText;
+    @FXML
+    Text offer4RadioText;
+    @FXML
+    HBox row1HBox;
+    @FXML
+    HBox row2HBox;
+    @FXML
+    HBox row3HBox;
+    @FXML
+    HBox row4HBox;
+    @FXML
+    Label tradeLabel1;
+    @FXML
+    Label tradeLabel2;
+    @FXML
+    ToggleGroup choiceTrade;
     private boolean sellerGotBids = false;
     private boolean buyerGotBankOffer = false;
     private boolean isBidder = false;
@@ -74,7 +224,8 @@ public class TradePresenter extends AbstractPresenter {
     @Subscribe
     public void onTradeInformSellerAboutBidsMessage(TradeInformSellerAboutBidsMessage message) {
         if (this.tradeCode != null) {
-            if (message.getUser().getUsername().equals(user.getUsername()) && message.getTradeCode().equals(tradeCode)) {
+            if (message.getUser().getUsername().equals(user.getUsername()) && message.getTradeCode()
+                    .equals(tradeCode)) {
 
                 endTradeButton.setVisible(true);
                 offerNoneRadioButton.setVisible(true);
@@ -141,7 +292,8 @@ public class TradePresenter extends AbstractPresenter {
     @Subscribe
     public void onTradeCardErrorMessage(TradeCardErrorMessage message) {
         if (this.tradeCode != null) {
-            if (message.getUser().getUsername().equals(user.getUsername()) && message.getTradeCode().equals(tradeCode)) {
+            if (message.getUser().getUsername().equals(user.getUsername()) && message.getTradeCode()
+                    .equals(tradeCode)) {
                 addItemOfferButton.setDisable(false);
                 addItemWishButton.setDisable(false);
                 sendItemsSuggestButton.setDisable(false);
@@ -193,7 +345,7 @@ public class TradePresenter extends AbstractPresenter {
     @Subscribe
     public void onLeftGameSuccessfulResponse(GameLeftSuccessfulResponse response) {
         if (this.tradeCode != null) {
-            if(this.gameName.equals(response.getName())) {
+            if (this.gameName.equals(response.getName())) {
                 eventBus.post(new TradeEndedMessage(gameName, tradeCode));
                 clearEventBus();
             }
@@ -290,7 +442,6 @@ public class TradePresenter extends AbstractPresenter {
         gameService.sendItem(user, gameName, sendEmptyTradeItemArrayList, tradeCode, sendEmptyTradeItemArrayList);
         disableAbilityToSentItems();
     }
-
 
     /**
      * ends the trade and send the TradeChoice via the gameService/closes the trade window if no Trade started
@@ -393,10 +544,10 @@ public class TradePresenter extends AbstractPresenter {
         if (minimalItems) {
             gameService.sendItem(user, gameName, sendTradeOfferItemArrayList, tradeCode, sendTradeWishItemArrayList);
             disableAbilityToSentItems();
-        }
-        else {
+        } else {
             Alert noValidInput = new Alert(Alert.AlertType.CONFIRMATION);
-            noValidInput.setContentText("Please only input valid resources and numbers.\nIt should be one item in the offer at least.");
+            noValidInput.setContentText(
+                    "Please only input valid resources and numbers.\nIt should be one item in the offer at least.");
             Button conformation;
             ButtonType ok = new ButtonType("OK", ButtonBar.ButtonData.YES);
             noValidInput.getButtonTypes().setAll(ok);
@@ -636,7 +787,7 @@ public class TradePresenter extends AbstractPresenter {
      * <p>
      * so that the user can see the offers from the bank and select one of them.
      *
-     * @param card that was selected
+     * @param card      that was selected
      * @param bankOffer ArrayList<ArrayList<TradeItem>>
      * @author Anton Nikiforov
      * @see TradeItem
@@ -668,27 +819,27 @@ public class TradePresenter extends AbstractPresenter {
         this.bankOffer = bankOffer;
 
         for (TradeItem item : bankOffer.get(0)) {
-                String valueOfCount = String.valueOf(item.getCount());
-                switch (item.getName()) {
-                    case lumberString:
-                        lumber1.setText(valueOfCount);
-                        offer1RadioButton.setDisable(item.isNotEnough());
-                        break;
-                    case brickString:
-                        brick1.setText(valueOfCount);
-                        break;
-                    case grainString:
-                        grain1.setText(valueOfCount);
-                        break;
-                    case woolString:
-                        wool1.setText(valueOfCount);
-                        break;
-                    case oreString:
-                        ore1.setText(valueOfCount);
-                        break;
-                    default:
-                        break;
-                }
+            String valueOfCount = String.valueOf(item.getCount());
+            switch (item.getName()) {
+                case lumberString:
+                    lumber1.setText(valueOfCount);
+                    offer1RadioButton.setDisable(item.isNotEnough());
+                    break;
+                case brickString:
+                    brick1.setText(valueOfCount);
+                    break;
+                case grainString:
+                    grain1.setText(valueOfCount);
+                    break;
+                case woolString:
+                    wool1.setText(valueOfCount);
+                    break;
+                case oreString:
+                    ore1.setText(valueOfCount);
+                    break;
+                default:
+                    break;
+            }
         }
 
         for (TradeItem item : bankOffer.get(1)) {
@@ -828,204 +979,4 @@ public class TradePresenter extends AbstractPresenter {
             rejectOfferButton.setDisable(true);
         }
     }
-
-    ////////////////////////////////////////
-    //
-    //
-    //  FXML STUFF
-    //
-    //
-    ////////////////////////////////////////
-
-    @Inject
-    GameService gameService;
-
-    @FXML
-    Button addItemOfferButton;
-
-    @FXML
-    Button addItemWishButton;
-
-    @FXML
-    Button sendItemsSuggestButton;
-
-    @FXML
-    Button endTradeButton;
-
-    @FXML
-    Button rejectOfferButton;
-
-    @FXML
-    Button createRequestButton;
-
-    @FXML
-    ChoiceBox<Object> resourceChoice;
-
-    @FXML
-    ChoiceBox<Object> resourceChoiceBank;
-
-    @FXML
-    TextField resourceInputValue;
-
-    @FXML
-    RadioButton offerNoneRadioButton;
-
-    @FXML
-    RadioButton offer1RadioButton;
-
-    @FXML
-    RadioButton offer2RadioButton;
-
-    @FXML
-    RadioButton offer3RadioButton;
-
-    @FXML
-    RadioButton offer4RadioButton;
-
-    @FXML
-    Text alert;
-
-    @FXML
-    Text textCol;
-
-    @FXML
-    Text lumberW;
-
-    @FXML
-    Text lumber0;
-
-    @FXML
-    Text lumber1;
-
-    @FXML
-    Text lumber2;
-
-    @FXML
-    Text lumber3;
-
-    @FXML
-    Text lumber4;
-
-    @FXML
-    Text brickW;
-
-    @FXML
-    Text brick0;
-
-    @FXML
-    Text brick1;
-
-    @FXML
-    Text brick2;
-
-    @FXML
-    Text brick3;
-
-    @FXML
-    Text brick4;
-
-    @FXML
-    Text grainW;
-
-    @FXML
-    Text grain0;
-
-    @FXML
-    Text grain1;
-
-    @FXML
-    Text grain2;
-
-    @FXML
-    Text grain3;
-
-    @FXML
-    Text grain4;
-
-    @FXML
-    Text woolW;
-
-    @FXML
-    Text wool0;
-
-    @FXML
-    Text wool1;
-
-    @FXML
-    Text wool2;
-
-    @FXML
-    Text wool3;
-
-    @FXML
-    Text wool4;
-
-    @FXML
-    Text oreW;
-
-    @FXML
-    Text ore0;
-
-    @FXML
-    Text ore1;
-
-    @FXML
-    Text ore2;
-
-    @FXML
-    Text ore3;
-
-    @FXML
-    Text ore4;
-
-    @FXML
-    Text textRowW;
-
-    @FXML
-    Text textRow0;
-
-    @FXML
-    Text textRow1;
-
-    @FXML
-    Text textRow2;
-
-    @FXML
-    Text textRow3;
-
-    @FXML
-    Text textRow4;
-
-    @FXML
-    Text offer1RadioText;
-
-    @FXML
-    Text offer2RadioText;
-
-    @FXML
-    Text offer3RadioText;
-
-    @FXML
-    Text offer4RadioText;
-
-    @FXML
-    HBox row1HBox;
-
-    @FXML
-    HBox row2HBox;
-
-    @FXML
-    HBox row3HBox;
-
-    @FXML
-    HBox row4HBox;
-
-    @FXML
-    Label tradeLabel1;
-
-    @FXML
-    Label tradeLabel2;
-
-    @FXML
-    ToggleGroup choiceTrade;
 }

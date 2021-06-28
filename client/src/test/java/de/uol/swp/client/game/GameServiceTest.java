@@ -1,25 +1,37 @@
 package de.uol.swp.client.game;
 
+import java.util.ArrayList;
+import java.util.UUID;
+
 import com.google.common.eventbus.DeadEvent;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
-import de.uol.swp.client.game.event.SummaryConfirmedEvent;
-import de.uol.swp.common.game.dto.StatsDTO;
-import de.uol.swp.common.game.Inventory;
-import de.uol.swp.common.game.request.DrawRandomResourceFromPlayerRequest;
-import de.uol.swp.common.game.request.RobbersNewFieldRequest;
-import de.uol.swp.common.game.message.TradeEndedMessage;
-import de.uol.swp.common.game.request.*;
-import de.uol.swp.common.user.UserDTO;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.UUID;
+import de.uol.swp.client.game.event.SummaryConfirmedEvent;
+import de.uol.swp.common.game.dto.StatsDTO;
+import de.uol.swp.common.game.message.TradeEndedMessage;
+import de.uol.swp.common.game.request.BuyDevelopmentCardRequest;
+import de.uol.swp.common.game.request.ConstructionRequest;
+import de.uol.swp.common.game.request.DrawRandomResourceFromPlayerRequest;
+import de.uol.swp.common.game.request.GameLeaveUserRequest;
+import de.uol.swp.common.game.request.PlayDevelopmentCardRequest;
+import de.uol.swp.common.game.request.ResolveDevelopmentCardMonopolyRequest;
+import de.uol.swp.common.game.request.ResolveDevelopmentCardRoadBuildingRequest;
+import de.uol.swp.common.game.request.ResolveDevelopmentCardYearOfPlentyRequest;
+import de.uol.swp.common.game.request.RetrieveAllGamesRequest;
+import de.uol.swp.common.game.request.RetrieveAllThisGameUsersRequest;
+import de.uol.swp.common.game.request.RobbersNewFieldRequest;
+import de.uol.swp.common.game.request.RollDiceRequest;
+import de.uol.swp.common.game.request.TradeChoiceRequest;
+import de.uol.swp.common.game.request.TradeItemRequest;
+import de.uol.swp.common.game.request.TradeStartRequest;
+import de.uol.swp.common.user.UserDTO;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Test class for the GameService
@@ -80,7 +92,8 @@ public class GameServiceTest {
 
     @Test
     public void returnFromSummaryScreenTest() {
-        gameService.returnFromSummaryScreen(new StatsDTO("Test", userDTO.getUsername(), 0, 0, new ArrayList<>()), userDTO);
+        gameService
+                .returnFromSummaryScreen(new StatsDTO("Test", userDTO.getUsername(), 0, 0, new ArrayList<>()), userDTO);
 
         assertTrue(event instanceof SummaryConfirmedEvent);
         assertEquals("Test", ((SummaryConfirmedEvent) event).getGameName());
@@ -88,7 +101,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void buyDevelopmentCardTest(){
+    public void buyDevelopmentCardTest() {
         gameService.buyDevelopmentCard(userDTO, "Test");
 
         assertTrue(event instanceof BuyDevelopmentCardRequest);
@@ -97,7 +110,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void constructBuildingTest(){
+    public void constructBuildingTest() {
         gameService.constructBuilding(userDTO, "Test", UUID.randomUUID(), "Settlement");
 
         assertTrue(event instanceof ConstructionRequest);
@@ -106,7 +119,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void sendItemTest(){
+    public void sendItemTest() {
         gameService.sendItem(userDTO, "Test", new ArrayList<>(), "123", new ArrayList<>());
 
         assertTrue(event instanceof TradeItemRequest);
@@ -116,7 +129,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void sendTradeChoiceTest(){
+    public void sendTradeChoiceTest() {
         gameService.sendTradeChoice(userDTO, true, "Test", "123");
 
         assertTrue(event instanceof TradeChoiceRequest);
@@ -126,15 +139,15 @@ public class GameServiceTest {
     }
 
     @Test
-    public void endTradeBeforeItStartedTest(){
-        gameService.endTradeBeforeItStarted("test","123");
+    public void endTradeBeforeItStartedTest() {
+        gameService.endTradeBeforeItStarted("test", "123");
 
         assertTrue(event instanceof TradeEndedMessage);
         assertEquals("123", ((TradeEndedMessage) event).getTradeCode());
     }
 
     @Test
-    public void sendTradeStartedRequestTest(){
+    public void sendTradeStartedRequestTest() {
         gameService.sendTradeStartedRequest(userDTO, "Test", "123");
 
         assertTrue(event instanceof TradeStartRequest);
@@ -144,7 +157,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void movedRobberTest(){
+    public void movedRobberTest() {
         gameService.movedRobber("Test", userDTO, UUID.randomUUID());
 
         assertTrue(event instanceof RobbersNewFieldRequest);
@@ -153,7 +166,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void drawRandomCardFromPlayerTest(){
+    public void drawRandomCardFromPlayerTest() {
         gameService.drawRandomCardFromPlayer("Test", userDTO, "Wool");
 
         assertTrue(event instanceof DrawRandomResourceFromPlayerRequest);
@@ -162,7 +175,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void playDevelopmentCardTest(){
+    public void playDevelopmentCardTest() {
         gameService.playDevelopmentCard(userDTO, "Test", "Monopoly");
 
         assertTrue(event instanceof PlayDevelopmentCardRequest);
@@ -171,7 +184,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void resolveDevelopmentCardMonopolyTest(){
+    public void resolveDevelopmentCardMonopolyTest() {
         gameService.resolveDevelopmentCardMonopoly(userDTO, "Test", "Monopoly", "Wool");
 
         assertTrue(event instanceof ResolveDevelopmentCardMonopolyRequest);
@@ -182,11 +195,12 @@ public class GameServiceTest {
     }
 
     @Test
-    public void resolveDevelopmentCardYearOfPlentyTest(){
+    public void resolveDevelopmentCardYearOfPlentyTest() {
         gameService.resolveDevelopmentCardYearOfPlenty(userDTO, "Test", "YearOfPlenty", "Wool", "Ore");
 
         assertTrue(event instanceof ResolveDevelopmentCardYearOfPlentyRequest);
-        assertEquals(userDTO.getUsername(), ((ResolveDevelopmentCardYearOfPlentyRequest) event).getUser().getUsername());
+        assertEquals(userDTO.getUsername(),
+                ((ResolveDevelopmentCardYearOfPlentyRequest) event).getUser().getUsername());
         assertEquals("Test", ((ResolveDevelopmentCardYearOfPlentyRequest) event).getName());
         assertEquals("YearOfPlenty", ((ResolveDevelopmentCardYearOfPlentyRequest) event).getDevCard());
         assertEquals("Wool", ((ResolveDevelopmentCardYearOfPlentyRequest) event).getResource1());
@@ -194,17 +208,19 @@ public class GameServiceTest {
     }
 
     @Test
-    public void resolveDevelopmentCardRoadBuildingTest(){
-        gameService.resolveDevelopmentCardRoadBuilding(userDTO, "Test", "RoadBuilding", UUID.randomUUID(), UUID.randomUUID());
+    public void resolveDevelopmentCardRoadBuildingTest() {
+        gameService.resolveDevelopmentCardRoadBuilding(userDTO, "Test", "RoadBuilding", UUID.randomUUID(),
+                UUID.randomUUID());
 
         assertTrue(event instanceof ResolveDevelopmentCardRoadBuildingRequest);
-        assertEquals(userDTO.getUsername(), ((ResolveDevelopmentCardRoadBuildingRequest) event).getUser().getUsername());
+        assertEquals(userDTO.getUsername(),
+                ((ResolveDevelopmentCardRoadBuildingRequest) event).getUser().getUsername());
         assertEquals("Test", ((ResolveDevelopmentCardRoadBuildingRequest) event).getName());
         assertEquals("RoadBuilding", ((ResolveDevelopmentCardRoadBuildingRequest) event).getDevCard());
     }
 
     @Test
-    public void retrieveAllGamesTest(){
+    public void retrieveAllGamesTest() {
         gameService.retrieveAllGames();
 
         assertTrue(event instanceof RetrieveAllGamesRequest);

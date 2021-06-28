@@ -1,9 +1,9 @@
 package de.uol.swp.common.message;
 
-import de.uol.swp.common.user.Session;
-
 import java.io.Serializable;
 import java.util.Optional;
+
+import de.uol.swp.common.user.Session;
 
 /**
  * Base interface of all messages
@@ -14,16 +14,6 @@ import java.util.Optional;
  */
 
 public interface Message extends Serializable {
-
-    /**
-     * Allows to set a MessageContext, e.g. for network purposes
-     *
-     * @param messageContext the MessageContext to be set
-     * @author Marco Grawunder
-     * @see de.uol.swp.common.message.MessageContext
-     * @since 2019-08-13
-     */
-    void setMessageContext(MessageContext messageContext);
 
     /**
      * Retrieve the current message context
@@ -38,14 +28,14 @@ public interface Message extends Serializable {
     Optional<MessageContext> getMessageContext();
 
     /**
-     * Set the current session
+     * Allows to set a MessageContext, e.g. for network purposes
      *
-     * @param session the current session
+     * @param messageContext the MessageContext to be set
      * @author Marco Grawunder
-     * @see de.uol.swp.common.user.Session
+     * @see de.uol.swp.common.message.MessageContext
      * @since 2019-08-13
      */
-    void setSession(Session session);
+    void setMessageContext(MessageContext messageContext);
 
     /**
      * Retrieve current session
@@ -57,6 +47,16 @@ public interface Message extends Serializable {
      * @since 2019-09-09
      */
     Optional<Session> getSession();
+
+    /**
+     * Set the current session
+     *
+     * @param session the current session
+     * @author Marco Grawunder
+     * @see de.uol.swp.common.user.Session
+     * @since 2019-08-13
+     */
+    void setSession(Session session);
 
     /**
      * Allow to create a new message, based on

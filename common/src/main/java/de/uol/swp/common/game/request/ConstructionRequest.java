@@ -1,8 +1,8 @@
 package de.uol.swp.common.game.request;
 
-import de.uol.swp.common.user.UserDTO;
-
 import java.util.UUID;
+
+import de.uol.swp.common.user.UserDTO;
 
 /**
  * Message to ask for a construction at a certain MapGraphNode in the MapGraph.
@@ -21,7 +21,6 @@ public class ConstructionRequest extends AbstractGameRequest {
      * @param user The player who wants to start construction
      * @param game The game, the user wants to start construction in
      * @param uuid the UUID corresponding to the node at wich the player wants to construct something
-     *
      * @author Pieter Vogt
      * @since 2021-04-14
      */

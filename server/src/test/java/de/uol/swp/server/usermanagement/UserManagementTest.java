@@ -1,10 +1,12 @@
 package de.uol.swp.server.usermanagement;
 
+import java.sql.SQLException;
+
+import org.junit.jupiter.api.Test;
+
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.server.usermanagement.store.MainMemoryBasedUserStore;
-import org.junit.jupiter.api.Test;
-import java.sql.SQLException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -12,7 +14,8 @@ import static org.junit.jupiter.api.Assertions.*;
 class UserManagementTest {
 
     private static final int NO_USERS = 10;
-    private static final User userNotInStore = new UserDTO("marco" + NO_USERS, "marco" + NO_USERS, "marco" + NO_USERS + "@grawunder.de", 1);
+    private static final User userNotInStore = new UserDTO("marco" + NO_USERS, "marco" + NO_USERS,
+            "marco" + NO_USERS + "@grawunder.de", 1);
     private final MainMemoryBasedUserStore mainMemoryBasedUserStore = new MainMemoryBasedUserStore();
     private final UserManagement management = new UserManagement(mainMemoryBasedUserStore);
 
@@ -20,7 +23,6 @@ class UserManagementTest {
     }
 
     /**
-     *
      * @throws Exception exception
      */
     @Test
@@ -169,7 +171,8 @@ class UserManagementTest {
 
         User userToUpdatePassword = userNotInStore;
 
-        assertThrows(UserManagementException.class, () -> management.updateUserPassword(userToUpdatePassword, userToUpdatePassword.getPassword()));
+        assertThrows(UserManagementException.class,
+                () -> management.updateUserPassword(userToUpdatePassword, userToUpdatePassword.getPassword()));
     }
 
     @Test

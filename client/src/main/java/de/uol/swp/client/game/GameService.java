@@ -1,20 +1,40 @@
 package de.uol.swp.client.game;
 
 
-import com.google.common.eventbus.EventBus;
-import com.google.inject.Inject;
-import de.uol.swp.client.game.event.SummaryConfirmedEvent;
-import de.uol.swp.common.game.dto.StatsDTO;
-import de.uol.swp.common.game.request.RobbersNewFieldRequest;
-import de.uol.swp.common.game.message.TradeEndedMessage;
-import de.uol.swp.common.game.request.*;
-import de.uol.swp.common.game.trade.TradeItem;
-import de.uol.swp.common.user.User;
-import de.uol.swp.common.user.UserDTO;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
+
+import com.google.common.eventbus.EventBus;
+import com.google.inject.Inject;
+
+import de.uol.swp.client.game.event.SummaryConfirmedEvent;
+import de.uol.swp.common.game.dto.StatsDTO;
+import de.uol.swp.common.game.message.TradeEndedMessage;
+import de.uol.swp.common.game.request.BankBuyRequest;
+import de.uol.swp.common.game.request.BankRequest;
+import de.uol.swp.common.game.request.BuyDevelopmentCardRequest;
+import de.uol.swp.common.game.request.ConstructionRequest;
+import de.uol.swp.common.game.request.DrawRandomResourceFromPlayerRequest;
+import de.uol.swp.common.game.request.EndTurnRequest;
+import de.uol.swp.common.game.request.GameLeaveUserRequest;
+import de.uol.swp.common.game.request.KickPlayerRequest;
+import de.uol.swp.common.game.request.PlayDevelopmentCardRequest;
+import de.uol.swp.common.game.request.ResolveDevelopmentCardKnightRequest;
+import de.uol.swp.common.game.request.ResolveDevelopmentCardMonopolyRequest;
+import de.uol.swp.common.game.request.ResolveDevelopmentCardRoadBuildingRequest;
+import de.uol.swp.common.game.request.ResolveDevelopmentCardYearOfPlentyRequest;
+import de.uol.swp.common.game.request.ResourcesToDiscardRequest;
+import de.uol.swp.common.game.request.RetrieveAllGamesRequest;
+import de.uol.swp.common.game.request.RetrieveAllThisGameUsersRequest;
+import de.uol.swp.common.game.request.RobbersNewFieldRequest;
+import de.uol.swp.common.game.request.RollDiceRequest;
+import de.uol.swp.common.game.request.TradeChoiceRequest;
+import de.uol.swp.common.game.request.TradeItemRequest;
+import de.uol.swp.common.game.request.TradeStartRequest;
+import de.uol.swp.common.game.trade.TradeItem;
+import de.uol.swp.common.user.User;
+import de.uol.swp.common.user.UserDTO;
 
 /**
  * Class that manages games
@@ -102,8 +122,8 @@ public class GameService {
      * @param user         lobby/game owner
      * @param playerToKick name of the player that will be kicked
      * @param toBan        boolean for true or false (if true, player will be banned from the game, is false player will be kicked.)
-     * @see KickPlayerRequest
      * @author Iskander Yusupov
+     * @see KickPlayerRequest
      * @since 2021-06-24
      */
     public void kickPlayer(String gameName, User user, String playerToKick, boolean toBan) {
@@ -164,7 +184,8 @@ public class GameService {
      * @see de.uol.swp.common.game.request.TradeItemRequest
      * @since 2021-04-21
      */
-    public void sendItem(UserDTO bidder, String gameName, ArrayList<TradeItem> bidItems, String tradeCode, ArrayList<TradeItem> wishItems) {
+    public void sendItem(UserDTO bidder, String gameName, ArrayList<TradeItem> bidItems, String tradeCode,
+                         ArrayList<TradeItem> wishItems) {
         TradeItemRequest tir = new TradeItemRequest(bidder, gameName, bidItems, tradeCode, wishItems);
         eventBus.post(tir);
     }
@@ -194,7 +215,8 @@ public class GameService {
      * @see de.uol.swp.common.game.request.TradeItemRequest
      * @since 2021-04-21
      */
-    public void sendBuyChoice(String gameName, UserDTO user, String tradeCode, String cardName, ArrayList<TradeItem> offer) {
+    public void sendBuyChoice(String gameName, UserDTO user, String tradeCode, String cardName,
+                              ArrayList<TradeItem> offer) {
         BankBuyRequest bbr = new BankBuyRequest(gameName, user, tradeCode, cardName, offer);
         eventBus.post(bbr);
     }
@@ -265,7 +287,8 @@ public class GameService {
      * @since 2021-04-24
      */
     public void drawRandomCardFromPlayer(String gameName, User user, String result) {
-        DrawRandomResourceFromPlayerRequest drawRandomResourceFromPlayerRequest = new DrawRandomResourceFromPlayerRequest(gameName, (UserDTO) user, result);
+        DrawRandomResourceFromPlayerRequest drawRandomResourceFromPlayerRequest = new DrawRandomResourceFromPlayerRequest(
+                gameName, (UserDTO) user, result);
         eventBus.post(drawRandomResourceFromPlayerRequest);
     }
 
@@ -305,7 +328,8 @@ public class GameService {
      * @author Marc Hermes
      * @since 2021-05-03
      */
-    public void resolveDevelopmentCardMonopoly(UserDTO joinedLobbyUser, String currentLobby, String devCard, String resource) {
+    public void resolveDevelopmentCardMonopoly(UserDTO joinedLobbyUser, String currentLobby, String devCard,
+                                               String resource) {
         eventBus.post(new ResolveDevelopmentCardMonopolyRequest(devCard, joinedLobbyUser, currentLobby, resource));
     }
 
@@ -320,8 +344,10 @@ public class GameService {
      * @author Marc Hermes
      * @since 2021-05-03
      */
-    public void resolveDevelopmentCardYearOfPlenty(UserDTO joinedLobbyUser, String currentLobby, String devCard, String resource1, String resource2) {
-        eventBus.post(new ResolveDevelopmentCardYearOfPlentyRequest(devCard, joinedLobbyUser, currentLobby, resource1, resource2));
+    public void resolveDevelopmentCardYearOfPlenty(UserDTO joinedLobbyUser, String currentLobby, String devCard,
+                                                   String resource1, String resource2) {
+        eventBus.post(new ResolveDevelopmentCardYearOfPlentyRequest(devCard, joinedLobbyUser, currentLobby, resource1,
+                resource2));
     }
 
     /**
@@ -335,8 +361,10 @@ public class GameService {
      * @author Marc Hermes
      * @since 2021-05-03
      */
-    public void resolveDevelopmentCardRoadBuilding(UserDTO joinedLobbyUser, String currentLobby, String devCard, UUID street1, UUID street2) {
-        eventBus.post(new ResolveDevelopmentCardRoadBuildingRequest(devCard, joinedLobbyUser, currentLobby, street1, street2));
+    public void resolveDevelopmentCardRoadBuilding(UserDTO joinedLobbyUser, String currentLobby, String devCard,
+                                                   UUID street1, UUID street2) {
+        eventBus.post(new ResolveDevelopmentCardRoadBuildingRequest(devCard, joinedLobbyUser, currentLobby, street1,
+                street2));
     }
 
     /**

@@ -1,10 +1,11 @@
 package de.uol.swp.common.game;
 
-import de.uol.swp.common.user.User;
-import de.uol.swp.common.user.UserDTO;
+import java.util.HashMap;
+
 import org.junit.jupiter.api.Test;
 
-import java.util.HashMap;
+import de.uol.swp.common.user.User;
+import de.uol.swp.common.user.UserDTO;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -332,7 +333,7 @@ public class InventoryTest {
     }
 
     @Test
-    public void incCardTest(){
+    public void incCardTest() {
         Inventory inventory = new Inventory(user);
 
         inventory.incCardStack("Lumber", 10);
@@ -360,7 +361,7 @@ public class InventoryTest {
     }
 
     @Test
-    public void decCardTest(){
+    public void decCardTest() {
         Inventory inventory = new Inventory(user);
 
         inventory.incCardStack("Lumber", 10);

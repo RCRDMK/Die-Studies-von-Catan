@@ -1,16 +1,23 @@
 package de.uol.swp.server.usermanagement;
 
+import java.sql.SQLException;
+
 import com.google.common.eventbus.EventBus;
+
+import org.junit.jupiter.api.Test;
+
 import de.uol.swp.common.message.MessageContext;
 import de.uol.swp.common.message.ResponseMessage;
 import de.uol.swp.common.message.ServerMessage;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
-import de.uol.swp.common.user.request.*;
+import de.uol.swp.common.user.request.DropUserRequest;
+import de.uol.swp.common.user.request.RegisterUserRequest;
+import de.uol.swp.common.user.request.RetrieveUserInformationRequest;
+import de.uol.swp.common.user.request.UpdateUserMailRequest;
+import de.uol.swp.common.user.request.UpdateUserPasswordRequest;
+import de.uol.swp.common.user.request.UpdateUserProfilePictureRequest;
 import de.uol.swp.server.usermanagement.store.MainMemoryBasedUserStore;
-import org.junit.jupiter.api.Test;
-
-import java.sql.SQLException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -28,16 +35,15 @@ class UserServiceTest {
     static final User userToDrop = new UserDTO("Carsten", "Stahl", "Carsten@Stahl.com");
 
     final EventBus bus = new EventBus();
+    final UserService userService = new UserService(bus, userManagement);
     MainMemoryBasedUserStore mainMemoryBasedUserStore = new MainMemoryBasedUserStore();
     final UserManagement userManagement = new UserManagement(mainMemoryBasedUserStore);
-    final UserService userService = new UserService(bus, userManagement);
 
     UserServiceTest() throws SQLException {
     }
 
     /**
      * This test tries to register a new user in the UserStore.
-     *
      */
     @Test
     void registerUserTest() throws Exception {
@@ -68,7 +74,6 @@ class UserServiceTest {
 
     /**
      * This test tries to register a second user with the same username.
-     *
      */
     @Test
     void registerSecondUserWithSameName() throws Exception {
@@ -158,7 +163,8 @@ class UserServiceTest {
 
         User withUpdatedPassword = new UserDTO(userToRegister.getUsername(), "newPassword", "", 1);
 
-        final UpdateUserPasswordRequest updateUserPasswordRequest = new UpdateUserPasswordRequest(withUpdatedPassword, "Marco");
+        final UpdateUserPasswordRequest updateUserPasswordRequest = new UpdateUserPasswordRequest(withUpdatedPassword,
+                "Marco");
 
         updateUserPasswordRequest.setMessageContext(new MessageContext() {
             @Override
@@ -198,7 +204,8 @@ class UserServiceTest {
 
         userManagement.createUser(userToRegister);
 
-        final UpdateUserPasswordRequest updateUserPasswordRequest = new UpdateUserPasswordRequest(userToDrop, userToDrop.getEMail());
+        final UpdateUserPasswordRequest updateUserPasswordRequest = new UpdateUserPasswordRequest(userToDrop,
+                userToDrop.getEMail());
 
         bus.post(updateUserPasswordRequest);
 
@@ -218,7 +225,8 @@ class UserServiceTest {
 
         User userWithNewPicture = new UserDTO(userToRegister.getUsername(), "", "", 30);
 
-        final UpdateUserProfilePictureRequest updateUserProfilePictureRequest = new UpdateUserProfilePictureRequest(userWithNewPicture);
+        final UpdateUserProfilePictureRequest updateUserProfilePictureRequest = new UpdateUserProfilePictureRequest(
+                userWithNewPicture);
 
         updateUserProfilePictureRequest.setMessageContext(new MessageContext() {
             @Override
@@ -252,7 +260,8 @@ class UserServiceTest {
 
         userManagement.createUser(userToRegister);
 
-        final UpdateUserProfilePictureRequest updateUserProfilePictureRequest = new UpdateUserProfilePictureRequest(userToDrop);
+        final UpdateUserProfilePictureRequest updateUserProfilePictureRequest = new UpdateUserProfilePictureRequest(
+                userToDrop);
 
         bus.post(updateUserProfilePictureRequest);
 
@@ -360,7 +369,8 @@ class UserServiceTest {
 
         userManagement.createUser(userToRegister);
 
-        RetrieveUserInformationRequest retrieveUserInformationRequest = new RetrieveUserInformationRequest(userToRegister);
+        RetrieveUserInformationRequest retrieveUserInformationRequest = new RetrieveUserInformationRequest(
+                userToRegister);
 
         retrieveUserInformationRequest.setMessageContext(new MessageContext() {
             @Override

@@ -1,12 +1,12 @@
 package de.uol.swp.common.lobby.dto;
 
-import de.uol.swp.common.lobby.Lobby;
-import de.uol.swp.common.user.User;
-
 import java.util.Collections;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TreeSet;
+
+import de.uol.swp.common.lobby.Lobby;
+import de.uol.swp.common.user.User;
 
 /**
  * Object to transfer the information of a game lobby
@@ -24,14 +24,14 @@ import java.util.TreeSet;
 public class LobbyDTO implements Lobby {
 
     private final String name;
-    private int passwordHash = 0;
-    private User owner;
     private final Set<User> users = new TreeSet<>();
     private final Set<User> playersReady = new TreeSet<>();
+    private transient final Timer timerForGameStart = new Timer();
+    private int passwordHash = 0;
+    private User owner;
     private int rdyResponsesReceived = 0;
     private String gameFieldVariant;
     private boolean gameStarted = false;
-    private transient final Timer timerForGameStart = new Timer();
     private boolean timerStarted = false;
     private boolean isUsedForTest = false;
     private int minimumAmountOfPlayers;
@@ -83,16 +83,19 @@ public class LobbyDTO implements Lobby {
         this.passwordHash = password.hashCode();
     }
 
-    /**
-     * Setter for passwordHash. Needed for tempLobby reload in AllCreatedLobbiesResponse.java
-     *
-     * @param passwordHash the password to set this lobby's password to
-     */
-    public void setPasswordHash(int passwordHash) {
-        this.passwordHash = passwordHash;
+    @Override
+    public void updateOwner(User user) {
+        if (!this.users.contains(user)) {
+            throw new IllegalArgumentException(
+                    "User " + user.getUsername() + "not found. Owner must be member of lobby!");
+        }
+        this.owner = user;
     }
 
     @Override
+    public User getOwner() {
+        return owner;
+    }    @Override
     public String getGameFieldVariant() {
         return gameFieldVariant;
     }
@@ -121,22 +124,20 @@ public class LobbyDTO implements Lobby {
     }
 
     @Override
-    public void updateOwner(User user) {
-        if (!this.users.contains(user)) {
-            throw new IllegalArgumentException("User " + user.getUsername() + "not found. Owner must be member of lobby!");
-        }
-        this.owner = user;
-    }
-
-    @Override
-    public User getOwner() {
-        return owner;
-    }
-
-    @Override
     public Set<User> getUsers() {
         return Collections.unmodifiableSet(users);
     }
+
+    /**
+     * Setter for passwordHash. Needed for tempLobby reload in AllCreatedLobbiesResponse.java
+     *
+     * @param passwordHash the password to set this lobby's password to
+     */
+    public void setPasswordHash(int passwordHash) {
+        this.passwordHash = passwordHash;
+    }
+
+
 
     @Override
     public Set<User> getPlayersReady() {

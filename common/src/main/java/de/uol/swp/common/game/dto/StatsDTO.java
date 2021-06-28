@@ -1,9 +1,9 @@
 package de.uol.swp.common.game.dto;
 
-import de.uol.swp.common.game.Inventory;
-
 import java.io.Serializable;
 import java.util.ArrayList;
+
+import de.uol.swp.common.game.Inventory;
 
 /**
  * The type Stats dto.
@@ -29,7 +29,8 @@ public class StatsDTO implements Serializable {
      * @author René Meyer
      * @since 2021 -05-08
      */
-    public StatsDTO(String gameName, String winner, int overallTrades, int overallTurns, ArrayList<Inventory> inventoryArrayList) {
+    public StatsDTO(String gameName, String winner, int overallTrades, int overallTurns,
+                    ArrayList<Inventory> inventoryArrayList) {
         this.gameName = gameName;
         this.winner = winner;
         this.overallTrades = overallTrades;

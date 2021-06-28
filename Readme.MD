@@ -1,4 +1,4 @@
-SWP Basissystem	
+SWP Basissystem
 ===============
 
 Der folgende Code sollte als Basis für das Software Projekt verwendet werden.
@@ -6,7 +6,7 @@ Der folgende Code sollte als Basis für das Software Projekt verwendet werden.
 
 Maven
 -----
-Das Projekt kann mit Maven gebaut werden. 
+Das Projekt kann mit Maven gebaut werden.
 
 Dazu auf der Hauptebene zunächst
 

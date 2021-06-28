@@ -1,8 +1,8 @@
 package de.uol.swp.common.user.exception;
 
-import de.uol.swp.common.message.AbstractResponseMessage;
-
 import java.util.Objects;
+
+import de.uol.swp.common.message.AbstractResponseMessage;
 
 /**
  * This exception is thrown if something went wrong during the dropUser process.
@@ -32,8 +32,8 @@ public class DropUserExceptionMessage extends AbstractResponseMessage {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) { return true; }
+        if (o == null || getClass() != o.getClass()) { return false; }
         DropUserExceptionMessage that = (DropUserExceptionMessage) o;
         return Objects.equals(message, that.message);
     }

@@ -1,8 +1,8 @@
 package de.uol.swp.common.user.response.lobby;
 
-import de.uol.swp.common.message.AbstractResponseMessage;
-
 import java.util.Objects;
+
+import de.uol.swp.common.message.AbstractResponseMessage;
 
 /**
  * Response that is sent to the User who tried to join a lobby with the wrong password

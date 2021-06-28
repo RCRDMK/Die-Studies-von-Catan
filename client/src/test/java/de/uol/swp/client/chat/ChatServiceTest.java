@@ -3,17 +3,16 @@ package de.uol.swp.client.chat;
 import com.google.common.eventbus.DeadEvent;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
-import de.uol.swp.common.chat.RequestChatMessage;
-import de.uol.swp.common.chat.ResponseEmptyChatMessage;
-import de.uol.swp.common.user.User;
-import de.uol.swp.common.user.UserDTO;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
+import de.uol.swp.common.chat.RequestChatMessage;
+import de.uol.swp.common.chat.ResponseEmptyChatMessage;
+import de.uol.swp.common.user.User;
+import de.uol.swp.common.user.UserDTO;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -85,13 +84,14 @@ public class ChatServiceTest {
      * It also fails if the request object getTime() function doesn't return a valid double.
      *
      * @author Marco Grawunder
-     * @since 2020-12-16
      * @author René Meyer
+     * @since 2020-12-16
      */
     @Test
     @DisplayName("Sends a normal Message")
     void sendMessageTest() {
-        RequestChatMessage message = new RequestChatMessage("testMessage", "testLobby", defaultUser.getUsername(), System.currentTimeMillis());
+        RequestChatMessage message = new RequestChatMessage("testMessage", "testLobby", defaultUser.getUsername(),
+                System.currentTimeMillis());
         chatService.sendMessage(message);
 
         assertTrue(event instanceof RequestChatMessage);
@@ -107,7 +107,8 @@ public class ChatServiceTest {
     @Test
     @DisplayName("Sends a Message with no String in it")
     void sendEmptyMessageTest() {
-        RequestChatMessage message = new RequestChatMessage("", "testLobby", defaultUser.getUsername(), System.currentTimeMillis());
+        RequestChatMessage message = new RequestChatMessage("", "testLobby", defaultUser.getUsername(),
+                System.currentTimeMillis());
         chatService.sendMessage(message);
 
         assertTrue(event instanceof ResponseEmptyChatMessage);
@@ -124,7 +125,8 @@ public class ChatServiceTest {
     @Test
     @DisplayName("Sends a Message with Blanks")
     void sendWhiteSpaceMessageTest() {
-        RequestChatMessage message = new RequestChatMessage("    ", "testLobby", defaultUser.getUsername(), System.currentTimeMillis());
+        RequestChatMessage message = new RequestChatMessage("    ", "testLobby", defaultUser.getUsername(),
+                System.currentTimeMillis());
         chatService.sendMessage(message);
 
         assertTrue(event instanceof ResponseEmptyChatMessage);
@@ -141,7 +143,8 @@ public class ChatServiceTest {
     @Test
     @DisplayName("Sends an empty Message")
     void onSendNullMessageTest() {
-        RequestChatMessage message = new RequestChatMessage(null, "testLobby", defaultUser.getUsername(), System.currentTimeMillis());
+        RequestChatMessage message = new RequestChatMessage(null, "testLobby", defaultUser.getUsername(),
+                System.currentTimeMillis());
         chatService.sendMessage(message);
 
         assertTrue(event instanceof ResponseEmptyChatMessage);
@@ -158,11 +161,14 @@ public class ChatServiceTest {
     @Test
     @DisplayName("Sends multiple Messages")
     void onSendMultipleMessageTest() {
-        RequestChatMessage message0 = new RequestChatMessage("Test0", "testLobby", defaultUser.getUsername(), System.currentTimeMillis());
+        RequestChatMessage message0 = new RequestChatMessage("Test0", "testLobby", defaultUser.getUsername(),
+                System.currentTimeMillis());
         chatService.sendMessage(message0);
-        RequestChatMessage message1 = new RequestChatMessage("Test1", "testLobby", defaultUser.getUsername(), System.currentTimeMillis());
+        RequestChatMessage message1 = new RequestChatMessage("Test1", "testLobby", defaultUser.getUsername(),
+                System.currentTimeMillis());
         chatService.sendMessage(message1);
-        RequestChatMessage message2 = new RequestChatMessage("Test2", "testLobby", defaultUser.getUsername(), System.currentTimeMillis());
+        RequestChatMessage message2 = new RequestChatMessage("Test2", "testLobby", defaultUser.getUsername(),
+                System.currentTimeMillis());
         chatService.sendMessage(message2);
 
         assertTrue(event instanceof RequestChatMessage);

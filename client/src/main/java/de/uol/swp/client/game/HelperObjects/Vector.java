@@ -1,8 +1,8 @@
 package de.uol.swp.client.game.HelperObjects;
 
-import de.uol.swp.common.game.MapGraph;
-
 import java.util.Collection;
+
+import de.uol.swp.common.game.MapGraph;
 
 /**
  * This class is used for navigating in the 12-angled grid of terrain-fields.

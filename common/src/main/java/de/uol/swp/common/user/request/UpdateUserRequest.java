@@ -1,9 +1,9 @@
 package de.uol.swp.common.user.request;
 
+import java.util.Objects;
+
 import de.uol.swp.common.message.AbstractRequestMessage;
 import de.uol.swp.common.user.User;
-
-import java.util.Objects;
 
 /**
  * Request to update an user
@@ -44,8 +44,8 @@ public class UpdateUserRequest extends AbstractRequestMessage {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) { return true; }
+        if (o == null || getClass() != o.getClass()) { return false; }
         UpdateUserRequest that = (UpdateUserRequest) o;
         return Objects.equals(toUpdate, that.toUpdate);
     }
