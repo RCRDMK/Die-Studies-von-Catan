@@ -361,6 +361,7 @@ public class GamePresenter extends AbstractPresenter {
     private String userIsOnTurn;
 
     private final HashMap<UUID, MapGraphNodeContainer> nodeContainerHashMap = new HashMap<>();
+    private Alert kickAlert;
 
     /**
      * Method called when the send Message button is pressed
@@ -694,7 +695,6 @@ public class GamePresenter extends AbstractPresenter {
             this.currentGame = gcm.getName();
             this.gameFieldVariant = gcm.getGameFieldVariant();
             updateGameUsersList(gcm.getUsers(), gcm.getHumans());
-            updateKickButtons(gcm.getUsers(), gcm.getHumans(), gcm.getGameOwner());
             for (int i = 1; i <= 67; i++) {
                 Image image;
                 image = new Image("img/profilePictures/" + i + ".png");
@@ -716,7 +716,7 @@ public class GamePresenter extends AbstractPresenter {
                 setUpPrices();
                 setUpLargestArmyAndLongestRoadPanes(gcm.getUsers());
                 setUpKickButtons(gcm.getUsers());
-                setupButtonsAndAlerts();
+                setupKickButtonAndAlert();
                 updateKickButtons(gcm.getUsers(), gcm.getHumans(), gcm.getGameOwner());
             });
             evaluateMyPlayerNumber(gcm.getUsers());
@@ -759,7 +759,6 @@ public class GamePresenter extends AbstractPresenter {
             this.currentGame = joggr.getGameName();
             this.gameFieldVariant = joggr.getGameFieldVariant();
             updateGameUsersList(joggr.getUsers(), joggr.getHumans());
-            updateKickButtons(joggr.getUsers(), joggr.getHumans(), joggr.getGameOwner());
             for (int i = 1; i <= 67; i++) {
                 Image image;
                 image = new Image("img/profilePictures/" + i + ".png");
@@ -780,7 +779,7 @@ public class GamePresenter extends AbstractPresenter {
                 setUpPrices();
                 setUpLargestArmyAndLongestRoadPanes(joggr.getUsers());
                 setUpKickButtons(joggr.getUsers());
-                setupButtonsAndAlerts();
+                setupKickButtonAndAlert();
                 updateKickButtons(joggr.getUsers(), joggr.getHumans(), joggr.getGameOwner());
                 updateGameField();
             });
@@ -1195,9 +1194,9 @@ public class GamePresenter extends AbstractPresenter {
         }
         if (playerToKick != null) {
             Platform.runLater(() -> {
-                this.alert.setTitle("Do you want to kick or ban the player from the game?");
-                this.alert.setHeaderText("Kick or ban the player?");
-                this.alert.show();
+                this.kickAlert.setTitle("Do you want to kick or ban the player from the game?");
+                this.kickAlert.setHeaderText("Kick or ban the player?");
+                this.kickAlert.show();
             });
         } else {
             throw new GamePresenterException("Player that requested be kicked is not found!");
@@ -1213,22 +1212,22 @@ public class GamePresenter extends AbstractPresenter {
      * @author Iskander Yusupov
      * @since 2021-06-25
      */
-    public void setupButtonsAndAlerts() {
-        this.alert = new Alert(Alert.AlertType.CONFIRMATION);
+    public void setupKickButtonAndAlert() {
+        kickAlert = new Alert(Alert.AlertType.CONFIRMATION);
         ButtonType buttonTypeKick = new ButtonType("Kick", ButtonBar.ButtonData.YES);
         ButtonType buttonTypeBan = new ButtonType("Ban", ButtonBar.ButtonData.NO);
-        alert.getButtonTypes().setAll(buttonTypeKick, buttonTypeBan);
-        Button buttonKick = (Button) alert.getDialogPane().lookupButton(buttonTypeKick);
+        kickAlert.getButtonTypes().setAll(buttonTypeKick, buttonTypeBan);
+        Button buttonKick = (Button) kickAlert.getDialogPane().lookupButton(buttonTypeKick);
         buttonKick.setOnAction(event -> {
             onButtonKickClicked();
             event.consume();
         });
-        Button buttonBan = (Button) alert.getDialogPane().lookupButton(buttonTypeBan);
+        Button buttonBan = (Button) kickAlert.getDialogPane().lookupButton(buttonTypeBan);
         buttonBan.setOnAction(event -> {
             onButtonBanClicked();
             event.consume();
         });
-        this.alert.initModality(Modality.NONE);
+        kickAlert.initModality(Modality.APPLICATION_MODAL);
 
     }
 
@@ -1241,7 +1240,7 @@ public class GamePresenter extends AbstractPresenter {
      * @since 2021-06-25
      */
     public void onButtonKickClicked() {
-        alert.close();
+        kickAlert.close();
         gameService.kickPlayer(currentGame, joinedLobbyUser, this.playerToKick, false);
     }
 
@@ -1254,8 +1253,7 @@ public class GamePresenter extends AbstractPresenter {
      * @since 2021-06-25
      */
     public void onButtonBanClicked() {
-        alert.close();
-        // this.toBan = true;
+        kickAlert.close();
         gameService.kickPlayer(currentGame, joinedLobbyUser, this.playerToKick, true);
     }
 
@@ -1594,8 +1592,8 @@ public class GamePresenter extends AbstractPresenter {
      * <p>
      * be disabled.
      *
-     * @param list the list of all Users in this game
-     * @param humans the list of all human players in this Game
+     * @param list      the list of all Users in this game
+     * @param humans    the list of all human players in this Game
      * @param gameOwner the owner of the game
      * @author Iskander Yusupov
      * @since 2021-06-21
