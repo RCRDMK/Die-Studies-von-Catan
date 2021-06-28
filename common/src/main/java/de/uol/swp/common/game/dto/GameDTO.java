@@ -101,6 +101,13 @@ public class GameDTO implements Game {
     }
 
     @Override
+    public void kickPlayer(User user) {
+        if (users.contains(user)) {
+            this.users.remove(user);
+        }
+    }
+
+    @Override
     public void updateOwner(User user) {
         if (!this.users.contains(user)) {
             throw new IllegalArgumentException("User " + user.getUsername() +
@@ -546,7 +553,7 @@ public class GameDTO implements Game {
             Inventory inventoryDummy = getInventory(user);
             int cardsInInventory = inventoryDummy.getSpecificResourceAmount(card);
             int boughtCards = getHowManyCardsOfTypeWereBoughtThisTurn(card);
-            if(card.equals("Year of Plenty") && bankInventory.sumResource() < 2) {
+            if (card.equals("Year of Plenty") && bankInventory.sumResource() < 2) {
                 return false;
             }
             return cardsInInventory - boughtCards > 0;

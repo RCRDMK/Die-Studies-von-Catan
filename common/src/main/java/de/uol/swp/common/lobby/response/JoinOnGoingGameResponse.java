@@ -24,6 +24,7 @@ public class JoinOnGoingGameResponse extends AbstractResponseMessage {
     private final UserDTO user;
     private final boolean joinedSuccessful;
     private final String reasonForFailedJoin;
+    private final User gameOwner;
 
     /**
      * Constructor used for serialization
@@ -40,6 +41,7 @@ public class JoinOnGoingGameResponse extends AbstractResponseMessage {
         this.user = null;
         this.joinedSuccessful = false;
         this.reasonForFailedJoin = null;
+        this.gameOwner = null;
     }
 
     /**
@@ -54,7 +56,7 @@ public class JoinOnGoingGameResponse extends AbstractResponseMessage {
      * @param gameFieldVariant the gameFieldVariant of the mapGraph
      * @param reasonForFailedJoin the reason why the user wasn't able to join, empty if he was able to
      */
-    public JoinOnGoingGameResponse(String gameName, UserDTO user, boolean joinedSuccessful, MapGraph mapGraph, ArrayList<User> users, Set<User> humans, String gameFieldVariant, String reasonForFailedJoin) {
+    public JoinOnGoingGameResponse(String gameName, UserDTO user, boolean joinedSuccessful, MapGraph mapGraph, ArrayList<User> users, Set<User> humans, String gameFieldVariant, String reasonForFailedJoin, User gameOwner) {
         this.gameName = gameName;
         this.user = user;
         this.joinedSuccessful = joinedSuccessful;
@@ -63,6 +65,7 @@ public class JoinOnGoingGameResponse extends AbstractResponseMessage {
         this.humans = humans;
         this.gameFieldVariant = gameFieldVariant;
         this.reasonForFailedJoin = reasonForFailedJoin;
+        this.gameOwner = gameOwner;
     }
 
     /**
@@ -152,4 +155,13 @@ public class JoinOnGoingGameResponse extends AbstractResponseMessage {
     public String getReasonForFailedJoin() {
         return reasonForFailedJoin;
     }
+
+    /**
+     * Getter for the User, who is the game owner
+     *
+     * @return User, who is the game owner
+     * @author Iskander Yusupov
+     * @since 2021-06-21
+     */
+    public User getGameOwner() { return gameOwner; }
 }

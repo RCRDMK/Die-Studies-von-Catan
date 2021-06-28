@@ -95,6 +95,24 @@ public class GameService {
     }
 
     /**
+     * Posts a request to kick the player from the game on the Eventbus
+     * <p>
+     *
+     * @param gameName     name of the game
+     * @param user         lobby/game owner
+     * @param playerToKick name of the player that will be kicked
+     * @param toBan        boolean for true or false (if true, player will be banned from the game, is false player will be kicked.)
+     * @see KickPlayerRequest
+     * @author Iskander Yusupov
+     * @since 2021-06-24
+     */
+    public void kickPlayer(String gameName, User user, String playerToKick, boolean toBan) {
+        KickPlayerRequest kickPlayerRequest = new KickPlayerRequest(gameName, (UserDTO) user, playerToKick, toBan);
+        eventBus.post(kickPlayerRequest);
+    }
+
+
+    /**
      * Return from Summary Screen to main Screen
      * <p>
      * Leaves the current game and posts a new SummaryConfirmedMessage on the eventbus

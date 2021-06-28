@@ -61,6 +61,14 @@ public interface Game extends Serializable {
     void leaveUser(User user);
 
     /**
+     * Removes an selected user from the game
+     *
+     * @param user The selected user to remove from the game
+     * @since 2021-06-24
+     */
+    void kickPlayer(User user);
+
+    /**
      * Getter for all users in the game
      *
      * @return A Set containing all user in this game
