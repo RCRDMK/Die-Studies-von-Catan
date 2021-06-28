@@ -1158,8 +1158,6 @@ public class GameService extends AbstractService {
 
                     case "Road Building":
                         if (inventory.cardRoadBuilding.getNumber() > 0 && currentCardOfGame.equals("") && (!alreadyPlayedCard || game.isUsedForTest()) && inventory.road.getNumber() > 1) {
-                            // TODO: check if the player is allowed to even attempt to build 2 streets i.e. not possible when there are no legal spaces to build 2 streets
-                            // TODO: probs very complicated to check that, so maybe just ignore that fringe scenario???
                             game.setCurrentCard("Road Building");
                             game.setPlayedCardThisTurn(true);
                             PlayDevelopmentCardResponse response = new PlayDevelopmentCardResponse(devCard, true, turnPlayer.getUsername(), game.getName());

@@ -225,7 +225,6 @@ public class GamePresenter extends AbstractPresenter {
     @FXML
     private Pane pricesView;
 
-
     @FXML
     private ListView<HashMap.Entry<String, Integer>> publicInventory1View;
     @FXML

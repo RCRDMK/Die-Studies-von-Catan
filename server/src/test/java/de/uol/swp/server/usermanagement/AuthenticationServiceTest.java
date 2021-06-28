@@ -173,7 +173,6 @@ class AuthenticationServiceTest {
         userManagement.dropUser(user2);
     }
 
-    // TODO: replace with parametrized test
     @Test
     void twoLoggedInUsers() throws Exception {
         List<User> users = new ArrayList<>();

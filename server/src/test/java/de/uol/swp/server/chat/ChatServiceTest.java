@@ -28,7 +28,6 @@ import java.util.concurrent.CountDownLatch;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-// TODO: überarbeiten, test deckt nichts ab und die service variablen werde nicht genutzt
 /**
  * Class for the ChatService Test
  * <p>

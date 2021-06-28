@@ -106,7 +106,6 @@ public class SQLBasedUserStoreTest {
 
         assertTrue(updatedUser.isPresent());
         assertNotEquals(defaultUser.getPassword(), updatedUser.get().getPassword());
-        //TODO Carsten gefragt, wie der Umgang mit Passwörtern seit Umstellung ist.
         assertNotEquals("123456789", updatedUser.get().getPassword());
 
         userStore.removeUser(defaultUser.getUsername());
