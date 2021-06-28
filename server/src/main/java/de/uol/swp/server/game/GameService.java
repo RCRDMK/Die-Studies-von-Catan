@@ -119,7 +119,6 @@ public class GameService extends AbstractService {
                         sendToSpecificUser(ctx.get(), new GameLeftSuccessfulResponse(gameLeaveUserRequest.getName(), gameLeaveUserRequest.getUser()));
                     }
                     game.leaveUser(gameLeaveUserRequest.getUser());
-                    sendToAll(new GameSizeChangedMessage(gameLeaveUserRequest.getName()));
                     ArrayList<UserDTO> usersInGame = new ArrayList<>();
                     for (User user : game.getUsers()) usersInGame.add((UserDTO) user);
                     sendToAllInGame(gameLeaveUserRequest.getName(), new UserLeftGameMessage(gameLeaveUserRequest.getName(), gameLeaveUserRequest.getUser(), usersInGame));
@@ -176,7 +175,6 @@ public class GameService extends AbstractService {
                     LobbyLeaveUserRequest lobbyLeaveUserRequest = new LobbyLeaveUserRequest(game.getName(), (UserDTO) userToKick);
                     lobbyService.onLobbyLeaveUserRequest(lobbyLeaveUserRequest);
                 }
-                sendToAll(new GameSizeChangedMessage(kickPlayerRequest.getName()));
                 ArrayList<UserDTO> usersInGame = new ArrayList<>();
                 for (User user : game.getUsers()) usersInGame.add((UserDTO) user);
                 sendToAllInGame(kickPlayerRequest.getName(), new UserLeftGameMessage(kickPlayerRequest.getName(), kickPlayerRequest.getUser(), usersInGame));

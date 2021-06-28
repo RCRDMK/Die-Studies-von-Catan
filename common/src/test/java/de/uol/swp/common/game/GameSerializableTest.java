@@ -30,8 +30,6 @@ public class GameSerializableTest {
                 GameCreatedMessage.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new GameDroppedMessage("test"),
                 GameDroppedMessage.class));
-        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new GameSizeChangedMessage("test"),
-                GameSizeChangedMessage.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new GameStartedMessage(),
                 GameStartedMessage.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new NotEnoughPlayersMessage("test"),
