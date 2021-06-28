@@ -1183,7 +1183,7 @@ public class GamePresenter extends AbstractPresenter {
      */
     public void onButtonKickClicked() {
         alert.close();
-        gameService.kickPlayer(currentLobby, joinedLobbyUser, this.playerToKick, false);
+        gameService.kickPlayer(currentGame, joinedLobbyUser, this.playerToKick, false);
     }
 
     /**
@@ -1197,7 +1197,7 @@ public class GamePresenter extends AbstractPresenter {
     public void onButtonBanClicked() {
         alert.close();
         // this.toBan = true;
-        gameService.kickPlayer(currentLobby, joinedLobbyUser, this.playerToKick, true);
+        gameService.kickPlayer(currentGame, joinedLobbyUser, this.playerToKick, true);
     }
 
     /**
@@ -1226,8 +1226,8 @@ public class GamePresenter extends AbstractPresenter {
      * @since 2021-06-24
      */
     public void playerKickedSuccessfulLogic(PlayerKickedSuccessfulResponse pksr) {
-        if (this.currentLobby != null) {
-            if (this.currentLobby.equals(pksr.getName())) {
+        if (this.currentGame != null) {
+            if (this.currentGame.equals(pksr.getName())) {
                 LOG.debug("You successfully kicked the player " + pksr.getKickedPlayer() + "!");
             }
         }
@@ -1260,9 +1260,9 @@ public class GamePresenter extends AbstractPresenter {
      * @since 2021-06-25
      */
     public void playerKickedLogic(PlayerKickedMessage pkm) {
-        if (this.currentLobby != null) {
-            if (this.currentLobby.equals(pkm.getName())) {
-                this.currentLobby = null;
+        if (this.currentGame != null) {
+            if (this.currentGame.equals(pkm.getName())) {
+                this.currentGame = null;
                 clearEventBus();
                 LOG.debug(pkm.getUser().getUsername() + "was kicked from the game!");
             }
