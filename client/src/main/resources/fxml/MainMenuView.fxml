@@ -7,7 +7,7 @@
     <children>
         <ListView fx:id="usersView" prefHeight="303.0" prefWidth="284.0" GridPane.rowIndex="1" />
         <ListView fx:id="lobbiesView" layoutX="952.0" prefHeight="359.0" prefWidth="328.0" GridPane.rowIndex="3" />
-        <TextField fx:id="lobbyNameTextField" layoutX="957.0" layoutY="373.0" onAction="#onCreateLobby" prefWidth="225.0" promptText="Enter Lobby Name" />
+        <TextField fx:id="lobbyNameTextField" layoutX="952.0" layoutY="373.0" onAction="#onCreateLobby" prefWidth="225.0" promptText="Enter Lobby Name" />
         <Button layoutX="1181.0" layoutY="360.0" mnemonicParsing="false" onAction="#onCreateLobby" prefHeight="52.0" prefWidth="98.0" text="CreateLobby" />
         <Label fx:id="lobbyNameInvalid" layoutX="290.0" layoutY="230.0" styleClass="error-label" text="invalid character for Lobby Name!" visible="false" />
         <Label fx:id="lobbyAlreadyExistsLabel" layoutX="290.0" layoutY="230.0" styleClass="error-label" text="lobby already exists!" visible="false" />
