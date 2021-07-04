@@ -783,6 +783,7 @@ public class GamePresenter extends AbstractPresenter {
                 updateKickButtons(joggr.getUsers(), joggr.getHumans(), joggr.getGameOwner());
                 updateGameField();
             });
+            evaluateMyPlayerNumber(joggr.getUsers());
         }
     }
 
@@ -1227,8 +1228,7 @@ public class GamePresenter extends AbstractPresenter {
             onButtonBanClicked();
             event.consume();
         });
-        kickAlert.initModality(Modality.APPLICATION_MODAL);
-
+        kickAlert.initModality(Modality.NONE);
     }
 
     /**
@@ -2469,7 +2469,7 @@ public class GamePresenter extends AbstractPresenter {
                 endTurnButton.setDisable(false);
             }
         });
-        resolveDevelopmentCardAlert.initModality(Modality.APPLICATION_MODAL);
+        resolveDevelopmentCardAlert.initModality(Modality.NONE);
         resolveDevelopmentCardAlert.getDialogPane().getChildren().addAll(resourceRectangles);
         resolveDevelopmentCardAlert.getDialogPane().getChildren().addAll(selectedResource1, selectedResource2);
         gameAnchorPane.getChildren().add(selectedStreet1);
