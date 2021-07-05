@@ -32,15 +32,15 @@ public class RetrieveUserInformationResponse extends AbstractResponseMessage {
     }
 
     @Override
+    public int hashCode() {
+        return Objects.hash(toMail);
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) { return true; }
         if (o == null || getClass() != o.getClass()) { return false; }
         RetrieveUserInformationResponse that = (RetrieveUserInformationResponse) o;
         return Objects.equals(toMail, that.toMail);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(toMail);
     }
 }

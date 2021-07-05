@@ -81,6 +81,11 @@ public class AbstractGameRequest extends AbstractRequestMessage {
     }
 
     @Override
+    public int hashCode() {
+        return Objects.hash(name, user);
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) { return true; }
         if (o == null || getClass() != o.getClass()) { return false; }
@@ -88,10 +93,5 @@ public class AbstractGameRequest extends AbstractRequestMessage {
                 (de.uol.swp.common.game.request.AbstractGameRequest) o;
         return Objects.equals(name, that.name) &&
                 Objects.equals(user, that.user);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(name, user);
     }
 }

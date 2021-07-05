@@ -57,16 +57,16 @@ public class UpdateUserPasswordRequest extends AbstractRequestMessage {
     }
 
     @Override
+    public int hashCode() {
+        return Objects.hash(toUpdatePassword);
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) { return true; }
         if (o == null || getClass() != o.getClass()) { return false; }
         UpdateUserPasswordRequest that = (UpdateUserPasswordRequest) o;
         return Objects.equals(toUpdatePassword, that.toUpdatePassword);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(toUpdatePassword);
     }
 
 }

@@ -164,10 +164,10 @@ public class ChatServiceTest {
         RequestChatMessage message0 = new RequestChatMessage("Test0", "testLobby", defaultUser.getUsername(),
                 System.currentTimeMillis());
         chatService.sendMessage(message0);
-        RequestChatMessage message1 = new RequestChatMessage("Test1", "testLobby", defaultUser.getUsername(),
+        RequestChatMessage message1 = new RequestChatMessage("catanprofi", "testLobby", defaultUser.getUsername(),
                 System.currentTimeMillis());
         chatService.sendMessage(message1);
-        RequestChatMessage message2 = new RequestChatMessage("Test2", "testLobby", defaultUser.getUsername(),
+        RequestChatMessage message2 = new RequestChatMessage("captain", "testLobby", defaultUser.getUsername(),
                 System.currentTimeMillis());
         chatService.sendMessage(message2);
 

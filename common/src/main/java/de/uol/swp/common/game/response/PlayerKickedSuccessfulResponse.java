@@ -55,17 +55,17 @@ public class PlayerKickedSuccessfulResponse extends AbstractResponseMessage {
     }
 
     @Override
+    public int hashCode() {
+        return Objects.hash(owner);
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) { return true; }
         if (o == null || getClass() != o.getClass()) { return false; }
         PlayerKickedSuccessfulResponse that =
                 (PlayerKickedSuccessfulResponse) o;
         return Objects.equals(owner, that.owner);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(owner);
     }
 
 }

@@ -21,10 +21,10 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 
 public class GameDTOTest {
-    private final UserDTO userDTO = new UserDTO("test", "", "");
-    private final UserDTO userDTO1 = new UserDTO("test1", "", "");
-    private final UserDTO userDTO2 = new UserDTO("test2", "", "");
-    private final UserDTO userDTO3 = new UserDTO("test3", "", "");
+    private final UserDTO userDTO = new UserDTO("carsten1", "", "");
+    private final UserDTO userDTO1 = new UserDTO("catanprofi", "", "");
+    private final UserDTO userDTO2 = new UserDTO("captain", "", "");
+    private final UserDTO userDTO3 = new UserDTO("marius1", "", "");
     private final Set<User> users = new TreeSet<>();
 
     private GameDTO defaultGame = new GameDTO("test", new UserDTO("test", "", ""), "", users);
@@ -40,7 +40,7 @@ public class GameDTOTest {
      */
     @Test
     void joinUserTest() {
-        User user = new UserDTO("test2", "", "");
+        User user = new UserDTO("captain", "", "");
         defaultGame.joinUser(user);
 
         assertEquals(defaultGame.getUsers().size(), 2);
@@ -60,7 +60,8 @@ public class GameDTOTest {
      */
     @Test
     void leaveUserTestSuccess() {
-        User user = new UserDTO("test2", "", "");
+        User user = new UserDTO("" +
+                "captain", "", "");
         defaultGame.joinUser(user);
         assertEquals(defaultGame.getUsers().size(), 2);
 
@@ -88,7 +89,7 @@ public class GameDTOTest {
      */
     @Test
     public void leaveUserTestOwner() {
-        User user = new UserDTO("test2", "", "");
+        User user = new UserDTO("captain", "", "");
         defaultGame.joinUser(user);
 
         defaultGame.leaveUser(userDTO);
@@ -110,7 +111,7 @@ public class GameDTOTest {
      */
     @Test
     void updateOwnerTest() {
-        User user = new UserDTO("test2", "", "");
+        User user = new UserDTO("captain", "", "");
         defaultGame.joinUser(user);
         assertEquals(defaultGame.getUsers().size(), 2);
 
@@ -121,7 +122,7 @@ public class GameDTOTest {
 
     @Test
     public void updateOwnerTestFail() {
-        User newUser = new UserDTO("Test", "", "");
+        User newUser = new UserDTO("carsten1", "", "");
         assertThrows(IllegalArgumentException.class, () -> defaultGame.updateOwner(newUser));
     }
 

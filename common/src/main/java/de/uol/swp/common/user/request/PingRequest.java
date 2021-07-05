@@ -81,16 +81,16 @@ public class PingRequest extends AbstractRequestMessage {
     }
 
     @Override
+    public int hashCode() {
+        return Objects.hash(user, time);
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) { return true; }
         if (o == null || getClass() != o.getClass()) { return false; }
         PingRequest that = (PingRequest) o;
         return Objects.equals(user, that.user) && Objects.equals(time, that.time);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(user, time);
     }
 
 }

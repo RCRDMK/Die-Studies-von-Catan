@@ -43,15 +43,15 @@ public class UpdateUserRequest extends AbstractRequestMessage {
     }
 
     @Override
+    public int hashCode() {
+        return Objects.hash(toUpdate);
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) { return true; }
         if (o == null || getClass() != o.getClass()) { return false; }
         UpdateUserRequest that = (UpdateUserRequest) o;
         return Objects.equals(toUpdate, that.toUpdate);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(toUpdate);
     }
 }

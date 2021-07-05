@@ -52,38 +52,6 @@ public class RandomAI extends AbstractAISystem {
     }
 
     /**
-     * When the robber was moved and the AI needs to discard resources the Server will call this method for the AI
-     *
-     * @param tmrcm the TooMuchResourceCardsMessage containing the information about the amount of cards to discard
-     * @return the ArrayList of AIActions the AI wishes to do (should only include the discardResourcesAction)
-     * @author Alexander Losse, Marc Hermes
-     * @since 2021-05-22
-     */
-    public ArrayList<AIAction> discardResourcesOrder(TooMuchResourceCardsMessage tmrcm) {
-        this.user = tmrcm.getUser();
-        this.inventory = game.getInventory(user);
-        discardResourcesLogic(tmrcm.getCards());
-        return this.aiActions;
-    }
-
-    /**
-     * When a different Player initiates a trade the server will call this Method for the AI so that it may
-     * participate in the trade
-     *
-     * @param toibm the TradeOfferInformBiddersMessage containing the information about the new trade
-     * @return the ArrayList of AIActions the AI wishes to do (should only include the tradeBidAction)
-     * @author Alexander Losse, Marc Hermes
-     * @since 2021-05-22
-     */
-    public ArrayList<AIAction> tradeBidOrder(TradeOfferInformBiddersMessage toibm) {
-        this.user = toibm.getBidder();
-        this.inventory = game.getInventory(user);
-        bidOnItemLogic(toibm);
-
-        return this.aiActions;
-    }
-
-    /**
      * When the turn starts for the AI the server will call this function.
      * <p>
      * The AI will then put various random AIActions in his aiAction arrayList.
@@ -123,6 +91,38 @@ public class RandomAI extends AbstractAISystem {
                 endTurn();
             }
         }
+        return this.aiActions;
+    }
+
+    /**
+     * When the robber was moved and the AI needs to discard resources the Server will call this method for the AI
+     *
+     * @param tmrcm the TooMuchResourceCardsMessage containing the information about the amount of cards to discard
+     * @return the ArrayList of AIActions the AI wishes to do (should only include the discardResourcesAction)
+     * @author Alexander Losse, Marc Hermes
+     * @since 2021-05-22
+     */
+    public ArrayList<AIAction> discardResourcesOrder(TooMuchResourceCardsMessage tmrcm) {
+        this.user = tmrcm.getUser();
+        this.inventory = game.getInventory(user);
+        discardResourcesLogic(tmrcm.getCards());
+        return this.aiActions;
+    }
+
+    /**
+     * When a different Player initiates a trade the server will call this Method for the AI so that it may
+     * participate in the trade
+     *
+     * @param toibm the TradeOfferInformBiddersMessage containing the information about the new trade
+     * @return the ArrayList of AIActions the AI wishes to do (should only include the tradeBidAction)
+     * @author Alexander Losse, Marc Hermes
+     * @since 2021-05-22
+     */
+    public ArrayList<AIAction> tradeBidOrder(TradeOfferInformBiddersMessage toibm) {
+        this.user = toibm.getBidder();
+        this.inventory = game.getInventory(user);
+        bidOnItemLogic(toibm);
+
         return this.aiActions;
     }
 

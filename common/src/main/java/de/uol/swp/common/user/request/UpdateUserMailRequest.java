@@ -42,15 +42,15 @@ public class UpdateUserMailRequest extends AbstractRequestMessage {
     }
 
     @Override
+    public int hashCode() {
+        return Objects.hash(toUpdateMail);
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) { return true; }
         if (o == null || getClass() != o.getClass()) { return false; }
         UpdateUserMailRequest that = (UpdateUserMailRequest) o;
         return Objects.equals(toUpdateMail, that.toUpdateMail);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(toUpdateMail);
     }
 }

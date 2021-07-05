@@ -40,15 +40,15 @@ public class UsersListMessage extends AbstractServerMessage {
     }
 
     @Override
+    public int hashCode() {
+        return Objects.hash(users);
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) { return true; }
         if (o == null || getClass() != o.getClass()) { return false; }
         UsersListMessage that = (UsersListMessage) o;
         return Objects.equals(users, that.users);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(users);
     }
 }

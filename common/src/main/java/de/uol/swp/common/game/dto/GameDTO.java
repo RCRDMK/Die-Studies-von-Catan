@@ -359,13 +359,13 @@ public class GameDTO implements Game {
     }
 
     @Override
-    public boolean isStartingTurns() {
-        return startingTurns;
+    public void setMapGraph(MapGraph mapGraph) {
+        this.mapGraph = mapGraph;
     }
 
     @Override
-    public void setMapGraph(MapGraph mapGraph) {
-        this.mapGraph = mapGraph;
+    public boolean isStartingTurns() {
+        return startingTurns;
     }
 
     @Override
@@ -437,14 +437,14 @@ public class GameDTO implements Game {
     }
 
     @Override
-    public void setLastRolledDiceValue(int eyes) {
-        this.rolledDiceThisTurn = true;
-        this.lastRolledDiceValue = eyes;
+    public int getLastRolledDiceValue() {
+        return lastRolledDiceValue;
     }
 
     @Override
-    public int getLastRolledDiceValue() {
-        return lastRolledDiceValue;
+    public void setLastRolledDiceValue(int eyes) {
+        this.rolledDiceThisTurn = true;
+        this.lastRolledDiceValue = eyes;
     }
 
     @Override

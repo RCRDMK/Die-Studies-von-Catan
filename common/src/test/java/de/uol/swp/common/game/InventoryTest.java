@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * @since 2021-03-08
  */
 public class InventoryTest {
-    User user = new UserDTO("test1", "", "");
+    User user = new UserDTO("catanprofi", "", "");
 
     Inventory inventory = new Inventory(user);
     HashMap<String, Integer> privateInventory = inventory.getPrivateView();

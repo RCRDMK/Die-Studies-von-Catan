@@ -55,7 +55,6 @@ public class ChatServiceTest {
     Object event;
     final AuthenticationService authenticationService = new AuthenticationService(bus, userManagement);
     final ChatService chatService = new ChatService(cheatService, bus);
-
     public ChatServiceTest() throws SQLException {
     }
 

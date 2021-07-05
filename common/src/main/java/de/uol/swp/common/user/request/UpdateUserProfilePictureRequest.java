@@ -42,15 +42,15 @@ public class UpdateUserProfilePictureRequest extends AbstractRequestMessage {
     }
 
     @Override
+    public int hashCode() {
+        return Objects.hash(toUpdatePicture);
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) { return true; }
         if (o == null || getClass() != o.getClass()) { return false; }
         UpdateUserProfilePictureRequest that = (UpdateUserProfilePictureRequest) o;
         return Objects.equals(toUpdatePicture, that.toUpdatePicture);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(toUpdatePicture);
     }
 }

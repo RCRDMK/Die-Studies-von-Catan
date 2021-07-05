@@ -51,24 +51,24 @@ public class CheatServiceTest {
     LobbyManagement lobbyManagement = new LobbyManagement();
     MainMemoryBasedUserStore mainMemoryBasedUserStore = new MainMemoryBasedUserStore();
     final UserManagement userManagement = new UserManagement(mainMemoryBasedUserStore);
+    final AuthenticationService authenticationService = new AuthenticationService(bus, userManagement);
     LobbyService lobbyService = new LobbyService(lobbyManagement, new AuthenticationService(bus, userManagement), bus);
     UserService userService = new UserService(bus, userManagement);
-    final AuthenticationService authenticationService = new AuthenticationService(bus, userManagement);
     GameService gameService = new GameService(gameManagement, lobbyService, authenticationService, bus, userService);
     CheatService cheatService = new CheatService(gameService, bus);
     ChatService chatService = new ChatService(cheatService, bus);
 
     // Setup UserDTOs
-    UserDTO userDTO = new UserDTO("test1",
+    UserDTO userDTO = new UserDTO("catanprofi",
             "47b7d407c2e2f3aff0e21aa16802006ba1793fd47b2d3cacee7cf7360e751bff7b7d0c7946b42b97a5306c6708ab006d0d81ef41a0c9f94537a2846327c51236",
             "peter.lustig@uol.de");
-    UserDTO userDTO1 = new UserDTO("test2",
+    UserDTO userDTO1 = new UserDTO("captain",
             "994dac907995937160371992ecbdf9b34242db0abb3943807b5baa6be0c6908f72ea87b7dadd2bce6cf700c8dfb7d57b0566f544af8c30336a15d5f732d85613",
             "carsten.stahl@uol.de");
-    UserDTO userDTO2 = new UserDTO("test3",
+    UserDTO userDTO2 = new UserDTO("marius1",
             "b74a37371ca548bfd937410737b27f383e03021766e90f1180169691b8b15fc50aef49932c7413c0450823777ba46a34fd649b4da20b2e701c394c582ff6df55",
             "peterlustig@uol.de");
-    UserDTO userDTO3 = new UserDTO("test4",
+    UserDTO userDTO3 = new UserDTO("marc1",
             "65dfe56dd0e9117907b11e440d99a667527ddb13244aa38f79d3ae61ee0b2ab4047c1218c4fb05d84f88b914826c45de3ab27a611ea910a4b14733ab1e32b125",
             "test.lustig@uol.de");
 

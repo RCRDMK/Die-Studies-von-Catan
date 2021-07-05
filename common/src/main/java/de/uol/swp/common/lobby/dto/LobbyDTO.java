@@ -95,9 +95,6 @@ public class LobbyDTO implements Lobby {
     @Override
     public User getOwner() {
         return owner;
-    }    @Override
-    public String getGameFieldVariant() {
-        return gameFieldVariant;
     }
 
     @Override
@@ -128,20 +125,19 @@ public class LobbyDTO implements Lobby {
         return Collections.unmodifiableSet(users);
     }
 
-    /**
-     * Setter for passwordHash. Needed for tempLobby reload in AllCreatedLobbiesResponse.java
-     *
-     * @param passwordHash the password to set this lobby's password to
-     */
-    public void setPasswordHash(int passwordHash) {
-        this.passwordHash = passwordHash;
-    }
-
-
-
     @Override
     public Set<User> getPlayersReady() {
         return Collections.unmodifiableSet(playersReady);
+    }
+
+    @Override
+    public String getGameFieldVariant() {
+        return gameFieldVariant;
+    }
+
+    @Override
+    public void setGameFieldVariant(String gfv) {
+        this.gameFieldVariant = gfv;
     }
 
     @Override
@@ -150,8 +146,8 @@ public class LobbyDTO implements Lobby {
     }
 
     @Override
-    public void setRdyResponsesReceived(int responsesReceived) {
-        this.rdyResponsesReceived = responsesReceived;
+    public void incrementRdyResponsesReceived() {
+        this.rdyResponsesReceived++;
     }
 
     @Override
@@ -160,13 +156,8 @@ public class LobbyDTO implements Lobby {
     }
 
     @Override
-    public void incrementRdyResponsesReceived() {
-        this.rdyResponsesReceived++;
-    }
-
-    @Override
-    public void setGameFieldVariant(String gfv) {
-        this.gameFieldVariant = gfv;
+    public void setRdyResponsesReceived(int responsesReceived) {
+        this.rdyResponsesReceived = responsesReceived;
     }
 
     @Override
@@ -194,13 +185,13 @@ public class LobbyDTO implements Lobby {
     }
 
     @Override
-    public void setMinimumAmountOfPlayers(int minimumAmountOfPlayers) {
-        this.minimumAmountOfPlayers = minimumAmountOfPlayers;
+    public int getMinimumAmountOfPlayers() {
+        return minimumAmountOfPlayers;
     }
 
     @Override
-    public int getMinimumAmountOfPlayers() {
-        return minimumAmountOfPlayers;
+    public void setMinimumAmountOfPlayers(int minimumAmountOfPlayers) {
+        this.minimumAmountOfPlayers = minimumAmountOfPlayers;
     }
 
     @Override
@@ -211,5 +202,14 @@ public class LobbyDTO implements Lobby {
     @Override
     public void setUsedForTest(boolean value) {
         this.isUsedForTest = value;
+    }
+
+    /**
+     * Setter for passwordHash. Needed for tempLobby reload in AllCreatedLobbiesResponse.java
+     *
+     * @param passwordHash the password to set this lobby's password to
+     */
+    public void setPasswordHash(int passwordHash) {
+        this.passwordHash = passwordHash;
     }
 }

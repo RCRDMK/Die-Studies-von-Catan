@@ -34,65 +34,6 @@ public class TestAI extends AbstractAISystem {
     }
 
     /**
-     * Function called by the server when the AI has too many resources currently and thus will have to discard some
-     * after the robber was moved.
-     * <p>
-     * A HashMap will be created in which the resources wool, brick, grain, lumber and ore are given as keys.
-     * Randomly a resource will be selected from the inventory to put into the HashMap so that it may be discarded.
-     * If enough resources were chosen, the method discardResources is called by parsing the aforementioned hashMap.
-     *
-     * @param tmrcm the TooMuchResourceCardsMessage usually sent to the client
-     * @return the ArrayList of AIAction, here only containing the DiscardResourcesAction
-     * @author Marc Hermes
-     * @since 2021-05-12
-     */
-    public ArrayList<AIAction> discardResourcesOrder(TooMuchResourceCardsMessage tmrcm) {
-        this.user = tmrcm.getUser();
-        this.inventory = game.getInventory(user);
-        int amountOfResourcesToBeDiscarded = tmrcm.getCards();
-
-        HashMap<String, Integer> resourcesToDiscard = new HashMap<>();
-        resourcesToDiscard.put("Wool", 0);
-        resourcesToDiscard.put("Brick", 0);
-        resourcesToDiscard.put("Grain", 0);
-        resourcesToDiscard.put("Lumber", 0);
-        resourcesToDiscard.put("Ore", 0);
-
-        while (amountOfResourcesToBeDiscarded > 0) {
-            String randomResource = returnRandomResource();
-            if (inventory.getSpecificResourceAmount(randomResource) > 0) {
-                inventory.decCardStack(randomResource, 1);
-                resourcesToDiscard.put(randomResource, resourcesToDiscard.getOrDefault(randomResource, 0) + 1);
-                amountOfResourcesToBeDiscarded--;
-            }
-        }
-        discardResources(resourcesToDiscard);
-        return this.aiActions;
-    }
-
-    /**
-     * Function called by the server when the AI has to participate in an ongoing trade by bidding.
-     * <p>
-     * A bid will be placed where the AI offers 0 of every resource
-     *
-     * @param toibm the TradeOfferInformBiddersMessage usually sent to the client
-     * @return the ArrayList of AIActions, will only include the TradeBidAction here
-     * @author Marc Hermes
-     * @since 2021-05-12
-     */
-    public ArrayList<AIAction> tradeBidOrder(TradeOfferInformBiddersMessage toibm) {
-        TradeItem ti1 = new TradeItem("Lumber", 0);
-        TradeItem ti2 = new TradeItem("Brick", 0);
-        TradeItem ti3 = new TradeItem("Ore", 0);
-        TradeItem ti4 = new TradeItem("Grain", 0);
-        TradeItem ti5 = new TradeItem("Wool", 0);
-        ArrayList<TradeItem> offerList = new ArrayList<>(Arrays.asList(ti1, ti2, ti3, ti4, ti5));
-
-        tradeBid(offerList, toibm.getTradeCode());
-        return this.aiActions;
-    }
-
-    /**
      * This method will try to make use of every possible action the AI may do for test purposes
      * <p>
      * If it is the starting turn only the startingTurnLogic() method as well as endTurn() will be used.
@@ -165,6 +106,65 @@ public class TestAI extends AbstractAISystem {
             trade();
         }
 
+        return this.aiActions;
+    }
+
+    /**
+     * Function called by the server when the AI has too many resources currently and thus will have to discard some
+     * after the robber was moved.
+     * <p>
+     * A HashMap will be created in which the resources wool, brick, grain, lumber and ore are given as keys.
+     * Randomly a resource will be selected from the inventory to put into the HashMap so that it may be discarded.
+     * If enough resources were chosen, the method discardResources is called by parsing the aforementioned hashMap.
+     *
+     * @param tmrcm the TooMuchResourceCardsMessage usually sent to the client
+     * @return the ArrayList of AIAction, here only containing the DiscardResourcesAction
+     * @author Marc Hermes
+     * @since 2021-05-12
+     */
+    public ArrayList<AIAction> discardResourcesOrder(TooMuchResourceCardsMessage tmrcm) {
+        this.user = tmrcm.getUser();
+        this.inventory = game.getInventory(user);
+        int amountOfResourcesToBeDiscarded = tmrcm.getCards();
+
+        HashMap<String, Integer> resourcesToDiscard = new HashMap<>();
+        resourcesToDiscard.put("Wool", 0);
+        resourcesToDiscard.put("Brick", 0);
+        resourcesToDiscard.put("Grain", 0);
+        resourcesToDiscard.put("Lumber", 0);
+        resourcesToDiscard.put("Ore", 0);
+
+        while (amountOfResourcesToBeDiscarded > 0) {
+            String randomResource = returnRandomResource();
+            if (inventory.getSpecificResourceAmount(randomResource) > 0) {
+                inventory.decCardStack(randomResource, 1);
+                resourcesToDiscard.put(randomResource, resourcesToDiscard.getOrDefault(randomResource, 0) + 1);
+                amountOfResourcesToBeDiscarded--;
+            }
+        }
+        discardResources(resourcesToDiscard);
+        return this.aiActions;
+    }
+
+    /**
+     * Function called by the server when the AI has to participate in an ongoing trade by bidding.
+     * <p>
+     * A bid will be placed where the AI offers 0 of every resource
+     *
+     * @param toibm the TradeOfferInformBiddersMessage usually sent to the client
+     * @return the ArrayList of AIActions, will only include the TradeBidAction here
+     * @author Marc Hermes
+     * @since 2021-05-12
+     */
+    public ArrayList<AIAction> tradeBidOrder(TradeOfferInformBiddersMessage toibm) {
+        TradeItem ti1 = new TradeItem("Lumber", 0);
+        TradeItem ti2 = new TradeItem("Brick", 0);
+        TradeItem ti3 = new TradeItem("Ore", 0);
+        TradeItem ti4 = new TradeItem("Grain", 0);
+        TradeItem ti5 = new TradeItem("Wool", 0);
+        ArrayList<TradeItem> offerList = new ArrayList<>(Arrays.asList(ti1, ti2, ti3, ti4, ti5));
+
+        tradeBid(offerList, toibm.getTradeCode());
         return this.aiActions;
     }
 

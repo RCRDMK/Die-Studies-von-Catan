@@ -2479,10 +2479,10 @@ public class GamePresenter extends AbstractPresenter {
     @Subscribe
     public void onRollDiceResultMessage(RollDiceResultMessage message) {
         if (this.currentGame != null) {
-            String text = "rolled a " + message.getDiceEyes1() + " and a " + message.getDiceEyes2();
-            LOG.debug("Updated game Event Log area with new message");
-            updateEventLogLogic(text, userIsOnTurn);
             if (message.getName().equals(currentGame)) {
+                String text = "rolled a " + message.getDiceEyes1() + " and a " + message.getDiceEyes2();
+                LOG.debug("Updated game Event Log area with new message");
+                updateEventLogLogic(text, userIsOnTurn);
                 shuffleTheDice(message.getDiceEyes1(), message.getDiceEyes2());
             }
         }

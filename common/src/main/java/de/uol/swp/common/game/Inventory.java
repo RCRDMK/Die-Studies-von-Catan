@@ -36,6 +36,7 @@ public class Inventory implements Serializable {
     private int cardVictoryPoint = 0;
     private boolean largestArmy = false;
     private boolean longestRoad = false;
+
     public Inventory(User user) {
         this.user = user;
     }
