@@ -27,7 +27,7 @@ public class GameDTOTest {
     private final UserDTO userDTO3 = new UserDTO("marius1", "", "");
     private final Set<User> users = new TreeSet<>();
 
-    private GameDTO defaultGame = new GameDTO("test", new UserDTO("test", "", ""), "", users);
+    private GameDTO defaultGame = new GameDTO("test", new UserDTO("carsten1", "", ""), "", users);
 
     /**
      * This test checks if the user can join the game correctly.
@@ -60,8 +60,7 @@ public class GameDTOTest {
      */
     @Test
     void leaveUserTestSuccess() {
-        User user = new UserDTO("" +
-                "captain", "", "");
+        User user = new UserDTO("captain", "", "");
         defaultGame.joinUser(user);
         assertEquals(defaultGame.getUsers().size(), 2);
 
@@ -122,7 +121,7 @@ public class GameDTOTest {
 
     @Test
     public void updateOwnerTestFail() {
-        User newUser = new UserDTO("carsten1", "", "");
+        User newUser = new UserDTO("pieter1", "", "");
         assertThrows(IllegalArgumentException.class, () -> defaultGame.updateOwner(newUser));
     }
 
