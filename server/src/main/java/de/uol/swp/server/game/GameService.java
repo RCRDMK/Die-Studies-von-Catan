@@ -941,7 +941,7 @@ public class GameService extends AbstractService {
                         // send information to user
                         response = new JoinOnGoingGameResponse(game.getName(), request.getUser(), true, game.getMapGraph(), game.getUsersList(), game.getUsers(), lobby.getGameFieldVariant(), "", game.getOwner());
                         sendToSpecificUser(request.getMessageContext().get(), response);
-                        var gameMessage = new JoinOnGoingGameMessage(game.getName(), request.getUser(), game.getUsersList(), game.getUsers(), game.getOwner());
+                        var gameMessage = new JoinOnGoingGameMessage(game.getName(), request.getUser(), game.getUsersList(), game.getUsers(), game.getOwner(), game.getDevelopmentCardDeck().getNumberOfDevCards());
                         sendToAllInGame(game.getName(), gameMessage);
                         updateInventory(game);
                         var currentTurnMessage = new NextTurnMessage(game.getName(), game.getUser(game.getTurn()).getUsername(), game.getTurn(), game.isStartingTurns());

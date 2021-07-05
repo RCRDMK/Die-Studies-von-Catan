@@ -1459,6 +1459,7 @@ public class GamePresenter extends AbstractPresenter {
                 LOG.debug("The user " + joggm.getUser().getUsername() + " joined the game!");
                 updateGameUsersList(joggm.getUsers(), joggm.getHumans());
                 updateKickButtons(joggm.getUsers(), joggm.getHumans(), joggm.getGameOwner());
+                buyDevelopmentCardMessageLogic(joggm.getNumberOfDevCards());
             }
         }
     }
