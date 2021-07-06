@@ -18,6 +18,7 @@ public class JoinOnGoingGameMessage extends AbstractGameMessage {
     private final ArrayList<User> users;
     private final Set<User> humans;
     private final User gameOwner;
+    private final int numberOfDevCards;
 
     /**
      * Constructor used for serialization
@@ -29,6 +30,7 @@ public class JoinOnGoingGameMessage extends AbstractGameMessage {
         this.users = null;
         this.humans = null;
         this.gameOwner = null;
+        this.numberOfDevCards = 0;
     }
 
     /**
@@ -39,14 +41,16 @@ public class JoinOnGoingGameMessage extends AbstractGameMessage {
      * @param users    the current list of players in the game
      * @param humans   the current list of actual human players in the game
      * @param gameOwner the current owner of the game
+     * @param numberOfDevCards number of dev cards in the game
      * @author Marc Hermes
      * @since 2021-05-27
      */
-    public JoinOnGoingGameMessage(String gameName, UserDTO user, ArrayList<User> users, Set<User> humans, User gameOwner) {
+    public JoinOnGoingGameMessage(String gameName, UserDTO user, ArrayList<User> users, Set<User> humans, User gameOwner, int numberOfDevCards) {
         super(gameName, user);
         this.users = users;
         this.humans = humans;
         this.gameOwner = gameOwner;
+        this.numberOfDevCards = numberOfDevCards;
     }
 
     /**
@@ -79,4 +83,15 @@ public class JoinOnGoingGameMessage extends AbstractGameMessage {
      * @since 2021-06-21
      */
     public User getGameOwner() { return gameOwner; }
+
+    /**
+     * Getter for the number of dev cards in the game
+     *
+     * @return number of dev cards in the game
+     * @author Anton Nikiforov
+     * @since 2021-07-05
+     */
+    public int getNumberOfDevCards() {
+        return numberOfDevCards;
+    }
 }
