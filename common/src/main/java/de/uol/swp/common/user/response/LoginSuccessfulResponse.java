@@ -53,6 +53,12 @@ public class LoginSuccessfulResponse extends AbstractResponseMessage {
         return Objects.equals(user, that.user);
     }
 
+    /**
+     * getter for hash of User user
+     * returns int
+     *
+     * @return hash of User user
+     */
     @Override
     public int hashCode() {
         return Objects.hash(user);
