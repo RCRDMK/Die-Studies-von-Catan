@@ -39,7 +39,7 @@ public interface AISystem {
     /**
      * Method used for building a street
      *
-     * @param field the UUID of the streetNode to be built
+     * @param field the streetNode to be built
      * @author Marc Hermes
      * @since 2021-05-08
      */
@@ -48,7 +48,7 @@ public interface AISystem {
     /**
      * Method used for building a town
      *
-     * @param field the UUID of the buildingNode to be built
+     * @param field the buildingNode to be built
      * @author Marc Hermes
      * @since 2021-05-08
      */
@@ -57,7 +57,7 @@ public interface AISystem {
     /**
      * Method used for building a city
      *
-     * @param field the UUID of the buildingNode to be upgraded to a city
+     * @param field the buildingNode to be upgraded to a city
      * @author Marc Hermes
      * @since 2021-05-08
      */
