@@ -108,8 +108,8 @@ public class AuthenticationService extends AbstractService {
      * If a user is already logged in, a ServerExceptionMessage is posted on the bus. (René, Sergej)
      *
      * @param msg the LoginRequest
-     * @author René, Sergej
-     * @author René, Sergej, Philip, Marc
+     * @author René Meyer, Sergej Tulnev
+     * @author René Meyer, Sergej Tulnev, Philip Nitsche, Marc Hermes
      * @see de.uol.swp.common.user.request.LoginRequest
      * @see de.uol.swp.server.message.ClientAuthorizedMessage
      * @see de.uol.swp.server.message.ServerExceptionMessage

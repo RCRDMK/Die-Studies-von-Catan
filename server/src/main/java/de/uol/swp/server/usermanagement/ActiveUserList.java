@@ -11,7 +11,7 @@ import java.util.List;
  * Maintains a list of active users to log out inactive users
  * The Timestamp comes from the PingRequest
  *
- * @author Philip
+ * @author Philip Nitsche
  * @since 2021-01-22
  */
 

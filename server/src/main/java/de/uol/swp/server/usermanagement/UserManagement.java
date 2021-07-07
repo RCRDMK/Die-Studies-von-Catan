@@ -4,8 +4,11 @@ import de.uol.swp.common.user.User;
 import de.uol.swp.server.usermanagement.store.UserStore;
 
 import javax.inject.Inject;
-import java.sql.*;
-import java.util.*;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Optional;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 
 /**
@@ -45,26 +48,54 @@ public class UserManagement extends AbstractUserManagement {
         this.storeInUse = storeInUse;
     }
 
+    /**
+     * Login the user
+     * <p>
+     * This function finds the user from the provided username and password and if the user is present,
+     * it puts the user in the loggedInUsers SortedMap. It also returns the User object
+     *
+     * @author
+     * @see Exception
+     * @since
+     */
     @Override
     public User login(String username, String password) throws Exception {
         Optional<User> user = storeInUse.findUser(username, password);
-        if (user.isPresent()){
+        if (user.isPresent()) {
             loggedInUsers.put(username, user.get());
             return user.get();
-        }else{
+        } else {
             throw new SecurityException("Cannot auth user " + username);
         }
     }
 
+    /**
+     * Check if a user is logged in
+     * <p>
+     * This function checks if the user exists in the loggedInUsers SortedMap. If so it returns true.
+     *
+     * @author
+     * @see Exception
+     * @since
+     */
     @Override
     public boolean isLoggedIn(User username) {
         return loggedInUsers.containsKey(username.getUsername());
     }
 
+    /**
+     * Creates a user
+     * <p>
+     * This function creates a user if the user doesnt exist already. If it does it throws a UserManagementException.
+     *
+     * @author
+     * @see Exception
+     * @since
+     */
     @Override
     public User createUser(User userToCreate) throws Exception {
         Optional<User> user = storeInUse.findUser(userToCreate.getUsername());
-        if (user.isPresent()){
+        if (user.isPresent()) {
             throw new UserManagementException("Username already used!");
         }
         return storeInUse.createUser(userToCreate.getUsername(), userToCreate.getPassword(), userToCreate.getEMail());
@@ -170,13 +201,22 @@ public class UserManagement extends AbstractUserManagement {
     @Override
     public User retrieveUserInformation(User toGetInformation) throws Exception {
         Optional<User> user = storeInUse.findUser(toGetInformation.getUsername());
-        if(user.isPresent()) {
+        if (user.isPresent()) {
             return user.get();
         } else {
             throw new UserManagementException("Username unknown!");
         }
     }
 
+    /**
+     * Retrieves all Users
+     * <p>
+     * This function returns a List of all Users.
+     *
+     * @author
+     * @see Exception
+     * @since
+     */
     @Override
     public List<User> retrieveAllUsers() throws SQLException {
         return storeInUse.getAllUsers();

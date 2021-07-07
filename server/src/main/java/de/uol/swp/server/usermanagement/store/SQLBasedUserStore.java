@@ -10,6 +10,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+
+/**
+ * SQLBasedUserStore class
+ * <p>
+ * UserStoreClass for all database operations, like building and closing the connection,
+ * creating, finding, updating or deleting a user.
+ *
+ * @author Marius Birk
+ * @see de.uol.swp.server.usermanagement.store.AbstractUserStore
+ * @see de.uol.swp.server.usermanagement.store.UserStore
+ * @since 2021-01-15
+ */
 public class SQLBasedUserStore extends AbstractUserStore implements UserStore {
 
     private Connection connection;
@@ -52,6 +64,18 @@ public class SQLBasedUserStore extends AbstractUserStore implements UserStore {
         LOG.debug("Connection to the database closed.");
     }
 
+    /**
+     * Finds a user with given username and password
+     * <p>
+     * This function is building a connection to the database and is querying a select statement
+     * to find a given user with the passed username and password arguments.
+     * If the user is found this function returns the User object.
+     * If not it will return an Optional.empty() object
+     *
+     * @author Marius Birk
+     * @see Exception
+     * @since 2021-01-15
+     */
     @Override
     public Optional<User> findUser(String username, String password) throws Exception {
         ResultSet resultSet;
@@ -78,6 +102,18 @@ public class SQLBasedUserStore extends AbstractUserStore implements UserStore {
         return Optional.empty();
     }
 
+    /**
+     * Finds a user with given username
+     * <p>
+     * This function is building a connection to the database and is querying a select statement
+     * to find a given user with the passed username argument.
+     * If the user is found this function returns the User object.
+     * If not it will return an Optional.empty() object
+     *
+     * @author Marius Birk
+     * @see Exception
+     * @since 2021-01-15
+     */
     @Override
     public Optional<User> findUser(String username) throws Exception {
         ResultSet resultSet;
@@ -129,6 +165,16 @@ public class SQLBasedUserStore extends AbstractUserStore implements UserStore {
         return new UserDTO(username, "", eMail);
     }
 
+    /**
+     * Removes a user from the database
+     * <p>
+     * This function is building a connection to the database and is querying a delete statement
+     * to remove a user entry with the given username.
+     *
+     * @author Marius Birk
+     * @see Exception
+     * @since 2021-01-15
+     */
     @Override
     public void removeUser(String username) throws Exception {
         try {
@@ -229,6 +275,17 @@ public class SQLBasedUserStore extends AbstractUserStore implements UserStore {
         return new UserDTO(username, "", "", profilePictureID);
     }
 
+    /**
+     * Gets all Users from the database
+     * <p>
+     * This function is building a connection to the database and is querying a select statement
+     * to find all userData from the database.
+     * Foreach userData in the database it adds the corresponding user to an ArrayList and afterwards returns it.
+     *
+     * @author Marius Birk
+     * @see SQLException
+     * @since 2021-01-15
+     */
     @Override
     public List<User> getAllUsers() throws SQLException {
         List<User> userList = new ArrayList<>();
