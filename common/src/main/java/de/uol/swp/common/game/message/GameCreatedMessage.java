@@ -40,13 +40,13 @@ public class GameCreatedMessage extends AbstractGameMessage {
      * <p>
      * enhanced by Alexander Losse, Ricardo Mook 2021-03-05
      *
-     * @param name the name of the game
-     * @param user the user that received this message
-     * @param mapGraph the mapGraph of the game
-     * @param users the list of all users in the game
-     * @param humans the human players in this game
+     * @param name             the name of the game
+     * @param user             the user that received this message
+     * @param mapGraph         the mapGraph of the game
+     * @param users            the list of all users in the game
+     * @param humans           the human players in this game
      * @param gameFieldVariant the variant of the game field
-     * @param gameOwner the owner of this game
+     * @param gameOwner        the owner of this game
      * @since 2021-01-07
      */
     public GameCreatedMessage(String name, UserDTO user, MapGraph mapGraph, ArrayList<User> users, Set<User> humans, String gameFieldVariant, User gameOwner) {
@@ -58,9 +58,21 @@ public class GameCreatedMessage extends AbstractGameMessage {
         this.gameOwner = gameOwner;
     }
 
+    /**
+     * getter for the mapgraph
+     *
+     * @return the mapgraph
+     * @author Pieter Vogt
+     */
     public MapGraph getMapGraph() {
         return mapGraph;
     }
+
+    /**
+     * getter for the list of users.
+     *
+     * @return Alexander Losse, Ricardo Mook
+     */
 
     public ArrayList<User> getUsers() {
         return users;
@@ -73,8 +85,16 @@ public class GameCreatedMessage extends AbstractGameMessage {
      * @author Marc Hermes
      * @since 2021-05-27
      */
-    public Set<User> getHumans() { return humans; }
+    public Set<User> getHumans() {
+        return humans;
+    }
 
+    /**
+     * returns the variant of the gamefield.
+     *
+     * @return the variant of the gameField
+     * @author Marc Hermes
+     */
     public String getGameFieldVariant() {
         return gameFieldVariant;
     }
@@ -86,5 +106,7 @@ public class GameCreatedMessage extends AbstractGameMessage {
      * @author Iskander Yusupov
      * @since 2021-06-21
      */
-    public User getGameOwner() { return gameOwner; }
+    public User getGameOwner() {
+        return gameOwner;
+    }
 }

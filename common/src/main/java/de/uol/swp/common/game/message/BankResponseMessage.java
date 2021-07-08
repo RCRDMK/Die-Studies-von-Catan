@@ -31,11 +31,10 @@ public class BankResponseMessage extends AbstractGameMessage {
     /**
      * Constructor
      *
-     * @param user UserDTO
+     * @param user      UserDTO
      * @param tradeCode String
-     * @param cardName the name form the card he wanna buy
+     * @param cardName  the name form the card he wanna buy
      * @param bankOffer offer from bank
-     *
      * @author Anton Nikiforov
      * @since 2021-05-29
      */
@@ -47,14 +46,33 @@ public class BankResponseMessage extends AbstractGameMessage {
 
     }
 
+    /**
+     * getter for the tradeCode variable.
+     *
+     * @return the tradecode
+     * @author Anton Nikiforov
+     */
     public String getTradeCode() {
         return tradeCode;
     }
+
+    /**
+     * getter for the cardName variable.
+     *
+     * @return the cardName
+     * @author Anton Nikiforov
+     */
 
     public String getCardName() {
         return cardName;
     }
 
+    /**
+     * getter for the bankOffer list.
+     *
+     * @return the bankOffer
+     * @author Anton Nikiforov
+     */
     public ArrayList<ArrayList<TradeItem>> getBankOffer() {
         return bankOffer;
     }
