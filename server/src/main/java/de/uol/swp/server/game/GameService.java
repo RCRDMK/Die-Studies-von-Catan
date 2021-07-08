@@ -1,91 +1,18 @@
 package de.uol.swp.server.game;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.TreeSet;
-import java.util.stream.Collectors;
-
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import de.uol.swp.common.chat.ResponseChatMessage;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.Inventory;
 import de.uol.swp.common.game.MapGraph;
 import de.uol.swp.common.game.dto.GameDTO;
 import de.uol.swp.common.game.dto.StatsDTO;
-import de.uol.swp.common.game.message.BankResponseMessage;
-import de.uol.swp.common.game.message.BuyDevelopmentCardMessage;
-import de.uol.swp.common.game.message.ChoosePlayerMessage;
-import de.uol.swp.common.game.message.DrawRandomResourceFromPlayerMessage;
-import de.uol.swp.common.game.message.GameCreatedMessage;
-import de.uol.swp.common.game.message.GameDroppedMessage;
-import de.uol.swp.common.game.message.GameFinishedMessage;
-import de.uol.swp.common.game.message.GameStartedMessage;
-import de.uol.swp.common.game.message.MoveRobberMessage;
-import de.uol.swp.common.game.message.NextTurnMessage;
-import de.uol.swp.common.game.message.NotEnoughPlayersMessage;
-import de.uol.swp.common.game.message.NotEnoughResourcesMessage;
-import de.uol.swp.common.game.message.NotSuccessfulConstructionMessage;
-import de.uol.swp.common.game.message.PlayerKickedMessage;
-import de.uol.swp.common.game.message.PrivateInventoryChangeMessage;
-import de.uol.swp.common.game.message.PublicInventoryChangeMessage;
-import de.uol.swp.common.game.message.ResolveDevelopmentCardMessage;
-import de.uol.swp.common.game.message.RollDiceResultMessage;
-import de.uol.swp.common.game.message.SettlementFullyDevelopedMessage;
-import de.uol.swp.common.game.message.SuccessfulConstructionMessage;
-import de.uol.swp.common.game.message.SuccessfulMovedRobberMessage;
-import de.uol.swp.common.game.message.TooMuchResourceCardsMessage;
-import de.uol.swp.common.game.message.TradeCardErrorMessage;
-import de.uol.swp.common.game.message.TradeEndedLogMessage;
-import de.uol.swp.common.game.message.TradeEndedMessage;
-import de.uol.swp.common.game.message.TradeInformSellerAboutBidsMessage;
-import de.uol.swp.common.game.message.TradeOfferInformBiddersMessage;
-import de.uol.swp.common.game.message.TradeStartedMessage;
-import de.uol.swp.common.game.message.UserLeftGameMessage;
-import de.uol.swp.common.game.request.BankBuyRequest;
-import de.uol.swp.common.game.request.BankRequest;
-import de.uol.swp.common.game.request.BuyDevelopmentCardRequest;
-import de.uol.swp.common.game.request.ConstructionRequest;
-import de.uol.swp.common.game.request.DrawRandomResourceFromPlayerRequest;
-import de.uol.swp.common.game.request.EndTurnRequest;
-import de.uol.swp.common.game.request.GameLeaveUserRequest;
-import de.uol.swp.common.game.request.KickPlayerRequest;
-import de.uol.swp.common.game.request.PlayDevelopmentCardRequest;
-import de.uol.swp.common.game.request.PlayerReadyRequest;
-import de.uol.swp.common.game.request.ResolveDevelopmentCardKnightRequest;
-import de.uol.swp.common.game.request.ResolveDevelopmentCardMonopolyRequest;
-import de.uol.swp.common.game.request.ResolveDevelopmentCardRequest;
-import de.uol.swp.common.game.request.ResolveDevelopmentCardRoadBuildingRequest;
-import de.uol.swp.common.game.request.ResolveDevelopmentCardYearOfPlentyRequest;
-import de.uol.swp.common.game.request.ResourcesToDiscardRequest;
-import de.uol.swp.common.game.request.RetrieveAllGamesRequest;
-import de.uol.swp.common.game.request.RetrieveAllThisGameUsersRequest;
-import de.uol.swp.common.game.request.RobbersNewFieldRequest;
-import de.uol.swp.common.game.request.RollDiceRequest;
-import de.uol.swp.common.game.request.TradeChoiceRequest;
-import de.uol.swp.common.game.request.TradeItemRequest;
-import de.uol.swp.common.game.request.TradeStartRequest;
-import de.uol.swp.common.game.response.AllCreatedGamesResponse;
-import de.uol.swp.common.game.response.AllThisGameUsersResponse;
-import de.uol.swp.common.game.response.GameAlreadyExistsResponse;
-import de.uol.swp.common.game.response.GameLeftSuccessfulResponse;
-import de.uol.swp.common.game.response.NotLobbyOwnerResponse;
-import de.uol.swp.common.game.response.PlayDevelopmentCardResponse;
-import de.uol.swp.common.game.response.PlayerKickedSuccessfulResponse;
-import de.uol.swp.common.game.response.ResolveDevelopmentCardNotSuccessfulResponse;
+import de.uol.swp.common.game.message.*;
+import de.uol.swp.common.game.request.*;
+import de.uol.swp.common.game.response.*;
 import de.uol.swp.common.game.trade.Trade;
 import de.uol.swp.common.game.trade.TradeItem;
 import de.uol.swp.common.lobby.Lobby;
@@ -111,6 +38,11 @@ import de.uol.swp.server.lobby.LobbyManagementException;
 import de.uol.swp.server.lobby.LobbyService;
 import de.uol.swp.server.usermanagement.AuthenticationService;
 import de.uol.swp.server.usermanagement.UserService;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 
 /**
@@ -140,6 +72,7 @@ public class GameService extends AbstractService {
      * @param gameManagement        The management class for creating, storing and deleting games
      * @param authenticationService the user management
      * @param eventBus              the server-wide EventBus
+     * @author:
      * @since 2021-01-07
      */
     @Inject
@@ -491,6 +424,15 @@ public class GameService extends AbstractService {
         }
     }
 
+    /**
+     * Prepares a given ServerMessage to be send to all players in Game and posts it on the EventBus
+     * <p>
+     *
+     * @param gameName
+     * @param message
+     * @author:
+     * @since :
+     */
     public void sendToAllInGame(String gameName, ServerMessage message) {
         Optional<Game> game = gameManagement.getGame(gameName);
 
@@ -503,11 +445,29 @@ public class GameService extends AbstractService {
         }
     }
 
+    /**
+     * Sends a message to a List of Users
+     * <p>
+     *
+     * @param receiver
+     * @param message
+     * @since:
+     * @author:
+     */
     public void sendToListOfUsers(Set<User> receiver, ServerMessage message) {
         message.setReceiver(authenticationService.getSessions(receiver));
         post(message);
     }
 
+    /**
+     * Sends a message to a specific user
+     * <p>
+     *
+     * @param ctx
+     * @param message
+     * @author:
+     * @since:
+     */
     public void sendToSpecificUser(MessageContext ctx, ResponseMessage message) {
         ctx.writeAndFlush(message);
     }
@@ -1664,6 +1624,8 @@ public class GameService extends AbstractService {
      * Returns the gameManagement
      *
      * @return the gameManagement
+     * @since:
+     * @author:
      */
     public GameManagement getGameManagement() {
         return this.gameManagement;
