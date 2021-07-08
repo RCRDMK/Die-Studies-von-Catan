@@ -5,7 +5,7 @@ import de.uol.swp.common.user.UserDTO;
 import java.util.HashMap;
 
 /**
- * this class is responsible for managing the resources a player has to discard when it's requested
+ * This class is responsible for managing the resources a player has to discard when it's requested.
  *
  * @author Marius Birk
  */

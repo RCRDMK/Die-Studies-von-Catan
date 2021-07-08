@@ -17,7 +17,7 @@ import de.uol.swp.common.message.AbstractRequestMessage;
 public class RetrieveAllGamesRequest extends AbstractRequestMessage {
 
     /**
-     * method to disable that user are being listed in the game before they actually joined the game
+     * Method to disable that user are being listed in the game before they actually joined the game.
      *
      * @return the boolean value false
      * @author Marc Hermes
