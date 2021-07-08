@@ -20,17 +20,32 @@ public class RetrieveUserInformationExceptionMessage extends AbstractResponseMes
      * Constructor
      *
      * @param message String containing the reason why the process failed
+     * @author Carsten Dekker
      * @since 2021-03-12
      */
     public RetrieveUserInformationExceptionMessage(String message) {
         this.message = message;
     }
 
+    /**
+     * Converts the message to a string.
+     *
+     * @return String of the message
+     * @author Carsten Dekker
+     * @since 2021-03-12
+     */
     @Override
     public String toString() {
         return "RetrieveUserMailExceptionMessage " + message;
     }
 
+    /**
+     * Give the hash of the message back
+     *
+     * @return Int of the hash from the message
+     * @author Carsten Dekker
+     * @since 2021-03-12
+     */
     @Override
     public int hashCode() {
         return Objects.hash(message);

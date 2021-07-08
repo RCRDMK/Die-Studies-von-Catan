@@ -30,6 +30,13 @@ public class LobbyCreatedMessage extends AbstractLobbyMessage {
         super(name, user);
     }
 
+    /**
+     * Getter for the User, who are in the Lobby
+     *
+     * @return User, who are in the Lobby
+     * @author Ricardo Mook, Marc Hermes
+     * @since 2020-11-19
+     */
     public List<UserDTO> getUsers() {
         return users;
     }

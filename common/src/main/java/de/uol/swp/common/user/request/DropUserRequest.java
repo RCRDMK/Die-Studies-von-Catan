@@ -18,6 +18,7 @@ public class DropUserRequest extends AbstractRequestMessage {
      * Constructor
      *
      * @param user the deleted user
+     * @author Carsten Dekker
      * @since 2020-12-15
      */
     public DropUserRequest(User user) {
@@ -28,9 +29,9 @@ public class DropUserRequest extends AbstractRequestMessage {
      * Getter for the user
      *
      * @return user that gets deleted
+     * @author Carsten Dekker
      * @since 2020-12-15
      */
-
     public User getUser() {
         return user;
     }

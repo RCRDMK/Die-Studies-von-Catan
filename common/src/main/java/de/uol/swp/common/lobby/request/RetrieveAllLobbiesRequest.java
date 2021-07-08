@@ -16,6 +16,14 @@ import de.uol.swp.common.message.AbstractRequestMessage;
  */
 public class RetrieveAllLobbiesRequest extends AbstractRequestMessage {
 
+    /**
+     * This Method sets the authorizationNeeded needed boolean to false.
+     * this tells the server that no authorization is needed.
+     *
+     * @return Boolean, false
+     * @author Carsten Dekker and Marius Birk
+     * @since 2020-04-12
+     */
     @Override
     public boolean authorizationNeeded() {
         return false;

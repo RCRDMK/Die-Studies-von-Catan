@@ -18,17 +18,32 @@ public class UpdateUserExceptionMessage extends AbstractResponseMessage {
      * Constructor
      *
      * @param message String containing the reason why the user update failed
+     * @author Carsten Dekker
      * @since 2021-03-04
      */
     public UpdateUserExceptionMessage(String message) {
         this.message = message;
     }
 
+    /**
+     * Converts the message to a string.
+     *
+     * @return String of the message
+     * @author Carsten Dekker
+     * @since 2021-03-04
+     */
     @Override
     public String toString() {
         return "UpdateUserExceptionMessage " + message;
     }
 
+    /**
+     * Give the hash of the message back
+     *
+     * @return Int of the hash from the message
+     * @author Carsten Dekker
+     * @since 2021-03-04
+     */
     @Override
     public int hashCode() {
         return Objects.hash(message);

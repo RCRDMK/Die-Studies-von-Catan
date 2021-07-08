@@ -34,9 +34,9 @@ public class AllCreatedLobbiesResponse extends AbstractResponseMessage {
      * Default Constructor
      *
      * @implNote this constructor is needed for serialization
+     * @author Carsten Dekker and Marius Birk
      * @since 2020-04-12
      */
-
     public AllCreatedLobbiesResponse() {
         // needed for serialization
     }
@@ -49,10 +49,11 @@ public class AllCreatedLobbiesResponse extends AbstractResponseMessage {
      * List contains copies of the LobbyDTO objects.
      *
      * @param lobbyCollection Collection of all lobbies currently existing
-     * @since 2020-04-12
+     * @author Carsten Dekker and Marius Birk
      * <p>
      * Enhanced by Carsten Dekker and Marc Hermes
      * Enhanced by René Meyer for pw protected lobbies
+     * @since 2020-04-12
      * @since 2021-04-08
      */
     public AllCreatedLobbiesResponse(Collection<Lobby> lobbyCollection) {
@@ -72,6 +73,7 @@ public class AllCreatedLobbiesResponse extends AbstractResponseMessage {
      * Getter for the list of the LobbyDTO
      *
      * @return list of lobbies
+     * @author Carsten Dekker and Marius Birk
      * @since 2020-04-12
      */
     public List<LobbyDTO> getLobbyDTOs() {

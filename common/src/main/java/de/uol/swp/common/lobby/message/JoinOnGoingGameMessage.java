@@ -36,11 +36,11 @@ public class JoinOnGoingGameMessage extends AbstractGameMessage {
     /**
      * Constructor
      *
-     * @param gameName  the name of the game in which the user joined
-     * @param user      the user who joined the game
-     * @param users     the current list of players in the game
-     * @param humans    the current list of actual human players in the game
-     * @param gameOwner the current owner of the game
+     * @param gameName         the name of the game in which the user joined
+     * @param user             the user who joined the game
+     * @param users            the current list of players in the game
+     * @param humans           the current list of actual human players in the game
+     * @param gameOwner        the current owner of the game
      * @param numberOfDevCards number of dev cards in the game
      * @author Marc Hermes
      * @since 2021-05-27

@@ -20,18 +20,31 @@ public class RegistrationExceptionMessage extends AbstractResponseMessage {
      *
      * @param message String containing the reason why the registration failed
      * @author Marco Grawunder
-     * @author Marco Grawunder
      * @since 2019-09-02
      */
     public RegistrationExceptionMessage(String message) {
         this.message = message;
     }
 
+    /**
+     * Converts the message to a string.
+     *
+     * @return String of the message
+     * @author Marco Grawunder
+     * @since 2019-09-02
+     */
     @Override
     public String toString() {
         return "RegistrationExceptionMessage " + message;
     }
 
+    /**
+     * Give the hash of the message back
+     *
+     * @return Int of the hash from the message
+     * @author Marco Grawunder
+     * @since 2019-09-02
+     */
     @Override
     public int hashCode() {
         return Objects.hash(message);

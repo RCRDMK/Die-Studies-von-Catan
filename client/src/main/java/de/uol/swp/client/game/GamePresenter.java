@@ -2012,10 +2012,10 @@ public class GamePresenter extends AbstractPresenter {
     @Subscribe
     public void onNotEnoughResourcesMessages(NotEnoughResourcesMessage notEnoughResourcesMessage) {
         if (this.currentGame != null) {
-            String text = "have not enough ressources";
-            LOG.debug("Updated game Event Log area with new message");
-            updateEventLogLogic(text, "You");
             if (this.currentGame.equals(notEnoughResourcesMessage.getName())) {
+                String text = "have not enough ressources";
+                LOG.debug("Updated game Event Log area with new message");
+                updateEventLogLogic(text, "You");
                 Platform.runLater(() -> {
                     this.alert.setTitle(notEnoughResourcesMessage.getName());
                     this.alert.setHeaderText("You have not enough Resources!");
@@ -2730,14 +2730,14 @@ public class GamePresenter extends AbstractPresenter {
     @Subscribe
     public void onSuccessfulMovedRobberMessage(SuccessfulMovedRobberMessage successfulMovedRobberMessage) {
         if (this.currentGame != null && userIsOnTurn != null) {
-            String text = "moved the Robber";
-            LOG.debug("Updated game Event Log area with new message");
-            updateEventLogLogic(text, userIsOnTurn);
-        }
-        for (HexagonContainer hexagonContainer : hexagonContainers) {
-            if (hexagonContainer.getHexagon().getUuid().equals(successfulMovedRobberMessage.getNewField())) {
-                robber.setLayoutX(hexagonContainer.getHexagonShape().getLayoutX() - robber.getWidth() / 2);
-                robber.setLayoutY(hexagonContainer.getHexagonShape().getLayoutY() - robber.getHeight() / 2);
+            for (HexagonContainer hexagonContainer : hexagonContainers) {
+                if (hexagonContainer.getHexagon().getUuid().equals(successfulMovedRobberMessage.getNewField())) {
+                    String text = "moved the Robber";
+                    LOG.debug("Updated game Event Log area with new message");
+                    updateEventLogLogic(text, userIsOnTurn);
+                    robber.setLayoutX(hexagonContainer.getHexagonShape().getLayoutX() - robber.getWidth() / 2);
+                    robber.setLayoutY(hexagonContainer.getHexagonShape().getLayoutY() - robber.getHeight() / 2);
+                }
             }
         }
     }
@@ -3265,10 +3265,10 @@ public class GamePresenter extends AbstractPresenter {
     @Subscribe
     public void onResolveDevelopmentCardMessage(ResolveDevelopmentCardMessage rdcm) {
         if (this.currentGame != null) {
-            String text = "played a Development Card";
-            LOG.debug("Updated game Event Log area with new message");
-            updateEventLogLogic(text, rdcm.getUser().getUsername());
             if (this.currentGame.equals(rdcm.getName())) {
+                String text = "played a Development Card";
+                LOG.debug("Updated game Event Log area with new message");
+                updateEventLogLogic(text, rdcm.getUser().getUsername());
                 LOG.debug("The user " + rdcm.getUser().getUsername() + " successfully resolved the card " + rdcm
                         .getDevCard());
             }
@@ -3286,10 +3286,10 @@ public class GamePresenter extends AbstractPresenter {
     @Subscribe
     public void notEnoughResTrade(TradeCardErrorMessage message) {
         if (this.currentGame != null) {
-            String text = "have to enough ressources to trade";
-            LOG.debug("Updated game Event Log area with new message");
-            updateEventLogLogic(text, "You");
             if (this.currentGame.equals(message.getName())) {
+                String text = "have to enough ressources to trade";
+                LOG.debug("Updated game Event Log area with new message");
+                updateEventLogLogic(text, "You");
                 Platform.runLater(() -> {
                     this.alert.setTitle(message.getName());
                     this.alert
@@ -3673,10 +3673,10 @@ public class GamePresenter extends AbstractPresenter {
     @Subscribe
     public void onTooMuchResourceCardsMessage(TooMuchResourceCardsMessage tooMuchResourceCardsMessage) {
         if (this.currentGame != null) {
-            String text = "have to much ressources";
-            LOG.debug("Updated game Event Log area with new message");
-            updateEventLogLogic(text, "You");
             if (this.currentGame.equals(tooMuchResourceCardsMessage.getName())) {
+                String text = "have to much ressources";
+                LOG.debug("Updated game Event Log area with new message");
+                updateEventLogLogic(text, "You");
                 Platform.runLater(() -> showRobberResourceMenu(tooMuchResourceCardsMessage));
             }
         }

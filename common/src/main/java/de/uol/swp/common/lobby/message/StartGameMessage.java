@@ -42,6 +42,13 @@ public class StartGameMessage extends AbstractLobbyMessage {
         super(lobbyName, user);
     }
 
+    /**
+     * Getter for the User, who are in the Game
+     *
+     * @return User, who are in the Game
+     * @author Kirstin Beyer, Iskander Yusupov
+     * @since 2021-01-24
+     */
     public List<UserDTO> getUsers() {
         return users;
     }

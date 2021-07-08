@@ -9,7 +9,7 @@ import de.uol.swp.common.user.User;
  * A request send from client to server, trying to send
  * a ping with the user
  *
- * @author Philip
+ * @author Philip Nitsche
  * @since 2021-01-25
  */
 
@@ -23,7 +23,7 @@ public class PingRequest extends AbstractRequestMessage {
      * Constructor
      *
      * @param user User the user tries to send Ping
-     * @author Philip
+     * @author Philip Nitsche
      * @since 2021-01-22
      */
     public PingRequest(User user, Long time) {
@@ -40,7 +40,7 @@ public class PingRequest extends AbstractRequestMessage {
      * Getter for the user variable
      *
      * @return User tries to send Ping
-     * @author Philip
+     * @author Philip Nitsche
      * @since 2021-01-22
      */
     public User getUser() {
@@ -51,7 +51,7 @@ public class PingRequest extends AbstractRequestMessage {
      * Setter for the user variable
      *
      * @param user containing the new user
-     * @author Philip
+     * @author Philip Nitsche
      * @since 2021-01-22
      */
     public void setUser(User user) {
@@ -62,7 +62,7 @@ public class PingRequest extends AbstractRequestMessage {
      * Getter for the time variable
      *
      * @return Long tries to send Ping
-     * @author Philip
+     * @author Philip Nitsche
      * @since 2021-01-22
      */
     public Long getTime() {
@@ -73,13 +73,20 @@ public class PingRequest extends AbstractRequestMessage {
      * Setter for the time variable
      *
      * @param time Long containing the new user
-     * @author Philip
+     * @author Philip Nitsche
      * @since 2021-01-22
      */
     public void setTime(Long time) {
         this.time = time;
     }
 
+    /**
+     * Give the hash of the message back
+     *
+     * @return Int of the hash from the message
+     * @author Philip Nitsche
+     * @since 2021-01-22
+     */
     @Override
     public int hashCode() {
         return Objects.hash(user, time);
