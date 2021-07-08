@@ -1098,7 +1098,7 @@ public class GameService extends AbstractService {
                                 "", game.getOwner());
                         sendToSpecificUser(request.getMessageContext().get(), response);
                         var gameMessage = new JoinOnGoingGameMessage(game.getName(), request.getUser(),
-                                game.getUsersList(), game.getUsers(), game.getOwner());
+                                game.getUsersList(), game.getUsers(), game.getOwner(), game.getDevelopmentCardDeck().getNumberOfDevCards());
                         sendToAllInGame(game.getName(), gameMessage);
                         updateInventory(game);
                         var currentTurnMessage = new NextTurnMessage(game.getName(),
