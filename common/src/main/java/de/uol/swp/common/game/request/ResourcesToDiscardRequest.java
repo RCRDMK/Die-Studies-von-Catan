@@ -4,6 +4,11 @@ import de.uol.swp.common.user.UserDTO;
 
 import java.util.HashMap;
 
+/**
+ * this class is responsible for managing the resources a player has to discard when it's requested
+ *
+ * @author Marius Birk
+ */
 public class ResourcesToDiscardRequest extends AbstractGameRequest {
     private final HashMap<String, Integer> inventory;
     public ResourcesToDiscardRequest(String name, UserDTO user, HashMap<String, Integer> inventory) {
@@ -11,6 +16,12 @@ public class ResourcesToDiscardRequest extends AbstractGameRequest {
         this.inventory = inventory;
     }
 
+    /**
+     * getter method to get the inventory of a player
+     *
+     * @return the inventory of a player
+     * @author Marius Birk
+     */
     public HashMap<String, Integer> getInventory() {
         return inventory;
     }

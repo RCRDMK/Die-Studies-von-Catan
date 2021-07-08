@@ -32,6 +32,12 @@ public class TradeChoiceRequest extends  AbstractGameRequest{
         this.tradeAccepted = tradeAccepted;
     }
 
+    /**
+     * default constructor
+     *
+     * @author Alexander Losse, Ricardo Mook
+     * @since 2021-04-11
+     */
     public TradeChoiceRequest() {
     }
 

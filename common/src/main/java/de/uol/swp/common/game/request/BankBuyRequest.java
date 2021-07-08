@@ -8,6 +8,7 @@ import java.util.ArrayList;
 /**
  * The inform the server about a Bank Buy Request
  *
+ * @author Anton Nikiforov
  */
 public class BankBuyRequest extends AbstractGameRequest {
 
@@ -45,14 +46,32 @@ public class BankBuyRequest extends AbstractGameRequest {
         this.chosenOffer = chosenOffer;
     }
 
+    /**
+     * getter method to get the tradeCode when trading with the bank
+     *
+     * @return tradeCode of the trade
+     * @author Anton Nikiforov
+     */
     public String getTradeCode() {
         return tradeCode;
     }
 
+    /**
+     * getter method to get the chosen ressourceCard when trading with the bank
+     *
+     * @return chosen ressourceCard of the trade
+     * @author Anton Nikiforov
+     */
     public String getChosenCard() {
         return chosenCard;
     }
 
+    /**
+     * getter method to get the chosen offer when trading with the bank
+     *
+     * @return chosen offer of the trade
+     * @author Anton Nikiforov
+     */
     public ArrayList<TradeItem> getChosenOffer() {
         return chosenOffer;
     }

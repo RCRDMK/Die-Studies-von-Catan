@@ -22,6 +22,7 @@ public class AbstractGameRequest extends AbstractRequestMessage {
      * Default constructor
      *
      * @implNote this constructor is needed for serialization
+     * @author Iskander Yusupov
      * @since 2021-01-15
      */
     public AbstractGameRequest() {
@@ -44,6 +45,7 @@ public class AbstractGameRequest extends AbstractRequestMessage {
      * Getter for the name variable
      *
      * @return String containing the game's name
+     * @author Iskander Yusupov
      * @since 2021-01-15
      */
     public String getName() {
@@ -54,6 +56,7 @@ public class AbstractGameRequest extends AbstractRequestMessage {
      * Setter for the name variable
      *
      * @param name String containing the game's name
+     * @author Iskander Yusupov
      * @since 2021-01-15
      */
     public void setName(String name) {
@@ -64,6 +67,7 @@ public class AbstractGameRequest extends AbstractRequestMessage {
      * Getter for the user variable
      *
      * @return User responsible for the creation of this message
+     * @author Iskander Yusupov
      * @since 2021-01-15
      */
     public UserDTO getUser() {
@@ -74,6 +78,7 @@ public class AbstractGameRequest extends AbstractRequestMessage {
      * Setter for the user variable
      *
      * @param user User responsible for the creation of this message
+     * @author Iskander Yusupov
      * @since 2021-01-15
      */
     public void setUser(UserDTO user) {

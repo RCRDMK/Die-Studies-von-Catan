@@ -43,14 +43,32 @@ public class TradeEndedLogMessage extends AbstractGameMessage {
         this.success = success;
     }
 
+    /**
+     * When this method is called the trade code for the trade it identifies gets returned
+     *
+     * @return tradeCode of the trade
+     * @author Philip Nitsche
+     */
     public String getTradeCode() {
         return tradeCode;
     }
 
+    /**
+     * When this method is called it returns the bid which won the trade
+     *
+     * @return bid which was chosen by the seller
+     * @author Philip Nitsche
+     */
     public String getWinnerBidder() {
         return winnerBidder;
     }
 
+    /**
+     * When this method is called it returns if the trade was a success or not
+     *
+     * @return boolean value of the success of the trade
+     * @author Philip Nitsche
+     */
     public Boolean getSuccess() {
         return success;
     }

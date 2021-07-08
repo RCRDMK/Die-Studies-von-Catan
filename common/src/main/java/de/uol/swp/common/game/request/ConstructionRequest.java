@@ -20,7 +20,7 @@ public class ConstructionRequest extends AbstractGameRequest {
      *
      * @param user The player who wants to start construction
      * @param game The game, the user wants to start construction in
-     * @param uuid the UUID corresponding to the node at wich the player wants to construct something
+     * @param uuid the UUID corresponding to the node at which the player wants to construct something
      *
      * @author Pieter Vogt
      * @since 2021-04-14
@@ -31,10 +31,22 @@ public class ConstructionRequest extends AbstractGameRequest {
         this.typeOfNode = typeOfNode;
     }
 
+    /**
+     * getter method to get the uuid from a node
+     *
+     * @return uuid of a node
+     * @author Pieter Vogt
+     */
     public UUID getUuid() {
         return uuid;
     }
 
+    /**
+     * getter method to get the type of a node
+     *
+     * @return the type of a node
+     * @author Pieter Vogt
+     */
     public String getTypeOfNode() {
         return typeOfNode;
     }

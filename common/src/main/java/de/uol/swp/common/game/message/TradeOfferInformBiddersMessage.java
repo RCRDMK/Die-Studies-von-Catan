@@ -42,6 +42,12 @@ public class TradeOfferInformBiddersMessage extends AbstractGameMessage {
         this.wantedItems = wantedItems;
     }
 
+    /**
+     * default constructor
+     *
+     * @author Alexander Losse, Ricardo Mook
+     * @since 2021-04-11
+     */
     public TradeOfferInformBiddersMessage() {
     }
 
@@ -67,10 +73,24 @@ public class TradeOfferInformBiddersMessage extends AbstractGameMessage {
         return sellingItems;
     }
 
+    /**
+     * getter method to get bidders from a trade
+     *
+     * @return bidders of a trade
+     * @author Alexander Losse, Ricardo Mook
+     * @since 2021-04-11
+     */
     public UserDTO getBidder() {
         return bidder;
     }
 
+    /**
+     * getter method to get wanted items in a trade
+     *
+     * @return wanted items in a trade
+     * @author Alexander Losse, Ricardo Mook
+     * @since 2021-04-11
+     */
     public ArrayList<TradeItem> getWantedItems() {
         return wantedItems;
     }
