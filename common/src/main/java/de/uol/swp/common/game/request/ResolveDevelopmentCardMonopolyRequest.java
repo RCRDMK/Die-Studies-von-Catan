@@ -8,7 +8,7 @@ import de.uol.swp.common.user.UserDTO;
  * @author Marc Hermes
  * @since 2021-05-04
  */
-public class ResolveDevelopmentCardMonopolyRequest extends ResolveDevelopmentCardRequest{
+public class ResolveDevelopmentCardMonopolyRequest extends ResolveDevelopmentCardRequest {
 
     private final String resource;
 

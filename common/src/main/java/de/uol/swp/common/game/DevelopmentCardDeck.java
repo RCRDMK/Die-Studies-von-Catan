@@ -36,8 +36,7 @@ public class DevelopmentCardDeck implements Serializable {
      * @return a drawn the card if there is one left, otherwise null
      */
     public String drawnCard() {
-        if (deck.size() > 0) return deck.pop();
-        else return null;
+        if (deck.size() > 0) { return deck.pop(); } else { return null; }
     }
 
     /**

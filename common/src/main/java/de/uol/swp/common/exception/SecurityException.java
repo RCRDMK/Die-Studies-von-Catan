@@ -8,17 +8,17 @@ package de.uol.swp.common.exception;
  */
 public class SecurityException extends RuntimeException {
 
-	private static final long serialVersionUID = -6908340347082873591L;
+    private static final long serialVersionUID = -6908340347082873591L;
 
-	/**
-	 * Constructor
-	 *
-	 * @author Marco Grawunder
-	 * @param message Text the Exception should contain
-	 * @since 2017-03-17
-	 */
-	public SecurityException(String message){
-		super(message);
-	}
+    /**
+     * Constructor
+     *
+     * @param message Text the Exception should contain
+     * @author Marco Grawunder
+     * @since 2017-03-17
+     */
+    public SecurityException(String message) {
+        super(message);
+    }
 
 }

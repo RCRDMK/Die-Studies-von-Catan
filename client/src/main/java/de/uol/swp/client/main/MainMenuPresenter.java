@@ -1,7 +1,28 @@
 package de.uol.swp.client.main;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+
+import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
+
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import de.uol.swp.client.AbstractPresenter;
 import de.uol.swp.client.account.UserSettingsService;
 import de.uol.swp.client.account.event.ShowUserSettingsViewEvent;
@@ -29,18 +50,6 @@ import de.uol.swp.common.user.response.LoginSuccessfulResponse;
 import de.uol.swp.common.user.response.lobby.JoinDeletedLobbyResponse;
 import de.uol.swp.common.user.response.lobby.LobbyFullResponse;
 import de.uol.swp.common.user.response.lobby.WrongLobbyPasswordResponse;
-import javafx.application.Platform;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
-import javafx.fxml.FXML;
-import javafx.scene.control.*;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
 
 /**
  * Manages the main menu
@@ -59,15 +68,11 @@ public class MainMenuPresenter extends AbstractPresenter {
     private static final ShowUserSettingsViewEvent showSettingsViewEvent = new ShowUserSettingsViewEvent();
 
     private static final ShowGameRulesEvent showGameRulesEvent = new ShowGameRulesEvent();
-
-    private ObservableList<String> users;
-
-    private ObservableList<LobbyDTO> lobbies;
-
-    private User loggedInUser;
-
     @FXML
     CheckBox passwordCheckBox;
+    private ObservableList<String> users;
+    private ObservableList<LobbyDTO> lobbies;
+    private User loggedInUser;
     @FXML
     private PasswordField lobbyPasswordField;
 
@@ -211,8 +216,9 @@ public class MainMenuPresenter extends AbstractPresenter {
     public void newUserLogic(UserLoggedInMessage ulim) {
         LOG.debug("New user " + ulim.getUsername() + " logged in");
         Platform.runLater(() -> {
-            if (users != null && loggedInUser != null && !loggedInUser.getUsername().equals(ulim.getUsername()))
+            if (users != null && loggedInUser != null && !loggedInUser.getUsername().equals(ulim.getUsername())) {
                 users.add(ulim.getUsername());
+            }
         });
     }
 
@@ -327,7 +333,8 @@ public class MainMenuPresenter extends AbstractPresenter {
         var time = new SimpleDateFormat("HH:mm");
         Date resultDate = new Date();
         var readableTime = time.format(resultDate);
-        textArea.insertText(textArea.getLength(), readableTime + " SYSTEM: Can't join full lobby " + lfr.getLobbyName() + " \n");
+        textArea.insertText(textArea.getLength(),
+                readableTime + " SYSTEM: Can't join full lobby " + lfr.getLobbyName() + " \n");
     }
 
     /**
@@ -379,7 +386,8 @@ public class MainMenuPresenter extends AbstractPresenter {
         var time = new SimpleDateFormat("HH:mm");
         Date resultDate = new Date();
         var readableTime = time.format(resultDate);
-        textArea.insertText(textArea.getLength(), readableTime + " SYSTEM: Can't join the lobby " + response.getLobbyName() + " twice." + "\n");
+        textArea.insertText(textArea.getLength(),
+                readableTime + " SYSTEM: Can't join the lobby " + response.getLobbyName() + " twice." + "\n");
     }
 
     /**
@@ -402,7 +410,8 @@ public class MainMenuPresenter extends AbstractPresenter {
         var time = new SimpleDateFormat("HH:mm");
         Date resultDate = new Date();
         var readableTime = time.format(resultDate);
-        textArea.insertText(textArea.getLength(), readableTime + " SYSTEM: Can't join deleted lobby " + jdlr.getLobbyName() + " \n");
+        textArea.insertText(textArea.getLength(),
+                readableTime + " SYSTEM: Can't join deleted lobby " + jdlr.getLobbyName() + " \n");
     }
 
 
@@ -459,18 +468,19 @@ public class MainMenuPresenter extends AbstractPresenter {
      * @see SimpleDateFormat
      * @see ResponseChatMessage
      * @since 2020-11-30
-     *<p>
-     *Enhanced by Sergej Tulnev
-     *@since 2021-06-17
-     *<p>
-     *If the user has a long message, it will have a line break
+     * <p>
+     * Enhanced by Sergej Tulnev
+     * @since 2021-06-17
+     * <p>
+     * If the user has a long message, it will have a line break
      */
     private void updateChat(ResponseChatMessage msg) {
         var time = new SimpleDateFormat("HH:mm");
         Date resultDate = new Date((long) msg.getTime().doubleValue());
         var readableTime = time.format(resultDate);
         textArea.setWrapText(true);
-        textArea.insertText(textArea.getLength(), readableTime + " " + msg.getUsername() + ": " + msg.getMessage() + "\n");
+        textArea.insertText(textArea.getLength(),
+                readableTime + " " + msg.getUsername() + ": " + msg.getMessage() + "\n");
     }
 
     /**
@@ -520,7 +530,8 @@ public class MainMenuPresenter extends AbstractPresenter {
     @FXML
     void onCreateLobby() {
         if (lobbyNameTextField.getText().isBlank() || lobbyNameTextField.getText().isEmpty()
-                || lobbyNameTextField.getText().startsWith(" ") || lobbyNameTextField.getText().endsWith(" ") || lobbyNameTextField.getText() == null) {
+                || lobbyNameTextField.getText().startsWith(" ") || lobbyNameTextField.getText()
+                .endsWith(" ") || lobbyNameTextField.getText() == null) {
             lobbyNameInvalid.setVisible(true);
             lobbyAlreadyExistsLabel.setVisible(false);
         } else {
@@ -528,7 +539,8 @@ public class MainMenuPresenter extends AbstractPresenter {
             lobbyNameInvalid.setVisible(false);
             lobbyAlreadyExistsLabel.setVisible(false);
             if (passwordCheckBox.isSelected() && !lobbyPasswordField.getText().isEmpty()) {
-                lobbyService.createNewProtectedLobby(lobbyNameTextField.getText(), (UserDTO) this.loggedInUser, lobbyPasswordField.getText());
+                lobbyService.createNewProtectedLobby(lobbyNameTextField.getText(), (UserDTO) this.loggedInUser,
+                        lobbyPasswordField.getText());
             } else {
                 // lobby without pw
                 lobbyService.createNewLobby(lobbyNameTextField.getText(), (UserDTO) this.loggedInUser);
@@ -563,7 +575,8 @@ public class MainMenuPresenter extends AbstractPresenter {
             var chatMessage = inputField.getCharacters().toString();
             // ChatID = "main" means main chat
             var chatId = "main";
-            RequestChatMessage message = new RequestChatMessage(chatMessage, chatId, loggedInUser.getUsername(), System.currentTimeMillis());
+            RequestChatMessage message = new RequestChatMessage(chatMessage, chatId, loggedInUser.getUsername(),
+                    System.currentTimeMillis());
             chatService.sendMessage(message);
             this.inputField.setText("");
         } catch (Exception e) {

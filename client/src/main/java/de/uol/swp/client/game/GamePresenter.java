@@ -117,176 +117,40 @@ public class GamePresenter extends AbstractPresenter {
     public static final String fxml = "/fxml/GameView.fxml";
 
     private static final Logger LOG = LogManager.getLogger(GamePresenter.class);
-
-    @FXML
-    private TabPane tabPane = new TabPane();
-
-    @FXML
-    public TextField gameChatInput;
-
-    @FXML
-    public MenuButton buildMenu;
-
-    @FXML
-    public TextArea gameChatArea;
-
-    @FXML
-    public TextArea gameEventLogArea;
-
-    public Dialog<Object> tooMuchAlert;
-
-    public Alert chooseAlert;
-
-    private User joinedLobbyUser;
-
-    private String playerToKick;
-
-    private String currentGame;
-
-    private Alert alert;
-
-    private ButtonType buttonTypeOkay;
-
-    private Button btnOkay;
-
-    private ObservableList<String> gameUsers;
-
-    private String gameFieldVariant;
-
     private final ArrayList<HexagonContainer> hexagonContainers = new ArrayList<>();
-    private ObservableList<HashMap.Entry<String, Integer>> publicInventory1;
-    private ObservableList<HashMap.Entry<String, Integer>> publicInventory2;
-    private ObservableList<HashMap.Entry<String, Integer>> publicInventory3;
-    private ObservableList<HashMap.Entry<String, Integer>> publicInventory4;
-
     private final ArrayList<MapGraphNodeContainer> mapGraphNodeContainers = new ArrayList<>();
-
-    private Boolean itsMyTurn = false;
-
-    private HashMap<String, Integer> privateInventory;
-
-    @Inject
-    private GameService gameService;
-
-    @Inject
-    private ChatService chatService;
-
-    @FXML
-    private Canvas canvas;
-
-    // Used for the DevelopmentCard alerts and functionality
-    private Alert resolveDevelopmentCardAlert;
     private final ImagePattern lumber = new ImagePattern(new Image("textures/resized/RES_Holz.png"));
     private final ImagePattern brick = new ImagePattern(new Image("textures/resized/RES_Lehm.png"));
     private final ImagePattern grain = new ImagePattern(new Image("textures/resized/RES_Getreide.png"));
     private final ImagePattern wool = new ImagePattern(new Image("textures/resized/RES_Wolle.png"));
     private final ImagePattern ore = new ImagePattern(new Image("textures/resized/RES_Erz.png"));
     private final ArrayList<Rectangle> resourceRectangles = new ArrayList<>();
-    private String currentDevelopmentCard = "";
-    private String resource1 = "";
-    private String resource2 = "";
-    private UUID street1 = null;
-    private UUID street2 = null;
     private final Circle selectedStreet1 = new Circle();
     private final Circle selectedStreet2 = new Circle();
     private final Circle selectedResource1 = new Circle();
     private final Circle selectedResource2 = new Circle();
-
     private final ArrayList<ImagePattern> profilePicturePatterns = new ArrayList<>();
-
     private final ArrayList<Rectangle> rectangles = new ArrayList<>();
     private final ArrayList<Rectangle> rectanglesLargestArmy = new ArrayList<>();
     private final ArrayList<Rectangle> rectanglesLongestRoad = new ArrayList<>();
-
+    final private ArrayList<ImagePattern> diceImages = new ArrayList<>();
+    final private Rectangle rectangleDie1 = new Rectangle(60, 60);
+    final private Rectangle rectangleDie2 = new Rectangle(60, 60);
+    private final HashMap<UUID, MapGraphNodeContainer> nodeContainerHashMap = new HashMap<>();
+    @FXML
+    public TextField gameChatInput;
+    @FXML
+    public MenuButton buildMenu;
+    @FXML
+    public TextArea gameChatArea;
+    @FXML
+    public TextArea gameEventLogArea;
+    public Dialog<Object> tooMuchAlert;
+    public Alert chooseAlert;
     @FXML
     public Button gameChatSendMessage;
-
-    @FXML
-    private AnchorPane gameAnchorPane;
-
-    @FXML
-    private Label gameUserView1;
-    @FXML
-    private Label gameUserView2;
-    @FXML
-    private Label gameUserView3;
-    @FXML
-    private Label gameUserView4;
-
-    @FXML
-    private Button endTurnButton;
-
-    @FXML
-    private Button tradeButton;
-
     @FXML
     public Label buildingNotSuccessfulLabel;
-
-    @FXML
-    private Button kickPlayerOneButton;
-    @FXML
-    private Button kickPlayerTwoButton;
-    @FXML
-    private Button kickPlayerThreeButton;
-    @FXML
-    private Button kickPlayerFourButton;
-
-    @FXML
-    private Pane picturePlayerView1;
-
-    @FXML
-    private Pane picturePlayerView2;
-
-    @FXML
-    private Pane picturePlayerView3;
-
-    @FXML
-    private Pane picturePlayerView4;
-
-    @FXML
-    private GridPane playerOneDiceView;
-
-    @FXML
-    private GridPane playerTwoDiceView;
-
-    @FXML
-    private GridPane playerThreeDiceView;
-
-    @FXML
-    private GridPane playerFourDiceView;
-
-    @FXML
-    private Pane playerOneLargestArmyView;
-    @FXML
-    private Pane playerTwoLargestArmyView;
-    @FXML
-    private Pane playerThreeLargestArmyView;
-    @FXML
-    private Pane playerFourLargestArmyView;
-
-    @FXML
-    private Pane playerOneLongestRoadView;
-    @FXML
-    private Pane playerTwoLongestRoadView;
-    @FXML
-    private Pane playerThreeLongestRoadView;
-    @FXML
-    private Pane playerFourLongestRoadView;
-
-    @FXML
-    private Pane pricesView;
-
-    @FXML
-    private ListView<HashMap.Entry<String, Integer>> publicInventory1View;
-    @FXML
-    private ListView<HashMap.Entry<String, Integer>> publicInventory2View;
-    @FXML
-    private ListView<HashMap.Entry<String, Integer>> publicInventory3View;
-    @FXML
-    private ListView<HashMap.Entry<String, Integer>> publicInventory4View;
-
-    @FXML
-    private GridPane privateInventoryView;
     @FXML
     Label privateLumberLabel = new Label("0");
     @FXML
@@ -313,22 +177,107 @@ public class GamePresenter extends AbstractPresenter {
     Label privateRoadsLabel = new Label("0");
     @FXML
     Label privateSettlementsLabel = new Label("0");
-
-    final private ArrayList<ImagePattern> diceImages = new ArrayList<>();
-
-    final private Rectangle rectangleDie1 = new Rectangle(60, 60);
-
-    final private Rectangle rectangleDie2 = new Rectangle(60, 60);
-
+    @FXML
+    private TabPane tabPane = new TabPane();
+    private User joinedLobbyUser;
+    private String playerToKick;
+    private String currentGame;
+    private Alert alert;
+    private ButtonType buttonTypeOkay;
+    private Button btnOkay;
+    private ObservableList<String> gameUsers;
+    private String gameFieldVariant;
+    private ObservableList<HashMap.Entry<String, Integer>> publicInventory1;
+    private ObservableList<HashMap.Entry<String, Integer>> publicInventory2;
+    private ObservableList<HashMap.Entry<String, Integer>> publicInventory3;
+    private ObservableList<HashMap.Entry<String, Integer>> publicInventory4;
+    private Boolean itsMyTurn = false;
+    private HashMap<String, Integer> privateInventory;
+    @Inject
+    private GameService gameService;
+    @Inject
+    private ChatService chatService;
+    @FXML
+    private Canvas canvas;
+    // Used for the DevelopmentCard alerts and functionality
+    private Alert resolveDevelopmentCardAlert;
+    private String currentDevelopmentCard = "";
+    private String resource1 = "";
+    private String resource2 = "";
+    private UUID street1 = null;
+    private UUID street2 = null;
+    @FXML
+    private AnchorPane gameAnchorPane;
+    @FXML
+    private Label gameUserView1;
+    @FXML
+    private Label gameUserView2;
+    @FXML
+    private Label gameUserView3;
+    @FXML
+    private Label gameUserView4;
+    @FXML
+    private Button endTurnButton;
+    @FXML
+    private Button tradeButton;
+    @FXML
+    private Button kickPlayerOneButton;
+    @FXML
+    private Button kickPlayerTwoButton;
+    @FXML
+    private Button kickPlayerThreeButton;
+    @FXML
+    private Button kickPlayerFourButton;
+    @FXML
+    private Pane picturePlayerView1;
+    @FXML
+    private Pane picturePlayerView2;
+    @FXML
+    private Pane picturePlayerView3;
+    @FXML
+    private Pane picturePlayerView4;
+    @FXML
+    private GridPane playerOneDiceView;
+    @FXML
+    private GridPane playerTwoDiceView;
+    @FXML
+    private GridPane playerThreeDiceView;
+    @FXML
+    private GridPane playerFourDiceView;
+    @FXML
+    private Pane playerOneLargestArmyView;
+    @FXML
+    private Pane playerTwoLargestArmyView;
+    @FXML
+    private Pane playerThreeLargestArmyView;
+    @FXML
+    private Pane playerFourLargestArmyView;
+    @FXML
+    private Pane playerOneLongestRoadView;
+    @FXML
+    private Pane playerTwoLongestRoadView;
+    @FXML
+    private Pane playerThreeLongestRoadView;
+    @FXML
+    private Pane playerFourLongestRoadView;
+    @FXML
+    private Pane pricesView;
+    @FXML
+    private ListView<HashMap.Entry<String, Integer>> publicInventory1View;
+    @FXML
+    private ListView<HashMap.Entry<String, Integer>> publicInventory2View;
+    @FXML
+    private ListView<HashMap.Entry<String, Integer>> publicInventory3View;
+    @FXML
+    private ListView<HashMap.Entry<String, Integer>> publicInventory4View;
+    @FXML
+    private GridPane privateInventoryView;
     @FXML
     private Button rollDiceButton;
-
     @FXML
     private Button buyDevCard;
-
     @FXML
     private GridPane chooseResource;
-
     @FXML
     private Label lumberLabelRobberMenu;
     @FXML
@@ -341,26 +290,18 @@ public class GamePresenter extends AbstractPresenter {
     private Label grainLabelRobberMenu;
     @FXML
     private Label toDiscardLabel;
-
     @FXML
     private Button[] choose;
-
     private Rectangle robber;
-
     private boolean rolledDice = false;
-
     private boolean startingTurn;
-
     private int myPlayerNumber;
-
     private int pILumber = 0;
     private int pIGrain = 0;
     private int pIWool = 0;
     private int pIOre = 0;
     private int pIBrick = 0;
     private String userIsOnTurn;
-
-    private final HashMap<UUID, MapGraphNodeContainer> nodeContainerHashMap = new HashMap<>();
     private Alert kickAlert;
 
     /**
@@ -2071,10 +2012,10 @@ public class GamePresenter extends AbstractPresenter {
     @Subscribe
     public void onNotEnoughResourcesMessages(NotEnoughResourcesMessage notEnoughResourcesMessage) {
         if (this.currentGame != null) {
-            String text = "have not enough ressources";
-            LOG.debug("Updated game Event Log area with new message");
-            updateEventLogLogic(text, "You");
             if (this.currentGame.equals(notEnoughResourcesMessage.getName())) {
+                String text = "have not enough ressources";
+                LOG.debug("Updated game Event Log area with new message");
+                updateEventLogLogic(text, "You");
                 Platform.runLater(() -> {
                     this.alert.setTitle(notEnoughResourcesMessage.getName());
                     this.alert.setHeaderText("You have not enough Resources!");
@@ -2539,10 +2480,10 @@ public class GamePresenter extends AbstractPresenter {
     @Subscribe
     public void onRollDiceResultMessage(RollDiceResultMessage message) {
         if (this.currentGame != null) {
-            String text = "rolled a " + message.getDiceEyes1() + " and a " + message.getDiceEyes2();
-            LOG.debug("Updated game Event Log area with new message");
-            updateEventLogLogic(text, userIsOnTurn);
             if (message.getName().equals(currentGame)) {
+                String text = "rolled a " + message.getDiceEyes1() + " and a " + message.getDiceEyes2();
+                LOG.debug("Updated game Event Log area with new message");
+                updateEventLogLogic(text, userIsOnTurn);
                 shuffleTheDice(message.getDiceEyes1(), message.getDiceEyes2());
             }
         }
@@ -2789,14 +2730,14 @@ public class GamePresenter extends AbstractPresenter {
     @Subscribe
     public void onSuccessfulMovedRobberMessage(SuccessfulMovedRobberMessage successfulMovedRobberMessage) {
         if (this.currentGame != null && userIsOnTurn != null) {
-            String text = "moved the Robber";
-            LOG.debug("Updated game Event Log area with new message");
-            updateEventLogLogic(text, userIsOnTurn);
-        }
-        for (HexagonContainer hexagonContainer : hexagonContainers) {
-            if (hexagonContainer.getHexagon().getUuid().equals(successfulMovedRobberMessage.getNewField())) {
-                robber.setLayoutX(hexagonContainer.getHexagonShape().getLayoutX() - robber.getWidth() / 2);
-                robber.setLayoutY(hexagonContainer.getHexagonShape().getLayoutY() - robber.getHeight() / 2);
+            for (HexagonContainer hexagonContainer : hexagonContainers) {
+                if (hexagonContainer.getHexagon().getUuid().equals(successfulMovedRobberMessage.getNewField())) {
+                    String text = "moved the Robber";
+                    LOG.debug("Updated game Event Log area with new message");
+                    updateEventLogLogic(text, userIsOnTurn);
+                    robber.setLayoutX(hexagonContainer.getHexagonShape().getLayoutX() - robber.getWidth() / 2);
+                    robber.setLayoutY(hexagonContainer.getHexagonShape().getLayoutY() - robber.getHeight() / 2);
+                }
             }
         }
     }
@@ -3324,10 +3265,10 @@ public class GamePresenter extends AbstractPresenter {
     @Subscribe
     public void onResolveDevelopmentCardMessage(ResolveDevelopmentCardMessage rdcm) {
         if (this.currentGame != null) {
-            String text = "played a Development Card";
-            LOG.debug("Updated game Event Log area with new message");
-            updateEventLogLogic(text, rdcm.getUser().getUsername());
             if (this.currentGame.equals(rdcm.getName())) {
+                String text = "played a Development Card";
+                LOG.debug("Updated game Event Log area with new message");
+                updateEventLogLogic(text, rdcm.getUser().getUsername());
                 LOG.debug("The user " + rdcm.getUser().getUsername() + " successfully resolved the card " + rdcm
                         .getDevCard());
             }
@@ -3345,10 +3286,10 @@ public class GamePresenter extends AbstractPresenter {
     @Subscribe
     public void notEnoughResTrade(TradeCardErrorMessage message) {
         if (this.currentGame != null) {
-            String text = "have to enough ressources to trade";
-            LOG.debug("Updated game Event Log area with new message");
-            updateEventLogLogic(text, "You");
             if (this.currentGame.equals(message.getName())) {
+                String text = "have to enough ressources to trade";
+                LOG.debug("Updated game Event Log area with new message");
+                updateEventLogLogic(text, "You");
                 Platform.runLater(() -> {
                     this.alert.setTitle(message.getName());
                     this.alert
@@ -3732,10 +3673,10 @@ public class GamePresenter extends AbstractPresenter {
     @Subscribe
     public void onTooMuchResourceCardsMessage(TooMuchResourceCardsMessage tooMuchResourceCardsMessage) {
         if (this.currentGame != null) {
-            String text = "have to much ressources";
-            LOG.debug("Updated game Event Log area with new message");
-            updateEventLogLogic(text, "You");
             if (this.currentGame.equals(tooMuchResourceCardsMessage.getName())) {
+                String text = "have to much ressources";
+                LOG.debug("Updated game Event Log area with new message");
+                updateEventLogLogic(text, "You");
                 Platform.runLater(() -> showRobberResourceMenu(tooMuchResourceCardsMessage));
             }
         }

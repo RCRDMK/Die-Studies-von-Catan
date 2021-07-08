@@ -1,10 +1,12 @@
 package de.uol.swp.client;
 
-import de.uol.swp.common.message.Message;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import de.uol.swp.common.message.Message;
 
 /**
  * Netty handler for incoming connections

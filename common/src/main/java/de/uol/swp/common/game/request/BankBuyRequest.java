@@ -1,19 +1,18 @@
 package de.uol.swp.common.game.request;
 
+import java.util.ArrayList;
+
 import de.uol.swp.common.game.trade.TradeItem;
 import de.uol.swp.common.user.UserDTO;
 
-import java.util.ArrayList;
-
 /**
  * The inform the server about a Bank Buy Request
- *
  */
 public class BankBuyRequest extends AbstractGameRequest {
 
-    private  String tradeCode;
-    private  String chosenCard;
-    private  ArrayList<TradeItem> chosenOffer;
+    private String tradeCode;
+    private String chosenCard;
+    private ArrayList<TradeItem> chosenOffer;
 
     /**
      * Default Constructor needs for serialization
@@ -28,16 +27,16 @@ public class BankBuyRequest extends AbstractGameRequest {
     /**
      * The constructor
      *
-     * @param name          the game name
-     * @param user          the user who wanna buy
-     * @param tradeCode     the tradeCode
-     * @param chosenCard    the name form the card he wanna buy
-     * @param chosenOffer    the chosenOffer he chose
-     *
+     * @param name        the game name
+     * @param user        the user who wanna buy
+     * @param tradeCode   the tradeCode
+     * @param chosenCard  the name form the card he wanna buy
+     * @param chosenOffer the chosenOffer he chose
      * @author Anton Nikiforov
      * @since 2021-05-31
      */
-    public BankBuyRequest(String name, UserDTO user, String tradeCode, String chosenCard, ArrayList<TradeItem> chosenOffer) {
+    public BankBuyRequest(String name, UserDTO user, String tradeCode, String chosenCard,
+                          ArrayList<TradeItem> chosenOffer) {
         this.name = name;
         this.user = (UserDTO) user.getWithoutPassword();
         this.tradeCode = tradeCode;

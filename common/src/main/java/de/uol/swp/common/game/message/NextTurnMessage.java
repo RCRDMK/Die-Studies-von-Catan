@@ -8,7 +8,7 @@ import de.uol.swp.common.message.AbstractServerMessage;
  *
  * @author Pieter Vogt
  * @since 2021-03-22
- *
+ * <p>
  * Enhanced by Carsten Dekker
  * @since 2021-04-30
  */

@@ -2,11 +2,19 @@ package de.uol.swp.client.lobby;
 
 import com.google.common.eventbus.EventBus;
 import com.google.inject.Inject;
-import de.uol.swp.common.game.request.PlayerReadyRequest;
-import de.uol.swp.common.lobby.request.*;
-import de.uol.swp.common.user.UserDTO;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import de.uol.swp.common.game.request.PlayerReadyRequest;
+import de.uol.swp.common.lobby.request.CreateLobbyRequest;
+import de.uol.swp.common.lobby.request.JoinOnGoingGameRequest;
+import de.uol.swp.common.lobby.request.LobbyJoinUserRequest;
+import de.uol.swp.common.lobby.request.LobbyLeaveUserRequest;
+import de.uol.swp.common.lobby.request.RetrieveAllLobbiesRequest;
+import de.uol.swp.common.lobby.request.RetrieveAllThisLobbyUsersRequest;
+import de.uol.swp.common.lobby.request.StartGameRequest;
+import de.uol.swp.common.user.UserDTO;
 
 
 /**
@@ -18,8 +26,8 @@ import org.apache.logging.log4j.Logger;
 @SuppressWarnings("UnstableApiUsage")
 public class LobbyService {
 
-    private final EventBus eventBus;
     private static final Logger LOG = LogManager.getLogger(LobbyPresenter.class);
+    private final EventBus eventBus;
 
 
     /**

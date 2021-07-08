@@ -1,8 +1,8 @@
 package de.uol.swp.server.AI.AIActions;
 
-import de.uol.swp.common.user.User;
-
 import java.util.UUID;
+
+import de.uol.swp.common.user.User;
 
 /**
  * The AIAction used for moving the robber when a 7 is rolled with the dice

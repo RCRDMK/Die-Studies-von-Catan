@@ -27,8 +27,7 @@ public class RegistrationService {
                 "A-Z]{2,7}$";
 
         Pattern pat = Pattern.compile(emailRegex);
-        if (email == null)
-            return false;
+        if (email == null) { return false; }
         return pat.matcher(email).matches();
     }
 }

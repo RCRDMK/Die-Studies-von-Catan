@@ -1,12 +1,13 @@
 package de.uol.swp.common;
 
+import java.io.Serializable;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.serialization.ObjectEncoder;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import java.io.Serializable;
 
 /**
  * Class used to encode Objects into ByteBuffers to send.

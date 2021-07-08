@@ -1,11 +1,11 @@
 package de.uol.swp.client;
 
+import java.util.HashMap;
+import java.util.List;
+
 import javafx.collections.ListChangeListener;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
-
-import java.util.HashMap;
-import java.util.List;
 
 /**
  * A Class that helps with the management of tabs in a tabPane
@@ -19,18 +19,6 @@ public class TabHelper {
     private final TabPane tabPane;
     private final HashMap<String, Tab> tabsMap;
     private final HashMap<String, Tab> suspendedTabs;
-
-    /**
-     * Getter for the tabPane
-     * <p>
-     *
-     * @return tabPane of the TabHelper
-     * @author Alexander Losse, Marc Hermes
-     * @since 2021-01-20
-     */
-    public TabPane getTabPane() {
-        return tabPane;
-    }
 
     /**
      * Constructor
@@ -49,6 +37,18 @@ public class TabHelper {
         this.tabsMap = new HashMap<>();
         this.suspendedTabs = new HashMap<>();
         initial();
+    }
+
+    /**
+     * Getter for the tabPane
+     * <p>
+     *
+     * @return tabPane of the TabHelper
+     * @author Alexander Losse, Marc Hermes
+     * @since 2021-01-20
+     */
+    public TabPane getTabPane() {
+        return tabPane;
     }
 
     /**

@@ -1,9 +1,9 @@
 package de.uol.swp.common.lobby.request;
 
+import java.util.Objects;
+
 import de.uol.swp.common.message.AbstractRequestMessage;
 import de.uol.swp.common.user.UserDTO;
-
-import java.util.Objects;
 
 /**
  * Base class of all lobby request messages. Basic handling of lobby data.
@@ -124,16 +124,16 @@ public class AbstractLobbyRequest extends AbstractRequestMessage {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        AbstractLobbyRequest that = (AbstractLobbyRequest) o;
-        return Objects.equals(name, that.name) &&
-                Objects.equals(user, that.user);
+    public int hashCode() {
+        return Objects.hash(name, user);
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(name, user);
+    public boolean equals(Object o) {
+        if (this == o) { return true; }
+        if (o == null || getClass() != o.getClass()) { return false; }
+        AbstractLobbyRequest that = (AbstractLobbyRequest) o;
+        return Objects.equals(name, that.name) &&
+                Objects.equals(user, that.user);
     }
 }

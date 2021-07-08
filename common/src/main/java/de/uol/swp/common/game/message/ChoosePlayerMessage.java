@@ -1,8 +1,8 @@
 package de.uol.swp.common.game.message;
 
-import de.uol.swp.common.user.UserDTO;
-
 import java.util.List;
+
+import de.uol.swp.common.user.UserDTO;
 
 public class ChoosePlayerMessage extends AbstractGameMessage {
     private final List<String> userList;

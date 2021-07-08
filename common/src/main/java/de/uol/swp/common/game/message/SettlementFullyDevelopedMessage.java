@@ -8,7 +8,7 @@ import de.uol.swp.common.user.UserDTO;
  * @author Carsten Dekker
  * @since 2021-06-07
  */
-public class SettlementFullyDevelopedMessage extends AbstractGameMessage{
+public class SettlementFullyDevelopedMessage extends AbstractGameMessage {
     /**
      * Default Constructor
      *
@@ -22,7 +22,7 @@ public class SettlementFullyDevelopedMessage extends AbstractGameMessage{
      * Constructor
      *
      * @param gameName the name of the game
-     * @param user the user who didn't have enough resources
+     * @param user     the user who didn't have enough resources
      * @author Marc Hermes
      * @since 2021-06-07
      */

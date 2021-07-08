@@ -1,8 +1,8 @@
 package de.uol.swp.common.game.request;
 
-import de.uol.swp.common.user.UserDTO;
-
 import java.util.UUID;
+
+import de.uol.swp.common.user.UserDTO;
 
 /**
  * Request used for resolving of the DevelopmentCard Knight
@@ -10,7 +10,7 @@ import java.util.UUID;
  * @author Marc Hermes
  * @since 2021-05-14
  */
-public class ResolveDevelopmentCardKnightRequest extends ResolveDevelopmentCardRequest{
+public class ResolveDevelopmentCardKnightRequest extends ResolveDevelopmentCardRequest {
 
     private final UUID field;
 
@@ -30,7 +30,7 @@ public class ResolveDevelopmentCardKnightRequest extends ResolveDevelopmentCardR
      * @param devCard  the name of the DevelopmentCard, should be "Knight"
      * @param user     the user who wants to resolve the card
      * @param gameName the name of the game in which the card is to be resolved
-     * @param field the UUID of the field the robber is to be moved to
+     * @param field    the UUID of the field the robber is to be moved to
      * @author Marc Hermes
      * @since 2021-05-14
      */

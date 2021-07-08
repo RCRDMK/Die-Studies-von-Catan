@@ -1,13 +1,27 @@
 package de.uol.swp.server.lobby;
 
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Optional;
+
 import com.google.common.eventbus.DeadEvent;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.message.LobbyDroppedMessage;
 import de.uol.swp.common.lobby.message.LobbySizeChangedMessage;
 import de.uol.swp.common.lobby.message.UserLeftLobbyMessage;
-import de.uol.swp.common.lobby.request.*;
+import de.uol.swp.common.lobby.request.CreateLobbyRequest;
+import de.uol.swp.common.lobby.request.LobbyJoinUserRequest;
+import de.uol.swp.common.lobby.request.LobbyLeaveUserRequest;
+import de.uol.swp.common.lobby.request.RetrieveAllLobbiesRequest;
+import de.uol.swp.common.lobby.request.RetrieveAllThisLobbyUsersRequest;
 import de.uol.swp.common.lobby.response.AllCreatedLobbiesResponse;
 import de.uol.swp.common.lobby.response.AlreadyJoinedThisLobbyResponse;
 import de.uol.swp.common.lobby.response.LobbyAlreadyExistsResponse;
@@ -29,15 +43,6 @@ import de.uol.swp.server.message.ClientAuthorizedMessage;
 import de.uol.swp.server.usermanagement.AuthenticationService;
 import de.uol.swp.server.usermanagement.UserManagement;
 import de.uol.swp.server.usermanagement.store.MainMemoryBasedUserStore;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-
-import java.sql.SQLException;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -51,14 +56,21 @@ public class LobbyServiceTest {
     MainMemoryBasedUserStore mainMemoryBasedUserStore = new MainMemoryBasedUserStore();
     final UserManagement userManagement = new UserManagement(mainMemoryBasedUserStore);
     LobbyManagement lobbyManagement = new LobbyManagement();
-    final AuthenticationService authenticationService = new AuthenticationService(bus, userManagement);
     LobbyService lobbyService = new LobbyService(lobbyManagement, new AuthenticationService(bus, userManagement), bus);
-
+    final AuthenticationService authenticationService = new AuthenticationService(bus, userManagement);
     // Setup UserDTOs
-    UserDTO userDTO = new UserDTO("test1", "47b7d407c2e2f3aff0e21aa16802006ba1793fd47b2d3cacee7cf7360e751bff7b7d0c7946b42b97a5306c6708ab006d0d81ef41a0c9f94537a2846327c51236", "peter.lustig@uol.de");
-    UserDTO userDTO1 = new UserDTO("test2", "994dac907995937160371992ecbdf9b34242db0abb3943807b5baa6be0c6908f72ea87b7dadd2bce6cf700c8dfb7d57b0566f544af8c30336a15d5f732d85613", "carsten.stahl@uol.de");
-    UserDTO userDTO2 = new UserDTO("test3", "b74a37371ca548bfd937410737b27f383e03021766e90f1180169691b8b15fc50aef49932c7413c0450823777ba46a34fd649b4da20b2e701c394c582ff6df55", "peterlustig@uol.de");
-    UserDTO userDTO3 = new UserDTO("test4", "65dfe56dd0e9117907b11e440d99a667527ddb13244aa38f79d3ae61ee0b2ab4047c1218c4fb05d84f88b914826c45de3ab27a611ea910a4b14733ab1e32b125", "test.lustig@uol.de");
+    UserDTO userDTO = new UserDTO("catanprofi",
+            "47b7d407c2e2f3aff0e21aa16802006ba1793fd47b2d3cacee7cf7360e751bff7b7d0c7946b42b97a5306c6708ab006d0d81ef41a0c9f94537a2846327c51236",
+            "peter.lustig@uol.de");
+    UserDTO userDTO1 = new UserDTO("captain",
+            "994dac907995937160371992ecbdf9b34242db0abb3943807b5baa6be0c6908f72ea87b7dadd2bce6cf700c8dfb7d57b0566f544af8c30336a15d5f732d85613",
+            "carsten.stahl@uol.de");
+    UserDTO userDTO2 = new UserDTO("marius1",
+            "b74a37371ca548bfd937410737b27f383e03021766e90f1180169691b8b15fc50aef49932c7413c0450823777ba46a34fd649b4da20b2e701c394c582ff6df55",
+            "peterlustig@uol.de");
+    UserDTO userDTO3 = new UserDTO("marc1",
+            "65dfe56dd0e9117907b11e440d99a667527ddb13244aa38f79d3ae61ee0b2ab4047c1218c4fb05d84f88b914826c45de3ab27a611ea910a4b14733ab1e32b125",
+            "test.lustig@uol.de");
 
     Object event;
 
@@ -350,7 +362,7 @@ public class LobbyServiceTest {
         UserDTO userDTO = new UserDTO("Peter", "lustig", "peter.lustig@uol.de");
         UserDTO userDTO1 = new UserDTO("Carsten", "stahl", "carsten.stahl@uol.de");
         UserDTO userDTO2 = new UserDTO("Test", "lustig1", "peterlustig@uol.de");
-        UserDTO userDTO3 = new UserDTO("Test2", "lustig2", "test.lustig@uol.de");
+        UserDTO userDTO3 = new UserDTO("captain", "lustig2", "test.lustig@uol.de");
         UserDTO userDTO4 = new UserDTO("Peter1", "lustig3", "peter1lustig@uol.de");
         CreateLobbyRequest clr = new CreateLobbyRequest(lobbyName, userDTO);
         LobbyJoinUserRequest ljur1 = new LobbyJoinUserRequest(lobbyName, userDTO1);
@@ -576,8 +588,9 @@ public class LobbyServiceTest {
         };
         LogoutRequest request = new LogoutRequest();
         assertTrue(event instanceof ClientAuthorizedMessage);
-        if(((ClientAuthorizedMessage) event).getSession().isPresent())
-        ((ClientAuthorizedMessage) event).getSession().ifPresent(request::setSession);
+        if (((ClientAuthorizedMessage) event).getSession().isPresent()) {
+            ((ClientAuthorizedMessage) event).getSession().ifPresent(request::setSession);
+        }
         request.setMessageContext(msg);
 
         lobbyService.onCreateLobbyRequest(new CreateLobbyRequest("Test", userDTO));
