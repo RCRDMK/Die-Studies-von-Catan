@@ -3,13 +3,13 @@ package de.uol.swp.common.game.message;
 import de.uol.swp.common.user.User;
 
 /**
- * Message sent by the server when there was a trade
+ * Message, that will be send to draw a random resource from a player.
  * <p>
  *
- * @author Philip Nitsche
+ * @author Marius Birk
  * @see de.uol.swp.common.game.message.AbstractGameMessage
  * @see de.uol.swp.common.user.User
- * @since 2021-06-21
+ * @since 2021-04-28
  */
 
 public class DrawRandomResourceFromPlayerMessage extends AbstractGameMessage {
@@ -22,8 +22,8 @@ public class DrawRandomResourceFromPlayerMessage extends AbstractGameMessage {
      * <p>
      *
      * @implNote this constructor is needed for serialization
-     * @author Philip Nitsche
-     * @since 2021-06-21
+     * @author Marius Birk
+     * @since 2021-04-28
      */
     public DrawRandomResourceFromPlayerMessage() {
     }
@@ -34,18 +34,33 @@ public class DrawRandomResourceFromPlayerMessage extends AbstractGameMessage {
      *
      * @param userToGetTheCard  User to get the card
      * @param userToLossTheCard User to Loss the card
-     * @author Philip Nitsche
-     * @since 2021-06-21
+     * @author Marius Birk
+     * @since 2021-04-28
      */
     public DrawRandomResourceFromPlayerMessage(User userToGetTheCard, User userToLossTheCard) {
         this.userToGetTheCard = userToGetTheCard;
         this.userToLossTheCard = userToLossTheCard;
     }
 
+    /**
+     * getter for the user that gets a card
+     *
+     * @return the user from that gets a card
+     * @author Marius Birk
+     * @since 2021-04-28
+     */
+
     public User getUserToGetTheCard() {
         return userToGetTheCard;
     }
 
+    /**
+     * getter for the user from who a card will be drawn
+     *
+     * @return the user from who the card will be drawn
+     * @author Marius Birk
+     * @since 2021-04-28
+     */
     public User getUserToLossTheCard() {
         return userToLossTheCard;
     }

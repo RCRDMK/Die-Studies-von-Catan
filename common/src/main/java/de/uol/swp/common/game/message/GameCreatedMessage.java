@@ -59,9 +59,21 @@ public class GameCreatedMessage extends AbstractGameMessage {
         this.gameOwner = gameOwner;
     }
 
+    /**
+     * getter for the mapgraph
+     *
+     * @return the mapgraph
+     * @author Pieter Vogt
+     */
     public MapGraph getMapGraph() {
         return mapGraph;
     }
+
+    /**
+     * getter for the list of users.
+     *
+     * @return Alexander Losse, Ricardo Mook
+     */
 
     public ArrayList<User> getUsers() {
         return users;
@@ -74,8 +86,16 @@ public class GameCreatedMessage extends AbstractGameMessage {
      * @author Marc Hermes
      * @since 2021-05-27
      */
-    public Set<User> getHumans() { return humans; }
+    public Set<User> getHumans() {
+        return humans;
+    }
 
+    /**
+     * returns the variant of the gamefield.
+     *
+     * @return the variant of the gameField
+     * @author Marc Hermes
+     */
     public String getGameFieldVariant() {
         return gameFieldVariant;
     }
@@ -87,5 +107,7 @@ public class GameCreatedMessage extends AbstractGameMessage {
      * @author Iskander Yusupov
      * @since 2021-06-21
      */
-    public User getGameOwner() { return gameOwner; }
+    public User getGameOwner() {
+        return gameOwner;
+    }
 }

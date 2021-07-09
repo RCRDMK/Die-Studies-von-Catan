@@ -47,14 +47,33 @@ public class BankResponseMessage extends AbstractGameMessage {
 
     }
 
+    /**
+     * getter for the tradeCode variable.
+     *
+     * @return the tradecode
+     * @author Anton Nikiforov
+     */
     public String getTradeCode() {
         return tradeCode;
     }
+
+    /**
+     * getter for the cardName variable.
+     *
+     * @return the cardName
+     * @author Anton Nikiforov
+     */
 
     public String getCardName() {
         return cardName;
     }
 
+    /**
+     * getter for the bankOffer list.
+     *
+     * @return the bankOffer
+     * @author Anton Nikiforov
+     */
     public ArrayList<ArrayList<TradeItem>> getBankOffer() {
         return bankOffer;
     }

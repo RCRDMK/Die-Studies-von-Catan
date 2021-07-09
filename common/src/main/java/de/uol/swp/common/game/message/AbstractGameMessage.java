@@ -79,11 +79,12 @@ public class AbstractGameMessage extends AbstractServerMessage {
         this.user = user;
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(name, user);
-    }
-
+    /**
+     * Overwrites equals method.
+     *
+     * @param o
+     * @return if the object is the same as it is called on, then it returns true.
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) { return true; }
@@ -91,5 +92,15 @@ public class AbstractGameMessage extends AbstractServerMessage {
         AbstractGameMessage that = (AbstractGameMessage) o;
         return Objects.equals(name, that.name) &&
                 Objects.equals(user, that.user);
+    }
+
+    /**
+     * Overwrites the hashCode method.
+     *
+     * @return hashcode of the name and the user
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, user);
     }
 }

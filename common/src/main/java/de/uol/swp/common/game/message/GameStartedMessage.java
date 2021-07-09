@@ -32,6 +32,11 @@ public class GameStartedMessage extends AbstractGameMessage {
         this.name = name;
     }
 
+    /**
+     * getter for the lobbyName.
+     *
+     * @return returns the name of the lobby
+     */
     public String getLobbyName() {
         return name;
     }
