@@ -548,11 +548,10 @@ public class MapGraph implements Serializable {
     }
 
     /**
-     * Returns the Array of integers representing the already-build roads of this MapGraph
+     * Returns the Array of integers representing the already-build roads for every player.
      *
-     * @return Array of integers representing build roads
-     * @author Pieter Vogt
-     * @since 2021-04-02
+     * @return Array of integers representing build roads by the players.
+     * @author Kirstin Beyer
      */
     public int[] getNumOfRoads() {
         return numOfRoads;
@@ -562,8 +561,7 @@ public class MapGraph implements Serializable {
      * Returns the Array of integers representing the already-build buildings of this MapGraph
      *
      * @return Array of integers representing build buildings
-     * @author Pieter Vogt
-     * @since 2021-04-02
+     * @author Kirstin Beyer
      */
     public int[] getNumOfBuildings() {
         return numOfBuildings;
