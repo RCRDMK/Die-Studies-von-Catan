@@ -1,9 +1,9 @@
 package de.uol.swp.common.game.message;
 
+import java.util.ArrayList;
+
 import de.uol.swp.common.game.trade.TradeItem;
 import de.uol.swp.common.user.UserDTO;
-
-import java.util.ArrayList;
 
 /**
  * Message sent by the server when bank response
@@ -38,7 +38,8 @@ public class BankResponseMessage extends AbstractGameMessage {
      * @author Anton Nikiforov
      * @since 2021-05-29
      */
-    public BankResponseMessage(UserDTO user, String tradeCode, String cardName, ArrayList<ArrayList<TradeItem>> bankOffer) {
+    public BankResponseMessage(UserDTO user, String tradeCode, String cardName,
+                               ArrayList<ArrayList<TradeItem>> bankOffer) {
         this.user = user;
         this.tradeCode = tradeCode;
         this.cardName = cardName;

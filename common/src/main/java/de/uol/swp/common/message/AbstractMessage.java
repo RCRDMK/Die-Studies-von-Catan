@@ -1,9 +1,9 @@
 package de.uol.swp.common.message;
 
-import de.uol.swp.common.user.Session;
-
 import java.util.Objects;
 import java.util.Optional;
+
+import de.uol.swp.common.user.Session;
 
 /**
  * Base class of all messages. Basic handling of session information
@@ -28,13 +28,13 @@ abstract public class AbstractMessage implements Message {
     }
 
     @Override
-    public void setSession(Session session) {
-        this.session = session;
+    public Optional<Session> getSession() {
+        return session != null ? Optional.of(session) : Optional.empty();
     }
 
     @Override
-    public Optional<Session> getSession() {
-        return session != null ? Optional.of(session) : Optional.empty();
+    public void setSession(Session session) {
+        this.session = session;
     }
 
     @Override
@@ -44,16 +44,16 @@ abstract public class AbstractMessage implements Message {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        AbstractMessage that = (AbstractMessage) o;
-        return Objects.equals(messageContext, that.messageContext) &&
-                Objects.equals(session, that.session);
+    public int hashCode() {
+        return Objects.hash(messageContext, session);
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(messageContext, session);
+    public boolean equals(Object o) {
+        if (this == o) { return true; }
+        if (o == null || getClass() != o.getClass()) { return false; }
+        AbstractMessage that = (AbstractMessage) o;
+        return Objects.equals(messageContext, that.messageContext) &&
+                Objects.equals(session, that.session);
     }
 }

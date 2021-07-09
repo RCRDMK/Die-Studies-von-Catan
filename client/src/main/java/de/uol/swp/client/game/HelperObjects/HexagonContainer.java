@@ -1,7 +1,8 @@
 package de.uol.swp.client.game.HelperObjects;
 
-import de.uol.swp.common.game.MapGraph;
 import javafx.scene.shape.Polygon;
+
+import de.uol.swp.common.game.MapGraph;
 
 /**
  * Links a hexagon Polygon to a Hexagon and vice versa.

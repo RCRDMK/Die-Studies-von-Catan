@@ -9,10 +9,9 @@ import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
 
 
-
 /**
  * Manages the Game Rules window
- *
+ * <p>
  * enhanced by Ricardo Mook, 2021-06-27
  * made the Presenter extend from Application rather as from the AbstractPresenter, to properly execute a hyperlink
  *
@@ -105,7 +104,7 @@ public class GameRulesPresenter extends Application {
      * @since 2021-06-27
      */
     public void onGameRulesLinkClicked() {
-            hostServices.showDocument("https://www.catan.com/service/game-rules");
+        hostServices.showDocument("https://www.catan.com/service/game-rules");
     }
 
 }

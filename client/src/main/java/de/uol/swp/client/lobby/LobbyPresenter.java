@@ -1,12 +1,41 @@
 package de.uol.swp.client.lobby;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
+import javafx.scene.control.RadioButton;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleGroup;
+import javafx.stage.Modality;
+
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import de.uol.swp.client.AbstractPresenter;
 import de.uol.swp.client.chat.ChatService;
 import de.uol.swp.common.chat.RequestChatMessage;
 import de.uol.swp.common.chat.ResponseChatMessage;
-import de.uol.swp.common.game.message.*;
+import de.uol.swp.common.game.message.GameCreatedMessage;
+import de.uol.swp.common.game.message.GameDroppedMessage;
+import de.uol.swp.common.game.message.GameFinishedMessage;
+import de.uol.swp.common.game.message.GameStartedMessage;
+import de.uol.swp.common.game.message.NotEnoughPlayersMessage;
 import de.uol.swp.common.game.response.GameAlreadyExistsResponse;
 import de.uol.swp.common.game.response.NotLobbyOwnerResponse;
 import de.uol.swp.common.lobby.message.StartGameMessage;
@@ -19,19 +48,6 @@ import de.uol.swp.common.user.response.lobby.AllThisLobbyUsersResponse;
 import de.uol.swp.common.user.response.lobby.LobbyCreatedSuccessfulResponse;
 import de.uol.swp.common.user.response.lobby.LobbyJoinedSuccessfulResponse;
 import de.uol.swp.common.user.response.lobby.LobbyLeftSuccessfulResponse;
-import javafx.application.Platform;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.fxml.FXML;
-import javafx.scene.control.*;
-import javafx.stage.Modality;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 /**
  * Manages the lobby menu
@@ -48,30 +64,6 @@ public class LobbyPresenter extends AbstractPresenter {
     public static final String fxml = "/fxml/LobbyView.fxml";
 
     private static final Logger LOG = LogManager.getLogger(LobbyPresenter.class);
-
-    private ObservableList<String> lobbyUsers;
-
-    private User joinedLobbyUser;
-
-    private String currentLobby;
-
-    private Alert alert;
-
-    private String lobbyOwnerName;
-
-    private boolean isLobbyOwner = false;
-
-    private String gameFieldVariant = "Standard";
-
-    private int minimumAmountOfPlayers = 2;
-
-    @FXML
-    private RadioButton standardGameField;
-    @FXML
-    private RadioButton randomGameField;
-    @FXML
-    private RadioButton veryRandomGameField;
-
     @FXML
     public ToggleGroup minimumAmountOfPlayersToggleButtons;
     @FXML
@@ -80,34 +72,38 @@ public class LobbyPresenter extends AbstractPresenter {
     public RadioButton minimum3Players;
     @FXML
     public RadioButton minimum4Players;
-
-    @FXML
-    private Button startGameButton;
-
-    @FXML
-    private Button joinGameButton;
-
     @FXML
     public TextField lobbyChatInput;
-
     @FXML
     public TextArea lobbyChatArea;
-
-    @FXML
-    private ListView<String> lobbyUsersView;
-
     @FXML
     public Label notEnoughPlayersLabel;
-
     @FXML
     public Label notLobbyOwnerLabel;
-
     @FXML
     public Label gameAlreadyExistsLabel;
-
     @FXML
     public Label reasonWhyNotAbleToJoinGame;
-
+    private ObservableList<String> lobbyUsers;
+    private User joinedLobbyUser;
+    private String currentLobby;
+    private Alert alert;
+    private String lobbyOwnerName;
+    private boolean isLobbyOwner = false;
+    private String gameFieldVariant = "Standard";
+    private int minimumAmountOfPlayers = 2;
+    @FXML
+    private RadioButton standardGameField;
+    @FXML
+    private RadioButton randomGameField;
+    @FXML
+    private RadioButton veryRandomGameField;
+    @FXML
+    private Button startGameButton;
+    @FXML
+    private Button joinGameButton;
+    @FXML
+    private ListView<String> lobbyUsersView;
     @Inject
     private LobbyService lobbyService;
 
@@ -193,7 +189,8 @@ public class LobbyPresenter extends AbstractPresenter {
     @FXML
     public void onStartGame() {
         LOG.debug("StartGame Button pressed");
-        lobbyService.startGame(this.currentLobby, (UserDTO) this.joinedLobbyUser, gameFieldVariant, minimumAmountOfPlayers);
+        lobbyService
+                .startGame(this.currentLobby, (UserDTO) this.joinedLobbyUser, gameFieldVariant, minimumAmountOfPlayers);
         gameAlreadyExistsLabel.setVisible(false);
         notLobbyOwnerLabel.setVisible(false);
         notEnoughPlayersLabel.setVisible(false);
@@ -252,7 +249,8 @@ public class LobbyPresenter extends AbstractPresenter {
             // ChatID = gets lobby name
             var chatId = currentLobby;
             if (!chatMessage.isEmpty()) {
-                RequestChatMessage message = new RequestChatMessage(chatMessage, chatId, joinedLobbyUser.getUsername(), System.currentTimeMillis());
+                RequestChatMessage message = new RequestChatMessage(chatMessage, chatId, joinedLobbyUser.getUsername(),
+                        System.currentTimeMillis());
                 chatService.sendMessage(message);
             }
             this.lobbyChatInput.setText("");
@@ -620,7 +618,8 @@ public class LobbyPresenter extends AbstractPresenter {
                 lobbyUsersView.setItems(lobbyUsers);
             }
             lobbyUsers.clear();
-            l.forEach(u -> lobbyUsers.add(u.getUsername() + (u.getUsername().equals(lobbyOwnerName) ? " (Owner)" : "")));
+            l.forEach(
+                    u -> lobbyUsers.add(u.getUsername() + (u.getUsername().equals(lobbyOwnerName) ? " (Owner)" : "")));
         });
     }
 
@@ -665,11 +664,11 @@ public class LobbyPresenter extends AbstractPresenter {
      * Adds the ResponseChatMessage to the textArea
      *
      * @param message the chatMessage to update the chat with
+     * @param message <p>
+     *                <p>
+     *                Enhanced by Sergej Tulnev
      * @author Alexander Losse, Marc Hermes
      * @since 2021-06-15
-     * @param message <p>
-     *
-     * Enhanced by Sergej Tulnev
      * @since 2021-06-17
      * <p>
      * If the user has a long message, it will have a line break
@@ -678,7 +677,8 @@ public class LobbyPresenter extends AbstractPresenter {
         var time = new SimpleDateFormat("HH:mm");
         Date resultDate = new Date((long) message.getTime().doubleValue());
         var readableTime = time.format(resultDate);
-        lobbyChatArea.insertText(lobbyChatArea.getLength(), readableTime + " " + message.getUsername() + ": " + message.getMessage() + "\n");
+        lobbyChatArea.insertText(lobbyChatArea.getLength(),
+                readableTime + " " + message.getUsername() + ": " + message.getMessage() + "\n");
         lobbyChatArea.setWrapText(true);
     }
 

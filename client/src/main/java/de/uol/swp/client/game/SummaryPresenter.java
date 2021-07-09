@@ -1,7 +1,18 @@
 package de.uol.swp.client.game;
 
+import javafx.application.Platform;
+import javafx.fxml.FXML;
+import javafx.scene.control.Label;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.paint.Color;
+
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
+
 import de.uol.swp.client.AbstractPresenter;
 import de.uol.swp.client.game.HelperObjects.DetailedTableStats;
 import de.uol.swp.client.game.HelperObjects.GeneralTableStats;
@@ -13,15 +24,6 @@ import de.uol.swp.common.game.message.GameFinishedMessage;
 import de.uol.swp.common.lobby.response.JoinOnGoingGameResponse;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
-import javafx.application.Platform;
-import javafx.fxml.FXML;
-import javafx.scene.control.Label;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.paint.Color;
 
 /**
  * Manages the SummaryView
@@ -35,12 +37,6 @@ import javafx.scene.paint.Color;
 @SuppressWarnings("UnstableApiUsage")
 public class SummaryPresenter extends AbstractPresenter {
     public static final String fxml = "/fxml/SummaryView.fxml";
-
-    @Inject
-    private GameService gameService;
-    @Inject
-    private LobbyService lobbyService;
-
     @FXML
     public TableView<GeneralTableStats> generalTableStats;
     @FXML
@@ -53,6 +49,10 @@ public class SummaryPresenter extends AbstractPresenter {
     public ImageView winnerImage;
     @FXML
     public ImageView profileImage;
+    @Inject
+    private GameService gameService;
+    @Inject
+    private LobbyService lobbyService;
     private String gameName;
 
     private User currentUser;
@@ -101,7 +101,7 @@ public class SummaryPresenter extends AbstractPresenter {
      */
     @Subscribe
     public void onGameJoined(JoinOnGoingGameResponse joggr) {
-        if(this.gameName == null && joggr.isJoinedSuccessful()) {
+        if (this.gameName == null && joggr.isJoinedSuccessful()) {
             this.currentUser = joggr.getUser();
             this.gameName = joggr.getGameName();
         }
@@ -254,7 +254,8 @@ public class SummaryPresenter extends AbstractPresenter {
             } else {
                 thisUser = inventory.getUser().getUsername();
             }
-            var item = new DetailedTableStats(thisUser, inventory.getContinuousRoad(), inventory.getPlayedKnights(), inventory.getVictoryPoints());
+            var item = new DetailedTableStats(thisUser, inventory.getContinuousRoad(), inventory.getPlayedKnights(),
+                    inventory.getVictoryPoints());
             detailedTableStats.getItems().add(item);
         });
     }
@@ -302,7 +303,8 @@ public class SummaryPresenter extends AbstractPresenter {
             } else {
                 thisUser = inventory.getUser().getUsername();
             }
-            var item = new InventoryTableStats(thisUser, inventory.lumber.getNumber(), inventory.brick.getNumber(), inventory.grain.getNumber(), inventory.wool.getNumber(), inventory.ore.getNumber());
+            var item = new InventoryTableStats(thisUser, inventory.lumber.getNumber(), inventory.brick.getNumber(),
+                    inventory.grain.getNumber(), inventory.wool.getNumber(), inventory.ore.getNumber());
             resourceTableStats.getItems().add(item);
         });
     }

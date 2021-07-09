@@ -4,13 +4,15 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import de.uol.swp.common.chat.RequestChatMessage;
 import de.uol.swp.common.chat.ResponseChatMessage;
 import de.uol.swp.server.AbstractService;
 import de.uol.swp.server.cheat.CheatService;
 import de.uol.swp.server.usermanagement.UserService;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 
 /**
@@ -64,8 +66,10 @@ public class ChatService extends AbstractService {
         //  Proceed when message isn't a cheat
         if (!cheatService.isCheat(message)) {
             // Store Message in chatList
-            LOG.debug("Got new chat message from user: " + message.getUsername() + " with content: '" + message.getMessage() + "' and added it to the messageList");
-            ResponseChatMessage msg = new ResponseChatMessage(message.getMessage(), message.getChat(), message.getUsername(), message.getTime());
+            LOG.debug("Got new chat message from user: " + message.getUsername() + " with content: '" + message
+                    .getMessage() + "' and added it to the messageList");
+            ResponseChatMessage msg = new ResponseChatMessage(message.getMessage(), message.getChat(),
+                    message.getUsername(), message.getTime());
             post(msg);
             LOG.debug("Posted ResponseChatMessage on eventBus");
         } else {

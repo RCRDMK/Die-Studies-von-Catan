@@ -1,15 +1,39 @@
 package de.uol.swp.server.AI;
 
-import de.uol.swp.common.game.Game;
-import de.uol.swp.common.game.request.DrawRandomResourceFromPlayerRequest;
-import de.uol.swp.common.game.request.RobbersNewFieldRequest;
-import de.uol.swp.common.game.request.*;
-import de.uol.swp.common.user.UserDTO;
-import de.uol.swp.server.AI.AIActions.*;
-import de.uol.swp.server.game.GameService;
-
 import java.util.ArrayList;
 import java.util.Optional;
+
+import de.uol.swp.common.game.Game;
+import de.uol.swp.common.game.request.BuyDevelopmentCardRequest;
+import de.uol.swp.common.game.request.ConstructionRequest;
+import de.uol.swp.common.game.request.DrawRandomResourceFromPlayerRequest;
+import de.uol.swp.common.game.request.EndTurnRequest;
+import de.uol.swp.common.game.request.PlayDevelopmentCardRequest;
+import de.uol.swp.common.game.request.ResolveDevelopmentCardKnightRequest;
+import de.uol.swp.common.game.request.ResolveDevelopmentCardMonopolyRequest;
+import de.uol.swp.common.game.request.ResolveDevelopmentCardRoadBuildingRequest;
+import de.uol.swp.common.game.request.ResolveDevelopmentCardYearOfPlentyRequest;
+import de.uol.swp.common.game.request.ResourcesToDiscardRequest;
+import de.uol.swp.common.game.request.RobbersNewFieldRequest;
+import de.uol.swp.common.game.request.TradeChoiceRequest;
+import de.uol.swp.common.game.request.TradeItemRequest;
+import de.uol.swp.common.user.UserDTO;
+import de.uol.swp.server.AI.AIActions.AIAction;
+import de.uol.swp.server.AI.AIActions.BuildAction;
+import de.uol.swp.server.AI.AIActions.BuyDevelopmentCardAction;
+import de.uol.swp.server.AI.AIActions.DiscardResourcesAction;
+import de.uol.swp.server.AI.AIActions.DrawRandomResourceFromPlayerAction;
+import de.uol.swp.server.AI.AIActions.EndTurnAction;
+import de.uol.swp.server.AI.AIActions.MoveBanditAction;
+import de.uol.swp.server.AI.AIActions.PlayDevelopmentCardAction;
+import de.uol.swp.server.AI.AIActions.PlayDevelopmentCardKnightAction;
+import de.uol.swp.server.AI.AIActions.PlayDevelopmentCardMonopolyAction;
+import de.uol.swp.server.AI.AIActions.PlayDevelopmentCardRoadBuildingAction;
+import de.uol.swp.server.AI.AIActions.PlayDevelopmentCardYearOfPlentyAction;
+import de.uol.swp.server.AI.AIActions.TradeBidAction;
+import de.uol.swp.server.AI.AIActions.TradeOfferAcceptAction;
+import de.uol.swp.server.AI.AIActions.TradeStartAction;
+import de.uol.swp.server.game.GameService;
 
 /**
  * Class used for translating between the AI and the Server
@@ -41,14 +65,11 @@ public class AIToServerTranslator {
             // before every action put the thread of the AI to sleep, which forces a delay in it's actions,
             // thus increasing the readability of the game
             Optional<Game> game = gameService.getGameManagement().getGame(gameName);
-            if(game.isPresent()) {
+            if (game.isPresent()) {
                 if (game.get().getUsers().size() > 0 && !game.get().isUsedForTest()) {
-                    try
-                    {
+                    try {
                         Thread.sleep(1000);
-                    }
-                    catch(InterruptedException ex)
-                    {
+                    } catch (InterruptedException ex) {
                         Thread.currentThread().interrupt();
                     }
                 }
@@ -84,12 +105,14 @@ public class AIToServerTranslator {
 
             } else if (aiAction instanceof DiscardResourcesAction) {
                 DiscardResourcesAction dra = (DiscardResourcesAction) aiAction;
-                ResourcesToDiscardRequest rdr = new ResourcesToDiscardRequest(gameName, user, dra.getResourcesToDiscard());
+                ResourcesToDiscardRequest rdr = new ResourcesToDiscardRequest(gameName, user,
+                        dra.getResourcesToDiscard());
                 gameService.onResourcesToDiscard(rdr);
 
             } else if (aiAction instanceof DrawRandomResourceFromPlayerAction) {
                 DrawRandomResourceFromPlayerAction drrfpa = (DrawRandomResourceFromPlayerAction) aiAction;
-                DrawRandomResourceFromPlayerRequest drrfpm = new DrawRandomResourceFromPlayerRequest(gameName, user, drrfpa.getPlayerName(), drrfpa.getResource());
+                DrawRandomResourceFromPlayerRequest drrfpm = new DrawRandomResourceFromPlayerRequest(gameName, user,
+                        drrfpa.getPlayerName(), drrfpa.getResource());
                 gameService.onDrawRandomResourceFromPlayerRequest(drrfpm);
 
             } else if (aiAction instanceof PlayDevelopmentCardAction) {
@@ -99,39 +122,46 @@ public class AIToServerTranslator {
 
                 if (aiAction instanceof PlayDevelopmentCardKnightAction) {
                     PlayDevelopmentCardKnightAction pka = (PlayDevelopmentCardKnightAction) aiAction;
-                    ResolveDevelopmentCardKnightRequest rkr = new ResolveDevelopmentCardKnightRequest(pka.getDevCard(), user, gameName, pka.getField());
+                    ResolveDevelopmentCardKnightRequest rkr = new ResolveDevelopmentCardKnightRequest(pka.getDevCard(),
+                            user, gameName, pka.getField());
                     gameService.onResolveDevelopmentCardRequest(rkr);
 
                 } else if (aiAction instanceof PlayDevelopmentCardMonopolyAction) {
                     PlayDevelopmentCardMonopolyAction pma = (PlayDevelopmentCardMonopolyAction) aiAction;
-                    ResolveDevelopmentCardMonopolyRequest rmr = new ResolveDevelopmentCardMonopolyRequest(pma.getDevCard(), user, gameName, pma.getResource());
+                    ResolveDevelopmentCardMonopolyRequest rmr = new ResolveDevelopmentCardMonopolyRequest(
+                            pma.getDevCard(), user, gameName, pma.getResource());
                     gameService.onResolveDevelopmentCardRequest(rmr);
 
                 } else if (aiAction instanceof PlayDevelopmentCardRoadBuildingAction) {
                     PlayDevelopmentCardRoadBuildingAction pba = (PlayDevelopmentCardRoadBuildingAction) aiAction;
-                    ResolveDevelopmentCardRoadBuildingRequest rbr = new ResolveDevelopmentCardRoadBuildingRequest(pba.getDevCard(), user, gameName, pba.getStreet1(), pba.getStreet2());
+                    ResolveDevelopmentCardRoadBuildingRequest rbr = new ResolveDevelopmentCardRoadBuildingRequest(
+                            pba.getDevCard(), user, gameName, pba.getStreet1(), pba.getStreet2());
                     gameService.onResolveDevelopmentCardRequest(rbr);
 
                 } else if (aiAction instanceof PlayDevelopmentCardYearOfPlentyAction) {
                     PlayDevelopmentCardYearOfPlentyAction pya = (PlayDevelopmentCardYearOfPlentyAction) aiAction;
-                    ResolveDevelopmentCardYearOfPlentyRequest ryr = new ResolveDevelopmentCardYearOfPlentyRequest(pya.getDevCard(), user, gameName, pya.getResource1(), pya.getResource2());
+                    ResolveDevelopmentCardYearOfPlentyRequest ryr = new ResolveDevelopmentCardYearOfPlentyRequest(
+                            pya.getDevCard(), user, gameName, pya.getResource1(), pya.getResource2());
                     gameService.onResolveDevelopmentCardRequest(ryr);
 
                 }
 
             } else if (aiAction instanceof TradeStartAction) {
                 TradeStartAction tsa = (TradeStartAction) aiAction;
-                TradeItemRequest tir = new TradeItemRequest(user, gameName, tsa.getOfferList(), tsa.getTradeCode(), tsa.getWishList());
+                TradeItemRequest tir = new TradeItemRequest(user, gameName, tsa.getOfferList(), tsa.getTradeCode(),
+                        tsa.getWishList());
                 gameService.onTradeItemRequest(tir);
 
             } else if (aiAction instanceof TradeBidAction) {
                 TradeBidAction tba = (TradeBidAction) aiAction;
-                TradeItemRequest tir = new TradeItemRequest(user, gameName, tba.getBidList(), tba.getTradeCode(), tba.getBidList());
+                TradeItemRequest tir = new TradeItemRequest(user, gameName, tba.getBidList(), tba.getTradeCode(),
+                        tba.getBidList());
                 gameService.onTradeItemRequest(tir);
 
             } else if (aiAction instanceof TradeOfferAcceptAction) {
                 TradeOfferAcceptAction toaa = (TradeOfferAcceptAction) aiAction;
-                TradeChoiceRequest tcr = new TradeChoiceRequest((UserDTO) toaa.getAcceptedBidder(), toaa.getTradeAccepted(), gameName, toaa.getTradeCode());
+                TradeChoiceRequest tcr = new TradeChoiceRequest((UserDTO) toaa.getAcceptedBidder(),
+                        toaa.getTradeAccepted(), gameName, toaa.getTradeCode());
                 gameService.onTradeChoiceRequest(tcr);
             }
         }

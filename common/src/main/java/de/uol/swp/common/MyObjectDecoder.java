@@ -4,6 +4,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.serialization.ClassResolver;
 import io.netty.handler.codec.serialization.ObjectDecoder;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -23,8 +24,8 @@ public class MyObjectDecoder extends ObjectDecoder {
     /**
      * Constructor
      *
-     * @author Marco Grawunder
      * @param classResolver the ClassResolver the decoder should use
+     * @author Marco Grawunder
      * @author Marco Grawunder
      * @since 2019-08-13
      */

@@ -1,11 +1,14 @@
 package de.uol.swp.server.usermanagement;
 
+import javax.inject.Inject;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Optional;
+import java.util.SortedMap;
+import java.util.TreeMap;
+
 import de.uol.swp.common.user.User;
 import de.uol.swp.server.usermanagement.store.UserStore;
-
-import javax.inject.Inject;
-import java.sql.*;
-import java.util.*;
 
 
 /**
@@ -48,10 +51,10 @@ public class UserManagement extends AbstractUserManagement {
     @Override
     public User login(String username, String password) throws Exception {
         Optional<User> user = storeInUse.findUser(username, password);
-        if (user.isPresent()){
+        if (user.isPresent()) {
             loggedInUsers.put(username, user.get());
             return user.get();
-        }else{
+        } else {
             throw new SecurityException("Cannot auth user " + username);
         }
     }
@@ -62,9 +65,14 @@ public class UserManagement extends AbstractUserManagement {
     }
 
     @Override
+    public void logout(User user) {
+        loggedInUsers.remove(user.getUsername());
+    }
+
+    @Override
     public User createUser(User userToCreate) throws Exception {
         Optional<User> user = storeInUse.findUser(userToCreate.getUsername());
-        if (user.isPresent()){
+        if (user.isPresent()) {
             throw new UserManagementException("Username already used!");
         }
         return storeInUse.createUser(userToCreate.getUsername(), userToCreate.getPassword(), userToCreate.getEMail());
@@ -136,9 +144,9 @@ public class UserManagement extends AbstractUserManagement {
      * This method updates the pictureID from the user in the database. It shows an exception, if the user is not
      * present in the database.
      *
-     * @author Carsten Dekker
      * @param toUpdatePicture the new user object that contains the new profilePictureID
      * @return A new UserDTO with the username and the profile pictureID
+     * @author Carsten Dekker
      * @see java.sql.SQLException
      * @since 2021-04-15
      */
@@ -149,11 +157,6 @@ public class UserManagement extends AbstractUserManagement {
             throw new UserManagementException("Username unknown!");
         }
         return storeInUse.updateUserPicture(toUpdatePicture.getUsername(), toUpdatePicture.getProfilePictureID());
-    }
-
-    @Override
-    public void logout(User user) {
-        loggedInUsers.remove(user.getUsername());
     }
 
     /**
@@ -170,7 +173,7 @@ public class UserManagement extends AbstractUserManagement {
     @Override
     public User retrieveUserInformation(User toGetInformation) throws Exception {
         Optional<User> user = storeInUse.findUser(toGetInformation.getUsername());
-        if(user.isPresent()) {
+        if (user.isPresent()) {
             return user.get();
         } else {
             throw new UserManagementException("Username unknown!");

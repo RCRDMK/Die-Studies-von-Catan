@@ -1,10 +1,10 @@
 package de.uol.swp.common.game.response;
 
-import de.uol.swp.common.message.AbstractResponseMessage;
-import de.uol.swp.common.user.User;
-
 import java.util.ArrayList;
 import java.util.Set;
+
+import de.uol.swp.common.message.AbstractResponseMessage;
+import de.uol.swp.common.user.User;
 
 /**
  * Response message for the RetrieveAllThisGameUsersRequest
@@ -24,8 +24,8 @@ public class AllThisGameUsersResponse extends AbstractResponseMessage {
     private static final long serialVersionUID = -7113321823425212173L;
     private final ArrayList<User> users;
     private final Set<User> humanUsers;
-    private String game;
     private final User gameOwner;
+    private String game;
 
     /**
      * Default Constructor
@@ -53,7 +53,7 @@ public class AllThisGameUsersResponse extends AbstractResponseMessage {
      * @param humanUsers the set of users containing all human users of this game
      * @param users      List of all users currently in the game
      * @param gameName   the name of the game for this request
-     * @param gameOwner User game owner of the current game
+     * @param gameOwner  User game owner of the current game
      * @author Iskander Yusupov
      * @since 2021-01-15
      */

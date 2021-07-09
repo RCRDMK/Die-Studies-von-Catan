@@ -1,12 +1,12 @@
 package de.uol.swp.common.lobby.response;
 
+import java.util.ArrayList;
+import java.util.Set;
+
 import de.uol.swp.common.game.MapGraph;
 import de.uol.swp.common.message.AbstractResponseMessage;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
-
-import java.util.ArrayList;
-import java.util.Set;
 
 /**
  * Response used for communicating to the client whether or not he was able to join the ongoing game and if he was able to, some information about the game
@@ -47,19 +47,21 @@ public class JoinOnGoingGameResponse extends AbstractResponseMessage {
     /**
      * Constructor
      *
-     * @param gameName         the name of the game the user wanted to join
-     * @param user             the user who wanted to join the game
-     * @param joinedSuccessful true if he successfully joined, false if not
-     * @param mapGraph         the mapGraph of the game
-     * @param users            all the users currently in the game
-     * @param humans           the human users currently in the game
-     * @param gameFieldVariant the gameFieldVariant of the mapGraph
+     * @param gameName            the name of the game the user wanted to join
+     * @param user                the user who wanted to join the game
+     * @param joinedSuccessful    true if he successfully joined, false if not
+     * @param mapGraph            the mapGraph of the game
+     * @param users               all the users currently in the game
+     * @param humans              the human users currently in the game
+     * @param gameFieldVariant    the gameFieldVariant of the mapGraph
      * @param reasonForFailedJoin the reason why the user wasn't able to join, empty if he was able to
-     * @param gameOwner the owner of the game
+     * @param gameOwner           the owner of the game
      * @author Marc Hermes
      * @since 2021-05-27
      */
-    public JoinOnGoingGameResponse(String gameName, UserDTO user, boolean joinedSuccessful, MapGraph mapGraph, ArrayList<User> users, Set<User> humans, String gameFieldVariant, String reasonForFailedJoin, User gameOwner) {
+    public JoinOnGoingGameResponse(String gameName, UserDTO user, boolean joinedSuccessful, MapGraph mapGraph,
+                                   ArrayList<User> users, Set<User> humans, String gameFieldVariant,
+                                   String reasonForFailedJoin, User gameOwner) {
         this.gameName = gameName;
         this.user = user;
         this.joinedSuccessful = joinedSuccessful;

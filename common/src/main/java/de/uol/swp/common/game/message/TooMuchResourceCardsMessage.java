@@ -1,8 +1,8 @@
 package de.uol.swp.common.game.message;
 
-import de.uol.swp.common.user.UserDTO;
-
 import java.util.HashMap;
+
+import de.uol.swp.common.user.UserDTO;
 
 /**
  * Message sent to a user when the robber was moved and he has too many resources, thus having to discard some amount
@@ -28,9 +28,9 @@ public class TooMuchResourceCardsMessage extends AbstractGameMessage {
     /**
      * Constructor
      *
-     * @param name the name of the game
-     * @param user the name of the user who has too many resources
-     * @param cards the amount of cards that are too much
+     * @param name      the name of the game
+     * @param user      the name of the user who has too many resources
+     * @param cards     the amount of cards that are too much
      * @param inventory the inventory of the user
      * @author Marius Birk
      * @since 2021-05-30

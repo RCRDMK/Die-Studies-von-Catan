@@ -21,7 +21,7 @@ public class TradeItem implements Serializable {
      * Constructor
      *
      * @param count how many items
-     * @param name the name of the item
+     * @param name  the name of the item
      * @author Alexander Losse, Ricardo Mook
      * @since 2021-04-07
      */
@@ -77,9 +77,9 @@ public class TradeItem implements Serializable {
     /**
      * getter
      *
+     * @return boolean enoughInWallet
      * @author Anton Nikiforov
      * @since 2021-05-28
-     * @return boolean enoughInWallet
      */
     public boolean isNotEnough() {
         return notEnough;
@@ -87,8 +87,8 @@ public class TradeItem implements Serializable {
 
     /**
      * setter
-     *
-     + @param boolean enoughInWallet from user
+     * <p>
+     * + @param boolean enoughInWallet from user
      *
      * @author Anton Nikiforov
      * @since 2021-05-28
