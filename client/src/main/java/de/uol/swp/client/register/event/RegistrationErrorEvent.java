@@ -16,8 +16,8 @@ public class RegistrationErrorEvent {
     /**
      * Constructor
      *
-     * @author Marco Grawunder
      * @param message Message containing the cause of the Error
+     * @author Marco Grawunder
      * @since 2019-09-03
      */
     public RegistrationErrorEvent(String message) {
@@ -27,8 +27,8 @@ public class RegistrationErrorEvent {
     /**
      * Gets the error message
      *
-     * @author Marco Grawunder
      * @return A String containing the error message
+     * @author Marco Grawunder
      * @since 2019-09-03
      */
     public String getMessage() {

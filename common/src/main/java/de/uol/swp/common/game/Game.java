@@ -1,12 +1,12 @@
 package de.uol.swp.common.game;
 
-import de.uol.swp.common.game.trade.Trade;
-import de.uol.swp.common.user.User;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Set;
+
+import de.uol.swp.common.game.trade.Trade;
+import de.uol.swp.common.user.User;
 
 /**
  * Interface to unify game objects
@@ -327,15 +327,6 @@ public interface Game extends Serializable {
     void setPlayedCardThisTurn(boolean value);
 
     /**
-     * Setter for the current Dice value of the game
-     *
-     * @param eyes the number that was last rolled
-     * @author Marc Hermes
-     * @since 2021-05-12
-     */
-    void setLastRolledDiceValue(int eyes);
-
-    /**
      * Getter for the current Dice value of the game
      *
      * @return the integer value representation of the dice
@@ -343,6 +334,15 @@ public interface Game extends Serializable {
      * @since 2021-05-12
      */
     int getLastRolledDiceValue();
+
+    /**
+     * Setter for the current Dice value of the game
+     *
+     * @param eyes the number that was last rolled
+     * @author Marc Hermes
+     * @since 2021-05-12
+     */
+    void setLastRolledDiceValue(int eyes);
 
     /**
      * Getter for the boolean value if this game is used for the JUNIT tests (and thus uses a different AI potentially)

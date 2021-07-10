@@ -1,11 +1,10 @@
 package de.uol.swp.common;
 
-import org.junit.jupiter.api.Test;
-
 import java.io.Serializable;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class SerializationTestHelperTest {
 

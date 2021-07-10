@@ -1,9 +1,9 @@
 package de.uol.swp.common.lobby.message;
 
-import de.uol.swp.common.user.UserDTO;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import de.uol.swp.common.user.UserDTO;
 
 /**
  * Message sent by the server when there are enough players in the lobby and game can be started.
@@ -42,6 +42,13 @@ public class StartGameMessage extends AbstractLobbyMessage {
         super(lobbyName, user);
     }
 
+    /**
+     * Getter for the User, who are in the Game
+     *
+     * @return User, who are in the Game
+     * @author Kirstin Beyer, Iskander Yusupov
+     * @since 2021-01-24
+     */
     public List<UserDTO> getUsers() {
         return users;
     }

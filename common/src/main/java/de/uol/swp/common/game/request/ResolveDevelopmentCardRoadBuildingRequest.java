@@ -1,8 +1,8 @@
 package de.uol.swp.common.game.request;
 
-import de.uol.swp.common.user.UserDTO;
-
 import java.util.UUID;
+
+import de.uol.swp.common.user.UserDTO;
 
 /**
  * Request used for resolving of the DevelopmentCard Road Building
@@ -37,7 +37,8 @@ public class ResolveDevelopmentCardRoadBuildingRequest extends ResolveDevelopmen
      * @author Marc Hermes
      * @since 2021-05-03
      */
-    public ResolveDevelopmentCardRoadBuildingRequest(String devCard, UserDTO user, String gameName, UUID street1, UUID street2) {
+    public ResolveDevelopmentCardRoadBuildingRequest(String devCard, UserDTO user, String gameName, UUID street1,
+                                                     UUID street2) {
         super(devCard, user, gameName);
         this.street1 = street1;
         this.street2 = street2;

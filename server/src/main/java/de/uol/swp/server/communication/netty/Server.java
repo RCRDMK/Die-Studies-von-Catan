@@ -1,8 +1,7 @@
 package de.uol.swp.server.communication.netty;
 
-import de.uol.swp.common.MyObjectDecoder;
-import de.uol.swp.common.MyObjectEncoder;
-import de.uol.swp.server.usermanagement.UserManagement;
+import java.net.InetSocketAddress;
+
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandler;
@@ -12,10 +11,13 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.serialization.ClassResolvers;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.net.InetSocketAddress;
+import de.uol.swp.common.MyObjectDecoder;
+import de.uol.swp.common.MyObjectEncoder;
+import de.uol.swp.server.usermanagement.UserManagement;
 
 /**
  * This class handles opening a port clients can connect to.
@@ -26,9 +28,8 @@ import java.net.InetSocketAddress;
 public class Server {
 
     private static final Logger LOG = LogManager.getLogger(Server.class);
-
-    private UserManagement userManagement;
     private final ChannelHandler serverHandler;
+    private UserManagement userManagement;
 
     /**
      * Constructor
@@ -47,9 +48,9 @@ public class Server {
     /**
      * Start a new server on given port
      *
-     * @author Marco Grawunder
      * @param port port number the server shall be reachable on
      * @throws Exception server failed to start e.g. because the port is already in use
+     * @author Marco Grawunder
      * @author Marco Grawunder
      * @see InetSocketAddress
      * @since 2019-11-20

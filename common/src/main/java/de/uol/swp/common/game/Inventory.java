@@ -1,9 +1,9 @@
 package de.uol.swp.common.game;
 
-import de.uol.swp.common.user.User;
-
 import java.io.Serializable;
 import java.util.HashMap;
+
+import de.uol.swp.common.user.User;
 
 /**
  * Creates and manages the Inventory
@@ -43,18 +43,15 @@ public class Inventory implements Serializable {
     public CardStack grain = new CardStack();
     public CardStack wool = new CardStack();
     public CardStack ore = new CardStack();
-
     // Development Cards
     public CardStack cardKnight = new CardStack();
     public CardStack cardMonopoly = new CardStack();
     public CardStack cardRoadBuilding = new CardStack();
     public CardStack cardYearOfPlenty = new CardStack();
-
     // Building Units
     public UnitStack city = new UnitStack(4);
     public UnitStack road = new UnitStack(15);
     public UnitStack settlement = new UnitStack(5);
-
     // Achievements
     private int victoryPoints = 0;
     private int playedKnights = 0;
@@ -297,8 +294,9 @@ public class Inventory implements Serializable {
 
         HashMap<String, Integer> publicInventory = new HashMap<>();
 
-        if (victoryPoints < cardVictoryPoint) publicInventory.put("Public Victory Points", 0);
-        else publicInventory.put("Public Victory Points", victoryPoints - cardVictoryPoint);
+        if (victoryPoints < cardVictoryPoint) { publicInventory.put("Public Victory Points", 0); } else {
+            publicInventory.put("Public Victory Points", victoryPoints - cardVictoryPoint);
+        }
 
         publicInventory.put("Resource", sumResource());
         publicInventory.put("Development Cards", sumDevelopmentCards());
@@ -306,11 +304,9 @@ public class Inventory implements Serializable {
         publicInventory.put("Played Knights", playedKnights);
         publicInventory.put("Continuous Road", continuousRoad);
 
-        if (largestArmy) publicInventory.put("Largest Army", 1);
-        else publicInventory.put("Largest Army", 0);
+        if (largestArmy) { publicInventory.put("Largest Army", 1); } else { publicInventory.put("Largest Army", 0); }
 
-        if (longestRoad) publicInventory.put("Longest Road", 1);
-        else publicInventory.put("Longest Road", 0);
+        if (longestRoad) { publicInventory.put("Longest Road", 1); } else { publicInventory.put("Longest Road", 0); }
 
         return publicInventory;
     }

@@ -1,8 +1,8 @@
 package de.uol.swp.common.user.message;
 
-import de.uol.swp.common.message.AbstractServerMessage;
-
 import java.util.Objects;
+
+import de.uol.swp.common.message.AbstractServerMessage;
 
 /**
  * A message to indicate a newly logged in user
@@ -55,15 +55,15 @@ public class UserLoggedInMessage extends AbstractServerMessage {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        UserLoggedInMessage that = (UserLoggedInMessage) o;
-        return Objects.equals(username, that.username);
+    public int hashCode() {
+        return Objects.hash(username);
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(username);
+    public boolean equals(Object o) {
+        if (this == o) { return true; }
+        if (o == null || getClass() != o.getClass()) { return false; }
+        UserLoggedInMessage that = (UserLoggedInMessage) o;
+        return Objects.equals(username, that.username);
     }
 }

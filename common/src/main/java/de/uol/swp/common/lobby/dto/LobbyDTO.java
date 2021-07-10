@@ -1,12 +1,12 @@
 package de.uol.swp.common.lobby.dto;
 
-import de.uol.swp.common.lobby.Lobby;
-import de.uol.swp.common.user.User;
-
 import java.util.Collections;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TreeSet;
+
+import de.uol.swp.common.lobby.Lobby;
+import de.uol.swp.common.user.User;
 
 /**
  * Object to transfer the information of a game lobby

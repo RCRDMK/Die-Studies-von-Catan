@@ -1,11 +1,11 @@
 package de.uol.swp.common.user.response.lobby;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import de.uol.swp.common.message.AbstractResponseMessage;
 import de.uol.swp.common.user.Session;
 import de.uol.swp.common.user.UserDTO;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Response message for the RetrieveAllThisLobbyUsersRequest

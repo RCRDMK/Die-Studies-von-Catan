@@ -1,10 +1,10 @@
 package de.uol.swp.common.game.message;
 
-import de.uol.swp.common.game.trade.TradeItem;
-import de.uol.swp.common.user.UserDTO;
-
 import java.util.ArrayList;
 import java.util.HashMap;
+
+import de.uol.swp.common.game.trade.TradeItem;
+import de.uol.swp.common.user.UserDTO;
 
 /**
  * Message that informs the seller about the bids
@@ -40,7 +40,8 @@ public class TradeInformSellerAboutBidsMessage extends AbstractGameMessage {
      * @author Alexander Losse, Ricardo Mook
      * @since 2021-04-11
      */
-    public TradeInformSellerAboutBidsMessage(UserDTO seller, String gameName, String tradeCode, ArrayList<UserDTO> bidders, HashMap<UserDTO, ArrayList<TradeItem>> bids) {
+    public TradeInformSellerAboutBidsMessage(UserDTO seller, String gameName, String tradeCode,
+                                             ArrayList<UserDTO> bidders, HashMap<UserDTO, ArrayList<TradeItem>> bids) {
         this.name = gameName;
         this.user = new UserDTO(seller.getUsername(), "", "");
         this.bidders = bidders;

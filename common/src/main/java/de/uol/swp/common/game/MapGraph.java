@@ -1,9 +1,13 @@
 package de.uol.swp.common.game;
 
-import de.uol.swp.common.game.exception.ListFullException;
-
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+
+import de.uol.swp.common.game.exception.ListFullException;
 
 /**
  * Manages the logic behind the play field.
@@ -20,8 +24,8 @@ public class MapGraph implements Serializable {
     private final HashSet<StreetNode> streetNodeHashSet = new HashSet<>();
     private final HashSet<BuildingNode> buildingNodeHashSet = new HashSet<>();
     private final HashSet<Hexagon> hexagonHashSet = new HashSet<>();
-    private final int[] numOfRoads = new int[]{0, 0, 0, 0};
-    private final int[] numOfBuildings = new int[]{0, 0, 0, 0};
+    private final int[] numOfRoads = new int[] {0, 0, 0, 0};
+    private final int[] numOfBuildings = new int[] {0, 0, 0, 0};
     private final ArrayList<BuildingNode> builtBuildings = new ArrayList<>();
     // middle hexagon for reference
     private final Hexagon middle = new Hexagon("middle");
@@ -254,12 +258,10 @@ public class MapGraph implements Serializable {
 
         }
         for (Hexagon hexagon : placedHexagons) {
-            if (!hexagon.equals(middle))
-                hexagon.generateNodes();
+            if (!hexagon.equals(middle)) { hexagon.generateNodes(); }
         }
         for (Hexagon hexagon : placedHexagons) {
-            if (!hexagon.equals(middle))
-                hexagon.interconnectOwnNodes();
+            if (!hexagon.equals(middle)) { hexagon.interconnectOwnNodes(); }
         }
 
     }
@@ -604,8 +606,8 @@ public class MapGraph implements Serializable {
 
         public final UUID uuid;
         public final String positionToParent;
-        public int occupiedByPlayer = 666;
         public final Hexagon parent;
+        public int occupiedByPlayer = 666;
 
         //Constructors
 
@@ -736,7 +738,7 @@ public class MapGraph implements Serializable {
             if (!connectedBuildingNodes.contains(buildingNode)) {
                 if (connectedBuildingNodes.size() < 2) {
                     connectedBuildingNodes.add(buildingNode);
-                } else throw new ListFullException("This StreetNode already has 2 BuildingNodes connected to it.");
+                } else { throw new ListFullException("This StreetNode already has 2 BuildingNodes connected to it."); }
             }
         }
 
@@ -765,12 +767,14 @@ public class MapGraph implements Serializable {
             for (MapGraph.BuildingNode connectedBuildingNode : this.getConnectedBuildingNodes()) {
                 if (connectedBuildingNode.getOccupiedByPlayer() == playerIndex) {
                     existingConnection = true;
-                    correctBuildingPhaseTwo = builtBuildings.get(builtBuildings.size() - 1).getUuid().equals(connectedBuildingNode.getUuid());
+                    correctBuildingPhaseTwo = builtBuildings.get(builtBuildings.size() - 1).getUuid()
+                            .equals(connectedBuildingNode.getUuid());
                 }
                 for (MapGraph.StreetNode connectedStreetNode : connectedBuildingNode.getConnectedStreetNodes()) {
                     if (connectedStreetNode.getOccupiedByPlayer() == playerIndex) {
                         existingConnection = true;
-                        if (connectedBuildingNode.getOccupiedByPlayer() == 666 || connectedBuildingNode.getOccupiedByPlayer() == playerIndex) {
+                        if (connectedBuildingNode.getOccupiedByPlayer() == 666 || connectedBuildingNode
+                                .getOccupiedByPlayer() == playerIndex) {
                             buildingAllowed = true;
                             break;
                         }
@@ -783,7 +787,7 @@ public class MapGraph implements Serializable {
                             numOfRoads[playerIndex] == startingPhase - 1 && numOfRoads[playerIndex] < numOfBuildings[playerIndex]))) {
                 numOfRoads[playerIndex]++;
                 return true;
-            } else return false;
+            } else { return false; }
         }
 
         /**
@@ -880,7 +884,7 @@ public class MapGraph implements Serializable {
             if (!connectedStreetNodes.contains(streetNode)) {
                 if (connectedStreetNodes.size() < 3) {
                     connectedStreetNodes.add(streetNode);
-                } else throw new ListFullException("This BuildingNode already has 3 StreetNodes connected to it.");
+                } else { throw new ListFullException("This BuildingNode already has 3 StreetNodes connected to it."); }
             }
         }
 
@@ -943,8 +947,8 @@ public class MapGraph implements Serializable {
                         (startingPhase == 0 && sizeOfSettlement == 1 && occupiedByPlayer == playerIndex)) {
                     numOfBuildings[playerIndex]++;
                     return true;
-                } else return false;
-            } else return false;
+                } else { return false; }
+            } else { return false; }
         }
 
         /**
@@ -984,7 +988,9 @@ public class MapGraph implements Serializable {
         private final List<String> selfPosition = new ArrayList<>(); //IMPORTANT! If fiddled with in the future: This must never become any sort of Set,because we need to be able to store duplicates!
 
         private final UUID uuid = UUID.randomUUID();
-
+        private final Set<BuildingNode> buildingNodes = new HashSet<>();
+        private final Set<StreetNode> streetNodes = new HashSet<>();
+        private final Set<Hexagon> hexagons = new HashSet<>();
         private int diceToken;
         private int terrainType;
         private Hexagon hexTopLeft;
@@ -993,25 +999,18 @@ public class MapGraph implements Serializable {
         private Hexagon hexRight;
         private Hexagon hexBottomLeft;
         private Hexagon hexBottomRight;
-
         private StreetNode streetLeft;
         private StreetNode streetBottomLeft;
         private StreetNode streetBottomRight;
         private StreetNode streetRight;
         private StreetNode streetTopRight;
         private StreetNode streetTopLeft;
-
         private BuildingNode buildingTopLeft;
         private BuildingNode buildingBottomLeft;
         private BuildingNode buildingBottom;
         private BuildingNode buildingBottomRight;
         private BuildingNode buildingTopRight;
         private BuildingNode buildingTop;
-
-        private final Set<BuildingNode> buildingNodes = new HashSet<>();
-        private final Set<StreetNode> streetNodes = new HashSet<>();
-        private final Set<Hexagon> hexagons = new HashSet<>();
-
         private boolean occupiedByRobber;
 
         //CONSTRUCTOR

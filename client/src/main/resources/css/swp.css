@@ -22,7 +22,7 @@
     -fx-max-width: 25;
 }
 
-.kick-button:disabled{
+.kick-button:disabled {
     -fx-opacity: 0.3;
 }
 
@@ -34,7 +34,7 @@
     -fx-text-fill: #ffffff;
 }
 
-.rules .label{
+.rules .label {
     -fx-text-fill: #000000;
 }
 

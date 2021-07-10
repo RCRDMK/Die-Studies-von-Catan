@@ -1,15 +1,5 @@
 package de.uol.swp.server.AI;
 
-import de.uol.swp.common.game.MapGraph;
-import de.uol.swp.common.game.dto.GameDTO;
-import de.uol.swp.common.game.Inventory;
-import de.uol.swp.common.game.message.TooMuchResourceCardsMessage;
-import de.uol.swp.common.game.message.TradeInformSellerAboutBidsMessage;
-import de.uol.swp.common.game.message.TradeOfferInformBiddersMessage;
-import de.uol.swp.common.game.trade.TradeItem;
-import de.uol.swp.common.user.User;
-import de.uol.swp.server.AI.AIActions.*;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
@@ -18,6 +8,29 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.UUID;
+
+import de.uol.swp.common.game.Inventory;
+import de.uol.swp.common.game.MapGraph;
+import de.uol.swp.common.game.dto.GameDTO;
+import de.uol.swp.common.game.message.TooMuchResourceCardsMessage;
+import de.uol.swp.common.game.message.TradeInformSellerAboutBidsMessage;
+import de.uol.swp.common.game.message.TradeOfferInformBiddersMessage;
+import de.uol.swp.common.game.trade.TradeItem;
+import de.uol.swp.common.user.User;
+import de.uol.swp.server.AI.AIActions.AIAction;
+import de.uol.swp.server.AI.AIActions.BuildAction;
+import de.uol.swp.server.AI.AIActions.BuyDevelopmentCardAction;
+import de.uol.swp.server.AI.AIActions.DiscardResourcesAction;
+import de.uol.swp.server.AI.AIActions.DrawRandomResourceFromPlayerAction;
+import de.uol.swp.server.AI.AIActions.EndTurnAction;
+import de.uol.swp.server.AI.AIActions.MoveBanditAction;
+import de.uol.swp.server.AI.AIActions.PlayDevelopmentCardKnightAction;
+import de.uol.swp.server.AI.AIActions.PlayDevelopmentCardMonopolyAction;
+import de.uol.swp.server.AI.AIActions.PlayDevelopmentCardRoadBuildingAction;
+import de.uol.swp.server.AI.AIActions.PlayDevelopmentCardYearOfPlentyAction;
+import de.uol.swp.server.AI.AIActions.TradeBidAction;
+import de.uol.swp.server.AI.AIActions.TradeOfferAcceptAction;
+import de.uol.swp.server.AI.AIActions.TradeStartAction;
 
 /**
  * Abstract class used for the AISystems
@@ -168,7 +181,8 @@ public abstract class AbstractAISystem implements AISystem {
 
     @Override
     public void tradeOfferAccept(String tradeCode, boolean tradeAccepted, User acceptedBidder) {
-        TradeOfferAcceptAction ta = new TradeOfferAcceptAction(user, game.getName(), tradeCode, tradeAccepted, acceptedBidder);
+        TradeOfferAcceptAction ta = new TradeOfferAcceptAction(user, game.getName(), tradeCode, tradeAccepted,
+                acceptedBidder);
         aiActions.add(ta);
     }
 
@@ -190,13 +204,16 @@ public abstract class AbstractAISystem implements AISystem {
 
     @Override
     public void playDevelopmentCardMonopoly(String resource) {
-        PlayDevelopmentCardMonopolyAction pa = new PlayDevelopmentCardMonopolyAction(user, game.getName(), "Monopoly", resource);
+        PlayDevelopmentCardMonopolyAction pa = new PlayDevelopmentCardMonopolyAction(user, game.getName(), "Monopoly",
+                resource);
         inventory.cardMonopoly.decNumber();
         playedCardThisTurn = "Monopoly";
         for (User player : game.getUsersList()) {
             if (!player.equals(this.user)) {
-                game.getInventory(player).decCardStack(resource, game.getInventory(player).getSpecificResourceAmount(resource));
-                game.getInventory(user).incCardStack(resource, game.getInventory(player).getSpecificResourceAmount(resource));
+                game.getInventory(player)
+                        .decCardStack(resource, game.getInventory(player).getSpecificResourceAmount(resource));
+                game.getInventory(user)
+                        .incCardStack(resource, game.getInventory(player).getSpecificResourceAmount(resource));
             }
         }
         aiActions.add(pa);
@@ -204,7 +221,8 @@ public abstract class AbstractAISystem implements AISystem {
 
     @Override
     public void playDevelopmentCardRoadBuilding(UUID street1, UUID street2) {
-        PlayDevelopmentCardRoadBuildingAction pa = new PlayDevelopmentCardRoadBuildingAction(user, game.getName(), "Road Building", street1, street2);
+        PlayDevelopmentCardRoadBuildingAction pa = new PlayDevelopmentCardRoadBuildingAction(user, game.getName(),
+                "Road Building", street1, street2);
         inventory.cardRoadBuilding.decNumber();
         for (MapGraph.StreetNode sn : mapGraph.getStreetNodeHashSet()) {
             if (sn.getUuid().equals(street1) || sn.getUuid().equals(street2)) {
@@ -217,7 +235,8 @@ public abstract class AbstractAISystem implements AISystem {
 
     @Override
     public void playDevelopmentCardYearOfPlenty(String resource1, String resource2) {
-        PlayDevelopmentCardYearOfPlentyAction pa = new PlayDevelopmentCardYearOfPlentyAction(user, game.getName(), "Year of Plenty", resource1, resource2);
+        PlayDevelopmentCardYearOfPlentyAction pa = new PlayDevelopmentCardYearOfPlentyAction(user, game.getName(),
+                "Year of Plenty", resource1, resource2);
         inventory.cardRoadBuilding.decNumber();
         playedCardThisTurn = "Year of Plenty";
         inventory.incCardStack(resource1, 1);
@@ -249,8 +268,15 @@ public abstract class AbstractAISystem implements AISystem {
 
     @Override
     public void drawRandomResourceFromPlayer(String playerName, String resource) {
-        DrawRandomResourceFromPlayerAction drrfpa = new DrawRandomResourceFromPlayerAction(user, game.getName(), playerName, resource);
+        DrawRandomResourceFromPlayerAction drrfpa = new DrawRandomResourceFromPlayerAction(user, game.getName(),
+                playerName, resource);
         aiActions.add(drrfpa);
+    }
+
+    @Override
+    public ArrayList<AIAction> startTurnOrder() {
+
+        return this.aiActions;
     }
 
     @Override
@@ -266,13 +292,8 @@ public abstract class AbstractAISystem implements AISystem {
     }
 
     @Override
-    public ArrayList<AIAction> startTurnOrder() {
-
-        return this.aiActions;
-    }
-
-    @Override
-    public ArrayList<AIAction> continueTurnOrder(TradeInformSellerAboutBidsMessage tisabm, ArrayList<TradeItem> wishList) {
+    public ArrayList<AIAction> continueTurnOrder(TradeInformSellerAboutBidsMessage tisabm,
+                                                 ArrayList<TradeItem> wishList) {
 
         return this.aiActions;
     }
@@ -284,7 +305,8 @@ public abstract class AbstractAISystem implements AISystem {
 
     @Override
     public boolean canBuildTown() {
-        return inventory.brick.getNumber() > 0 && inventory.lumber.getNumber() > 0 && inventory.grain.getNumber() > 0 && inventory.wool.getNumber() > 0;
+        return inventory.brick.getNumber() > 0 && inventory.lumber.getNumber() > 0 && inventory.grain
+                .getNumber() > 0 && inventory.wool.getNumber() > 0;
     }
 
     @Override
@@ -300,16 +322,16 @@ public abstract class AbstractAISystem implements AISystem {
     @Override
     public ArrayList<String> canPlayDevelopmentCard() {
         ArrayList<String> playableCards = new ArrayList<>();
-        if(game.canUserPlayDevCard(user,"Year of Plenty")){
+        if (game.canUserPlayDevCard(user, "Year of Plenty")) {
             playableCards.add("Year of Plenty");
         }
-        if(game.canUserPlayDevCard(user,"Monopoly")){
+        if (game.canUserPlayDevCard(user, "Monopoly")) {
             playableCards.add("Monopoly");
         }
-        if(game.canUserPlayDevCard(user,"Road Building")){
+        if (game.canUserPlayDevCard(user, "Road Building")) {
             playableCards.add("Road Building");
         }
-        if(game.canUserPlayDevCard(user,"Knight")){
+        if (game.canUserPlayDevCard(user, "Knight")) {
             playableCards.add("Knight");
         }
 
@@ -327,8 +349,8 @@ public abstract class AbstractAISystem implements AISystem {
     public Optional<MapGraph.StreetNode> returnPossibleStreet() {
         for (MapGraph.StreetNode sn : mapGraph.getStreetNodeHashSet()) {
             if (sn.getOccupiedByPlayer() == 666) {
-                if(sn.tryBuildRoad(game.getTurn(), game.getStartingPhase())) {
-                return Optional.of(sn);
+                if (sn.tryBuildRoad(game.getTurn(), game.getStartingPhase())) {
+                    return Optional.of(sn);
                 }
             }
         }
@@ -345,8 +367,8 @@ public abstract class AbstractAISystem implements AISystem {
     public Optional<MapGraph.BuildingNode> returnPossibleTown() {
         for (MapGraph.BuildingNode bn : mapGraph.getBuildingNodeHashSet()) {
             if (bn.getOccupiedByPlayer() == 666) {
-                if(bn.tryBuildOrDevelopSettlement(game.getTurn(), game.getStartingPhase())) {
-                return Optional.of(bn);
+                if (bn.tryBuildOrDevelopSettlement(game.getTurn(), game.getStartingPhase())) {
+                    return Optional.of(bn);
                 }
             }
         }
@@ -363,8 +385,8 @@ public abstract class AbstractAISystem implements AISystem {
     public Optional<MapGraph.BuildingNode> returnPossibleCity() {
         for (MapGraph.BuildingNode bn : mapGraph.getBuiltBuildings()) {
             if (bn.getOccupiedByPlayer() == game.getTurn()) {
-                if(bn.tryBuildOrDevelopSettlement(game.getTurn(), game.getStartingPhase())) {
-                return Optional.of(bn);
+                if (bn.tryBuildOrDevelopSettlement(game.getTurn(), game.getStartingPhase())) {
+                    return Optional.of(bn);
                 }
             }
         }

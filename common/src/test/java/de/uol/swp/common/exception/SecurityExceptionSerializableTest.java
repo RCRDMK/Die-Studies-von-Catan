@@ -1,7 +1,8 @@
 package de.uol.swp.common.exception;
 
-import de.uol.swp.common.SerializationTestHelper;
 import org.junit.jupiter.api.Test;
+
+import de.uol.swp.common.SerializationTestHelper;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 

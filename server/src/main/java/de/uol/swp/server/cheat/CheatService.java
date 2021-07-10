@@ -3,13 +3,15 @@ package de.uol.swp.server.cheat;
 import com.google.common.eventbus.EventBus;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import de.uol.swp.common.chat.RequestChatMessage;
 import de.uol.swp.common.game.request.RollDiceRequest;
 import de.uol.swp.server.AbstractService;
 import de.uol.swp.server.game.GameService;
 import de.uol.swp.server.usermanagement.UserService;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /**
  * Service that handles all cheats.
@@ -73,10 +75,6 @@ public class CheatService extends AbstractService {
     public CheatService(GameService gameService, EventBus bus) {
         super(bus);
         this.gameService = gameService;
-    }
-
-    private enum Cheat {
-        endgame, givemeall, givemecard, roll
     }
 
     /**
@@ -221,10 +219,10 @@ public class CheatService extends AbstractService {
      * else false.
      * If the cheat command is without argument return false
      *
-     * @author René Meyer, Sergej Tulnev
-     * @since 2021-04-17
      * @param cheatMessage chatMessage
      * @return true or false
+     * @author René Meyer, Sergej Tulnev
+     * @since 2021-04-17
      */
     public boolean isCheat(RequestChatMessage cheatMessage) {
         for (Cheat cheatCode : Cheat.values()) {
@@ -241,6 +239,13 @@ public class CheatService extends AbstractService {
             }
         }
         return false;
+    }
+
+    private enum Cheat {
+        endgame,
+        givemeall,
+        givemecard,
+        roll
     }
 
 }

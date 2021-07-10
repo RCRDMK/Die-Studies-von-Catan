@@ -44,8 +44,7 @@ public class DevelopmentCardDeck implements Serializable {
      * @since 2021-01-17
      */
     public String drawnCard() {
-        if (deck.size() > 0) return deck.pop();
-        else return null;
+        if (deck.size() > 0) { return deck.pop(); } else { return null; }
     }
 
     /**
