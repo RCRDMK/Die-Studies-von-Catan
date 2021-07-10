@@ -1,10 +1,11 @@
 package de.uol.swp.server;
 
+import java.util.Collections;
+
 import com.google.common.eventbus.EventBus;
+
 import de.uol.swp.common.message.Message;
 import de.uol.swp.common.message.ServerMessage;
-
-import java.util.Collections;
 
 /**
  * This class is the base for creating a new Service.
@@ -24,8 +25,8 @@ public class AbstractService {
     /**
      * Constructor
      *
-     * @author Marco Grawunder
      * @param bus the EvenBus used throughout the server
+     * @author Marco Grawunder
      * @author Marco Grawunder
      * @since 2019-10-08
      */
@@ -37,8 +38,8 @@ public class AbstractService {
     /**
      * Posts a message on the EventBus
      *
-     * @author Marco Grawunder
      * @param message the message to post
+     * @author Marco Grawunder
      * @author Marco Grawunder
      * @see de.uol.swp.common.message.Message
      * @since 2019-10-08
@@ -51,8 +52,8 @@ public class AbstractService {
      * Prepares a ServerMessage to be send to all connected users and posts it to the
      * EventBus.
      *
-     * @author Marco Grawunder
      * @param message the message to be send to every user
+     * @author Marco Grawunder
      * @author Marco Grawunder
      * @see de.uol.swp.common.message.ServerMessage
      * @since 2019-10-08

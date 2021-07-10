@@ -1,7 +1,8 @@
 package de.uol.swp.client;
 
-import de.uol.swp.client.game.HelperObjects.Vector;
 import org.junit.jupiter.api.Test;
+
+import de.uol.swp.client.game.HelperObjects.Vector;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

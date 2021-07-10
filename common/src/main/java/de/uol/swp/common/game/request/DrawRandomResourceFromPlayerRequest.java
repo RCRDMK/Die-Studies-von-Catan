@@ -23,8 +23,8 @@ public class DrawRandomResourceFromPlayerRequest extends AbstractGameRequest {
     /**
      * Constructor
      *
-     * @param name the name of the game
-     * @param user the user who sent the request
+     * @param name       the name of the game
+     * @param user       the user who sent the request
      * @param chosenName the player to draw a random resource from
      * @author Marius Birk
      * @since 2021-05-30

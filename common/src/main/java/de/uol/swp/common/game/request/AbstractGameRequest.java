@@ -1,9 +1,9 @@
 package de.uol.swp.common.game.request;
 
+import java.util.Objects;
+
 import de.uol.swp.common.message.AbstractRequestMessage;
 import de.uol.swp.common.user.UserDTO;
-
-import java.util.Objects;
 
 /**
  * Base class of all game request messages. Basic handling of game data.
@@ -86,17 +86,17 @@ public class AbstractGameRequest extends AbstractRequestMessage {
     }
 
     @Override
+    public int hashCode() {
+        return Objects.hash(name, user);
+    }
+
+    @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) { return true; }
+        if (o == null || getClass() != o.getClass()) { return false; }
         de.uol.swp.common.game.request.AbstractGameRequest that =
                 (de.uol.swp.common.game.request.AbstractGameRequest) o;
         return Objects.equals(name, that.name) &&
                 Objects.equals(user, that.user);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(name, user);
     }
 }

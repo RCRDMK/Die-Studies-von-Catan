@@ -1,5 +1,10 @@
 package de.uol.swp.server.AI;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.UUID;
+
 import de.uol.swp.common.game.MapGraph;
 import de.uol.swp.common.game.dto.GameDTO;
 import de.uol.swp.common.game.message.TooMuchResourceCardsMessage;
@@ -7,11 +12,6 @@ import de.uol.swp.common.game.message.TradeInformSellerAboutBidsMessage;
 import de.uol.swp.common.game.message.TradeOfferInformBiddersMessage;
 import de.uol.swp.common.game.trade.TradeItem;
 import de.uol.swp.server.AI.AIActions.AIAction;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.UUID;
 
 /**
  * This class is only used for tests.
@@ -51,16 +51,13 @@ public class TestAI extends AbstractAISystem {
 
         } else {
 
-            if (canBuyDevelopmentCard())
-                buyDevelopmentCard();
+            if (canBuyDevelopmentCard()) { buyDevelopmentCard(); }
 
             ArrayList<String> cardsToPlay = canPlayDevelopmentCard();
 
-            if (cardsToPlay.contains("Monopoly"))
-                playDevelopmentCardMonopoly("Grain");
+            if (cardsToPlay.contains("Monopoly")) { playDevelopmentCardMonopoly("Grain"); }
 
-            if (cardsToPlay.contains("Year of Plenty"))
-                playDevelopmentCardYearOfPlenty("Lumber", "Brick");
+            if (cardsToPlay.contains("Year of Plenty")) { playDevelopmentCardYearOfPlenty("Lumber", "Brick"); }
 
             int i = 0;
             UUID street1 = null;
@@ -70,28 +67,25 @@ public class TestAI extends AbstractAISystem {
                     street1 = street.getUuid();
                     i++;
 
-                }
-                 else if (street.tryBuildRoad(game.getTurn(), game.getStartingPhase()) && i == 1) {
+                } else if (street.tryBuildRoad(game.getTurn(), game.getStartingPhase()) && i == 1) {
                     street2 = street.getUuid();
                     i++;
-                }
-                else if (street.tryBuildRoad(game.getTurn(), game.getStartingPhase()) && i == 2) {
-                    if (canBuildStreet())
-                        buildStreet(street);
+                } else if (street.tryBuildRoad(game.getTurn(), game.getStartingPhase()) && i == 2) {
+                    if (canBuildStreet()) { buildStreet(street); }
                     break;
                 }
             }
 
-            if (cardsToPlay.contains("Road Building"))
-                playDevelopmentCardRoadBuilding(street1, street2);
+            if (cardsToPlay.contains("Road Building")) { playDevelopmentCardRoadBuilding(street1, street2); }
 
             for (MapGraph.BuildingNode building : game.getMapGraph().getBuildingNodeHashSet()) {
                 if (building.tryBuildOrDevelopSettlement(game.getTurn(), game.getStartingPhase()) && canBuildTown()) {
                     buildTown(building);
 
                 }
-                if (building.tryBuildOrDevelopSettlement(game.getTurn(), game.getStartingPhase()) && canBuildCity())
+                if (building.tryBuildOrDevelopSettlement(game.getTurn(), game.getStartingPhase()) && canBuildCity()) {
                     buildCity(building);
+                }
                 break;
             }
 
@@ -112,46 +106,6 @@ public class TestAI extends AbstractAISystem {
             trade();
         }
 
-        return this.aiActions;
-    }
-
-    /**
-     * Function called by the server when the trade bids have come in from the users in the game and thus the AI
-     * needs to continue it's turn.
-     * <p>
-     * First, an offer is chosen by the AI, then the turn is ended.
-     *
-     * @param tisabm   the TradeInformSellerAboutBidsMessage usually sent to the client
-     * @param wishList the original wishList of the AI
-     * @return the ArrayList of AIActions, at the end of which a endTurnAction will be
-     * @author Marc Hermes
-     * @since 2021-05-12
-     */
-    public ArrayList<AIAction> continueTurnOrder(TradeInformSellerAboutBidsMessage tisabm, ArrayList<TradeItem> wishList) {
-        tradeOfferAccept(tisabm.getTradeCode(), false, user);
-        endTurn();
-        return this.aiActions;
-    }
-
-    /**
-     * Function called by the server when the AI has to participate in an ongoing trade by bidding.
-     * <p>
-     * A bid will be placed where the AI offers 0 of every resource
-     *
-     * @param toibm the TradeOfferInformBiddersMessage usually sent to the client
-     * @return the ArrayList of AIActions, will only include the TradeBidAction here
-     * @author Marc Hermes
-     * @since 2021-05-12
-     */
-    public ArrayList<AIAction> tradeBidOrder(TradeOfferInformBiddersMessage toibm) {
-        TradeItem ti1 = new TradeItem("Lumber", 0);
-        TradeItem ti2 = new TradeItem("Brick", 0);
-        TradeItem ti3 = new TradeItem("Ore", 0);
-        TradeItem ti4 = new TradeItem("Grain", 0);
-        TradeItem ti5 = new TradeItem("Wool", 0);
-        ArrayList<TradeItem> offerList = new ArrayList<>(Arrays.asList(ti1, ti2, ti3, ti4, ti5));
-
-        tradeBid(offerList, toibm.getTradeCode());
         return this.aiActions;
     }
 
@@ -189,6 +143,47 @@ public class TestAI extends AbstractAISystem {
             }
         }
         discardResources(resourcesToDiscard);
+        return this.aiActions;
+    }
+
+    /**
+     * Function called by the server when the AI has to participate in an ongoing trade by bidding.
+     * <p>
+     * A bid will be placed where the AI offers 0 of every resource
+     *
+     * @param toibm the TradeOfferInformBiddersMessage usually sent to the client
+     * @return the ArrayList of AIActions, will only include the TradeBidAction here
+     * @author Marc Hermes
+     * @since 2021-05-12
+     */
+    public ArrayList<AIAction> tradeBidOrder(TradeOfferInformBiddersMessage toibm) {
+        TradeItem ti1 = new TradeItem("Lumber", 0);
+        TradeItem ti2 = new TradeItem("Brick", 0);
+        TradeItem ti3 = new TradeItem("Ore", 0);
+        TradeItem ti4 = new TradeItem("Grain", 0);
+        TradeItem ti5 = new TradeItem("Wool", 0);
+        ArrayList<TradeItem> offerList = new ArrayList<>(Arrays.asList(ti1, ti2, ti3, ti4, ti5));
+
+        tradeBid(offerList, toibm.getTradeCode());
+        return this.aiActions;
+    }
+
+    /**
+     * Function called by the server when the trade bids have come in from the users in the game and thus the AI
+     * needs to continue it's turn.
+     * <p>
+     * First, an offer is chosen by the AI, then the turn is ended.
+     *
+     * @param tisabm   the TradeInformSellerAboutBidsMessage usually sent to the client
+     * @param wishList the original wishList of the AI
+     * @return the ArrayList of AIActions, at the end of which a endTurnAction will be
+     * @author Marc Hermes
+     * @since 2021-05-12
+     */
+    public ArrayList<AIAction> continueTurnOrder(TradeInformSellerAboutBidsMessage tisabm,
+                                                 ArrayList<TradeItem> wishList) {
+        tradeOfferAccept(tisabm.getTradeCode(), false, user);
+        endTurn();
         return this.aiActions;
     }
 

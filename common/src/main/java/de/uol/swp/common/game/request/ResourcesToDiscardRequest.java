@@ -1,7 +1,5 @@
 package de.uol.swp.common.game.request;
 
-import de.uol.swp.common.user.UserDTO;
-
 import java.util.HashMap;
 
 /**
@@ -9,8 +7,11 @@ import java.util.HashMap;
  *
  * @author Marius Birk
  */
+import de.uol.swp.common.user.UserDTO;
+
 public class ResourcesToDiscardRequest extends AbstractGameRequest {
     private final HashMap<String, Integer> inventory;
+
     public ResourcesToDiscardRequest(String name, UserDTO user, HashMap<String, Integer> inventory) {
         super(name, user);
         this.inventory = inventory;

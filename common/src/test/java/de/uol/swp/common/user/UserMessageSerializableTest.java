@@ -1,5 +1,10 @@
 package de.uol.swp.common.user;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.junit.jupiter.api.Test;
+
 import de.uol.swp.common.SerializationTestHelper;
 import de.uol.swp.common.user.exception.DropUserExceptionMessage;
 import de.uol.swp.common.user.exception.RegistrationExceptionMessage;
@@ -8,18 +13,25 @@ import de.uol.swp.common.user.exception.UpdateUserExceptionMessage;
 import de.uol.swp.common.user.message.UserLoggedInMessage;
 import de.uol.swp.common.user.message.UserLoggedOutMessage;
 import de.uol.swp.common.user.message.UsersListMessage;
-import de.uol.swp.common.user.request.*;
-import de.uol.swp.common.user.response.*;
+import de.uol.swp.common.user.request.DropUserRequest;
+import de.uol.swp.common.user.request.LoginRequest;
+import de.uol.swp.common.user.request.LogoutRequest;
+import de.uol.swp.common.user.request.RegisterUserRequest;
+import de.uol.swp.common.user.request.RetrieveAllOnlineUsersRequest;
+import de.uol.swp.common.user.request.RetrieveUserInformationRequest;
+import de.uol.swp.common.user.request.UpdateUserMailRequest;
+import de.uol.swp.common.user.request.UpdateUserPasswordRequest;
+import de.uol.swp.common.user.request.UpdateUserProfilePictureRequest;
+import de.uol.swp.common.user.request.UpdateUserRequest;
+import de.uol.swp.common.user.response.AllOnlineUsersResponse;
 import de.uol.swp.common.user.response.DropUserSuccessfulResponse;
 import de.uol.swp.common.user.response.LoginSuccessfulResponse;
+import de.uol.swp.common.user.response.RegistrationSuccessfulResponse;
+import de.uol.swp.common.user.response.RetrieveUserInformationResponse;
 import de.uol.swp.common.user.response.lobby.AllThisLobbyUsersResponse;
 import de.uol.swp.common.user.response.lobby.LobbyCreatedSuccessfulResponse;
 import de.uol.swp.common.user.response.lobby.LobbyJoinedSuccessfulResponse;
 import de.uol.swp.common.user.response.lobby.LobbyLeftSuccessfulResponse;
-import org.junit.jupiter.api.Test;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -78,17 +90,22 @@ class UserMessageSerializableTest {
                 DropUserRequest.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new UpdateUserExceptionMessage("Error"),
                 UpdateUserExceptionMessage.class));
-        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new RetrieveUserInformationExceptionMessage("Error"),
-                RetrieveUserInformationExceptionMessage.class));
-        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new RetrieveUserInformationRequest(defaultUser),
-                RetrieveUserInformationRequest.class));
-        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new RetrieveUserInformationResponse(defaultUser),
-                RetrieveUserInformationResponse.class));
+        assertTrue(SerializationTestHelper
+                .checkSerializableAndDeserializable(new RetrieveUserInformationExceptionMessage("Error"),
+                        RetrieveUserInformationExceptionMessage.class));
+        assertTrue(SerializationTestHelper
+                .checkSerializableAndDeserializable(new RetrieveUserInformationRequest(defaultUser),
+                        RetrieveUserInformationRequest.class));
+        assertTrue(SerializationTestHelper
+                .checkSerializableAndDeserializable(new RetrieveUserInformationResponse(defaultUser),
+                        RetrieveUserInformationResponse.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new UpdateUserMailRequest(defaultUser),
                 UpdateUserMailRequest.class));
-        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new UpdateUserPasswordRequest(defaultUser, "marco"),
-                UpdateUserPasswordRequest.class));
-        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new UpdateUserProfilePictureRequest(defaultUser),
-                UpdateUserProfilePictureRequest.class));
+        assertTrue(SerializationTestHelper
+                .checkSerializableAndDeserializable(new UpdateUserPasswordRequest(defaultUser, "marco"),
+                        UpdateUserPasswordRequest.class));
+        assertTrue(SerializationTestHelper
+                .checkSerializableAndDeserializable(new UpdateUserProfilePictureRequest(defaultUser),
+                        UpdateUserProfilePictureRequest.class));
     }
 }

@@ -1,9 +1,9 @@
 package de.uol.swp.client.user;
 
-import de.uol.swp.common.user.User;
-
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
+
+import de.uol.swp.common.user.User;
 
 /**
  * An interface for all methods of the client user service

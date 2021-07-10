@@ -1,8 +1,8 @@
 package de.uol.swp.common.game.request;
 
-import de.uol.swp.common.user.UserDTO;
-
 import java.util.UUID;
+
+import de.uol.swp.common.user.UserDTO;
 
 /**
  * Message to ask for a construction at a certain MapGraphNode in the MapGraph.

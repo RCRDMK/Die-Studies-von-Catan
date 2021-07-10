@@ -25,7 +25,8 @@ public class TradeOfferAcceptAction extends AIAction {
      * @author Alexander Losse, Marc Hermes
      * @since 2021-05-08
      */
-    public TradeOfferAcceptAction(User user, String gameName, String tradeCode, Boolean tradeAccepted, User acceptedBidder) {
+    public TradeOfferAcceptAction(User user, String gameName, String tradeCode, Boolean tradeAccepted,
+                                  User acceptedBidder) {
         super("TradeOfferAccept", user, gameName);
         this.tradeCode = tradeCode;
         this.tradeAccepted = tradeAccepted;

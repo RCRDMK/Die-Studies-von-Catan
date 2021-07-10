@@ -1,9 +1,9 @@
 package de.uol.swp.common.game.message;
 
+import java.util.ArrayList;
+
 import de.uol.swp.common.game.trade.TradeItem;
 import de.uol.swp.common.user.UserDTO;
-
-import java.util.ArrayList;
 
 /**
  * this message informs the potential bidders about the item for sell
@@ -20,6 +20,7 @@ public class TradeOfferInformBiddersMessage extends AbstractGameMessage {
     private ArrayList<TradeItem> sellingItems;
     private UserDTO bidder;
     private ArrayList<TradeItem> wantedItems;
+
     /**
      * constructor
      * <p>
@@ -33,8 +34,10 @@ public class TradeOfferInformBiddersMessage extends AbstractGameMessage {
      * @author Alexander Losse, Ricardo Mook
      * @since 2021-04-11
      */
-    public TradeOfferInformBiddersMessage(UserDTO seller, String gameName, String tradeCode, ArrayList<TradeItem> sellingItems, UserDTO bidder, ArrayList<TradeItem> wantedItems) {
-        this.user = new UserDTO(seller.getUsername(),"","");
+    public TradeOfferInformBiddersMessage(UserDTO seller, String gameName, String tradeCode,
+                                          ArrayList<TradeItem> sellingItems, UserDTO bidder,
+                                          ArrayList<TradeItem> wantedItems) {
+        this.user = new UserDTO(seller.getUsername(), "", "");
         this.name = gameName;
         this.tradeCode = tradeCode;
         this.sellingItems = sellingItems;

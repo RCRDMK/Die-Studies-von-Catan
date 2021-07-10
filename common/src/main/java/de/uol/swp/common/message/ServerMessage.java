@@ -1,8 +1,8 @@
 package de.uol.swp.common.message;
 
-import de.uol.swp.common.user.Session;
-
 import java.util.List;
+
+import de.uol.swp.common.user.Session;
 
 /**
  * A message from server to a number of clients that
@@ -17,8 +17,8 @@ public interface ServerMessage extends Message {
     /**
      * Getter for the receiver list
      *
-     * @author Marco Grawunder
      * @return List of Session objects defining the receivers
+     * @author Marco Grawunder
      * @author Marco Grawunder
      * @since 2019-10-08
      */
@@ -27,8 +27,8 @@ public interface ServerMessage extends Message {
     /**
      * Sets the receivers of this message
      *
-     * @author Marco Grawunder
      * @param receiver List of Session objects defining the receivers
+     * @author Marco Grawunder
      * @author Marco Grawunder
      * @since 2019-10-08
      */

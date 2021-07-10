@@ -8,7 +8,7 @@ import de.uol.swp.common.user.UserDTO;
  * @author Alexander Losse, Ricardo Mook
  * @since 2021-04-11
  */
-public class TradeChoiceRequest extends  AbstractGameRequest{
+public class TradeChoiceRequest extends AbstractGameRequest {
 
     private String tradeCode;
     private Boolean tradeAccepted;
@@ -17,16 +17,15 @@ public class TradeChoiceRequest extends  AbstractGameRequest{
     /**
      * constructor
      *
-     * @param tradePartner UserDTO saves which bidder the seller chose
+     * @param tradePartner  UserDTO saves which bidder the seller chose
      * @param tradeAccepted Boolean saves if any bid was accepted
-     * @param gameName String the name of the game
-     * @param tradeCode String ID of the trade
-     *
+     * @param gameName      String the name of the game
+     * @param tradeCode     String ID of the trade
      * @author Alexander Losse, Ricardo Mook
      * @since 2021-04-11
      */
-    public TradeChoiceRequest(UserDTO tradePartner,Boolean tradeAccepted, String gameName, String tradeCode){
-        this.user = new UserDTO(tradePartner.getUsername(), "","");
+    public TradeChoiceRequest(UserDTO tradePartner, Boolean tradeAccepted, String gameName, String tradeCode) {
+        this.user = new UserDTO(tradePartner.getUsername(), "", "");
         this.name = gameName;
         this.tradeCode = tradeCode;
         this.tradeAccepted = tradeAccepted;
@@ -45,7 +44,6 @@ public class TradeChoiceRequest extends  AbstractGameRequest{
      * getter for String tradeCode
      *
      * @return String tradeCode
-     *
      * @author Alexander Losse, Ricardo Mook
      * @since 2021-04-11
      */
@@ -57,7 +55,6 @@ public class TradeChoiceRequest extends  AbstractGameRequest{
      * getter for Boolean tradeAccepted
      *
      * @return Boolean tradeAccepted
-     *
      * @author Alexander Losse, Ricardo Mook
      * @since 2021-04-11
      */

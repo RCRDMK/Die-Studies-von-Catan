@@ -24,7 +24,8 @@ public class PlayDevelopmentCardYearOfPlentyAction extends PlayDevelopmentCardAc
      * @author Alexander Losse, Marc Hermes
      * @since 2021-05-08
      */
-    public PlayDevelopmentCardYearOfPlentyAction(User user, String gameName, String devCard, String resource1, String resource2) {
+    public PlayDevelopmentCardYearOfPlentyAction(User user, String gameName, String devCard, String resource1,
+                                                 String resource2) {
         super(user, gameName, devCard);
         this.resource1 = resource1;
         this.resource2 = resource2;

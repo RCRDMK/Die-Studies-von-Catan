@@ -1,33 +1,48 @@
 package de.uol.swp.client;
 
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import javafx.application.Application;
+import javafx.stage.Stage;
+
 import com.google.common.eventbus.DeadEvent;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+
+import io.netty.channel.Channel;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import de.uol.swp.client.di.ClientModule;
 import de.uol.swp.client.game.event.SummaryConfirmedEvent;
 import de.uol.swp.client.user.ClientUserService;
-import de.uol.swp.common.game.message.*;
+import de.uol.swp.common.game.message.GameCreatedMessage;
+import de.uol.swp.common.game.message.GameDroppedMessage;
+import de.uol.swp.common.game.message.GameFinishedMessage;
+import de.uol.swp.common.game.message.PlayerKickedMessage;
+import de.uol.swp.common.game.message.TradeEndedMessage;
+import de.uol.swp.common.game.message.TradeOfferInformBiddersMessage;
+import de.uol.swp.common.game.message.TradeStartedMessage;
+import de.uol.swp.common.game.response.GameLeftSuccessfulResponse;
 import de.uol.swp.common.lobby.response.JoinOnGoingGameResponse;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.exception.RegistrationExceptionMessage;
 import de.uol.swp.common.user.exception.UpdateUserExceptionMessage;
 import de.uol.swp.common.user.request.LogoutRequest;
-import de.uol.swp.common.user.response.*;
-import de.uol.swp.common.game.response.GameLeftSuccessfulResponse;
+import de.uol.swp.common.user.response.DropUserSuccessfulResponse;
+import de.uol.swp.common.user.response.LoginSuccessfulResponse;
+import de.uol.swp.common.user.response.PingResponse;
+import de.uol.swp.common.user.response.RegistrationSuccessfulResponse;
+import de.uol.swp.common.user.response.RetrieveUserInformationResponse;
+import de.uol.swp.common.user.response.UpdateUserSuccessfulResponse;
 import de.uol.swp.common.user.response.lobby.LobbyCreatedSuccessfulResponse;
 import de.uol.swp.common.user.response.lobby.LobbyJoinedSuccessfulResponse;
 import de.uol.swp.common.user.response.lobby.LobbyLeftSuccessfulResponse;
-import io.netty.channel.Channel;
-import javafx.application.Application;
-import javafx.stage.Stage;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 /**
  * The application class of the client
@@ -57,6 +72,17 @@ public class ClientApp extends Application implements ConnectionListener {
     // -----------------------------------------------------
     // Java FX Methods
     // ----------------------------------------------------
+
+    /**
+     * Default startup method for javafx applications
+     *
+     * @param args Any arguments given when starting the application
+     * @author Marco Grawunder
+     * @since 2017-03-17
+     */
+    public static void main(String[] args) {
+        launch(args);
+    }
 
     @Override
     public void init() {
@@ -114,11 +140,6 @@ public class ClientApp extends Application implements ConnectionListener {
     }
 
     @Override
-    public void connectionEstablished(Channel ch) {
-        sceneManager.showLoginScreen();
-    }
-
-    @Override
     public void stop() {
         if (userService != null && user != null) {
             userService.logout(user);
@@ -132,6 +153,16 @@ public class ClientApp extends Application implements ConnectionListener {
             clientConnection.close();
         }
         LOG.info("ClientConnection shutdown");
+    }
+
+    @Override
+    public void connectionEstablished(Channel ch) {
+        sceneManager.showLoginScreen();
+    }
+
+    @Override
+    public void exceptionOccurred(String e) {
+        sceneManager.showServerError(e);
     }
 
     /**
@@ -274,7 +305,8 @@ public class ClientApp extends Application implements ConnectionListener {
      */
     @Subscribe
     public void userJoinedOnGoingGame(JoinOnGoingGameResponse response) {
-        LOG.debug("Received JoinOnGoingGameResponse from Server, may " + (!response.isJoinedSuccessful() ? "not" : "") + " join the game.");
+        LOG.debug("Received JoinOnGoingGameResponse from Server, may " + (!response.isJoinedSuccessful() ? "not" :
+                "") + " join the game.");
         if (response.isJoinedSuccessful()) {
             sceneManager.showGameScreen(response.getGameName());
             sceneManager.suspendLobbyTab(response.getGameName());
@@ -499,6 +531,10 @@ public class ClientApp extends Application implements ConnectionListener {
         LOG.error("DeadEvent detected " + deadEvent);
     }
 
+    // -----------------------------------------------------
+    // JavFX Help method
+    // -----------------------------------------------------
+
     /**
      * Handles the Ping Response Messages
      * <p>
@@ -511,26 +547,6 @@ public class ClientApp extends Application implements ConnectionListener {
     @Subscribe
     private void onPingResponse(PingResponse message) {
         lastPingResponse = message.getTime();
-    }
-
-    @Override
-    public void exceptionOccurred(String e) {
-        sceneManager.showServerError(e);
-    }
-
-    // -----------------------------------------------------
-    // JavFX Help method
-    // -----------------------------------------------------
-
-    /**
-     * Default startup method for javafx applications
-     *
-     * @param args Any arguments given when starting the application
-     * @author Marco Grawunder
-     * @since 2017-03-17
-     */
-    public static void main(String[] args) {
-        launch(args);
     }
 
     /**

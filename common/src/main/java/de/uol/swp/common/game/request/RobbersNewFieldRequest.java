@@ -1,7 +1,5 @@
 package de.uol.swp.common.game.request;
 
-import de.uol.swp.common.user.UserDTO;
-
 import java.util.UUID;
 
 /**
@@ -9,6 +7,8 @@ import java.util.UUID;
  *
  * @author Marius Birk
  */
+import de.uol.swp.common.user.UserDTO;
+
 public class RobbersNewFieldRequest extends AbstractGameRequest {
 
     UUID newField;

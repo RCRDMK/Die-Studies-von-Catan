@@ -25,7 +25,7 @@ public class NotEnoughResourcesMessage extends AbstractGameMessage {
      * Constructor
      *
      * @param gameName the name of the game
-     * @param user the user who didn't have enough resources
+     * @param user     the user who didn't have enough resources
      * @author Marc Hermes
      * @since 2021-06-07
      */

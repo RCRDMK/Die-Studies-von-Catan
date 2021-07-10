@@ -2,7 +2,7 @@ package de.uol.swp.server.di;
 
 import com.google.common.eventbus.EventBus;
 import com.google.inject.AbstractModule;
-import de.uol.swp.server.usermanagement.store.MainMemoryBasedUserStore;
+
 import de.uol.swp.server.usermanagement.store.SQLBasedUserStore;
 import de.uol.swp.server.usermanagement.store.UserStore;
 
@@ -11,7 +11,6 @@ import de.uol.swp.server.usermanagement.store.UserStore;
  *
  * @author Marco Grawunder
  * @since 2019-09-18
- *
  */
 @SuppressWarnings("UnstableApiUsage")
 public class ServerModule extends AbstractModule {

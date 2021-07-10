@@ -73,11 +73,11 @@ public interface ServerUserService {
      * <p>
      * Updates the User specified by the User object.
      *
-     * @author Carsten Dekker
      * @param user the user object containing all infos to
      *             update, if some values are not set, (e.g. password is "")
      *             these fields are not updated
      * @return the updated user object
+     * @author Carsten Dekker
      * @author Marco Grawunder
      * @implNote the User Object has to contain a unique identifier in order to
      * update the correct user
@@ -90,13 +90,13 @@ public interface ServerUserService {
      * <p>
      * Updates the User specified by the User object.
      *
-     * @author Carsten Dekker
-     * @implNote the User Object has to contain a unique identifier in order to
-     * 			 update the correct user
      * @param user the user object containing all infos to
      *             update, if some values are not set, (e.g. password is "")
      *             these fields are not updated
      * @return the updated user object
+     * @author Carsten Dekker
+     * @implNote the User Object has to contain a unique identifier in order to
+     * update the correct user
      * @author Marco Grawunder
      * @implNote the User Object has to contain a unique identifier in order to
      * update the correct user
@@ -109,11 +109,11 @@ public interface ServerUserService {
      * <p>
      * Updates the User specified by the User object.
      *
+     * @param user the user object containing all infos to update
+     * @return the updated user object
      * @author Carsten Dekker
      * @implNote the User Object has to contain a unique identifier in order to
      * update the correct user
-     * @param user the user object containing all infos to update
-     * @return the updated user object
      * @since 2021-04-15
      */
     User updateUserPicture(User user) throws Exception;
