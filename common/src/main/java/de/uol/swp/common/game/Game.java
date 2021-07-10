@@ -24,6 +24,7 @@ public interface Game extends Serializable {
      * Getter for the game's name
      *
      * @return A String containing the name of the game
+     * @author Iskander Yusupov
      * @since 2021-01-15
      */
     String getName();
@@ -32,6 +33,7 @@ public interface Game extends Serializable {
      * Changes the owner of the game
      *
      * @param user The user who should be the new owner
+     * @author Iskander Yusupov
      * @since 2021-01-15
      */
     void updateOwner(User user);
@@ -40,6 +42,7 @@ public interface Game extends Serializable {
      * Getter for the current owner of the game
      *
      * @return A User object containing the owner of the game
+     * @author Iskander Yusupov
      * @since 2021-01-15
      */
     User getOwner();
@@ -56,6 +59,7 @@ public interface Game extends Serializable {
      * Removes an user from the game
      *
      * @param user The user to remove from the game
+     * @author Iskander Yusupov
      * @since 2021-01-15
      */
     void leaveUser(User user);
@@ -64,6 +68,7 @@ public interface Game extends Serializable {
      * Removes an selected user from the game
      *
      * @param user The selected user to remove from the game
+     * @author Iskander Yusupov
      * @since 2021-06-24
      */
     void kickPlayer(User user);
@@ -72,6 +77,7 @@ public interface Game extends Serializable {
      * Getter for all users in the game
      *
      * @return A Set containing all user in this game
+     * @author Iskander Yusupov
      * @since 2021-01-15
      */
     Set<User> getUsers();
@@ -125,6 +131,9 @@ public interface Game extends Serializable {
      *
      * <p>This is used to enable the server to address users with indices. This was not possible with the Set-structure
      * of the Users.</p>
+     *
+     * @author Pieter Vogt
+     * @since 2021-03-26
      */
     void setUpUserArrayList();
 
@@ -166,6 +175,12 @@ public interface Game extends Serializable {
      */
     void nextRound();
 
+    /**
+     * Getter for the last Building of the opening turn.
+     *
+     * @return the last Building of the opening turn
+     * @author Philip Nitsche
+     */
     ArrayList<MapGraph.BuildingNode> getLastBuildingOfOpeningTurn();
 
     /**
@@ -229,8 +244,20 @@ public interface Game extends Serializable {
      */
     void setMapGraph(MapGraph mapGraph);
 
+    /**
+     * Getter for the inventory of the bank.
+     *
+     * @return inventory of the bank
+     * @author Anton Nikiforov
+     */
     Inventory getBankInventory();
 
+    /**
+     * Getter for the development card deck.
+     *
+     * @return development card deck
+     * @author Anton Nikiforov
+     */
     DevelopmentCardDeck getDevelopmentCardDeck();
 
     /**

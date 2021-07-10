@@ -10,7 +10,7 @@ import java.util.UUID;
  * Class that manages matrices of players and calculates street paths for each player.
  * <p>
  *
- * @author Marc, Kirstin
+ * @author Marc Hermes, Kirstin Beyer
  * @since 2021-04-23
  */
 
@@ -32,7 +32,7 @@ public class LongestStreetPathCalculator implements Serializable {
      * Creates a new ArrayList of the adjacency matrices in the first dimension and a pathArrayList for each player.
      *
      * @param streetNodeHashSet HashSet containing all street nodes of the MapGraph
-     * @author Marc, Kirstin
+     * @author Marc Hermes, Kirstin Beyer
      * @since 2021-04-23
      */
     public LongestStreetPathCalculator(HashSet<MapGraph.StreetNode> streetNodeHashSet) {
@@ -57,7 +57,7 @@ public class LongestStreetPathCalculator implements Serializable {
      *
      * @param streetUUID UUID of the new street
      * @param playerIndex index of the corresponding player
-     * @author Marc, Kirstin
+     * @author Marc Hermes, Kirstin Beyer
      * @since 2021-04-23
      */
     public void updateMatrixWithNewStreet(UUID streetUUID, int playerIndex) {
@@ -112,7 +112,7 @@ public class LongestStreetPathCalculator implements Serializable {
      *
      * @param buildingNode building node that was placed on the MapGraph
      * @param playerIndex index of the corresponding player
-     * @author Marc, Kirstin
+     * @author Marc Hermes, Kirstin Beyer
      * @since 2021-04-23
      */
     public void updateMatrixWithNewBuilding(MapGraph.BuildingNode buildingNode, int playerIndex) {
@@ -158,7 +158,7 @@ public class LongestStreetPathCalculator implements Serializable {
      * @param playerIndex indicates the player who's path lengths are affected by the new building
      * @param street1 first street from player with playerIndex that is connected to the new building
      * @param street2 second street from player with playerIndex that is connected to the new building
-     * @author Marc, Kirstin
+     * @author Marc Hermes, Kirstin Beyer
      * @since 2021-04-23
      */
     public void reCalculatePathsAtNewBuilding(int playerIndex, UUID street1, UUID street2){
@@ -185,7 +185,7 @@ public class LongestStreetPathCalculator implements Serializable {
      * calculateAllPathsStartingAtNewStreet is called, otherwise the method calculateAllPathsFromStart.
      *
      * @param playerIndex indicates the player
-     * @author Marc, Kirstin
+     * @author Marc Hermes, Kirstin Beyer
      * @since 2021-04-23
      */
     public void reCalculatePaths(int playerIndex) {
@@ -213,7 +213,7 @@ public class LongestStreetPathCalculator implements Serializable {
      *
      * @param matrixOfPlayer adjacency matrix containing the street connections for the player
      * @param playerIndex indicates the player
-     * @author Marc, Kirstin
+     * @author Marc Hermes, Kirstin Beyer
      * @since 2021-04-23
      */
     public void calculateAllPathsStartingAtNewStreet(ConnectionClassIntegerWithUUID[][] matrixOfPlayer, int playerIndex) {
@@ -229,7 +229,7 @@ public class LongestStreetPathCalculator implements Serializable {
      *
      * @param matrixOfPlayer adjacency matrix containing the street connections for the player
      * @param playerIndex indicates the player
-     * @author Marc, Kirstin
+     * @author Marc Hermes, Kirstin Beyer
      * @since 2021-04-23
      */
     public void calculateAllPathsFromStart(ConnectionClassIntegerWithUUID[][] matrixOfPlayer, int playerIndex) {
@@ -255,7 +255,7 @@ public class LongestStreetPathCalculator implements Serializable {
      * @param lookUpColumn previous considered column of the matrix
      * @param matrix adjacency matrix containing the street connections for the player
      * @param playerIndex indicates the player
-     * @author Marc, Kirstin
+     * @author Marc Hermes, Kirstin Beyer
      * @since 2021-04-23
      */
     public ArrayList<UUID> horizontal(ArrayList<UUID> walkedPath, int row, int lookUpColumn, ConnectionClassIntegerWithUUID[][] matrix, int playerIndex) {
@@ -302,7 +302,7 @@ public class LongestStreetPathCalculator implements Serializable {
      * @param lookUpRow previous considered row of the matrix
      * @param matrix adjacency matrix containing the street connections for the player
      * @param playerIndex indicates the player
-     * @author Marc, Kirstin
+     * @author Marc Hermes, Kirstin Beyer
      * @since 2021-04-23
      */
     public ArrayList<UUID> vertical(ArrayList<UUID> walkedPath, int column, int lookUpRow, ConnectionClassIntegerWithUUID[][] matrix, int playerIndex) {
@@ -334,7 +334,7 @@ public class LongestStreetPathCalculator implements Serializable {
      * Prints adjacency matrix of the corresponding player row by row.
      *
      * @param playerIndex indicates the player
-     * @author Marc, Kirstin
+     * @author Marc Hermes, Kirstin Beyer
      * @since 2021-04-23
      */
     public void printAdjacencyMatrix(int playerIndex) {
@@ -353,7 +353,7 @@ public class LongestStreetPathCalculator implements Serializable {
      * Converts adjacency matrix of the corresponding player from ArrayList tp array.
      *
      * @param playerIndex indicates the player
-     * @author Marc, Kirstin
+     * @author Marc Hermes, Kirstin Beyer
      * @since 2021-04-23
      */
     public ConnectionClassIntegerWithUUID[][] toArrayMatrix(int playerIndex) {
@@ -374,7 +374,7 @@ public class LongestStreetPathCalculator implements Serializable {
      * Gets longest path from the players path ArrayList and returns the size of this path.
      *
      * @param playerIndex indicates the player
-     * @author Marc, Kirstin
+     * @author Marc Hermes, Kirstin Beyer
      * @since 2021-04-23
      */
     public int getLongestPath(int playerIndex) {
