@@ -610,6 +610,13 @@ public class LobbyPresenter extends AbstractPresenter {
         updateLobbyUsersListLogic(lobbyUserList);
     }
 
+    /**
+     * This method gets invoked by the updateLobbyUsersList method
+     *
+     * @param l a list with UserDTOs
+     * @author Marc Hermes, Ricardo Mook
+     * @since 2020-12-02
+     */
     public void updateLobbyUsersListLogic(List<UserDTO> l) {
         // Attention: This must be done on the FX Thread!
         Platform.runLater(() -> {
@@ -629,9 +636,9 @@ public class LobbyPresenter extends AbstractPresenter {
      * If a ResponseChatMessage is detected on the EventBus the method onResponseChatMessageLogic is invoked.
      *
      * @param message the ResponseChatMessage object seen on the EventBus
-     * @author ?
+     * @author Rene
      * @see de.uol.swp.common.chat.ResponseChatMessage
-     * @since ?
+     * @since 2020-12-02
      */
     @Subscribe
     public void onResponseChatMessage(ResponseChatMessage message) {
