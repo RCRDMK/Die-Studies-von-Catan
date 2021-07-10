@@ -2,6 +2,9 @@ package de.uol.swp.server.game;
 
 /**
  * Exception thrown in LobbyManagement
+ *
+ * @since:
+ * @author:
  */
 
 public class GameManagementException extends RuntimeException {

@@ -4,22 +4,20 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import de.uol.swp.common.chat.RequestChatMessage;
 import de.uol.swp.common.chat.ResponseChatMessage;
 import de.uol.swp.server.AbstractService;
 import de.uol.swp.server.cheat.CheatService;
 import de.uol.swp.server.usermanagement.UserService;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 
 /**
  * Service that handles the chat
  * <p>
  *
- * @author René, Anton, Sergej
+ * @author René Meyer, Anton Nikiforov, Sergej Tulnev
  * @see de.uol.swp.server.AbstractService
  * @since 2020-11-22
  */
