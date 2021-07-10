@@ -1,8 +1,8 @@
 package de.uol.swp.server.AI.AIActions;
 
-import de.uol.swp.common.user.User;
-
 import java.util.UUID;
+
+import de.uol.swp.common.user.User;
 
 /**
  * The AIAction used to play and resolve the Road Building developmentCard
@@ -26,7 +26,8 @@ public class PlayDevelopmentCardRoadBuildingAction extends PlayDevelopmentCardAc
      * @author Alexander Losse, Marc Hermes
      * @since 2021-05-08
      */
-    public PlayDevelopmentCardRoadBuildingAction(User user, String gameName, String devCard, UUID street1, UUID street2) {
+    public PlayDevelopmentCardRoadBuildingAction(User user, String gameName, String devCard, UUID street1,
+                                                 UUID street2) {
         super(user, gameName, devCard);
         this.street1 = street1;
         this.street2 = street2;

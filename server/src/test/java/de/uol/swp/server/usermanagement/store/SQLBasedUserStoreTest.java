@@ -1,14 +1,15 @@
 package de.uol.swp.server.usermanagement.store;
 
-import de.uol.swp.common.user.User;
-import de.uol.swp.common.user.UserDTO;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Optional;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.sql.SQLException;
-import java.util.List;
-import java.util.Optional;
+import de.uol.swp.common.user.User;
+import de.uol.swp.common.user.UserDTO;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -24,7 +25,7 @@ public class SQLBasedUserStoreTest {
     @BeforeEach
     public void deleteDefaultUser() throws Exception {
         Optional<User> user = userStore.findUser(defaultUser.getUsername(), defaultUser.getPassword());
-        if(user.isPresent()){
+        if (user.isPresent()) {
             userStore.removeUser(defaultUser.getUsername());
         }
     }

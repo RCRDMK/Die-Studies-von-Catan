@@ -9,13 +9,19 @@ import java.util.Stack;
  * <p>
  * Creates the deck, fills it with cards, and shuffles them.
  *
- * @author Anton
+ * @author Anton Nikiforov
  * @since 2021-01-17
  */
 public class DevelopmentCardDeck implements Serializable {
 
     private final Stack<String> deck = new Stack<>();
 
+    /**
+     * Fills deck with cards and then shuffles them.
+     *
+     * @author Anton Nikiforov
+     * @since 2021-01-17
+     */
     public DevelopmentCardDeck() {
 
         for (int i = 0; i < 5; i++) deck.push("Victory Point Card");
@@ -34,10 +40,11 @@ public class DevelopmentCardDeck implements Serializable {
      * Draw the development card from the deck
      *
      * @return a drawn the card if there is one left, otherwise null
+     * @author Anton Nikiforov
+     * @since 2021-01-17
      */
     public String drawnCard() {
-        if (deck.size() > 0) return deck.pop();
-        else return null;
+        if (deck.size() > 0) { return deck.pop(); } else { return null; }
     }
 
     /**

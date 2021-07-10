@@ -1,9 +1,9 @@
 package de.uol.swp.common.game.request;
 
+import java.util.ArrayList;
+
 import de.uol.swp.common.game.trade.TradeItem;
 import de.uol.swp.common.user.UserDTO;
-
-import java.util.ArrayList;
 
 /**
  * The request to inform the server about the items to be traded
@@ -40,7 +40,8 @@ public class TradeItemRequest extends AbstractGameRequest {
      * @author Alexander Losse, Ricardo Mook
      * @since 2021-04-11
      */
-    public TradeItemRequest(UserDTO user, String gameName, ArrayList<TradeItem> tradeItems, String tradeCode, ArrayList<TradeItem> wishItems) {
+    public TradeItemRequest(UserDTO user, String gameName, ArrayList<TradeItem> tradeItems, String tradeCode,
+                            ArrayList<TradeItem> wishItems) {
         this.user = new UserDTO(user.getUsername(), "", "");
         this.name = gameName;
         this.tradeItems = fillEmptySpotsInList(tradeItems);

@@ -1,9 +1,9 @@
 package de.uol.swp.common.user.response.lobby;
 
+import java.util.Objects;
+
 import de.uol.swp.common.message.AbstractResponseMessage;
 import de.uol.swp.common.user.User;
-
-import java.util.Objects;
 
 /**
  * Response that is sent to the User who requested to join the lobby.
@@ -42,15 +42,15 @@ public class LobbyJoinedSuccessfulResponse extends AbstractResponseMessage {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        LobbyJoinedSuccessfulResponse that = (LobbyJoinedSuccessfulResponse) o;
-        return Objects.equals(user, that.user);
+    public int hashCode() {
+        return Objects.hash(user);
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(user);
+    public boolean equals(Object o) {
+        if (this == o) { return true; }
+        if (o == null || getClass() != o.getClass()) { return false; }
+        LobbyJoinedSuccessfulResponse that = (LobbyJoinedSuccessfulResponse) o;
+        return Objects.equals(user, that.user);
     }
 }

@@ -1,8 +1,16 @@
 package de.uol.swp.server.chat;
 
+import java.sql.SQLException;
+import java.util.concurrent.CountDownLatch;
+
 import com.google.common.eventbus.DeadEvent;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import de.uol.swp.common.chat.RequestChatMessage;
 import de.uol.swp.common.chat.ResponseChatMessage;
 import de.uol.swp.common.message.MessageContext;
@@ -19,12 +27,6 @@ import de.uol.swp.server.usermanagement.AuthenticationService;
 import de.uol.swp.server.usermanagement.UserManagement;
 import de.uol.swp.server.usermanagement.UserService;
 import de.uol.swp.server.usermanagement.store.MainMemoryBasedUserStore;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import java.sql.SQLException;
-import java.util.concurrent.CountDownLatch;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -39,19 +41,20 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 public class ChatServiceTest {
     final EventBus bus = new EventBus();
+    final User defaultUser = new UserDTO("Marco", "test", "marco@test.de");
+    final CountDownLatch lock = new CountDownLatch(1);
     MainMemoryBasedUserStore mainMemoryBasedUserStore = new MainMemoryBasedUserStore();
     final UserManagement userManagement = new UserManagement(mainMemoryBasedUserStore);
-    final AuthenticationService authenticationService = new AuthenticationService(bus, userManagement);
     UserService userService = new UserService(bus, userManagement);
     GameManagement gameManagement = new GameManagement();
     LobbyManagement lobbyManagement = new LobbyManagement();
     LobbyService lobbyService = new LobbyService(lobbyManagement, new AuthenticationService(bus, userManagement), bus);
-    GameService gameService = new GameService(gameManagement, lobbyService, new AuthenticationService(bus, userManagement), bus, userService);
-    final User defaultUser = new UserDTO("Marco", "test", "marco@test.de");
+    GameService gameService = new GameService(gameManagement, lobbyService,
+            new AuthenticationService(bus, userManagement), bus, userService);
     final CheatService cheatService = new CheatService(gameService, bus);
-    final ChatService chatService = new ChatService(cheatService, bus);
-    final CountDownLatch lock = new CountDownLatch(1);
     Object event;
+    final AuthenticationService authenticationService = new AuthenticationService(bus, userManagement);
+    final ChatService chatService = new ChatService(cheatService, bus);
 
     public ChatServiceTest() throws SQLException {
     }

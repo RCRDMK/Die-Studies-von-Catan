@@ -1,9 +1,9 @@
 package de.uol.swp.common.game.message;
 
+import java.util.ArrayList;
+
 import de.uol.swp.common.game.trade.TradeItem;
 import de.uol.swp.common.user.UserDTO;
-
-import java.util.ArrayList;
 
 /**
  * Message sent by the server when bank response
@@ -31,15 +31,15 @@ public class BankResponseMessage extends AbstractGameMessage {
     /**
      * Constructor
      *
-     * @param user UserDTO
+     * @param user      UserDTO
      * @param tradeCode String
-     * @param cardName the name form the card he wanna buy
+     * @param cardName  the name form the card he wanna buy
      * @param bankOffer offer from bank
-     *
      * @author Anton Nikiforov
      * @since 2021-05-29
      */
-    public BankResponseMessage(UserDTO user, String tradeCode, String cardName, ArrayList<ArrayList<TradeItem>> bankOffer) {
+    public BankResponseMessage(UserDTO user, String tradeCode, String cardName,
+                               ArrayList<ArrayList<TradeItem>> bankOffer) {
         this.user = user;
         this.tradeCode = tradeCode;
         this.cardName = cardName;
@@ -47,14 +47,33 @@ public class BankResponseMessage extends AbstractGameMessage {
 
     }
 
+    /**
+     * getter for the tradeCode variable.
+     *
+     * @return the tradecode
+     * @author Anton Nikiforov
+     */
     public String getTradeCode() {
         return tradeCode;
     }
+
+    /**
+     * getter for the cardName variable.
+     *
+     * @return the cardName
+     * @author Anton Nikiforov
+     */
 
     public String getCardName() {
         return cardName;
     }
 
+    /**
+     * getter for the bankOffer list.
+     *
+     * @return the bankOffer
+     * @author Anton Nikiforov
+     */
     public ArrayList<ArrayList<TradeItem>> getBankOffer() {
         return bankOffer;
     }

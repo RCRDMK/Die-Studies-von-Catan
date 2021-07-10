@@ -1,9 +1,16 @@
 package de.uol.swp.server.usermanagement.store;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+
 import com.google.common.base.Strings;
+
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
-import java.util.*;
 
 /**
  * This is a user store.
@@ -58,14 +65,6 @@ public class MainMemoryBasedUserStore extends AbstractUserStore implements UserS
     }
 
     @Override
-    public List<User> getAllUsers() {
-        List<User> retUsers = new ArrayList<>();
-        users.values().forEach(u -> retUsers.add(u.getWithoutPassword()));
-        return retUsers;
-    }
-
-
-    @Override
     public User updateUserMail(String username, String eMail) {
         User usr = users.get(username);
         users.put(username, new UserDTO(username, usr.getPassword(), eMail, usr.getProfilePictureID()));
@@ -84,5 +83,12 @@ public class MainMemoryBasedUserStore extends AbstractUserStore implements UserS
         User usr = users.get(username);
         users.put(username, new UserDTO(username, usr.getPassword(), usr.getEMail(), profilePictureID));
         return users.get(username).getWithoutPassword();
+    }
+
+    @Override
+    public List<User> getAllUsers() {
+        List<User> retUsers = new ArrayList<>();
+        users.values().forEach(u -> retUsers.add(u.getWithoutPassword()));
+        return retUsers;
     }
 }

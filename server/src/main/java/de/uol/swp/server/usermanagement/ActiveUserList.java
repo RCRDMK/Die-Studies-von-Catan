@@ -1,11 +1,11 @@
 package de.uol.swp.server.usermanagement;
 
-import de.uol.swp.common.user.User;
-
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.List;
+
+import de.uol.swp.common.user.User;
 
 /**
  * Maintains a list of active users to log out inactive users

@@ -1,8 +1,5 @@
 package de.uol.swp.server.usermanagement;
 
-import de.uol.swp.common.user.User;
-import de.uol.swp.server.usermanagement.store.UserStore;
-
 import javax.inject.Inject;
 import java.sql.SQLException;
 import java.util.List;
@@ -10,6 +7,8 @@ import java.util.Optional;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import de.uol.swp.common.user.User;
+import de.uol.swp.server.usermanagement.store.UserStore;
 
 /**
  * Handles most user related issues e.g. login/logout
@@ -81,6 +80,11 @@ public class UserManagement extends AbstractUserManagement {
     @Override
     public boolean isLoggedIn(User username) {
         return loggedInUsers.containsKey(username.getUsername());
+    }
+
+    @Override
+    public void logout(User user) {
+        loggedInUsers.remove(user.getUsername());
     }
 
     /**
@@ -167,9 +171,9 @@ public class UserManagement extends AbstractUserManagement {
      * This method updates the pictureID from the user in the database. It shows an exception, if the user is not
      * present in the database.
      *
-     * @author Carsten Dekker
      * @param toUpdatePicture the new user object that contains the new profilePictureID
      * @return A new UserDTO with the username and the profile pictureID
+     * @author Carsten Dekker
      * @see java.sql.SQLException
      * @since 2021-04-15
      */
@@ -180,11 +184,6 @@ public class UserManagement extends AbstractUserManagement {
             throw new UserManagementException("Username unknown!");
         }
         return storeInUse.updateUserPicture(toUpdatePicture.getUsername(), toUpdatePicture.getProfilePictureID());
-    }
-
-    @Override
-    public void logout(User user) {
-        loggedInUsers.remove(user.getUsername());
     }
 
     /**

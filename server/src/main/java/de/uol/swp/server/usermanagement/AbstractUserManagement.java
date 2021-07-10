@@ -1,10 +1,10 @@
 package de.uol.swp.server.usermanagement;
 
 
-import de.uol.swp.common.user.User;
-
 import java.sql.SQLException;
 import java.util.List;
+
+import de.uol.swp.common.user.User;
 
 /**
  * Base class for all kinds of different UserManagements

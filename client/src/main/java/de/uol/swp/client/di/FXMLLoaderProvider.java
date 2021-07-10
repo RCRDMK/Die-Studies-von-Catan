@@ -1,9 +1,10 @@
 package de.uol.swp.client.di;
 
+import javafx.fxml.FXMLLoader;
+
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Provider;
-import javafx.fxml.FXMLLoader;
 
 /**
  * Class that provides Instances of the FXMLLoader

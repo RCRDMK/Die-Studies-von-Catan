@@ -14,20 +14,20 @@ import java.util.UUID;
  */
 
 public class ConnectionClassIntegerWithUUID implements Serializable {
-    private Integer integer;
     private final UUID uuidForRow;
     private final UUID uuidForColumn;
+    private Integer integer;
 
     /**
      * Constructor
      *
-     * @param uuidForRow UUID for corresponding street in that row
+     * @param uuidForRow    UUID for corresponding street in that row
      * @param uuidForColumn UUID for corresponding street in that column
-     * @param integer integer value (0 or 1), indicating if streets are connected
+     * @param integer       integer value (0 or 1), indicating if streets are connected
      * @author Marc, Kirstin
      * @since 2021-04-23
      */
-    public ConnectionClassIntegerWithUUID( UUID uuidForRow, UUID uuidForColumn, Integer integer) {
+    public ConnectionClassIntegerWithUUID(UUID uuidForRow, UUID uuidForColumn, Integer integer) {
         this.integer = integer;
         this.uuidForColumn = uuidForColumn;
         this.uuidForRow = uuidForRow;

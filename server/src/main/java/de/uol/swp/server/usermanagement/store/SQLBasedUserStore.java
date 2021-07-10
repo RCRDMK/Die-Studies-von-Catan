@@ -1,14 +1,20 @@
 package de.uol.swp.server.usermanagement.store;
 
-import de.uol.swp.common.user.User;
-import de.uol.swp.common.user.UserDTO;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import de.uol.swp.common.user.User;
+import de.uol.swp.common.user.UserDTO;
 
 
 /**
@@ -24,10 +30,10 @@ import java.util.Optional;
  */
 public class SQLBasedUserStore extends AbstractUserStore implements UserStore {
 
+    private static final Logger LOG = LogManager.getLogger(SQLBasedUserStore.class);
+    private final String CONNECTION = "jdbc:mysql://178.238.232.242:3306?autoReconnect=true";
     private Connection connection;
     private Statement statement;
-    private final String CONNECTION = "jdbc:mysql://178.238.232.242:3306?autoReconnect=true";
-    private static final Logger LOG = LogManager.getLogger(SQLBasedUserStore.class);
 
     /**
      * Build Connection
@@ -81,7 +87,8 @@ public class SQLBasedUserStore extends AbstractUserStore implements UserStore {
         ResultSet resultSet;
         try {
             buildConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement("select name, password, mail, pictureID from userData where name=? and password=?;");
+            PreparedStatement preparedStatement = connection.prepareStatement(
+                    "select name, password, mail, pictureID from userData where name=? and password=?;");
             preparedStatement.setString(1, username);
             preparedStatement.setString(2, password);
             resultSet = preparedStatement.executeQuery();
@@ -119,7 +126,8 @@ public class SQLBasedUserStore extends AbstractUserStore implements UserStore {
         ResultSet resultSet;
         try {
             buildConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement("select name, mail, pictureID from userData where name=?;");
+            PreparedStatement preparedStatement = connection
+                    .prepareStatement("select name, mail, pictureID from userData where name=?;");
             preparedStatement.setString(1, username);
             resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
@@ -151,7 +159,8 @@ public class SQLBasedUserStore extends AbstractUserStore implements UserStore {
     public User createUser(String username, String password, String eMail) throws Exception {
         try {
             buildConnection();
-            PreparedStatement userName = connection.prepareStatement("insert into userData(name, password, mail) values (?,?,?);");
+            PreparedStatement userName = connection
+                    .prepareStatement("insert into userData(name, password, mail) values (?,?,?);");
             userName.setString(1, username);
             userName.setString(2, password);
             userName.setString(3, eMail);
@@ -205,7 +214,8 @@ public class SQLBasedUserStore extends AbstractUserStore implements UserStore {
     public User updateUserMail(String username, String eMail) throws Exception {
         try {
             buildConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement("update userData set mail=? where name=?;");
+            PreparedStatement preparedStatement = connection
+                    .prepareStatement("update userData set mail=? where name=?;");
             preparedStatement.setString(1, eMail);
             preparedStatement.setString(2, username);
             preparedStatement.executeUpdate();
@@ -233,7 +243,8 @@ public class SQLBasedUserStore extends AbstractUserStore implements UserStore {
     public User updateUserPassword(String username, String password) throws Exception {
         try {
             buildConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement("update userData set password=? where name=?;");
+            PreparedStatement preparedStatement = connection
+                    .prepareStatement("update userData set password=? where name=?;");
             preparedStatement.setString(1, password);
             preparedStatement.setString(2, username);
             preparedStatement.executeUpdate();
@@ -262,7 +273,8 @@ public class SQLBasedUserStore extends AbstractUserStore implements UserStore {
     public User updateUserPicture(String username, int profilePictureID) throws Exception {
         try {
             buildConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement("update userData set pictureID=? where name=?;");
+            PreparedStatement preparedStatement = connection
+                    .prepareStatement("update userData set pictureID=? where name=?;");
             preparedStatement.setInt(1, profilePictureID);
             preparedStatement.setString(2, username);
             preparedStatement.executeUpdate();
@@ -294,7 +306,8 @@ public class SQLBasedUserStore extends AbstractUserStore implements UserStore {
             PreparedStatement preparedStatement = connection.prepareStatement("select * from userData;");
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
-                userList.add(new UserDTO(resultSet.getString(1), resultSet.getString(2), resultSet.getString(3), resultSet.getInt(4)));
+                userList.add(new UserDTO(resultSet.getString(1), resultSet.getString(2), resultSet.getString(3),
+                        resultSet.getInt(4)));
             }
             return userList;
         } catch (SQLException e) {

@@ -1,11 +1,11 @@
 package de.uol.swp.server.game;
 
-import de.uol.swp.common.game.Game;
-import de.uol.swp.common.user.User;
-
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+
+import de.uol.swp.common.game.Game;
+import de.uol.swp.common.user.User;
 
 /**
  * An interface for all methods of the server game service

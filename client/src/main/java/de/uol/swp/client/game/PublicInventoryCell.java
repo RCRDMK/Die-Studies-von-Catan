@@ -1,12 +1,12 @@
 package de.uol.swp.client.game;
 
+import java.util.HashMap;
+
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
-
-import java.util.HashMap;
 
 /**
  * Creates PublicInventoryCells to populate the ListView fxml-element with information

@@ -1,14 +1,57 @@
 package de.uol.swp.server.game;
 
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
 import com.google.common.eventbus.DeadEvent;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.Inventory;
 import de.uol.swp.common.game.MapGraph;
 import de.uol.swp.common.game.dto.GameDTO;
-import de.uol.swp.common.game.message.*;
-import de.uol.swp.common.game.request.*;
+import de.uol.swp.common.game.message.BankResponseMessage;
+import de.uol.swp.common.game.message.NextTurnMessage;
+import de.uol.swp.common.game.message.PublicInventoryChangeMessage;
+import de.uol.swp.common.game.message.ResolveDevelopmentCardMessage;
+import de.uol.swp.common.game.message.TradeCardErrorMessage;
+import de.uol.swp.common.game.message.TradeEndedMessage;
+import de.uol.swp.common.game.message.TradeInformSellerAboutBidsMessage;
+import de.uol.swp.common.game.message.TradeOfferInformBiddersMessage;
+import de.uol.swp.common.game.message.TradeStartedMessage;
+import de.uol.swp.common.game.request.BankBuyRequest;
+import de.uol.swp.common.game.request.BankRequest;
+import de.uol.swp.common.game.request.BuyDevelopmentCardRequest;
+import de.uol.swp.common.game.request.ConstructionRequest;
+import de.uol.swp.common.game.request.DrawRandomResourceFromPlayerRequest;
+import de.uol.swp.common.game.request.EndTurnRequest;
+import de.uol.swp.common.game.request.GameLeaveUserRequest;
+import de.uol.swp.common.game.request.KickPlayerRequest;
+import de.uol.swp.common.game.request.PlayDevelopmentCardRequest;
+import de.uol.swp.common.game.request.PlayerReadyRequest;
+import de.uol.swp.common.game.request.ResolveDevelopmentCardKnightRequest;
+import de.uol.swp.common.game.request.ResolveDevelopmentCardMonopolyRequest;
+import de.uol.swp.common.game.request.ResolveDevelopmentCardRoadBuildingRequest;
+import de.uol.swp.common.game.request.ResolveDevelopmentCardYearOfPlentyRequest;
+import de.uol.swp.common.game.request.ResourcesToDiscardRequest;
+import de.uol.swp.common.game.request.RetrieveAllGamesRequest;
+import de.uol.swp.common.game.request.RetrieveAllThisGameUsersRequest;
+import de.uol.swp.common.game.request.RobbersNewFieldRequest;
+import de.uol.swp.common.game.request.RollDiceRequest;
+import de.uol.swp.common.game.request.TradeChoiceRequest;
+import de.uol.swp.common.game.request.TradeItemRequest;
+import de.uol.swp.common.game.request.TradeStartRequest;
 import de.uol.swp.common.game.response.AllCreatedGamesResponse;
 import de.uol.swp.common.game.response.PlayDevelopmentCardResponse;
 import de.uol.swp.common.game.response.ResolveDevelopmentCardNotSuccessfulResponse;
@@ -35,14 +78,6 @@ import de.uol.swp.server.usermanagement.AuthenticationService;
 import de.uol.swp.server.usermanagement.UserManagement;
 import de.uol.swp.server.usermanagement.UserService;
 import de.uol.swp.server.usermanagement.store.MainMemoryBasedUserStore;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import java.sql.SQLException;
-import java.util.*;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -59,20 +94,28 @@ public class GameServiceTest {
     final AuthenticationService authenticationService = new AuthenticationService(bus, userManagement);
     GameService gameService = new GameService(gameManagement, lobbyService, authenticationService, bus, userService);
 
-    UserDTO userDTO = new UserDTO("test1", "47b7d407c2e2f3aff0e21aa16802006ba1793fd47b2d3cacee7cf7360e751bff7b7d0c7946b42b97a5306c6708ab006d0d81ef41a0c9f94537a2846327c51236", "peter.lustig@uol.de");
-    UserDTO userDTO1 = new UserDTO("test2", "994dac907995937160371992ecbdf9b34242db0abb3943807b5baa6be0c6908f72ea87b7dadd2bce6cf700c8dfb7d57b0566f544af8c30336a15d5f732d85613", "carsten.stahl@uol.de");
-    UserDTO userDTO2 = new UserDTO("test3", "b74a37371ca548bfd937410737b27f383e03021766e90f1180169691b8b15fc50aef49932c7413c0450823777ba46a34fd649b4da20b2e701c394c582ff6df55", "peterlustig@uol.de");
-    UserDTO userDTO3 = new UserDTO("test4", "65dfe56dd0e9117907b11e440d99a667527ddb13244aa38f79d3ae61ee0b2ab4047c1218c4fb05d84f88b914826c45de3ab27a611ea910a4b14733ab1e32b125", "test.lustig@uol.de");
+    UserDTO userDTO = new UserDTO("catanprofi",
+            "47b7d407c2e2f3aff0e21aa16802006ba1793fd47b2d3cacee7cf7360e751bff7b7d0c7946b42b97a5306c6708ab006d0d81ef41a0c9f94537a2846327c51236",
+            "peter.lustig@uol.de");
+    UserDTO userDTO1 = new UserDTO("captain",
+            "994dac907995937160371992ecbdf9b34242db0abb3943807b5baa6be0c6908f72ea87b7dadd2bce6cf700c8dfb7d57b0566f544af8c30336a15d5f732d85613",
+            "carsten.stahl@uol.de");
+    UserDTO userDTO2 = new UserDTO("marius1",
+            "b74a37371ca548bfd937410737b27f383e03021766e90f1180169691b8b15fc50aef49932c7413c0450823777ba46a34fd649b4da20b2e701c394c582ff6df55",
+            "peterlustig@uol.de");
+    UserDTO userDTO3 = new UserDTO("marc1",
+            "65dfe56dd0e9117907b11e440d99a667527ddb13244aa38f79d3ae61ee0b2ab4047c1218c4fb05d84f88b914826c45de3ab27a611ea910a4b14733ab1e32b125",
+            "test.lustig@uol.de");
 
     Object event;
+
+    public GameServiceTest() throws SQLException {
+        gameService.setJoiningAIThreadsNeeded(true);
+    }
 
     @Subscribe
     void handle(DeadEvent e) {
         this.event = e.getEvent();
-    }
-
-    public GameServiceTest() throws SQLException {
-        gameService.setJoiningAIThreadsNeeded(true);
     }
 
     void loginUsers() {
@@ -146,7 +189,8 @@ public class GameServiceTest {
         game.joinUser(userDTO2);
         game.joinUser(userDTO3);
 
-        RetrieveAllThisGameUsersRequest retrieveAllThisGameUsersRequest = new RetrieveAllThisGameUsersRequest(lobby.getName());
+        RetrieveAllThisGameUsersRequest retrieveAllThisGameUsersRequest = new RetrieveAllThisGameUsersRequest(
+                lobby.getName());
         assertSame(gameManagement.getGame(lobby.getName()).get().getName(), retrieveAllThisGameUsersRequest.getName());
         GameLeaveUserRequest gameLeaveUserRequest = new GameLeaveUserRequest(lobby.getName(), userDTO1);
         gameLeaveUserRequest.setMessageContext(new MessageContext() {
@@ -229,21 +273,25 @@ public class GameServiceTest {
         game.joinUser(userDTO2);
         game.joinUser(userDTO3);
 
-        RetrieveAllThisGameUsersRequest retrieveAllThisGameUsersRequest = new RetrieveAllThisGameUsersRequest(lobby.getName());
+        RetrieveAllThisGameUsersRequest retrieveAllThisGameUsersRequest = new RetrieveAllThisGameUsersRequest(
+                lobby.getName());
         Optional<Game> sameGame = gameManagement.getGame(lobby.getName());
         assertTrue(sameGame.isPresent());
         assertSame(sameGame.get().getName(), retrieveAllThisGameUsersRequest.getName());
 
-        KickPlayerRequest kickPlayerRequest = new KickPlayerRequest(lobby.getName(), userDTO, userDTO1.getUsername(), false);
+        KickPlayerRequest kickPlayerRequest = new KickPlayerRequest(lobby.getName(), userDTO, userDTO1.getUsername(),
+                false);
         gameService.onGameKickPlayerRequest(kickPlayerRequest);
         gameService.onRetrieveAllThisGameUsersRequest(retrieveAllThisGameUsersRequest);
         assertFalse(game.getUsers().contains(userDTO1));
-        KickPlayerRequest kickPlayerRequest2 = new KickPlayerRequest(lobby.getName(), userDTO, userDTO2.getUsername(), false);
+        KickPlayerRequest kickPlayerRequest2 = new KickPlayerRequest(lobby.getName(), userDTO, userDTO2.getUsername(),
+                false);
         gameService.onGameKickPlayerRequest(kickPlayerRequest2);
         gameService.onRetrieveAllThisGameUsersRequest(retrieveAllThisGameUsersRequest);
         assertFalse(game.getUsers().contains(userDTO2));
 
-        KickPlayerRequest kickPlayerRequest3 = new KickPlayerRequest(lobby.getName(), userDTO, userDTO3.getUsername(), true);
+        KickPlayerRequest kickPlayerRequest3 = new KickPlayerRequest(lobby.getName(), userDTO, userDTO3.getUsername(),
+                true);
         gameService.onGameKickPlayerRequest(kickPlayerRequest3);
         gameService.onRetrieveAllThisGameUsersRequest(retrieveAllThisGameUsersRequest);
         assertFalse(game.getUsers().contains(userDTO3));
@@ -341,14 +389,16 @@ public class GameServiceTest {
         sellerItems.add(sellerItemGrain);
         sellerItems.add(sellerItemOre);
 
-        TradeItemRequest sellerItemRequest = new TradeItemRequest(userDTO, game.getName(), sellerItems, tradeCode, wishItems);
+        TradeItemRequest sellerItemRequest = new TradeItemRequest(userDTO, game.getName(), sellerItems, tradeCode,
+                wishItems);
 
         assertTrue(game.getTradeList().isEmpty());
         gameService.onTradeItemRequest(sellerItemRequest);
         assertTrue(event instanceof TradeOfferInformBiddersMessage);
         assertTrue(game.getTradeList().containsKey(tradeCode));
         assertEquals(game.getTradeList().size(), 1);
-        assertEquals(sellerItemRequest.getUser().getUsername(), game.getTradeList().get(tradeCode).getSeller().getUsername());
+        assertEquals(sellerItemRequest.getUser().getUsername(),
+                game.getTradeList().get(tradeCode).getSeller().getUsername());
         assertTrue(game.getTradeList().get(tradeCode).getBidders().isEmpty());
 
         //test bidder1 with too much items offered
@@ -366,7 +416,8 @@ public class GameServiceTest {
         bidder1ItemsWrong.add(bidder1ItemGrain);
         bidder1ItemsWrong.add(bidder1ItemOre);
 
-        TradeItemRequest bidder1ItemRequest = new TradeItemRequest(userDTO1, game.getName(), bidder1ItemsWrong, tradeCode, bidder1wishItems);
+        TradeItemRequest bidder1ItemRequest = new TradeItemRequest(userDTO1, game.getName(), bidder1ItemsWrong,
+                tradeCode, bidder1wishItems);
         gameService.onTradeItemRequest(bidder1ItemRequest);
 
         assertTrue(event instanceof TradeCardErrorMessage);
@@ -386,7 +437,8 @@ public class GameServiceTest {
         bidder1ItemsRight.add(bidder1ItemGrain);
         bidder1ItemsRight.add(bidder1ItemOre);
 
-        bidder1ItemRequest = new TradeItemRequest(userDTO1, game.getName(), bidder1ItemsRight, tradeCode, bidder1wishItems);
+        bidder1ItemRequest = new TradeItemRequest(userDTO1, game.getName(), bidder1ItemsRight, tradeCode,
+                bidder1wishItems);
         gameService.onTradeItemRequest(bidder1ItemRequest);
 
         assertFalse(event instanceof TradeInformSellerAboutBidsMessage);
@@ -408,7 +460,8 @@ public class GameServiceTest {
         bidder2Items.add(bidder2ItemGrain);
         bidder2Items.add(bidder2ItemOre);
 
-        TradeItemRequest bidder2ItemRequest = new TradeItemRequest(userDTO2, game.getName(), bidder2Items, tradeCode, bidder2wishItems);
+        TradeItemRequest bidder2ItemRequest = new TradeItemRequest(userDTO2, game.getName(), bidder2Items, tradeCode,
+                bidder2wishItems);
         gameService.onTradeItemRequest(bidder2ItemRequest);
 
         assertFalse(event instanceof TradeInformSellerAboutBidsMessage);
@@ -429,7 +482,8 @@ public class GameServiceTest {
         bidder3Items.add(bidder3ItemGrain);
         bidder3Items.add(bidder3ItemOre);
 
-        TradeItemRequest bidder3ItemRequest = new TradeItemRequest(userDTO3, game.getName(), bidder3Items, tradeCode, bidder3wishItems);
+        TradeItemRequest bidder3ItemRequest = new TradeItemRequest(userDTO3, game.getName(), bidder3Items, tradeCode,
+                bidder3wishItems);
         gameService.onTradeItemRequest(bidder3ItemRequest);
 
         assertTrue(event instanceof TradeInformSellerAboutBidsMessage);
@@ -589,7 +643,8 @@ public class GameServiceTest {
         buildStreetAndBuildingForOpeningTurn(game);
         buildStreetAndBuildingForOpeningTurn(game);
 
-        PlayDevelopmentCardRequest pdcr = new PlayDevelopmentCardRequest("Year of Plenty", "test", (UserDTO) userThatPlaysTheCard);
+        PlayDevelopmentCardRequest pdcr = new PlayDevelopmentCardRequest("Year of Plenty", "test",
+                (UserDTO) userThatPlaysTheCard);
         gameService.onPlayDevelopmentCardRequest(pdcr);
         assertTrue(event instanceof PlayDevelopmentCardResponse);
         assertFalse(((PlayDevelopmentCardResponse) event).isCanPlayCard());
@@ -632,7 +687,8 @@ public class GameServiceTest {
         assert street1 != null;
         assert street2 != null;
 
-        ResolveDevelopmentCardRoadBuildingRequest rdcrbr = new ResolveDevelopmentCardRoadBuildingRequest("Road Building", (UserDTO) userThatPlaysTheCard, game.getName(), street1.getUuid(), street2.getUuid());
+        ResolveDevelopmentCardRoadBuildingRequest rdcrbr = new ResolveDevelopmentCardRoadBuildingRequest(
+                "Road Building", (UserDTO) userThatPlaysTheCard, game.getName(), street1.getUuid(), street2.getUuid());
         gameService.onResolveDevelopmentCardRequest(rdcrbr);
         assertFalse(event instanceof ResolveDevelopmentCardMessage);
 
@@ -640,7 +696,8 @@ public class GameServiceTest {
         int brick = inv0.brick.getNumber();
         int ore = inv0.ore.getNumber();
         int lumber = inv0.lumber.getNumber();
-        ResolveDevelopmentCardYearOfPlentyRequest rdcyopr = new ResolveDevelopmentCardYearOfPlentyRequest("Year of Plenty", (UserDTO) userThatPlaysTheCard, game.getName(), "Lumber", "Ore");
+        ResolveDevelopmentCardYearOfPlentyRequest rdcyopr = new ResolveDevelopmentCardYearOfPlentyRequest(
+                "Year of Plenty", (UserDTO) userThatPlaysTheCard, game.getName(), "Lumber", "Ore");
         gameService.onResolveDevelopmentCardRequest(rdcyopr);
         assertTrue(event instanceof PublicInventoryChangeMessage);
         assertEquals(inv0.brick.getNumber(), brick);
@@ -659,8 +716,10 @@ public class GameServiceTest {
         pdcr = new PlayDevelopmentCardRequest("Monopoly", game.getName(), (UserDTO) userThatPlaysTheCard);
         gameService.onPlayDevelopmentCardRequest(pdcr);
         assertTrue(event instanceof PublicInventoryChangeMessage);
-        int amountOfAllLumber = inv0.lumber.getNumber() + inv1.lumber.getNumber() + inv2.lumber.getNumber() + inv3.lumber.getNumber();
-        ResolveDevelopmentCardMonopolyRequest rdcMr = new ResolveDevelopmentCardMonopolyRequest("Monopoly", (UserDTO) userThatPlaysTheCard, game.getName(), "Lumber");
+        int amountOfAllLumber = inv0.lumber.getNumber() + inv1.lumber.getNumber() + inv2.lumber
+                .getNumber() + inv3.lumber.getNumber();
+        ResolveDevelopmentCardMonopolyRequest rdcMr = new ResolveDevelopmentCardMonopolyRequest("Monopoly",
+                (UserDTO) userThatPlaysTheCard, game.getName(), "Lumber");
         gameService.onResolveDevelopmentCardRequest(rdcMr);
         assertTrue(event instanceof PublicInventoryChangeMessage);
         assertEquals(inv0.lumber.getNumber(), 0);
@@ -700,7 +759,8 @@ public class GameServiceTest {
             }
         }
 
-        rdcrbr = new ResolveDevelopmentCardRoadBuildingRequest("Road Building", (UserDTO) userThatPlaysTheCard, game.getName(), street1.getUuid(), street2.getUuid());
+        rdcrbr = new ResolveDevelopmentCardRoadBuildingRequest("Road Building", (UserDTO) userThatPlaysTheCard,
+                game.getName(), street1.getUuid(), street2.getUuid());
         gameService.onResolveDevelopmentCardRequest(rdcrbr);
         assertTrue(event instanceof PublicInventoryChangeMessage);
 
@@ -731,11 +791,13 @@ public class GameServiceTest {
             }
         }
         ResolveDevelopmentCardKnightRequest rdckr;
-        rdckr = new ResolveDevelopmentCardKnightRequest("IllegalName", (UserDTO) userThatPlaysTheCard, game.getName(), hexagon);
+        rdckr = new ResolveDevelopmentCardKnightRequest("IllegalName", (UserDTO) userThatPlaysTheCard, game.getName(),
+                hexagon);
         gameService.onResolveDevelopmentCardRequest(rdckr);
         assertTrue(event instanceof PublicInventoryChangeMessage);
 
-        rdckr = new ResolveDevelopmentCardKnightRequest("Knight", (UserDTO) userThatPlaysTheCard, game.getName(), hexagon);
+        rdckr = new ResolveDevelopmentCardKnightRequest("Knight", (UserDTO) userThatPlaysTheCard, game.getName(),
+                hexagon);
         gameService.onResolveDevelopmentCardRequest(rdckr);
         assertTrue(event instanceof PublicInventoryChangeMessage);
 
@@ -752,12 +814,14 @@ public class GameServiceTest {
         gameService.onPlayDevelopmentCardRequest(pdcr);
         assertTrue(event instanceof PublicInventoryChangeMessage);
 
-        rdckr = new ResolveDevelopmentCardKnightRequest("Year of Plenty", (UserDTO) userThatPlaysTheCard, game.getName(), hexagon);
+        rdckr = new ResolveDevelopmentCardKnightRequest("Year of Plenty", (UserDTO) userThatPlaysTheCard,
+                game.getName(), hexagon);
         gameService.onResolveDevelopmentCardRequest(rdckr);
         assertTrue(event instanceof ResolveDevelopmentCardNotSuccessfulResponse);
 
         game.getBankInventory().lumber.setNumber(0);
-        rdcyopr = new ResolveDevelopmentCardYearOfPlentyRequest("Year of Plenty", (UserDTO) userThatPlaysTheCard, game.getName(), "Lumber", "Ore");
+        rdcyopr = new ResolveDevelopmentCardYearOfPlentyRequest("Year of Plenty", (UserDTO) userThatPlaysTheCard,
+                game.getName(), "Lumber", "Ore");
         gameService.onResolveDevelopmentCardRequest(rdcyopr);
         assertTrue(event instanceof ResolveDevelopmentCardNotSuccessfulResponse);
         game.getBankInventory().lumber.setNumber(19);
@@ -775,11 +839,13 @@ public class GameServiceTest {
                 break;
             }
         }
-        rdcyopr = new ResolveDevelopmentCardYearOfPlentyRequest("Knight", (UserDTO) userThatPlaysTheCard, game.getName(), "Lumber", "Ore");
+        rdcyopr = new ResolveDevelopmentCardYearOfPlentyRequest("Knight", (UserDTO) userThatPlaysTheCard,
+                game.getName(), "Lumber", "Ore");
         gameService.onResolveDevelopmentCardRequest(rdcyopr);
         assertTrue(event instanceof ResolveDevelopmentCardNotSuccessfulResponse);
 
-        rdckr = new ResolveDevelopmentCardKnightRequest("Knight", (UserDTO) userThatPlaysTheCard, game.getName(), hexagon);
+        rdckr = new ResolveDevelopmentCardKnightRequest("Knight", (UserDTO) userThatPlaysTheCard, game.getName(),
+                hexagon);
         gameService.onResolveDevelopmentCardRequest(rdckr);
         assertTrue(event instanceof PublicInventoryChangeMessage);
 
@@ -788,35 +854,41 @@ public class GameServiceTest {
         gameService.onPlayDevelopmentCardRequest(pdcr);
         assertTrue(event instanceof PublicInventoryChangeMessage);
 
-        rdcyopr = new ResolveDevelopmentCardYearOfPlentyRequest("Monopoly", (UserDTO) userThatPlaysTheCard, game.getName(), "Lumber", "Ore");
+        rdcyopr = new ResolveDevelopmentCardYearOfPlentyRequest("Monopoly", (UserDTO) userThatPlaysTheCard,
+                game.getName(), "Lumber", "Ore");
         gameService.onResolveDevelopmentCardRequest(rdcyopr);
         assertTrue(event instanceof ResolveDevelopmentCardNotSuccessfulResponse);
 
-        rdcMr = new ResolveDevelopmentCardMonopolyRequest("Monopoly", (UserDTO) userThatPlaysTheCard, game.getName(), "Grain");
+        rdcMr = new ResolveDevelopmentCardMonopolyRequest("Monopoly", (UserDTO) userThatPlaysTheCard, game.getName(),
+                "Grain");
         gameService.onResolveDevelopmentCardRequest(rdcMr);
         assertTrue(event instanceof PublicInventoryChangeMessage);
 
         pdcr = new PlayDevelopmentCardRequest("Monopoly", game.getName(), (UserDTO) userThatPlaysTheCard);
         gameService.onPlayDevelopmentCardRequest(pdcr);
         assertTrue(event instanceof PublicInventoryChangeMessage);
-        rdcMr = new ResolveDevelopmentCardMonopolyRequest("Monopoly", (UserDTO) userThatPlaysTheCard, game.getName(), "Wool");
+        rdcMr = new ResolveDevelopmentCardMonopolyRequest("Monopoly", (UserDTO) userThatPlaysTheCard, game.getName(),
+                "Wool");
         gameService.onResolveDevelopmentCardRequest(rdcMr);
         assertTrue(event instanceof PublicInventoryChangeMessage);
 
         pdcr = new PlayDevelopmentCardRequest("Monopoly", game.getName(), (UserDTO) userThatPlaysTheCard);
         gameService.onPlayDevelopmentCardRequest(pdcr);
         assertTrue(event instanceof PublicInventoryChangeMessage);
-        rdcMr = new ResolveDevelopmentCardMonopolyRequest("Monopoly", (UserDTO) userThatPlaysTheCard, game.getName(), "Ore");
+        rdcMr = new ResolveDevelopmentCardMonopolyRequest("Monopoly", (UserDTO) userThatPlaysTheCard, game.getName(),
+                "Ore");
         gameService.onResolveDevelopmentCardRequest(rdcMr);
         assertTrue(event instanceof PublicInventoryChangeMessage);
 
         pdcr = new PlayDevelopmentCardRequest("Monopoly", game.getName(), (UserDTO) userThatPlaysTheCard);
         gameService.onPlayDevelopmentCardRequest(pdcr);
         assertTrue(event instanceof PublicInventoryChangeMessage);
-        rdcMr = new ResolveDevelopmentCardMonopolyRequest("Monopoly", (UserDTO) userThatPlaysTheCard, game.getName(), "illegalResource");
+        rdcMr = new ResolveDevelopmentCardMonopolyRequest("Monopoly", (UserDTO) userThatPlaysTheCard, game.getName(),
+                "illegalResource");
         gameService.onResolveDevelopmentCardRequest(rdcMr);
         assertTrue(event instanceof ResolveDevelopmentCardNotSuccessfulResponse);
-        rdcMr = new ResolveDevelopmentCardMonopolyRequest("Monopoly", (UserDTO) userThatPlaysTheCard, game.getName(), "Brick");
+        rdcMr = new ResolveDevelopmentCardMonopolyRequest("Monopoly", (UserDTO) userThatPlaysTheCard, game.getName(),
+                "Brick");
         gameService.onResolveDevelopmentCardRequest(rdcMr);
         assertTrue(event instanceof PublicInventoryChangeMessage);
 
@@ -825,11 +897,13 @@ public class GameServiceTest {
         gameService.onPlayDevelopmentCardRequest(pdcr);
         assertTrue(event instanceof PublicInventoryChangeMessage);
 
-        rdckr = new ResolveDevelopmentCardKnightRequest("Road Building", (UserDTO) userThatPlaysTheCard, game.getName(), hexagon);
+        rdckr = new ResolveDevelopmentCardKnightRequest("Road Building", (UserDTO) userThatPlaysTheCard, game.getName(),
+                hexagon);
         gameService.onResolveDevelopmentCardRequest(rdckr);
         assertTrue(event instanceof ResolveDevelopmentCardNotSuccessfulResponse);
 
-        rdcrbr = new ResolveDevelopmentCardRoadBuildingRequest("Road Building", (UserDTO) userThatPlaysTheCard, game.getName(), street1.getUuid(), street2.getUuid());
+        rdcrbr = new ResolveDevelopmentCardRoadBuildingRequest("Road Building", (UserDTO) userThatPlaysTheCard,
+                game.getName(), street1.getUuid(), street2.getUuid());
         gameService.onResolveDevelopmentCardRequest(rdcrbr);
         assertTrue(event instanceof ResolveDevelopmentCardNotSuccessfulResponse);
 
@@ -840,7 +914,8 @@ public class GameServiceTest {
         int victoryPointsT = invT.getVictoryPoints();
         for (MapGraph.BuildingNode bn : game.getMapGraph().getBuiltBuildings()) {
             if (bn.getOccupiedByPlayer() == game.getTurn()) {
-                ConstructionRequest cr = new ConstructionRequest((UserDTO) userThatPlaysTheCard, game.getName(), bn.getUuid(), "BuildingNode");
+                ConstructionRequest cr = new ConstructionRequest((UserDTO) userThatPlaysTheCard, game.getName(),
+                        bn.getUuid(), "BuildingNode");
                 gameService.onConstructionRequest(cr);
                 break;
             }
@@ -1147,8 +1222,10 @@ public class GameServiceTest {
         for (String tc : game.getTradeList().keySet()) {
             if (tc != null) {
 
-                var tisabm = new TradeInformSellerAboutBidsMessage((UserDTO) game.getUser(0), game.getName(), tc, bidders, bids);
-                AIToServerTranslator.translate(new TestAI((GameDTO) game).continueTurnOrder(tisabm, wishList), gameService);
+                var tisabm = new TradeInformSellerAboutBidsMessage((UserDTO) game.getUser(0), game.getName(), tc,
+                        bidders, bids);
+                AIToServerTranslator
+                        .translate(new TestAI((GameDTO) game).continueTurnOrder(tisabm, wishList), gameService);
             }
         }
 
@@ -1170,13 +1247,15 @@ public class GameServiceTest {
                 uuidForRobber = hx.getUuid();
             }
         }
-        RobbersNewFieldRequest mrm = new RobbersNewFieldRequest(game.getName(), (UserDTO) game.getUser(1), uuidForRobber);
+        RobbersNewFieldRequest mrm = new RobbersNewFieldRequest(game.getName(), (UserDTO) game.getUser(1),
+                uuidForRobber);
         gameService.onRobbersNewFieldRequest(mrm);
 
         // Check if the AI discarded its resources and now has less than before and therefore discarded resources
         assertTrue(resourceAmountBefore > aiInventory.sumResource());
         String tradeCode = UUID.randomUUID().toString().trim().substring(0, 7);
-        TradeItemRequest tri = new TradeItemRequest((UserDTO) game.getUser(0), game.getName(), wishList, tradeCode, wishList);
+        TradeItemRequest tri = new TradeItemRequest((UserDTO) game.getUser(0), game.getName(), wishList, tradeCode,
+                wishList);
         gameService.onTradeItemRequest(tri);
 
     }
@@ -1185,14 +1264,18 @@ public class GameServiceTest {
         for (MapGraph.BuildingNode bn : game.getMapGraph().getBuildingNodeHashSet()) {
 
             if (bn.tryBuildOrDevelopSettlement(game.getTurn(), game.getStartingPhase())) {
-                game.getMapGraph().getNumOfBuildings()[game.getTurn()] = game.getMapGraph().getNumOfBuildings()[game.getTurn()] - 1;
-                ConstructionRequest cr1 = new ConstructionRequest((UserDTO) game.getUser(game.getTurn()), game.getName(), bn.getUuid(), "BuildingNode");
+                game.getMapGraph().getNumOfBuildings()[game.getTurn()] = game.getMapGraph().getNumOfBuildings()[game
+                        .getTurn()] - 1;
+                ConstructionRequest cr1 = new ConstructionRequest((UserDTO) game.getUser(game.getTurn()),
+                        game.getName(), bn.getUuid(), "BuildingNode");
                 gameService.onConstructionRequest(cr1);
 
                 for (MapGraph.StreetNode sn : bn.getConnectedStreetNodes()) {
                     if (sn.tryBuildRoad(game.getTurn(), game.getStartingPhase())) {
-                        game.getMapGraph().getNumOfRoads()[game.getTurn()] = game.getMapGraph().getNumOfRoads()[game.getTurn()] - 1;
-                        ConstructionRequest cr2 = new ConstructionRequest((UserDTO) game.getUser(game.getTurn()), game.getName(), sn.getUuid(), "StreetNode");
+                        game.getMapGraph().getNumOfRoads()[game.getTurn()] = game.getMapGraph().getNumOfRoads()[game
+                                .getTurn()] - 1;
+                        ConstructionRequest cr2 = new ConstructionRequest((UserDTO) game.getUser(game.getTurn()),
+                                game.getName(), sn.getUuid(), "StreetNode");
                         gameService.onConstructionRequest(cr2);
                         break;
                     }
@@ -1452,7 +1535,8 @@ public class GameServiceTest {
         RollDiceRequest rdr = new RollDiceRequest(game.getName(), game.getUser(0), 3);
         gameService.onRollDiceRequest(rdr);
 
-        PlayDevelopmentCardRequest playDevelopmentCardRequest = new PlayDevelopmentCardRequest("Knight", game.getName(), (UserDTO) game.getUser(0));
+        PlayDevelopmentCardRequest playDevelopmentCardRequest = new PlayDevelopmentCardRequest("Knight", game.getName(),
+                (UserDTO) game.getUser(0));
 
         gameService.onPlayDevelopmentCardRequest(playDevelopmentCardRequest);
 
@@ -1460,7 +1544,8 @@ public class GameServiceTest {
 
         for (MapGraph.Hexagon hexagon : game.getMapGraph().getHexagonHashSet()) {
             if (!hexagon.isOccupiedByRobber()) {
-                resolveDevelopmentCardKnightRequest = new ResolveDevelopmentCardKnightRequest("Knight", (UserDTO) game.getUser(0), game.getName(), hexagon.getUuid());
+                resolveDevelopmentCardKnightRequest = new ResolveDevelopmentCardKnightRequest("Knight",
+                        (UserDTO) game.getUser(0), game.getName(), hexagon.getUuid());
                 break;
             }
         }
@@ -1478,7 +1563,8 @@ public class GameServiceTest {
         rdr = new RollDiceRequest(game.getName(), game.getUser(1), 3);
         gameService.onRollDiceRequest(rdr);
 
-        PlayDevelopmentCardRequest playDevelopmentCardRequest1 = new PlayDevelopmentCardRequest("Knight", game.getName(), (UserDTO) game.getUser(1));
+        PlayDevelopmentCardRequest playDevelopmentCardRequest1 = new PlayDevelopmentCardRequest("Knight",
+                game.getName(), (UserDTO) game.getUser(1));
 
         gameService.onPlayDevelopmentCardRequest(playDevelopmentCardRequest1);
 
@@ -1486,7 +1572,8 @@ public class GameServiceTest {
 
         for (MapGraph.Hexagon hexagon : game.getMapGraph().getHexagonHashSet()) {
             if (!hexagon.isOccupiedByRobber()) {
-                resolveDevelopmentCardKnightRequest1 = new ResolveDevelopmentCardKnightRequest("Knight", (UserDTO) game.getUser(1), game.getName(), hexagon.getUuid());
+                resolveDevelopmentCardKnightRequest1 = new ResolveDevelopmentCardKnightRequest("Knight",
+                        (UserDTO) game.getUser(1), game.getName(), hexagon.getUuid());
                 break;
             }
         }
@@ -1509,7 +1596,8 @@ public class GameServiceTest {
         rdr = new RollDiceRequest(game.getName(), game.getUser(1), 3);
         gameService.onRollDiceRequest(rdr);
 
-        PlayDevelopmentCardRequest playDevelopmentCardRequest2 = new PlayDevelopmentCardRequest("Knight", game.getName(), (UserDTO) game.getUser(1));
+        PlayDevelopmentCardRequest playDevelopmentCardRequest2 = new PlayDevelopmentCardRequest("Knight",
+                game.getName(), (UserDTO) game.getUser(1));
 
         gameService.onPlayDevelopmentCardRequest(playDevelopmentCardRequest2);
 
@@ -1517,7 +1605,8 @@ public class GameServiceTest {
 
         for (MapGraph.Hexagon hexagon : game.getMapGraph().getHexagonHashSet()) {
             if (!hexagon.isOccupiedByRobber()) {
-                resolveDevelopmentCardKnightRequest2 = new ResolveDevelopmentCardKnightRequest("Knight", (UserDTO) game.getUser(1), game.getName(), hexagon.getUuid());
+                resolveDevelopmentCardKnightRequest2 = new ResolveDevelopmentCardKnightRequest("Knight",
+                        (UserDTO) game.getUser(1), game.getName(), hexagon.getUuid());
                 break;
             }
         }
@@ -1848,7 +1937,8 @@ public class GameServiceTest {
         inv1.incCardStack("Grain", 1);
         inv1.incCardStack("Brick", 1);
 
-        DrawRandomResourceFromPlayerRequest drrfpr = new DrawRandomResourceFromPlayerRequest(game.getName(), (UserDTO) game.getUser(game.getTurn()), game.getUser(game.getTurn() + 1).getUsername());
+        DrawRandomResourceFromPlayerRequest drrfpr = new DrawRandomResourceFromPlayerRequest(game.getName(),
+                (UserDTO) game.getUser(game.getTurn()), game.getUser(game.getTurn() + 1).getUsername());
 
         gameService.onDrawRandomResourceFromPlayerRequest(drrfpr);
         gameService.onDrawRandomResourceFromPlayerRequest(drrfpr);
@@ -2029,14 +2119,14 @@ public class GameServiceTest {
         assertTrue(optionalGame.isPresent());
         Game game = optionalGame.get();
 
-        lobbyManagement.createLobby("test1", userDTO);
-        Optional<Lobby> optionalLobby1 = lobbyManagement.getLobby("test1");
+        lobbyManagement.createLobby("catanprofi", userDTO);
+        Optional<Lobby> optionalLobby1 = lobbyManagement.getLobby("catanprofi");
         assertTrue(optionalLobby1.isPresent());
         Lobby lobby1 = optionalLobby1.get();
         lobby1.setMinimumAmountOfPlayers(4);
         lobby1.joinPlayerReady(userDTO);
         gameService.startGame(lobby1, "Standard");
-        Optional<Game> optionalGame1 = gameManagement.getGame("test1");
+        Optional<Game> optionalGame1 = gameManagement.getGame("catanprofi");
         assertTrue(optionalGame1.isPresent());
         Game game1 = optionalGame1.get();
 

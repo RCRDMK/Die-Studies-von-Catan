@@ -1,10 +1,10 @@
 package de.uol.swp.common.game.message;
 
+import java.util.Objects;
+
 import de.uol.swp.common.message.AbstractServerMessage;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
-
-import java.util.Objects;
 
 /**
  * Base class of all game messages. Basic handling of game data.
@@ -79,15 +79,26 @@ public class AbstractGameMessage extends AbstractServerMessage {
         this.user = user;
     }
 
+    /**
+     * Overwrites equals method.
+     *
+     * @param o
+     * @return if the object is the same as it is called on, then it returns true.
+     */
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) { return true; }
+        if (o == null || getClass() != o.getClass()) { return false; }
         AbstractGameMessage that = (AbstractGameMessage) o;
         return Objects.equals(name, that.name) &&
                 Objects.equals(user, that.user);
     }
 
+    /**
+     * Overwrites the hashCode method.
+     *
+     * @return hashcode of the name and the user
+     */
     @Override
     public int hashCode() {
         return Objects.hash(name, user);

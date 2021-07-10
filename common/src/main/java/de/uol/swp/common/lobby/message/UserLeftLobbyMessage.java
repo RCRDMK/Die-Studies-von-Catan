@@ -1,8 +1,8 @@
 package de.uol.swp.common.lobby.message;
 
-import de.uol.swp.common.user.UserDTO;
-
 import java.util.ArrayList;
+
+import de.uol.swp.common.user.UserDTO;
 
 /**
  * Message sent by the server when a user successfully leaves a lobby
@@ -15,9 +15,8 @@ import java.util.ArrayList;
  */
 public class UserLeftLobbyMessage extends AbstractLobbyMessage {
 
-    private ArrayList<UserDTO> users = new ArrayList<>();
-
     final private String lobbyOwner;
+    private ArrayList<UserDTO> users = new ArrayList<>();
 
     /**
      * Default constructor
@@ -28,7 +27,7 @@ public class UserLeftLobbyMessage extends AbstractLobbyMessage {
      * @since 2019-10-08
      */
     public UserLeftLobbyMessage() {
-        lobbyOwner="";
+        lobbyOwner = "";
     }
 
     /**
@@ -43,14 +42,14 @@ public class UserLeftLobbyMessage extends AbstractLobbyMessage {
     public UserLeftLobbyMessage(String lobbyName, UserDTO user, ArrayList<UserDTO> lobbyUsers, String lobbyOwner) {
         super(lobbyName, user);
         this.users = lobbyUsers;
-        this.lobbyOwner=lobbyOwner;
+        this.lobbyOwner = lobbyOwner;
     }
 
     public ArrayList<UserDTO> getUsers() {
         return users;
     }
 
-    public String getLobbyOwner(){
+    public String getLobbyOwner() {
         return this.lobbyOwner;
     }
 }

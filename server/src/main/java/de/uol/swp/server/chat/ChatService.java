@@ -17,7 +17,7 @@ import org.apache.logging.log4j.Logger;
  * Service that handles the chat
  * <p>
  *
- * @author René, Anton, Sergej
+ * @author René Meyer, Anton Nikiforov, Sergej Tulnev
  * @see de.uol.swp.server.AbstractService
  * @since 2020-11-22
  */
@@ -64,8 +64,10 @@ public class ChatService extends AbstractService {
         //  Proceed when message isn't a cheat
         if (!cheatService.isCheat(message)) {
             // Store Message in chatList
-            LOG.debug("Got new chat message from user: " + message.getUsername() + " with content: '" + message.getMessage() + "' and added it to the messageList");
-            ResponseChatMessage msg = new ResponseChatMessage(message.getMessage(), message.getChat(), message.getUsername(), message.getTime());
+            LOG.debug("Got new chat message from user: " + message.getUsername() + " with content: '" + message
+                    .getMessage() + "' and added it to the messageList");
+            ResponseChatMessage msg = new ResponseChatMessage(message.getMessage(), message.getChat(),
+                    message.getUsername(), message.getTime());
             post(msg);
             LOG.debug("Posted ResponseChatMessage on eventBus");
         } else {

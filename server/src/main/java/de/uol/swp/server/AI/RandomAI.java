@@ -1,5 +1,13 @@
 package de.uol.swp.server.AI;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
 import de.uol.swp.common.game.MapGraph;
 import de.uol.swp.common.game.dto.GameDTO;
 import de.uol.swp.common.game.message.TooMuchResourceCardsMessage;
@@ -9,8 +17,6 @@ import de.uol.swp.common.game.trade.TradeItem;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.server.AI.AIActions.AIAction;
-
-import java.util.*;
 
 /**
  * AI which makes choices randomly
@@ -45,7 +51,6 @@ public class RandomAI extends AbstractAISystem {
         return (int) (Math.random() * (max - min)) + min;
     }
 
-
     /**
      * When the turn starts for the AI the server will call this function.
      * <p>
@@ -58,9 +63,10 @@ public class RandomAI extends AbstractAISystem {
      */
     public ArrayList<AIAction> startTurnOrder() {
         if (game.isStartingTurns()) {
-            if (game.getInventory(game.getUser(game.getTurn())).settlement.getNumber() == 6-game.getStartingPhase()) {
+            if (game.getInventory(game.getUser(game.getTurn())).settlement.getNumber() == 6 - game.getStartingPhase()) {
                 startingTurnLogic();
-            } else if (game.getInventory(game.getUser(game.getTurn())).settlement.getNumber() == 5-game.getStartingPhase()) {
+            } else if (game.getInventory(game.getUser(game.getTurn())).settlement.getNumber() == 5 - game
+                    .getStartingPhase()) {
                 System.out.println(game.getStartingPhase());
                 continueStartingTurn();
             }
@@ -89,24 +95,17 @@ public class RandomAI extends AbstractAISystem {
     }
 
     /**
-     * When the turn continues for the AI (after the players in the game bid on the ongoing trade) the Server will call this function
-     * <p>
-     * First the AI chooses a bid from the other players,
-     * then it makes some random actions.
-     * After that it tries to play a developmentCard and ends it's turn.
+     * When the robber was moved and the AI needs to discard resources the Server will call this method for the AI
      *
-     * @param tisabm   the TradeInformSellerAboutBidsMessage containing information about the bids of the trade
-     * @param wishList the original wishList of the AI
-     * @return the ArrayList of AIActions the AI wishes to do
+     * @param tmrcm the TooMuchResourceCardsMessage containing the information about the amount of cards to discard
+     * @return the ArrayList of AIActions the AI wishes to do (should only include the discardResourcesAction)
      * @author Alexander Losse, Marc Hermes
      * @since 2021-05-22
      */
-    public ArrayList<AIAction> continueTurnOrder(TradeInformSellerAboutBidsMessage tisabm, ArrayList<TradeItem> wishList) {
-        startedTrade = true;
-        chooseTradeBidLogic(tisabm, wishList);
-        makeRandomActionsLogic();
-        playDevelopmentCardLogic();
-        endTurn();
+    public ArrayList<AIAction> discardResourcesOrder(TooMuchResourceCardsMessage tmrcm) {
+        this.user = tmrcm.getUser();
+        this.inventory = game.getInventory(user);
+        discardResourcesLogic(tmrcm.getCards());
         return this.aiActions;
     }
 
@@ -128,17 +127,25 @@ public class RandomAI extends AbstractAISystem {
     }
 
     /**
-     * When the robber was moved and the AI needs to discard resources the Server will call this method for the AI
+     * When the turn continues for the AI (after the players in the game bid on the ongoing trade) the Server will call this function
+     * <p>
+     * First the AI chooses a bid from the other players,
+     * then it makes some random actions.
+     * After that it tries to play a developmentCard and ends it's turn.
      *
-     * @param tmrcm the TooMuchResourceCardsMessage containing the information about the amount of cards to discard
-     * @return the ArrayList of AIActions the AI wishes to do (should only include the discardResourcesAction)
+     * @param tisabm   the TradeInformSellerAboutBidsMessage containing information about the bids of the trade
+     * @param wishList the original wishList of the AI
+     * @return the ArrayList of AIActions the AI wishes to do
      * @author Alexander Losse, Marc Hermes
      * @since 2021-05-22
      */
-    public ArrayList<AIAction> discardResourcesOrder(TooMuchResourceCardsMessage tmrcm) {
-        this.user = tmrcm.getUser();
-        this.inventory = game.getInventory(user);
-        discardResourcesLogic(tmrcm.getCards());
+    public ArrayList<AIAction> continueTurnOrder(TradeInformSellerAboutBidsMessage tisabm,
+                                                 ArrayList<TradeItem> wishList) {
+        startedTrade = true;
+        chooseTradeBidLogic(tisabm, wishList);
+        makeRandomActionsLogic();
+        playDevelopmentCardLogic();
+        endTurn();
         return this.aiActions;
     }
 
@@ -179,7 +186,8 @@ public class RandomAI extends AbstractAISystem {
             }
         }
         if (usersNearTheRobber.size() > 0) {
-            drawRandomResourceFromPlayer(usersNearTheRobber.get(randomInt(0, usersNearTheRobber.size())).getUsername(), "");
+            drawRandomResourceFromPlayer(usersNearTheRobber.get(randomInt(0, usersNearTheRobber.size())).getUsername(),
+                    "");
         }
     }
 
@@ -197,7 +205,8 @@ public class RandomAI extends AbstractAISystem {
             if (doneBuilding) {
                 break;
             }
-            if (bn.getParent().getSelfPosition().size() < 3 && bn.tryBuildOrDevelopSettlement(game.getTurn(), game.getStartingPhase())) {
+            if (bn.getParent().getSelfPosition().size() < 3 && bn
+                    .tryBuildOrDevelopSettlement(game.getTurn(), game.getStartingPhase())) {
                 buildTown(bn);
                 for (MapGraph.StreetNode sn : bn.getConnectedStreetNodes()) {
                     if (sn.tryBuildRoad(game.getTurn(), game.getStartingPhase())) {
@@ -213,7 +222,7 @@ public class RandomAI extends AbstractAISystem {
     /**
      * Just builds 1 street after a human player has build a settlement.
      * <p>
-     *    After a human builds a settlement and then leaves the game, this method builds a street upon the settlement
+     * After a human builds a settlement and then leaves the game, this method builds a street upon the settlement
      *
      * @author Marius Birk
      * @since 2021-06-21
@@ -365,7 +374,7 @@ public class RandomAI extends AbstractAISystem {
                 }
                 if (amountOfWishes > 0 && amountOfOffers > 0) {
                     tradeStart(wishList, offerList);
-                } else return false;
+                } else { return false; }
             }
             return startATradeTest;
         }
@@ -485,7 +494,7 @@ public class RandomAI extends AbstractAISystem {
      * the wishList is higher than the amount being offered.
      * Thus if the offer by the other player doesn't fulfill enough of the wishes of the AI the AI will not even try
      * to create a bid and engage in the trade.
-     *
+     * <p>
      * enhanced by Marc Hermes - 2021-06-20
      *
      * @param toibm the TradeInformBiddersMessage sent that would be sent to a client
@@ -567,7 +576,8 @@ public class RandomAI extends AbstractAISystem {
                     amountOfResourcesToBeDiscarded--;
                     discardedSomething = true;
                     inventory.decCardStack(offerItem.getName(), 1);
-                    resourcesToDiscard.put(offerItem.getName(), resourcesToDiscard.getOrDefault(offerItem.getName(), 0) + 1);
+                    resourcesToDiscard
+                            .put(offerItem.getName(), resourcesToDiscard.getOrDefault(offerItem.getName(), 0) + 1);
                     if (amountOfResourcesToBeDiscarded == 0) {
                         break;
                     }
@@ -673,7 +683,7 @@ public class RandomAI extends AbstractAISystem {
      * After that the offerList is created with regards to the wishList.
      * Resources that are in the wishList cannot be in the offerList.
      * Furthermore the amount of resources on the offerList will not exceed the amount of resources on the wishList by a lot.
-     *
+     * <p>
      * enhanced by Marc Hermes - 2021-06-20
      *
      * @return An arrayList holding 2 arrayLists of TradeItems, the first arrayList is used as the wishList, the second as the offerList
@@ -716,7 +726,7 @@ public class RandomAI extends AbstractAISystem {
         if (!canBuyDevelopmentCard()) {
             cantDo.add("DevCard");
         }
-        if (cantDo.size() > 0)
+        if (cantDo.size() > 0) {
             switch (cantDo.get(randomInt(0, cantDo.size()))) {
                 case "Street":
                     wishList.add(new TradeItem(lumberString, Math.max(1 - lumber, 0)));
@@ -749,6 +759,7 @@ public class RandomAI extends AbstractAISystem {
                     woolAllowedToBeTraded = Math.max(wool - 1, 0);
                     break;
             }
+        }
         int amountOfWishes = 0;
         for (TradeItem ti : wishList) {
             amountOfWishes += ti.getCount();
@@ -822,7 +833,7 @@ public class RandomAI extends AbstractAISystem {
             }
             tries++;
         }
-        if(amountOfOffers <= amountOfWishes + randomInt(0,2)) {
+        if (amountOfOffers <= amountOfWishes + randomInt(0, 2)) {
             offerList.add(new TradeItem(brickString, offerBrick));
             offerList.add(new TradeItem(lumberString, offerLumber));
             offerList.add(new TradeItem(oreString, offerOre));
