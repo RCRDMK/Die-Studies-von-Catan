@@ -128,7 +128,7 @@ public interface Lobby extends Serializable {
     void setGameFieldVariant(String s);
 
     /**
-     * Empties the playersReady Set
+     * Clears the playersReady Set
      *
      * @author Marc Hermes
      * @since 2021-05-18
