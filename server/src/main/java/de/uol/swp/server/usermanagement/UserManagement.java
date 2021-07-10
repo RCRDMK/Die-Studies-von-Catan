@@ -10,7 +10,6 @@ import java.util.TreeMap;
 import de.uol.swp.common.user.User;
 import de.uol.swp.server.usermanagement.store.UserStore;
 
-
 /**
  * Handles most user related issues e.g. login/logout
  *
@@ -48,6 +47,16 @@ public class UserManagement extends AbstractUserManagement {
         this.storeInUse = storeInUse;
     }
 
+    /**
+     * Login the user
+     * <p>
+     * This function finds the user from the provided username and password and if the user is present,
+     * it puts the user in the loggedInUsers SortedMap. It also returns the User object
+     *
+     * @author
+     * @see Exception
+     * @since
+     */
     @Override
     public User login(String username, String password) throws Exception {
         Optional<User> user = storeInUse.findUser(username, password);
@@ -59,6 +68,15 @@ public class UserManagement extends AbstractUserManagement {
         }
     }
 
+    /**
+     * Check if a user is logged in
+     * <p>
+     * This function checks if the user exists in the loggedInUsers SortedMap. If so it returns true.
+     *
+     * @author
+     * @see Exception
+     * @since
+     */
     @Override
     public boolean isLoggedIn(User username) {
         return loggedInUsers.containsKey(username.getUsername());
@@ -69,6 +87,15 @@ public class UserManagement extends AbstractUserManagement {
         loggedInUsers.remove(user.getUsername());
     }
 
+    /**
+     * Creates a user
+     * <p>
+     * This function creates a user if the user doesnt exist already. If it does it throws a UserManagementException.
+     *
+     * @author
+     * @see Exception
+     * @since
+     */
     @Override
     public User createUser(User userToCreate) throws Exception {
         Optional<User> user = storeInUse.findUser(userToCreate.getUsername());
@@ -180,6 +207,15 @@ public class UserManagement extends AbstractUserManagement {
         }
     }
 
+    /**
+     * Retrieves all Users
+     * <p>
+     * This function returns a List of all Users.
+     *
+     * @author
+     * @see Exception
+     * @since
+     */
     @Override
     public List<User> retrieveAllUsers() throws SQLException {
         return storeInUse.getAllUsers();
