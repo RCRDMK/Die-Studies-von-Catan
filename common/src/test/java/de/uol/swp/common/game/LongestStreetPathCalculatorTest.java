@@ -1,8 +1,9 @@
 package de.uol.swp.common.game;
 
+import java.util.HashSet;
+
 import org.junit.jupiter.api.Test;
 
-import java.util.HashSet;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -15,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class LongestStreetPathCalculatorTest {
     private final MapGraph mapGraph = new MapGraph("");
-    private final HashSet<MapGraph.Hexagon> hexagons =  mapGraph.getHexagonHashSet();
+    private final HashSet<MapGraph.Hexagon> hexagons = mapGraph.getHexagonHashSet();
 
 
     /**
@@ -31,7 +32,7 @@ public class LongestStreetPathCalculatorTest {
     @Test
     void blackBoxTest1() {
         for (MapGraph.Hexagon hexagon : hexagons) {
-            if (hexagon.getSelfPosition().contains("left") && hexagon.getSelfPosition().size() == 2){
+            if (hexagon.getSelfPosition().contains("left") && hexagon.getSelfPosition().size() == 2) {
                 hexagon.getStreetTopLeft().buildRoad(1);
                 hexagon.getStreetBottomLeft().buildRoad(1);
                 hexagon.getStreetBottomRight().buildRoad(2);
@@ -39,8 +40,8 @@ public class LongestStreetPathCalculatorTest {
                 hexagon.getStreetRight().buildRoad(2);
             }
         }
-        assertEquals(mapGraph.getLongestStreetPathCalculator().getLongestPath(1),3);
-        assertEquals(mapGraph.getLongestStreetPathCalculator().getLongestPath(2),2);
+        assertEquals(mapGraph.getLongestStreetPathCalculator().getLongestPath(1), 3);
+        assertEquals(mapGraph.getLongestStreetPathCalculator().getLongestPath(2), 2);
 
     }
 
@@ -55,7 +56,7 @@ public class LongestStreetPathCalculatorTest {
     @Test
     void blackBoxTest2() {
         for (MapGraph.Hexagon hexagon : hexagons) {
-            if (hexagon.getSelfPosition().contains("left") && hexagon.getSelfPosition().size() == 2){
+            if (hexagon.getSelfPosition().contains("left") && hexagon.getSelfPosition().size() == 2) {
                 hexagon.getStreetTopLeft().buildRoad(1);
                 hexagon.getStreetBottomLeft().buildRoad(1);
                 hexagon.getStreetLeft().buildRoad(1);
@@ -64,7 +65,7 @@ public class LongestStreetPathCalculatorTest {
                 hexagon.getStreetTopRight().buildRoad(1);
             }
         }
-        assertEquals(mapGraph.getLongestStreetPathCalculator().getLongestPath(1),6);
+        assertEquals(mapGraph.getLongestStreetPathCalculator().getLongestPath(1), 6);
     }
 
     /**
@@ -79,7 +80,7 @@ public class LongestStreetPathCalculatorTest {
     @Test
     void blackBoxTest3() {
         for (MapGraph.Hexagon hexagon : hexagons) {
-            if (hexagon.getSelfPosition().contains("left") && hexagon.getSelfPosition().size() == 2){
+            if (hexagon.getSelfPosition().contains("left") && hexagon.getSelfPosition().size() == 2) {
                 hexagon.getStreetTopLeft().buildRoad(1);
                 hexagon.getStreetBottomLeft().buildRoad(1);
                 hexagon.getStreetLeft().buildRoad(1);
@@ -88,7 +89,7 @@ public class LongestStreetPathCalculatorTest {
                 hexagon.getBuildingBottom().buildOrDevelopSettlement(1);
             }
         }
-        assertEquals(mapGraph.getLongestStreetPathCalculator().getLongestPath(1),5);
+        assertEquals(mapGraph.getLongestStreetPathCalculator().getLongestPath(1), 5);
     }
 
     /**
@@ -103,7 +104,7 @@ public class LongestStreetPathCalculatorTest {
     @Test
     void blackBoxTest4() {
         for (MapGraph.Hexagon hexagon : hexagons) {
-            if (hexagon.getSelfPosition().contains("left") && hexagon.getSelfPosition().size() == 2){
+            if (hexagon.getSelfPosition().contains("left") && hexagon.getSelfPosition().size() == 2) {
                 hexagon.getStreetTopLeft().buildRoad(1);
                 hexagon.getStreetBottomLeft().buildRoad(1);
                 hexagon.getStreetLeft().buildRoad(1);
@@ -112,7 +113,7 @@ public class LongestStreetPathCalculatorTest {
                 hexagon.getBuildingBottom().buildOrDevelopSettlement(2);
             }
         }
-        assertEquals(mapGraph.getLongestStreetPathCalculator().getLongestPath(1),3);
+        assertEquals(mapGraph.getLongestStreetPathCalculator().getLongestPath(1), 3);
     }
 
     /**
@@ -125,9 +126,9 @@ public class LongestStreetPathCalculatorTest {
      */
 
     @Test
-    void blackBoxTest5(){
-        for (MapGraph.Hexagon hexagon: hexagons){
-            if (hexagon.getSelfPosition().contains("left") && hexagon.getSelfPosition().size() == 2){
+    void blackBoxTest5() {
+        for (MapGraph.Hexagon hexagon : hexagons) {
+            if (hexagon.getSelfPosition().contains("left") && hexagon.getSelfPosition().size() == 2) {
                 hexagon.getStreetTopLeft().buildRoad(1);
                 hexagon.getStreetBottomLeft().buildRoad(1);
                 hexagon.getStreetLeft().buildRoad(1);
@@ -135,11 +136,11 @@ public class LongestStreetPathCalculatorTest {
                 hexagon.getStreetBottomRight().buildRoad(1);
                 hexagon.getStreetTopRight().buildRoad(1);
             }
-            if(hexagon.getSelfPosition().contains("topLeft") && hexagon.getSelfPosition().size() == 2){
+            if (hexagon.getSelfPosition().contains("topLeft") && hexagon.getSelfPosition().size() == 2) {
                 hexagon.getStreetLeft().buildRoad(1);
             }
         }
-        assertEquals(mapGraph.getLongestStreetPathCalculator().getLongestPath(1),7);
+        assertEquals(mapGraph.getLongestStreetPathCalculator().getLongestPath(1), 7);
         mapGraph.getLongestStreetPathCalculator().printAdjacencyMatrix(1);
     }
 }

@@ -1,9 +1,9 @@
 package de.uol.swp.common.game.message;
 
+import java.util.HashMap;
+
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
-
-import java.util.HashMap;
 
 /**
  * Message send to an specific user, when an inventory is updated

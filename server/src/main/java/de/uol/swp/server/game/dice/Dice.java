@@ -24,9 +24,24 @@ public class Dice {
         diceEyes2 = dice2;
     }
 
+    /**
+     * Getter for DiceEyes1
+     *
+     * @return
+     * @author:
+     * @since:
+     */
     public int getDiceEyes1() {
         return diceEyes1;
     }
+
+    /**
+     * Getter for DiceEyes2
+     *
+     * @return
+     * @author:
+     * @since :
+     */
 
     public int getDiceEyes2() {
         return diceEyes2;

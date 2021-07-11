@@ -1,8 +1,8 @@
 package de.uol.swp.common.user.request;
 
-import de.uol.swp.common.message.AbstractRequestMessage;
-
 import java.util.Objects;
+
+import de.uol.swp.common.message.AbstractRequestMessage;
 
 /**
  * A request send from client to server, trying to log in with
@@ -36,17 +36,6 @@ public class LoginRequest extends AbstractRequestMessage {
     }
 
     /**
-     * Setter for the username variable
-     *
-     * @param username String containing the new username
-     * @author Marco Grawunder
-     * @since 2017-03-17
-     */
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    /**
      * Getter for the username variable
      *
      * @return String containing the username the user tries to log in with
@@ -58,14 +47,14 @@ public class LoginRequest extends AbstractRequestMessage {
     }
 
     /**
-     * Setter for the password variable
+     * Setter for the username variable
      *
-     * @param password String containing the new password
+     * @param username String containing the new username
      * @author Marco Grawunder
      * @since 2017-03-17
      */
-    public void setPassword(String password) {
-        this.password = password;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     /**
@@ -79,17 +68,28 @@ public class LoginRequest extends AbstractRequestMessage {
         return password;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        LoginRequest that = (LoginRequest) o;
-        return Objects.equals(username, that.username) &&
-                Objects.equals(password, that.password);
+    /**
+     * Setter for the password variable
+     *
+     * @param password String containing the new password
+     * @author Marco Grawunder
+     * @since 2017-03-17
+     */
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(username, password);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) { return true; }
+        if (o == null || getClass() != o.getClass()) { return false; }
+        LoginRequest that = (LoginRequest) o;
+        return Objects.equals(username, that.username) &&
+                Objects.equals(password, that.password);
     }
 }

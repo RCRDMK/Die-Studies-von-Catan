@@ -35,7 +35,8 @@ public class ResolveDevelopmentCardYearOfPlentyRequest extends ResolveDevelopmen
      * @author Marc Hermes
      * @since 2021-05-03
      */
-    public ResolveDevelopmentCardYearOfPlentyRequest(String devCard, UserDTO user, String gameName, String resource1, String resource2) {
+    public ResolveDevelopmentCardYearOfPlentyRequest(String devCard, UserDTO user, String gameName, String resource1,
+                                                     String resource2) {
         super(devCard, user, gameName);
         this.resource1 = resource1;
         this.resource2 = resource2;

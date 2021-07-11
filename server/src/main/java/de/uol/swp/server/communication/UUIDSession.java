@@ -1,11 +1,11 @@
 package de.uol.swp.server.communication;
 
+import java.util.Objects;
+import java.util.UUID;
+
 import de.uol.swp.common.user.Session;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.request.LoginRequest;
-
-import java.util.Objects;
-import java.util.UUID;
 
 /**
  * Class used to store connected clients and Users in an identifiable way
@@ -59,16 +59,16 @@ public class UUIDSession implements Session {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        UUIDSession session = (UUIDSession) o;
-        return Objects.equals(sessionId, session.sessionId);
+    public int hashCode() {
+        return Objects.hash(sessionId);
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(sessionId);
+    public boolean equals(Object o) {
+        if (this == o) { return true; }
+        if (o == null || getClass() != o.getClass()) { return false; }
+        UUIDSession session = (UUIDSession) o;
+        return Objects.equals(sessionId, session.sessionId);
     }
 
     @Override

@@ -1,10 +1,10 @@
 package de.uol.swp.server.usermanagement.store;
 
-import de.uol.swp.common.user.User;
-
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
+
+import de.uol.swp.common.user.User;
 
 /**
  * Interface to unify different kinds of UserStores in order to able to exchange
@@ -61,7 +61,7 @@ public interface UserStore {
      * Updates the users eMail
      *
      * @param username username of the user
-     * @param eMail the new eMail
+     * @param eMail    the new eMail
      * @return the updated user without password
      * @author Carsten Dekker
      * @since 2021-05-26
@@ -82,7 +82,7 @@ public interface UserStore {
     /**
      * Updates the users profilePictureID
      *
-     * @param username username of the user
+     * @param username         username of the user
      * @param profilePictureID the new profilePictureID
      * @return the updated user without password
      * @author Carsten Dekker

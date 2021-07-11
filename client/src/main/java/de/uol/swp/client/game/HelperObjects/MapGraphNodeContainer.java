@@ -1,8 +1,9 @@
 package de.uol.swp.client.game.HelperObjects;
 
-import de.uol.swp.common.game.MapGraph;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
+
+import de.uol.swp.common.game.MapGraph;
 
 /**
  * Links a Circle to a MapGraphNode and vice versa.

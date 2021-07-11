@@ -1,9 +1,13 @@
 package de.uol.swp.common.game;
 
-import de.uol.swp.common.game.exception.ListFullException;
-
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+
+import de.uol.swp.common.game.exception.ListFullException;
 
 /**
  * Manages the logic behind the play field.
@@ -20,8 +24,8 @@ public class MapGraph implements Serializable {
     private final HashSet<StreetNode> streetNodeHashSet = new HashSet<>();
     private final HashSet<BuildingNode> buildingNodeHashSet = new HashSet<>();
     private final HashSet<Hexagon> hexagonHashSet = new HashSet<>();
-    private final int[] numOfRoads = new int[]{0, 0, 0, 0};
-    private final int[] numOfBuildings = new int[]{0, 0, 0, 0};
+    private final int[] numOfRoads = new int[] {0, 0, 0, 0};
+    private final int[] numOfBuildings = new int[] {0, 0, 0, 0};
     private final ArrayList<BuildingNode> builtBuildings = new ArrayList<>();
     // middle hexagon for reference
     private final Hexagon middle = new Hexagon("middle");
@@ -38,26 +42,68 @@ public class MapGraph implements Serializable {
         this.longestStreetPathCalculator = new LongestStreetPathCalculator(streetNodeHashSet);
     }
 
+    /**
+     * Getter for the HashSet of street nodes
+     *
+     * @return HashSet of street nodes
+     * @author Pieter Vogt
+     * @since 2021-04-02
+     */
     public HashSet<StreetNode> getStreetNodeHashSet() {
         return streetNodeHashSet;
     }
 
+    /**
+     * Getter for the HashSet of building nodes
+     *
+     * @return HashSet of building nodes
+     * @author Pieter Vogt
+     * @since 2021-04-02
+     */
     public HashSet<BuildingNode> getBuildingNodeHashSet() {
         return buildingNodeHashSet;
     }
 
+    /**
+     * Getter for the HashSet of hexagons
+     *
+     * @return HashSet of hexagons
+     * @author Pieter Vogt
+     * @since 2021-04-02
+     */
     public HashSet<Hexagon> getHexagonHashSet() {
         return hexagonHashSet;
     }
 
+    /**
+     * Getter for calculator of the longest street path
+     *
+     * @return calculator of the longest street path
+     * @author Kirstin Beyer
+     * @since
+     */
     public LongestStreetPathCalculator getLongestStreetPathCalculator() {
         return longestStreetPathCalculator;
     }
 
+    /**
+     * Getter for the number of roads
+     *
+     * @return number of roads
+     * @author Pieter Vogt
+     * @since 2021-04-02
+     */
     public int[] getNumOfRoads() {
         return numOfRoads;
     }
 
+    /**
+     * Getter for the number of buildings
+     *
+     * @return number of buildings
+     * @author Pieter Vogt
+     * @since 2021-04-02
+     */
     public int[] getNumOfBuildings() {
         return numOfBuildings;
     }
@@ -212,12 +258,10 @@ public class MapGraph implements Serializable {
 
         }
         for (Hexagon hexagon : placedHexagons) {
-            if (!hexagon.equals(middle))
-                hexagon.generateNodes();
+            if (!hexagon.equals(middle)) { hexagon.generateNodes(); }
         }
         for (Hexagon hexagon : placedHexagons) {
-            if (!hexagon.equals(middle))
-                hexagon.interconnectOwnNodes();
+            if (!hexagon.equals(middle)) { hexagon.interconnectOwnNodes(); }
         }
 
     }
@@ -348,7 +392,7 @@ public class MapGraph implements Serializable {
         for (int i = 0; i < 19; i++) {
             int rand1 = randomInt(0, 19 - i);
             int rand2 = randomInt(0, 18 - i);
-            if(terrainType.get(rand1) !=6) {
+            if (terrainType.get(rand1) != 6) {
                 hexagons.get(i).configureTerrainTypeAndDiceToken(terrainType.get(rand1), diceTokenList.get(rand2));
 
                 terrainType.remove(rand1);
@@ -522,6 +566,13 @@ public class MapGraph implements Serializable {
         return (int) (Math.random() * (max - min)) + min;
     }
 
+    /**
+     * Getter for built buildings
+     *
+     * @return array list of built buildings
+     * @author Philip Nitsche
+     * @since 2021-04-26
+     */
     public ArrayList<BuildingNode> getBuiltBuildings() {
         return builtBuildings;
     }
@@ -555,10 +606,20 @@ public class MapGraph implements Serializable {
 
         public final UUID uuid;
         public final String positionToParent;
-        public int occupiedByPlayer = 666;
         public final Hexagon parent;
+        public int occupiedByPlayer = 666;
 
         //Constructors
+
+        /**
+         * Default constructor
+         *
+         * @param positionToParent position to parent hexagon
+         * @param parent           parent hexagon
+         * @param uuid             UUID
+         * @author Pieter Vogt
+         * @since 2021-04-15
+         */
         public MapGraphNode(String positionToParent, Hexagon parent, UUID uuid) {
             this.positionToParent = positionToParent;
             this.uuid = uuid;
@@ -567,22 +628,57 @@ public class MapGraph implements Serializable {
 
         //Getter Setter
 
+        /**
+         * Getter for UUID
+         *
+         * @return uuid
+         * @author Pieter Vogt
+         * @since 2021-04-15
+         */
         public UUID getUuid() {
             return uuid;
         }
 
+        /**
+         * Getter for position to parent
+         *
+         * @return position to parent
+         * @author Pieter Vogt
+         * @since 2021-04-15
+         */
         public String getPositionToParent() {
             return positionToParent;
         }
 
+        /**
+         * Getter for player that occupied node
+         *
+         * @return player that occupied node
+         * @author Pieter Vogt
+         * @since 2021-04-15
+         */
         public int getOccupiedByPlayer() {
             return occupiedByPlayer;
         }
 
+        /**
+         * Setter for player that occupied node
+         *
+         * @param occupiedByPlayer player that occupied node
+         * @author Pieter Vogt
+         * @since 2021-04-15
+         */
         public void setOccupiedByPlayer(int occupiedByPlayer) {
             this.occupiedByPlayer = occupiedByPlayer;
         }
 
+        /**
+         * Getter for parent hexagon
+         *
+         * @return parent hexagon
+         * @author Pieter Vogt
+         * @since 2021-04-15
+         */
         public Hexagon getParent() {
             return parent;
         }
@@ -603,21 +699,46 @@ public class MapGraph implements Serializable {
 
         //CONSTRUCTOR
 
+        /**
+         * Default constructor
+         *
+         * @param position position
+         * @param h        hexagon
+         * @param uuid     uuid
+         * @author Pieter Vogt
+         * @since 2021-04-15
+         */
         public StreetNode(String position, Hexagon h, UUID uuid) {
             super(position, h, uuid);
         }
 
         //GETTER SETTER
 
+        /**
+         * Getter for connected building nodes
+         *
+         * @return HashSet of connected building nodes
+         * @author Pieter Vogt
+         * @since 2021-04-15
+         */
         public HashSet<BuildingNode> getConnectedBuildingNodes() {
             return connectedBuildingNodes;
         }
 
+        /**
+         * Adds building node if connectedBuildingNodes are containing buildingNode and
+         * if connectedBuildingNodes is smaller than 2.
+         *
+         * @param buildingNode Building node
+         * @throws ListFullException
+         * @author Pieter Vogt
+         * @since 2021-04-15
+         */
         public void addBuildingNode(BuildingNode buildingNode) throws ListFullException {
             if (!connectedBuildingNodes.contains(buildingNode)) {
                 if (connectedBuildingNodes.size() < 2) {
                     connectedBuildingNodes.add(buildingNode);
-                } else throw new ListFullException("This StreetNode already has 2 BuildingNodes connected to it.");
+                } else { throw new ListFullException("This StreetNode already has 2 BuildingNodes connected to it."); }
             }
         }
 
@@ -646,12 +767,14 @@ public class MapGraph implements Serializable {
             for (MapGraph.BuildingNode connectedBuildingNode : this.getConnectedBuildingNodes()) {
                 if (connectedBuildingNode.getOccupiedByPlayer() == playerIndex) {
                     existingConnection = true;
-                    correctBuildingPhaseTwo = builtBuildings.get(builtBuildings.size() - 1).getUuid().equals(connectedBuildingNode.getUuid());
+                    correctBuildingPhaseTwo = builtBuildings.get(builtBuildings.size() - 1).getUuid()
+                            .equals(connectedBuildingNode.getUuid());
                 }
                 for (MapGraph.StreetNode connectedStreetNode : connectedBuildingNode.getConnectedStreetNodes()) {
                     if (connectedStreetNode.getOccupiedByPlayer() == playerIndex) {
                         existingConnection = true;
-                        if (connectedBuildingNode.getOccupiedByPlayer() == 666 || connectedBuildingNode.getOccupiedByPlayer() == playerIndex) {
+                        if (connectedBuildingNode.getOccupiedByPlayer() == 666 || connectedBuildingNode
+                                .getOccupiedByPlayer() == playerIndex) {
                             buildingAllowed = true;
                             break;
                         }
@@ -664,9 +787,20 @@ public class MapGraph implements Serializable {
                             numOfRoads[playerIndex] == startingPhase - 1 && numOfRoads[playerIndex] < numOfBuildings[playerIndex]))) {
                 numOfRoads[playerIndex]++;
                 return true;
-            } else return false;
+            } else { return false; }
         }
 
+        /**
+         * Builds a road for player with parsed index.
+         * Calls the function to update the matrix with new Street.
+         * <p>
+         * enhanced by Marc, Kirstin, 2021-04-23
+         *
+         * @param playerIndex index of player
+         * @return true
+         * @author Pieter Vogt, enhanced by Kirstin Beyer
+         * @since 2021-04-15
+         */
         public boolean buildRoad(int playerIndex) {
             this.occupiedByPlayer = playerIndex;
             longestStreetPathCalculator.updateMatrixWithNewStreet(this.getUuid(), playerIndex);
@@ -704,30 +838,72 @@ public class MapGraph implements Serializable {
 
         //GETTER SETTER
 
+        /**
+         * Getter for connected street nodes
+         *
+         * @return HashSet of connected street nodes
+         * @author Pieter Vogt
+         * @since 2021-04-15
+         */
         public HashSet<StreetNode> getConnectedStreetNodes() {
             return connectedStreetNodes;
         }
 
+        /**
+         * Getter for the type of harbor
+         *
+         * @return type of harbor
+         * @author Pieter Vogt
+         * @since 2021-04-15
+         */
         public int getTypeOfHarbor() {
             return typeOfHarbor;
         }
 
+        /**
+         * Setter for the type of harbor
+         *
+         * @param typeOfHarbor of harbor
+         * @author Pieter Vogt
+         * @since 2021-04-15
+         */
         public void setTypeOfHarbor(int typeOfHarbor) {
             this.typeOfHarbor = typeOfHarbor;
         }
 
+        /**
+         * Adds street node if connectedStreetNodes are containing streetNode and
+         * if connectedStreetNodes is smaller than 3.
+         *
+         * @param streetNode Street node
+         * @throws ListFullException
+         * @author Pieter Vogt
+         * @since 2021-04-15
+         */
         public void addStreetNode(StreetNode streetNode) throws ListFullException {
             if (!connectedStreetNodes.contains(streetNode)) {
                 if (connectedStreetNodes.size() < 3) {
                     connectedStreetNodes.add(streetNode);
-                } else throw new ListFullException("This BuildingNode already has 3 StreetNodes connected to it.");
+                } else { throw new ListFullException("This BuildingNode already has 3 StreetNodes connected to it."); }
             }
         }
 
+        /**
+         * Getter for size of settlement
+         *
+         * @author Pieter Vogt
+         * @since 2021-04-15
+         */
         public int getSizeOfSettlement() {
             return sizeOfSettlement;
         }
 
+        /**
+         * Increases size of settlement
+         *
+         * @author Pieter Vogt
+         * @since 2021-04-15
+         */
         public void incSizeOfSettlement() {
             this.sizeOfSettlement++;
         }
@@ -771,10 +947,21 @@ public class MapGraph implements Serializable {
                         (startingPhase == 0 && sizeOfSettlement == 1 && occupiedByPlayer == playerIndex)) {
                     numOfBuildings[playerIndex]++;
                     return true;
-                } else return false;
-            } else return false;
+                } else { return false; }
+            } else { return false; }
         }
 
+        /**
+         * Builds or updates settlement for player with parsed index.
+         * Calls the function to update the matrix with new Street.
+         * Increases size settlements.
+         * <p>
+         * enhanced by Marc, Kirstin, 2021-04-23
+         *
+         * @param playerIndex index of player
+         * @author Pieter Vogt, enhanced by Kirstin Beyer
+         * @since 2021-04-15
+         */
         public void buildOrDevelopSettlement(int playerIndex) {
             this.occupiedByPlayer = playerIndex;
             if (sizeOfSettlement == 0) {
@@ -801,7 +988,9 @@ public class MapGraph implements Serializable {
         private final List<String> selfPosition = new ArrayList<>(); //IMPORTANT! If fiddled with in the future: This must never become any sort of Set,because we need to be able to store duplicates!
 
         private final UUID uuid = UUID.randomUUID();
-
+        private final Set<BuildingNode> buildingNodes = new HashSet<>();
+        private final Set<StreetNode> streetNodes = new HashSet<>();
+        private final Set<Hexagon> hexagons = new HashSet<>();
         private int diceToken;
         private int terrainType;
         private Hexagon hexTopLeft;
@@ -810,25 +999,18 @@ public class MapGraph implements Serializable {
         private Hexagon hexRight;
         private Hexagon hexBottomLeft;
         private Hexagon hexBottomRight;
-
         private StreetNode streetLeft;
         private StreetNode streetBottomLeft;
         private StreetNode streetBottomRight;
         private StreetNode streetRight;
         private StreetNode streetTopRight;
         private StreetNode streetTopLeft;
-
         private BuildingNode buildingTopLeft;
         private BuildingNode buildingBottomLeft;
         private BuildingNode buildingBottom;
         private BuildingNode buildingBottomRight;
         private BuildingNode buildingTopRight;
         private BuildingNode buildingTop;
-
-        private final Set<BuildingNode> buildingNodes = new HashSet<>();
-        private final Set<StreetNode> streetNodes = new HashSet<>();
-        private final Set<Hexagon> hexagons = new HashSet<>();
-
         private boolean occupiedByRobber;
 
         //CONSTRUCTOR
@@ -866,131 +1048,356 @@ public class MapGraph implements Serializable {
 
         //GETTER SETTER
 
+        /**
+         * Getter for dice token
+         *
+         * @return dice token
+         * @author Pieter Vogt
+         * @since 2021-04-10
+         */
         public int getDiceToken() {
             return diceToken;
         }
 
+        /**
+         * Getter for terrain type
+         *
+         * @return terrain type
+         * @author Pieter Vogt
+         * @since 2021-04-10
+         */
         public int getTerrainType() {
             return terrainType;
         }
 
+        /**
+         * Setter for terrain type and dice token
+         *
+         * @param terrainType type of terrain
+         * @param diceToken   dice token
+         * @author Pieter Vogt
+         * @since 2021-04-10
+         */
         public void configureTerrainTypeAndDiceToken(int terrainType, int diceToken) {
             this.terrainType = terrainType;
             this.diceToken = diceToken;
         }
 
+        /**
+         * Getter for left street node
+         *
+         * @return left street node
+         * @author Pieter Vogt
+         * @since 2021-04-10
+         */
         public StreetNode getStreetLeft() {
             return streetLeft;
         }
 
+        /**
+         * Getter for bottom left street node
+         *
+         * @return bottom left street node
+         * @author Pieter Vogt
+         * @since 2021-04-10
+         */
         public StreetNode getStreetBottomLeft() {
             return streetBottomLeft;
         }
 
+        /**
+         * Getter for bottom right street node
+         *
+         * @return bottom right street node
+         * @author Pieter Vogt
+         * @since 2021-04-10
+         */
         public StreetNode getStreetBottomRight() {
             return streetBottomRight;
         }
 
+        /**
+         * Getter for right street node
+         *
+         * @return right street node
+         * @author Pieter Vogt
+         * @since 2021-04-10
+         */
         public StreetNode getStreetRight() {
             return streetRight;
         }
 
+        /**
+         * Getter for top right street node
+         *
+         * @return top right street node
+         * @author Pieter Vogt
+         * @since 2021-04-10
+         */
         public StreetNode getStreetTopRight() {
             return streetTopRight;
         }
 
+        /**
+         * Getter for top left street node
+         *
+         * @return top left street node
+         * @author Pieter Vogt
+         * @since 2021-04-10
+         */
         public StreetNode getStreetTopLeft() {
             return streetTopLeft;
         }
 
+        /**
+         * Getter for top left building node
+         *
+         * @return top left building node
+         * @author Pieter Vogt
+         * @since 2021-04-10
+         */
         public BuildingNode getBuildingTopLeft() {
             return buildingTopLeft;
         }
 
+        /**
+         * Getter for bottom left building node
+         *
+         * @return bottom left building node
+         * @author Pieter Vogt
+         * @since 2021-04-10
+         */
         public BuildingNode getBuildingBottomLeft() {
             return buildingBottomLeft;
         }
 
+        /**
+         * Getter for bottom building node
+         *
+         * @return bottom building node
+         * @author Pieter Vogt
+         * @since 2021-04-10
+         */
         public BuildingNode getBuildingBottom() {
             return buildingBottom;
         }
 
+        /**
+         * Getter for bottom right building node
+         *
+         * @return bottom right building node
+         * @author Pieter Vogt
+         * @since 2021-04-10
+         */
         public BuildingNode getBuildingBottomRight() {
             return buildingBottomRight;
         }
 
+        /**
+         * Getter for top right building node
+         *
+         * @return top right building node
+         * @author Pieter Vogt
+         * @since 2021-04-10
+         */
         public BuildingNode getBuildingTopRight() {
             return buildingTopRight;
         }
 
+        /**
+         * Getter for top building node
+         *
+         * @return top building node
+         * @author Pieter Vogt
+         * @since 2021-04-10
+         */
         public BuildingNode getBuildingTop() {
             return buildingTop;
         }
 
+        /**
+         * Getter for top left hexagon
+         *
+         * @return top left hexagon
+         * @author Pieter Vogt
+         * @since 2021-04-10
+         */
         public Hexagon getHexTopLeft() {
             return hexTopLeft;
         }
 
+        /**
+         * Setter for top left hexagon
+         *
+         * @param hexTopLeft top left hexagon
+         * @author Pieter Vogt
+         * @since 2021-04-10
+         */
         public void setHexTopLeft(Hexagon hexTopLeft) {
             this.hexTopLeft = hexTopLeft;
         }
 
+        /**
+         * Getter for top right hexagon
+         *
+         * @return top right hexagon
+         * @author Pieter Vogt
+         * @since 2021-04-10
+         */
         public Hexagon getHexTopRight() {
             return hexTopRight;
         }
 
+        /**
+         * Setter for top right hexagon
+         *
+         * @param hexTopRight top right hexagon
+         * @author Pieter Vogt
+         * @since 2021-04-10
+         */
         public void setHexTopRight(Hexagon hexTopRight) {
             this.hexTopRight = hexTopRight;
         }
 
+        /**
+         * Getter for left hexagon
+         *
+         * @return left hexagon
+         * @author Pieter Vogt
+         * @since 2021-04-10
+         */
         public Hexagon getHexLeft() {
             return hexLeft;
         }
 
+        /**
+         * Setter for left hexagon
+         *
+         * @param hexLeft left hexagon
+         * @author Pieter Vogt
+         * @since 2021-04-10
+         */
         public void setHexLeft(Hexagon hexLeft) {
             this.hexLeft = hexLeft;
         }
 
+        /**
+         * Getter for right hexagon
+         *
+         * @return right hexagon
+         * @author Pieter Vogt
+         * @since 2021-04-10
+         */
         public Hexagon getHexRight() {
             return hexRight;
         }
 
+        /**
+         * Setter for right hexagon
+         *
+         * @param hexRight right hexagon
+         * @author Pieter Vogt
+         * @since 2021-04-10
+         */
         public void setHexRight(Hexagon hexRight) {
             this.hexRight = hexRight;
         }
 
+        /**
+         * Getter for bottom left hexagon
+         *
+         * @return bottom left hexagon
+         * @author Pieter Vogt
+         * @since 2021-04-10
+         */
         public Hexagon getHexBottomLeft() {
             return hexBottomLeft;
         }
 
+        /**
+         * Setter for bottom left hexagon
+         *
+         * @param hexBottomLeft bottom left hexagon
+         * @author Pieter Vogt
+         * @since 2021-04-10
+         */
         public void setHexBottomLeft(Hexagon hexBottomLeft) {
             this.hexBottomLeft = hexBottomLeft;
         }
 
+        /**
+         * Getter for bottom right hexagon
+         *
+         * @return bottom right hexagon
+         * @author Pieter Vogt
+         * @since 2021-04-10
+         */
         public Hexagon getHexBottomRight() {
             return hexBottomRight;
         }
 
+        /**
+         * Setter for bottom right hexagon
+         *
+         * @param hexBottomRight bottom right hexagon
+         * @author Pieter Vogt
+         * @since 2021-04-10
+         */
         public void setHexBottomRight(Hexagon hexBottomRight) {
             this.hexBottomRight = hexBottomRight;
         }
 
+        /**
+         * Getter for Set of building nodes
+         *
+         * @return Set of building nodes
+         * @author Pieter Vogt
+         * @since 2021-04-10
+         */
         public Set<BuildingNode> getBuildingNodes() {
             return buildingNodes;
         }
 
+        /**
+         * Getter for list of self positions
+         *
+         * @return list of self positions
+         * @author Pieter Vogt
+         * @since 2021-04-10
+         */
         public List<String> getSelfPosition() {
             return selfPosition;
         }
 
+        /**
+         * Getter for UUID
+         *
+         * @return UUID
+         * @author Pieter Vogt
+         * @since 2021-04-10
+         */
         public UUID getUuid() {
             return uuid;
         }
 
+        /**
+         * Getter for boolean, which shows whether position is occupied by robber or not
+         *
+         * @return boolean occupied by robber or not
+         * @author Pieter Vogt
+         * @since 2021-04-10
+         */
         public boolean isOccupiedByRobber() {
             return occupiedByRobber;
         }
 
+        /**
+         * Setter for boolean, which shows whether position is occupied by robber or not
+         *
+         * @param occupiedByRobber boolean occupied by robber or not
+         * @author Pieter Vogt
+         * @since 2021-04-10
+         */
         public void setOccupiedByRobber(boolean occupiedByRobber) {
             this.occupiedByRobber = occupiedByRobber;
         }
@@ -1298,6 +1705,12 @@ public class MapGraph implements Serializable {
 
         }
 
+        /**
+         * Generates street nodes ad building nodes for the middle hexagon.
+         *
+         * @author Pieter Vogt
+         * @since 2021-04-08
+         */
         public void generateNodesMiddle() {
             this.streetTopLeft = new StreetNode("topLeft", this, UUID.randomUUID());
             this.streetBottomLeft = new StreetNode("bottomLeft", this, UUID.randomUUID());
@@ -1316,11 +1729,14 @@ public class MapGraph implements Serializable {
             updateAllLists();
         }
 
+        /**
+         * Updates lists inside the calling Hexagon and Sets of the MapGraph
+         *
+         * @author Pieter Vogt
+         * @since 2021-04-08
+         */
         private void updateAllLists() {
-            //Updating lists inside the calling Hexagon.
             updateNodeLists();
-
-            //Updating Sets of the MapGraph.
             streetNodeHashSet.addAll(streetNodes);
             buildingNodeHashSet.addAll(buildingNodes);
         }

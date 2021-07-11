@@ -1,5 +1,9 @@
 package de.uol.swp.server.AI;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.UUID;
+
 import de.uol.swp.common.game.MapGraph;
 import de.uol.swp.common.game.message.TooMuchResourceCardsMessage;
 import de.uol.swp.common.game.message.TradeInformSellerAboutBidsMessage;
@@ -7,10 +11,6 @@ import de.uol.swp.common.game.message.TradeOfferInformBiddersMessage;
 import de.uol.swp.common.game.trade.TradeItem;
 import de.uol.swp.common.user.User;
 import de.uol.swp.server.AI.AIActions.AIAction;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.UUID;
 
 /**
  * Interface used for the AISystem
@@ -39,7 +39,7 @@ public interface AISystem {
     /**
      * Method used for building a street
      *
-     * @param field the UUID of the streetNode to be built
+     * @param field the streetNode to be built
      * @author Marc Hermes
      * @since 2021-05-08
      */
@@ -48,7 +48,7 @@ public interface AISystem {
     /**
      * Method used for building a town
      *
-     * @param field the UUID of the buildingNode to be built
+     * @param field the buildingNode to be built
      * @author Marc Hermes
      * @since 2021-05-08
      */
@@ -57,7 +57,7 @@ public interface AISystem {
     /**
      * Method used for building a city
      *
-     * @param field the UUID of the buildingNode to be upgraded to a city
+     * @param field the buildingNode to be upgraded to a city
      * @author Marc Hermes
      * @since 2021-05-08
      */
@@ -154,7 +154,7 @@ public interface AISystem {
      * Method used to draw a certain resource from a player
      *
      * @param playerName to name of the player to draw the resource from
-     * @param resource the resource to draw from the player
+     * @param resource   the resource to draw from the player
      * @author Marc Hermes
      * @since 2021-05-25
      */
@@ -197,7 +197,7 @@ public interface AISystem {
      * This method is called by the server to re-engage the AI to continue it's turn after it stopped because
      * it had to wait on trade responses of the other players.
      *
-     * @param tisabm the TradeInformSellerAboutBidsMessage directed for this AI
+     * @param tisabm   the TradeInformSellerAboutBidsMessage directed for this AI
      * @param wishList the original wishList of the AI
      * @return an ArrayList of AIActions dedicated through the AI which the server will have to resolve
      * @author Marc Hermes

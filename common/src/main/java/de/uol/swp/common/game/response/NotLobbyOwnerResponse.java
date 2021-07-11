@@ -1,8 +1,8 @@
 package de.uol.swp.common.game.response;
 
-import de.uol.swp.common.message.AbstractResponseMessage;
-
 import java.util.Objects;
+
+import de.uol.swp.common.message.AbstractResponseMessage;
 
 
 /**

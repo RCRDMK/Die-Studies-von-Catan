@@ -1,9 +1,23 @@
 package de.uol.swp.server.usermanagement;
 
+import javax.security.auth.login.LoginException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
+
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import de.uol.swp.common.message.ResponseMessage;
 import de.uol.swp.common.message.ServerMessage;
 import de.uol.swp.common.user.Session;
@@ -21,11 +35,6 @@ import de.uol.swp.server.communication.UUIDSession;
 import de.uol.swp.server.message.ClientAuthorizedMessage;
 import de.uol.swp.server.message.ServerExceptionMessage;
 import de.uol.swp.server.message.ServerInternalMessage;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import javax.security.auth.login.LoginException;
-import java.util.*;
 
 /**
  * Mapping authentication event bus calls to user management calls
@@ -74,7 +83,8 @@ public class AuthenticationService extends AbstractService {
      * @since 2019-09-04
      */
     public Optional<Session> getSession(User user) {
-        Optional<Map.Entry<Session, User>> entry = userSessions.entrySet().stream().filter(e -> e.getValue().equals(user)).findFirst();
+        Optional<Map.Entry<Session, User>> entry = userSessions.entrySet().stream()
+                .filter(e -> e.getValue().equals(user)).findFirst();
         return entry.map(Map.Entry::getKey);
     }
 
@@ -108,8 +118,8 @@ public class AuthenticationService extends AbstractService {
      * If a user is already logged in, a ServerExceptionMessage is posted on the bus. (René, Sergej)
      *
      * @param msg the LoginRequest
-     * @author René, Sergej
-     * @author René, Sergej, Philip, Marc
+     * @author René Meyer, Sergej Tulnev
+     * @author René Meyer, Sergej Tulnev, Philip Nitsche, Marc Hermes
      * @see de.uol.swp.common.user.request.LoginRequest
      * @see de.uol.swp.server.message.ClientAuthorizedMessage
      * @see de.uol.swp.server.message.ServerExceptionMessage
@@ -133,7 +143,8 @@ public class AuthenticationService extends AbstractService {
                 returnMessage.setSession(newSession);
             } else {
                 LOG.debug("User " + msg.getUsername() + " already logged in!");
-                returnMessage = new ServerExceptionMessage(new LoginException("User " + msg.getUsername() + " already logged in!"));
+                returnMessage = new ServerExceptionMessage(
+                        new LoginException("User " + msg.getUsername() + " already logged in!"));
             }
         } catch (Exception e) {
             LOG.error(e);
@@ -220,7 +231,7 @@ public class AuthenticationService extends AbstractService {
         activeUserList.updateActiveUser(pingRequest.getUser(), pingRequest.getTime());
         ResponseMessage returnMessage;
         returnMessage = new PingResponse(pingRequest.getUser().getUsername(), pingRequest.getTime());
-        if(pingRequest.getMessageContext().isPresent()) {
+        if (pingRequest.getMessageContext().isPresent()) {
             returnMessage.setMessageContext(pingRequest.getMessageContext().get());
             post(returnMessage);
         }

@@ -1,13 +1,16 @@
 package de.uol.swp.server.communication.netty;
 
 import com.google.inject.Inject;
-import de.uol.swp.common.message.RequestMessage;
-import de.uol.swp.server.communication.ServerHandler;
+
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandler;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import de.uol.swp.common.message.RequestMessage;
+import de.uol.swp.server.communication.ServerHandler;
 
 /**
  * This handler is called from netty when communications happens e.g. a new connection
@@ -28,8 +31,8 @@ class NettyServerHandler implements ChannelInboundHandler {
     /**
      * Constructor
      *
-     * @author Marco Grawunder
      * @param delegate handler who handles all communication
+     * @author Marco Grawunder
      * @author Marco Grawunder
      * @see de.uol.swp.server.communication.ServerHandler
      * @since 2019-11-20
@@ -87,6 +90,15 @@ class NettyServerHandler implements ChannelInboundHandler {
     }
 
     @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+        if (ctx.channel().isActive() || ctx.channel().isOpen()) {
+            LOG.error("Exception caught " + cause);
+        } else {
+            delegate.clientDisconnected(new NettyMessageContext(ctx));
+        }
+    }
+
+    @Override
     public void handlerAdded(ChannelHandlerContext channelHandlerContext) {
 
     }
@@ -94,15 +106,6 @@ class NettyServerHandler implements ChannelInboundHandler {
     @Override
     public void handlerRemoved(ChannelHandlerContext channelHandlerContext) {
 
-    }
-
-    @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        if (ctx.channel().isActive() || ctx.channel().isOpen()) {
-            LOG.error("Exception caught " + cause);
-        } else {
-            delegate.clientDisconnected(new NettyMessageContext(ctx));
-        }
     }
 
 }

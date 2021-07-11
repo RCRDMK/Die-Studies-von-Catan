@@ -1,7 +1,28 @@
 package de.uol.swp.client.main;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+
+import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
+
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import de.uol.swp.client.AbstractPresenter;
 import de.uol.swp.client.account.UserSettingsService;
 import de.uol.swp.client.account.event.ShowUserSettingsViewEvent;
@@ -29,18 +50,6 @@ import de.uol.swp.common.user.response.LoginSuccessfulResponse;
 import de.uol.swp.common.user.response.lobby.JoinDeletedLobbyResponse;
 import de.uol.swp.common.user.response.lobby.LobbyFullResponse;
 import de.uol.swp.common.user.response.lobby.WrongLobbyPasswordResponse;
-import javafx.application.Platform;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
-import javafx.fxml.FXML;
-import javafx.scene.control.*;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
 
 /**
  * Manages the main menu
@@ -59,15 +68,11 @@ public class MainMenuPresenter extends AbstractPresenter {
     private static final ShowUserSettingsViewEvent showSettingsViewEvent = new ShowUserSettingsViewEvent();
 
     private static final ShowGameRulesEvent showGameRulesEvent = new ShowGameRulesEvent();
-
-    private ObservableList<String> users;
-
-    private ObservableList<LobbyDTO> lobbies;
-
-    private User loggedInUser;
-
     @FXML
     CheckBox passwordCheckBox;
+    private ObservableList<String> users;
+    private ObservableList<LobbyDTO> lobbies;
+    private User loggedInUser;
     @FXML
     private PasswordField lobbyPasswordField;
 
@@ -118,6 +123,13 @@ public class MainMenuPresenter extends AbstractPresenter {
         loginSuccessfulLogic(message);
     }
 
+    /**
+     * This method gets invoked by the loginSuccessful method
+     *
+     * @param lsr a LoginSuccessfulResponse
+     * @author Marco Grawunder
+     * @since 2020-12-02
+     */
     public void loginSuccessfulLogic(LoginSuccessfulResponse lsr) {
         this.loggedInUser = lsr.getUser();
         userService.retrieveAllUsers();
@@ -141,6 +153,13 @@ public class MainMenuPresenter extends AbstractPresenter {
         lobbyCreatedSuccessfulLogic(message);
     }
 
+    /**
+     * This method gets invoked by the lobbyCreatedSuccessful method
+     *
+     * @param lcm a LobbyCreatedMessage
+     * @author Ricardo Mook, Marc Hermes
+     * @since 2020-11-19
+     */
     public void lobbyCreatedSuccessfulLogic(LobbyCreatedMessage lcm) {
         LOG.debug("New lobby created by " + lcm.getUser().getUsername());
         lobbyService.retrieveAllLobbies();
@@ -163,6 +182,13 @@ public class MainMenuPresenter extends AbstractPresenter {
         lobbyDroppedSuccessfulLogic(message);
     }
 
+    /**
+     * This method gets invoked by the lobbyDroppedSuccessful method
+     *
+     * @param ldm a LobbyDroppedMessage
+     * @author Ricardo Mook, Marc Hermes
+     * @since 2020-12-17
+     */
     public void lobbyDroppedSuccessfulLogic(LobbyDroppedMessage ldm) {
         LOG.debug("The lobby: " + ldm.getName() + " was dropped");
         lobbyService.retrieveAllLobbies();
@@ -185,6 +211,13 @@ public class MainMenuPresenter extends AbstractPresenter {
         lobbySizeChangedLogic(message);
     }
 
+    /**
+     * This method gets invoked by the lobbySizeChanged method
+     *
+     * @param lscm a LobbySizeChangedMessage
+     * @author Ricardo Mook, Marc Hermes
+     * @since 2020-12-18
+     */
     public void lobbySizeChangedLogic(LobbySizeChangedMessage lscm) {
         LOG.debug("The lobby: " + lscm.getName() + " changed it's size");
         lobbyService.retrieveAllLobbies();
@@ -208,11 +241,19 @@ public class MainMenuPresenter extends AbstractPresenter {
 
     }
 
+    /**
+     * This method gets invoked by the newUser method
+     *
+     * @param ulim a UserLoggedInMessage
+     * @author Marco Grawunder
+     * @since 2019-08-29
+     */
     public void newUserLogic(UserLoggedInMessage ulim) {
         LOG.debug("New user " + ulim.getUsername() + " logged in");
         Platform.runLater(() -> {
-            if (users != null && loggedInUser != null && !loggedInUser.getUsername().equals(ulim.getUsername()))
+            if (users != null && loggedInUser != null && !loggedInUser.getUsername().equals(ulim.getUsername())) {
                 users.add(ulim.getUsername());
+            }
         });
     }
 
@@ -233,6 +274,13 @@ public class MainMenuPresenter extends AbstractPresenter {
         userLeftLogic(message);
     }
 
+    /**
+     * This method gets invoked by the userLeft method
+     *
+     * @param ulom a UserLoggedOutMessage
+     * @author Marco Grawunder
+     * @since 2019-08-29
+     */
     public void userLeftLogic(UserLoggedOutMessage ulom) {
         LOG.debug("User " + ulom.getUsername() + " logged out");
         Platform.runLater(() -> users.remove(ulom.getUsername()));
@@ -255,6 +303,13 @@ public class MainMenuPresenter extends AbstractPresenter {
         userListLogic(allUsersResponse);
     }
 
+    /**
+     * This method gets invoked by the userList method
+     *
+     * @param aour a AllOnlineUsersResponse
+     * @author Marco Grawunder
+     * @since 2019-08-29
+     */
     public void userListLogic(AllOnlineUsersResponse aour) {
         LOG.debug("Update of user list " + aour.getUsers());
         updateUsersList(aour.getUsers());
@@ -278,6 +333,13 @@ public class MainMenuPresenter extends AbstractPresenter {
         lobbyListLogic(allCreatedLobbiesResponse);
     }
 
+    /**
+     * This method gets invoked by the lobbyList method
+     *
+     * @param aclr a AllCreatedLobbiesResponse
+     * @author Carsten Dekker and Marius Birk
+     * @since 2020-04-12
+     */
     public void lobbyListLogic(AllCreatedLobbiesResponse aclr) {
         LOG.debug("Update of lobby list " + aclr.getLobbyDTOs());
         updateLobbyList(aclr.getLobbyDTOs());
@@ -298,6 +360,13 @@ public class MainMenuPresenter extends AbstractPresenter {
         onResponseChatMessageLogic(message);
     }
 
+    /**
+     * This method gets invoked by the onResponseChatMessage method
+     *
+     * @param rcm a ResponseChatMessage
+     * @author René Meyer
+     * @since 31-11-2020
+     */
     public void onResponseChatMessageLogic(ResponseChatMessage rcm) {
         // Only update Messages from main chat
         if (rcm.getChat().equals("main")) {
@@ -322,12 +391,20 @@ public class MainMenuPresenter extends AbstractPresenter {
         onLobbyFullResponseLogic(response);
     }
 
+    /**
+     * This method gets invoked by the onLobbyFullResponse method
+     *
+     * @param lfr a LobbyFullResponse
+     * @author René Meyer
+     * @since 2020-12-17
+     */
     public void onLobbyFullResponseLogic(LobbyFullResponse lfr) {
         LOG.debug("Can't join lobby " + lfr.getLobbyName() + " because the lobby is full.");
         var time = new SimpleDateFormat("HH:mm");
         Date resultDate = new Date();
         var readableTime = time.format(resultDate);
-        textArea.insertText(textArea.getLength(), readableTime + " SYSTEM: Can't join full lobby " + lfr.getLobbyName() + " \n");
+        textArea.insertText(textArea.getLength(),
+                readableTime + " SYSTEM: Can't join full lobby " + lfr.getLobbyName() + " \n");
     }
 
     /**
@@ -346,6 +423,13 @@ public class MainMenuPresenter extends AbstractPresenter {
         onWrongPasswordResponseLogic(response);
     }
 
+    /**
+     * This method gets invoked by the onWrongLobbyPasswordResponse method
+     *
+     * @param lfr a WrongLobbyPasswordResponse
+     * @author René Meyer
+     * @since 2020-06-05
+     */
     public void onWrongPasswordResponseLogic(WrongLobbyPasswordResponse lfr) {
         LOG.debug("Can't join lobby " + lfr.getLobbyName() + " because the lobby password is wrong.");
         Platform.runLater(() -> {
@@ -374,12 +458,20 @@ public class MainMenuPresenter extends AbstractPresenter {
         onAlreadyJoinedThisLobbyResponseLogic(response);
     }
 
+    /**
+     * This method gets invoked by the onAlreadyJoinedThisLobbyResponse method
+     *
+     * @param response a AlreadyJoinedThisLobbyResponse
+     * @author Carsten Dekker
+     * @since 2021-01-22
+     */
     public void onAlreadyJoinedThisLobbyResponseLogic(AlreadyJoinedThisLobbyResponse response) {
         LOG.debug("Can't join lobby " + response.getLobbyName() + " because the User joined this lobby already.");
         var time = new SimpleDateFormat("HH:mm");
         Date resultDate = new Date();
         var readableTime = time.format(resultDate);
-        textArea.insertText(textArea.getLength(), readableTime + " SYSTEM: Can't join the lobby " + response.getLobbyName() + " twice." + "\n");
+        textArea.insertText(textArea.getLength(),
+                readableTime + " SYSTEM: Can't join the lobby " + response.getLobbyName() + " twice." + "\n");
     }
 
     /**
@@ -397,12 +489,20 @@ public class MainMenuPresenter extends AbstractPresenter {
         onJoinDeletedLobbyResponseLogic(response);
     }
 
+    /**
+     * This method gets invoked by the onJoinDeletedLobbyResponse method
+     *
+     * @param jdlr a JoinDeletedLobbyResponse
+     * @author Sergej Tulnev, René Meyer
+     * @since 2020-12-17
+     */
     public void onJoinDeletedLobbyResponseLogic(JoinDeletedLobbyResponse jdlr) {
         LOG.debug("Can't join lobby " + jdlr.getLobbyName() + " because the lobby was deleted.");
         var time = new SimpleDateFormat("HH:mm");
         Date resultDate = new Date();
         var readableTime = time.format(resultDate);
-        textArea.insertText(textArea.getLength(), readableTime + " SYSTEM: Can't join deleted lobby " + jdlr.getLobbyName() + " \n");
+        textArea.insertText(textArea.getLength(),
+                readableTime + " SYSTEM: Can't join deleted lobby " + jdlr.getLobbyName() + " \n");
     }
 
 
@@ -410,6 +510,7 @@ public class MainMenuPresenter extends AbstractPresenter {
      * Method called when a LobbyAlreadyExistsResponse was posted on the eventBus.
      *
      * @param message the LobbyAlreadyExistsResponse detected on the EventBus
+     * @author Marius Birk
      * @since 2020-12-02
      */
     @Subscribe
@@ -417,6 +518,13 @@ public class MainMenuPresenter extends AbstractPresenter {
         onLobbyAlreadyExistsMessageLogic(message);
     }
 
+    /**
+     * This method gets invoked by the onLobbyAlreadyExistsMessage method
+     *
+     * @param laer a LobbyAlreadyExistsResponse
+     * @author Marius Birk
+     * @since 2020-12-02
+     */
     public void onLobbyAlreadyExistsMessageLogic(LobbyAlreadyExistsResponse laer) {
         LOG.debug("Lobby with Name " + lobbyNameTextField.getText() + " already exists.");
         lobbyNameInvalid.setVisible(false);
@@ -459,18 +567,19 @@ public class MainMenuPresenter extends AbstractPresenter {
      * @see SimpleDateFormat
      * @see ResponseChatMessage
      * @since 2020-11-30
-     *<p>
-     *Enhanced by Sergej Tulnev
-     *@since 2021-06-17
-     *<p>
-     *If the user has a long message, it will have a line break
+     * <p>
+     * Enhanced by Sergej Tulnev
+     * @since 2021-06-17
+     * <p>
+     * If the user has a long message, it will have a line break
      */
     private void updateChat(ResponseChatMessage msg) {
         var time = new SimpleDateFormat("HH:mm");
         Date resultDate = new Date((long) msg.getTime().doubleValue());
         var readableTime = time.format(resultDate);
         textArea.setWrapText(true);
-        textArea.insertText(textArea.getLength(), readableTime + " " + msg.getUsername() + ": " + msg.getMessage() + "\n");
+        textArea.insertText(textArea.getLength(),
+                readableTime + " " + msg.getUsername() + ": " + msg.getMessage() + "\n");
     }
 
     /**
@@ -520,7 +629,8 @@ public class MainMenuPresenter extends AbstractPresenter {
     @FXML
     void onCreateLobby() {
         if (lobbyNameTextField.getText().isBlank() || lobbyNameTextField.getText().isEmpty()
-                || lobbyNameTextField.getText().startsWith(" ") || lobbyNameTextField.getText().endsWith(" ") || lobbyNameTextField.getText() == null) {
+                || lobbyNameTextField.getText().startsWith(" ") || lobbyNameTextField.getText()
+                .endsWith(" ") || lobbyNameTextField.getText() == null) {
             lobbyNameInvalid.setVisible(true);
             lobbyAlreadyExistsLabel.setVisible(false);
         } else {
@@ -528,7 +638,8 @@ public class MainMenuPresenter extends AbstractPresenter {
             lobbyNameInvalid.setVisible(false);
             lobbyAlreadyExistsLabel.setVisible(false);
             if (passwordCheckBox.isSelected() && !lobbyPasswordField.getText().isEmpty()) {
-                lobbyService.createNewProtectedLobby(lobbyNameTextField.getText(), (UserDTO) this.loggedInUser, lobbyPasswordField.getText());
+                lobbyService.createNewProtectedLobby(lobbyNameTextField.getText(), (UserDTO) this.loggedInUser,
+                        lobbyPasswordField.getText());
             } else {
                 // lobby without pw
                 lobbyService.createNewLobby(lobbyNameTextField.getText(), (UserDTO) this.loggedInUser);
@@ -563,7 +674,8 @@ public class MainMenuPresenter extends AbstractPresenter {
             var chatMessage = inputField.getCharacters().toString();
             // ChatID = "main" means main chat
             var chatId = "main";
-            RequestChatMessage message = new RequestChatMessage(chatMessage, chatId, loggedInUser.getUsername(), System.currentTimeMillis());
+            RequestChatMessage message = new RequestChatMessage(chatMessage, chatId, loggedInUser.getUsername(),
+                    System.currentTimeMillis());
             chatService.sendMessage(message);
             this.inputField.setText("");
         } catch (Exception e) {

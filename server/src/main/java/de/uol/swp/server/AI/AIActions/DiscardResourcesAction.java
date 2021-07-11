@@ -1,8 +1,8 @@
 package de.uol.swp.server.AI.AIActions;
 
-import de.uol.swp.common.user.User;
-
 import java.util.HashMap;
+
+import de.uol.swp.common.user.User;
 
 /**
  * The AIAction used to discardResources for the robber

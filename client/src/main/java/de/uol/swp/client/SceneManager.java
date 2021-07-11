@@ -1,10 +1,29 @@
 package de.uol.swp.client;
 
+import java.net.URISyntaxException;
+import java.net.URL;
+
+import javafx.application.Platform;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
+import javafx.scene.layout.VBox;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
+import javafx.stage.Stage;
+
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.assistedinject.Assisted;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import de.uol.swp.client.account.UserSettingsPresenter;
 import de.uol.swp.client.account.event.LeaveUserSettingsEvent;
 import de.uol.swp.client.account.event.ShowUserSettingsViewEvent;
@@ -25,22 +44,6 @@ import de.uol.swp.client.register.event.RegistrationErrorEvent;
 import de.uol.swp.client.register.event.ShowGameRulesEvent;
 import de.uol.swp.client.register.event.ShowRegistrationViewEvent;
 import de.uol.swp.common.game.message.TradeEndedMessage;
-import javafx.application.Platform;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
-import javafx.scene.layout.VBox;
-import javafx.scene.media.Media;
-import javafx.scene.media.MediaPlayer;
-import javafx.stage.Stage;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import java.net.URISyntaxException;
-import java.net.URL;
 
 /**
  * Class that manages which window/scene is currently shown
@@ -56,6 +59,8 @@ public class SceneManager {
     static final String styleSheet = "css/swp.css";
 
     final private Stage primaryStage;
+    private final Injector injector;
+    private final TabPane tabPane = new TabPane();
     private Scene loginScene;
     private String lastTitle;
     private Scene registrationScene;
@@ -71,8 +76,6 @@ public class SceneManager {
     private MediaPlayer player;
     private Scene summaryScene;
     private Scene nextSummaryScene;
-    private final Injector injector;
-    private final TabPane tabPane = new TabPane();
     private TabHelper tabHelper;
 
 
@@ -114,9 +117,10 @@ public class SceneManager {
 
         //Royalty free music from Pixabay was used. For more information see https://pixabay.com/service/license/.
         try {
-            Media backgroundMusic = new Media(getClass().getResource("/backgroundMusic/the-last-october-day-3915.mp3").toURI().toString());
+            Media backgroundMusic = new Media(
+                    getClass().getResource("/backgroundMusic/the-last-october-day-3915.mp3").toURI().toString());
             player = new MediaPlayer(backgroundMusic);
-        } catch (URISyntaxException e){
+        } catch (URISyntaxException e) {
             e.printStackTrace();
         }
         player.setCycleCount(MediaPlayer.INDEFINITE);//loops the musicFile indefinitely
@@ -498,7 +502,7 @@ public class SceneManager {
      * @since 2021-05-08
      */
     @Subscribe
-    public void onMuteMusicEvent(MuteMusicEvent mmm){
+    public void onMuteMusicEvent(MuteMusicEvent mmm) {
         player.pause();
     }
 
@@ -510,7 +514,7 @@ public class SceneManager {
      * @since 2021-05-08
      */
     @Subscribe
-    public void onUnmuteMusicEvent(UnmuteMusicEvent umm){
+    public void onUnmuteMusicEvent(UnmuteMusicEvent umm) {
         player.play();
     }
 

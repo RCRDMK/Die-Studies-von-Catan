@@ -1,14 +1,18 @@
 package de.uol.swp.common.game.dto;
 
-import de.uol.swp.common.game.Game;
-import de.uol.swp.common.game.MapGraph;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Set;
+import java.util.TreeSet;
+
 import de.uol.swp.common.game.DevelopmentCardDeck;
+import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.Inventory;
+import de.uol.swp.common.game.MapGraph;
 import de.uol.swp.common.game.trade.Trade;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
-
-import java.util.*;
 
 /**
  * Object to transfer the information of a game
@@ -25,13 +29,17 @@ public class GameDTO implements Game {
 
     private final String name;
     private final Set<User> users = new TreeSet<>();
-    private MapGraph mapGraph;
-    private int overallTurns = 0; //This just counts +1 every time a player ends his turn. (good for Summary screen for example)
     private final ArrayList<User> userArrayList = new ArrayList<>();
     private final ArrayList<User> aiUsers = new ArrayList<>();
+    private final Set<User> usersInLobby;
+    private final DevelopmentCardDeck developmentCardDeck = new DevelopmentCardDeck();
+    private final ArrayList<MapGraph.BuildingNode> lastBuildingOfOpeningTurn = new ArrayList<>();
+    private final HashMap<String, Trade> tradeList = new HashMap<>();
+    private final HashMap<String, Integer> boughtDevCardsThisTurn = new HashMap<>();
+    private MapGraph mapGraph;
+    private int overallTurns = 0; //This just counts +1 every time a player ends his turn. (good for Summary screen for example)
     private User owner;
     private int amountOfPlayers = 0;
-    private final Set<User> usersInLobby;
     private boolean startingTurns = true;
     private int startingPhase = 1;
     private boolean hasConcluded;
@@ -39,25 +47,16 @@ public class GameDTO implements Game {
     private boolean lastPlayerSecondTurn = false;
     private boolean playedCardThisTurn = false;
     private int lastRolledDiceValue = 0;
-    private final DevelopmentCardDeck developmentCardDeck = new DevelopmentCardDeck();
-    private final ArrayList<MapGraph.BuildingNode> lastBuildingOfOpeningTurn = new ArrayList<>();
-
     private Inventory inventoryWithLargestArmy = null;
-
     private Inventory inventoryWithLongestRoad = null;
-
     private Inventory inventory1;
     private Inventory inventory2;
     private Inventory inventory3;
     private Inventory inventory4;
     private Inventory bankInventory;
-
-    private final HashMap<String, Trade> tradeList = new HashMap<>();
     private String currentCard = "";
     private boolean isTest;
     private boolean rolledDiceThisTurn = false;
-
-    private final HashMap<String, Integer> boughtDevCardsThisTurn = new HashMap<>();
 
 
     /**
@@ -77,33 +76,30 @@ public class GameDTO implements Game {
         this.mapGraph = new MapGraph(gameFieldVariant);
     }
 
-    /**
-     * getter for the name of the game
-     * @return String name
-     */
     @Override
     public String getName() {
         return name;
     }
 
-    /**
-     * adds a User to Set<User> users
-     *
-     * @param user The new user to add to the game
-     */
+    @Override
+    public void updateOwner(User user) {
+        if (!this.users.contains(user)) {
+            throw new IllegalArgumentException("User " + user.getUsername() +
+                    "not found. Owner must be member of game!");
+        }
+        this.owner = user;
+    }
+
+    @Override
+    public User getOwner() {
+        return owner;
+    }
+
     @Override
     public void joinUser(User user) {
         this.users.add(user);
     }
 
-    /**
-     * removes a User from Set<User> users.
-     *
-     * Throws an IllegalArgumentException if only one user is left.
-     * Updates the owner if necessary.
-     *
-     * @param user The user to remove from the game
-     */
     @Override
     public void leaveUser(User user) {
         if (users.size() == 1) {
@@ -117,11 +113,6 @@ public class GameDTO implements Game {
         }
     }
 
-    /**
-     * calls leaveUser(User user)
-     *
-     * @param user The selected user to remove from the game
-     */
     @Override
     public void kickPlayer(User user) {
         if (users.contains(user)) {
@@ -129,47 +120,11 @@ public class GameDTO implements Game {
         }
     }
 
-    /**
-     * updates the owner
-     *
-     * Throws an IllegalArgumentException if user not in game
-     *
-     * @param user The user who should be the new owner
-     */
-    @Override
-    public void updateOwner(User user) {
-        if (!this.users.contains(user)) {
-            throw new IllegalArgumentException("User " + user.getUsername() +
-                    "not found. Owner must be member of game!");
-        }
-        this.owner = user;
-    }
-
-    /**
-     * getter for User owner
-     *
-     * @return User owner
-     */
-    @Override
-    public User getOwner() {
-        return owner;
-    }
-
-    /**
-     * returns the Set<User> users as an unmodifiableSet
-     *
-     * @return Set<User> users
-     */
     @Override
     public Set<User> getUsers() {
         return Collections.unmodifiableSet(users);
     }
 
-    /**
-     * removes an User from Set<User> users
-     *
-     * @param user the last user to be removed from the game
-     */
     @Override
     public void removeUserForTest(User user) {
         this.users.remove(user);
@@ -191,11 +146,23 @@ public class GameDTO implements Game {
     }
 
     /**
-     * returns a User from ArrayList<User> userArrayList
+     * Getter for all inventories as ArrayList
+     * <p>
+     * Retrieves all inventories from the game to show the stats in summary Screen
      *
-     * @param index int
-     * @return User
+     * @return all game inventories
+     * @author René Meyer
+     * @see ArrayList
+     * @see Inventory
+     * @since 2021-05-08
      */
+    public ArrayList<Inventory> getInventoriesArrayList() {
+        ArrayList<Inventory> inventories = new ArrayList<>();
+        var users = this.getUsersList();
+        users.forEach((user) -> inventories.add(getInventory(user)));
+        return inventories;
+    }
+
     @Override
     public User getUser(int index) {
         return userArrayList.get(index);
@@ -226,6 +193,11 @@ public class GameDTO implements Game {
             players++;
             i++;
         }
+    }
+
+    @Override
+    public int getStartingPhase() {
+        return startingPhase;
     }
 
     /**
@@ -270,7 +242,7 @@ public class GameDTO implements Game {
     public void nextRound() {
         if (startingTurns) {
             openingPhase();
-        } else overallTurns++;
+        } else { overallTurns++; }
         playedCardThisTurn = false;
         rolledDiceThisTurn = false;
         boughtDevCardsThisTurn.clear();
@@ -308,7 +280,8 @@ public class GameDTO implements Game {
     public void openingPhase() {
         //If the players are in opening phase...
 
-        if (overallTurns == userArrayList.size() - 1 && !lastPlayerSecondTurn) { // 1)... and if the last player did his first turn but he did not use his second turn:
+        if (overallTurns == userArrayList
+                .size() - 1 && !lastPlayerSecondTurn) { // 1)... and if the last player did his first turn but he did not use his second turn:
             lastPlayerSecondTurn = true; // now he did.
             countingUp = false; // we count backwards from now on.
             startingPhase = 2;
@@ -325,7 +298,8 @@ public class GameDTO implements Game {
                     startingTurns = false; // 2b2) if we are at player 1 and were already counting backwards, end the opening phase.
                     startingPhase = 0;
                     for (int i = 0; i < userArrayList.size(); i++) {
-                        lastBuildingOfOpeningTurn.add(mapGraph.getBuiltBuildings().get(mapGraph.getBuiltBuildings().size() - 1 - i));
+                        lastBuildingOfOpeningTurn
+                                .add(mapGraph.getBuiltBuildings().get(mapGraph.getBuiltBuildings().size() - 1 - i));
                     }
                 }
             }
@@ -346,9 +320,9 @@ public class GameDTO implements Game {
     public void setUpInventories() {
         if (!(userArrayList.isEmpty())) {
             inventory1 = new Inventory(userArrayList.get(0));
-            if (userArrayList.size() > 1) inventory2 = new Inventory(userArrayList.get(1));
-            if (userArrayList.size() > 2) inventory3 = new Inventory(userArrayList.get(2));
-            if (userArrayList.size() > 3) inventory4 = new Inventory(userArrayList.get(3));
+            if (userArrayList.size() > 1) { inventory2 = new Inventory(userArrayList.get(1)); }
+            if (userArrayList.size() > 2) { inventory3 = new Inventory(userArrayList.get(2)); }
+            if (userArrayList.size() > 3) { inventory4 = new Inventory(userArrayList.get(3)); }
         }
         bankInventory = new Inventory(new UserDTO("Bank", "password", "rich@man.net"));
         bankInventory.lumber.setNumber(19);
@@ -371,90 +345,37 @@ public class GameDTO implements Game {
      */
     @Override
     public Inventory getInventory(User user) {
-        if (user.equals(inventory1.getUser())) return inventory1;
-        if (user.equals(inventory2.getUser())) return inventory2;
-        if (user.equals(inventory3.getUser())) return inventory3;
-        if (user.equals(inventory4.getUser())) return inventory4;
-        if (user.equals(bankInventory.getUser())) return bankInventory;
+        if (user.equals(inventory1.getUser())) { return inventory1; }
+        if (user.equals(inventory2.getUser())) { return inventory2; }
+        if (user.equals(inventory3.getUser())) { return inventory3; }
+        if (user.equals(inventory4.getUser())) { return inventory4; }
+        if (user.equals(bankInventory.getUser())) { return bankInventory; }
         return null;
     }
 
-    /**
-     * Getter for all inventories as ArrayList
-     * <p>
-     * Retrieves all inventories from the game to show the stats in summary Screen
-     *
-     * @return all game inventories
-     * @author René Meyer
-     * @see ArrayList
-     * @see Inventory
-     * @since 2021-05-08
-     */
-    public ArrayList<Inventory> getInventoriesArrayList() {
-        ArrayList<Inventory> inventories = new ArrayList<>();
-        var users = this.getUsersList();
-        users.forEach((user) -> inventories.add(getInventory(user)));
-        return inventories;
-    }
-
-    /**
-     * getter for Inventory bankInventory
-     *
-     * @return Inventory bankInventory
-     */
-    @Override
-    public Inventory getBankInventory() {
-        return bankInventory;
-    }
-
-    /**
-     * getter for DevelopmentCardDeck developmentCardDeck
-     *
-     * @return DevelopmentCardDeck developmentCardDeck
-     */
-    @Override
-    public DevelopmentCardDeck getDevelopmentCardDeck() {
-        return developmentCardDeck;
-    }
-
-    /**
-     * getter for MapGraph mapGraph
-     *
-     * @return MapGraph mapGraph
-     */
     @Override
     public MapGraph getMapGraph() {
         return mapGraph;
     }
 
-    /**
-     * getter for boolean startingTurns
-     *
-     * @return boolean startingTurns
-     */
-    @Override
-    public boolean isStartingTurns() {
-        return startingTurns;
-    }
-
-    /**
-     * setter for MapGraph mapGraph
-     *
-     * @param mapGraph the mapGraph to set as the mapGraph of this gameDTO
-     */
     @Override
     public void setMapGraph(MapGraph mapGraph) {
         this.mapGraph = mapGraph;
     }
 
-    /**
-     * getter for int startingPhase
-     *
-     * @return int startingPhase
-     */
     @Override
-    public int getStartingPhase() {
-        return startingPhase;
+    public boolean isStartingTurns() {
+        return startingTurns;
+    }
+
+    @Override
+    public Inventory getBankInventory() {
+        return bankInventory;
+    }
+
+    @Override
+    public DevelopmentCardDeck getDevelopmentCardDeck() {
+        return developmentCardDeck;
     }
 
     /**
@@ -495,162 +416,82 @@ public class GameDTO implements Game {
         tradeList.remove(tradeCode);
     }
 
-    /**
-     * getter for String currentCard
-     *
-     * @return String currentCard
-     */
     @Override
     public String getCurrentCard() {
         return this.currentCard;
     }
 
-    /**
-     * setter for String currentCard
-     *
-     * @param currentCard the card that is currently being played
-     */
     @Override
     public void setCurrentCard(String currentCard) {
         this.currentCard = currentCard;
     }
 
-    /**
-     * getter for boolean playedCardThisTurn
-     *
-     * @return boolean playedCardThisTurn
-     */
     @Override
     public boolean playedCardThisTurn() {
         return this.playedCardThisTurn;
     }
 
-    /**
-     * setter for boolean playedCardThisTurn
-     *
-     * @param value the boolean value being set to
-     */
     @Override
     public void setPlayedCardThisTurn(boolean value) {
         playedCardThisTurn = value;
     }
 
-    /**
-     * set int lastRolledDiceValue to value of eyes
-     * set boolean rolledDiceThisTurn
-     *
-     * @param eyes the number that was last rolled
-     */
+    @Override
+    public int getLastRolledDiceValue() {
+        return lastRolledDiceValue;
+    }
+
     @Override
     public void setLastRolledDiceValue(int eyes) {
         this.rolledDiceThisTurn = true;
         this.lastRolledDiceValue = eyes;
     }
 
-    /**
-     * getter for int lastRolledDiceValue
-     *
-     * @return int lastRolledDiceValue
-     */
-    @Override
-    public int getLastRolledDiceValue() {
-        return lastRolledDiceValue;
-    }
-
-    /**
-     * getter for boolean isTest
-     *
-     * @return boolean isTest
-     */
     @Override
     public boolean isUsedForTest() {
         return this.isTest;
     }
 
-    /**
-     * getter for boolean hasConcluded
-     *
-     * @return boolean hasConcluded
-     */
     @Override
     public boolean hasConcluded() {
         return this.hasConcluded;
     }
 
-    /**
-     * setter for boolean hasConcluded
-     *
-     * @param value the boolean value to set hasConcluded to
-     */
     @Override
     public void setHasConcluded(boolean value) {
         this.hasConcluded = value;
     }
 
-    /**
-     * setter for boolean isTest
-     *
-     * @param value the boolean value
-     */
     @Override
     public void setIsUsedForTest(boolean value) {
         this.isTest = value;
     }
 
-    /**
-     * getter for boolean rolledDiceThisTurn
-     *
-     * @return boolean rolledDiceThisTurn
-     */
     @Override
     public boolean rolledDiceThisTurn() {
         return this.rolledDiceThisTurn;
     }
 
-    /**
-     * setter for int amountOfPlayers
-     *
-     * @param amount the minimum amount of players
-     */
     @Override
     public void setAmountOfPlayers(int amount) {
         this.amountOfPlayers = amount;
     }
 
-    /**
-     * getter for Inventory inventoryWithLargestArmy
-     *
-     * @return Inventory inventoryWithLargestArmy
-     */
     @Override
     public Inventory getInventoryWithLargestArmy() {
         return inventoryWithLargestArmy;
     }
 
-    /**
-     * setter for Inventory inventoryWithLargestArmy
-     *
-     * @param inventoryWithLargestArmy the inventory referencing the inventory with the largest army
-     */
     @Override
     public void setInventoryWithLargestArmy(Inventory inventoryWithLargestArmy) {
         this.inventoryWithLargestArmy = inventoryWithLargestArmy;
     }
 
-    /**
-     * getter Inventory inventoryWithLongestRoad
-     * @return Inventory inventoryWithLongest
-     */
     @Override
     public Inventory getInventoryWithLongestRoad() {
         return inventoryWithLongestRoad;
     }
 
-    /**
-     * setter for Inventory inventoryWithLongest
-     *
-     * @param inventoryWithLongestRoad the inventory referencing the inventory with the longest road
-     */
     @Override
     public void setInventoryWithLongestRoad(Inventory inventoryWithLongestRoad) {
         this.inventoryWithLongestRoad = inventoryWithLongestRoad;
@@ -668,7 +509,8 @@ public class GameDTO implements Game {
      */
     @Override
     public void rememberDevCardBoughtThisTurn(String card, int amount) {
-        if (card.equals("Monopoly") || card.equals("Road Building") || card.equals("Year of Plenty") || card.equals("Knight")) {
+        if (card.equals("Monopoly") || card.equals("Road Building") || card.equals("Year of Plenty") || card
+                .equals("Knight")) {
             boughtDevCardsThisTurn.put(card, boughtDevCardsThisTurn.getOrDefault(card, 0) + amount);
         }
     }
@@ -709,7 +551,8 @@ public class GameDTO implements Game {
      */
     @Override
     public boolean canUserPlayDevCard(User user, String card) {
-        if (card.equals("Monopoly") || card.equals("Road Building") || card.equals("Year of Plenty") || card.equals("Knight")) {
+        if (card.equals("Monopoly") || card.equals("Road Building") || card.equals("Year of Plenty") || card
+                .equals("Knight")) {
             Inventory inventoryDummy = getInventory(user);
             int cardsInInventory = inventoryDummy.getSpecificResourceAmount(card);
             int boughtCards = getHowManyCardsOfTypeWereBoughtThisTurn(card);
@@ -717,6 +560,6 @@ public class GameDTO implements Game {
                 return false;
             }
             return cardsInInventory - boughtCards > 0;
-        } else return false;
+        } else { return false; }
     }
 }

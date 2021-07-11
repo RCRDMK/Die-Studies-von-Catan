@@ -1,7 +1,8 @@
 package de.uol.swp.common.chat;
 
-import de.uol.swp.common.SerializationTestHelper;
 import org.junit.jupiter.api.Test;
+
+import de.uol.swp.common.SerializationTestHelper;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 

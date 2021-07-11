@@ -1,11 +1,14 @@
 package de.uol.swp.server.game;
 
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.dto.GameDTO;
 import de.uol.swp.common.user.User;
-
-import java.util.*;
 
 /**
  * Manages starting, deletion and storing of games
@@ -25,7 +28,7 @@ public class GameManagement extends AbstractGameManagement {
      * <p>
      * A new GameField is created and stored in the GameDTO object. Also, the round gets set to 0, so the first player
      * can make his first turn.
-     *
+     * <p>
      * enhanced by Pieter Vogt, Marc Hermes - 2021-03-13 enhanced by Pieter Vogt, 2021-03-26
      *
      * @param name             the name of the game to create

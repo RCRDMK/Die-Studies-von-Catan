@@ -1,24 +1,38 @@
 package de.uol.swp.common.game;
 
-import de.uol.swp.common.user.User;
-
 import java.io.Serializable;
 import java.util.HashMap;
+
+import de.uol.swp.common.user.User;
 
 /**
  * Creates and manages the Inventory
  *
- * @author Anton
+ * @author Anton Nikiforov
  * @since 2021-02-01
  */
 public class Inventory implements Serializable {
 
     private final User user;
 
+    /**
+     * Default constructor
+     *
+     * @param user owner of the inventory
+     * @author Anton Nikiforov
+     * @since 2021-02-01
+     */
     public Inventory(User user) {
         this.user = user;
     }
 
+    /**
+     * Getter for the user.
+     *
+     * @return User owner of the inventory
+     * @author Anton Nikiforov
+     * @since 2021-02-01
+     */
     public User getUser() {
         return user;
     }
@@ -29,18 +43,15 @@ public class Inventory implements Serializable {
     public CardStack grain = new CardStack();
     public CardStack wool = new CardStack();
     public CardStack ore = new CardStack();
-
     // Development Cards
     public CardStack cardKnight = new CardStack();
     public CardStack cardMonopoly = new CardStack();
     public CardStack cardRoadBuilding = new CardStack();
     public CardStack cardYearOfPlenty = new CardStack();
-
     // Building Units
     public UnitStack city = new UnitStack(4);
     public UnitStack road = new UnitStack(15);
     public UnitStack settlement = new UnitStack(5);
-
     // Achievements
     private int victoryPoints = 0;
     private int playedKnights = 0;
@@ -52,57 +63,144 @@ public class Inventory implements Serializable {
 
     //Getter and Setter for Achievements
 
+    /**
+     * Getter for the victory points.
+     *
+     * @return the number of victory points
+     * @author Anton Nikiforov
+     * @since 2021-02-01
+     */
     public int getVictoryPoints() {
         return victoryPoints;
     }
 
+    /**
+     * Setter for the victory points.
+     *
+     * @param victoryPoints the number of victory points
+     * @author Anton Nikiforov
+     * @since 2021-02-01
+     */
     public void setVictoryPoints(int victoryPoints) {
         this.victoryPoints = Math.max(victoryPoints, 0);
     }
 
+    /**
+     * Getter for the played knights.
+     *
+     * @return the number of played knights
+     * @author Anton Nikiforov
+     * @since 2021-02-01
+     */
     public int getPlayedKnights() {
         return playedKnights;
     }
 
+    /**
+     * Setter for the played knights.
+     *
+     * @param playedKnights the number of played knights
+     * @author Anton Nikiforov
+     * @since 2021-02-01
+     */
     public void setPlayedKnights(int playedKnights) {
         this.playedKnights = Math.max(playedKnights, 0);
     }
 
+    /**
+     * Getter for the continuous road.
+     *
+     * @return the length of continuous road
+     * @author Anton Nikiforov
+     * @since 2021-02-01
+     */
     public int getContinuousRoad() {
         return continuousRoad;
     }
 
+    /**
+     * Setter for the continuous road.
+     *
+     * @param continuousRoad the length of continuous road
+     * @author Anton Nikiforov
+     * @since 2021-02-01
+     */
     public void setContinuousRoad(int continuousRoad) {
         this.continuousRoad = Math.max(continuousRoad, 0);
     }
 
+    /**
+     * Getter for the largest army.
+     *
+     * @return the boolean whether the army is largest or not
+     * @author Anton Nikiforov
+     * @since 2021-02-01
+     */
     public boolean isLargestArmy() {
         return largestArmy;
     }
 
+    /**
+     * Setter for the largest army.
+     *
+     * @param largestArmy the boolean whether the army is largest or not
+     * @author Anton Nikiforov
+     * @since 2021-02-01
+     */
     public void setLargestArmy(boolean largestArmy) {
         this.largestArmy = largestArmy;
     }
 
+    /**
+     * Getter for the longest road.
+     *
+     * @return the boolean whether the road is longest or not
+     * @author Anton Nikiforov
+     * @since 2021-02-01
+     */
     public boolean isLongestRoad() {
         return longestRoad;
     }
 
+    /**
+     * Setter for the longest road.
+     *
+     * @param longestRoad the boolean whether the road is longest or not
+     * @author Anton Nikiforov
+     * @since 2021-02-01
+     */
     public void setLongestRoad(boolean longestRoad) {
         this.longestRoad = longestRoad;
     }
 
+    /**
+     * Getter for the victory point cards.
+     *
+     * @return the number of victory point cards
+     * @author Anton Nikiforov
+     * @since 2021-02-01
+     */
     public int getCardVictoryPoint() {
         return this.cardVictoryPoint;
     }
 
-    //Increment the Victory Point Card and increase the victoryPoints by one
+    /**
+     * Increment the victory point cards and the victory points by one
+     *
+     * @author Anton Nikiforov
+     * @since 2021-02-01
+     */
     public void incCardVictoryPoint() {
         this.cardVictoryPoint++;
         this.victoryPoints++;
     }
 
-    //Increment the Victory Point Card by amount
+    /**
+     * Increment the victory point cards and the victory points by amount
+     *
+     * @author Anton Nikiforov
+     * @since 2021-02-01
+     */
     public void incCardVictoryPoint(int amount) {
         this.cardVictoryPoint += amount;
         this.victoryPoints += amount;
@@ -118,7 +216,7 @@ public class Inventory implements Serializable {
      * @since 2021-02-01
      */
     public int sumResource() {
-        return  lumber.getNumber() +
+        return lumber.getNumber() +
                 brick.getNumber() +
                 grain.getNumber() +
                 wool.getNumber() +
@@ -135,7 +233,7 @@ public class Inventory implements Serializable {
      * @since 2021-02-01
      */
     public int sumDevelopmentCards() {
-        return  cardVictoryPoint +
+        return cardVictoryPoint +
                 cardKnight.getNumber() +
                 cardMonopoly.getNumber() +
                 cardRoadBuilding.getNumber() +
@@ -149,6 +247,8 @@ public class Inventory implements Serializable {
      * for the private view to send to client
      *
      * @return privateInventory
+     * @author Anton Nikiforov
+     * @since 2021-02-01
      */
     public HashMap<String, Integer> getPrivateView() {
 
@@ -187,13 +287,16 @@ public class Inventory implements Serializable {
      * "Public Victory Points" are without the Victory Point Cards
      *
      * @return publicInventory
+     * @author Anton Nikiforov
+     * @since 2021-02-01
      */
     public HashMap<String, Integer> getPublicView() {
 
         HashMap<String, Integer> publicInventory = new HashMap<>();
 
-        if (victoryPoints < cardVictoryPoint) publicInventory.put("Public Victory Points", 0);
-        else publicInventory.put("Public Victory Points", victoryPoints - cardVictoryPoint);
+        if (victoryPoints < cardVictoryPoint) { publicInventory.put("Public Victory Points", 0); } else {
+            publicInventory.put("Public Victory Points", victoryPoints - cardVictoryPoint);
+        }
 
         publicInventory.put("Resource", sumResource());
         publicInventory.put("Development Cards", sumDevelopmentCards());
@@ -201,11 +304,9 @@ public class Inventory implements Serializable {
         publicInventory.put("Played Knights", playedKnights);
         publicInventory.put("Continuous Road", continuousRoad);
 
-        if (largestArmy) publicInventory.put("Largest Army", 1);
-        else publicInventory.put("Largest Army", 0);
+        if (largestArmy) { publicInventory.put("Largest Army", 1); } else { publicInventory.put("Largest Army", 0); }
 
-        if (longestRoad) publicInventory.put("Longest Road", 1);
-        else publicInventory.put("Longest Road", 0);
+        if (longestRoad) { publicInventory.put("Longest Road", 1); } else { publicInventory.put("Longest Road", 0); }
 
         return publicInventory;
     }
@@ -220,8 +321,8 @@ public class Inventory implements Serializable {
      * <p>
      * enhanced by Anton Nikiforov, Alexander Losse, Iskander Yusupov
      *
-     * @param cardName   the name of the Resource Card
-     * @param amount how much of the Card should be increased
+     * @param cardName the name of the Resource Card
+     * @param amount   how much of the Card should be increased
      * @author Alexander Losse, Ricardo Mook
      * @since 2021-05-16
      * @since 2021-04-08
@@ -350,7 +451,7 @@ public class Inventory implements Serializable {
      * @author Anton Nikiforov
      * @since 2020-03-04
      */
-    public class CardStack implements Serializable{
+    public class CardStack implements Serializable {
 
         private int number = 0;
 
@@ -391,7 +492,7 @@ public class Inventory implements Serializable {
      * @author Anton Nikiforov
      * @since 2020-03-04
      */
-    public class UnitStack extends CardStack{
+    public class UnitStack extends CardStack {
 
         public UnitStack(int number) {
             super.number = number;

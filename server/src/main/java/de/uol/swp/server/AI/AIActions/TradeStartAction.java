@@ -1,10 +1,10 @@
 package de.uol.swp.server.AI.AIActions;
 
-import de.uol.swp.common.game.trade.TradeItem;
-import de.uol.swp.common.user.User;
-
 import java.util.ArrayList;
 import java.util.UUID;
+
+import de.uol.swp.common.game.trade.TradeItem;
+import de.uol.swp.common.user.User;
 
 /**
  * The AIAction used to start trades

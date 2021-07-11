@@ -1,11 +1,12 @@
 package de.uol.swp.server.usermanagement;
 
-import de.uol.swp.common.user.User;
-import de.uol.swp.common.user.UserDTO;
-import org.junit.jupiter.api.Test;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import org.junit.jupiter.api.Test;
+
+import de.uol.swp.common.user.User;
+import de.uol.swp.common.user.UserDTO;
 
 import static org.junit.jupiter.api.Assertions.*;
 

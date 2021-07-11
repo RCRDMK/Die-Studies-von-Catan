@@ -1,14 +1,15 @@
 package de.uol.swp.server.usermanagement.store;
 
-import de.uol.swp.common.user.User;
-import de.uol.swp.common.user.UserDTO;
-import org.junit.jupiter.api.Test;
-
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+
+import org.junit.jupiter.api.Test;
+
+import de.uol.swp.common.user.User;
+import de.uol.swp.common.user.UserDTO;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -118,7 +119,7 @@ class MainMemoryBasedUserStoreTest {
         store.updateUserPassword(userToUpdate.getUsername(), "_NEWPASS");
 
         Optional<User> userFound = store.findUser(userToUpdate.getUsername(),
-                 "_NEWPASS");
+                "_NEWPASS");
 
         assertTrue(userFound.isPresent());
         assertNotEquals(userToUpdate.getPassword(), "_NEWPASS");

@@ -1,8 +1,31 @@
 package de.uol.swp.client.account;
 
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+import java.util.ArrayList;
+import java.util.Arrays;
+
+import javafx.application.Platform;
+import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.layout.GridPane;
+import javafx.scene.paint.ImagePattern;
+import javafx.scene.shape.Rectangle;
+
 import com.google.common.base.Strings;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import de.uol.swp.client.AbstractPresenter;
 import de.uol.swp.client.account.event.LeaveUserSettingsEvent;
 import de.uol.swp.client.account.event.ShowUserSettingsViewEvent;
@@ -13,20 +36,6 @@ import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.user.response.RetrieveUserInformationResponse;
 import de.uol.swp.common.user.response.UpdateUserSuccessfulResponse;
-import javafx.application.Platform;
-import javafx.fxml.FXML;
-import javafx.scene.control.*;
-import javafx.scene.image.Image;
-import javafx.scene.layout.GridPane;
-import javafx.scene.paint.ImagePattern;
-import javafx.scene.shape.Rectangle;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
-import java.util.ArrayList;
-import java.util.Arrays;
 
 /**
  * Manages the UserSettings window
@@ -43,81 +52,54 @@ public class UserSettingsPresenter extends AbstractPresenter {
     private static final Logger LOG = LogManager.getLogger(UserSettingsPresenter.class);
 
     private static final LeaveUserSettingsEvent leaveUserSettingsEvent = new LeaveUserSettingsEvent();
-
+    private final ArrayList<ImagePattern> profilePicturePatterns = new ArrayList<>();
+    Rectangle[][] rectangles = new Rectangle[8][8];
     private User loggedInUser;
-
     private Alert alert;
-
     @FXML
     private Label currentPasswordLabel;
-
     @FXML
     private Label newPasswordLabel1;
-
     @FXML
     private Label newPasswordLabel2;
-
     @FXML
     private PasswordField currentPasswordField;
-
     @FXML
     private PasswordField newPasswordField1;
-
     @FXML
     private PasswordField newPasswordField2;
-
     @FXML
     private Button confirmPasswordButton;
-
     @FXML
     private Label currentEmailLabel;
-
     @FXML
     private Label newEmailLabel1;
-
     @FXML
     private Label newEmailLabel2;
-
     @FXML
     private TextField currentEmailField;
-
     @FXML
     private TextField newEmailField1;
-
     @FXML
     private TextField newEmailField2;
-
     @FXML
     private Button confirmEmailButton;
-
     @FXML
     private Button confirmProfilePictureButton;
-
     @FXML
     private Rectangle profilePictureRectangle;
-
     @FXML
     private GridPane profilePicturesView;
-
-    Rectangle[][] rectangles = new Rectangle[8][8];
-
     @FXML
     private Button leaveButton;
-
     @FXML
     private Button muteMusicButton;
-
     @FXML
     private Button unmuteMusicButton;
-
     @Inject
     private UserSettingsService userSettingsService;
-
     private int selectedPictureID;
-
     private boolean pictureLocked;
-
-    private final ArrayList<ImagePattern> profilePicturePatterns = new ArrayList<>();
 
     /**
      * Method called when the Leave button is pressed.
@@ -382,7 +364,8 @@ public class UserSettingsPresenter extends AbstractPresenter {
      * @since 2021-03-18
      */
     public void retrieveUserMailResponseLogic(RetrieveUserInformationResponse response) {
-        LOG.debug("User information received " + response.getUser().getUsername() + response.getUser().getEMail(), response.getUser().getProfilePictureID());
+        LOG.debug("User information received " + response.getUser().getUsername() + response.getUser().getEMail(),
+                response.getUser().getProfilePictureID());
         this.loggedInUser = response.getUser();
         currentEmailField.setText(response.getUser().getEMail());
         selectedPictureID = response.getUser().getProfilePictureID();
@@ -462,7 +445,7 @@ public class UserSettingsPresenter extends AbstractPresenter {
      *
      * @author Carsten Dekker and Marc Hermes
      * @since 2021-03-18
-     *
+     * <p>
      * Enhanced by Carsten Dekker und Marc Hermes
      * @since 2021-04-15
      */

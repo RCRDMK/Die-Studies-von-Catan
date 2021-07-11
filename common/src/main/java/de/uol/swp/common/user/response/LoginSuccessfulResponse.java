@@ -1,9 +1,9 @@
 package de.uol.swp.common.user.response;
 
+import java.util.Objects;
+
 import de.uol.swp.common.message.AbstractResponseMessage;
 import de.uol.swp.common.user.User;
-
-import java.util.Objects;
 
 /**
  * A message containing the session (typically for a new logged in user)
@@ -46,11 +46,8 @@ public class LoginSuccessfulResponse extends AbstractResponseMessage {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        LoginSuccessfulResponse that = (LoginSuccessfulResponse) o;
-        return Objects.equals(user, that.user);
+    public int hashCode() {
+        return Objects.hash(user);
     }
 
     /**
@@ -60,7 +57,10 @@ public class LoginSuccessfulResponse extends AbstractResponseMessage {
      * @return hash of User user
      */
     @Override
-    public int hashCode() {
-        return Objects.hash(user);
+    public boolean equals(Object o) {
+        if (this == o) { return true; }
+        if (o == null || getClass() != o.getClass()) { return false; }
+        LoginSuccessfulResponse that = (LoginSuccessfulResponse) o;
+        return Objects.equals(user, that.user);
     }
 }

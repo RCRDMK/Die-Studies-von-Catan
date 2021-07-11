@@ -1,9 +1,9 @@
 package de.uol.swp.common.user.response.lobby;
 
+import java.util.Objects;
+
 import de.uol.swp.common.message.AbstractResponseMessage;
 import de.uol.swp.common.user.User;
-
-import java.util.Objects;
 
 /**
  * Response that is sent to the User who requested to create a lobby.
@@ -74,11 +74,8 @@ public class LobbyCreatedSuccessfulResponse extends AbstractResponseMessage {
      * @return boolean
      */
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        LobbyCreatedSuccessfulResponse that = (LobbyCreatedSuccessfulResponse) o;
-        return Objects.equals(user, that.user);
+    public int hashCode() {
+        return Objects.hash(user);
     }
 
     /**
@@ -88,8 +85,11 @@ public class LobbyCreatedSuccessfulResponse extends AbstractResponseMessage {
      * @return hash of User user
      */
     @Override
-    public int hashCode() {
-        return Objects.hash(user);
+    public boolean equals(Object o) {
+        if (this == o) { return true; }
+        if (o == null || getClass() != o.getClass()) { return false; }
+        LobbyCreatedSuccessfulResponse that = (LobbyCreatedSuccessfulResponse) o;
+        return Objects.equals(user, that.user);
     }
 
 }
