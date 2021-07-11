@@ -47,8 +47,6 @@ public class LongestStreetPathCalculator implements Serializable {
         pathArrayList.add(new ArrayList<>());
     }
 
-    // Called when a new street is placed on the map graph
-
     /**
      * Method called when a new street is placed on the MapGraph
      * <p>

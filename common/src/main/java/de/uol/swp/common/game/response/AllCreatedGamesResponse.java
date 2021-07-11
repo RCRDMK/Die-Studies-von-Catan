@@ -1,13 +1,13 @@
 package de.uol.swp.common.game.response;
 
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.dto.GameDTO;
 import de.uol.swp.common.message.AbstractResponseMessage;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * Response message for the RetrieveAllGamesRequest
@@ -31,6 +31,7 @@ public class AllCreatedGamesResponse extends AbstractResponseMessage {
      * Default Constructor
      *
      * @implNote this constructor is needed for serialization
+     * @author Iskander Yusupov
      * @since 2021-01-15
      */
 
@@ -45,6 +46,7 @@ public class AllCreatedGamesResponse extends AbstractResponseMessage {
      * List contains copies of the GameDTO objects.
      *
      * @param gameCollection Collection of all games currently existing
+     * @author Iskander Yusupov
      * @since 2021-01-15
      */
     public AllCreatedGamesResponse(Collection<Game> gameCollection) {
@@ -57,6 +59,7 @@ public class AllCreatedGamesResponse extends AbstractResponseMessage {
      * Getter for the list of the GameDTO
      *
      * @return list of games
+     * @author Iskander Yusupov
      * @since 2021-01-15
      */
     public List<GameDTO> getGameDTOs() {

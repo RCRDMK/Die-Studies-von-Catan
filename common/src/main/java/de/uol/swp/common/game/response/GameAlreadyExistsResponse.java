@@ -1,8 +1,8 @@
 package de.uol.swp.common.game.response;
 
-import java.util.Objects;
-
 import de.uol.swp.common.message.AbstractResponseMessage;
+
+import java.util.Objects;
 
 
 /**
@@ -21,16 +21,29 @@ public class GameAlreadyExistsResponse extends AbstractResponseMessage {
      * Constructor
      *
      * @param lobbyName Name of the Lobby
+     * @author Marius Birk and Carsten Dekker
+     * @since 2020-12-02
      */
-
     public GameAlreadyExistsResponse(String lobbyName) {
         this.lobbyName = lobbyName;
     }
 
+    /**
+     * Getter for the lobyname
+     *
+     * @return the lobyname as a string
+     * @author Marius Birk and Carsten Dekker
+     * @since 2020-12-02
+     */
     public String getLobbyName() {
         return lobbyName;
     }
 
+    /**
+     * The default hashCode method to get the objects hash code
+     *
+     * @return the hashcode
+     */
     @Override
     public int hashCode() {
         return Objects.hash(lobbyName);
