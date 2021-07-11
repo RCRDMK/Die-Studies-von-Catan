@@ -41,19 +41,38 @@ public class PlayerKickedSuccessfulResponse extends AbstractResponseMessage {
         this.kickedPlayer = kickedPlayer;
     }
 
-
+    /**
+     * getter for User owner
+     *
+     * @return User owner
+     */
     public User getOwner() {
         return owner;
     }
 
+    /**
+     * getter for String name
+     *
+     * @return String name
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * getter for String kickedPlayer
+     *
+     * @return String kickedPlayer
+     */
     public String getKickedPlayer() {
         return kickedPlayer;
     }
 
+    /**
+     * The default hashCode method to get the objects hash code
+     *
+     * @return the hashcode
+     */
     @Override
     public int hashCode() {
         return Objects.hash(owner);
