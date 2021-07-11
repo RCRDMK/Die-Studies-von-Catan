@@ -1,13 +1,9 @@
 package de.uol.swp.common.game;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
-
 import de.uol.swp.common.game.exception.ListFullException;
+
+import java.io.Serializable;
+import java.util.*;
 
 /**
  * Manages the logic behind the play field.
@@ -24,8 +20,8 @@ public class MapGraph implements Serializable {
     private final HashSet<StreetNode> streetNodeHashSet = new HashSet<>();
     private final HashSet<BuildingNode> buildingNodeHashSet = new HashSet<>();
     private final HashSet<Hexagon> hexagonHashSet = new HashSet<>();
-    private final int[] numOfRoads = new int[] {0, 0, 0, 0};
-    private final int[] numOfBuildings = new int[] {0, 0, 0, 0};
+    private final int[] numOfRoads = new int[]{0, 0, 0, 0};
+    private final int[] numOfBuildings = new int[]{0, 0, 0, 0};
     private final ArrayList<BuildingNode> builtBuildings = new ArrayList<>();
     // middle hexagon for reference
     private final Hexagon middle = new Hexagon("middle");
@@ -115,6 +111,7 @@ public class MapGraph implements Serializable {
      *
      * @param mapTypeToGenerate The standard-case is to generate a MapGraph for a standard-play field. So if you wish to
      *                          generate one, just parse "".
+     *
      * @author Pieter Vogt
      * @since 2021-04-10
      */
@@ -150,94 +147,6 @@ public class MapGraph implements Serializable {
     }
 
     /**
-     * Generates the standard game field
-     * <p>
-     * When this function is called, the standard game field is created
-     *
-     * @author Marc Hermes
-     * @since 2021-05-14
-     */
-    private void generateStandardField() {
-        //Generating the first Hexagon in the middle.
-        middle.generateNodesMiddle();
-        middle.expand();
-        middle.interconnectOwnNodes();
-        middle.interconnectNeighbourHexagons();
-
-        middle.getHexTopLeft().expand();
-        middle.getHexTopLeft().interconnectNeighbourHexagons();
-
-        middle.getHexTopRight().expand();
-        middle.getHexTopRight().interconnectNeighbourHexagons();
-
-        middle.getHexLeft().expand();
-        middle.getHexLeft().interconnectNeighbourHexagons();
-
-        middle.getHexRight().expand();
-        middle.getHexRight().interconnectNeighbourHexagons();
-
-        middle.getHexBottomLeft().expand();
-        middle.getHexBottomLeft().interconnectNeighbourHexagons();
-
-        middle.getHexBottomRight().expand();
-        middle.getHexBottomRight().interconnectNeighbourHexagons();
-
-
-        middle.getHexTopLeft().generateNodes();
-        middle.getHexTopRight().generateNodes();
-        middle.getHexLeft().generateNodes();
-        middle.getHexRight().generateNodes();
-        middle.getHexBottomLeft().generateNodes();
-        middle.getHexBottomRight().generateNodes();
-
-        middle.getHexTopLeft().getHexTopLeft().generateNodes();
-        middle.getHexTopLeft().getHexTopRight().generateNodes();
-
-        middle.getHexTopRight().getHexTopRight().generateNodes();
-        middle.getHexTopRight().getHexRight().generateNodes();
-
-        middle.getHexRight().getHexRight().generateNodes();
-        middle.getHexRight().getHexBottomRight().generateNodes();
-
-        middle.getHexBottomRight().getHexBottomRight().generateNodes();
-        middle.getHexBottomRight().getHexBottomLeft().generateNodes();
-
-        middle.getHexBottomLeft().getHexBottomLeft().generateNodes();
-        middle.getHexBottomLeft().getHexLeft().generateNodes();
-
-        middle.getHexLeft().getHexLeft().generateNodes();
-        middle.getHexLeft().getHexTopLeft().generateNodes();
-
-
-        middle.getHexTopLeft().interconnectNeighbourNodes();
-        middle.getHexTopRight().interconnectNeighbourNodes();
-        middle.getHexLeft().interconnectNeighbourNodes();
-        middle.getHexRight().interconnectNeighbourNodes();
-        middle.getHexBottomLeft().interconnectNeighbourNodes();
-        middle.getHexBottomRight().interconnectNeighbourNodes();
-
-
-        middle.getHexTopLeft().getHexTopLeft().updateHexagonList();
-        middle.getHexTopLeft().getHexTopRight().updateHexagonList();
-
-        middle.getHexTopRight().getHexTopRight().updateHexagonList();
-        middle.getHexTopRight().getHexRight().updateHexagonList();
-
-        middle.getHexRight().getHexRight().updateHexagonList();
-        middle.getHexRight().getHexBottomRight().updateHexagonList();
-
-        middle.getHexBottomRight().getHexBottomRight().updateHexagonList();
-        middle.getHexBottomRight().getHexBottomLeft().updateHexagonList();
-
-        middle.getHexBottomLeft().getHexBottomLeft().updateHexagonList();
-        middle.getHexBottomLeft().getHexLeft().updateHexagonList();
-
-        middle.getHexLeft().getHexLeft().updateHexagonList();
-        middle.getHexLeft().getHexTopLeft().updateHexagonList();
-
-    }
-
-    /**
      * Generates a random game field
      * <p>
      * When this method is called a game field is created in which the position of the hexagons is decided randomly
@@ -258,81 +167,14 @@ public class MapGraph implements Serializable {
 
         }
         for (Hexagon hexagon : placedHexagons) {
-            if (!hexagon.equals(middle)) { hexagon.generateNodes(); }
+            if (!hexagon.equals(middle)) {
+                hexagon.generateNodes();
+            }
         }
         for (Hexagon hexagon : placedHexagons) {
-            if (!hexagon.equals(middle)) { hexagon.interconnectOwnNodes(); }
-        }
-
-    }
-
-    /**
-     * Function used for expanding randomly from a hexagon, in contrast to the usual 6-directional expanding
-     * <p>
-     * A random hexagon of the already generated ones gets selected and will then randomly expand in 1 direction
-     * Furthermore the list containing the existing hexagons gets updated because a new one was created
-     *
-     * @param list      the ArrayList containing the existing hexagons
-     * @param rand      the random number used to index the ArrayList of the hexagons
-     * @param direction the random number used to decide the direction in which to expand
-     * @author Marc Hermes
-     * @since 2021-05-14
-     */
-    private void expandRandomly(ArrayList<Hexagon> list, int rand, int direction) {
-        switch (direction) {
-            case 0:
-                if (list.get(rand).getSelfPosition().size() < 4) {
-                    Hexagon hex = list.get(rand).dockTopLeft();
-                    list.clear();
-                    list.addAll(hexagonHashSet);
-                    hex.updateHexagonList();
-
-                }
-                break;
-            case 1:
-                if (list.get(rand).getSelfPosition().size() < 4) {
-                    Hexagon hex = list.get(rand).dockLeft();
-                    list.clear();
-                    list.addAll(hexagonHashSet);
-                    hex.updateHexagonList();
-
-                }
-                break;
-            case 2:
-                if (list.get(rand).getSelfPosition().size() < 4) {
-                    Hexagon hex = list.get(rand).dockRight();
-                    list.clear();
-                    list.addAll(hexagonHashSet);
-                    hex.updateHexagonList();
-
-                }
-                break;
-            case 3:
-                if (list.get(rand).getSelfPosition().size() < 4) {
-                    Hexagon hex = list.get(rand).dockBottomLeft();
-                    list.clear();
-                    list.addAll(hexagonHashSet);
-                    hex.updateHexagonList();
-
-                }
-                break;
-            case 4:
-                if (list.get(rand).getSelfPosition().size() < 4) {
-                    Hexagon hex = list.get(rand).dockBottomRight();
-                    list.clear();
-                    list.addAll(hexagonHashSet);
-                    hex.updateHexagonList();
-
-                }
-                break;
-            case 5:
-                if (list.get(rand).getSelfPosition().size() < 4) {
-                    Hexagon hex = list.get(rand).dockTopRight();
-                    list.clear();
-                    list.addAll(hexagonHashSet);
-                    hex.updateHexagonList();
-                }
-                break;
+            if (!hexagon.equals(middle)) {
+                hexagon.interconnectOwnNodes();
+            }
         }
 
     }
@@ -477,6 +319,94 @@ public class MapGraph implements Serializable {
     }
 
     /**
+     * Generates the standard game field
+     * <p>
+     * When this function is called, the standard game field is created
+     *
+     * @author Marc Hermes
+     * @since 2021-05-14
+     */
+    private void generateStandardField() {
+        //Generating the first Hexagon in the middle.
+        middle.generateNodesMiddle();
+        middle.expand();
+        middle.interconnectOwnNodes();
+        middle.interconnectNeighbourHexagons();
+
+        middle.getHexTopLeft().expand();
+        middle.getHexTopLeft().interconnectNeighbourHexagons();
+
+        middle.getHexTopRight().expand();
+        middle.getHexTopRight().interconnectNeighbourHexagons();
+
+        middle.getHexLeft().expand();
+        middle.getHexLeft().interconnectNeighbourHexagons();
+
+        middle.getHexRight().expand();
+        middle.getHexRight().interconnectNeighbourHexagons();
+
+        middle.getHexBottomLeft().expand();
+        middle.getHexBottomLeft().interconnectNeighbourHexagons();
+
+        middle.getHexBottomRight().expand();
+        middle.getHexBottomRight().interconnectNeighbourHexagons();
+
+
+        middle.getHexTopLeft().generateNodes();
+        middle.getHexTopRight().generateNodes();
+        middle.getHexLeft().generateNodes();
+        middle.getHexRight().generateNodes();
+        middle.getHexBottomLeft().generateNodes();
+        middle.getHexBottomRight().generateNodes();
+
+        middle.getHexTopLeft().getHexTopLeft().generateNodes();
+        middle.getHexTopLeft().getHexTopRight().generateNodes();
+
+        middle.getHexTopRight().getHexTopRight().generateNodes();
+        middle.getHexTopRight().getHexRight().generateNodes();
+
+        middle.getHexRight().getHexRight().generateNodes();
+        middle.getHexRight().getHexBottomRight().generateNodes();
+
+        middle.getHexBottomRight().getHexBottomRight().generateNodes();
+        middle.getHexBottomRight().getHexBottomLeft().generateNodes();
+
+        middle.getHexBottomLeft().getHexBottomLeft().generateNodes();
+        middle.getHexBottomLeft().getHexLeft().generateNodes();
+
+        middle.getHexLeft().getHexLeft().generateNodes();
+        middle.getHexLeft().getHexTopLeft().generateNodes();
+
+
+        middle.getHexTopLeft().interconnectNeighbourNodes();
+        middle.getHexTopRight().interconnectNeighbourNodes();
+        middle.getHexLeft().interconnectNeighbourNodes();
+        middle.getHexRight().interconnectNeighbourNodes();
+        middle.getHexBottomLeft().interconnectNeighbourNodes();
+        middle.getHexBottomRight().interconnectNeighbourNodes();
+
+
+        middle.getHexTopLeft().getHexTopLeft().updateHexagonList();
+        middle.getHexTopLeft().getHexTopRight().updateHexagonList();
+
+        middle.getHexTopRight().getHexTopRight().updateHexagonList();
+        middle.getHexTopRight().getHexRight().updateHexagonList();
+
+        middle.getHexRight().getHexRight().updateHexagonList();
+        middle.getHexRight().getHexBottomRight().updateHexagonList();
+
+        middle.getHexBottomRight().getHexBottomRight().updateHexagonList();
+        middle.getHexBottomRight().getHexBottomLeft().updateHexagonList();
+
+        middle.getHexBottomLeft().getHexBottomLeft().updateHexagonList();
+        middle.getHexBottomLeft().getHexLeft().updateHexagonList();
+
+        middle.getHexLeft().getHexLeft().updateHexagonList();
+        middle.getHexLeft().getHexTopLeft().updateHexagonList();
+
+    }
+
+    /**
      * Generates the standard configuration of the harbors of the game field
      *
      * @author Marc Hermes
@@ -554,10 +484,83 @@ public class MapGraph implements Serializable {
     }
 
     /**
+     * Function used for expanding randomly from a hexagon, in contrast to the usual 6-directional expanding
+     * <p>
+     * A random hexagon of the already generated ones gets selected and will then randomly expand in 1 direction
+     * Furthermore the list containing the existing hexagons gets updated because a new one was created
+     *
+     * @param list      the ArrayList containing the existing hexagons
+     * @param rand      the random number used to index the ArrayList of the hexagons
+     * @param direction the random number used to decide the direction in which to expand
+     *
+     * @author Marc Hermes
+     * @since 2021-05-14
+     */
+    private void expandRandomly(ArrayList<Hexagon> list, int rand, int direction) {
+        switch (direction) {
+            case 0:
+                if (list.get(rand).getSelfPosition().size() < 4) {
+                    Hexagon hex = list.get(rand).dockTopLeft();
+                    list.clear();
+                    list.addAll(hexagonHashSet);
+                    hex.updateHexagonList();
+
+                }
+                break;
+            case 1:
+                if (list.get(rand).getSelfPosition().size() < 4) {
+                    Hexagon hex = list.get(rand).dockLeft();
+                    list.clear();
+                    list.addAll(hexagonHashSet);
+                    hex.updateHexagonList();
+
+                }
+                break;
+            case 2:
+                if (list.get(rand).getSelfPosition().size() < 4) {
+                    Hexagon hex = list.get(rand).dockRight();
+                    list.clear();
+                    list.addAll(hexagonHashSet);
+                    hex.updateHexagonList();
+
+                }
+                break;
+            case 3:
+                if (list.get(rand).getSelfPosition().size() < 4) {
+                    Hexagon hex = list.get(rand).dockBottomLeft();
+                    list.clear();
+                    list.addAll(hexagonHashSet);
+                    hex.updateHexagonList();
+
+                }
+                break;
+            case 4:
+                if (list.get(rand).getSelfPosition().size() < 4) {
+                    Hexagon hex = list.get(rand).dockBottomRight();
+                    list.clear();
+                    list.addAll(hexagonHashSet);
+                    hex.updateHexagonList();
+
+                }
+                break;
+            case 5:
+                if (list.get(rand).getSelfPosition().size() < 4) {
+                    Hexagon hex = list.get(rand).dockTopRight();
+                    list.clear();
+                    list.addAll(hexagonHashSet);
+                    hex.updateHexagonList();
+                }
+                break;
+        }
+
+    }
+
+    /**
      * Returns a random integer in a given range with standard distribution
      *
      * @param min the (inclusive) lower bound for the random number
      * @param max the (exclusive) upper bound for the random number
+     *
      * @return the random number generated
      * @author Marc Hermes
      * @since 2021-05-14
@@ -585,7 +588,6 @@ public class MapGraph implements Serializable {
      * @author Philip Nitsche
      * @since 2021-04-26
      */
-
     public void addBuiltBuilding(BuildingNode builtBuilding) {
         if (!builtBuildings.contains(builtBuilding)) {
             builtBuildings.add(builtBuilding);
@@ -738,19 +740,19 @@ public class MapGraph implements Serializable {
             if (!connectedBuildingNodes.contains(buildingNode)) {
                 if (connectedBuildingNodes.size() < 2) {
                     connectedBuildingNodes.add(buildingNode);
-                } else { throw new ListFullException("This StreetNode already has 2 BuildingNodes connected to it."); }
+                } else {
+                    throw new ListFullException("This StreetNode already has 2 BuildingNodes connected to it.");
+                }
             }
         }
 
-        //METHODS
-
         /**
-         * Builds a road for player with parsed index.
-         * Calls the function to update the matrix with new Street.
+         * Builds a road for player with parsed index. Calls the function to update the matrix with new Street.
          * <p>
          * enhanced by Marc, Kirstin, 2021-04-23
          *
          * @param playerIndex Index of the player who wants to build a road
+         *
          * @return True if construction was successful, false if not.
          * @author Pieter Vogt, enhanced by Kirstin Beyer
          * @since 2021-04-15
@@ -787,7 +789,22 @@ public class MapGraph implements Serializable {
                             numOfRoads[playerIndex] == startingPhase - 1 && numOfRoads[playerIndex] < numOfBuildings[playerIndex]))) {
                 numOfRoads[playerIndex]++;
                 return true;
-            } else { return false; }
+            } else {
+                return false;
+            }
+        }
+
+        //METHODS
+
+        /**
+         * Returns a HashSet of BuildingNodes connected to the calling StreetNode.
+         *
+         * @return HashSet of connected BuildingNodes.
+         * @author Pieter Vogt
+         * @since 2021-04-10
+         */
+        public HashSet<BuildingNode> getConnectedBuildingNodes() {
+            return connectedBuildingNodes;
         }
 
         /**
@@ -821,6 +838,7 @@ public class MapGraph implements Serializable {
 
         private final HashSet<StreetNode> connectedStreetNodes = new HashSet<>();
 
+        //0 = no harbor, 1 = 2:1 Sheep, 2 = 2:1 Clay, 3 = 2:1 Wood, 4 = 2:1 Grain, 5 = 2:1 Ore, 6 = 3:1 Any
         private int typeOfHarbor = 0;
         private int sizeOfSettlement = 0;
         //CONSTRUCTOR
@@ -884,7 +902,9 @@ public class MapGraph implements Serializable {
             if (!connectedStreetNodes.contains(streetNode)) {
                 if (connectedStreetNodes.size() < 3) {
                     connectedStreetNodes.add(streetNode);
-                } else { throw new ListFullException("This BuildingNode already has 3 StreetNodes connected to it."); }
+                } else {
+                    throw new ListFullException("This BuildingNode already has 3 StreetNodes connected to it.");
+                }
             }
         }
 
@@ -908,15 +928,14 @@ public class MapGraph implements Serializable {
             this.sizeOfSettlement++;
         }
 
-        //METHODS
-
         /**
-         * Builds or upgrades a settlement for player with parsed index.
-         * Calls the function to update the matrix with new building, if the building is not just a size increase.
+         * Builds or upgrades a settlement for player with parsed index. Calls the function to update the matrix with
+         * new building, if the building is not just a size increase.
          * <p>
          * enhanced by Marc, Kirstin, 2021-04-23
          *
          * @param playerIndex Index of the player who wants to build or upgrade a building.
+         *
          * @return True if construction was successful, false if not.
          * @author Pieter Vogt, enhanced by Kirstin Beyer
          * @since 2021-04-15
@@ -947,8 +966,12 @@ public class MapGraph implements Serializable {
                         (startingPhase == 0 && sizeOfSettlement == 1 && occupiedByPlayer == playerIndex)) {
                     numOfBuildings[playerIndex]++;
                     return true;
-                } else { return false; }
-            } else { return false; }
+                } else {
+                    return false;
+                }
+            } else {
+                return false;
+            }
         }
 
         /**
@@ -975,8 +998,8 @@ public class MapGraph implements Serializable {
      * Represents the logical structure of one hexagonal cardboard-piece to build the play field of.
      * <p>This class represents the logic of the pathfinding- and the building-system. It houses the pointers to the
      * building-spots and is aware of its neighbour-hexagons. With this, we are able to send specific commands to
-     * specific places of the play field. Furthermore this has superseded the GameField-class and now also represents the
-     * type of Terrain and the diceToken.</p>
+     * specific places of the play field. Furthermore this has superseded the GameField-class and now also represents
+     * the type of Terrain and the diceToken.</p>
      *
      * @author Pieter Vogt
      * @since 2021-04-09
@@ -1021,6 +1044,7 @@ public class MapGraph implements Serializable {
          * the first Hexagon to be placed.</p>
          *
          * @param position The directional vector from the ancestor-Hexagon to this one.
+         *
          * @author Pieter Vogt
          * @since 2021-04-10
          */
@@ -1037,6 +1061,7 @@ public class MapGraph implements Serializable {
          *
          * @param position     The directional vector from the ancestor-Hexagon to this one.
          * @param positionList The List of positional vectors that describes the position of the ancestor-Hexagon.
+         *
          * @author Pieter Vogt
          * @since 2021-04-10
          */
@@ -1402,58 +1427,6 @@ public class MapGraph implements Serializable {
             this.occupiedByRobber = occupiedByRobber;
         }
 
-        // METHODS
-
-        /**
-         * Adds all nodes to the corresponding nodeLists.
-         *
-         * @author Pieter Vogt
-         * @since 2021-04-08
-         */
-        public void updateNodeLists() {
-            streetNodes.add(streetTopLeft);
-            streetNodes.add(streetTopRight);
-            streetNodes.add(streetLeft);
-            streetNodes.add(streetRight);
-            streetNodes.add(streetBottomLeft);
-            streetNodes.add(streetBottomRight);
-
-            buildingNodes.add(buildingTop);
-            buildingNodes.add(buildingTopLeft);
-            buildingNodes.add(buildingTopRight);
-            buildingNodes.add(buildingBottomLeft);
-            buildingNodes.add(buildingBottomRight);
-            buildingNodes.add(buildingBottom);
-
-        }
-
-        /**
-         * Adds all Hexagons to the HexagonList.
-         *
-         * @author Pieter Vogt
-         * @since 2021-04-08
-         */
-        public void updateHexagonList() {
-            if (hexTopLeft != null) {
-                hexagons.add(hexTopLeft);
-            }
-            if (hexTopRight != null) {
-                hexagons.add(hexTopRight);
-            }
-            if (hexRight != null) {
-                hexagons.add(hexRight);
-            }
-            if (hexLeft != null) {
-                hexagons.add(hexLeft);
-            }
-            if (hexBottomLeft != null) {
-                hexagons.add(hexBottomLeft);
-            }
-            if (hexBottomRight != null) {
-                hexagons.add(hexBottomRight);
-            }
-        }
-
         /**
          * Fills the empty slots with nodes.
          * <p>This is used, to quickly generate a fully occupied hexagon to dock to. First it checks if the respective
@@ -1742,6 +1715,29 @@ public class MapGraph implements Serializable {
         }
 
         /**
+         * Adds all nodes to the corresponding nodeLists.
+         *
+         * @author Pieter Vogt
+         * @since 2021-04-08
+         */
+        public void updateNodeLists() {
+            streetNodes.add(streetTopLeft);
+            streetNodes.add(streetTopRight);
+            streetNodes.add(streetLeft);
+            streetNodes.add(streetRight);
+            streetNodes.add(streetBottomLeft);
+            streetNodes.add(streetBottomRight);
+
+            buildingNodes.add(buildingTop);
+            buildingNodes.add(buildingTopLeft);
+            buildingNodes.add(buildingTopRight);
+            buildingNodes.add(buildingBottomLeft);
+            buildingNodes.add(buildingBottomRight);
+            buildingNodes.add(buildingBottom);
+
+        }
+
+        /**
          * Calls all dock-functions for convenience
          * <p>This method expands the calling hexagon for 6 new surrounding hexagons and interconnects them.</p>
          *
@@ -1757,6 +1753,126 @@ public class MapGraph implements Serializable {
             dockTopRight();
             dockTopLeft();
             updateHexagonList();
+        }
+
+        /**
+         * Docks calling hexagon to its left Hexagon. If the left Hexagon is still null, the method generates a new one
+         * there.
+         *
+         * @author Pieter Vogt
+         * @since 2021-04-08
+         */
+        public Hexagon dockLeft() {
+            if (hexLeft == null) {
+                this.hexLeft = new Hexagon("left", selfPosition);
+                hexLeft.setHexRight(this);
+            }
+            return hexLeft;
+        }
+
+        /**
+         * Docks calling hexagon to its bottom-left Hexagon. If the bottom-left Hexagon is still null, the method
+         * generates a new one there.
+         *
+         * @author Pieter Vogt
+         * @since 2021-04-08
+         */
+        public Hexagon dockBottomLeft() {
+            if (hexBottomLeft == null) {
+                this.hexBottomLeft = new Hexagon("bottomLeft", selfPosition);
+                hexBottomLeft.setHexTopRight(this);
+            }
+            return hexBottomLeft;
+        }
+
+        /**
+         * Docks calling hexagon to its bottom-right Hexagon. If the bottom-right Hexagon is still null, the method
+         * generates a new one there.
+         *
+         * @author Pieter Vogt
+         * @since 2021-04-08
+         */
+        public Hexagon dockBottomRight() {
+            if (hexBottomRight == null) {
+                this.hexBottomRight = new Hexagon("bottomRight", selfPosition);
+                hexBottomRight.setHexTopLeft(this);
+            }
+            return hexBottomRight;
+        }
+
+        /**
+         * Docks calling hexagon to its right Hexagon. If the right Hexagon is still null, the method generates a new
+         * one there.
+         *
+         * @author Pieter Vogt
+         * @since 2021-04-08
+         */
+        public Hexagon dockRight() {
+            if (hexRight == null) {
+                this.hexRight = new Hexagon("right", selfPosition);
+                hexRight.setHexLeft(this);
+            }
+            return hexRight;
+        }
+
+
+        //DOCKER-METHODS
+
+        /**
+         * Docks calling hexagon to its top-right Hexagon. If the top-right Hexagon is still null, the method generates
+         * a new one there.
+         *
+         * @author Pieter Vogt
+         * @since 2021-04-08
+         */
+        public Hexagon dockTopRight() {
+            if (hexTopRight == null) {
+                this.hexTopRight = new Hexagon("topRight", selfPosition);
+                hexTopRight.setHexBottomLeft(this);
+            }
+            return hexTopRight;
+        }
+
+        /**
+         * Docks calling hexagon to its top-left Hexagon. If the top-left Hexagon is still null, the method generates a
+         * new one there.
+         *
+         * @author Pieter Vogt
+         * @since 2021-04-08
+         */
+        public Hexagon dockTopLeft() {
+            if (hexTopLeft == null) {
+                this.hexTopLeft = new Hexagon("topLeft", selfPosition);
+                hexTopLeft.setHexBottomRight(this);
+            }
+            return hexTopLeft;
+        }
+
+        /**
+         * Adds all Hexagons to the HexagonList.
+         *
+         * @author Pieter Vogt
+         * @since 2021-04-08
+         */
+        public void updateHexagonList() {
+            if (hexTopLeft != null) {
+                hexagons.add(hexTopLeft);
+            }
+            if (hexTopRight != null) {
+                hexagons.add(hexTopRight);
+            }
+            if (hexRight != null) {
+                hexagons.add(hexRight);
+            }
+            if (hexLeft != null) {
+                hexagons.add(hexLeft);
+            }
+            if (hexBottomLeft != null) {
+                hexagons.add(hexBottomLeft);
+            }
+            if (hexBottomRight != null) {
+                hexagons.add(hexBottomRight);
+            }
         }
 
         /**
@@ -1825,6 +1941,18 @@ public class MapGraph implements Serializable {
         }
 
         /**
+         * Interconnects the Nodes of the neighbour-Hexagons
+         *
+         * @author Pieter Vogt
+         * @since 2021-04-10
+         */
+        private void interconnectNeighbourNodes() {
+            for (Hexagon h : hexagons) {
+                h.interconnectOwnNodes();
+            }
+        }
+
+        /**
          * Interconnects the nodes of the calling Hexagon.
          * <p>This is used, to interconnect the StreetNodes and BuildingNodes inside the calling Hexagon with
          * themselves. For example it links the left and the top-left BuildingNode to the top-left StreetNode.</p>
@@ -1876,111 +2004,6 @@ public class MapGraph implements Serializable {
                 buildingBottom.addStreetNode(streetBottomRight);
             } catch (ListFullException ignored) {
             }
-        }
-
-        /**
-         * Interconnects the Nodes of the neighbour-Hexagons
-         *
-         * @author Pieter Vogt
-         * @since 2021-04-10
-         */
-        private void interconnectNeighbourNodes() {
-            for (Hexagon h : hexagons) {
-                h.interconnectOwnNodes();
-            }
-        }
-
-
-        //DOCKER-METHODS
-
-        /**
-         * Docks calling hexagon to its right Hexagon. If the right Hexagon is still null, the method generates a new
-         * one there.
-         *
-         * @author Pieter Vogt
-         * @since 2021-04-08
-         */
-        public Hexagon dockRight() {
-            if (hexRight == null) {
-                this.hexRight = new Hexagon("right", selfPosition);
-                hexRight.setHexLeft(this);
-            }
-            return hexRight;
-        }
-
-        /**
-         * Docks calling hexagon to its left Hexagon. If the left Hexagon is still null, the method generates a new one
-         * there.
-         *
-         * @author Pieter Vogt
-         * @since 2021-04-08
-         */
-        public Hexagon dockLeft() {
-            if (hexLeft == null) {
-                this.hexLeft = new Hexagon("left", selfPosition);
-                hexLeft.setHexRight(this);
-            }
-            return hexLeft;
-        }
-
-        /**
-         * Docks calling hexagon to its top-right Hexagon. If the top-right Hexagon is still null, the method generates
-         * a new one there.
-         *
-         * @author Pieter Vogt
-         * @since 2021-04-08
-         */
-        public Hexagon dockTopRight() {
-            if (hexTopRight == null) {
-                this.hexTopRight = new Hexagon("topRight", selfPosition);
-                hexTopRight.setHexBottomLeft(this);
-            }
-            return hexTopRight;
-        }
-
-        /**
-         * Docks calling hexagon to its bottom-right Hexagon. If the bottom-right Hexagon is still null, the method
-         * generates a new one there.
-         *
-         * @author Pieter Vogt
-         * @since 2021-04-08
-         */
-        public Hexagon dockBottomRight() {
-            if (hexBottomRight == null) {
-                this.hexBottomRight = new Hexagon("bottomRight", selfPosition);
-                hexBottomRight.setHexTopLeft(this);
-            }
-            return hexBottomRight;
-        }
-
-        /**
-         * Docks calling hexagon to its top-left Hexagon. If the top-left Hexagon is still null, the method generates a
-         * new one there.
-         *
-         * @author Pieter Vogt
-         * @since 2021-04-08
-         */
-        public Hexagon dockTopLeft() {
-            if (hexTopLeft == null) {
-                this.hexTopLeft = new Hexagon("topLeft", selfPosition);
-                hexTopLeft.setHexBottomRight(this);
-            }
-            return hexTopLeft;
-        }
-
-        /**
-         * Docks calling hexagon to its bottom-left Hexagon. If the bottom-left Hexagon is still null, the method
-         * generates a new one there.
-         *
-         * @author Pieter Vogt
-         * @since 2021-04-08
-         */
-        public Hexagon dockBottomLeft() {
-            if (hexBottomLeft == null) {
-                this.hexBottomLeft = new Hexagon("bottomLeft", selfPosition);
-                hexBottomLeft.setHexTopRight(this);
-            }
-            return hexBottomLeft;
         }
     }
 }

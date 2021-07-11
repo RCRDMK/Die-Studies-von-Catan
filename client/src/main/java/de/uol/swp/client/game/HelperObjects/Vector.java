@@ -1,8 +1,8 @@
 package de.uol.swp.client.game.HelperObjects;
 
-import java.util.Collection;
-
 import de.uol.swp.common.game.MapGraph;
+
+import java.util.Collection;
 
 /**
  * This class is used for navigating in the 12-angled grid of terrain-fields.
@@ -28,7 +28,10 @@ public class Vector {
      *
      * @param node MapGraphNode to extract vector from
      * @param d    cardSize
+     *
      * @return the Vector to specify the position of the MapGraphNode
+     * @author Pieter Vogt
+     * @since 2021-01-24
      */
     public static Vector getVectorFromMapGraphNode(MapGraph.MapGraphNode node, double d) {
         Vector returnVector = new Vector(0, 0);
@@ -108,12 +111,12 @@ public class Vector {
      * @param d            the distance traveled from one object to the next.
      * @param sourceVector The start of the resulting vector. Usually the center of the canvas, but can be something
      *                     else.
+     *
      * @return Vector that sums up all vectors from the list plus the sourceVector.
      * @author Pieter Vogt
      * @see de.uol.swp.common.game.MapGraph.Hexagon
      * @since 2021-04-12
      */
-
     public static Vector convertStringListToVector(Collection<String> positions, double d, Vector sourceVector) {
         Vector returnVector = sourceVector;
         for (String s : positions) {
@@ -145,26 +148,6 @@ public class Vector {
     }
 
     /**
-     * Subtracts 2 Vectors in JavaFX-Coordinate System
-     * <p>
-     * Because the JavaFX coordinate-system has its origin in the upper left corner and increments only into positive
-     * space, the subtraction of two vectors needs to add the y-values. The reason is, that - although the x-axis in
-     * JavaFX behaves like the x-axis of a normal cartesian system - the y-axis doesn't. The values of the y axis
-     * actually go up when you go down in screen-direction. To compensate for that, i changed the add- and subtract-
-     * methods for vectors in the game.
-     * </p>
-     *
-     * @param v1 Vector
-     * @param v2 Vector
-     * @return Vector as subtraction result
-     * @author Pieter Vogt
-     * @since 2021-01-24
-     */
-    public static Vector subVector(Vector v1, Vector v2) {
-        return new Vector(v1.getX() - v2.getX(), v1.getY() + v2.getY());
-    }
-
-    /**
      * Adds 2 Vectors in JavaFX coordinate-system.
      * <p>
      * Because the JavaFX coordinate-system has its origin in the upper left corner and increments only into positive
@@ -176,6 +159,7 @@ public class Vector {
      *
      * @param v1 Vector
      * @param v2 Vector
+     *
      * @return Vector as addition result
      * @author Pieter Vogt
      * @since 2021-01-24
@@ -184,42 +168,131 @@ public class Vector {
         return new Vector(v1.getX() + v2.getX(), v1.getY() - v2.getY());
     }
 
-    public static Vector right(double d) {
-        double angle = 0 * (2 * Math.PI / 12);
-        return new Vector(d * Math.cos(angle), d * Math.sin(angle));
-    }
-
-    public static Vector topRight(double d) {
-        double angle = 2 * (2 * Math.PI / 12);
-        return new Vector(d * Math.cos(angle), d * Math.sin(angle));
-    }
-
-    public static Vector topLeft(double d) {
-        double angle = 4 * (2 * Math.PI / 12);
-        return new Vector(d * Math.cos(angle), d * Math.sin(angle));
-    }
-
+    /**
+     * Returns x and y coordinates dependant on the parameter d and the respective direction.
+     *
+     * @param d double representing the distance to travel.
+     *
+     * @return Vector representing the x and y coordinates of the destination.
+     * @author Pieter Vogt
+     * @since 2021-01-24
+     */
     public static Vector left(double d) {
         double angle = 6 * (2 * Math.PI / 12);
         return new Vector(d * Math.cos(angle), d * Math.sin(angle));
     }
 
+    /**
+     * Returns x and y coordinates dependant on the parameter d and the respective direction.
+     *
+     * @param d double representing the distance to travel.
+     *
+     * @return Vector representing the x and y coordinates of the destination.
+     * @author Pieter Vogt
+     * @since 2021-01-24
+     */
+    public static Vector topLeft(double d) {
+        double angle = 4 * (2 * Math.PI / 12);
+        return new Vector(d * Math.cos(angle), d * Math.sin(angle));
+    }
+
+    /**
+     * Returns x and y coordinates dependant on the parameter d and the respective direction.
+     *
+     * @param d double representing the distance to travel.
+     *
+     * @return Vector representing the x and y coordinates of the destination.
+     * @author Pieter Vogt
+     * @since 2021-01-24
+     */
+    public static Vector right(double d) {
+        double angle = 0 * (2 * Math.PI / 12);
+        return new Vector(d * Math.cos(angle), d * Math.sin(angle));
+    }
+
+    /**
+     * Returns x and y coordinates dependant on the parameter d and the respective direction.
+     *
+     * @param d double representing the distance to travel.
+     *
+     * @return Vector representing the x and y coordinates of the destination.
+     * @author Pieter Vogt
+     * @since 2021-01-24
+     */
+    public static Vector topRight(double d) {
+        double angle = 2 * (2 * Math.PI / 12);
+        return new Vector(d * Math.cos(angle), d * Math.sin(angle));
+    }
+
+    /**
+     * Returns x and y coordinates dependant on the parameter d and the respective direction.
+     *
+     * @param d double representing the distance to travel.
+     *
+     * @return Vector representing the x and y coordinates of the destination.
+     * @author Pieter Vogt
+     * @since 2021-01-24
+     */
     public static Vector bottomLeft(double d) {
         double angle = 8 * (2 * Math.PI / 12);
         return new Vector(d * Math.cos(angle), d * Math.sin(angle));
     }
 
+    /**
+     * Returns x and y coordinates dependant on the parameter d and the respective direction.
+     *
+     * @param d double representing the distance to travel.
+     *
+     * @return Vector representing the x and y coordinates of the destination.
+     * @author Pieter Vogt
+     * @since 2021-01-24
+     */
     public static Vector bottomRight(double d) {
         double angle = 10 * (2 * Math.PI / 12);
         return new Vector(d * Math.cos(angle), d * Math.sin(angle));
     }
 
+    /**
+     * Returns the x coordinate of the calling Vector.
+     *
+     * @return double representing the x coordinate of the Vector.
+     * @author Pieter Vogt
+     * @since 2021-01-24
+     */
     public double getX() {
         return x;
     }
 
+    /**
+     * Returns the y coordinate of the calling Vector.
+     *
+     * @return double representing the y coordinate of the Vector.
+     * @author Pieter Vogt
+     * @since 2021-01-24
+     */
     public double getY() {
         return y;
+    }
+
+    /**
+     * Subtracts 2 Vectors in JavaFX-Coordinate System
+     * <p>
+     * Because the JavaFX coordinate-system has its origin in the upper left corner and increments only into positive
+     * space, the subtraction of two vectors needs to add the y-values. The reason is, that - although the x-axis in
+     * JavaFX behaves like the x-axis of a normal cartesian system - the y-axis doesn't. The values of the y axis
+     * actually go up when you go down in screen-direction. To compensate for that, i changed the add- and subtract-
+     * methods for vectors in the game.
+     * </p>
+     *
+     * @param v1 Vector
+     * @param v2 Vector
+     *
+     * @return Vector as subtraction result
+     * @author Pieter Vogt
+     * @since 2021-01-24
+     */
+    public static Vector subVector(Vector v1, Vector v2) {
+        return new Vector(v1.getX() - v2.getX(), v1.getY() + v2.getY());
     }
 
 

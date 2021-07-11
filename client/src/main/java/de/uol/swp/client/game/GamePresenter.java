@@ -1,16 +1,22 @@
 package de.uol.swp.client.game;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-
+import com.google.common.eventbus.Subscribe;
+import com.google.inject.Inject;
+import de.uol.swp.client.AbstractPresenter;
+import de.uol.swp.client.chat.ChatService;
+import de.uol.swp.client.game.HelperObjects.HexagonContainer;
+import de.uol.swp.client.game.HelperObjects.MapGraphNodeContainer;
+import de.uol.swp.client.game.HelperObjects.Vector;
+import de.uol.swp.common.chat.RequestChatMessage;
+import de.uol.swp.common.chat.ResponseChatMessage;
+import de.uol.swp.common.game.Inventory;
+import de.uol.swp.common.game.MapGraph;
+import de.uol.swp.common.game.message.*;
+import de.uol.swp.common.game.response.*;
+import de.uol.swp.common.lobby.message.JoinOnGoingGameMessage;
+import de.uol.swp.common.lobby.response.JoinOnGoingGameResponse;
+import de.uol.swp.common.user.User;
+import de.uol.swp.common.user.UserDTO;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -22,19 +28,7 @@ import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.ButtonBar;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Dialog;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
-import javafx.scene.control.MenuButton;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
-import javafx.scene.control.Tooltip;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -52,52 +46,14 @@ import javafx.stage.Screen;
 import javafx.stage.StageStyle;
 import javafx.stage.Window;
 import javafx.util.Duration;
-
-import com.google.common.eventbus.Subscribe;
-import com.google.inject.Inject;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import de.uol.swp.client.AbstractPresenter;
-import de.uol.swp.client.chat.ChatService;
-import de.uol.swp.client.game.HelperObjects.HexagonContainer;
-import de.uol.swp.client.game.HelperObjects.MapGraphNodeContainer;
-import de.uol.swp.client.game.HelperObjects.Vector;
-import de.uol.swp.common.chat.RequestChatMessage;
-import de.uol.swp.common.chat.ResponseChatMessage;
-import de.uol.swp.common.game.Inventory;
-import de.uol.swp.common.game.MapGraph;
-import de.uol.swp.common.game.message.BuyDevelopmentCardMessage;
-import de.uol.swp.common.game.message.ChoosePlayerMessage;
-import de.uol.swp.common.game.message.DrawRandomResourceFromPlayerMessage;
-import de.uol.swp.common.game.message.GameCreatedMessage;
-import de.uol.swp.common.game.message.MoveRobberMessage;
-import de.uol.swp.common.game.message.NextTurnMessage;
-import de.uol.swp.common.game.message.NotEnoughResourcesMessage;
-import de.uol.swp.common.game.message.NotSuccessfulConstructionMessage;
-import de.uol.swp.common.game.message.PlayerKickedMessage;
-import de.uol.swp.common.game.message.PrivateInventoryChangeMessage;
-import de.uol.swp.common.game.message.PublicInventoryChangeMessage;
-import de.uol.swp.common.game.message.ResolveDevelopmentCardMessage;
-import de.uol.swp.common.game.message.RollDiceResultMessage;
-import de.uol.swp.common.game.message.SettlementFullyDevelopedMessage;
-import de.uol.swp.common.game.message.SuccessfulConstructionMessage;
-import de.uol.swp.common.game.message.SuccessfulMovedRobberMessage;
-import de.uol.swp.common.game.message.TooMuchResourceCardsMessage;
-import de.uol.swp.common.game.message.TradeCardErrorMessage;
-import de.uol.swp.common.game.message.TradeEndedLogMessage;
-import de.uol.swp.common.game.message.TradeEndedMessage;
-import de.uol.swp.common.game.message.UserLeftGameMessage;
-import de.uol.swp.common.game.response.AllThisGameUsersResponse;
-import de.uol.swp.common.game.response.GameLeftSuccessfulResponse;
-import de.uol.swp.common.game.response.PlayDevelopmentCardResponse;
-import de.uol.swp.common.game.response.PlayerKickedSuccessfulResponse;
-import de.uol.swp.common.game.response.ResolveDevelopmentCardNotSuccessfulResponse;
-import de.uol.swp.common.lobby.message.JoinOnGoingGameMessage;
-import de.uol.swp.common.lobby.response.JoinOnGoingGameResponse;
-import de.uol.swp.common.user.User;
-import de.uol.swp.common.user.UserDTO;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Manages the GameView
@@ -547,6 +503,15 @@ public class GamePresenter extends AbstractPresenter {
         }
     }
 
+    /**
+     * Method called when the buyDevCard button is pressed.
+     * <p>
+     * If the buyDevCard button is pressed, this methods tries to request the GameService to send a
+     * BuyDevelopmentCardRequest.
+     *
+     * @author
+     * @since
+     */
     @FXML
     public void onBuyDevelopmentCard() {
         gameService.buyDevelopmentCard(this.joinedLobbyUser, this.currentGame);
@@ -801,6 +766,15 @@ public class GamePresenter extends AbstractPresenter {
 
     }
 
+    /**
+     * Initializes the resourceButtons in the robber related Alert.
+     * <p>
+     * This method changes if the buttons for the different resources are clickable depending on the amount of Cards
+     * left to discard.
+     * </p>
+     *
+     * @see GamePresenter#initializeRobberResourceMenu()
+     */
     public void initializedResourceButtons() {
         choose[0].setOnAction(event -> {
             if (Integer.parseInt(lumberLabelRobberMenu.getText()) > 0) {
@@ -3828,12 +3802,12 @@ public class GamePresenter extends AbstractPresenter {
     /**
      * Adds the Message to the eventLogTextArea
      * <p>
-     * First the message gets formatted with the readableTime.
-     * After the formatting the Message gets added to the textArea.
-     * The formatted Message contains the readableTime and message
+     * First the message gets formatted with the readableTime. After the formatting the Message gets added to the
+     * textArea. The formatted Message contains the readableTime and message
      *
      * @param text the Message given by the original subscriber methods.
-     * @author Philip
+     *
+     * @author Philip Nitsche
      * @see de.uol.swp.common.chat.ResponseChatMessage
      * @since 2021-05-31
      */
