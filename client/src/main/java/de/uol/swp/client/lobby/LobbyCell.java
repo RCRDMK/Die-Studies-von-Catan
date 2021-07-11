@@ -75,6 +75,16 @@ public class LobbyCell extends ListCell<LobbyDTO> {
         this.user = user;
     }
 
+    /**
+     * This method updates the cells from the hBox using a list of LobbyDTOs
+     *
+     * @param item the new Lobby for the cell
+     * @param empty whether or not this cell represents data from the list. If it is empty,
+     *              then it does not represent any domain data, but is a cell being used to
+     *              render an "empty" row.
+     * @author Pieter Vogt, Carsten Dekker, René
+     * @since 2021-04-08
+     */
     @Override
     protected void updateItem(LobbyDTO item, boolean empty) {
         super.updateItem(item, empty);

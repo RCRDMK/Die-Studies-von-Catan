@@ -39,6 +39,72 @@ public class MapGraph implements Serializable {
     }
 
     /**
+     * Getter for the HashSet of street nodes
+     *
+     * @return HashSet of street nodes
+     * @author Pieter Vogt
+     * @since 2021-04-02
+     */
+    public HashSet<StreetNode> getStreetNodeHashSet() {
+        return streetNodeHashSet;
+    }
+
+    /**
+     * Getter for the HashSet of building nodes
+     *
+     * @return HashSet of building nodes
+     * @author Pieter Vogt
+     * @since 2021-04-02
+     */
+    public HashSet<BuildingNode> getBuildingNodeHashSet() {
+        return buildingNodeHashSet;
+    }
+
+    /**
+     * Getter for the HashSet of hexagons
+     *
+     * @return HashSet of hexagons
+     * @author Pieter Vogt
+     * @since 2021-04-02
+     */
+    public HashSet<Hexagon> getHexagonHashSet() {
+        return hexagonHashSet;
+    }
+
+    /**
+     * Getter for calculator of the longest street path
+     *
+     * @return calculator of the longest street path
+     * @author Kirstin Beyer
+     * @since
+     */
+    public LongestStreetPathCalculator getLongestStreetPathCalculator() {
+        return longestStreetPathCalculator;
+    }
+
+    /**
+     * Getter for the number of roads
+     *
+     * @return number of roads
+     * @author Pieter Vogt
+     * @since 2021-04-02
+     */
+    public int[] getNumOfRoads() {
+        return numOfRoads;
+    }
+
+    /**
+     * Getter for the number of buildings
+     *
+     * @return number of buildings
+     * @author Pieter Vogt
+     * @since 2021-04-02
+     */
+    public int[] getNumOfBuildings() {
+        return numOfBuildings;
+    }
+
+    /**
      * Initializes MapGraph
      * <p>Creates the Hexagons, BuildingNodes and StreetNodes, interconnects them and updates the Lists to store
      * them.</p>
@@ -504,76 +570,11 @@ public class MapGraph implements Serializable {
     }
 
     /**
-     * Returns the HashSet containing all StreetNodes of this MapGraph
+     * Getter for built buildings
      *
-     * @return Hashset containing all StreetNodes
-     * @author Pieter Vogt
-     * @since 2021-04-02
-     */
-    public HashSet<StreetNode> getStreetNodeHashSet() {
-        return streetNodeHashSet;
-    }
-
-    /**
-     * Returns the HashSet containing all BuildingNodes of this MapGraph
-     *
-     * @return Hashset containing all BuildingNodes
-     * @author Pieter Vogt
-     * @since 2021-04-02
-     */
-    public HashSet<BuildingNode> getBuildingNodeHashSet() {
-        return buildingNodeHashSet;
-    }
-
-    /**
-     * Returns the HashSet containing all Hexagons of this MapGraph
-     *
-     * @return Hashset containing all Hexagons
-     * @author Pieter Vogt
-     * @since 2021-04-02
-     */
-    public HashSet<Hexagon> getHexagonHashSet() {
-        return hexagonHashSet;
-    }
-
-    /**
-     * Returns the LongestStreetPathCalculator of this MapGraph
-     *
-     * @return LongestStreetPathCalculator
-     * @author Pieter Vogt
-     * @since 2021-04-02
-     */
-    public LongestStreetPathCalculator getLongestStreetPathCalculator() {
-        return longestStreetPathCalculator;
-    }
-
-    /**
-     * Returns the Array of integers representing the already-build roads for every player.
-     *
-     * @return Array of integers representing build roads by the players.
-     * @author Kirstin Beyer
-     */
-    public int[] getNumOfRoads() {
-        return numOfRoads;
-    }
-
-    /**
-     * Returns the Array of integers representing the already-build buildings of this MapGraph
-     *
-     * @return Array of integers representing build buildings
-     * @author Kirstin Beyer
-     */
-    public int[] getNumOfBuildings() {
-        return numOfBuildings;
-    }
-
-    /**
-     * Returns an ArrayList containing all BuildingNodes of this MapGraph so the programmer has access to an index for
-     * easy iteration.
-     *
-     * @return ArrayList containing all BuildingNodes
-     * @author Pieter Vogt
-     * @since 2021-04-02
+     * @return array list of built buildings
+     * @author Philip Nitsche
+     * @since 2021-04-26
      */
     public ArrayList<BuildingNode> getBuiltBuildings() {
         return builtBuildings;
@@ -611,6 +612,16 @@ public class MapGraph implements Serializable {
         public int occupiedByPlayer = 666;
 
         //Constructors
+
+        /**
+         * Default constructor
+         *
+         * @param positionToParent position to parent hexagon
+         * @param parent           parent hexagon
+         * @param uuid             UUID
+         * @author Pieter Vogt
+         * @since 2021-04-15
+         */
         public MapGraphNode(String positionToParent, Hexagon parent, UUID uuid) {
             this.positionToParent = positionToParent;
             this.uuid = uuid;
@@ -619,22 +630,57 @@ public class MapGraph implements Serializable {
 
         //Getter Setter
 
+        /**
+         * Getter for UUID
+         *
+         * @return uuid
+         * @author Pieter Vogt
+         * @since 2021-04-15
+         */
         public UUID getUuid() {
             return uuid;
         }
 
+        /**
+         * Getter for position to parent
+         *
+         * @return position to parent
+         * @author Pieter Vogt
+         * @since 2021-04-15
+         */
         public String getPositionToParent() {
             return positionToParent;
         }
 
+        /**
+         * Getter for player that occupied node
+         *
+         * @return player that occupied node
+         * @author Pieter Vogt
+         * @since 2021-04-15
+         */
         public int getOccupiedByPlayer() {
             return occupiedByPlayer;
         }
 
+        /**
+         * Setter for player that occupied node
+         *
+         * @param occupiedByPlayer player that occupied node
+         * @author Pieter Vogt
+         * @since 2021-04-15
+         */
         public void setOccupiedByPlayer(int occupiedByPlayer) {
             this.occupiedByPlayer = occupiedByPlayer;
         }
 
+        /**
+         * Getter for parent hexagon
+         *
+         * @return parent hexagon
+         * @author Pieter Vogt
+         * @since 2021-04-15
+         */
         public Hexagon getParent() {
             return parent;
         }
@@ -655,6 +701,15 @@ public class MapGraph implements Serializable {
 
         //CONSTRUCTOR
 
+        /**
+         * Default constructor
+         *
+         * @param position position
+         * @param h        hexagon
+         * @param uuid     uuid
+         * @author Pieter Vogt
+         * @since 2021-04-15
+         */
         public StreetNode(String position, Hexagon h, UUID uuid) {
             super(position, h, uuid);
         }
@@ -662,10 +717,21 @@ public class MapGraph implements Serializable {
         //GETTER SETTER
 
         /**
-         * Adds a BuildingNode to the HashSet containing all connected BuildingNodes.
+         * Getter for connected building nodes
          *
-         * @param buildingNode a single BuildingNode to be added to the HashSet.
+         * @return HashSet of connected building nodes
+         * @author Pieter Vogt
+         * @since 2021-04-15
+         */
+        public HashSet<BuildingNode> getConnectedBuildingNodes() {
+            return connectedBuildingNodes;
+        }
+
+        /**
+         * Adds building node if connectedBuildingNodes are containing buildingNode and
+         * if connectedBuildingNodes is smaller than 2.
          *
+         * @param buildingNode Building node
          * @throws ListFullException
          * @author Pieter Vogt
          * @since 2021-04-15
@@ -742,12 +808,14 @@ public class MapGraph implements Serializable {
         }
 
         /**
-         * Sets the playerIndex to an integer representation of a player so the street is now owned by him instead of
-         * the neutral player.
+         * Builds a road for player with parsed index.
+         * Calls the function to update the matrix with new Street.
+         * <p>
+         * enhanced by Marc, Kirstin, 2021-04-23
          *
-         * @param playerIndex integer representing the calling player
-         *
-         * @return boolean representing if the operation was successful.
+         * @param playerIndex index of player
+         * @return true
+         * @author Pieter Vogt, enhanced by Kirstin Beyer
          * @since 2021-04-15
          */
         public boolean buildRoad(int playerIndex) {
@@ -789,9 +857,20 @@ public class MapGraph implements Serializable {
         //GETTER SETTER
 
         /**
-         * Returns an integer representing the type of harbor at the calling BuildingNode.
+         * Getter for connected street nodes
          *
-         * @return integer representing the type of harbor
+         * @return HashSet of connected street nodes
+         * @author Pieter Vogt
+         * @since 2021-04-15
+         */
+        public HashSet<StreetNode> getConnectedStreetNodes() {
+            return connectedStreetNodes;
+        }
+
+        /**
+         * Getter for the type of harbor
+         *
+         * @return type of harbor
          * @author Pieter Vogt
          * @since 2021-04-15
          */
@@ -800,10 +879,9 @@ public class MapGraph implements Serializable {
         }
 
         /**
-         * Sets the type of harbor at the calling BuildingNode.
+         * Setter for the type of harbor
          *
-         * @param typeOfHarbor integer representative of the type of harbor.
-         *
+         * @param typeOfHarbor of harbor
          * @author Pieter Vogt
          * @since 2021-04-15
          */
@@ -812,11 +890,10 @@ public class MapGraph implements Serializable {
         }
 
         /**
-         * Adds a StreetNode to the HashSet of StreetNodes representing the connected StreetNodes of the calling
-         * BuildingNode.
+         * Adds street node if connectedStreetNodes are containing streetNode and
+         * if connectedStreetNodes is smaller than 3.
          *
-         * @param streetNode the StreetNode to be added to the HashSet.
-         *
+         * @param streetNode Street node
          * @throws ListFullException
          * @author Pieter Vogt
          * @since 2021-04-15
@@ -832,18 +909,17 @@ public class MapGraph implements Serializable {
         }
 
         /**
-         * Returns an integer representing the size of the settlement at the calling BuildingNode.
+         * Getter for size of settlement
          *
-         * @return an integer representing the size of the settlement.
          * @author Pieter Vogt
-         * @since 2021-04-14
+         * @since 2021-04-15
          */
         public int getSizeOfSettlement() {
             return sizeOfSettlement;
         }
 
         /**
-         * Increments the value sizeOfSettlement by 1 to represent upgrading the settlement.
+         * Increases size of settlement
          *
          * @author Pieter Vogt
          * @since 2021-04-15
@@ -898,25 +974,15 @@ public class MapGraph implements Serializable {
             }
         }
 
-        //METHODS
-
         /**
-         * Returns a HashSet of StreetNodes representing the StreetNodes connected to the calling BuildingNode.
+         * Builds or updates settlement for player with parsed index.
+         * Calls the function to update the matrix with new Street.
+         * Increases size settlements.
+         * <p>
+         * enhanced by Marc, Kirstin, 2021-04-23
          *
-         * @return HashSet of StreetNodes connected to the calling BuildingNode.
-         * @author Pieter Vogt
-         * @since 2021-04-15
-         */
-        public HashSet<StreetNode> getConnectedStreetNodes() {
-            return connectedStreetNodes;
-        }
-
-        /**
-         * Builds a Settlement if there is none present. If so, calls the increment function.
-         *
-         * @param playerIndex integer representing the calling player.
-         *
-         * @author Pieter Vogt
+         * @param playerIndex index of player
+         * @author Pieter Vogt, enhanced by Kirstin Beyer
          * @since 2021-04-15
          */
         public void buildOrDevelopSettlement(int playerIndex) {
@@ -1008,9 +1074,9 @@ public class MapGraph implements Serializable {
         //GETTER SETTER
 
         /**
-         * Returns the number that needs to be rolled to generate the resources of this Hexagon.
+         * Getter for dice token
          *
-         * @return integer representing the eyes needed to hit this hexagon
+         * @return dice token
          * @author Pieter Vogt
          * @since 2021-04-10
          */
@@ -1019,9 +1085,9 @@ public class MapGraph implements Serializable {
         }
 
         /**
-         * Returns the the type of terrain of this Hexagon.
+         * Getter for terrain type
          *
-         * @return integer representing the type of terrain.
+         * @return terrain type
          * @author Pieter Vogt
          * @since 2021-04-10
          */
@@ -1030,11 +1096,10 @@ public class MapGraph implements Serializable {
         }
 
         /**
-         * Changes the type of terrain and the number that needs to be rolled to generate resources of this Hexagon.
+         * Setter for terrain type and dice token
          *
-         * @param terrainType an integer representing the type of terrain of this Hexagon.
-         * @param diceToken   an integer representing the number that needs to be rolled to generate resources.
-         *
+         * @param terrainType type of terrain
+         * @param diceToken   dice token
          * @author Pieter Vogt
          * @since 2021-04-10
          */
@@ -1044,9 +1109,141 @@ public class MapGraph implements Serializable {
         }
 
         /**
-         * Returns the hexagon of the respective direction in the functionname.
+         * Getter for left street node
          *
-         * @return Hexagon
+         * @return left street node
+         * @author Pieter Vogt
+         * @since 2021-04-10
+         */
+        public StreetNode getStreetLeft() {
+            return streetLeft;
+        }
+
+        /**
+         * Getter for bottom left street node
+         *
+         * @return bottom left street node
+         * @author Pieter Vogt
+         * @since 2021-04-10
+         */
+        public StreetNode getStreetBottomLeft() {
+            return streetBottomLeft;
+        }
+
+        /**
+         * Getter for bottom right street node
+         *
+         * @return bottom right street node
+         * @author Pieter Vogt
+         * @since 2021-04-10
+         */
+        public StreetNode getStreetBottomRight() {
+            return streetBottomRight;
+        }
+
+        /**
+         * Getter for right street node
+         *
+         * @return right street node
+         * @author Pieter Vogt
+         * @since 2021-04-10
+         */
+        public StreetNode getStreetRight() {
+            return streetRight;
+        }
+
+        /**
+         * Getter for top right street node
+         *
+         * @return top right street node
+         * @author Pieter Vogt
+         * @since 2021-04-10
+         */
+        public StreetNode getStreetTopRight() {
+            return streetTopRight;
+        }
+
+        /**
+         * Getter for top left street node
+         *
+         * @return top left street node
+         * @author Pieter Vogt
+         * @since 2021-04-10
+         */
+        public StreetNode getStreetTopLeft() {
+            return streetTopLeft;
+        }
+
+        /**
+         * Getter for top left building node
+         *
+         * @return top left building node
+         * @author Pieter Vogt
+         * @since 2021-04-10
+         */
+        public BuildingNode getBuildingTopLeft() {
+            return buildingTopLeft;
+        }
+
+        /**
+         * Getter for bottom left building node
+         *
+         * @return bottom left building node
+         * @author Pieter Vogt
+         * @since 2021-04-10
+         */
+        public BuildingNode getBuildingBottomLeft() {
+            return buildingBottomLeft;
+        }
+
+        /**
+         * Getter for bottom building node
+         *
+         * @return bottom building node
+         * @author Pieter Vogt
+         * @since 2021-04-10
+         */
+        public BuildingNode getBuildingBottom() {
+            return buildingBottom;
+        }
+
+        /**
+         * Getter for bottom right building node
+         *
+         * @return bottom right building node
+         * @author Pieter Vogt
+         * @since 2021-04-10
+         */
+        public BuildingNode getBuildingBottomRight() {
+            return buildingBottomRight;
+        }
+
+        /**
+         * Getter for top right building node
+         *
+         * @return top right building node
+         * @author Pieter Vogt
+         * @since 2021-04-10
+         */
+        public BuildingNode getBuildingTopRight() {
+            return buildingTopRight;
+        }
+
+        /**
+         * Getter for top building node
+         *
+         * @return top building node
+         * @author Pieter Vogt
+         * @since 2021-04-10
+         */
+        public BuildingNode getBuildingTop() {
+            return buildingTop;
+        }
+
+        /**
+         * Getter for top left hexagon
+         *
+         * @return top left hexagon
          * @author Pieter Vogt
          * @since 2021-04-10
          */
@@ -1055,10 +1252,9 @@ public class MapGraph implements Serializable {
         }
 
         /**
-         * Sets the hexagon of the respective direction in the functionname.
+         * Setter for top left hexagon
          *
-         * @param hexTopLeft Hexagon to connect to the respective Position.
-         *
+         * @param hexTopLeft top left hexagon
          * @author Pieter Vogt
          * @since 2021-04-10
          */
@@ -1067,32 +1263,9 @@ public class MapGraph implements Serializable {
         }
 
         /**
-         * Returns the hexagon of the respective direction in the functionname.
+         * Getter for top right hexagon
          *
-         * @return Hexagon
-         * @author Pieter Vogt
-         * @since 2021-04-10
-         */
-        public Hexagon getHexBottomRight() {
-            return hexBottomRight;
-        }
-
-        /**
-         * Sets the hexagon of the respective direction in the functionname.
-         *
-         * @param hexBottomRight Hexagon to connect to the respective Position.
-         *
-         * @author Pieter Vogt
-         * @since 2021-04-10
-         */
-        public void setHexBottomRight(Hexagon hexBottomRight) {
-            this.hexBottomRight = hexBottomRight;
-        }
-
-        /**
-         * Returns the hexagon of the respective direction in the functionname.
-         *
-         * @return Hexagon
+         * @return top right hexagon
          * @author Pieter Vogt
          * @since 2021-04-10
          */
@@ -1101,10 +1274,9 @@ public class MapGraph implements Serializable {
         }
 
         /**
-         * Sets the hexagon of the respective direction in the functionname.
+         * Setter for top right hexagon
          *
-         * @param hexTopRight Hexagon to connect to the respective Position.
-         *
+         * @param hexTopRight top right hexagon
          * @author Pieter Vogt
          * @since 2021-04-10
          */
@@ -1113,32 +1285,9 @@ public class MapGraph implements Serializable {
         }
 
         /**
-         * Returns the hexagon of the respective direction in the functionname.
+         * Getter for left hexagon
          *
-         * @return Hexagon
-         * @author Pieter Vogt
-         * @since 2021-04-10
-         */
-        public Hexagon getHexBottomLeft() {
-            return hexBottomLeft;
-        }
-
-        /**
-         * Sets the hexagon of the respective direction in the functionname.
-         *
-         * @param hexBottomLeft Hexagon to connect to the respective Position.
-         *
-         * @author Pieter Vogt
-         * @since 2021-04-10
-         */
-        public void setHexBottomLeft(Hexagon hexBottomLeft) {
-            this.hexBottomLeft = hexBottomLeft;
-        }
-
-        /**
-         * Returns the hexagon of the respective direction in the functionname.
-         *
-         * @return Hexagon
+         * @return left hexagon
          * @author Pieter Vogt
          * @since 2021-04-10
          */
@@ -1147,10 +1296,9 @@ public class MapGraph implements Serializable {
         }
 
         /**
-         * Sets the hexagon of the respective direction in the functionname.
+         * Setter for left hexagon
          *
-         * @param hexLeft Hexagon to connect to the respective Position.
-         *
+         * @param hexLeft left hexagon
          * @author Pieter Vogt
          * @since 2021-04-10
          */
@@ -1159,9 +1307,9 @@ public class MapGraph implements Serializable {
         }
 
         /**
-         * Returns the hexagon of the respective direction in the functionname.
+         * Getter for right hexagon
          *
-         * @return Hexagon
+         * @return right hexagon
          * @author Pieter Vogt
          * @since 2021-04-10
          */
@@ -1170,10 +1318,9 @@ public class MapGraph implements Serializable {
         }
 
         /**
-         * Sets the hexagon of the respective direction in the functionname.
+         * Setter for right hexagon
          *
-         * @param hexRight Hexagon to connect to the respective Position.
-         *
+         * @param hexRight right hexagon
          * @author Pieter Vogt
          * @since 2021-04-10
          */
@@ -1182,9 +1329,53 @@ public class MapGraph implements Serializable {
         }
 
         /**
-         * Returns a Set of BuildingNodes representing all Hexagons directly connected to the calling Hexagon.
+         * Getter for bottom left hexagon
          *
-         * @return Set of connected Hexagons.
+         * @return bottom left hexagon
+         * @author Pieter Vogt
+         * @since 2021-04-10
+         */
+        public Hexagon getHexBottomLeft() {
+            return hexBottomLeft;
+        }
+
+        /**
+         * Setter for bottom left hexagon
+         *
+         * @param hexBottomLeft bottom left hexagon
+         * @author Pieter Vogt
+         * @since 2021-04-10
+         */
+        public void setHexBottomLeft(Hexagon hexBottomLeft) {
+            this.hexBottomLeft = hexBottomLeft;
+        }
+
+        /**
+         * Getter for bottom right hexagon
+         *
+         * @return bottom right hexagon
+         * @author Pieter Vogt
+         * @since 2021-04-10
+         */
+        public Hexagon getHexBottomRight() {
+            return hexBottomRight;
+        }
+
+        /**
+         * Setter for bottom right hexagon
+         *
+         * @param hexBottomRight bottom right hexagon
+         * @author Pieter Vogt
+         * @since 2021-04-10
+         */
+        public void setHexBottomRight(Hexagon hexBottomRight) {
+            this.hexBottomRight = hexBottomRight;
+        }
+
+        /**
+         * Getter for Set of building nodes
+         *
+         * @return Set of building nodes
          * @author Pieter Vogt
          * @since 2021-04-10
          */
@@ -1193,12 +1384,10 @@ public class MapGraph implements Serializable {
         }
 
         /**
-         * Returns a List of Strings representing the relative position of the calling Hexagon to the special
-         * "Middle-Hexagon".
+         * Getter for list of self positions
          *
-         * @return List of Strings describing the position of the calling Hexagon.
+         * @return list of self positions
          * @author Pieter Vogt
-         * @see Hexagon middle
          * @since 2021-04-10
          */
         public List<String> getSelfPosition() {
@@ -1206,9 +1395,9 @@ public class MapGraph implements Serializable {
         }
 
         /**
-         * Returns the UUID identifying the Object after serialization.
+         * Getter for UUID
          *
-         * @return UUID as object-identifier.
+         * @return UUID
          * @author Pieter Vogt
          * @since 2021-04-10
          */
@@ -1217,9 +1406,9 @@ public class MapGraph implements Serializable {
         }
 
         /**
-         * Returns boolean telling if the robber is present on the Hexagon.
+         * Getter for boolean, which shows whether position is occupied by robber or not
          *
-         * @return boolean of robber presence.
+         * @return boolean occupied by robber or not
          * @author Pieter Vogt
          * @since 2021-04-10
          */
@@ -1228,10 +1417,9 @@ public class MapGraph implements Serializable {
         }
 
         /**
-         * Sets the boolean telling if the robber is present.
+         * Setter for boolean, which shows whether position is occupied by robber or not
          *
-         * @param occupiedByRobber boolean telling if the robber is present.
-         *
+         * @param occupiedByRobber boolean occupied by robber or not
          * @author Pieter Vogt
          * @since 2021-04-10
          */
@@ -1491,144 +1679,10 @@ public class MapGraph implements Serializable {
         }
 
         /**
-         * Returns the StreetNode of the respective direction in the Functionname.
-         *
-         * @return StreetNode
-         * @author Pieter Vogt
-         * @since 2021-04-10
-         */
-        public StreetNode getStreetBottomRight() {
-            return streetBottomRight;
-        }
-
-        /**
-         * Returns the StreetNode of the respective direction in the Functionname.
-         *
-         * @return StreetNode
-         * @author Pieter Vogt
-         * @since 2021-04-10
-         */
-        public StreetNode getStreetBottomLeft() {
-            return streetBottomLeft;
-        }
-
-        /**
-         * Returns the StreetNode of the respective direction in the Functionname.
-         *
-         * @return StreetNode
-         * @author Pieter Vogt
-         * @since 2021-04-10
-         */
-        public StreetNode getStreetRight() {
-            return streetRight;
-        }
-
-        /**
-         * Returns the StreetNode of the respective direction in the Functionname.
-         *
-         * @return StreetNode
-         * @author Pieter Vogt
-         * @since 2021-04-10
-         */
-        public StreetNode getStreetLeft() {
-            return streetLeft;
-        }
-
-        /**
-         * Returns the StreetNode of the respective direction in the Functionname.
-         *
-         * @return StreetNode
-         * @author Pieter Vogt
-         * @since 2021-04-10
-         */
-        public StreetNode getStreetTopRight() {
-            return streetTopRight;
-        }
-
-        /**
-         * Returns the StreetNode of the respective direction in the Functionname.
-         *
-         * @return StreetNode
-         * @author Pieter Vogt
-         * @since 2021-04-10
-         */
-        public StreetNode getStreetTopLeft() {
-            return streetTopLeft;
-        }
-
-        /**
-         * Returns the BuildingNode of the respective direction in the Functionname.
-         *
-         * @return BuildingNode
-         * @author Pieter Vogt
-         * @since 2021-04-10
-         */
-        public BuildingNode getBuildingBottomRight() {
-            return buildingBottomRight;
-        }
-
-        /**
-         * Returns the BuildingNode of the respective direction in the Functionname.
-         *
-         * @return BuildingNode
-         * @author Pieter Vogt
-         * @since 2021-04-10
-         */
-        public BuildingNode getBuildingBottomLeft() {
-            return buildingBottomLeft;
-        }
-
-        /**
-         * Returns the BuildingNode of the respective direction in the Functionname.
-         *
-         * @return BuildingNode
-         * @author Pieter Vogt
-         * @since 2021-04-10
-         */
-        public BuildingNode getBuildingTopRight() {
-            return buildingTopRight;
-        }
-
-        /**
-         * Returns the BuildingNode of the respective direction in the Functionname.
-         *
-         * @return BuildingNode
-         * @author Pieter Vogt
-         * @since 2021-04-10
-         */
-        public BuildingNode getBuildingBottom() {
-            return buildingBottom;
-        }
-
-        /**
-         * Returns the BuildingNode of the respective direction in the Functionname.
-         *
-         * @return BuildingNode
-         * @author Pieter Vogt
-         * @since 2021-04-10
-         */
-        public BuildingNode getBuildingTopLeft() {
-            return buildingTopLeft;
-        }
-
-        // METHODS
-
-        /**
-         * Returns the BuildingNode of the respective direction in the Functionname.
-         *
-         * @return BuildingNode
-         * @author Pieter Vogt
-         * @since 2021-04-10
-         */
-        public BuildingNode getBuildingTop() {
-            return buildingTop;
-        }
-
-        /**
-         * Generates all MapGraphNodes connected to the Hexagon.
+         * Generates street nodes ad building nodes for the middle hexagon.
          *
          * @author Pieter Vogt
-         * @since 2021-04-10
+         * @since 2021-04-08
          */
         public void generateNodesMiddle() {
             this.streetTopLeft = new StreetNode("topLeft", this, UUID.randomUUID());
@@ -1649,16 +1703,13 @@ public class MapGraph implements Serializable {
         }
 
         /**
-         * Updates all Lists of the calling Hexagon containing connected Objects.
+         * Updates lists inside the calling Hexagon and Sets of the MapGraph
          *
          * @author Pieter Vogt
-         * @since 2021-04-10
+         * @since 2021-04-08
          */
         private void updateAllLists() {
-            //Updating lists inside the calling Hexagon.
             updateNodeLists();
-
-            //Updating Sets of the MapGraph.
             streetNodeHashSet.addAll(streetNodes);
             buildingNodeHashSet.addAll(buildingNodes);
         }
