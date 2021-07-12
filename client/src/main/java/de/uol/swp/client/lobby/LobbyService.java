@@ -2,11 +2,19 @@ package de.uol.swp.client.lobby;
 
 import com.google.common.eventbus.EventBus;
 import com.google.inject.Inject;
-import de.uol.swp.common.game.request.PlayerReadyRequest;
-import de.uol.swp.common.lobby.request.*;
-import de.uol.swp.common.user.UserDTO;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import de.uol.swp.common.game.request.PlayerReadyRequest;
+import de.uol.swp.common.lobby.request.CreateLobbyRequest;
+import de.uol.swp.common.lobby.request.JoinOnGoingGameRequest;
+import de.uol.swp.common.lobby.request.LobbyJoinUserRequest;
+import de.uol.swp.common.lobby.request.LobbyLeaveUserRequest;
+import de.uol.swp.common.lobby.request.RetrieveAllLobbiesRequest;
+import de.uol.swp.common.lobby.request.RetrieveAllThisLobbyUsersRequest;
+import de.uol.swp.common.lobby.request.StartGameRequest;
+import de.uol.swp.common.user.UserDTO;
 
 
 /**
@@ -18,8 +26,8 @@ import org.apache.logging.log4j.Logger;
 @SuppressWarnings("UnstableApiUsage")
 public class LobbyService {
 
-    private final EventBus eventBus;
     private static final Logger LOG = LogManager.getLogger(LobbyPresenter.class);
+    private final EventBus eventBus;
 
 
     /**
@@ -34,6 +42,25 @@ public class LobbyService {
     public LobbyService(EventBus eventBus) {
         this.eventBus = eventBus;
         this.eventBus.register(this);
+    }
+
+    /**
+     * Posts a request to create a password protected lobby on the EventBus.
+     * Returns a boolean. If the Request is posted on the eventbus it returns true.
+     * Is the String name blank or empty it returns false.
+     * If the name is null, the exception is caught and posted on the bus.
+     * Therefore we return also false, cause no lobby was created.
+     *
+     * @param name     Name chosen for the new lobby
+     * @param user     User who wants to create the new lobby
+     * @param password password for the lobby
+     * @author René Meyer
+     * @see de.uol.swp.common.lobby.request.CreateLobbyRequest
+     * @since 2021-06-05
+     */
+    public void createNewProtectedLobby(String name, UserDTO user, String password) {
+        CreateLobbyRequest createLobbyRequest = new CreateLobbyRequest(name, user, password);
+        eventBus.post(createLobbyRequest);
     }
 
     /**
@@ -65,6 +92,20 @@ public class LobbyService {
      */
     public void joinLobby(String name, UserDTO user) {
         LobbyJoinUserRequest joinUserRequest = new LobbyJoinUserRequest(name, user);
+        eventBus.post(joinUserRequest);
+    }
+
+    /**
+     * Posts a request to join a specified password protected lobby on the EventBus
+     *
+     * @param name Name of the protected lobby the user wants to join
+     * @param user User who wants to join the lobby
+     * @author René Meyer
+     * @see de.uol.swp.common.lobby.request.LobbyJoinUserRequest
+     * @since 2021-06-05
+     */
+    public void joinProtectedLobby(String name, UserDTO user, String password) {
+        LobbyJoinUserRequest joinUserRequest = new LobbyJoinUserRequest(name, user, password);
         eventBus.post(joinUserRequest);
     }
 
@@ -114,12 +155,12 @@ public class LobbyService {
      *
      * @param name Name of the lobby
      * @param user User who sends PlayerReadyRequest
-     * @author Kirsitn
+     * @author Kirstin Beyer
      * @see de.uol.swp.common.game.request.PlayerReadyRequest
      * @since 2021-02-04
      */
     public void sendPlayerReadyRequest(String name, UserDTO user, boolean ready) {
-        PlayerReadyRequest playerReadyRequest = new PlayerReadyRequest(name, (UserDTO) user, ready);
+        PlayerReadyRequest playerReadyRequest = new PlayerReadyRequest(name, user, ready);
         eventBus.post(playerReadyRequest);
     }
 
@@ -132,9 +173,23 @@ public class LobbyService {
      * @see de.uol.swp.common.lobby.request.StartGameRequest
      * @since 2021-01-24
      */
-    public void startGame(String name, UserDTO user, String gameFieldVariant) {
-        StartGameRequest startGameRequest = new StartGameRequest(name, user, gameFieldVariant);
+    public void startGame(String name, UserDTO user, String gameFieldVariant, int minimumAmountOfPlayers) {
+        StartGameRequest startGameRequest = new StartGameRequest(name, user, gameFieldVariant, minimumAmountOfPlayers);
         eventBus.post(startGameRequest);
         LOG.debug("StartGameRequest posted on Eventbus");
+    }
+
+    /**
+     * Posts a request to join an ongoing game on the EventBus
+     *
+     * @param name the name of the game to join
+     * @param user the user who wants to join
+     * @author Marc Hermes
+     * @since 2021-05-27
+     */
+    public void joinGame(String name, UserDTO user) {
+        JoinOnGoingGameRequest joinOnGoingGameRequest = new JoinOnGoingGameRequest(name, user);
+        eventBus.post(joinOnGoingGameRequest);
+        LOG.debug("JoinOnGoingGameRequest posted on Eventbus");
     }
 }

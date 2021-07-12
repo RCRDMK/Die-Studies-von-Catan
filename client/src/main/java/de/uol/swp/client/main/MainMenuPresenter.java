@@ -1,15 +1,35 @@
 package de.uol.swp.client.main;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+
+import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
+
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import de.uol.swp.client.AbstractPresenter;
 import de.uol.swp.client.account.UserSettingsService;
 import de.uol.swp.client.account.event.ShowUserSettingsViewEvent;
 import de.uol.swp.client.chat.ChatService;
 import de.uol.swp.client.lobby.LobbyCell;
 import de.uol.swp.client.lobby.LobbyService;
-import de.uol.swp.client.message.MuteMusicMessage;
-import de.uol.swp.client.message.UnmuteMusicMessage;
+import de.uol.swp.client.register.event.ShowGameRulesEvent;
 import de.uol.swp.common.chat.RequestChatMessage;
 import de.uol.swp.common.chat.ResponseChatMessage;
 import de.uol.swp.common.game.message.GameDroppedMessage;
@@ -29,18 +49,7 @@ import de.uol.swp.common.user.response.AllOnlineUsersResponse;
 import de.uol.swp.common.user.response.LoginSuccessfulResponse;
 import de.uol.swp.common.user.response.lobby.JoinDeletedLobbyResponse;
 import de.uol.swp.common.user.response.lobby.LobbyFullResponse;
-import javafx.application.Platform;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
-import javafx.fxml.FXML;
-import javafx.scene.control.*;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
+import de.uol.swp.common.user.response.lobby.WrongLobbyPasswordResponse;
 
 /**
  * Manages the main menu
@@ -56,13 +65,16 @@ public class MainMenuPresenter extends AbstractPresenter {
 
     private static final Logger LOG = LogManager.getLogger(MainMenuPresenter.class);
 
-    private static final ShowUserSettingsViewEvent showSetViewMessage = new ShowUserSettingsViewEvent();
+    private static final ShowUserSettingsViewEvent showSettingsViewEvent = new ShowUserSettingsViewEvent();
 
+    private static final ShowGameRulesEvent showGameRulesEvent = new ShowGameRulesEvent();
+    @FXML
+    CheckBox passwordCheckBox;
     private ObservableList<String> users;
-
     private ObservableList<LobbyDTO> lobbies;
-
     private User loggedInUser;
+    @FXML
+    private PasswordField lobbyPasswordField;
 
     @FXML
     private TextArea textArea;
@@ -94,14 +106,6 @@ public class MainMenuPresenter extends AbstractPresenter {
     @FXML
     private ListView<LobbyDTO> lobbiesView;
 
-    @FXML
-    private Button muteMusicButton;
-
-    @FXML
-    private Button unmuteMusicButton;
-
-    private Object ChangeMusicMessage;
-    private Object UnmuteMusicMessage;
 
     /**
      * Handles successful login
@@ -119,6 +123,13 @@ public class MainMenuPresenter extends AbstractPresenter {
         loginSuccessfulLogic(message);
     }
 
+    /**
+     * This method gets invoked by the loginSuccessful method
+     *
+     * @param lsr a LoginSuccessfulResponse
+     * @author Marco Grawunder
+     * @since 2020-12-02
+     */
     public void loginSuccessfulLogic(LoginSuccessfulResponse lsr) {
         this.loggedInUser = lsr.getUser();
         userService.retrieveAllUsers();
@@ -142,6 +153,13 @@ public class MainMenuPresenter extends AbstractPresenter {
         lobbyCreatedSuccessfulLogic(message);
     }
 
+    /**
+     * This method gets invoked by the lobbyCreatedSuccessful method
+     *
+     * @param lcm a LobbyCreatedMessage
+     * @author Ricardo Mook, Marc Hermes
+     * @since 2020-11-19
+     */
     public void lobbyCreatedSuccessfulLogic(LobbyCreatedMessage lcm) {
         LOG.debug("New lobby created by " + lcm.getUser().getUsername());
         lobbyService.retrieveAllLobbies();
@@ -164,6 +182,13 @@ public class MainMenuPresenter extends AbstractPresenter {
         lobbyDroppedSuccessfulLogic(message);
     }
 
+    /**
+     * This method gets invoked by the lobbyDroppedSuccessful method
+     *
+     * @param ldm a LobbyDroppedMessage
+     * @author Ricardo Mook, Marc Hermes
+     * @since 2020-12-17
+     */
     public void lobbyDroppedSuccessfulLogic(LobbyDroppedMessage ldm) {
         LOG.debug("The lobby: " + ldm.getName() + " was dropped");
         lobbyService.retrieveAllLobbies();
@@ -186,6 +211,13 @@ public class MainMenuPresenter extends AbstractPresenter {
         lobbySizeChangedLogic(message);
     }
 
+    /**
+     * This method gets invoked by the lobbySizeChanged method
+     *
+     * @param lscm a LobbySizeChangedMessage
+     * @author Ricardo Mook, Marc Hermes
+     * @since 2020-12-18
+     */
     public void lobbySizeChangedLogic(LobbySizeChangedMessage lscm) {
         LOG.debug("The lobby: " + lscm.getName() + " changed it's size");
         lobbyService.retrieveAllLobbies();
@@ -209,11 +241,19 @@ public class MainMenuPresenter extends AbstractPresenter {
 
     }
 
+    /**
+     * This method gets invoked by the newUser method
+     *
+     * @param ulim a UserLoggedInMessage
+     * @author Marco Grawunder
+     * @since 2019-08-29
+     */
     public void newUserLogic(UserLoggedInMessage ulim) {
         LOG.debug("New user " + ulim.getUsername() + " logged in");
         Platform.runLater(() -> {
-            if (users != null && loggedInUser != null && !loggedInUser.getUsername().equals(ulim.getUsername()))
+            if (users != null && loggedInUser != null && !loggedInUser.getUsername().equals(ulim.getUsername())) {
                 users.add(ulim.getUsername());
+            }
         });
     }
 
@@ -234,6 +274,13 @@ public class MainMenuPresenter extends AbstractPresenter {
         userLeftLogic(message);
     }
 
+    /**
+     * This method gets invoked by the userLeft method
+     *
+     * @param ulom a UserLoggedOutMessage
+     * @author Marco Grawunder
+     * @since 2019-08-29
+     */
     public void userLeftLogic(UserLoggedOutMessage ulom) {
         LOG.debug("User " + ulom.getUsername() + " logged out");
         Platform.runLater(() -> users.remove(ulom.getUsername()));
@@ -256,6 +303,13 @@ public class MainMenuPresenter extends AbstractPresenter {
         userListLogic(allUsersResponse);
     }
 
+    /**
+     * This method gets invoked by the userList method
+     *
+     * @param aour a AllOnlineUsersResponse
+     * @author Marco Grawunder
+     * @since 2019-08-29
+     */
     public void userListLogic(AllOnlineUsersResponse aour) {
         LOG.debug("Update of user list " + aour.getUsers());
         updateUsersList(aour.getUsers());
@@ -279,6 +333,13 @@ public class MainMenuPresenter extends AbstractPresenter {
         lobbyListLogic(allCreatedLobbiesResponse);
     }
 
+    /**
+     * This method gets invoked by the lobbyList method
+     *
+     * @param aclr a AllCreatedLobbiesResponse
+     * @author Carsten Dekker and Marius Birk
+     * @since 2020-04-12
+     */
     public void lobbyListLogic(AllCreatedLobbiesResponse aclr) {
         LOG.debug("Update of lobby list " + aclr.getLobbyDTOs());
         updateLobbyList(aclr.getLobbyDTOs());
@@ -299,6 +360,13 @@ public class MainMenuPresenter extends AbstractPresenter {
         onResponseChatMessageLogic(message);
     }
 
+    /**
+     * This method gets invoked by the onResponseChatMessage method
+     *
+     * @param rcm a ResponseChatMessage
+     * @author René Meyer
+     * @since 31-11-2020
+     */
     public void onResponseChatMessageLogic(ResponseChatMessage rcm) {
         // Only update Messages from main chat
         if (rcm.getChat().equals("main")) {
@@ -323,12 +391,54 @@ public class MainMenuPresenter extends AbstractPresenter {
         onLobbyFullResponseLogic(response);
     }
 
+    /**
+     * This method gets invoked by the onLobbyFullResponse method
+     *
+     * @param lfr a LobbyFullResponse
+     * @author René Meyer
+     * @since 2020-12-17
+     */
     public void onLobbyFullResponseLogic(LobbyFullResponse lfr) {
         LOG.debug("Can't join lobby " + lfr.getLobbyName() + " because the lobby is full.");
         var time = new SimpleDateFormat("HH:mm");
         Date resultDate = new Date();
         var readableTime = time.format(resultDate);
-        textArea.insertText(textArea.getLength(), readableTime + " SYSTEM: Can't join full lobby " + lfr.getLobbyName() + " \n");
+        textArea.insertText(textArea.getLength(),
+                readableTime + " SYSTEM: Can't join full lobby " + lfr.getLobbyName() + " \n");
+    }
+
+    /**
+     * Method called when a WrongLobbyPasswordResponse was detected on the eventBus.
+     * <p>
+     * If a WrongLobbyPasswordResponse was posted on the eventBus, this method will let the User know the lobby password is wrong
+     * showing a new popup with the error message. This action will also be logged.
+     *
+     * @param response the WrongLobbyPasswordResponse that was detected on the eventBus
+     * @author René Meyer
+     * @see de.uol.swp.common.user.response.lobby.WrongLobbyPasswordResponse
+     * @since 2020-06-05
+     */
+    @Subscribe
+    public void onWrongLobbyPasswordResponse(WrongLobbyPasswordResponse response) {
+        onWrongPasswordResponseLogic(response);
+    }
+
+    /**
+     * This method gets invoked by the onWrongLobbyPasswordResponse method
+     *
+     * @param lfr a WrongLobbyPasswordResponse
+     * @author René Meyer
+     * @since 2020-06-05
+     */
+    public void onWrongPasswordResponseLogic(WrongLobbyPasswordResponse lfr) {
+        LOG.debug("Can't join lobby " + lfr.getLobbyName() + " because the lobby password is wrong.");
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error Dialog");
+            alert.setHeaderText("Wrong password");
+            alert.setContentText("Please make sure to enter the correct password!");
+            alert.showAndWait();
+        });
     }
 
     /**
@@ -348,12 +458,20 @@ public class MainMenuPresenter extends AbstractPresenter {
         onAlreadyJoinedThisLobbyResponseLogic(response);
     }
 
+    /**
+     * This method gets invoked by the onAlreadyJoinedThisLobbyResponse method
+     *
+     * @param response a AlreadyJoinedThisLobbyResponse
+     * @author Carsten Dekker
+     * @since 2021-01-22
+     */
     public void onAlreadyJoinedThisLobbyResponseLogic(AlreadyJoinedThisLobbyResponse response) {
         LOG.debug("Can't join lobby " + response.getLobbyName() + " because the User joined this lobby already.");
         var time = new SimpleDateFormat("HH:mm");
         Date resultDate = new Date();
         var readableTime = time.format(resultDate);
-        textArea.insertText(textArea.getLength(), readableTime + " SYSTEM: Can't join the lobby " + response.getLobbyName() + " twice." + "\n");
+        textArea.insertText(textArea.getLength(),
+                readableTime + " SYSTEM: Can't join the lobby " + response.getLobbyName() + " twice." + "\n");
     }
 
     /**
@@ -371,27 +489,42 @@ public class MainMenuPresenter extends AbstractPresenter {
         onJoinDeletedLobbyResponseLogic(response);
     }
 
+    /**
+     * This method gets invoked by the onJoinDeletedLobbyResponse method
+     *
+     * @param jdlr a JoinDeletedLobbyResponse
+     * @author Sergej Tulnev, René Meyer
+     * @since 2020-12-17
+     */
     public void onJoinDeletedLobbyResponseLogic(JoinDeletedLobbyResponse jdlr) {
         LOG.debug("Can't join lobby " + jdlr.getLobbyName() + " because the lobby was deleted.");
         var time = new SimpleDateFormat("HH:mm");
         Date resultDate = new Date();
         var readableTime = time.format(resultDate);
-        textArea.insertText(textArea.getLength(), readableTime + " SYSTEM: Can't join deleted lobby " + jdlr.getLobbyName() + " \n");
+        textArea.insertText(textArea.getLength(),
+                readableTime + " SYSTEM: Can't join deleted lobby " + jdlr.getLobbyName() + " \n");
     }
 
 
     /**
-     * Method called when a LobbyAlreadyExistsMessage was posted on the eventBus.
+     * Method called when a LobbyAlreadyExistsResponse was posted on the eventBus.
      *
-     * @param message
+     * @param message the LobbyAlreadyExistsResponse detected on the EventBus
+     * @author Marius Birk
      * @since 2020-12-02
      */
-
     @Subscribe
     public void onLobbyAlreadyExistsMessage(LobbyAlreadyExistsResponse message) {
         onLobbyAlreadyExistsMessageLogic(message);
     }
 
+    /**
+     * This method gets invoked by the onLobbyAlreadyExistsMessage method
+     *
+     * @param laer a LobbyAlreadyExistsResponse
+     * @author Marius Birk
+     * @since 2020-12-02
+     */
     public void onLobbyAlreadyExistsMessageLogic(LobbyAlreadyExistsResponse laer) {
         LOG.debug("Lobby with Name " + lobbyNameTextField.getText() + " already exists.");
         lobbyNameInvalid.setVisible(false);
@@ -434,12 +567,19 @@ public class MainMenuPresenter extends AbstractPresenter {
      * @see SimpleDateFormat
      * @see ResponseChatMessage
      * @since 2020-11-30
+     * <p>
+     * Enhanced by Sergej Tulnev
+     * @since 2021-06-17
+     * <p>
+     * If the user has a long message, it will have a line break
      */
     private void updateChat(ResponseChatMessage msg) {
         var time = new SimpleDateFormat("HH:mm");
-        Date resultdate = new Date((long) msg.getTime().doubleValue());
-        var readableTime = time.format(resultdate);
-        textArea.insertText(textArea.getLength(), readableTime + " " + msg.getUsername() + ": " + msg.getMessage() + "\n");
+        Date resultDate = new Date((long) msg.getTime().doubleValue());
+        var readableTime = time.format(resultDate);
+        textArea.setWrapText(true);
+        textArea.insertText(textArea.getLength(),
+                readableTime + " " + msg.getUsername() + ": " + msg.getMessage() + "\n");
     }
 
     /**
@@ -480,28 +620,39 @@ public class MainMenuPresenter extends AbstractPresenter {
      * these, the lobbyNameInvalid shows up and asks for a new name. It also works with vowel mutation.
      * <p>
      * Enhanced by Marius Birk and Carsten Dekker, 2020-02-12
+     * Enhanced by René Meyer for the support of password protected lobbies, 2021-06-05
      *
-     * @param event The ActionEvent created by pressing the create lobby button
      * @author Marco Grawunder
      * @see de.uol.swp.client.lobby.LobbyService
      * @since 2019-11-20
      */
     @FXML
-    void onCreateLobby(ActionEvent event) {
+    void onCreateLobby() {
         if (lobbyNameTextField.getText().isBlank() || lobbyNameTextField.getText().isEmpty()
-                || lobbyNameTextField.getText().startsWith(" ") || lobbyNameTextField.getText().endsWith(" ") || lobbyNameTextField.getText() == null) {
+                || lobbyNameTextField.getText().startsWith(" ") || lobbyNameTextField.getText()
+                .endsWith(" ") || lobbyNameTextField.getText() == null) {
             lobbyNameInvalid.setVisible(true);
             lobbyAlreadyExistsLabel.setVisible(false);
         } else {
+            // If pw provided
             lobbyNameInvalid.setVisible(false);
             lobbyAlreadyExistsLabel.setVisible(false);
-            lobbyService.createNewLobby(lobbyNameTextField.getText(), (UserDTO) this.loggedInUser);
+            if (passwordCheckBox.isSelected() && !lobbyPasswordField.getText().isEmpty()) {
+                lobbyService.createNewProtectedLobby(lobbyNameTextField.getText(), (UserDTO) this.loggedInUser,
+                        lobbyPasswordField.getText());
+            } else {
+                // lobby without pw
+                lobbyService.createNewLobby(lobbyNameTextField.getText(), (UserDTO) this.loggedInUser);
+            }
         }
         lobbyNameTextField.clear();
+        lobbyPasswordField.clear();
+        passwordCheckBox.setSelected(false);
+        lobbyPasswordField.setVisible(false);
     }
 
     @FXML
-    void onLogout(ActionEvent event) {
+    void onLogout() {
         userService.logout(this.loggedInUser);
     }
 
@@ -512,19 +663,19 @@ public class MainMenuPresenter extends AbstractPresenter {
      * If the send Message button is pressed, this methods tries to request the chatService to send a specified message.
      * The message is of type RequestChatMessage if this will result in an exception it logs the exception.
      *
-     * @param event The ActionEvent created by pressing the send Message button
      * @author René Meyer
      * @see de.uol.swp.client.chat.ChatService
      * @see ActionEvent
      * @since 2020-11-22
      */
     @FXML
-    void onSendMessage(ActionEvent event) {
+    void onSendMessage() {
         try {
             var chatMessage = inputField.getCharacters().toString();
             // ChatID = "main" means main chat
             var chatId = "main";
-            RequestChatMessage message = new RequestChatMessage(chatMessage, chatId, loggedInUser.getUsername(), System.currentTimeMillis());
+            RequestChatMessage message = new RequestChatMessage(chatMessage, chatId, loggedInUser.getUsername(),
+                    System.currentTimeMillis());
             chatService.sendMessage(message);
             this.inputField.setText("");
         } catch (Exception e) {
@@ -539,17 +690,34 @@ public class MainMenuPresenter extends AbstractPresenter {
      * of the ShowUserSettingsViewEvent to the EventBus the SceneManager is subscribed
      * to.
      *
-     * @param event The ActionEvent generated by pressing the settings button
      * @author Carsten Dekker
      * @see de.uol.swp.client.account.event.ShowUserSettingsViewEvent
      * @see de.uol.swp.client.SceneManager
      * @since 2021-03-04
      */
     @FXML
-    private void onUserSettingsButtonPressed(ActionEvent event) {
-        eventBus.post(showSetViewMessage);
+    private void onUserSettingsButtonPressed() {
+        eventBus.post(showSettingsViewEvent);
         userSettingsService.retrieveUserMail(this.loggedInUser);
     }
+
+
+    /**
+     * Method called when the Game Rules button is pressed
+     * <p>
+     * This Method is called when the Game Rules button is pressed. It posts an instance
+     * of the ShowUserGameRulesEvent to the EventBus the SceneManager is
+     * subscribe to.
+     *
+     * @author Sergej Tulnev
+     * @see de.uol.swp.client.SceneManager
+     * @since 2021-05-12
+     */
+    @FXML
+    void onGameRulesPressed() {
+        eventBus.post(showGameRulesEvent);
+    }
+
 
     /**
      * Method called when a GameDroppedMessage was posted on the eventBus.
@@ -586,39 +754,16 @@ public class MainMenuPresenter extends AbstractPresenter {
         LOG.debug("Received GameStartedMessage from game: " + message.getLobbyName());
         lobbyService.retrieveAllLobbies();
     }
-/**
- * Method called when the user has clicked on the MuteMusicButton.
- * <p>
- * When this method gets called a MuteMusicMessage gets send to the SceneManager to pause the background music.
- * Futhermore will the MuteMusicButton become invisible and in its place a UnmuteMusicButton will appear.
- *
- * @param actionEvent the click on the MuteMusicButton
- * @author Ricardo Mook
- * @since 2021-05-08
- */
-    @FXML
-    public void onMuteMusicButtonPressed(ActionEvent actionEvent) {
-        LOG.debug("User muted the game music.");
-        eventBus.post(new MuteMusicMessage());
-        muteMusicButton.setVisible(false);
-        unmuteMusicButton.setVisible(true);
-    }
 
     /**
-     * Method called when the user has clicked on the UnmuteMusicButton.
+     * Action event for the passwordCheckBox
      * <p>
-     * When this method gets called a UnmuuteMusicMessage gets send to the SceneManager to continue the background music.
-     * Futhermore will the UnmuteMusicButton become invisible and in its place a MuteMusicButton will appear.
+     * Triggers the lobbyPasswordField Visibility depending on the checkBox State.
      *
-     * @param actionEvent the click on the UnmuteMusicButton
-     * @author Ricardo Mook
-     * @since 2021-05-08
+     * @author René Meyer
+     * @since 2021-06-05
      */
-    @FXML
-    public void onUnmuteMusicButtonPressed(ActionEvent actionEvent) {
-        LOG.debug("User unmuted the game music.");
-        eventBus.post(new UnmuteMusicMessage());
-        muteMusicButton.setVisible(true);
-        unmuteMusicButton.setVisible(false);
+    public void onLobbyPw() {
+        this.lobbyPasswordField.setVisible(passwordCheckBox.isSelected());
     }
 }

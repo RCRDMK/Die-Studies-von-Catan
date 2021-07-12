@@ -1,29 +1,8 @@
 package de.uol.swp.client;
 
-import com.google.common.eventbus.EventBus;
-import com.google.common.eventbus.Subscribe;
-import com.google.inject.Inject;
-import com.google.inject.Injector;
-import com.google.inject.assistedinject.Assisted;
-import de.uol.swp.client.account.UserSettingsPresenter;
-import de.uol.swp.client.account.event.LeaveUserSettingsEvent;
-import de.uol.swp.client.account.event.ShowUserSettingsViewEvent;
-import de.uol.swp.client.account.event.UserSettingsErrorEvent;
-import de.uol.swp.client.auth.LoginPresenter;
-import de.uol.swp.client.auth.events.ShowLoginViewEvent;
-import de.uol.swp.client.game.GamePresenter;
-import de.uol.swp.client.game.SummaryPresenter;
-import de.uol.swp.client.game.TradePresenter;
-import de.uol.swp.client.lobby.LobbyPresenter;
-import de.uol.swp.client.main.MainMenuPresenter;
-import de.uol.swp.client.message.MuteMusicMessage;
-import de.uol.swp.client.message.UnmuteMusicMessage;
-import de.uol.swp.client.register.RegistrationPresenter;
-import de.uol.swp.client.register.event.RegistrationCanceledEvent;
-import de.uol.swp.client.register.event.RegistrationErrorEvent;
-import de.uol.swp.client.register.event.ShowRegistrationViewEvent;
-import de.uol.swp.common.game.message.TradeEndedMessage;
-import de.uol.swp.common.user.User;
+import java.net.URISyntaxException;
+import java.net.URL;
+
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -32,13 +11,39 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
-import java.io.File;
-import java.net.URL;
+import javafx.stage.Stage;
+
+import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
+import com.google.inject.Inject;
+import com.google.inject.Injector;
+import com.google.inject.assistedinject.Assisted;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import de.uol.swp.client.account.UserSettingsPresenter;
+import de.uol.swp.client.account.event.LeaveUserSettingsEvent;
+import de.uol.swp.client.account.event.ShowUserSettingsViewEvent;
+import de.uol.swp.client.account.event.UserSettingsErrorEvent;
+import de.uol.swp.client.auth.LoginPresenter;
+import de.uol.swp.client.auth.events.ShowLoginViewEvent;
+import de.uol.swp.client.game.GamePresenter;
+import de.uol.swp.client.game.GameRulesPresenter;
+import de.uol.swp.client.game.SummaryPresenter;
+import de.uol.swp.client.game.TradePresenter;
+import de.uol.swp.client.lobby.LobbyPresenter;
+import de.uol.swp.client.main.MainMenuPresenter;
+import de.uol.swp.client.main.event.MuteMusicEvent;
+import de.uol.swp.client.main.event.UnmuteMusicEvent;
+import de.uol.swp.client.register.RegistrationPresenter;
+import de.uol.swp.client.register.event.RegistrationCanceledEvent;
+import de.uol.swp.client.register.event.RegistrationErrorEvent;
+import de.uol.swp.client.register.event.ShowGameRulesEvent;
+import de.uol.swp.client.register.event.ShowRegistrationViewEvent;
+import de.uol.swp.common.game.message.TradeEndedMessage;
 
 /**
  * Class that manages which window/scene is currently shown
@@ -47,34 +52,31 @@ import java.net.URL;
  * @author Marco Grawunder
  * @since 2019-09-03
  */
+@SuppressWarnings("UnstableApiUsage")
 public class SceneManager {
 
     static final Logger LOG = LogManager.getLogger(SceneManager.class);
     static final String styleSheet = "css/swp.css";
 
     final private Stage primaryStage;
+    private final Injector injector;
+    private final TabPane tabPane = new TabPane();
     private Scene loginScene;
     private String lastTitle;
     private Scene registrationScene;
     private Scene mainScene;
     private Scene lastScene = null;
     private Scene currentScene = null;
-    private Scene lobbyScene;
-    private Scene gameScene;
-    private Scene tradeScene;
-    private Tab mainMenuTab;
-    private VBox vBox;
     private Scene tabScene;
     private Scene nextLobbyScene;
     private Scene nextGameScene;
     private Scene nextTradeScene;
-    private final Injector injector;
-    private TabPane tabPane = new TabPane();
-    private TabHelper tabHelper;
     private Scene userSettingsScene;
+    private Scene userGameRulesScene;
     private MediaPlayer player;
     private Scene summaryScene;
     private Scene nextSummaryScene;
+    private TabHelper tabHelper;
 
 
     @Inject
@@ -93,29 +95,34 @@ public class SceneManager {
      * enhanced by Alexander Losse and Marc Hermes - 2021-01-20
      * <p>
      * enhanced by Ricardo Mook, 2021-05-13
-     * added the abilty to have background music playing
+     * added the ability to have background music playing
      *
      * @author Marco Grawunder
      * @since 2019-09-03
      */
     private void initViews() {
         this.tabHelper = new TabHelper(this.tabPane);
-        vBox = new VBox(tabHelper.getTabPane());
+        VBox vBox = new VBox(tabHelper.getTabPane());
         tabScene = new Scene(vBox);
         initLoginView();
         initMainView();
         initRegistrationView();
         initUserSettingsView();
+        initGameRulesView();
         nextSummaryScene = initSummaryView();
         nextLobbyScene = initLobbyView();
         nextGameScene = initGameView();
         nextTradeScene = initTradeView();
-
+        primaryStage.setResizable(false);
 
         //Royalty free music from Pixabay was used. For more information see https://pixabay.com/service/license/.
-        String musicFile = "client/src/main/resources/backgroundMusic/the-last-october-day-3915.mp3";
-        Media backgroundMusic = new Media(new File(musicFile).toURI().toString());
-        player = new MediaPlayer(backgroundMusic);
+        try {
+            Media backgroundMusic = new Media(
+                    getClass().getResource("/backgroundMusic/the-last-october-day-3915.mp3").toURI().toString());
+            player = new MediaPlayer(backgroundMusic);
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
         player.setCycleCount(MediaPlayer.INDEFINITE);//loops the musicFile indefinitely
         player.setVolume(0.4);
         player.play();
@@ -157,7 +164,7 @@ public class SceneManager {
      * This mainMenuTab is then added to the tabPane.
      * <p>
      * enhanced by Alexander Losse and Marc Hermes - 2021-01-20
-     *
+     * <p>
      * enhanced by Ricardo Mook - 2021-04-28
      * added a CSS rule
      *
@@ -171,7 +178,7 @@ public class SceneManager {
             mainScene = new Scene(rootPane, 800, 600);
             mainScene.getStylesheets().add(styleSheet);
             rootPane.getStyleClass().add("menuView");
-            mainMenuTab = new Tab("Main Menu");
+            Tab mainMenuTab = new Tab("Main Menu");
             mainMenuTab.setClosable(false);
             mainMenuTab.setContent(mainScene.getRoot());
             Platform.runLater(() ->
@@ -185,7 +192,7 @@ public class SceneManager {
      * <p>
      * If the loginScene is null it gets set to a new scene containing the
      * a pane showing the login view as specified by the LoginView FXML file.
-     *
+     * <p>
      * enhanced by Ricardo Mook - 2021-04-28
      * added a CSS rule
      *
@@ -208,7 +215,7 @@ public class SceneManager {
      * If the registrationScene is null it gets set to a new scene containing the
      * a pane showing the registration view as specified by the RegistrationView
      * FXML file.
-     *
+     * <p>
      * enhanced by Ricardo Mook - 2021-04-28
      * added a CSS rule
      *
@@ -232,7 +239,7 @@ public class SceneManager {
      * pane showing the lobby view as specified by the LobbyView FXML file
      * <p>
      * enhanced by Alexander Losse and Marc Hermes - 2021-01-20
-     *
+     * <p>
      * enhanced by Ricardo Mook - 2021-04-28
      * added a CSS rule
      *
@@ -242,7 +249,7 @@ public class SceneManager {
      */
     private Scene initLobbyView() {
         Parent rootPane = initPresenter(LobbyPresenter.fxml);
-        lobbyScene = new Scene(rootPane, 800, 600);
+        Scene lobbyScene = new Scene(rootPane, 800, 600);
         lobbyScene.getStylesheets().add(styleSheet);
         rootPane.getStyleClass().add("menuView");
         return lobbyScene;
@@ -254,7 +261,7 @@ public class SceneManager {
      * If the gameScene is null it gets set to a new scene containing the
      * a pane showing the game view as specified by the GameView
      * FXML file
-     *
+     * <p>
      * enhanced by Ricardo Mook - 2021-04-28
      * added a CSS rule
      *
@@ -264,7 +271,7 @@ public class SceneManager {
      */
     private Scene initGameView() {
         Parent rootPane = initPresenter(GamePresenter.fxml);
-        gameScene = new Scene(rootPane, 800, 600);
+        Scene gameScene = new Scene(rootPane, 800, 600);
         gameScene.getStylesheets().add(styleSheet);
         rootPane.getStyleClass().add("game");
         return gameScene;
@@ -276,7 +283,7 @@ public class SceneManager {
      * If the tradeScene is null it gets set to a new scene containing the
      * a pane showing the game view as specified by the TradeView
      * FXML file
-     *
+     * <p>
      * enhanced by Ricardo Mook - 2021-04-28
      * added a CSS rule
      *
@@ -286,7 +293,7 @@ public class SceneManager {
      */
     private Scene initTradeView() {
         Parent rootPane = initPresenter(TradePresenter.fxml);
-        tradeScene = new Scene(rootPane, 800, 600);
+        Scene tradeScene = new Scene(rootPane, 800, 600);
         tradeScene.getStylesheets().add(styleSheet);
         rootPane.getStyleClass().add("trade");
         return tradeScene;
@@ -307,7 +314,7 @@ public class SceneManager {
      */
     private Scene initSummaryView() {
         Parent rootPane = initPresenter(SummaryPresenter.fxml);
-        summaryScene = new Scene(rootPane, 800, 600);
+        Scene summaryScene = new Scene(rootPane, 800, 600);
         summaryScene.getStylesheets().add(styleSheet);
         return summaryScene;
     }
@@ -318,7 +325,7 @@ public class SceneManager {
      * If the userSettingsScene is null it gets set to a new scene containing the
      * a pane showing the userSettings view as specified by the UserSettingsView
      * FXML file.
-     *
+     * <p>
      * enhanced by Ricardo Mook - 2021-04-28
      * added a CSS rule
      *
@@ -335,14 +342,23 @@ public class SceneManager {
         }
     }
 
-    /*
-    @Subscribe
-    public void onChangeToCertainSizeEvent(ChangeToCertainSizeEvent event) {
-       primaryStage.setWidth(event.getWidth());
-       primaryStage.setHeight(event.getHeight());
-    }
+    /**
+     * Initializes the userGameRules view
+     * <p>
+     * If the userGameRules is null it gets set to a new scene containing the
+     * a pane showing the GameRules view as specified by the UserGameRulesView
+     * FXML file.
+     *
+     * @author Sergej Tulnev
+     * @see GameRulesPresenter
+     * @since 2021-05-18
      */
-
+    private void initGameRulesView() {
+        Parent rootPane = initPresenter(GameRulesPresenter.fxml);
+        userGameRulesScene = new Scene(rootPane, 800, 500);
+        userGameRulesScene.getStylesheets().add(styleSheet);
+        rootPane.getStyleClass().add("rules");
+    }
 
     /**
      * Handles ShowRegistrationViewEvent detected on the EventBus
@@ -388,7 +404,6 @@ public class SceneManager {
      * @see de.uol.swp.client.register.event.RegistrationCanceledEvent
      * @since 2019-09-03
      */
-
     @Subscribe
     public void onRegistrationCanceledEvent(RegistrationCanceledEvent event) {
         showScene(lastScene, lastTitle);
@@ -445,6 +460,25 @@ public class SceneManager {
     }
 
     /**
+     * Handles ShowGameRulesEvent detected on the EventBus
+     * <p>
+     * If a ShowGameRules is detected on the EventBus, this method gets
+     * called. It calls a method to switch the current screen to the Game Rules screen.
+     *
+     * @param event The ShowGameRules detected on the EventBus
+     * @author Sergej Tulnev
+     * @see de.uol.swp.client.auth.events.ShowLoginViewEvent
+     * @since 2020-05-18
+     */
+    @Subscribe
+    public void onShowGameRulesMessage(ShowGameRulesEvent event) {
+        LOG.info("ShowGameRulesEvent");
+        removeGameRulesTab();
+        newGameRulesTab();
+    }
+
+
+    /**
      * Handles UserSettingsErrorEvent detected on the EventBus
      * <p>
      * If a UserSettingsErrorEvent is detected on the EventBus, this method gets
@@ -459,15 +493,16 @@ public class SceneManager {
     public void onUserSettingsErrorEvent(UserSettingsErrorEvent event) {
         showError(event.getMessage());
     }
-/**
- * Pauses the background music when a MuteMusicMessage on the Eventbus is detected
- *
- * @param mmm The MuteMusicMessage on the Eventbus
- * @author Ricardo Mook
- * @since 2021-05-08
- */
+
+    /**
+     * Pauses the background music when a MuteMusicMessage on the Eventbus is detected
+     *
+     * @param mmm The MuteMusicMessage on the Eventbus
+     * @author Ricardo Mook
+     * @since 2021-05-08
+     */
     @Subscribe
-    public void onMuteMusicEvent(MuteMusicMessage mmm){
+    public void onMuteMusicEvent(MuteMusicEvent mmm) {
         player.pause();
     }
 
@@ -479,7 +514,7 @@ public class SceneManager {
      * @since 2021-05-08
      */
     @Subscribe
-    public void onUnmuteMusicEvent(UnmuteMusicMessage umm){
+    public void onUnmuteMusicEvent(UnmuteMusicEvent umm) {
         player.play();
     }
 
@@ -529,7 +564,6 @@ public class SceneManager {
      * The current scene and title are saved in the lastScene and lastTitle variables,
      * before the new scene and title are set and shown.
      *
-     *
      * @param scene New scene to show
      * @param title New window title
      * @author Marco Grawunder
@@ -548,22 +582,6 @@ public class SceneManager {
     }
 
     /**
-     * Shows the login error alert
-     * <p>
-     * Opens an ErrorAlert popup saying "Error logging in to server"
-     *
-     * @author Marco Grawunder
-     * @since 2019-09-03
-     */
-    public void showLoginErrorScreen() {
-        Platform.runLater(() -> {
-            Alert alert = new Alert(Alert.AlertType.ERROR, "Error logging in to server");
-            alert.showAndWait();
-            showLoginScreen();
-        });
-    }
-
-    /**
      * Shows the main menu
      * <p>
      * Invokes the Method showMainTab instead of switching the Scene to the MainScene
@@ -573,8 +591,8 @@ public class SceneManager {
      * @author Marco Grawunder
      * @since 2019-09-03
      */
-    public void showMainScreen(User currentUser) {
-        showMainTab(currentUser);
+    public void showMainScreen() {
+        showMainTab();
 
     }
 
@@ -586,7 +604,7 @@ public class SceneManager {
      * @author Alexander Losse, Marc Hermes
      * @since 2021-01-20
      */
-    public void showMainTab(User currentUser) {
+    public void showMainTab() {
         this.lastScene = currentScene;
         this.lastTitle = primaryStage.getTitle();
         this.currentScene = tabScene;
@@ -628,7 +646,7 @@ public class SceneManager {
      * Shows the summary screen
      * <p>
      * Switches the current Scene to the SummaryScene and sets the title of
-     * the window to the gamename.
+     * the window to the gameName.
      *
      * @param gameName name of the game
      * @author René Meyer, Sergej Tulnev
@@ -636,6 +654,7 @@ public class SceneManager {
      */
     public void createSummaryTab(String gameName) {
         newSummaryTab(gameName);
+        hideSummaryTab(gameName);
     }
 
     /**
@@ -648,8 +667,8 @@ public class SceneManager {
      * @author Marc Hermes, Ricardo Mook
      * @since 2020-11-19
      */
-    public void showLobbyScreen(User currentUser, String lobbyname) {
-        newLobbyTab(currentUser, lobbyname);
+    public void showLobbyScreen(String lobbyName) {
+        newLobbyTab(lobbyName);
     }
 
     /**
@@ -685,12 +704,12 @@ public class SceneManager {
      * Afterwards a new empty nextLobbyScene is created, for the next usage of this method.
      * Also the new Tab is shown immediately
      *
-     * @param lobbyname the name of the lobby for which a tab is created
+     * @param lobbyName the name of the lobby for which a tab is created
      * @author Alexander Losse, Marc Hermes
      * @since 2021-01-20
      */
-    public void newLobbyTab(User currentUser, String lobbyname) {
-        Tab lobbyTab = new Tab("Lobby " + lobbyname);
+    public void newLobbyTab(String lobbyName) {
+        Tab lobbyTab = new Tab("Lobby " + lobbyName);
         lobbyTab.setContent(nextLobbyScene.getRoot());
         lobbyTab.setClosable(false);
         Platform.runLater(() -> {
@@ -706,29 +725,25 @@ public class SceneManager {
      * When this method is invoked a lobby tab with a specific name is removed from
      * the TabPane.
      *
-     * @param lobbyname the name of the lobby that corresponds to the tab that is to be deleted
+     * @param lobbyName the name of the lobby that corresponds to the tab that is to be deleted
      * @author Alexander Losse, Marc Hermes
      * @since 2021-01-20
      */
-    public void removeLobbyTab(User currentUser, String lobbyname) {
-        Platform.runLater(() -> {
-            tabHelper.removeTab("Lobby " + lobbyname);
-        });
+    public void removeLobbyTab(String lobbyName) {
+        Platform.runLater(() -> tabHelper.removeTab("Lobby " + lobbyName));
     }
 
     /**
      * Removes an old summary tab
      * <p>
-     * When this method is invoked a summarytab with a specific name is removed from the TabPane.
+     * When this method is invoked a summaryTab with a specific name is removed from the TabPane.
      *
-     * @param gamename the name of the game that corresponds to the tab that is to be deleted
+     * @param gameName the name of the game that corresponds to the tab that is to be deleted
      * @author René Meyer, Sergej Tulnev
      * @since 2021-05-01
      */
-    public void removeSummaryTab(String gamename) {
-        Platform.runLater(() -> {
-            tabHelper.removeTab("Summary of Game " + gamename);
-        });
+    public void removeSummaryTab(String gameName) {
+        Platform.runLater(() -> tabHelper.removeTab("Summary of Game " + gameName));
     }
 
     /**
@@ -736,11 +751,30 @@ public class SceneManager {
      * <p>
      * This method invokes the newGameTab() method resulting in the creation of a new game tab
      *
+     * @param gameName the name of the game
      * @author Kirstin Beyer
      * @since 2021-01-14
      */
-    public void showGameScreen(String gamename) {
-        newGameTab(gamename);
+    public void showGameScreen(String gameName) {
+        newGameTab(gameName);
+    }
+
+    /**
+     * Creates a new Tab
+     * <p>
+     * This method invokes the newGameRulesTab method resulting in the creation of a new gameRules tab
+     *
+     * @author Sergej Tulnev
+     * @since 2021-05-18
+     */
+    public void newGameRulesTab() {
+        Tab gameRulesTab = new Tab("GameRules ");
+        gameRulesTab.setContent(userGameRulesScene.getRoot());
+        gameRulesTab.setClosable(true);
+        Platform.runLater(() -> {
+            tabHelper.addTab(gameRulesTab);
+            tabHelper.getTabPane().getSelectionModel().select(gameRulesTab);
+        });
     }
 
     /**
@@ -752,12 +786,12 @@ public class SceneManager {
      * Afterwards a new empty nextGameScene is created, for the next usage of this method.
      * Also the new Tab is shown immediately
      *
-     * @param gamename the name of the game for which a tab is created
+     * @param gameName the name of the game for which a tab is created
      * @author Marc Hermes
      * @since 2021-01-21
      */
-    public void newGameTab(String gamename) {
-        Tab gameTab = new Tab("Game " + gamename);
+    public void newGameTab(String gameName) {
+        Tab gameTab = new Tab("Game " + gameName);
         gameTab.setContent(nextGameScene.getRoot());
         gameTab.setClosable(false);
         Platform.runLater(() -> {
@@ -793,19 +827,15 @@ public class SceneManager {
      * The game tab is then added to the TabPane.
      * Also the new Tab is shown immediately
      *
-     * @param gamename the name of the game for which a tab is created
+     * @param gameName the name of the game for which a tab is created
      * @author René Meyer, Sergej Tulnev
      * @since 2021-04-18
      */
-    public void newSummaryTab(String gamename) {
-        Tab summaryTab = new Tab("Summary of Game " + gamename);
+    public void newSummaryTab(String gameName) {
+        Tab summaryTab = new Tab("Summary of Game " + gameName);
         summaryTab.setContent(nextSummaryScene.getRoot());
         summaryTab.setClosable(false);
-        Platform.runLater(() -> {
-            tabHelper.addTab(summaryTab);
-            tabHelper.getTabPane().getSelectionModel().select(summaryTab);
-        });
-        hideSummaryTab(gamename);
+        Platform.runLater(() -> tabHelper.addTab(summaryTab));
         nextSummaryScene = initSummaryView();
     }
 
@@ -817,14 +847,12 @@ public class SceneManager {
      * <p>
      * enhanced by Alexander Losse, Ricardo Mook - 2021-03-05
      *
-     * @param gamename the name of the game that corresponds to the tab that is to be deleted
+     * @param gameName the name of the game that corresponds to the tab that is to be deleted
      * @author Marc Hermes
      * @since 2021-01-21
      */
-    public void removeGameTab(String gamename) {
-        Platform.runLater(() -> {
-            tabHelper.removeTab("Game " + gamename);
-        });
+    public void removeGameTab(String gameName) {
+        Platform.runLater(() -> tabHelper.removeTab("Game " + gameName));
     }
 
     /**
@@ -836,9 +864,19 @@ public class SceneManager {
      * @since 2021-04-21
      */
     public void removeTradeTab(TradeEndedMessage tem) {
-        Platform.runLater(() -> {
-            tabHelper.removeTab("Trade " + tem.getTradeCode());
-        });
+        Platform.runLater(() -> tabHelper.removeTab("Trade " + tem.getName() + " " + tem.getTradeCode()));
+    }
+
+    /**
+     * Removes an old GameRules tab
+     * <p>
+     * When this method is invoked a GameRules tab, is removed the old GameRules tab
+     *
+     * @author Sergej Tulnev
+     * @since 2021-05-19
+     */
+    public void removeGameRulesTab() {
+        Platform.runLater(() -> tabHelper.removeTab("GameRules "));
     }
 
     /**
@@ -852,9 +890,7 @@ public class SceneManager {
      * @since 2021-03-16
      */
     public void suspendLobbyTab(String lobbyName) {
-        Platform.runLater(() -> {
-            tabHelper.suspendTab("Lobby " + lobbyName);
-        });
+        Platform.runLater(() -> tabHelper.suspendTab("Lobby " + lobbyName));
     }
 
     /**
@@ -869,6 +905,7 @@ public class SceneManager {
     public void unsuspendLobbyTab(String lobbyName) {
         Platform.runLater(() -> {
             tabHelper.unsuspendTab("Lobby " + lobbyName);
+            tabHelper.getTabPane().getSelectionModel().select(tabHelper.getTabByText("Lobby " + lobbyName));
         });
     }
 
@@ -880,9 +917,7 @@ public class SceneManager {
      * @since 2021-05-10
      */
     public void hideSummaryTab(String gameName) {
-        Platform.runLater(() -> {
-            tabHelper.suspendTab("Summary of Game " + gameName);
-        });
+        Platform.runLater(() -> tabHelper.suspendTab("Summary of Game " + gameName));
     }
 
     /**

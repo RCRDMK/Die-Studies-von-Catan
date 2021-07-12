@@ -1,17 +1,5 @@
 package de.uol.swp.client.game;
 
-import com.google.common.eventbus.Subscribe;
-import com.google.inject.Inject;
-import de.uol.swp.client.AbstractPresenter;
-import de.uol.swp.client.game.HelperObjects.DetailedTableStats;
-import de.uol.swp.client.game.HelperObjects.GeneralTableStats;
-import de.uol.swp.client.game.HelperObjects.InventoryTableStats;
-import de.uol.swp.client.lobby.LobbyService;
-import de.uol.swp.common.game.dto.StatsDTO;
-import de.uol.swp.common.game.message.GameCreatedMessage;
-import de.uol.swp.common.game.message.GameFinishedMessage;
-import de.uol.swp.common.user.User;
-import de.uol.swp.common.user.UserDTO;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
@@ -21,8 +9,21 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+
+import com.google.common.eventbus.Subscribe;
+import com.google.inject.Inject;
+
+import de.uol.swp.client.AbstractPresenter;
+import de.uol.swp.client.game.HelperObjects.DetailedTableStats;
+import de.uol.swp.client.game.HelperObjects.GeneralTableStats;
+import de.uol.swp.client.game.HelperObjects.InventoryTableStats;
+import de.uol.swp.client.lobby.LobbyService;
+import de.uol.swp.common.game.dto.StatsDTO;
+import de.uol.swp.common.game.message.GameCreatedMessage;
+import de.uol.swp.common.game.message.GameFinishedMessage;
+import de.uol.swp.common.lobby.response.JoinOnGoingGameResponse;
+import de.uol.swp.common.user.User;
+import de.uol.swp.common.user.UserDTO;
 
 /**
  * Manages the SummaryView
@@ -33,27 +34,25 @@ import org.apache.logging.log4j.Logger;
  * @see de.uol.swp.client.AbstractPresenter
  * @since 2021-04-18
  */
+@SuppressWarnings("UnstableApiUsage")
 public class SummaryPresenter extends AbstractPresenter {
     public static final String fxml = "/fxml/SummaryView.fxml";
-    private static final Logger LOG = LogManager.getLogger(GamePresenter.class);
-
-    @Inject
-    private GameService gameService;
-    @Inject
-    private LobbyService lobbyService;
-
     @FXML
     public TableView<GeneralTableStats> generalTableStats;
     @FXML
     public TableView<DetailedTableStats> detailedTableStats;
+    @FXML
+    public TableView<InventoryTableStats> resourceTableStats;
     @FXML
     public Label winnerLabel;
     @FXML
     public ImageView winnerImage;
     @FXML
     public ImageView profileImage;
-    @FXML
-    public TableView<InventoryTableStats> resourceTableStats;
+    @Inject
+    private GameService gameService;
+    @Inject
+    private LobbyService lobbyService;
     private String gameName;
 
     private User currentUser;
@@ -76,7 +75,7 @@ public class SummaryPresenter extends AbstractPresenter {
     }
 
     /**
-     * Subscribe to GameCreatedMessage to get the actual current user and corresponding game
+     * Subscribe to GameCreatedMessage to get the actual current user and corresponding gameName
      * <p>
      * This is needed so we have the currentUser and the gameName in the SummaryPresenter
      *
@@ -90,6 +89,21 @@ public class SummaryPresenter extends AbstractPresenter {
         if (this.gameName == null) {
             this.currentUser = gcm.getUser();
             this.gameName = gcm.getName();
+        }
+    }
+
+    /**
+     * Subscribe to the JoinOnGoingGameResponse to get the actual current user and corresponding gameName
+     *
+     * @param joggr the JoinOnGoingGameResponse detected on the EventBus
+     * @author Marc Hermes
+     * @since 2021-06-19
+     */
+    @Subscribe
+    public void onGameJoined(JoinOnGoingGameResponse joggr) {
+        if (this.gameName == null && joggr.isJoinedSuccessful()) {
+            this.currentUser = joggr.getUser();
+            this.gameName = joggr.getGameName();
         }
     }
 
@@ -134,19 +148,25 @@ public class SummaryPresenter extends AbstractPresenter {
                 this.winnerImage.toBack();
                 this.profileImage.setImage(new Image(profilePictureString));
                 this.profileImage.toFront();
-                winnerLabel.setText("Congratulations, you won game " + gameName + "!");
+                winnerLabel.setText("Congratulations, you won the game " + gameName + "!");
                 winnerLabel.setTextFill(Color.LIGHTGREEN);
             } else {
                 this.winnerImage.setImage(new Image("/textures/summaryscreen/badge_loseScreenBg.png"));
                 this.winnerImage.toBack();
                 this.profileImage.setImage(new Image(profilePictureString));
                 this.profileImage.toFront();
-                winnerLabel.setText("Sorry, you lost game " + gameName + " - User " + statsDTO.getWinner() + " won!");
+                winnerLabel.setText("Sorry, you lost the game " + gameName + " to the user " + statsDTO.getWinner());
                 winnerLabel.setTextFill(Color.ORANGERED);
             }
-            initGeneralTable();
-            initDetailedTable();
-            initRessourceTable();
+            if ((long) generalTableStats.getItems().size() == 0) {
+                initGeneralTable();
+            }
+            if ((long) detailedTableStats.getItems().size() == 0) {
+                initDetailedTable();
+            }
+            if ((long) resourceTableStats.getItems().size() == 0) {
+                initResourceTable();
+            }
         });
     }
 
@@ -234,22 +254,23 @@ public class SummaryPresenter extends AbstractPresenter {
             } else {
                 thisUser = inventory.getUser().getUsername();
             }
-            var item = new DetailedTableStats(thisUser, inventory.getContinuousRoad(), inventory.getPlayedKnights(), inventory.getVictoryPoints());
+            var item = new DetailedTableStats(thisUser, inventory.getContinuousRoad(), inventory.getPlayedKnights(),
+                    inventory.getVictoryPoints());
             detailedTableStats.getItems().add(item);
         });
     }
 
     /**
-     * Initializes the ressource Table
+     * Initializes the resource Table
      * <p>
-     * This method prepares the ressourceTable and loops the users from the game
-     * to add ressource Stats to the 3rd table
+     * This method prepares the resourceTable and loops the users from the game
+     * to add resource Stats to the 3rd table
      *
      * @author René Meyer, Sergej Tulnev
      * @see TableColumn
      * @since 2021-05-08
      */
-    private void initRessourceTable() {
+    private void initResourceTable() {
         // Init Table
         TableColumn<InventoryTableStats, String> userColumn = new TableColumn<>("User");
         userColumn.setCellValueFactory(new PropertyValueFactory<>("user"));
@@ -270,7 +291,7 @@ public class SummaryPresenter extends AbstractPresenter {
         oreColumn.setCellValueFactory(new PropertyValueFactory<>("ore"));
         oreColumn.setPrefWidth(66);
         var columns = resourceTableStats.getColumns();
-        resourceTableStats.getColumns().addAll(userColumn, lumberColumn, brickColumn, grainColumn, woolColumn, oreColumn);
+        columns.addAll(userColumn, lumberColumn, brickColumn, grainColumn, woolColumn, oreColumn);
 
         // Get all User Data from game to display it in the tableView
         var inventories = statsDTO.getInventoryArrayList();
@@ -282,7 +303,8 @@ public class SummaryPresenter extends AbstractPresenter {
             } else {
                 thisUser = inventory.getUser().getUsername();
             }
-            var item = new InventoryTableStats(thisUser, inventory.lumber.getNumber(), inventory.brick.getNumber(), inventory.grain.getNumber(), inventory.wool.getNumber(), inventory.ore.getNumber());
+            var item = new InventoryTableStats(thisUser, inventory.lumber.getNumber(), inventory.brick.getNumber(),
+                    inventory.grain.getNumber(), inventory.wool.getNumber(), inventory.ore.getNumber());
             resourceTableStats.getItems().add(item);
         });
     }

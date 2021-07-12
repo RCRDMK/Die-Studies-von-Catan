@@ -1,8 +1,8 @@
 package de.uol.swp.common.user.response.lobby;
 
-import de.uol.swp.common.message.AbstractResponseMessage;
-
 import java.util.Objects;
+
+import de.uol.swp.common.message.AbstractResponseMessage;
 
 /**
  * LobbyFullResponse
@@ -16,12 +16,12 @@ import java.util.Objects;
 
 public class LobbyFullResponse extends AbstractResponseMessage {
 
-    private String lobbyName;
+    private final String lobbyName;
 
     /**
      * Constructor
      *
-     * @param lobbyName
+     * @param lobbyName the name of the lobby that is already full
      * @author René Meyer
      * @since 2020-12-17
      */
@@ -40,6 +40,12 @@ public class LobbyFullResponse extends AbstractResponseMessage {
         return lobbyName;
     }
 
+    /**
+     * getter for hash of String lobbyname
+     * returns int
+     *
+     * @return hash of String lobbyname
+     */
     @Override
     public int hashCode() {
         return Objects.hash(lobbyName);

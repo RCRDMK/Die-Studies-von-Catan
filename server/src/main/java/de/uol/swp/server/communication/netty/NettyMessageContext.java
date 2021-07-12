@@ -1,11 +1,12 @@
 package de.uol.swp.server.communication.netty;
 
+import java.util.Objects;
+
+import io.netty.channel.ChannelHandlerContext;
+
 import de.uol.swp.common.message.MessageContext;
 import de.uol.swp.common.message.ResponseMessage;
 import de.uol.swp.common.message.ServerMessage;
-import io.netty.channel.ChannelHandlerContext;
-
-import java.util.Objects;
 
 /**
  * This class is used to encapsulate a netty channel handler context
@@ -21,8 +22,8 @@ class NettyMessageContext implements MessageContext {
     /**
      * Constructor
      *
-     * @author Marco Grawunder
      * @param ctx the ChannelHandlerContext encapsulated by this
+     * @author Marco Grawunder
      * @author Marco Grawunder
      * @since 2019-11-20
      */
@@ -33,8 +34,8 @@ class NettyMessageContext implements MessageContext {
     /**
      * Getter for the ChannelHandlerContext encapsulated by this class
      *
-     * @author Marco Grawunder
      * @return the ChannelHandlerContext
+     * @author Marco Grawunder
      * @author Marco Grawunder
      * @see io.netty.channel.ChannelHandlerContext
      * @since 2019-11-20
@@ -54,15 +55,15 @@ class NettyMessageContext implements MessageContext {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        NettyMessageContext that = (NettyMessageContext) o;
-        return Objects.equals(ctx, that.ctx);
+    public int hashCode() {
+        return Objects.hash(ctx);
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(ctx);
+    public boolean equals(Object o) {
+        if (this == o) { return true; }
+        if (o == null || getClass() != o.getClass()) { return false; }
+        NettyMessageContext that = (NettyMessageContext) o;
+        return Objects.equals(ctx, that.ctx);
     }
 }

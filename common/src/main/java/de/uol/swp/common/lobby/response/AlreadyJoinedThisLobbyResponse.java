@@ -1,8 +1,8 @@
 package de.uol.swp.common.lobby.response;
 
-import de.uol.swp.common.message.AbstractResponseMessage;
-
 import java.util.Objects;
+
+import de.uol.swp.common.message.AbstractResponseMessage;
 
 /**
  * Response that is sent to the User who requested to join a lobby where he already
@@ -16,14 +16,13 @@ import java.util.Objects;
 
 public class AlreadyJoinedThisLobbyResponse extends AbstractResponseMessage {
 
-    private String lobbyName;
+    private final String lobbyName;
 
     /**
      * Constructor
      *
      * @param lobbyName Name form the Lobby
      */
-
     public AlreadyJoinedThisLobbyResponse(String lobbyName) {
         this.lobbyName = lobbyName;
     }

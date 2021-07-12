@@ -1,11 +1,12 @@
 package de.uol.swp.client.account;
 
+import java.util.regex.Pattern;
+
 import com.google.common.eventbus.EventBus;
 import com.google.inject.Inject;
+
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.request.RetrieveUserInformationRequest;
-
-import java.util.regex.Pattern;
 
 /**
  * Class that manages the UserSettingsPresenter
@@ -17,7 +18,6 @@ import java.util.regex.Pattern;
 public class UserSettingsService {
 
     private final EventBus eventBus;
-    //private static final Logger LOG = LogManager.getLogger(UserSettingsPresenter.class);
 
     /**
      * Constructor
@@ -39,8 +39,8 @@ public class UserSettingsService {
      * This method creates a new RetrieveUserMailRequest with the logged in user
      * and post in on the bus.
      *
-     * @author Carsten Dekker
      * @param user the logged in user
+     * @author Carsten Dekker
      * @see de.uol.swp.client.account.UserSettingsPresenter
      * @see RetrieveUserInformationRequest
      * @since 2021-03-14
@@ -60,14 +60,13 @@ public class UserSettingsService {
      * @since 2021-03-14
      */
     public boolean isValidEmailAddress(String email) {
-        String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\."+
+        String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\." +
                 "[a-zA-Z0-9_+&*-]+)*@" +
                 "(?:[a-zA-Z0-9-]+\\.)+[a-z" +
                 "A-Z]{2,7}$";
 
         Pattern pat = Pattern.compile(emailRegex);
-        if(email == null)
-            return false;
+        if (email == null) { return false; }
         return pat.matcher(email).matches();
     }
 

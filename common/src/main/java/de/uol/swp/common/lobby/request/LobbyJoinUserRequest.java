@@ -37,4 +37,18 @@ public class LobbyJoinUserRequest extends AbstractLobbyRequest {
         super(lobbyName, user);
     }
 
+    /**
+     * Constructor overloading
+     * <p>
+     *
+     * @param lobbyName name of the lobby
+     * @param user      user who wants to join the lobby
+     * @param password  password for the protected lobby
+     * @author Renné Meyer
+     * @since 2021-06-05
+     */
+    public LobbyJoinUserRequest(String lobbyName, UserDTO user, String password) {
+        super(lobbyName, user, password);
+    }
+
 }

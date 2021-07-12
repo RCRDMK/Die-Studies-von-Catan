@@ -33,13 +33,15 @@ public class TradeCardErrorMessage extends AbstractGameMessage {
         this.tradeCode = tradeCode;
     }
 
+    public TradeCardErrorMessage() {
+    }
 
     /**
      * getter for String tradeCode
      *
+     * @return tradeCode
      * @author Alexander Losse, RIcardo Mook
      * @since 2021-04-25
-     * @return tradeCode
      */
     public String getTradeCode() {
         return tradeCode;

@@ -2,8 +2,6 @@ package de.uol.swp.common.game.request;
 
 import de.uol.swp.common.user.UserDTO;
 
-import java.util.UUID;
-
 /**
  * The request sent from the client when he wants to resolve a certain DevelopmentCard
  *

@@ -40,18 +40,6 @@ public class CreateGameRequest extends AbstractGameRequest {
     }
 
     /**
-     * Setter for the user variable
-     * <p>
-     *
-     * @param owner User trying to create the game
-     * @author Iskander Yusupov
-     * @since 2021-01-15
-     */
-    public void setOwner(UserDTO owner) {
-        setUser(owner);
-    }
-
-    /**
      * Getter for the user variable
      * <p>
      *
@@ -61,6 +49,18 @@ public class CreateGameRequest extends AbstractGameRequest {
      */
     public User getOwner() {
         return getUser();
+    }
+
+    /**
+     * Setter for the user variable
+     * <p>
+     *
+     * @param owner User trying to create the game
+     * @author Iskander Yusupov
+     * @since 2021-01-15
+     */
+    public void setOwner(UserDTO owner) {
+        setUser(owner);
     }
 
 }

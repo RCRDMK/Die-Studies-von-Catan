@@ -1,12 +1,12 @@
 package de.uol.swp.server.lobby;
 
-import de.uol.swp.common.lobby.Lobby;
-import de.uol.swp.common.lobby.dto.LobbyDTO;
-import de.uol.swp.common.user.User;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+
+import de.uol.swp.common.lobby.Lobby;
+import de.uol.swp.common.lobby.dto.LobbyDTO;
+import de.uol.swp.common.user.User;
 
 /**
  * Manages creation, deletion and storing of lobbies
@@ -39,6 +39,28 @@ public class LobbyManagement {
             throw new IllegalArgumentException("Lobby name " + name + " already exists!");
         }
         lobbies.put(name, new LobbyDTO(name, owner));
+    }
+
+    /**
+     * Creates a new protected lobby and adds it to the list
+     * <p>
+     *
+     * @param name  the name of the lobby to create
+     * @param owner the user who wants to create a lobby
+     * @throws IllegalArgumentException name already taken
+     * @implNote the primary key of the lobbies is the name therefore the name has
+     * to be unique
+     * @author René Meyer
+     * @see de.uol.swp.common.user.User
+     * @since 2021-06-05
+     */
+    public void createProtectedLobby(String name, User owner, String password) {
+        if (lobbies.containsKey(name)) {
+            throw new IllegalArgumentException("Lobby name " + name + " already exists!");
+        }
+        var lobby = new LobbyDTO(name, owner);
+        lobby.setPassword(password);
+        lobbies.put(name, lobby);
     }
 
     /**

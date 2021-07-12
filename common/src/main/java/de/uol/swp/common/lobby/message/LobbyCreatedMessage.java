@@ -1,9 +1,9 @@
 package de.uol.swp.common.lobby.message;
 
-import de.uol.swp.common.user.UserDTO;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import de.uol.swp.common.user.UserDTO;
 
 /**
  * Message sent by the server when a user successfully creates a lobby
@@ -14,8 +14,6 @@ import java.util.List;
  */
 
 public class LobbyCreatedMessage extends AbstractLobbyMessage {
-
-    private String username;
 
     final private ArrayList<UserDTO> users = new ArrayList<>();
 
@@ -32,16 +30,15 @@ public class LobbyCreatedMessage extends AbstractLobbyMessage {
         super(name, user);
     }
 
-    public LobbyCreatedMessage(String username) {
-        this.username = username;
-    }
-
+    /**
+     * Getter for the User, who are in the Lobby
+     *
+     * @return User, who are in the Lobby
+     * @author Ricardo Mook, Marc Hermes
+     * @since 2020-11-19
+     */
     public List<UserDTO> getUsers() {
         return users;
-    }
-
-    public String getUsername() {
-        return username;
     }
 
 }

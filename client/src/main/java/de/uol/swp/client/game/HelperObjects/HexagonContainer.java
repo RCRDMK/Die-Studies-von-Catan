@@ -1,7 +1,8 @@
 package de.uol.swp.client.game.HelperObjects;
 
-import de.uol.swp.common.game.MapGraph;
 import javafx.scene.shape.Polygon;
+
+import de.uol.swp.common.game.MapGraph;
 
 /**
  * Links a hexagon Polygon to a Hexagon and vice versa.
@@ -10,7 +11,7 @@ import javafx.scene.shape.Polygon;
  * Hexagon-object it is representing and the other way around. By using this class, we can change a certain
  * Hexagon-object by clicking on the corresponding drawn Polygon-objects in the canvas, or we can change the
  * Polygon-object by accessing it via the Hexagon-object.</p>
- *
+ * <p>
  * enhanced by Marc Hermes - 2021-04-28
  *
  * @author Pieter Vogt
@@ -25,13 +26,13 @@ public class HexagonContainer {
 
     private final MapGraph.Hexagon hexagon;
 
-    private final Polygon hexagonShape = new Polygon();
+    private final Polygon hexagonShape;
 
     //Constructor
 
     public HexagonContainer(MapGraph.Hexagon hexagon, double cardSize) {
         this.hexagon = hexagon;
-        calculateHexagon(cardSize);
+        hexagonShape = calculateHexagon(cardSize);
     }
 
     //Getter Setter
@@ -54,11 +55,11 @@ public class HexagonContainer {
      * @author Marc Hermes
      * @since 2021-04-28
      */
-    private void calculateHexagon(double cardSize) {
-        double resizingFactor = cardSize/Math.sqrt(3);
+    private Polygon calculateHexagon(double cardSize) {
+        double resizingFactor = cardSize / Math.sqrt(3);
+        Polygon hexagonShape = new Polygon();
 
         Vector direction = Vector.right(resizingFactor);
-
         hexagonShape.getPoints().add(direction.getY());
         hexagonShape.getPoints().add(direction.getX());
 
@@ -81,5 +82,7 @@ public class HexagonContainer {
         direction = Vector.bottomRight(resizingFactor);
         hexagonShape.getPoints().add(direction.getY());
         hexagonShape.getPoints().add(direction.getX());
+
+        return hexagonShape;
     }
 }

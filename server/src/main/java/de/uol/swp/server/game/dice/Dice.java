@@ -5,15 +5,19 @@ import java.util.Random;
 /**
  * Class for the dice in the game.
  *
- * @author Kirstin
+ * @author Kirstin Beyer
  * @since 2020-12-29
  */
-
 public class Dice {
 
     private int diceEyes1 = 0;
     private int diceEyes2 = 0;
 
+    /**
+     * simulates the roll of two dices
+     *
+     * int dice1 and int dice2 each are set to a random value from 1-6
+     */
     public void rollDice() {
         Random r1 = new Random();
         int dice1 = 1 + r1.nextInt(6);
@@ -25,14 +29,24 @@ public class Dice {
         diceEyes2 = dice2;
     }
 
-    //für den cheat eventuell relevant
-    public int getEyes() {
-        return diceEyes1 + diceEyes2;
-    }
-
+    /**
+     * Getter for DiceEyes1
+     *
+     * @return int diceEyes1
+     * @author Kirstin Beyer
+     * @since 2020-12-29
+     */
     public int getDiceEyes1() {
         return diceEyes1;
     }
+
+    /**
+     * Getter for DiceEyes2
+     *
+     * @return int diceEyes2
+     * @author Kirstin Beyer
+     * @since 2020-12-29
+     */
 
     public int getDiceEyes2() {
         return diceEyes2;
@@ -48,10 +62,9 @@ public class Dice {
     public void setEyes(int eyes) {
         if (eyes > 6) {
             diceEyes1 = 6;
-            diceEyes2 = eyes - diceEyes1;
         } else {
             diceEyes1 = 1;
-            diceEyes2 = eyes - diceEyes1;
         }
+        diceEyes2 = eyes - diceEyes1;
     }
 }

@@ -39,15 +39,17 @@ public class CreateLobbyRequest extends AbstractLobbyRequest {
     }
 
     /**
-     * Setter for the user variable
+     * Constructor
      * <p>
      *
-     * @param owner User trying to create the lobby
-     * @author Marco Grawunder
-     * @since 2019-10-08
+     * @param name     name of the lobby
+     * @param owner    User trying to create the lobby
+     * @param password password for the lobby
+     * @author René Meyer
+     * @since 2021-06-05
      */
-    public void setOwner(UserDTO owner) {
-        setUser(owner);
+    public CreateLobbyRequest(String name, UserDTO owner, String password) {
+        super(name, owner, password);
     }
 
     /**
@@ -60,6 +62,18 @@ public class CreateLobbyRequest extends AbstractLobbyRequest {
      */
     public User getOwner() {
         return getUser();
+    }
+
+    /**
+     * Setter for the user variable
+     * <p>
+     *
+     * @param owner User trying to create the lobby
+     * @author Marco Grawunder
+     * @since 2019-10-08
+     */
+    public void setOwner(UserDTO owner) {
+        setUser(owner);
     }
 
 }

@@ -2,9 +2,6 @@ package de.uol.swp.server.usermanagement;
 
 import de.uol.swp.common.user.User;
 
-import java.sql.SQLException;
-import java.util.List;
-
 /**
  * An interface for all methods of the server user service
  *
@@ -23,7 +20,7 @@ public interface ServerUserService {
      * @author Marco Grawunder
      * @since 2017-03-17
      */
-    User login(String username, String password) throws SQLException;
+    User login(String username, String password) throws Exception;
 
 
     /**
@@ -56,7 +53,7 @@ public interface ServerUserService {
      * remove the correct user
      * @since 2019-09-02
      */
-    User createUser(User user) throws SQLException;
+    User createUser(User user) throws Exception;
 
     /**
      * Removes a user from the sore
@@ -69,66 +66,57 @@ public interface ServerUserService {
      * remove the correct user
      * @since 2019-10-10
      */
-    void dropUser(User user) throws SQLException;
+    void dropUser(User user) throws Exception;
 
     /**
      * Update a user
      * <p>
      * Updates the User specified by the User object.
      *
-     * @author Carsten Dekker
      * @param user the user object containing all infos to
      *             update, if some values are not set, (e.g. password is "")
      *             these fields are not updated
      * @return the updated user object
+     * @author Carsten Dekker
      * @author Marco Grawunder
      * @implNote the User Object has to contain a unique identifier in order to
      * update the correct user
      * @since 2019-09-02
      */
-    User updateUserMail(User user) throws SQLException;
+    User updateUserMail(User user) throws Exception;
 
     /**
      * Update a user
      * <p>
      * Updates the User specified by the User object.
      *
-     * @author Carsten Dekker
-     * @implNote the User Object has to contain a unique identifier in order to
-     * 			 update the correct user
      * @param user the user object containing all infos to
      *             update, if some values are not set, (e.g. password is "")
      *             these fields are not updated
      * @return the updated user object
+     * @author Carsten Dekker
+     * @implNote the User Object has to contain a unique identifier in order to
+     * update the correct user
      * @author Marco Grawunder
      * @implNote the User Object has to contain a unique identifier in order to
      * update the correct user
      * @since 2019-09-02
      */
-    User updateUserPassword(User user, String password) throws SQLException;
+    User updateUserPassword(User user, String password) throws Exception;
 
     /**
      * Update a user
      * <p>
      * Updates the User specified by the User object.
      *
-     * @author Carsten Dekker
-     * @implNote the User Object has to contain a unique identifier in order to
-     * update the correct user
      * @param user the user object containing all infos to update
      * @return the updated user object
+     * @author Carsten Dekker
+     * @implNote the User Object has to contain a unique identifier in order to
+     * update the correct user
      * @since 2021-04-15
      */
-    User updateUserPicture(User user) throws SQLException;
-
-    /**
-     * Retrieve the list of all current logged in users
-     *
-     * @return a list of users
-     * @author Marco Grawunder
-     * @since 2017-03-17
-     */
-    List<User> retrieveAllUsers() throws SQLException;
+    User updateUserPicture(User user) throws Exception;
 
     /**
      * Retrieve the user information of the currently logged in user
@@ -137,5 +125,5 @@ public interface ServerUserService {
      * @author Carsten Dekker
      * @since 2021-03-11
      */
-    User retrieveUserInformation(User user) throws SQLException;
+    User retrieveUserInformation(User user) throws Exception;
 }

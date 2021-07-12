@@ -2,6 +2,7 @@ package de.uol.swp.client;
 
 import com.google.common.eventbus.EventBus;
 import com.google.inject.Inject;
+
 import de.uol.swp.client.user.ClientUserService;
 
 /**

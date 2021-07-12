@@ -1,32 +1,48 @@
 package de.uol.swp.client;
 
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import javafx.application.Application;
+import javafx.stage.Stage;
+
 import com.google.common.eventbus.DeadEvent;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+
+import io.netty.channel.Channel;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import de.uol.swp.client.di.ClientModule;
 import de.uol.swp.client.game.event.SummaryConfirmedEvent;
 import de.uol.swp.client.user.ClientUserService;
-import de.uol.swp.common.game.message.*;
+import de.uol.swp.common.game.message.GameCreatedMessage;
+import de.uol.swp.common.game.message.GameDroppedMessage;
+import de.uol.swp.common.game.message.GameFinishedMessage;
+import de.uol.swp.common.game.message.PlayerKickedMessage;
+import de.uol.swp.common.game.message.TradeEndedMessage;
+import de.uol.swp.common.game.message.TradeOfferInformBiddersMessage;
+import de.uol.swp.common.game.message.TradeStartedMessage;
+import de.uol.swp.common.game.response.GameLeftSuccessfulResponse;
+import de.uol.swp.common.lobby.response.JoinOnGoingGameResponse;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.exception.RegistrationExceptionMessage;
 import de.uol.swp.common.user.exception.UpdateUserExceptionMessage;
 import de.uol.swp.common.user.request.LogoutRequest;
-import de.uol.swp.common.user.response.*;
-import de.uol.swp.common.user.response.game.GameLeftSuccessfulResponse;
+import de.uol.swp.common.user.response.DropUserSuccessfulResponse;
+import de.uol.swp.common.user.response.LoginSuccessfulResponse;
+import de.uol.swp.common.user.response.PingResponse;
+import de.uol.swp.common.user.response.RegistrationSuccessfulResponse;
+import de.uol.swp.common.user.response.RetrieveUserInformationResponse;
+import de.uol.swp.common.user.response.UpdateUserSuccessfulResponse;
 import de.uol.swp.common.user.response.lobby.LobbyCreatedSuccessfulResponse;
 import de.uol.swp.common.user.response.lobby.LobbyJoinedSuccessfulResponse;
 import de.uol.swp.common.user.response.lobby.LobbyLeftSuccessfulResponse;
-import io.netty.channel.Channel;
-import javafx.application.Application;
-import javafx.stage.Stage;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 /**
  * The application class of the client
@@ -51,11 +67,22 @@ public class ClientApp extends Application implements ConnectionListener {
     private EventBus eventBus;
     private SceneManager sceneManager;
     private long lastPingResponse;
-    private static Timer timer = new Timer();
+    private Timer timer;
 
     // -----------------------------------------------------
     // Java FX Methods
     // ----------------------------------------------------
+
+    /**
+     * Default startup method for javafx applications
+     *
+     * @param args Any arguments given when starting the application
+     * @author Marco Grawunder
+     * @since 2017-03-17
+     */
+    public static void main(String[] args) {
+        launch(args);
+    }
 
     @Override
     public void init() {
@@ -76,7 +103,6 @@ public class ClientApp extends Application implements ConnectionListener {
         // if connection is established in this stage, no GUI is shown and
         // exceptions are only visible in console!
     }
-
 
     @Override
     public void start(Stage primaryStage) {
@@ -114,11 +140,6 @@ public class ClientApp extends Application implements ConnectionListener {
     }
 
     @Override
-    public void connectionEstablished(Channel ch) {
-        sceneManager.showLoginScreen();
-    }
-
-    @Override
     public void stop() {
         if (userService != null && user != null) {
             userService.logout(user);
@@ -134,18 +155,28 @@ public class ClientApp extends Application implements ConnectionListener {
         LOG.info("ClientConnection shutdown");
     }
 
+    @Override
+    public void connectionEstablished(Channel ch) {
+        sceneManager.showLoginScreen();
+    }
+
+    @Override
+    public void exceptionOccurred(String e) {
+        sceneManager.showServerError(e);
+    }
+
     /**
      * Handles successful login
      * <p>
      * If an LoginSuccessfulResponse object is detected on the EventBus this
      * method is called. It tells the SceneManager to show the main menu and sets
-     * this clients user to the user found in the object. If the loglevel is set
+     * this clients user to the user found in the object. If the log level is set
      * to DEBUG or higher "user logged in successfully " and the username of the
      * logged in user are written to the log.
-     * It also starts a timer for the ping message and a sperate timer for the client to check if he has a timeout.
+     * It also starts a timer for the ping message and a separate timer for the client to check if he has a timeout.
      *
      * @param message The LoginSuccessfulResponse object detected on the EventBus
-     * @author Marco Grawunder, Philip
+     * @author Marco Grawunder, Philip Nitsche
      * @see de.uol.swp.client.SceneManager
      * @since 2021-01-21
      */
@@ -153,7 +184,7 @@ public class ClientApp extends Application implements ConnectionListener {
     public void userLoggedIn(LoginSuccessfulResponse message) {
         LOG.debug("user logged in successfully " + message.getUser().getUsername());
         this.user = message.getUser();
-        sceneManager.showMainScreen(user);
+        sceneManager.showMainScreen();
         userService.startTimerForPing(message.getUser());
         lastPingResponse = System.currentTimeMillis();
         checkForTimeout();
@@ -163,7 +194,7 @@ public class ClientApp extends Application implements ConnectionListener {
      * Handles successful Mail information response
      * <p>
      * If an RetrieveUserMailResponse object is detected on the EventBus this
-     * method is called. If the loglevel is set to INFO or higher "Got the response with the Mail from User "
+     * method is called. If the logLevel is set to INFO or higher "Got the response with the Mail from User "
      * is written to the log.
      *
      * @param response The RetrieveUserMailResponse object detected on the EventBus
@@ -181,14 +212,13 @@ public class ClientApp extends Application implements ConnectionListener {
      * <p>
      * If an LogoutSuccessfulResponse object is detected on the EventBus this
      * method is called. It tells the SceneManager to show the LoginScree.
-     * It also ends the timer for the ping message and the sperate timer for the client to check if he has a timeout.
+     * It also ends the timer for the ping message and the separate timer for the client to check if he has a timeout.
      *
      * @param message The LogoutSuccessfulResponse object detected on the EventBus
-     * @author Philip
+     * @author Philip Nitsche
      * @see de.uol.swp.client.SceneManager
      * @since 2021-01-21
      */
-
     @Subscribe
     public void userLoggedOut(LogoutRequest message) {
         LOG.debug("user logged out ");
@@ -202,7 +232,7 @@ public class ClientApp extends Application implements ConnectionListener {
      * <p>
      * If an LobbyCreatedSuccessful object is detected on the EventBus this
      * method is called. It tells the SceneManager to show the lobby menu and sets
-     * this clients user to the user found in the object. If the loglevel is set
+     * this clients user to the user found in the object. If the logLevel is set
      * to DEBUG or higher "user created lobby" and the username of the
      * logged in user are written to the log.
      *
@@ -215,9 +245,9 @@ public class ClientApp extends Application implements ConnectionListener {
         LOG.debug("user created lobby " + message.getUser());
         this.user = message.getUser();
         if (message.getName() == null) {
-            sceneManager.showLobbyScreen(user, " ohne Name");
+            sceneManager.showLobbyScreen(" ohne Name");
         } else {
-            sceneManager.showLobbyScreen(user, message.getName());
+            sceneManager.showLobbyScreen(message.getName());
         }
     }
 
@@ -226,7 +256,7 @@ public class ClientApp extends Application implements ConnectionListener {
      * <p>
      * If a UserJoinedLobbyMessage object is detected on the EventBus this
      * method is called. It tells the SceneManager to show the lobby menu and sets
-     * this clients user to the user found in the object. If the loglevel is set
+     * this clients user to the user found in the object. If the logLevel is set
      * to DEBUG or higher "user joined lobby " is written to the log.
      *
      * @param message The UserJoinedLobbyMessage object detected on the EventBus
@@ -237,7 +267,7 @@ public class ClientApp extends Application implements ConnectionListener {
     public void userJoinedLobby(LobbyJoinedSuccessfulResponse message) {
         LOG.debug("user joined lobby ");
         this.user = message.getUser();
-        sceneManager.showLobbyScreen(user, message.getName());
+        sceneManager.showLobbyScreen(message.getName());
 
     }
 
@@ -246,7 +276,7 @@ public class ClientApp extends Application implements ConnectionListener {
      * <p>
      * If a GameCreatedMessage object is detected on the EventBus this
      * method is called. It tells the SceneManager to show the game menu and suspend
-     * the corresponding LobbyTab. Also a new summaryTab is created. If the loglevel is set
+     * the corresponding LobbyTab. Also a new summaryTab is created. If the logLevel is set
      * to DEBUG or higher "user joined lobby " is written to the log.
      * <p>
      * enhanced by Marc Hermes - 2021-03-15
@@ -265,6 +295,26 @@ public class ClientApp extends Application implements ConnectionListener {
     }
 
     /**
+     * When a JoinOnGoingGameResponse is detected on the EventBus this method is invoked
+     * <p>
+     * The same actions are done as when a GameCreatedMessage is detected
+     *
+     * @param response the JoinOnGoingGameResponse detected on the EventBus
+     * @author Marc Hermes
+     * @since 2021-05-27
+     */
+    @Subscribe
+    public void userJoinedOnGoingGame(JoinOnGoingGameResponse response) {
+        LOG.debug("Received JoinOnGoingGameResponse from Server, may " + (!response.isJoinedSuccessful() ? "not" :
+                "") + " join the game.");
+        if (response.isJoinedSuccessful()) {
+            sceneManager.showGameScreen(response.getGameName());
+            sceneManager.suspendLobbyTab(response.getGameName());
+            sceneManager.createSummaryTab(response.getGameName());
+        }
+    }
+
+    /**
      * reacts to TradeStartedMessage
      *
      * @param message TradeStartedMessage
@@ -274,7 +324,7 @@ public class ClientApp extends Application implements ConnectionListener {
     @Subscribe
     public void userStartedTrade(TradeStartedMessage message) {
         LOG.debug("Started a trade " + message.getGame());
-        sceneManager.showTradeScreen(message.getTradeCode());
+        sceneManager.showTradeScreen(message.getGame() + " " + message.getTradeCode());
     }
 
     /**
@@ -287,7 +337,7 @@ public class ClientApp extends Application implements ConnectionListener {
     @Subscribe
     public void tradeRegistered(TradeOfferInformBiddersMessage message) {
         LOG.debug("A trade request was registered");
-        sceneManager.showTradeScreen(message.getTradeCode());
+        sceneManager.showTradeScreen(message.getName() + " " + message.getTradeCode());
     }
 
     /**
@@ -305,7 +355,7 @@ public class ClientApp extends Application implements ConnectionListener {
     public void userLeftLobby(LobbyLeftSuccessfulResponse message) {
         LOG.debug("User " + message.getUser().getUsername() + " left lobby ");
         this.user = message.getUser();
-        sceneManager.removeLobbyTab(message.getUser(), message.getName());
+        sceneManager.removeLobbyTab(message.getName());
     }
 
     /**
@@ -341,7 +391,7 @@ public class ClientApp extends Application implements ConnectionListener {
      *
      * @param message the LobbyLeftSuccessfulResponse detected on the EventBus
      * @author Marc Hermes
-     * @see de.uol.swp.common.user.response.game.GameLeftSuccessfulResponse
+     * @see GameLeftSuccessfulResponse
      * @since 2021-01-21
      */
     @Subscribe
@@ -352,11 +402,36 @@ public class ClientApp extends Application implements ConnectionListener {
     }
 
     /**
+     * Handles the successful kicking of a player from the game
+     * <p>
+     * If an PlayerKickedMessage object is detected on the EventBus this method is called.
+     * It tells the SceneManager to remove the tab corresponding to the game that was kicked
+     * and unsuspends the LobbyTab.
+     * If isToBan equals true, method tells the SceneManager to remove lobby tab, so the player will
+     * be banned from the game.
+     * <p>
+     *
+     * @param message the PlayerKickedMessage detected on the EventBus
+     * @author Iskander Yusupov
+     * @see PlayerKickedMessage
+     * @since 2021-06-25
+     */
+    @Subscribe
+    public void playerKicked(PlayerKickedMessage message) {
+        LOG.debug("Successfully kicked from the game game  " + message.getName());
+        sceneManager.removeGameTab(message.getName());
+        sceneManager.unsuspendLobbyTab(message.getName());
+        if (message.isToBan()) {
+            sceneManager.removeLobbyTab(message.getName());
+        }
+    }
+
+    /**
      * Handles unsuccessful registrations
      * <p>
      * If a RegistrationExceptionMessage object is detected on the EventBus this
      * method is called. It tells the SceneManager to show the sever error alert.
-     * If the loglevel is set to DEBUG or higher "Registration error " and the
+     * If the logLevel is set to DEBUG or higher "Registration error " and the
      * error message are written to the log.
      *
      * @param message The RegistrationExceptionMessage object detected on the EventBus
@@ -375,7 +450,7 @@ public class ClientApp extends Application implements ConnectionListener {
      * <p>
      * If an UpdateUserExceptionMessage object is detected on the EventBus this
      * method is called. It tells the SceneManager to show the sever error alert.
-     * If the loglevel is set to DEBUG or higher "UpdateUser error " and the
+     * If the logLevel is set to DEBUG or higher "UpdateUser error " and the
      * error message are written to the log.
      *
      * @param message The UpdateUserExceptionMessage object detected on the EventBus
@@ -394,7 +469,7 @@ public class ClientApp extends Application implements ConnectionListener {
      * <p>
      * If an RegistrationSuccessfulResponse object is detected on the EventBus this
      * method is called. It tells the SceneManager to show the login window. If
-     * the loglevel is set to INFO or higher "Registration Successful." is written
+     * the logLevel is set to INFO or higher "Registration Successful." is written
      * to the log.
      *
      * @param message The RegistrationSuccessfulResponse object detected on the EventBus
@@ -412,7 +487,7 @@ public class ClientApp extends Application implements ConnectionListener {
      * Handles successful user updates
      * <p>
      * If an UpdateUserSuccessfulResponse object is detected on the EventBus this
-     * method is called. If the loglevel is set to INFO or higher "Update user Successful."
+     * method is called. If the logLevel is set to INFO or higher "Update user Successful."
      * is written to the log.
      *
      * @param response The UpdateUserSuccessfulResponse object detected on the EventBus
@@ -428,7 +503,7 @@ public class ClientApp extends Application implements ConnectionListener {
      * Handles the successful drop of a user
      * <p>
      * If an DropUserSuccessfulResponse object is detected on the EventBus this
-     * method is called. If the loglevel is set to INFO or higher "Drop user was successful."
+     * method is called. If the logLevel is set to INFO or higher "Drop user was successful."
      * is written to the log.
      *
      * @param response The DropUserSuccessfulResponse object detected on the EventBus
@@ -445,7 +520,7 @@ public class ClientApp extends Application implements ConnectionListener {
      * <p>
      * If an DeadEvent object is detected on the EventBus, this method is called.
      * It writes "DeadEvent detected " and the error message of the detected DeadEvent
-     * object to the log, if the loglevel is set to ERROR or higher.
+     * object to the log, if the logLevel is set to ERROR or higher.
      *
      * @param deadEvent The DeadEvent object found on the EventBus
      * @author Marco Grawunder
@@ -456,38 +531,21 @@ public class ClientApp extends Application implements ConnectionListener {
         LOG.error("DeadEvent detected " + deadEvent);
     }
 
-    /**
-     * Handles the Ping Response Messages
-     * <p>
-     * Gets the latest Time form the Ping Response
-     *
-     * @author Philip, Marc
-     * @since 2021-01-22
-     */
-
-    @Subscribe
-    private void onPingResponse(PingResponse message) {
-        lastPingResponse = message.getTime();
-    }
-
-    @Override
-    public void exceptionOccurred(String e) {
-        sceneManager.showServerError(e);
-    }
-
     // -----------------------------------------------------
     // JavFX Help method
     // -----------------------------------------------------
 
     /**
-     * Default startup method for javafx applications
+     * Handles the Ping Response Messages
+     * <p>
+     * Gets the latest Time form the Ping Response
      *
-     * @param args Any arguments given when starting the application
-     * @author Marco Grawunder
-     * @since 2017-03-17
+     * @author Philip Nitsche, Marc Hermes
+     * @since 2021-01-22
      */
-    public static void main(String[] args) {
-        launch(args);
+    @Subscribe
+    private void onPingResponse(PingResponse message) {
+        lastPingResponse = message.getTime();
     }
 
     /**
@@ -495,7 +553,7 @@ public class ClientApp extends Application implements ConnectionListener {
      * <p>
      * If a user had a timeout this method is called to show the login screen.
      *
-     * @author Philip, Marc
+     * @author Philip Nitsche, Marc Hermes
      * @since 2021-01-22
      */
 
@@ -511,10 +569,11 @@ public class ClientApp extends Application implements ConnectionListener {
      * Checks if the user has received a ping response in the last 120 seconds.
      * If not checkoutTimeout will be called.
      *
-     * @author Philip, Marc
+     * @author Philip Nitsche, Marc Hermes
      * @since 2021-01-22
      */
     private void checkForTimeout() {
+        timer = new Timer();
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
@@ -528,7 +587,7 @@ public class ClientApp extends Application implements ConnectionListener {
     /**
      * Removes the trade tab, when the trade ended
      *
-     * @param message
+     * @param message the TradeEndedMessage detected on the EventBus
      * @author Alexander Lossa, Ricardo Mook
      * @since 2021-04-21
      */
@@ -570,9 +629,7 @@ public class ClientApp extends Application implements ConnectionListener {
     @Subscribe
     public void onConfirmedSummaryMessage(SummaryConfirmedEvent event) {
         var gameName = event.getGameName();
-        var user = event.getUser();
         sceneManager.removeSummaryTab(gameName);
-        sceneManager.showMainTab(user);
+        sceneManager.showMainTab();
     }
-
 }

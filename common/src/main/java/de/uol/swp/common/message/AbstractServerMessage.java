@@ -1,9 +1,9 @@
 package de.uol.swp.common.message;
 
-import de.uol.swp.common.user.Session;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import de.uol.swp.common.user.Session;
 
 /**
  * Base class of all server messages. Basic handling of notifications from the server
@@ -19,12 +19,12 @@ public class AbstractServerMessage extends AbstractMessage implements ServerMess
     transient private List<Session> receiver = new ArrayList<>();
 
     @Override
-    public void setReceiver(List<Session> receiver) {
-        this.receiver = receiver;
+    public List<Session> getReceiver() {
+        return receiver;
     }
 
     @Override
-    public List<Session> getReceiver() {
-        return receiver;
+    public void setReceiver(List<Session> receiver) {
+        this.receiver = receiver;
     }
 }

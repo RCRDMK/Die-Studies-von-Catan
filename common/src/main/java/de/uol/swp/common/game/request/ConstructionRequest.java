@@ -1,9 +1,8 @@
 package de.uol.swp.common.game.request;
 
-import de.uol.swp.common.game.request.AbstractGameRequest;
-import de.uol.swp.common.user.UserDTO;
-
 import java.util.UUID;
+
+import de.uol.swp.common.user.UserDTO;
 
 /**
  * Message to ask for a construction at a certain MapGraphNode in the MapGraph.
@@ -13,8 +12,6 @@ import java.util.UUID;
  */
 public class ConstructionRequest extends AbstractGameRequest {
 
-    UserDTO user;
-    String game;
     UUID uuid;
     String typeOfNode;
 
@@ -23,31 +20,33 @@ public class ConstructionRequest extends AbstractGameRequest {
      *
      * @param user The player who wants to start construction
      * @param game The game, the user wants to start construction in
-     * @param uuid the UUID corresponding to the node at wich the player wants to construct something
+     * @param uuid the UUID corresponding to the node at which the player wants to construct something
      *
      * @author Pieter Vogt
      * @since 2021-04-14
      */
     public ConstructionRequest(UserDTO user, String game, UUID uuid, String typeOfNode) {
-        this.user = user;
-        this.game = game;
+        super(game, user);
         this.uuid = uuid;
         this.typeOfNode = typeOfNode;
     }
 
-    @Override
-    public UserDTO getUser() {
-        return user;
-    }
-
-    public String getGame() {
-        return game;
-    }
-
+    /**
+     * getter method to get the uuid from a node
+     *
+     * @return uuid of a node
+     * @author Pieter Vogt
+     */
     public UUID getUuid() {
         return uuid;
     }
 
+    /**
+     * getter method to get the type of a node
+     *
+     * @return the type of a node
+     * @author Pieter Vogt
+     */
     public String getTypeOfNode() {
         return typeOfNode;
     }

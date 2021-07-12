@@ -1,11 +1,11 @@
 package de.uol.swp.common.user.response.lobby;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import de.uol.swp.common.message.AbstractResponseMessage;
 import de.uol.swp.common.user.Session;
 import de.uol.swp.common.user.UserDTO;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Response message for the RetrieveAllThisLobbyUsersRequest
@@ -24,6 +24,7 @@ public class AllThisLobbyUsersResponse extends AbstractResponseMessage {
 
     private static final long serialVersionUID = -7113321823425212173L;
     final private ArrayList<UserDTO> users = new ArrayList<>();
+    private final String lobbyOwnerName;
     private String lobby;
 
     /**
@@ -36,6 +37,7 @@ public class AllThisLobbyUsersResponse extends AbstractResponseMessage {
      */
     public AllThisLobbyUsersResponse() {
         // needed for serialization
+        this.lobbyOwnerName = "";
     }
 
     /**
@@ -51,8 +53,9 @@ public class AllThisLobbyUsersResponse extends AbstractResponseMessage {
      * @author Marc Hermes
      * @since 2020-12-02
      */
-    public AllThisLobbyUsersResponse(List<Session> users, String lobbyName) {
+    public AllThisLobbyUsersResponse(List<Session> users, String lobbyName, String lobbyOwnerName) {
         this.lobby = lobbyName;
+        this.lobbyOwnerName = lobbyOwnerName;
         for (Session user : users) {
             this.users.add(UserDTO.createWithoutPassword(user.getUser()));
         }
@@ -82,4 +85,14 @@ public class AllThisLobbyUsersResponse extends AbstractResponseMessage {
         return lobby;
     }
 
+    /**
+     * Getter for the name of the lobby owner
+     *
+     * @return the String name of the lobby owner
+     * @author Marc Hermes
+     * @since 2021-06-01
+     */
+    public String getLobbyOwnerName() {
+        return lobbyOwnerName;
+    }
 }

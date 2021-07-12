@@ -1,6 +1,6 @@
 package de.uol.swp.common.game.request;
 
-import de.uol.swp.common.user.response.game.AllThisGameUsersResponse;
+import de.uol.swp.common.game.response.AllThisGameUsersResponse;
 
 /**
  * Request for initialising the user list in the game
@@ -39,10 +39,22 @@ public class RetrieveAllThisGameUsersRequest extends AbstractGameRequest {
         this.name = gameName;
     }
 
+    /**
+     * getter method to get the name of the game
+     *
+     * @return the name of the game
+     * @author Iskander Yusupov
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * setter method to set the name of the game
+     *
+     * @param name String containing the game's name
+     * @author Iskander Yusupov
+     */
     public void setName(String name) {
         this.name = name;
     }

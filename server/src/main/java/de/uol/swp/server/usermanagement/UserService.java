@@ -1,25 +1,32 @@
 package de.uol.swp.server.usermanagement;
 
+import java.sql.SQLException;
+
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import de.uol.swp.common.message.ResponseMessage;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.exception.DropUserExceptionMessage;
 import de.uol.swp.common.user.exception.RegistrationExceptionMessage;
 import de.uol.swp.common.user.exception.RetrieveUserInformationExceptionMessage;
 import de.uol.swp.common.user.exception.UpdateUserExceptionMessage;
-import de.uol.swp.common.user.request.*;
+import de.uol.swp.common.user.request.DropUserRequest;
+import de.uol.swp.common.user.request.RegisterUserRequest;
+import de.uol.swp.common.user.request.RetrieveUserInformationRequest;
+import de.uol.swp.common.user.request.UpdateUserMailRequest;
+import de.uol.swp.common.user.request.UpdateUserPasswordRequest;
+import de.uol.swp.common.user.request.UpdateUserProfilePictureRequest;
 import de.uol.swp.common.user.response.DropUserSuccessfulResponse;
 import de.uol.swp.common.user.response.RegistrationSuccessfulResponse;
 import de.uol.swp.common.user.response.RetrieveUserInformationResponse;
 import de.uol.swp.common.user.response.UpdateUserSuccessfulResponse;
 import de.uol.swp.server.AbstractService;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import java.sql.SQLException;
 
 /**
  * Mapping vom event bus calls to user management calls
@@ -50,7 +57,6 @@ public class UserService extends AbstractService {
     public UserService(EventBus eventBus, UserManagement userManagement) throws SQLException {
         super(eventBus);
         this.userManagement = userManagement;
-        this.userManagement.buildConnection();
     }
 
     /**
@@ -76,7 +82,7 @@ public class UserService extends AbstractService {
         }
         ResponseMessage returnMessage;
         try {
-            User newUser = userManagement.createUser(msg.getUser());
+            userManagement.createUser(msg.getUser());
             returnMessage = new RegistrationSuccessfulResponse();
         } catch (Exception e) {
             LOG.error(e);
@@ -116,8 +122,10 @@ public class UserService extends AbstractService {
             returnMessage = new DropUserExceptionMessage("Cannot drop user " + dropUserRequest.getUser() + " " +
                     e.getMessage());
         }
-        returnMessage.setMessageContext(dropUserRequest.getMessageContext().get());
-        post(returnMessage);
+        if (dropUserRequest.getMessageContext().isPresent()) {
+            returnMessage.setMessageContext(dropUserRequest.getMessageContext().get());
+            post(returnMessage);
+        }
     }
 
     /**
@@ -140,7 +148,8 @@ public class UserService extends AbstractService {
         }
         ResponseMessage returnMessage;
         try {
-            returnMessage = new RetrieveUserInformationResponse(userManagement.retrieveUserInformation(retrieveUserInformationRequest.getUser()));
+            returnMessage = new RetrieveUserInformationResponse(
+                    userManagement.retrieveUserInformation(retrieveUserInformationRequest.getUser()));
         } catch (Exception e) {
             LOG.error(e);
             returnMessage = new RetrieveUserInformationExceptionMessage("Cannot get user information "
@@ -166,8 +175,8 @@ public class UserService extends AbstractService {
     public User retrieveUserInformation(User user) {
         try {
             return userManagement.retrieveUserInformation(user);
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return user;
     }
@@ -215,7 +224,6 @@ public class UserService extends AbstractService {
      * gets posted there.
      *
      * @param updateUserMailRequest The UpdateUserRequest found on the EventBus
-     * @param updateUserMailRequest The UpdateUserRequest found on the EventBus
      * @author Carsten Dekker
      * @see de.uol.swp.common.user.request.UpdateUserMailRequest
      * @since 2021-03-14
@@ -231,8 +239,9 @@ public class UserService extends AbstractService {
             returnMessage = new UpdateUserSuccessfulResponse();
         } catch (Exception e) {
             LOG.error(e);
-            returnMessage = new UpdateUserExceptionMessage("Cannot update user " + updateUserMailRequest.getUser() + " " +
-                    e.getMessage());
+            returnMessage = new UpdateUserExceptionMessage(
+                    "Cannot update user " + updateUserMailRequest.getUser() + " " +
+                            e.getMessage());
         }
         if (updateUserMailRequest.getMessageContext().isPresent()) {
             returnMessage.setMessageContext(updateUserMailRequest.getMessageContext().get());
@@ -261,12 +270,14 @@ public class UserService extends AbstractService {
         }
         ResponseMessage returnMessage;
         try {
-            userManagement.updateUserPassword(updateUserPasswordRequest.getUser(), updateUserPasswordRequest.getCurrentPassword());
+            userManagement.updateUserPassword(updateUserPasswordRequest.getUser(),
+                    updateUserPasswordRequest.getCurrentPassword());
             returnMessage = new UpdateUserSuccessfulResponse();
         } catch (Exception e) {
             LOG.error(e);
-            returnMessage = new UpdateUserExceptionMessage("Cannot update user " + updateUserPasswordRequest.getUser() + " " +
-                    e.getMessage());
+            returnMessage = new UpdateUserExceptionMessage(
+                    "Cannot update user " + updateUserPasswordRequest.getUser() + " " +
+                            e.getMessage());
         }
         if (updateUserPasswordRequest.getMessageContext().isPresent()) {
             returnMessage.setMessageContext(updateUserPasswordRequest.getMessageContext().get());

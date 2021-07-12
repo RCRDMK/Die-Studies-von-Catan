@@ -1,11 +1,12 @@
 package de.uol.swp.server.usermanagement;
 
-import de.uol.swp.common.user.User;
-import de.uol.swp.common.user.UserDTO;
+import java.sql.SQLException;
+
 import org.junit.jupiter.api.Test;
 
-import java.sql.SQLException;
-import java.util.List;
+import de.uol.swp.common.user.User;
+import de.uol.swp.common.user.UserDTO;
+import de.uol.swp.server.usermanagement.store.MainMemoryBasedUserStore;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -14,47 +15,66 @@ class UserManagementTest {
 
     private static final int NO_USERS = 10;
     private static final User userNotInStore = new UserDTO("marco" + NO_USERS, "marco" + NO_USERS,
-            "marco" + NO_USERS + "@grawunder.de");
-    private UserManagement management = new UserManagement();
+            "marco" + NO_USERS + "@grawunder.de", 1);
+    private final MainMemoryBasedUserStore mainMemoryBasedUserStore = new MainMemoryBasedUserStore();
+    private final UserManagement management = new UserManagement(mainMemoryBasedUserStore);
 
+    UserManagementTest() throws SQLException {
+    }
+
+    /**
+     * @throws Exception exception
+     */
     @Test
-    void loginUser() throws SQLException {
-        management.buildConnection();
-        User userToLogIn = new UserDTO("test2", "994dac907995937160371992ecbdf9b34242db0abb3943807b5baa6be0c6908f72ea87b7dadd2bce6cf700c8dfb7d57b0566f544af8c30336a15d5f732d85613", "t@te.de");
+    void loginUser() throws Exception {
+
+        User userToLogIn = userNotInStore;
+
+        management.createUser(userNotInStore);
 
         management.login(userToLogIn.getUsername(), userToLogIn.getPassword());
 
         assertTrue(management.isLoggedIn(userToLogIn));
+
         management.logout(userToLogIn);
+        management.dropUser(userToLogIn);
     }
 
     @Test
-    void loginUserEmptyPassword() throws SQLException {
-        management.buildConnection();
-        User userToLogIn = new UserDTO("test7", "964291138ad4074a7dd9284ac4d0586896cc3d082b354bb24aba00186c57e6be9e020d21bfbb5e147d5ec67fa0142c5971c3afeb7ba092b9079509e232a37776", "");
+    void loginUserEmptyPassword() throws Exception {
+
+        User userToLogIn = userNotInStore;
+
+        management.createUser(userToLogIn);
 
         assertThrows(SecurityException.class, () -> management.login(userToLogIn.getUsername(), ""));
 
         assertFalse(management.isLoggedIn(userToLogIn));
+
+        management.dropUser(userToLogIn);
     }
 
     @Test
-    void loginUserWrongPassword() throws SQLException {
+    void loginUserWrongPassword() throws Exception {
 
-        management.buildConnection();
-        User userToLogIn = new UserDTO("test8", "98f6523d467b31d8564e7d10b1dad5ff0f60deae71f7afb4896493e77e11e6c00970f27e11547f3b824f2f0ea2c0a0053b297375a32f255c2e5114a7f5b61371", "");
-        User secondUser = new UserDTO("test1", "33eda9895af9f99456b85c2381bfc49543531e92517e3b7c67e86310874dd3a0e08b0dae5d3103ddabcf1794d3833c52659c35c2980f71ce6705bf967a96d856", "");
+        User userToLogIn = userNotInStore;
+
+        management.createUser(userToLogIn);
 
         assertThrows(SecurityException.class, () -> management.login(userToLogIn.getUsername(),
-                secondUser.getPassword()));
+                "wrongPassword"));
 
         assertFalse(management.isLoggedIn(userToLogIn));
+
+        management.dropUser(userToLogIn);
     }
 
     @Test
-    void logoutUser() throws SQLException {
-        management.buildConnection();
-        User userToLogin = new UserDTO("test", "0835ae0b1f8bcb3508e09990403eea4200e294be58224fb0c97ea652cd59fcd97219815a27564680a72ee28b614adcc2843df4c7dcc3f64cf721dea5189db475", "");
+    void logoutUser() throws Exception {
+
+        User userToLogin = userNotInStore;
+
+        management.createUser(userToLogin);
 
         management.login(userToLogin.getUsername(), userToLogin.getPassword());
 
@@ -63,143 +83,158 @@ class UserManagementTest {
         management.logout(userToLogin);
 
         assertFalse(management.isLoggedIn(userToLogin));
+
+        management.dropUser(userToLogin);
     }
 
     @Test
-    void createUser() throws SQLException {
-        management.buildConnection();
-        User one = new UserDTO("test32", "84b1497a64ae274f2b4829d521feb94ce6facd582c9db6423fc76bb652b698441551aa32d063c8ae090e31b074dc05d65ff4b426ccab6ebf02a02fcd4e816586", "test32@test.de");
+    void createUser() throws Exception {
 
-        management.createUser(one);
+        User userToCreate = userNotInStore;
+
+        management.createUser(userToCreate);
 
         // Creation leads not to log in
-        assertFalse(management.isLoggedIn(one));
+        assertFalse(management.isLoggedIn(userToCreate));
 
         // Only way to test, if user is stored
-        management.login(one.getUsername(), one.getPassword());
+        management.login(userToCreate.getUsername(), userToCreate.getPassword());
 
-        assertTrue(management.isLoggedIn(one));
+        assertTrue(management.isLoggedIn(userToCreate));
 
-        //After every testrun the user needs to be deleted
-        management.dropUser(one);
+        management.logout(userToCreate);
+
+        //After every test run the user needs to be deleted
+        management.dropUser(userToCreate);
     }
 
     @Test
-    void dropUser() throws SQLException {
-        management.buildConnection();
-        User one = new UserDTO("test32", "276d2b015fbce039d39fe7d31000073e4513fe3571af6671e59563f357189f975339750cc09ed78aa88e156b209e44216ca3239fda5471f27a55cf49bee172f3", "test32@test.de");
+    void createUserAlreadyCreated() throws Exception {
 
-        management.createUser(one);
+        User userToCreate = userNotInStore;
 
-        management.dropUser(one);
-
-        assertThrows(SecurityException.class,
-                () -> management.login(one.getUsername(), one.getPassword()));
-    }
-
-    @Test
-    void dropUserNotExisting() throws SQLException {
-        management.buildConnection();
-        User one = new UserDTO("test32", "276d2b015fbce039d39fe7d31000073e4513fe3571af6671e59563f357189f975339750cc09ed78aa88e156b209e44216ca3239fda5471f27a55cf49bee172f3", "test32@test32.de");
-
-        assertThrows(UserManagementException.class,
-                () -> management.dropUser(one));
-    }
-
-    @Test
-    void createUserAlreadyExisting() throws SQLException {
-        management.buildConnection();
-
-        User userToCreate = new UserDTO("test", "33eda9895af9f99456b85c2381bfc49543531e92517e3b7c67e86310874dd3a0e08b0dae5d3103ddabcf1794d3833c52659c35c2980f71ce6705bf967a96d856", "test@test.de");
+        management.createUser(userToCreate);
 
         assertThrows(UserManagementException.class, () -> management.createUser(userToCreate));
 
-    }
-
-
-    @Test
-    void updateUserPassword_NotLoggedIn() throws SQLException {
-        management.buildConnection();
-
-        User userToUpdate = new UserDTO("test", "33eda9895af9f99456b85c2381bfc49543531e92517e3b7c67e86310874dd3a0e08b0dae5d3103ddabcf1794d3833c52659c35c2980f71ce6705bf967a96d856", "irgendwas@irgendwo.de");
-        User updatedUser = new UserDTO(userToUpdate.getUsername(), "0835ae0b1f8bcb3508e09990403eea4200e294be58224fb0c97ea652cd59fcd97219815a27564680a72ee28b614adcc2843df4c7dcc3f64cf721dea5189db475", "irgendwas@irgendwo.de");
-
-        assertFalse(management.isLoggedIn(userToUpdate));
-        management.updateUserPassword(updatedUser, "0835ae0b1f8bcb3508e09990403eea4200e294be58224fb0c97ea652cd59fcd97219815a27564680a72ee28b614adcc2843df4c7dcc3f64cf721dea5189db475");
-
-        management.login(updatedUser.getUsername(), updatedUser.getPassword());
-        assertTrue(management.isLoggedIn(updatedUser));
-    }
-
-
-    @Test
-    void updateUser_Mail() throws SQLException {
-        management.buildConnection();
-
-        User userToUpdate = new UserDTO("test2", "33eda9895af9f99456b85c2381bfc49543531e92517e3b7c67e86310874dd3a0e08b0dae5d3103ddabcf1794d3833c52659c35c2980f71ce6705bf967a96d856", "");
-        User updatedUser = new UserDTO(userToUpdate.getUsername(), "994dac907995937160371992ecbdf9b34242db0abb3943807b5baa6be0c6908f72ea87b7dadd2bce6cf700c8dfb7d57b0566f544af8c30336a15d5f732d85613", "new1Mail@mail.com");
-
-        management.updateUserMail(updatedUser);
-
-        User user = management.login(updatedUser.getUsername(), updatedUser.getPassword());
-        assertTrue(management.isLoggedIn(updatedUser));
-        assertEquals(user.getEMail(), updatedUser.getEMail());
-        management.logout(updatedUser);
+        management.dropUser(userToCreate);
     }
 
     @Test
-    void updateUser_Picture() throws SQLException {
-        management.buildConnection();
-        User userToUpdate = new UserDTO("test2", "33eda9895af9f99456b85c2381bfc49543531e92517e3b7c67e86310874dd3a0e08b0dae5d3103ddabcf1794d3833c52659c35c2980f71ce6705bf967a96d856", "", 1);
-        User updatedUser = new UserDTO(userToUpdate.getUsername(), "994dac907995937160371992ecbdf9b34242db0abb3943807b5baa6be0c6908f72ea87b7dadd2bce6cf700c8dfb7d57b0566f544af8c30336a15d5f732d85613", "", 2);
+    void dropUser() throws Exception {
 
-        management.updateUserPicture(updatedUser);
+        User userToDrop = userNotInStore;
 
-        User user = management.login(updatedUser.getUsername(), updatedUser.getPassword());
-        assertTrue(management.isLoggedIn(updatedUser));
-        assertEquals(user.getProfilePictureID(), updatedUser.getProfilePictureID());
-        management.logout(updatedUser);
+        management.createUser(userToDrop);
+
+        management.dropUser(userToDrop);
+
+        assertThrows(SecurityException.class,
+                () -> management.login(userToDrop.getUsername(), userToDrop.getPassword()));
     }
 
     @Test
-    void updateUserPassword_LoggedIn() throws SQLException {
-        management.buildConnection();
+    void dropUserNotExisting() {
 
-        User userToUpdate = new UserDTO("test2", "994dac907995937160371992ecbdf9b34242db0abb3943807b5baa6be0c6908f72ea87b7dadd2bce6cf700c8dfb7d57b0566f544af8c30336a15d5f732d85613", "irgendwas@irgendwo.de");
-        User updatedUser = new UserDTO(userToUpdate.getUsername(), "0835ae0b1f8bcb3508e09990403eea4200e294be58224fb0c97ea652cd59fcd97219815a27564680a72ee28b614adcc2843df4c7dcc3f64cf721dea5189db475", "irgendwas@irgendwo.de");
-
-        management.login(userToUpdate.getUsername(), userToUpdate.getPassword());
-        assertTrue(management.isLoggedIn(userToUpdate));
-
-        management.updateUserPassword(updatedUser, "994dac907995937160371992ecbdf9b34242db0abb3943807b5baa6be0c6908f72ea87b7dadd2bce6cf700c8dfb7d57b0566f544af8c30336a15d5f732d85613");
-        assertTrue(management.isLoggedIn(updatedUser));
-
-        management.logout(updatedUser);
-        assertFalse(management.isLoggedIn(updatedUser));
-
-        management.login(updatedUser.getUsername(), updatedUser.getPassword());
-        assertTrue(management.isLoggedIn(updatedUser));
-
-        management.updateUserPassword(userToUpdate, "0835ae0b1f8bcb3508e09990403eea4200e294be58224fb0c97ea652cd59fcd97219815a27564680a72ee28b614adcc2843df4c7dcc3f64cf721dea5189db475");
-        management.logout(userToUpdate);
+        assertThrows(UserManagementException.class,
+                () -> management.dropUser(userNotInStore));
     }
 
     @Test
-    void updateUnknownUser() throws SQLException {
-        management.buildConnection();
+    void updateUserPassword() throws Exception {
+
+        User userToUpdatePassword = userNotInStore;
+
+        User newPassword = new UserDTO(userToUpdatePassword.getUsername(), "newPassword", "", 1);
+
+        management.createUser(userNotInStore);
+
+        management.login(userToUpdatePassword.getUsername(), userToUpdatePassword.getPassword());
+
+        assertTrue(management.isLoggedIn(userToUpdatePassword));
+
+        management.logout(userToUpdatePassword);
+
+        management.updateUserPassword(newPassword, userToUpdatePassword.getPassword());
+
+        management.login(userToUpdatePassword.getUsername(), "newPassword");
+
+        assertTrue(management.isLoggedIn(userToUpdatePassword));
+
+        management.logout(userToUpdatePassword);
+
+        management.dropUser(userToUpdatePassword);
+    }
+
+    @Test
+    void updateUnknownUserPassword() {
+
+        User userToUpdatePassword = userNotInStore;
+
+        assertThrows(UserManagementException.class,
+                () -> management.updateUserPassword(userToUpdatePassword, userToUpdatePassword.getPassword()));
+    }
+
+    @Test
+    void updateUserMail() throws Exception {
+
+        User userToUpdateMail = userNotInStore;
+
+        User newEmail = new UserDTO(userToUpdateMail.getUsername(), "", "test@test.de", 1);
+
+        management.createUser(userToUpdateMail);
+
+        management.updateUserMail(newEmail);
+
+        management.dropUser(userToUpdateMail);
+    }
+
+    @Test
+    void updateUnknownUserMail() {
+
         assertThrows(UserManagementException.class, () -> management.updateUserMail(userNotInStore));
     }
 
     @Test
-    void retrieveAllUsers() throws SQLException {
-        management.buildConnection();
-        List<User> userList = management.retrieveAllUsers();
+    void updateUserPictureID() throws Exception {
 
-        assertEquals(management.retrieveAllUsers().size(), userList.size());
+        User userToUpdatePictureID = userNotInStore;
+
+        User newPictureID = new UserDTO(userToUpdatePictureID.getUsername(), "", "", 20);
+
+        management.createUser(userToUpdatePictureID);
+
+        management.updateUserPicture(newPictureID);
+
+        management.dropUser(userToUpdatePictureID);
+
     }
 
     @Test
-    void connectJDBCTest() throws SQLException {
-        management.buildConnection();
+    void updateUnknownUserPictureID() {
+        assertThrows(UserManagementException.class, () -> management.updateUserPicture(userNotInStore));
+    }
+
+    @Test
+    void retrieveUserInformation() throws Exception {
+
+        User user = userNotInStore;
+
+        management.createUser(user);
+
+        User withInformation = management.retrieveUserInformation(user);
+
+        assertNotEquals(user.getPassword(), withInformation.getPassword());
+
+        assertEquals(user.getUsername(), withInformation.getUsername());
+
+        assertEquals(user.getProfilePictureID(), withInformation.getProfilePictureID());
+
+        management.dropUser(user);
+    }
+
+    @Test
+    void retrieveUnknownUserInformation() {
+        assertThrows(UserManagementException.class, () -> management.retrieveUserInformation(userNotInStore));
     }
 }

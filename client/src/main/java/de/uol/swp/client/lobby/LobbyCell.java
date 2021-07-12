@@ -1,14 +1,23 @@
 package de.uol.swp.client.lobby;
 
-import de.uol.swp.common.lobby.dto.LobbyDTO;
-import de.uol.swp.common.user.User;
-import de.uol.swp.common.user.UserDTO;
+import java.util.Optional;
+
+import javafx.application.Platform;
+import javafx.geometry.Insets;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
+import javafx.scene.control.PasswordField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
+
+import de.uol.swp.common.lobby.dto.LobbyDTO;
+import de.uol.swp.common.user.User;
+import de.uol.swp.common.user.UserDTO;
 
 /**
  * Creates LobbyCells to populate the ListView fxml-element for the lobbyBrowser
@@ -19,17 +28,22 @@ import javafx.scene.layout.Priority;
  * @since 2019-08-29
  * <p>
  * Enhanced by Carsten Dekker
+ * Enhanced by René Meyer
  * @since 2021-04-08
  */
 
 public class LobbyCell extends ListCell<LobbyDTO> {
+    LobbyService lobbyService;
+    User user;
     HBox hbox = new HBox();
     Label lobbyName = new Label("");
     Label userCount = new Label("");
     Label lobbyStatus = new Label("");
+    Label lobbyProtected = new Label("");
     Pane pane = new Pane();
     Pane pane1 = new Pane();
     Pane pane2 = new Pane();
+    Pane pane3 = new Pane();
     Button button = new Button("join");
 
     /**
@@ -52,14 +66,25 @@ public class LobbyCell extends ListCell<LobbyDTO> {
      */
     public LobbyCell(LobbyService lobbyService, User user) {
         super();
-
-        hbox.getChildren().addAll(lobbyName, pane, userCount, pane1, lobbyStatus, pane2, button);
+        hbox.getChildren().addAll(lobbyName, pane, userCount, pane1, lobbyStatus, pane2, lobbyProtected, pane3, button);
         HBox.setHgrow(pane, Priority.ALWAYS);
         HBox.setHgrow(pane1, Priority.ALWAYS);
         HBox.setHgrow(pane2, Priority.ALWAYS);
-        button.setOnAction(event -> lobbyService.joinLobby(lobbyName.getText(), (UserDTO) user));
+        HBox.setHgrow(pane3, Priority.ALWAYS);
+        this.lobbyService = lobbyService;
+        this.user = user;
     }
 
+    /**
+     * This method updates the cells from the hBox using a list of LobbyDTOs
+     *
+     * @param item the new Lobby for the cell
+     * @param empty whether or not this cell represents data from the list. If it is empty,
+     *              then it does not represent any domain data, but is a cell being used to
+     *              render an "empty" row.
+     * @author Pieter Vogt, Carsten Dekker, René Meyer
+     * @since 2021-04-08
+     */
     @Override
     protected void updateItem(LobbyDTO item, boolean empty) {
         super.updateItem(item, empty);
@@ -81,6 +106,39 @@ public class LobbyCell extends ListCell<LobbyDTO> {
             } else {
                 lobbyStatus.setText("waiting");
                 button.setDisable(false);
+            }
+            if (item.getPasswordHash() != 0) {
+                lobbyProtected.setText("protected");
+                button.setOnAction(event -> Platform.runLater(() -> {
+                    Dialog<String> dialog = new Dialog<>();
+                    dialog.setTitle("Password");
+                    dialog.setHeaderText("Please enter your password.");
+                    ButtonType passwordButtonType = new ButtonType("Join", ButtonBar.ButtonData.OK_DONE);
+                    dialog.getDialogPane().getButtonTypes().addAll(passwordButtonType, ButtonType.CANCEL);
+
+                    var passwordField = new PasswordField();
+                    passwordField.setPromptText("Password");
+
+                    HBox hBox = new HBox();
+                    hBox.getChildren().add(passwordField);
+                    hBox.setPadding(new Insets(20));
+
+                    HBox.setHgrow(passwordField, Priority.ALWAYS);
+
+                    dialog.getDialogPane().setContent(hBox);
+                    Platform.runLater(passwordField::requestFocus);
+                    dialog.setResultConverter(dialogButton -> {
+                        if (dialogButton == passwordButtonType) {
+                            return passwordField.getText();
+                        }
+                        return null;
+                    });
+                    Optional<String> result = dialog.showAndWait();
+                    result.ifPresent(pw -> lobbyService.joinProtectedLobby(lobbyName.getText(), (UserDTO) user, pw));
+                }));
+            } else {
+                lobbyProtected.setText("not protected");
+                button.setOnAction(event -> lobbyService.joinLobby(lobbyName.getText(), (UserDTO) user));
             }
             setGraphic(hbox);
         }

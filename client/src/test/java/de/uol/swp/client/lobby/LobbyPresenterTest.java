@@ -1,22 +1,23 @@
 package de.uol.swp.client.lobby;
 
+import java.util.ArrayList;
+
 import com.google.common.eventbus.DeadEvent;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
-import de.uol.swp.common.lobby.request.CreateLobbyRequest;
-import de.uol.swp.common.lobby.request.RetrieveAllThisLobbyUsersRequest;
-import de.uol.swp.common.lobby.message.UserJoinedLobbyMessage;
-import de.uol.swp.common.lobby.message.UserLeftLobbyMessage;
-import de.uol.swp.common.user.UserDTO;
-import de.uol.swp.common.user.response.lobby.LobbyCreatedSuccessfulResponse;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import de.uol.swp.common.lobby.message.UserJoinedLobbyMessage;
+import de.uol.swp.common.lobby.message.UserLeftLobbyMessage;
+import de.uol.swp.common.lobby.request.CreateLobbyRequest;
+import de.uol.swp.common.lobby.request.RetrieveAllThisLobbyUsersRequest;
+import de.uol.swp.common.user.UserDTO;
+import de.uol.swp.common.user.response.lobby.LobbyCreatedSuccessfulResponse;
 
-import java.util.ArrayList;
-
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Test Class for the LobbyPresenter
@@ -117,7 +118,6 @@ class LobbyPresenterTest {
     @Test
     void joinedSuccessful() {
         LobbyService lobbyService = new LobbyService(bus);
-        CreateLobbyRequest message = new CreateLobbyRequest("testLobby", userDTO);
         lobbyService.createNewLobby("testLobby", userDTO);
         LobbyCreatedSuccessfulResponse message2 = new LobbyCreatedSuccessfulResponse(userDTO);
         lobbyService.joinLobby("testLobby", userDTO1);

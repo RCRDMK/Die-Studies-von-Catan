@@ -2,6 +2,9 @@ package de.uol.swp.common.game.message;
 
 /**
  * used to close the tradeWindow
+ *
+ * @author Alexander Losse, Ricardo Mook
+ * @since 2021-04-25
  */
 public class TradeEndedMessage extends AbstractGameMessage {
 
@@ -11,11 +14,21 @@ public class TradeEndedMessage extends AbstractGameMessage {
      * constructor
      *
      * @param tradeCode String
-     * @author Alexander Losse, Ricardo Mok
+     * @author Alexander Losse, Ricardo Mook
      * @since 2021-04-25
      */
-    public TradeEndedMessage(String tradeCode) {
+    public TradeEndedMessage(String name, String tradeCode) {
+        this.name = name;
         this.tradeCode = tradeCode;
+    }
+
+    /**
+     * default constructor
+     *
+     * @author Alexander Losse, Ricardo Mook
+     * @since 2021-04-25
+     */
+    public TradeEndedMessage() {
     }
 
     /**

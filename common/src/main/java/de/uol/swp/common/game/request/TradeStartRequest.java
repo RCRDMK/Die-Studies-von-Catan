@@ -4,6 +4,7 @@ import de.uol.swp.common.user.UserDTO;
 
 /**
  * request send to the server to start a Trade
+ *
  * @author Alexander Losse, Ricardo Mok
  * @since 2021-04-25
  */
@@ -25,6 +26,9 @@ public class TradeStartRequest extends AbstractGameRequest {
         this.user = new UserDTO(user.getUsername(), "", "");
         this.name = game;
         this.tradeCode = tradeCode;
+    }
+
+    public TradeStartRequest() {
     }
 
     /**

@@ -1,12 +1,31 @@
 package de.uol.swp.server.lobby;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import de.uol.swp.common.lobby.Lobby;
-import de.uol.swp.common.lobby.message.*;
-import de.uol.swp.common.lobby.request.*;
+import de.uol.swp.common.lobby.message.LobbyCreatedMessage;
+import de.uol.swp.common.lobby.message.LobbyDroppedMessage;
+import de.uol.swp.common.lobby.message.LobbySizeChangedMessage;
+import de.uol.swp.common.lobby.message.UserJoinedLobbyMessage;
+import de.uol.swp.common.lobby.message.UserLeftLobbyMessage;
+import de.uol.swp.common.lobby.request.CreateLobbyRequest;
+import de.uol.swp.common.lobby.request.LobbyJoinUserRequest;
+import de.uol.swp.common.lobby.request.LobbyLeaveUserRequest;
+import de.uol.swp.common.lobby.request.RetrieveAllLobbiesRequest;
+import de.uol.swp.common.lobby.request.RetrieveAllThisLobbyUsersRequest;
 import de.uol.swp.common.lobby.response.AllCreatedLobbiesResponse;
 import de.uol.swp.common.lobby.response.AlreadyJoinedThisLobbyResponse;
 import de.uol.swp.common.lobby.response.LobbyAlreadyExistsResponse;
@@ -17,14 +36,15 @@ import de.uol.swp.common.user.Session;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.user.request.LogoutRequest;
-import de.uol.swp.common.user.response.lobby.*;
+import de.uol.swp.common.user.response.lobby.AllThisLobbyUsersResponse;
+import de.uol.swp.common.user.response.lobby.JoinDeletedLobbyResponse;
+import de.uol.swp.common.user.response.lobby.LobbyCreatedSuccessfulResponse;
+import de.uol.swp.common.user.response.lobby.LobbyFullResponse;
+import de.uol.swp.common.user.response.lobby.LobbyJoinedSuccessfulResponse;
+import de.uol.swp.common.user.response.lobby.LobbyLeftSuccessfulResponse;
+import de.uol.swp.common.user.response.lobby.WrongLobbyPasswordResponse;
 import de.uol.swp.server.AbstractService;
 import de.uol.swp.server.usermanagement.AuthenticationService;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Handles the lobby requests send by the users
@@ -37,9 +57,9 @@ import java.util.stream.Collectors;
 @Singleton
 public class LobbyService extends AbstractService {
 
+    private static final Logger LOG = LogManager.getLogger(LobbyService.class);
     private final LobbyManagement lobbyManagement;
     private final AuthenticationService authenticationService;
-    private static final Logger LOG = LogManager.getLogger(LobbyService.class);
 
     /**
      * Constructor
@@ -52,7 +72,8 @@ public class LobbyService extends AbstractService {
      * @since 2019-10-08
      */
     @Inject
-    public LobbyService(LobbyManagement lobbyManagement, AuthenticationService authenticationService, EventBus eventBus) {
+    public LobbyService(LobbyManagement lobbyManagement, AuthenticationService authenticationService,
+                        EventBus eventBus) {
         super(eventBus);
         this.lobbyManagement = lobbyManagement;
         this.authenticationService = authenticationService;
@@ -74,6 +95,8 @@ public class LobbyService extends AbstractService {
      * created. Also there is a LobbyAlreadyExistsResponse sent to the user, that wanted to create the lobby.
      * <p>
      * Method enhanced by Marius Birk and Carsten Dekker, 2020-12-02
+     * <p>
+     * Method enhanced by René Meyer for password protected lobbies, 2021-06-05
      *
      * @param createLobbyRequest The CreateLobbyRequest found on the EventBus
      * @author Marco Grawunder
@@ -86,14 +109,19 @@ public class LobbyService extends AbstractService {
     @Subscribe
     public void onCreateLobbyRequest(CreateLobbyRequest createLobbyRequest) {
         if (lobbyManagement.getLobby(createLobbyRequest.getName()).isEmpty()) {
-            try {
+            if (createLobbyRequest.getPassword() == null || createLobbyRequest.getPassword().isEmpty()) {
                 lobbyManagement.createLobby(createLobbyRequest.getName(), createLobbyRequest.getUser());
-                sendToAll(new LobbyCreatedMessage(createLobbyRequest.getName(), createLobbyRequest.getUser()));
-            } catch (IllegalArgumentException e) {
-                LOG.debug(e);
+                LOG.debug("Created Lobby: " + createLobbyRequest.getName() + " without password.");
+            } else {
+                lobbyManagement.createProtectedLobby(createLobbyRequest.getName(), createLobbyRequest.getUser(),
+                        createLobbyRequest.getPassword());
+                LOG.debug("Created password protected Lobby: " + createLobbyRequest
+                        .getName() + " with password: " + createLobbyRequest.getPassword());
             }
+            sendToAll(new LobbyCreatedMessage(createLobbyRequest.getName(), createLobbyRequest.getUser()));
             if (createLobbyRequest.getMessageContext().isPresent()) {
-                sendToSpecificUser(createLobbyRequest.getMessageContext().get(), new LobbyCreatedSuccessfulResponse(createLobbyRequest.getName(), createLobbyRequest.getUser()));
+                sendToSpecificUser(createLobbyRequest.getMessageContext().get(),
+                        new LobbyCreatedSuccessfulResponse(createLobbyRequest.getName(), createLobbyRequest.getUser()));
             }
         } else {
             if (createLobbyRequest.getMessageContext().isPresent()) {
@@ -123,6 +151,7 @@ public class LobbyService extends AbstractService {
      * <p>
      * Enhanced by Carsten Dekker
      * enhanced by Marc Hermes 2021-03-25
+     * enhanced by René Meyer 2021-06-05 for password protected lobby support
      * <p>
      * If a user already joined the lobby, he gets an AlreadyJoinedThisLobbyResponse.
      * @since 2021-01-22
@@ -130,21 +159,53 @@ public class LobbyService extends AbstractService {
     @Subscribe
     public void onLobbyJoinUserRequest(LobbyJoinUserRequest lobbyJoinUserRequest) {
         Optional<Lobby> lobby = lobbyManagement.getLobby(lobbyJoinUserRequest.getName());
-        if (!lobby.isPresent()) {
-            sendToSpecificUser(lobbyJoinUserRequest.getMessageContext().get(), new JoinDeletedLobbyResponse(lobbyJoinUserRequest.getName()));
+        if (lobby.isEmpty()) {
+            sendToSpecificUser(lobbyJoinUserRequest.getMessageContext().get(),
+                    new JoinDeletedLobbyResponse(lobbyJoinUserRequest.getName()));
         }
-        if (lobby.get().getUsers().size() < 4 && !lobby.get().getUsers().contains(lobbyJoinUserRequest.getUser()) && lobbyJoinUserRequest.getMessageContext().isPresent()) {
+        // if passwordHash is not set and lobby unprotected
+        else if (lobby.get().getUsers().size() < 4 && !lobby.get().getUsers()
+                .contains(lobbyJoinUserRequest.getUser()) && lobbyJoinUserRequest.getMessageContext()
+                .isPresent() && (lobby.get().getPasswordHash() == 0)) {
             lobby.get().joinUser(lobbyJoinUserRequest.getUser());
             ArrayList<UserDTO> usersInLobby = new ArrayList<>();
             for (User user : lobby.get().getUsers()) usersInLobby.add(UserDTO.createWithoutPassword(user));
-            sendToAllInLobby(lobbyJoinUserRequest.getName(), new UserJoinedLobbyMessage(lobbyJoinUserRequest.getName(), lobbyJoinUserRequest.getUser(), usersInLobby));
-            sendToSpecificUser(lobbyJoinUserRequest.getMessageContext().get(), new LobbyJoinedSuccessfulResponse(lobbyJoinUserRequest.getName(), lobbyJoinUserRequest.getUser()));
+            sendToAllInLobby(lobbyJoinUserRequest.getName(),
+                    new UserJoinedLobbyMessage(lobbyJoinUserRequest.getName(), lobbyJoinUserRequest.getUser(),
+                            usersInLobby));
+            sendToSpecificUser(lobbyJoinUserRequest.getMessageContext().get(),
+                    new LobbyJoinedSuccessfulResponse(lobbyJoinUserRequest.getName(), lobbyJoinUserRequest.getUser()));
             sendToAll(new LobbySizeChangedMessage(lobbyJoinUserRequest.getName()));
+        }
+        // in case password hash set in lobby and lobby protected
+        else if (lobby.get().getUsers().size() < 4 && !lobby.get().getUsers()
+                .contains(lobbyJoinUserRequest.getUser()) && lobbyJoinUserRequest.getMessageContext()
+                .isPresent() && lobby.get().getPasswordHash() != 0) {
+            // if password is correct
+            if (lobbyJoinUserRequest.getPassword() != null && lobby.get().getPasswordHash() == lobbyJoinUserRequest
+                    .getPassword().hashCode()) {
+                lobby.get().joinUser(lobbyJoinUserRequest.getUser());
+                ArrayList<UserDTO> usersInLobby = new ArrayList<>();
+                for (User user : lobby.get().getUsers()) usersInLobby.add(UserDTO.createWithoutPassword(user));
+                sendToAllInLobby(lobbyJoinUserRequest.getName(),
+                        new UserJoinedLobbyMessage(lobbyJoinUserRequest.getName(), lobbyJoinUserRequest.getUser(),
+                                usersInLobby));
+                sendToSpecificUser(lobbyJoinUserRequest.getMessageContext().get(),
+                        new LobbyJoinedSuccessfulResponse(lobbyJoinUserRequest.getName(),
+                                lobbyJoinUserRequest.getUser()));
+                sendToAll(new LobbySizeChangedMessage(lobbyJoinUserRequest.getName()));
+            } else {
+                sendToSpecificUser(lobbyJoinUserRequest.getMessageContext().get(),
+                        new WrongLobbyPasswordResponse(lobbyJoinUserRequest.getName()));
+            }
+
         } else {
             if (lobbyJoinUserRequest.getMessageContext().isPresent() && lobby.get().getUsers().size() == 4) {
-                sendToSpecificUser(lobbyJoinUserRequest.getMessageContext().get(), new LobbyFullResponse(lobbyJoinUserRequest.getName()));
+                sendToSpecificUser(lobbyJoinUserRequest.getMessageContext().get(),
+                        new LobbyFullResponse(lobbyJoinUserRequest.getName()));
             } else {
-                sendToSpecificUser(lobbyJoinUserRequest.getMessageContext().get(), new AlreadyJoinedThisLobbyResponse(lobbyJoinUserRequest.getName()));
+                sendToSpecificUser(lobbyJoinUserRequest.getMessageContext().get(),
+                        new AlreadyJoinedThisLobbyResponse(lobbyJoinUserRequest.getName()));
             }
         }
     }
@@ -174,24 +235,24 @@ public class LobbyService extends AbstractService {
             if (lobby.get().getUsers().size() == 1) {
                 if (lobbyLeaveUserRequest.getMessageContext().isPresent()) {
                     Optional<MessageContext> ctx = lobbyLeaveUserRequest.getMessageContext();
-                    sendToSpecificUser(ctx.get(), new LobbyLeftSuccessfulResponse(lobbyLeaveUserRequest.getName(), lobbyLeaveUserRequest.getUser()));
+                    sendToSpecificUser(ctx.get(), new LobbyLeftSuccessfulResponse(lobbyLeaveUserRequest.getName(),
+                            lobbyLeaveUserRequest.getUser()));
                     lobbyManagement.dropLobby(lobbyLeaveUserRequest.getName());
                     sendToAll(new LobbyDroppedMessage(lobbyLeaveUserRequest.getName()));
                 }
-            } else if (lobby.get().getUsers() == null) {
-                lobbyManagement.dropLobby(lobbyLeaveUserRequest.getName());
-                sendToAll(new LobbyDroppedMessage(lobbyLeaveUserRequest.getName()));
-
             } else {
                 if (lobbyLeaveUserRequest.getMessageContext().isPresent()) {
                     Optional<MessageContext> ctx = lobbyLeaveUserRequest.getMessageContext();
-                    sendToSpecificUser(ctx.get(), new LobbyLeftSuccessfulResponse(lobbyLeaveUserRequest.getName(), lobbyLeaveUserRequest.getUser()));
+                    sendToSpecificUser(ctx.get(), new LobbyLeftSuccessfulResponse(lobbyLeaveUserRequest.getName(),
+                            lobbyLeaveUserRequest.getUser()));
                 }
                 lobby.get().leaveUser(lobbyLeaveUserRequest.getUser());
                 sendToAll(new LobbySizeChangedMessage(lobbyLeaveUserRequest.getName()));
                 ArrayList<UserDTO> remainingUsers = new ArrayList<>();
                 for (User user : lobby.get().getUsers()) remainingUsers.add(UserDTO.createWithoutPassword(user));
-                sendToAllInLobby(lobbyLeaveUserRequest.getName(), new UserLeftLobbyMessage(lobbyLeaveUserRequest.getName(), lobbyLeaveUserRequest.getUser(), remainingUsers, lobby.get().getOwner().getUsername()));
+                sendToAllInLobby(lobbyLeaveUserRequest.getName(),
+                        new UserLeftLobbyMessage(lobbyLeaveUserRequest.getName(), lobbyLeaveUserRequest.getUser(),
+                                remainingUsers, lobby.get().getOwner().getUsername()));
             }
         } else {
             throw new LobbyManagementException("Lobby unknown!");
@@ -216,7 +277,9 @@ public class LobbyService extends AbstractService {
             List<Session> lobbyUsers = authenticationService.getSessions(lobby.get().getUsers());
             if (retrieveAllThisLobbyUsersRequest.getMessageContext().isPresent()) {
                 Optional<MessageContext> ctx = retrieveAllThisLobbyUsersRequest.getMessageContext();
-                sendToSpecificUser(ctx.get(), new AllThisLobbyUsersResponse(lobbyUsers, retrieveAllThisLobbyUsersRequest.getName()));
+                sendToSpecificUser(ctx.get(),
+                        new AllThisLobbyUsersResponse(lobbyUsers, retrieveAllThisLobbyUsersRequest.getName(),
+                                lobby.get().getOwner().getUsername()));
             }
         }
     }
@@ -240,7 +303,6 @@ public class LobbyService extends AbstractService {
             post(message);
         } else {
             throw new LobbyManagementException("Lobby unknown!");
-
         }
     }
 
@@ -272,7 +334,8 @@ public class LobbyService extends AbstractService {
      */
     @Subscribe
     public void onRetrieveAllLobbiesRequest(RetrieveAllLobbiesRequest msg) {
-        AllCreatedLobbiesResponse response = new AllCreatedLobbiesResponse(this.lobbyManagement.getAllLobbies().values());
+        AllCreatedLobbiesResponse response = new AllCreatedLobbiesResponse(
+                this.lobbyManagement.getAllLobbies().values());
         response.initWithMessage(msg);
         post(response);
     }
@@ -302,7 +365,8 @@ public class LobbyService extends AbstractService {
                 var lobbies = lobbyManagement.getAllLobbies();
                 // Create lobbiesCopy because of ConcurrentModificationException,
                 // so it doesn't matter when in the meantime the lobbies Object gets modified, while we still loop through it
-                var lobbiesCopy = lobbies.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+                var lobbiesCopy = lobbies.entrySet().stream()
+                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
                 // Loop lobbies
                 Iterator<Map.Entry<String, Lobby>> it = lobbiesCopy.entrySet().iterator();
                 var i = 0;

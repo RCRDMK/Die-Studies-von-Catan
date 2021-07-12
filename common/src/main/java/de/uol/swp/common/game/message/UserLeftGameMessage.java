@@ -1,9 +1,9 @@
 package de.uol.swp.common.game.message;
 
-import de.uol.swp.common.user.UserDTO;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import de.uol.swp.common.user.UserDTO;
 
 /**
  * Message sent by the server when a user successfully leaves a game
@@ -39,9 +39,8 @@ public class UserLeftGameMessage extends AbstractGameMessage {
      * @since 2021-01-15
      */
     public UserLeftGameMessage(String gameName, UserDTO user, ArrayList<UserDTO> users) {
-
         super(gameName, user);
-        this.users=users;
+        this.users = users;
     }
 
     public List<UserDTO> getUsers() {

@@ -11,6 +11,7 @@ import de.uol.swp.common.message.AbstractResponseMessage;
  * @since 2020-12-02
  */
 public class LobbyAlreadyExistsResponse extends AbstractResponseMessage {
+
     /**
      * Default constructor
      *

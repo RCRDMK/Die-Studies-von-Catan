@@ -2,6 +2,12 @@ package de.uol.swp.server;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+
+import io.netty.channel.ChannelHandler;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import de.uol.swp.server.chat.ChatService;
 import de.uol.swp.server.communication.ServerHandler;
 import de.uol.swp.server.communication.netty.NettyServerHandler;
@@ -11,9 +17,6 @@ import de.uol.swp.server.game.GameService;
 import de.uol.swp.server.lobby.LobbyService;
 import de.uol.swp.server.usermanagement.AuthenticationService;
 import de.uol.swp.server.usermanagement.UserService;
-import io.netty.channel.ChannelHandler;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /**
  * This class handles the startup of the server, as well as, the creation of default

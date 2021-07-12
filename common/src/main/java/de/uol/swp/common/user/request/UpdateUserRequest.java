@@ -1,9 +1,9 @@
 package de.uol.swp.common.user.request;
 
+import java.util.Objects;
+
 import de.uol.swp.common.message.AbstractRequestMessage;
 import de.uol.swp.common.user.User;
-
-import java.util.Objects;
 
 /**
  * Request to update an user
@@ -15,7 +15,7 @@ import java.util.Objects;
  */
 public class UpdateUserRequest extends AbstractRequestMessage {
 
-    final private User toUpdate;
+    private final User toUpdate;
 
     /**
      * Constructor
@@ -42,16 +42,31 @@ public class UpdateUserRequest extends AbstractRequestMessage {
         return toUpdate;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        UpdateUserRequest that = (UpdateUserRequest) o;
-        return Objects.equals(toUpdate, that.toUpdate);
-    }
-
+    /**
+     * getter for hash of User toUpdate
+     * returns int
+     *
+     * @return hash of User toUpdate
+     */
     @Override
     public int hashCode() {
         return Objects.hash(toUpdate);
+    }
+
+    /**
+     * compares an Object with this object and returns boolean
+     * returns true if this object equals the parameter object
+     * returns false if parameter is null or if this object does not equals the parameter object
+     * returns true or false if the user equals user of parameter object
+     *
+     * @param o Object
+     * @return boolean
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) { return true; }
+        if (o == null || getClass() != o.getClass()) { return false; }
+        UpdateUserRequest that = (UpdateUserRequest) o;
+        return Objects.equals(toUpdate, that.toUpdate);
     }
 }

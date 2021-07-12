@@ -3,17 +3,16 @@ package de.uol.swp.client.chat;
 import com.google.common.eventbus.DeadEvent;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
-import de.uol.swp.common.chat.RequestChatMessage;
-import de.uol.swp.common.chat.ResponseEmptyChatMessage;
-import de.uol.swp.common.user.User;
-import de.uol.swp.common.user.UserDTO;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
+import de.uol.swp.common.chat.RequestChatMessage;
+import de.uol.swp.common.chat.ResponseEmptyChatMessage;
+import de.uol.swp.common.user.User;
+import de.uol.swp.common.user.UserDTO;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -28,7 +27,6 @@ public class ChatServiceTest {
     final ChatService chatService = new ChatService(bus);
     final User defaultUser = new UserDTO("Marco", "test", "marco@test.de");
 
-    final CountDownLatch lock = new CountDownLatch(1);
     Object event;
 
     /**
@@ -45,7 +43,6 @@ public class ChatServiceTest {
     void handle(DeadEvent e) {
         this.event = e.getEvent();
         System.out.print(e.getEvent());
-        lock.countDown();
     }
 
     /**
@@ -86,18 +83,16 @@ public class ChatServiceTest {
      * The test also fails if the dummy Username, Message or ChatID isn't equal to the request object properties.
      * It also fails if the request object getTime() function doesn't return a valid double.
      *
-     * @throws InterruptedException
      * @author Marco Grawunder
-     * @since 2020-12-16
      * @author René Meyer
+     * @since 2020-12-16
      */
     @Test
     @DisplayName("Sends a normal Message")
-    void sendMessageTest() throws InterruptedException {
-        RequestChatMessage message = new RequestChatMessage("testMessage", "testLobby", defaultUser.getUsername(), System.currentTimeMillis());
+    void sendMessageTest() {
+        RequestChatMessage message = new RequestChatMessage("testMessage", "testLobby", defaultUser.getUsername(),
+                System.currentTimeMillis());
         chatService.sendMessage(message);
-
-        lock.await(1000, TimeUnit.MILLISECONDS);
 
         assertTrue(event instanceof RequestChatMessage);
 
@@ -111,12 +106,10 @@ public class ChatServiceTest {
 
     @Test
     @DisplayName("Sends a Message with no String in it")
-    void sendEmptyMessageTest() throws InterruptedException {
-        RequestChatMessage message = new RequestChatMessage("", "testLobby", defaultUser.getUsername(), System.currentTimeMillis());
+    void sendEmptyMessageTest() {
+        RequestChatMessage message = new RequestChatMessage("", "testLobby", defaultUser.getUsername(),
+                System.currentTimeMillis());
         chatService.sendMessage(message);
-
-        lock.await(1000, TimeUnit.MILLISECONDS);
-
 
         assertTrue(event instanceof ResponseEmptyChatMessage);
 
@@ -131,11 +124,10 @@ public class ChatServiceTest {
 
     @Test
     @DisplayName("Sends a Message with Blanks")
-    void sendWhiteSpaceMessageTest() throws InterruptedException {
-        RequestChatMessage message = new RequestChatMessage("    ", "testLobby", defaultUser.getUsername(), System.currentTimeMillis());
+    void sendWhiteSpaceMessageTest() {
+        RequestChatMessage message = new RequestChatMessage("    ", "testLobby", defaultUser.getUsername(),
+                System.currentTimeMillis());
         chatService.sendMessage(message);
-
-        lock.await(1000, TimeUnit.MILLISECONDS);
 
         assertTrue(event instanceof ResponseEmptyChatMessage);
 
@@ -150,11 +142,10 @@ public class ChatServiceTest {
 
     @Test
     @DisplayName("Sends an empty Message")
-    void onSendNullMessageTest() throws InterruptedException {
-        RequestChatMessage message = new RequestChatMessage(null, "testLobby", defaultUser.getUsername(), System.currentTimeMillis());
+    void onSendNullMessageTest() {
+        RequestChatMessage message = new RequestChatMessage(null, "testLobby", defaultUser.getUsername(),
+                System.currentTimeMillis());
         chatService.sendMessage(message);
-
-        lock.await(1000, TimeUnit.MILLISECONDS);
 
         assertTrue(event instanceof ResponseEmptyChatMessage);
 
@@ -168,16 +159,17 @@ public class ChatServiceTest {
     }
 
     @Test
-    @DisplayName("Sends multible Messages")
-    void onsendMultibleMessageTest() throws InterruptedException {
-        RequestChatMessage message0 = new RequestChatMessage("Test0", "testLobby", defaultUser.getUsername(), System.currentTimeMillis());
+    @DisplayName("Sends multiple Messages")
+    void onSendMultipleMessageTest() {
+        RequestChatMessage message0 = new RequestChatMessage("Test0", "testLobby", defaultUser.getUsername(),
+                System.currentTimeMillis());
         chatService.sendMessage(message0);
-        RequestChatMessage message1 = new RequestChatMessage("Test1", "testLobby", defaultUser.getUsername(), System.currentTimeMillis());
+        RequestChatMessage message1 = new RequestChatMessage("catanprofi", "testLobby", defaultUser.getUsername(),
+                System.currentTimeMillis());
         chatService.sendMessage(message1);
-        RequestChatMessage message2 = new RequestChatMessage("Test2", "testLobby", defaultUser.getUsername(), System.currentTimeMillis());
+        RequestChatMessage message2 = new RequestChatMessage("captain", "testLobby", defaultUser.getUsername(),
+                System.currentTimeMillis());
         chatService.sendMessage(message2);
-
-        lock.await(1000, TimeUnit.MILLISECONDS);
 
         assertTrue(event instanceof RequestChatMessage);
 

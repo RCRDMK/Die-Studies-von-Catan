@@ -1,9 +1,23 @@
 package de.uol.swp.server.usermanagement;
 
+import javax.security.auth.login.LoginException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
+
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import de.uol.swp.common.message.ResponseMessage;
 import de.uol.swp.common.message.ServerMessage;
 import de.uol.swp.common.user.Session;
@@ -21,12 +35,6 @@ import de.uol.swp.server.communication.UUIDSession;
 import de.uol.swp.server.message.ClientAuthorizedMessage;
 import de.uol.swp.server.message.ServerExceptionMessage;
 import de.uol.swp.server.message.ServerInternalMessage;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import javax.security.auth.login.LoginException;
-import java.sql.SQLException;
-import java.util.*;
 
 /**
  * Mapping authentication event bus calls to user management calls
@@ -44,9 +52,8 @@ public class AuthenticationService extends AbstractService {
      * The list of current logged in users
      */
     final private Map<Session, User> userSessions = new HashMap<>();
-
     private final UserManagement userManagement;
-    private Timer timer = new Timer();
+    private final Timer timer = new Timer();
     private final ActiveUserList activeUserList = new ActiveUserList();
 
     /**
@@ -59,10 +66,9 @@ public class AuthenticationService extends AbstractService {
      * @since 2019-08-30
      */
     @Inject
-    public AuthenticationService(EventBus bus, UserManagement userManagement) throws SQLException {
+    public AuthenticationService(EventBus bus, UserManagement userManagement) {
         super(bus);
         this.userManagement = userManagement;
-        this.userManagement.buildConnection();
         startTimerForActiveUserList();
     }
 
@@ -77,7 +83,8 @@ public class AuthenticationService extends AbstractService {
      * @since 2019-09-04
      */
     public Optional<Session> getSession(User user) {
-        Optional<Map.Entry<Session, User>> entry = userSessions.entrySet().stream().filter(e -> e.getValue().equals(user)).findFirst();
+        Optional<Map.Entry<Session, User>> entry = userSessions.entrySet().stream()
+                .filter(e -> e.getValue().equals(user)).findFirst();
         return entry.map(Map.Entry::getKey);
     }
 
@@ -111,8 +118,8 @@ public class AuthenticationService extends AbstractService {
      * If a user is already logged in, a ServerExceptionMessage is posted on the bus. (René, Sergej)
      *
      * @param msg the LoginRequest
-     * @author René, Sergej
-     * @author René, Sergej, Philip, Marc
+     * @author René Meyer, Sergej Tulnev
+     * @author René Meyer, Sergej Tulnev, Philip Nitsche, Marc Hermes
      * @see de.uol.swp.common.user.request.LoginRequest
      * @see de.uol.swp.server.message.ClientAuthorizedMessage
      * @see de.uol.swp.server.message.ServerExceptionMessage
@@ -121,7 +128,7 @@ public class AuthenticationService extends AbstractService {
     @Subscribe
     public void onLoginRequest(LoginRequest msg) {
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Got new auth message with " + msg.getUsername() + " " + msg.getPassword());
+            LOG.debug("Got new auth message with " + msg.getUsername());
         }
         ServerInternalMessage returnMessage;
         try {
@@ -136,7 +143,8 @@ public class AuthenticationService extends AbstractService {
                 returnMessage.setSession(newSession);
             } else {
                 LOG.debug("User " + msg.getUsername() + " already logged in!");
-                returnMessage = new ServerExceptionMessage(new LoginException("User " + msg.getUsername() + " already logged in!"));
+                returnMessage = new ServerExceptionMessage(
+                        new LoginException("User " + msg.getUsername() + " already logged in!"));
             }
         } catch (Exception e) {
             LOG.error(e);
@@ -211,21 +219,22 @@ public class AuthenticationService extends AbstractService {
      * <p>
      * If a PingRequest is detected on the EventBus, this method is called.
      * It sends a PingResponse back to the User.
-     * It tells the ActivUserList the last send Ping time from this User.
+     * It tells the ActiveUserList the last send Ping time from this User.
      *
      * @param pingRequest The PingRequest found on the EventBus
      * @author Philip Nitsche
      * @see de.uol.swp.common.user.request.PingRequest
      * @since 2021-01-22
      */
-
     @Subscribe
     private void onPingRequest(PingRequest pingRequest) {
         activeUserList.updateActiveUser(pingRequest.getUser(), pingRequest.getTime());
         ResponseMessage returnMessage;
         returnMessage = new PingResponse(pingRequest.getUser().getUsername(), pingRequest.getTime());
-        returnMessage.setMessageContext(pingRequest.getMessageContext().get());
-        post(returnMessage);
+        if (pingRequest.getMessageContext().isPresent()) {
+            returnMessage.setMessageContext(pingRequest.getMessageContext().get());
+            post(returnMessage);
+        }
     }
 
     /**
@@ -237,7 +246,6 @@ public class AuthenticationService extends AbstractService {
      * @author Philip, Marc
      * @since 2021-01-22
      */
-
     public void startTimerForActiveUserList() {
         timer.schedule(new TimerTask() {
             @Override
@@ -255,20 +263,6 @@ public class AuthenticationService extends AbstractService {
                 }
             }
         }, 30000, 60000);
-    }
-
-
-    /**
-     * Stops the Ping Timer
-     * <p>
-     * Stops the Ping Timer which checks every 30 seconds if the Users are still Online.
-     *
-     * @author Philip
-     * @since 2021-01-22
-     */
-
-    public void endTimerForPing() {
-        timer.cancel();
     }
 
 }

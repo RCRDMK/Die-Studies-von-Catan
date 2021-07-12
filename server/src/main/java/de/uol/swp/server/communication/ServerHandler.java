@@ -1,10 +1,26 @@
 package de.uol.swp.server.communication;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.CopyOnWriteArrayList;
+
 import com.google.common.eventbus.DeadEvent;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
-import de.uol.swp.common.message.*;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import de.uol.swp.common.message.ExceptionMessage;
+import de.uol.swp.common.message.Message;
+import de.uol.swp.common.message.MessageContext;
+import de.uol.swp.common.message.RequestMessage;
+import de.uol.swp.common.message.ResponseMessage;
+import de.uol.swp.common.message.ServerMessage;
 import de.uol.swp.common.user.Session;
 import de.uol.swp.common.user.message.UserLoggedInMessage;
 import de.uol.swp.common.user.message.UserLoggedOutMessage;
@@ -12,11 +28,6 @@ import de.uol.swp.common.user.response.LoginSuccessfulResponse;
 import de.uol.swp.server.message.ClientAuthorizedMessage;
 import de.uol.swp.server.message.ClientDisconnectedMessage;
 import de.uol.swp.server.message.ServerExceptionMessage;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import java.util.*;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * This class handles all client/server communication
@@ -57,18 +68,6 @@ public class ServerHandler implements ServerHandlerDelegate {
         eventBus.register(this);
     }
 
-    @Override
-    public void process(RequestMessage msg) {
-        LOG.debug("Received new message from client " + msg);
-        try {
-            checkIfMessageNeedsAuthorization(msg.getMessageContext().get(), msg);
-            eventBus.post(msg);
-        } catch (Exception e) {
-            LOG.error("ServerException " + e.getClass().getName() + " " + e.getMessage());
-            sendToClient(msg.getMessageContext().get(), new ExceptionMessage(e.getMessage()));
-        }
-    }
-
     /**
      * Helper method that check if a Message has the required authorization
      *
@@ -80,7 +79,7 @@ public class ServerHandler implements ServerHandlerDelegate {
      */
     private void checkIfMessageNeedsAuthorization(MessageContext ctx, RequestMessage msg) {
         if (msg.authorizationNeeded()) {
-            if (!getSession(ctx).isPresent()) {
+            if (getSession(ctx).isEmpty()) {
                 throw new SecurityException("Authorization required. Client not logged in!");
             }
             msg.setSession(getSession(ctx).get());
@@ -102,7 +101,8 @@ public class ServerHandler implements ServerHandlerDelegate {
     private void onServerException(ServerExceptionMessage msg) {
         Optional<MessageContext> ctx = getCtx(msg);
         LOG.error(msg.getException());
-        ctx.ifPresent(channelHandlerContext -> sendToClient(channelHandlerContext, new ExceptionMessage(msg.getException().getMessage())));
+        ctx.ifPresent(channelHandlerContext -> sendToClient(channelHandlerContext,
+                new ExceptionMessage(msg.getException().getMessage())));
     }
 
     /**
@@ -110,7 +110,7 @@ public class ServerHandler implements ServerHandlerDelegate {
      * <p>
      * If an DeadEvent object is detected on the EventBus, this method is called.
      * It writes "DeadEvent detected " and the error message of the detected DeadEvent
-     * object to the log, if the loglevel is set to WARN or higher.
+     * object to the log, if the logLevel is set to WARN or higher.
      *
      * @param deadEvent The DeadEvent object found on the EventBus
      * @author Marco Grawunder
@@ -120,7 +120,6 @@ public class ServerHandler implements ServerHandlerDelegate {
     private void handleEventBusError(DeadEvent deadEvent) {
         LOG.error("DeadEvent detected " + deadEvent);
     }
-
 
     // -------------------------------------------------------------------------------
     // Handling of connected clients
@@ -142,6 +141,20 @@ public class ServerHandler implements ServerHandlerDelegate {
             removeSession(ctx);
         }
         connectedClients.remove(ctx);
+    }
+
+    @Override
+    public void process(RequestMessage msg) {
+        LOG.debug("Received new message from client " + msg);
+        if (msg.getMessageContext().isPresent()) {
+            try {
+                checkIfMessageNeedsAuthorization(msg.getMessageContext().get(), msg);
+                eventBus.post(msg);
+            } catch (Exception e) {
+                LOG.error("ServerException " + e.getClass().getName() + " " + e.getMessage());
+                sendToClient(msg.getMessageContext().get(), new ExceptionMessage(e.getMessage()));
+            }
+        }
     }
 
     // -------------------------------------------------------------------------------
@@ -241,7 +254,8 @@ public class ServerHandler implements ServerHandlerDelegate {
         msg.setSession(null);
         msg.setMessageContext(null);
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Send " + msg + " to " + (msg.getReceiver().isEmpty() || msg.getReceiver() == null ? "all" : msg.getReceiver()));
+            LOG.debug("Send " + msg + " to " + (msg.getReceiver().isEmpty() || msg.getReceiver() == null ? "all" :
+                    msg.getReceiver()));
         }
         sendMessage(msg);
     }
@@ -279,7 +293,7 @@ public class ServerHandler implements ServerHandlerDelegate {
     /**
      * Gets the Session for a given MessageContext
      *
-     * @param ctx The MeesageContext
+     * @param ctx The MessageContext
      * @return Optional containing the Session if found
      * @author Marco Grawunder
      * @see de.uol.swp.common.user.Session

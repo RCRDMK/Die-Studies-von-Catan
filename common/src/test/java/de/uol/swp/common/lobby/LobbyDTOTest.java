@@ -1,13 +1,14 @@
 package de.uol.swp.common.lobby;
 
-import de.uol.swp.common.lobby.dto.LobbyDTO;
-import de.uol.swp.common.user.User;
-import de.uol.swp.common.user.UserDTO;
-import org.junit.jupiter.api.Test;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import org.junit.jupiter.api.Test;
+
+import de.uol.swp.common.lobby.dto.LobbyDTO;
+import de.uol.swp.common.user.User;
+import de.uol.swp.common.user.UserDTO;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -48,7 +49,24 @@ class LobbyDTOTest {
         assertEquals(lobby.getName(), "test");
         assertEquals(lobby.getUsers().size(), 1);
         assertEquals(lobby.getUsers().iterator().next(), defaultUser);
+    }
 
+    /**
+     * This test check whether a protected lobby is created correctly
+     * <p>
+     * If the variables are not set correctly the test fails
+     *
+     * @author René Meyer
+     * @since 2021-06-05
+     */
+    @Test
+    void createProtectedLobbyTest() {
+        Lobby lobby = new LobbyDTO("test", defaultUser);
+        lobby.setPassword("testPw");
+        assertEquals(lobby.getName(), "test");
+        assertEquals(lobby.getUsers().size(), 1);
+        assertEquals(lobby.getUsers().iterator().next(), defaultUser);
+        assertEquals(lobby.getPasswordHash(), "testPw".hashCode());
     }
 
     /**

@@ -1,8 +1,8 @@
 package de.uol.swp.common.user.request;
 
-import de.uol.swp.common.message.AbstractRequestMessage;
-
 import java.util.Objects;
+
+import de.uol.swp.common.message.AbstractRequestMessage;
 
 /**
  * A request send from client to server, trying to log in with
@@ -36,6 +36,17 @@ public class LoginRequest extends AbstractRequestMessage {
     }
 
     /**
+     * Getter for the username variable
+     *
+     * @return String containing the username the user tries to log in with
+     * @author Marco Grawunder
+     * @since 2017-03-17
+     */
+    public String getUsername() {
+        return username;
+    }
+
+    /**
      * Setter for the username variable
      *
      * @param username String containing the new username
@@ -47,14 +58,14 @@ public class LoginRequest extends AbstractRequestMessage {
     }
 
     /**
-     * Getter for the username variable
+     * Getter for the password variable
      *
-     * @return String containing the username the user tries to log in with
+     * @return String containing the password the user tries to log in with
      * @author Marco Grawunder
      * @since 2017-03-17
      */
-    public String getUsername() {
-        return username;
+    public String getPassword() {
+        return password;
     }
 
     /**
@@ -69,27 +80,31 @@ public class LoginRequest extends AbstractRequestMessage {
     }
 
     /**
-     * Getter for the password variable
+     * getter for hash of String username and String password
+     * returns int
      *
-     * @return String containing the password the user tries to log in with
-     * @author Marco Grawunder
-     * @since 2017-03-17
+     * @return hash of String username and String password
      */
-    public String getPassword() {
-        return password;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        LoginRequest that = (LoginRequest) o;
-        return Objects.equals(username, that.username) &&
-                Objects.equals(password, that.password);
-    }
-
     @Override
     public int hashCode() {
         return Objects.hash(username, password);
+    }
+
+    /**
+     * compares an Object with this object and returns boolean
+     * returns true if this object equals the parameter object
+     * returns false if parameter is null or if this object does not equals the parameter object
+     * returns true or false if the user equals user of parameter object
+     *
+     * @param o Object
+     * @return boolean
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) { return true; }
+        if (o == null || getClass() != o.getClass()) { return false; }
+        LoginRequest that = (LoginRequest) o;
+        return Objects.equals(username, that.username) &&
+                Objects.equals(password, that.password);
     }
 }

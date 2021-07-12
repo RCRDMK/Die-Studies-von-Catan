@@ -1,12 +1,12 @@
 package de.uol.swp.common.user.response;
 
-import de.uol.swp.common.message.AbstractResponseMessage;
-import de.uol.swp.common.user.User;
-import de.uol.swp.common.user.UserDTO;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
+import de.uol.swp.common.message.AbstractResponseMessage;
+import de.uol.swp.common.user.User;
+import de.uol.swp.common.user.UserDTO;
 
 /**
  * Response message for the RetrieveAllOnlineUsersRequest
@@ -23,7 +23,7 @@ import java.util.List;
  */
 public class AllOnlineUsersResponse extends AbstractResponseMessage {
 
-    final private ArrayList<UserDTO> users = new ArrayList<>();
+    private final ArrayList<UserDTO> users = new ArrayList<>();
 
     /**
      * Default Constructor

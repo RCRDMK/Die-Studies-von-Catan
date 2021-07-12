@@ -1,11 +1,17 @@
 package de.uol.swp.common.game;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Set;
+import java.util.TreeSet;
+
+import org.junit.jupiter.api.Test;
+
 import de.uol.swp.common.game.dto.GameDTO;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
-import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Test Class for the GameDTO
@@ -15,7 +21,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  */
 
 public class GameDTOTest {
-    private GameDTO defaultGame = new GameDTO("test", new UserDTO("test", "", ""));
+    private final UserDTO userDTO = new UserDTO("carsten1", "", "");
+    private final UserDTO userDTO1 = new UserDTO("catanprofi", "", "");
+    private final UserDTO userDTO2 = new UserDTO("captain", "", "");
+    private final UserDTO userDTO3 = new UserDTO("marius1", "", "");
+    private final Set<User> users = new TreeSet<>();
+
+    private GameDTO defaultGame = new GameDTO("test", new UserDTO("carsten1", "", ""), "", users);
 
     /**
      * This test checks if the user can join the game correctly.
@@ -28,7 +40,7 @@ public class GameDTOTest {
      */
     @Test
     void joinUserTest() {
-        User user = new UserDTO("test2", "", "");
+        User user = new UserDTO("captain", "", "");
         defaultGame.joinUser(user);
 
         assertEquals(defaultGame.getUsers().size(), 2);
@@ -47,13 +59,41 @@ public class GameDTOTest {
      * @since 2021-03-17
      */
     @Test
-    void leaveUserTest() {
-        User user = new UserDTO("test2", "", "");
+    void leaveUserTestSuccess() {
+        User user = new UserDTO("captain", "", "");
         defaultGame.joinUser(user);
         assertEquals(defaultGame.getUsers().size(), 2);
 
         defaultGame.leaveUser(user);
         assertEquals(defaultGame.getUsers().size(), 1);
+    }
+
+    /**
+     * This test tries to remove the defaultUser from the defaultGame, which ends up in an IllegalArgumentException.
+     *
+     * @author Marius Birk
+     * @since 2021-05-25
+     */
+    @Test
+    public void leaveUserTestFail() {
+        assertThrows(IllegalArgumentException.class, () -> defaultGame.leaveUser(userDTO));
+    }
+
+    /**
+     * This test joins another user to the defaultGame. The original owner leaves the lobby and
+     * the test checks if the new user is now the owner of the defaultGame.
+     *
+     * @author Marius Birk
+     * @since 2021-05-25
+     */
+    @Test
+    public void leaveUserTestOwner() {
+        User user = new UserDTO("captain", "", "");
+        defaultGame.joinUser(user);
+
+        defaultGame.leaveUser(userDTO);
+
+        assertEquals(user.getUsername(), defaultGame.getOwner().getUsername());
     }
 
     /**
@@ -70,12 +110,59 @@ public class GameDTOTest {
      */
     @Test
     void updateOwnerTest() {
-        User user = new UserDTO("test2", "", "");
+        User user = new UserDTO("captain", "", "");
         defaultGame.joinUser(user);
         assertEquals(defaultGame.getUsers().size(), 2);
 
         defaultGame.updateOwner(user);
 
         assertEquals(defaultGame.getOwner(), user);
+    }
+
+    @Test
+    public void updateOwnerTestFail() {
+        User newUser = new UserDTO("pieter1", "", "");
+        assertThrows(IllegalArgumentException.class, () -> defaultGame.updateOwner(newUser));
+    }
+
+    @Test
+    public void setUpInventoriesTest() {
+        users.addAll(Arrays.asList(userDTO, userDTO1, userDTO2, userDTO3));
+        defaultGame = new GameDTO("test", userDTO, "Standard", users);
+        defaultGame.joinUser(userDTO);
+        defaultGame.joinUser(userDTO1);
+        defaultGame.joinUser(userDTO2);
+        defaultGame.joinUser(userDTO3);
+
+        defaultGame.setUpUserArrayList();
+        defaultGame.setUpInventories();
+
+        assertEquals(userDTO.getUsername(), defaultGame.getInventory(userDTO).getUser().getUsername());
+        assertEquals(userDTO1.getUsername(), defaultGame.getInventory(userDTO1).getUser().getUsername());
+        assertEquals(userDTO2.getUsername(), defaultGame.getInventory(userDTO2).getUser().getUsername());
+        assertEquals(userDTO3.getUsername(), defaultGame.getInventory(userDTO3).getUser().getUsername());
+        assertNotEquals(userDTO.getUsername(), defaultGame.getInventory(userDTO3).getUser().getUsername());
+    }
+
+    @Test
+    public void getInventoriesArrayListTest() {
+        users.addAll(Arrays.asList(userDTO, userDTO1, userDTO2, userDTO3));
+        defaultGame = new GameDTO("test", userDTO, "Standard", users);
+        defaultGame.joinUser(userDTO);
+        defaultGame.joinUser(userDTO1);
+        defaultGame.joinUser(userDTO2);
+        defaultGame.joinUser(userDTO3);
+
+        defaultGame.setUpUserArrayList();
+        defaultGame.setUpInventories();
+
+        ArrayList<Inventory> inventories = defaultGame.getInventoriesArrayList();
+
+        assertEquals(4, inventories.size());
+
+        assertTrue(inventories.contains(defaultGame.getInventory(userDTO)));
+        assertTrue(inventories.contains(defaultGame.getInventory(userDTO1)));
+        assertTrue(inventories.contains(defaultGame.getInventory(userDTO2)));
+        assertTrue(inventories.contains(defaultGame.getInventory(userDTO3)));
     }
 }

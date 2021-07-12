@@ -1,9 +1,9 @@
 package de.uol.swp.common.lobby.request;
 
+import java.util.Objects;
+
 import de.uol.swp.common.message.AbstractRequestMessage;
 import de.uol.swp.common.user.UserDTO;
-
-import java.util.Objects;
 
 /**
  * Base class of all lobby request messages. Basic handling of lobby data.
@@ -17,6 +17,7 @@ public class AbstractLobbyRequest extends AbstractRequestMessage {
 
     String name;
     UserDTO user;
+    String password;
 
     /**
      * Default constructor
@@ -39,6 +40,43 @@ public class AbstractLobbyRequest extends AbstractRequestMessage {
     public AbstractLobbyRequest(String name, UserDTO user) {
         this.name = name;
         this.user = user;
+    }
+
+    /**
+     * Constructor
+     *
+     * @param name     name of the lobby
+     * @param user     user responsible for the creation of this message
+     * @param password password for the lobby
+     * @author René Meyer
+     * @since 2021-06-05
+     */
+    public AbstractLobbyRequest(String name, UserDTO user, String password) {
+        this.name = name;
+        this.user = user;
+        this.password = password;
+    }
+
+    /**
+     * Getter for Password
+     *
+     * @return the password for this lobby
+     * @author René Meyer
+     * @since 2021-06-05
+     */
+    public String getPassword() {
+        return this.password;
+    }
+
+    /**
+     * Setter for Password
+     *
+     * @param password the password to set this lobby's password to
+     * @author René Meyer
+     * @since 2021-06-05
+     */
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     /**
@@ -86,16 +124,16 @@ public class AbstractLobbyRequest extends AbstractRequestMessage {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        AbstractLobbyRequest that = (AbstractLobbyRequest) o;
-        return Objects.equals(name, that.name) &&
-                Objects.equals(user, that.user);
+    public int hashCode() {
+        return Objects.hash(name, user);
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(name, user);
+    public boolean equals(Object o) {
+        if (this == o) { return true; }
+        if (o == null || getClass() != o.getClass()) { return false; }
+        AbstractLobbyRequest that = (AbstractLobbyRequest) o;
+        return Objects.equals(name, that.name) &&
+                Objects.equals(user, that.user);
     }
 }

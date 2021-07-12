@@ -1,14 +1,15 @@
 package de.uol.swp.server.usermanagement.store;
 
-import de.uol.swp.common.user.User;
-import de.uol.swp.common.user.UserDTO;
-import org.junit.jupiter.api.Test;
-
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+
+import org.junit.jupiter.api.Test;
+
+import de.uol.swp.common.user.User;
+import de.uol.swp.common.user.UserDTO;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -37,7 +38,7 @@ class MainMemoryBasedUserStoreTest {
     }
 
     @Test
-    void findUserByName() throws SQLException {
+    void findUserByName() throws Exception {
         // arrange
         UserStore store = getDefaultStore();
         User userToCreate = getDefaultUsers().get(0);
@@ -52,7 +53,7 @@ class MainMemoryBasedUserStoreTest {
     }
 
     @Test
-    void findUserByName_NotFound() throws SQLException {
+    void findUserByName_NotFound() throws Exception {
         UserStore store = getDefaultStore();
         User userToFind = getDefaultUsers().get(0);
 
@@ -62,7 +63,7 @@ class MainMemoryBasedUserStoreTest {
     }
 
     @Test
-    void findUserByNameAndPassword() throws SQLException {
+    void findUserByNameAndPassword() throws Exception {
         UserStore store = getDefaultStore();
         User userToCreate = getDefaultUsers().get(1);
         store.createUser(userToCreate.getUsername(), userToCreate.getPassword(), userToCreate.getEMail());
@@ -75,7 +76,7 @@ class MainMemoryBasedUserStoreTest {
     }
 
     @Test
-    void findUserByNameAndPassword_NotFound() throws SQLException {
+    void findUserByNameAndPassword_NotFound() throws Exception {
         UserStore store = getDefaultStore();
         User userToFind = getDefaultUsers().get(0);
 
@@ -85,7 +86,7 @@ class MainMemoryBasedUserStoreTest {
     }
 
     @Test
-    void findUserByNameAndPassword_EmptyUser_NotFound() throws SQLException {
+    void findUserByNameAndPassword_EmptyUser_NotFound() throws Exception {
         UserStore store = getDefaultStore();
 
         Optional<User> userFound = store.findUser(null, "");
@@ -95,7 +96,7 @@ class MainMemoryBasedUserStoreTest {
 
 
     @Test
-    void overwriteUser() throws SQLException {
+    void overwriteUser() throws Exception {
         UserStore store = getDefaultStore();
         User userToCreate = getDefaultUsers().get(1);
         store.createUser(userToCreate.getUsername(), userToCreate.getPassword(), userToCreate.getEMail());
@@ -111,40 +112,50 @@ class MainMemoryBasedUserStoreTest {
 
 
     @Test
-    void updateUser() throws SQLException {
+    void changePassword() throws Exception {
         UserStore store = getDefaultStore();
         User userToUpdate = getDefaultUsers().get(2);
 
-        store.updateUser(userToUpdate.getUsername(), userToUpdate.getPassword(),
-                userToUpdate.getEMail() + "@TESTING");
+        store.updateUserPassword(userToUpdate.getUsername(), "_NEWPASS");
+
+        Optional<User> userFound = store.findUser(userToUpdate.getUsername(),
+                "_NEWPASS");
+
+        assertTrue(userFound.isPresent());
+        assertNotEquals(userToUpdate.getPassword(), "_NEWPASS");
+
+    }
+
+    @Test
+    void changeEmail() throws Exception {
+        UserStore store = getDefaultStore();
+        User userToUpdate = getDefaultUsers().get(3);
+
+        store.updateUserMail(userToUpdate.getUsername(), "1@1.de");
 
         Optional<User> userFound = store.findUser(userToUpdate.getUsername());
 
         assertTrue(userFound.isPresent());
-        assertEquals(userFound.get().getEMail(), userToUpdate.getEMail() + "@TESTING");
-
+        assertEquals(userFound.get().getEMail(), "1@1.de");
     }
 
     @Test
-    void changePassword() throws SQLException {
+    void changeProfilePictureID() throws Exception {
         UserStore store = getDefaultStore();
-        User userToUpdate = getDefaultUsers().get(2);
+        User userToUpdate = getDefaultUsers().get(4);
 
-        store.updateUser(userToUpdate.getUsername(), userToUpdate.getPassword() + "_NEWPASS",
-                userToUpdate.getEMail());
+        store.updateUserPicture(userToUpdate.getUsername(), 40);
 
-        Optional<User> userFound = store.findUser(userToUpdate.getUsername(),
-                userToUpdate.getPassword() + "_NEWPASS");
+        Optional<User> userFound = store.findUser(userToUpdate.getUsername());
 
         assertTrue(userFound.isPresent());
-        assertEquals(userFound.get().getEMail(), userToUpdate.getEMail());
-
+        assertEquals(userFound.get().getProfilePictureID(), 40);
     }
 
     @Test
-    void dropUser() throws SQLException {
+    void dropUser() throws Exception {
         UserStore store = getDefaultStore();
-        User userToRemove = getDefaultUsers().get(3);
+        User userToRemove = getDefaultUsers().get(5);
 
         store.removeUser(userToRemove.getUsername());
 
@@ -160,6 +171,13 @@ class MainMemoryBasedUserStoreTest {
         assertThrows(IllegalArgumentException.class,
                 () -> store.createUser("", "", "")
         );
+    }
+
+    @Test
+    void createNullUser() {
+        UserStore store = getDefaultStore();
+
+        assertThrows(IllegalArgumentException.class, () -> store.createUser(null, "test", "test@test.de"));
     }
 
     @Test

@@ -1,10 +1,16 @@
 package de.uol.swp.server.usermanagement.store;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+
 import com.google.common.base.Strings;
+
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
-
-import java.util.*;
 
 /**
  * This is a user store.
@@ -48,14 +54,9 @@ public class MainMemoryBasedUserStore extends AbstractUserStore implements UserS
         if (Strings.isNullOrEmpty(username)) {
             throw new IllegalArgumentException("Username must not be null");
         }
-        User usr = new UserDTO(username, hash(password), eMail);
+        User usr = new UserDTO(username, hash(password), eMail, 1);
         users.put(username, usr);
-        return usr;
-    }
-
-    @Override
-    public User updateUser(String username, String password, String eMail) {
-        return createUser(username, password, eMail);
+        return usr.getWithoutPassword();
     }
 
     @Override
@@ -64,10 +65,30 @@ public class MainMemoryBasedUserStore extends AbstractUserStore implements UserS
     }
 
     @Override
+    public User updateUserMail(String username, String eMail) {
+        User usr = users.get(username);
+        users.put(username, new UserDTO(username, usr.getPassword(), eMail, usr.getProfilePictureID()));
+        return users.get(username).getWithoutPassword();
+    }
+
+    @Override
+    public User updateUserPassword(String username, String password) {
+        User usr = users.get(username);
+        users.put(username, new UserDTO(username, hash(password), usr.getEMail(), usr.getProfilePictureID()));
+        return users.get(username).getWithoutPassword();
+    }
+
+    @Override
+    public User updateUserPicture(String username, int profilePictureID) {
+        User usr = users.get(username);
+        users.put(username, new UserDTO(username, usr.getPassword(), usr.getEMail(), profilePictureID));
+        return users.get(username).getWithoutPassword();
+    }
+
+    @Override
     public List<User> getAllUsers() {
         List<User> retUsers = new ArrayList<>();
         users.values().forEach(u -> retUsers.add(u.getWithoutPassword()));
         return retUsers;
     }
-
 }

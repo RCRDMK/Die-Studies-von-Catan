@@ -1,13 +1,15 @@
 package de.uol.swp.client.chat;
 
+import javax.inject.Inject;
+
 import com.google.common.eventbus.EventBus;
-import de.uol.swp.client.user.UserService;
-import de.uol.swp.common.chat.RequestChatMessage;
-import de.uol.swp.common.chat.ResponseEmptyChatMessage;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.inject.Inject;
+import de.uol.swp.client.user.UserService;
+import de.uol.swp.common.chat.RequestChatMessage;
+import de.uol.swp.common.chat.ResponseEmptyChatMessage;
 
 /**
  * Service Class that manages all chats
@@ -23,9 +25,9 @@ import javax.inject.Inject;
 @SuppressWarnings("UnstableApiUsage")
 public class ChatService {
 
+    private static final Logger LOG = LogManager.getLogger(UserService.class);
     private final EventBus eventBus;
     private double lastSendMessage;
-    private static final Logger LOG = LogManager.getLogger(UserService.class);
 
     /**
      * Constructor
@@ -61,20 +63,23 @@ public class ChatService {
     public void sendMessage(RequestChatMessage message) {
         try {
             if (message.getTime() - lastSendMessage >= 1000) {
-                if (!message.getMessage().isEmpty() && message.getMessage() != null && !message.getMessage().isBlank()) {
+                if (!message.getMessage().isEmpty() && message.getMessage() != null && !message.getMessage()
+                        .isBlank()) {
                     eventBus.post(message);
-                    LOG.debug("User: " + message.getUsername() + " sent message: '" + message.getMessage() + "' to server.");
-                    lastSendMessage = message.getTime();
+                    LOG.debug("User: " + message.getUsername() + " sent message: '" + message
+                            .getMessage() + "' to server.");
 
                 } else {
-                    ResponseEmptyChatMessage msg = new ResponseEmptyChatMessage(message.getMessage(), message.getChat(), message.getUsername(), message.getTime());
+                    ResponseEmptyChatMessage msg = new ResponseEmptyChatMessage(message.getMessage(), message.getChat(),
+                            message.getUsername(), message.getTime());
                     eventBus.post(msg);
                     LOG.debug("Posted ResponseEmptyChatMessage on eventBus" + message.getTime() + lastSendMessage);
-                    lastSendMessage = message.getTime();
                 }
+                lastSendMessage = message.getTime();
             }
         } catch (NullPointerException e) {
-            ResponseEmptyChatMessage msg = new ResponseEmptyChatMessage("null", message.getChat(), message.getUsername(), message.getTime());
+            ResponseEmptyChatMessage msg = new ResponseEmptyChatMessage("null", message.getChat(),
+                    message.getUsername(), message.getTime());
             eventBus.post(msg);
             LOG.debug("Posted ResponseEmptyChatMessage on eventBus");
             lastSendMessage = message.getTime();

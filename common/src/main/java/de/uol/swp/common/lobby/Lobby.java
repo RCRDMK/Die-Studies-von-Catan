@@ -1,9 +1,10 @@
 package de.uol.swp.common.lobby;
 
-import de.uol.swp.common.user.User;
-
 import java.io.Serializable;
 import java.util.Set;
+import java.util.Timer;
+
+import de.uol.swp.common.user.User;
 
 
 /**
@@ -29,6 +30,22 @@ public interface Lobby extends Serializable {
      * @since 2019-10-08
      */
     String getName();
+
+    /**
+     * Getter for password hash
+     *
+     * @author René Meyer
+     * @since 2021-06-05
+     */
+    int getPasswordHash();
+
+    /**
+     * Setter for the lobby password
+     *
+     * @author René Meyer
+     * @since 2021-06-05
+     */
+    void setPassword(String password);
 
     /**
      * Changes the owner of the lobby
@@ -85,8 +102,6 @@ public interface Lobby extends Serializable {
      */
     Set<User> getUsers();
 
-    void setGameFieldVariant(String s);
-
     /**
      * Getter for all user in this lobby which are ready to start the game
      *
@@ -94,11 +109,30 @@ public interface Lobby extends Serializable {
      * @author Marco Grawunder
      * @since 2021-01-24
      */
-
     Set<User> getPlayersReady();
 
+    /**
+     * Getter for the gameFieldVariant
+     *
+     * @return the String description of the gameFieldVariant
+     * @author Marc Hermes
+     * @since 2021-05-18
+     */
     String getGameFieldVariant();
 
+    /**
+     * Setter for the gameFieldVariant
+     *
+     * @param s the String description of the gameFieldVariant
+     */
+    void setGameFieldVariant(String s);
+
+    /**
+     * Clears the playersReady Set
+     *
+     * @author Marc Hermes
+     * @since 2021-05-18
+     */
     void setPlayersReadyToNull();
 
     /**
@@ -128,24 +162,6 @@ public interface Lobby extends Serializable {
     void setRdyResponsesReceived(int responsesReceived);
 
     /**
-     * Returns a boolean value saying whether the game of this lobby should start or not.
-     *
-     * @return True if the game is supposed to start, false if not (when the game has already started)
-     * @author Marc Hermes
-     * @since 2021-03-23
-     */
-    boolean getGameShouldStart();
-
-    /**
-     * Sets the value of the gameShouldStart variable
-     *
-     * @param value True if the game should start, false if not
-     * @author Marc Hermes
-     * @since 2021-03-23
-     */
-    void setGameShouldStart(boolean value);
-
-    /**
      * Returns a boolean value saying whether the game of this lobby started or not
      *
      * @return True if the game started, false if not (users in the lobby still waiting)
@@ -162,4 +178,57 @@ public interface Lobby extends Serializable {
      * @since 2021-04-08
      */
     void setGameStarted(boolean value);
+
+    /**
+     * Method used to start the timer of the lobby for the gameStart
+     *
+     * @return the timer of this lobby
+     * @author Marc Hermes
+     * @since 2021-05-18
+     */
+    Timer startTimerForGameStart();
+
+    /**
+     * Method used to stop the timer of the lobby for the gameStart
+     *
+     * @author Marc Hermes
+     * @since 2021-05-18
+     */
+    void stopTimerForGameStart();
+
+    /**
+     * Getter for the minimum amount of players for the game corresponding to this lobby
+     *
+     * @return the minimum amount of users to play in the game
+     * @author Marc Hermes
+     * @since 2021-05-27
+     */
+    int getMinimumAmountOfPlayers();
+
+    /**
+     * Setter for the minimum amount of players for the game corresponding to this lobby
+     *
+     * @param amount the minimum amount of users to play in the game
+     * @author Marc Hermes
+     * @since 2021-05-27
+     */
+    void setMinimumAmountOfPlayers(int amount);
+
+    /**
+     * Getter for the boolean value if the lobby will be used for test purposes
+     *
+     * @return true if used for test, false if not
+     * @author Marc Hermes
+     * @since 2021-06-06
+     */
+    boolean isUsedForTest();
+
+    /**
+     * Setter for the boolean value isUsedForTest
+     *
+     * @param value the value to set isUsedForTest to
+     * @author Marc Hermes
+     * @since 2021-06-06
+     */
+    void setUsedForTest(boolean value);
 }
