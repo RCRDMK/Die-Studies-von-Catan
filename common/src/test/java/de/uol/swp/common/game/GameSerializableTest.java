@@ -40,14 +40,12 @@ import de.uol.swp.common.game.request.ResolveDevelopmentCardRequest;
 import de.uol.swp.common.game.request.ResolveDevelopmentCardRoadBuildingRequest;
 import de.uol.swp.common.game.request.ResolveDevelopmentCardYearOfPlentyRequest;
 import de.uol.swp.common.game.request.ResourcesToDiscardRequest;
-import de.uol.swp.common.game.request.RetrieveAllGamesRequest;
 import de.uol.swp.common.game.request.RetrieveAllThisGameUsersRequest;
 import de.uol.swp.common.game.request.RobbersNewFieldRequest;
 import de.uol.swp.common.game.request.RollDiceRequest;
 import de.uol.swp.common.game.request.TradeChoiceRequest;
 import de.uol.swp.common.game.request.TradeItemRequest;
 import de.uol.swp.common.game.request.TradeStartRequest;
-import de.uol.swp.common.game.response.AllCreatedGamesResponse;
 import de.uol.swp.common.game.response.AllThisGameUsersResponse;
 import de.uol.swp.common.game.response.GameAlreadyExistsResponse;
 import de.uol.swp.common.game.response.GameLeftSuccessfulResponse;
@@ -128,8 +126,6 @@ public class GameSerializableTest {
         assertTrue(SerializationTestHelper
                 .checkSerializableAndDeserializable(new PlayerReadyRequest("test", defaultUser, true),
                         PlayerReadyRequest.class));
-        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new RetrieveAllGamesRequest(),
-                RetrieveAllGamesRequest.class));
         assertTrue(
                 SerializationTestHelper.checkSerializableAndDeserializable(new RetrieveAllThisGameUsersRequest("test"),
                         RetrieveAllThisGameUsersRequest.class));
@@ -170,8 +166,6 @@ public class GameSerializableTest {
 
     @Test
     void testGameResponseSerializable() {
-        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new AllCreatedGamesResponse(),
-                AllCreatedGamesResponse.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new GameAlreadyExistsResponse("test"),
                 GameAlreadyExistsResponse.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new NotLobbyOwnerResponse("test"),

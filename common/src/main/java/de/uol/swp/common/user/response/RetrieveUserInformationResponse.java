@@ -22,20 +22,44 @@ public class RetrieveUserInformationResponse extends AbstractResponseMessage {
 
     private final User toMail;
 
-
+    /**
+     * Constructor with User
+     *
+     * @param user the User
+     */
     public RetrieveUserInformationResponse(User user) {
         this.toMail = user;
     }
 
+    /**
+     * getter for User toMail
+     *
+     * @return User toMail
+     */
     public User getUser() {
         return toMail;
     }
 
+    /**
+     * getter for hash of User toMail
+     * returns int
+     *
+     * @return hash of User toMail
+     */
     @Override
     public int hashCode() {
         return Objects.hash(toMail);
     }
 
+    /**
+     * compares an Object with this object and returns boolean
+     * returns true if this object equals the parameter object
+     * returns false if parameter is null or if this object does not equals the parameter object
+     * returns true or false if the user equals user of parameter object
+     *
+     * @param o Object
+     * @return boolean
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) { return true; }

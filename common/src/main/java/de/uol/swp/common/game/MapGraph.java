@@ -75,8 +75,8 @@ public class MapGraph implements Serializable {
      * Getter for calculator of the longest street path
      *
      * @return calculator of the longest street path
-     * @author Kirstin Beyer
-     * @since
+     * @author Kirstin Beyer, Marc Hermes
+     * @since 2021-04-23
      */
     public LongestStreetPathCalculator getLongestStreetPathCalculator() {
         return longestStreetPathCalculator;

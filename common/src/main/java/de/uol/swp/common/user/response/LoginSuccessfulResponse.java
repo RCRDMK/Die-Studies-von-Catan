@@ -50,6 +50,12 @@ public class LoginSuccessfulResponse extends AbstractResponseMessage {
         return Objects.hash(user);
     }
 
+    /**
+     * getter for hash of User user
+     * returns int
+     *
+     * @return hash of User user
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) { return true; }

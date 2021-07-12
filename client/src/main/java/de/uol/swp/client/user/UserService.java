@@ -75,7 +75,6 @@ public class UserService implements ClientUserService {
      *
      * @param username the name of the user
      */
-
     @Override
     public void logout(User username) {
         LogoutRequest msg = new LogoutRequest();
@@ -87,8 +86,6 @@ public class UserService implements ClientUserService {
      *
      * @param user the name of the user
      */
-
-
     @Override
     public void createUser(User user) throws InvalidKeySpecException, NoSuchAlgorithmException {
         User hashedPassword = new UserDTO(user.getUsername(), convertStringToHash(user.getPassword()), user.getEMail());
@@ -170,7 +167,9 @@ public class UserService implements ClientUserService {
         bus.post(uuppr);
     }
 
-
+    /**
+     * Posts RetrieveAllOnlineUsersRequest to the EventBus
+     **/
     @Override
     public void retrieveAllUsers() {
         RetrieveAllOnlineUsersRequest cmd = new RetrieveAllOnlineUsersRequest();

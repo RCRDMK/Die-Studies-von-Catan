@@ -45,11 +45,26 @@ public class RegisterUserRequest extends AbstractRequestMessage {
         return toCreate;
     }
 
+    /**
+     * getter for hash of User toCreate
+     * returns int
+     *
+     * @return hash of User toCreate
+     */
     @Override
     public int hashCode() {
         return Objects.hash(toCreate);
     }
 
+    /**
+     * compares an Object with this object and returns boolean
+     * returns true if this object equals the parameter object
+     * returns false if parameter is null or if this object does not equals the parameter object
+     * returns true or false if the user equals user of parameter object
+     *
+     * @param o Object
+     * @return boolean
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) { return true; }

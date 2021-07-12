@@ -25,7 +25,6 @@ import de.uol.swp.common.game.request.ResolveDevelopmentCardMonopolyRequest;
 import de.uol.swp.common.game.request.ResolveDevelopmentCardRoadBuildingRequest;
 import de.uol.swp.common.game.request.ResolveDevelopmentCardYearOfPlentyRequest;
 import de.uol.swp.common.game.request.ResourcesToDiscardRequest;
-import de.uol.swp.common.game.request.RetrieveAllGamesRequest;
 import de.uol.swp.common.game.request.RetrieveAllThisGameUsersRequest;
 import de.uol.swp.common.game.request.RobbersNewFieldRequest;
 import de.uol.swp.common.game.request.RollDiceRequest;
@@ -76,17 +75,6 @@ public class GameService {
         eventBus.post(rollDiceRequest);
     }
 
-    /**
-     * Posts a request to get a list of all existing games on the EventBus
-     *
-     * @author Kirstin Beyer, Iskander Yusupov
-     * @see de.uol.swp.common.game.request.RetrieveAllGamesRequest
-     * @since 2020-04-12
-     */
-    public void retrieveAllGames() {
-        RetrieveAllGamesRequest cmd = new RetrieveAllGamesRequest();
-        eventBus.post(cmd);
-    }
 
     /**
      * Creates a new RetrieveAllThisGameUsersRequest and puts it on the Eventbus

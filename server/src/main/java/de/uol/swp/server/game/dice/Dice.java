@@ -5,7 +5,7 @@ import java.util.Random;
 /**
  * Class for the dice in the game.
  *
- * @author Kirstin
+ * @author Kirstin Beyer
  * @since 2020-12-29
  */
 public class Dice {
@@ -13,6 +13,11 @@ public class Dice {
     private int diceEyes1 = 0;
     private int diceEyes2 = 0;
 
+    /**
+     * simulates the roll of two dices
+     *
+     * int dice1 and int dice2 each are set to a random value from 1-6
+     */
     public void rollDice() {
         Random r1 = new Random();
         int dice1 = 1 + r1.nextInt(6);
@@ -27,9 +32,9 @@ public class Dice {
     /**
      * Getter for DiceEyes1
      *
-     * @return
-     * @author:
-     * @since:
+     * @return int diceEyes1
+     * @author Kirstin Beyer
+     * @since 2020-12-29
      */
     public int getDiceEyes1() {
         return diceEyes1;
@@ -38,9 +43,9 @@ public class Dice {
     /**
      * Getter for DiceEyes2
      *
-     * @return
-     * @author:
-     * @since :
+     * @return int diceEyes2
+     * @author Kirstin Beyer
+     * @since 2020-12-29
      */
 
     public int getDiceEyes2() {

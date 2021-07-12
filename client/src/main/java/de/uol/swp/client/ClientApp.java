@@ -176,7 +176,7 @@ public class ClientApp extends Application implements ConnectionListener {
      * It also starts a timer for the ping message and a separate timer for the client to check if he has a timeout.
      *
      * @param message The LoginSuccessfulResponse object detected on the EventBus
-     * @author Marco Grawunder, Philip
+     * @author Marco Grawunder, Philip Nitsche
      * @see de.uol.swp.client.SceneManager
      * @since 2021-01-21
      */
@@ -215,7 +215,7 @@ public class ClientApp extends Application implements ConnectionListener {
      * It also ends the timer for the ping message and the separate timer for the client to check if he has a timeout.
      *
      * @param message The LogoutSuccessfulResponse object detected on the EventBus
-     * @author Philip
+     * @author Philip Nitsche
      * @see de.uol.swp.client.SceneManager
      * @since 2021-01-21
      */
@@ -540,10 +540,9 @@ public class ClientApp extends Application implements ConnectionListener {
      * <p>
      * Gets the latest Time form the Ping Response
      *
-     * @author Philip, Marc
+     * @author Philip Nitsche, Marc Hermes
      * @since 2021-01-22
      */
-
     @Subscribe
     private void onPingResponse(PingResponse message) {
         lastPingResponse = message.getTime();
@@ -554,7 +553,7 @@ public class ClientApp extends Application implements ConnectionListener {
      * <p>
      * If a user had a timeout this method is called to show the login screen.
      *
-     * @author Philip, Marc
+     * @author Philip Nitsche, Marc Hermes
      * @since 2021-01-22
      */
 
@@ -570,7 +569,7 @@ public class ClientApp extends Application implements ConnectionListener {
      * Checks if the user has received a ping response in the last 120 seconds.
      * If not checkoutTimeout will be called.
      *
-     * @author Philip, Marc
+     * @author Philip Nitsche, Marc Hermes
      * @since 2021-01-22
      */
     private void checkForTimeout() {

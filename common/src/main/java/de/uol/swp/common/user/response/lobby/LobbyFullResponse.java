@@ -40,6 +40,12 @@ public class LobbyFullResponse extends AbstractResponseMessage {
         return lobbyName;
     }
 
+    /**
+     * getter for hash of String lobbyname
+     * returns int
+     *
+     * @return hash of String lobbyname
+     */
     @Override
     public int hashCode() {
         return Objects.hash(lobbyName);

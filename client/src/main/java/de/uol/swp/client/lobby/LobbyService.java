@@ -155,7 +155,7 @@ public class LobbyService {
      *
      * @param name Name of the lobby
      * @param user User who sends PlayerReadyRequest
-     * @author Kirsitn
+     * @author Kirstin Beyer
      * @see de.uol.swp.common.game.request.PlayerReadyRequest
      * @since 2021-02-04
      */

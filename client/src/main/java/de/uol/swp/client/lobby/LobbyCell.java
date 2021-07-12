@@ -82,7 +82,7 @@ public class LobbyCell extends ListCell<LobbyDTO> {
      * @param empty whether or not this cell represents data from the list. If it is empty,
      *              then it does not represent any domain data, but is a cell being used to
      *              render an "empty" row.
-     * @author Pieter Vogt, Carsten Dekker, René
+     * @author Pieter Vogt, Carsten Dekker, René Meyer
      * @since 2021-04-08
      */
     @Override
