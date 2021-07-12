@@ -732,7 +732,7 @@ public class MapGraph implements Serializable {
          * if connectedBuildingNodes is smaller than 2.
          *
          * @param buildingNode Building node
-         * @throws ListFullException
+         * @throws ListFullException exception
          * @author Pieter Vogt
          * @since 2021-04-15
          */
@@ -795,17 +795,6 @@ public class MapGraph implements Serializable {
         }
 
         //METHODS
-
-        /**
-         * Returns a HashSet of BuildingNodes connected to the calling StreetNode.
-         *
-         * @return HashSet of connected BuildingNodes.
-         * @author Pieter Vogt
-         * @since 2021-04-10
-         */
-        public HashSet<BuildingNode> getConnectedBuildingNodes() {
-            return connectedBuildingNodes;
-        }
 
         /**
          * Builds a road for player with parsed index.
@@ -894,7 +883,7 @@ public class MapGraph implements Serializable {
          * if connectedStreetNodes is smaller than 3.
          *
          * @param streetNode Street node
-         * @throws ListFullException
+         * @throws ListFullException exception
          * @author Pieter Vogt
          * @since 2021-04-15
          */
