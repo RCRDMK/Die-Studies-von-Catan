@@ -60,13 +60,10 @@ public class PingResponse extends AbstractResponseMessage {
     }
 
     /**
-     * compares and Object with this object and returns boolean
-     * returns true if this object equals the parameter object
-     * returns false if parameter is null or if this object does not equals the parameter object
-     * returns true or false if the user equals user of parameter object
+     * getter for hash of String username and long time
+     * returns int
      *
-     * @param o Object
-     * @return boolean
+     * @return hash of String username and long time
      */
     @Override
     public int hashCode() {
@@ -74,10 +71,13 @@ public class PingResponse extends AbstractResponseMessage {
     }
 
     /**
-     * getter for hash of String username and long time
-     * returns int
+     * compares an Object with this object and returns boolean
+     * returns true if this object equals the parameter object
+     * returns false if parameter is null or if this object does not equals the parameter object
+     * returns true or false if the user equals user of parameter object
      *
-     * @return hash of String username and long time
+     * @param o Object
+     * @return boolean
      */
     @Override
     public boolean equals(Object o) {

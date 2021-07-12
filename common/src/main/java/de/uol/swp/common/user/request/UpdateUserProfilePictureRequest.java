@@ -41,11 +41,26 @@ public class UpdateUserProfilePictureRequest extends AbstractRequestMessage {
         return toUpdatePicture;
     }
 
+    /**
+     * getter for hash of User toUpdatePicture
+     * returns int
+     *
+     * @return hash of User toUpdatePicture
+     */
     @Override
     public int hashCode() {
         return Objects.hash(toUpdatePicture);
     }
 
+    /**
+     * compares an Object with this object and returns boolean
+     * returns true if this object equals the parameter object
+     * returns false if parameter is null or if this object does not equals the parameter object
+     * returns true or false if the user equals user of parameter object
+     *
+     * @param o Object
+     * @return boolean
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) { return true; }

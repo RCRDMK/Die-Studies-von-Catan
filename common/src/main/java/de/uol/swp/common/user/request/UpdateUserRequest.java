@@ -42,11 +42,26 @@ public class UpdateUserRequest extends AbstractRequestMessage {
         return toUpdate;
     }
 
+    /**
+     * getter for hash of User toUpdate
+     * returns int
+     *
+     * @return hash of User toUpdate
+     */
     @Override
     public int hashCode() {
         return Objects.hash(toUpdate);
     }
 
+    /**
+     * compares an Object with this object and returns boolean
+     * returns true if this object equals the parameter object
+     * returns false if parameter is null or if this object does not equals the parameter object
+     * returns true or false if the user equals user of parameter object
+     *
+     * @param o Object
+     * @return boolean
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) { return true; }

@@ -33,8 +33,8 @@ public class Dice {
      * Getter for DiceEyes1
      *
      * @return int diceEyes1
-     * @author:
-     * @since:
+     * @author Kirstin Beyer
+     * @since 2020-12-29
      */
     public int getDiceEyes1() {
         return diceEyes1;
@@ -44,8 +44,8 @@ public class Dice {
      * Getter for DiceEyes2
      *
      * @return int diceEyes2
-     * @author:
-     * @since :
+     * @author Kirstin Beyer
+     * @since 2020-12-29
      */
 
     public int getDiceEyes2() {

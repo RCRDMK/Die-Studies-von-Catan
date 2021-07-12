@@ -29,9 +29,9 @@ public class GameAlreadyExistsResponse extends AbstractResponseMessage {
     }
 
     /**
-     * Getter for the lobyname
+     * Getter for the lobbyname
      *
-     * @return the lobyname as a string
+     * @return the lobbyname as a string
      * @author Marius Birk and Carsten Dekker
      * @since 2020-12-02
      */

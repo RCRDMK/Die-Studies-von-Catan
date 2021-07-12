@@ -65,13 +65,10 @@ public class LobbyCreatedSuccessfulResponse extends AbstractResponseMessage {
     }
 
     /**
-     * compares and Object with this object and returns boolean
-     * returns true if this object equals the parameter object
-     * returns false if parameter is null or if this object does not equals the parameter object
-     * returns true or false if the user equals user of parameter object
+     * getter for hash of User user
+     * returns int
      *
-     * @param o Object
-     * @return boolean
+     * @return hash of User user
      */
     @Override
     public int hashCode() {
@@ -79,10 +76,13 @@ public class LobbyCreatedSuccessfulResponse extends AbstractResponseMessage {
     }
 
     /**
-     * getter for hash of User user
-     * returns int
+     * compares an Object with this object and returns boolean
+     * returns true if this object equals the parameter object
+     * returns false if parameter is null or if this object does not equals the parameter object
+     * returns true or false if the user equals user of parameter object
      *
-     * @return hash of User user
+     * @param o Object
+     * @return boolean
      */
     @Override
     public boolean equals(Object o) {
