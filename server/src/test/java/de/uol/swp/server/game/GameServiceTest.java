@@ -45,14 +45,12 @@ import de.uol.swp.common.game.request.ResolveDevelopmentCardMonopolyRequest;
 import de.uol.swp.common.game.request.ResolveDevelopmentCardRoadBuildingRequest;
 import de.uol.swp.common.game.request.ResolveDevelopmentCardYearOfPlentyRequest;
 import de.uol.swp.common.game.request.ResourcesToDiscardRequest;
-import de.uol.swp.common.game.request.RetrieveAllGamesRequest;
 import de.uol.swp.common.game.request.RetrieveAllThisGameUsersRequest;
 import de.uol.swp.common.game.request.RobbersNewFieldRequest;
 import de.uol.swp.common.game.request.RollDiceRequest;
 import de.uol.swp.common.game.request.TradeChoiceRequest;
 import de.uol.swp.common.game.request.TradeItemRequest;
 import de.uol.swp.common.game.request.TradeStartRequest;
-import de.uol.swp.common.game.response.AllCreatedGamesResponse;
 import de.uol.swp.common.game.response.PlayDevelopmentCardResponse;
 import de.uol.swp.common.game.response.ResolveDevelopmentCardNotSuccessfulResponse;
 import de.uol.swp.common.game.trade.Trade;
@@ -1990,10 +1988,6 @@ public class GameServiceTest {
         prr = new PlayerReadyRequest(lobby.getName(), userDTO3, true);
         gameService.onPlayerReadyRequest(prr);
 
-        RetrieveAllGamesRequest ragr = new RetrieveAllGamesRequest();
-        gameService.onRetrieveAllGamesRequest(ragr);
-        assertTrue(event instanceof AllCreatedGamesResponse);
-        assertEquals(((AllCreatedGamesResponse) event).getGameDTOs().get(0).getName(), "test");
 
         Optional<Game> optionalGame = gameManagement.getGame("test");
         assertTrue(optionalGame.isPresent());

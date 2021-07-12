@@ -548,12 +548,6 @@ public class GameService extends AbstractService {
         }
     }
 
-    @Subscribe
-    public void onRetrieveAllGamesRequest(RetrieveAllGamesRequest msg) {
-        AllCreatedGamesResponse response = new AllCreatedGamesResponse(this.gameManagement.getAllGames().values());
-        response.initWithMessage(msg);
-        post(response);
-    }
 
     /**
      * Handles RollDiceRequests found on the EventBus

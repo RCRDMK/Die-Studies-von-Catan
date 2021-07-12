@@ -22,7 +22,6 @@ import de.uol.swp.common.game.request.PlayDevelopmentCardRequest;
 import de.uol.swp.common.game.request.ResolveDevelopmentCardMonopolyRequest;
 import de.uol.swp.common.game.request.ResolveDevelopmentCardRoadBuildingRequest;
 import de.uol.swp.common.game.request.ResolveDevelopmentCardYearOfPlentyRequest;
-import de.uol.swp.common.game.request.RetrieveAllGamesRequest;
 import de.uol.swp.common.game.request.RetrieveAllThisGameUsersRequest;
 import de.uol.swp.common.game.request.RobbersNewFieldRequest;
 import de.uol.swp.common.game.request.RollDiceRequest;
@@ -219,10 +218,4 @@ public class GameServiceTest {
         assertEquals("RoadBuilding", ((ResolveDevelopmentCardRoadBuildingRequest) event).getDevCard());
     }
 
-    @Test
-    public void retrieveAllGamesTest() {
-        gameService.retrieveAllGames();
-
-        assertTrue(event instanceof RetrieveAllGamesRequest);
-    }
 }
