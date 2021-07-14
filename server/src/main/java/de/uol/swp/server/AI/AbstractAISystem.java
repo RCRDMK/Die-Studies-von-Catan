@@ -423,6 +423,22 @@ public abstract class AbstractAISystem implements AISystem {
         aiActions.add(drrfpa);
     }
 
+
+    /**
+     * The method the gameService will call to activate this AI in order to start it's turn
+     * <p>
+     * Actual implementation of this is supposed to be coded in the classes that extend the AbstractAISystem.
+     *
+     * @return a list that will contain all the actions the AI is supposed to do, ending in either a tradeStartAction or an endTurnAction
+     * @author Marc Hermes
+     * @since 2021-05-08
+     */
+    @Override
+    public ArrayList<AIAction> startTurnOrder() {
+
+        return this.aiActions;
+    }
+
     /**
      * The method the gameService will call to activate this AI to discard resources
      * <p>
@@ -434,7 +450,7 @@ public abstract class AbstractAISystem implements AISystem {
      * @since 2021-05-08
      */
     @Override
-    public ArrayList<AIAction> startTurnOrder() {
+    public ArrayList<AIAction> discardResourcesOrder(TooMuchResourceCardsMessage tmrcm) {
 
         return this.aiActions;
     }
@@ -447,21 +463,6 @@ public abstract class AbstractAISystem implements AISystem {
      * @param toibm the TradeOfferInformBiddersMessage directed to this AI
      * @return a list that will only contain a tradeBidAction
      * @author Alexander Losse, Marc Hermes
-     * @since 2021-05-08
-     */
-    @Override
-    public ArrayList<AIAction> discardResourcesOrder(TooMuchResourceCardsMessage tmrcm) {
-
-        return this.aiActions;
-    }
-
-    /**
-     * The method the gameService will call to activate this AI in order to start it's turn
-     * <p>
-     * Actual implementation of this is supposed to be coded in the classes that extend the AbstractAISystem.
-     *
-     * @return a list that will contain all the actions the AI is supposed to do, ending in either a tradeStartAction or an endTurnAction
-     * @author Marc Hermes
      * @since 2021-05-08
      */
     @Override
