@@ -37,6 +37,8 @@ import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.user.response.RetrieveUserInformationResponse;
 import de.uol.swp.common.user.response.UpdateUserSuccessfulResponse;
 
+/* Test */
+
 /**
  * Manages the UserSettings window
  *
