@@ -14,7 +14,7 @@ jobs:
       uses: actions/setup-java@v3
       with:
         java-version: '11'
-        distribution: 'adopt'  # Specify the distribution here
+        distribution: 'adopt'
 
     - name: Cache Maven packages
       uses: actions/cache@v3
@@ -27,8 +27,8 @@ jobs:
     - name: Build with Maven
       run: mvn clean install -pl client -am
 
-    - name: Run tests
-      run: mvn test -pl client
+    - name: Run tests with coverage
+      run: mvn test jacoco:report -pl client
 
     - name: Upload test results
       if: always()
@@ -37,7 +37,9 @@ jobs:
         name: test-results
         path: client/target/surefire-reports/
         
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v5
-      env:
-        CODECOV_TOKEN: 9d0d9811-6f4a-4bfb-b4b9-84ca57a19101
+    - name: Upload coverage report
+      if: always()
+      uses: actions/upload-artifact@v4.6.1
+      with:
+        name: coverage-report
+        path: client/target/site/jacoco/
